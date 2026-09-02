@@ -17,6 +17,23 @@ mis-citation, struck the falsified scenario §6.6 names, and re-measured the
 carriage claim that strike made stale. §6 is now ticked box by box with its
 evidence. §2, §3, §7 and §8 are unmoved.
 
+**UPDATED 2026-09-02 — §2 AND §3 WERE BUILT, §5 WAS MEASURED, AND THIS PACKET IS
+ARCHIVED.** Both accounts above are left exactly as written; this one succeeds
+them. F1 and F2 landed together as `5af63d91` (PR #558, 2026-09-01) and the
+aggregation re-pinned openxFactory at root PR #193 (`9427a4df`), so §5's
+estate-wide read became possible and was taken from the 2026-09-02 nightly (run
+`33574220723`): **two undeclared pairs, both in OpsxFactory, and zero everywhere
+else including here**. Brett Heap ruled the routing in session on 2026-09-02 —
+archive now on merged-and-green realization evidence, the OpsxFactory population
+tracked as owner tasks and not blocking this gate — and §8's gate is discharged
+against that ruling with its numbers recorded box by box. **§1, §4.5, §4.6 AND
+§7 STILL DO NOT TICK AND ARE NOT MEANT TO**: §1's two boxes describe a sitting
+that did not sit, §4.5 and §4.6 record what this packet DECLINED to supersede,
+and §7 is the register of what is recorded rather than fixed. OQ-4 alone is
+SPENT — ruled 2026-08-31 and discharged by §6 — and OQ-1, OQ-2, OQ-3 and OQ-5
+travel out of this packet still open, which is the state its ratification left
+them in.
+
 House rule: **OpenSpec ratifies, Speckit builds.** Each `## Speckit F<n>` group
 below maps to exactly ONE Speckit feature and is the handoff unit; nothing in
 this file is an executable task list for a session to work directly. Groups 1,
@@ -503,17 +520,84 @@ a veto would strike.
 
 ## 5. Population measurement — the aggregation read
 
-- [ ] 5.1 After F1 lands, read the next NIGHTLY AGGREGATION report and record
+- [x] 5.1 After F1 lands, read the next NIGHTLY AGGREGATION report and record
       the pairing class's count PER REPOSITORY across the submodules that carry
       `openspec/changes/`. This packet measures openxFactory and predicts
       nothing about the rest.
-- [ ] 5.2 Record the count in this packet before archive. A large population
+      **READ 2026-09-02, FROM THE FIRST NIGHTLY THAT COULD CARRY THE CLASSES AT
+      ALL.** F1+F2 merged to openxFactory `main` as **`5af63d91`** (PR #558,
+      2026-09-01) and the aggregation re-pinned openxFactory at root **PR #193**
+      (`9427a4df`, 2026-09-01) — both re-confirmed here with
+      `git merge-base --is-ancestor` against their own `origin/main` rather than
+      read off a pull-request page — so the estate-wide check first ran in
+      `doc-health-nightly` **run 33574220723** (`opensoft/xFactory`, head
+      `72562233`, started 2026-09-02T00:10:32Z, conclusion `success`), report
+      artifact `doc-health-report-2026-09-02`. THE COUNT IS THE AGGREGATION'S OWN
+      AND NOT A LOCAL RE-RUN, which is what this box asks for; the run's
+      `Repo-Identity` line names the ten repositories it read: AdxFactory,
+      HealthLinc, LedgerxFactory, MedxChart, MedxEHR, MedxFactory, MedxPractice,
+      OpsxFactory, codexFactory, openxFactory.
+
+      | repository | sibling-pairing declaration | added-over-canon collision |
+      | --- | --- | --- |
+      | OpsxFactory | **2** | 0 |
+      | openxFactory | 0 | 0 |
+      | codexFactory | 0 | 0 |
+      | AdxFactory | 0 | 0 |
+      | HealthLinc | 0 | 0 |
+      | LedgerxFactory | 0 | 0 |
+      | MedxChart | 0 | 0 |
+      | MedxEHR | 0 | 0 |
+      | MedxFactory | 0 | 0 |
+      | MedxPractice | 0 | 0 |
+      | **estate** | **2** | **0** |
+
+      The report's own family block states the same two totals apart from the
+      other five classes — `sibling-pairing declaration: 2 (warning)`,
+      `added-over-canon collision: 0 (warning)` — and every pairing finding it
+      renders names OpsxFactory, so the per-repository zeros are read from the
+      finding list rather than assumed. THE TWO STANDING PAIRS, VERBATIM FROM THE
+      RUN:
+      `OpsxFactory:openspec/changes/adopt-bc-extension-owned-deploy/specs/business-central-administration/spec.md`
+      — 'An install is done only when a read proves it', the title resolving to
+      `widen-business-central-extension-lifecycle`'s addition; and
+      `OpsxFactory:openspec/changes/amend-rider-heartbeat-secret-channel/specs/cloudpc-worker-fleet-management/spec.md`
+      — 'Ratified pilot authentication, signing, and secret delivery', resolving
+      to `add-cloudpc-worker-fleet-management`'s addition. Both carry the class's
+      own action line and `class="contested"`.
+      **openxFactory's ZERO IS THE § 6 SWEEP HOLDING, NOT AN ABSENCE OF SHAPE**:
+      this repository's pending blocks are still there and still declared —
+      § 6.5's route, measured again at this packet's own archive gate in § 8.1.
+- [x] 5.2 Record the count in this packet before archive. A large population
       elsewhere is a reason to revisit D4's band BEFORE the flip is proposed,
       not after — and a reason to route the discharge to owners rather than to
       one sweep.
-- [ ] 5.3 Do not open per-repository issues from that read without a ruling. The
+      **RECORDED ABOVE, BEFORE THE ARCHIVE, AND THE POPULATION IS SMALL.** Two
+      undeclared pairs in one repository is not the "large population elsewhere"
+      this box reserves D4's band against, so **D4's band is NOT revisited here**
+      and § 7.4's reserved flip is left exactly as § 7 leaves it. The discharge
+      IS routed to owners rather than to one sweep, which is the second half of
+      this box and the half the measurement does bear on: the two blocks belong
+      to OpsxFactory packets whose authors are their owners, and this change
+      neither writes their markers nor holds its own archive for them —
+      **Brett Heap ruled the routing in session on 2026-09-02, option (a):
+      archive now on merged-and-green realization evidence, the OpsxFactory
+      population tracked as owner tasks and NOT blocking this gate.** The
+      remedy for each remains the one `Modified over` paragraph § 6 names.
+      THIS PACKET'S ARCHIVE HOLD IS NOT ENGAGED BY EITHER PAIR: the widened hold
+      of the `release-realization` delta binds the MODIFYING change of a pair,
+      and neither modifying change is this one.
+- [x] 5.3 Do not open per-repository issues from that read without a ruling. The
       remedy is one marker paragraph per block and the owners are the packets'
       authors, not this change.
+      **A PROHIBITION THIS ACT COMPLIED WITH, not a unit of work it performed.**
+      NO ISSUE WAS OPENED IN ANY REPOSITORY FROM THE 2026-09-02 READ — not in
+      OpsxFactory, not anywhere else — and the ruling that exists routes the two
+      pairs the other way: Brett Heap, 2026-09-02, tracked as OWNER TASKS
+      (§ 5.2). The read is recorded here, in this packet, which is where § 5.2
+      puts it, and the owners inherit the remedy the class's own action line
+      states rather than an issue filed over their heads by the packet that
+      built the check.
 
 ## 6. Discharging the standing population
 
@@ -737,7 +821,7 @@ a veto would strike.
 
 ## 8. Archive
 
-- [ ] 8.1 Archive only on merged-and-green realization evidence:
+- [x] 8.1 Archive only on merged-and-green realization evidence:
       `python3 -m pytest tests/doc-health` green,
       `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a
       doc-health single-repo run whose severity counts move in the `warning`
@@ -753,11 +837,136 @@ a veto would strike.
       adds no class and no check and so contributes to no band. Record which
       order was taken; a run whose movement matches NEITHER figure is the
       finding, not the gate.
-- [ ] 8.2 On archive, the change MAY state `Closes #502`. It does not close it
+      **THE ORDER ACTUALLY TAKEN WAS § 6 FIRST, SO THE FIGURE THIS GATE READS IS
+      `0 warning`, AND THAT IS WHAT BOTH MEASUREMENTS RETURNED.**
+
+      **MERGED — re-confirmed with `git merge-base --is-ancestor` against
+      `origin/main` rather than read off a pull-request page.** § 2 (F1) and § 3
+      (F2) landed together in ONE feature branch: **PR #558**, squash
+      **`5af63d91`** (2026-09-01), *"Build F1+F2 of
+      govern-sibling-added-modified-deltas: pairing and collision classes"* — the
+      `Modified over` marker form and its pairing class, the added-over-canon
+      collision class, their registrations in the family's class map, and the
+      two exact-set self-gate assertions with their positive controls. The
+      aggregation re-pinned openxFactory at root **PR #193** (`9427a4df`,
+      2026-09-01), which is what put the two classes in front of the estate and
+      made § 5's read possible; that commit is likewise an ancestor of the root's
+      `origin/main`.
+
+      **GREEN — gate numbers measured on this branch, base `bbbbeda9`, BEFORE and
+      AFTER the archive act:**
+
+      | gate | before the act | after the act |
+      | --- | --- | --- |
+      | `python3 -m pytest tests/doc-health -q` | **1384 passed, 0 failed** | **1384 passed, 0 failed** |
+      | `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` | **83 passed, 0 failed** (30 active + 53 specs) | **82 passed, 0 failed** (29 active + 53 specs) |
+      | `doc-health.py --single-repo . --family modified-block-currency` | 0 critical, 0 error, **0 warning**, 8 info; 0 new regressions | 0 critical, 0 error, **0 warning**, 8 info; 0 new regressions |
+      | the same run, ALL 23 FAMILIES | 6 critical, 7 error, 29 warning, 14 info | 6 critical, 7 error, 29 warning, 14 info |
+      | `--family promotion-fidelity` (basis: the pinned checkout) | — | **no findings** |
+
+      The `before` column of the two doc-health rows is a run against a DETACHED
+      WORKTREE at `origin/main` (`bbbbeda9`), so the two reports differ in the
+      repository label the run derives from its directory basename and in nothing
+      else that this act did not cause; normalising that one token, **the whole
+      23-family report diff is TWO LINES and neither is a finding** — the canon
+      share and the promoted-specs word count.
+
+      `-1` on `validate` is exactly what promoting one change predicts, the spec
+      count being unmoved because all three deltas land in specifications canon
+      already carries. **THE MOVEMENT IN THE GATED FAMILY IS ZERO IN EVERY BAND,
+      NOT MERELY IN THE GATED ONES**: the whole diff of the family report either
+      side of the act is FOUR LINES and not one of them is a finding — canon
+      words 249830 → 263957 (+14127), governance words 750121 → 764248 (the same
+      +14127, moving from active-change prose into promoted prose), canon share
+      33.3% → 34.5%, and the promoted-specs row of the per-source table. All
+      SEVEN finding classes are identical across the act: scenario-title 0,
+      carriage ledger 8, title resolution and ordering 0, marker defects 0,
+      sibling-pairing 0, added-over-canon collision 0, unplaced-finding drift 0.
+      `_LEDGER_SUBJECTS` gains and loses no row, exactly as § 4.2 predicted for a
+      packet whose own two blocks read zero.
+
+      **THE `0 warning` FIGURE IS THE ONE THE REALIZATION ALSO MEASURED**, and
+      the two readings agree rather than one standing alone: PR #558 recorded
+      `Findings: 0 critical, 0 error, 0 warning, 8 info` on BOTH sides of the
+      landing that introduced the two classes — the `+4 warning` figure being
+      unreachable for the four openxFactory pairs by construction once § 6's
+      sweep ran first (§ 6.5). The two classes are therefore live, registered,
+      self-gated, and silent on this repository for the REASON D4 chose rather
+      than by luck.
+
+      **FIGURES THAT MOVED SINCE THE PACKET WAS AUTHORED, RECORDED RATHER THAN
+      SMOOTHED**: PR #558's own gate line read `validate --all --strict` **79**
+      and `pytest` **1364 passed, 1 failed** — the failure being the
+      `add-chain-attestation` carriage-ledger subject that had landed on `main`
+      without its `_LEDGER_SUBJECTS` row, since named there. The corpus moved
+      under both numbers between 2026-09-01 and this act; what is invariant, and
+      what this gate is about, is `0 failed` and the `0 warning` movement.
+- [x] 8.2 On archive, the change MAY state `Closes #502`. It does not close it
       before then, and the proposal says so in § Standing.
-- [ ] 8.3 Confirm at the archive gate that BOTH of this packet's own MODIFIED
+      **STATED, IN THE ARCHIVE COMMIT THAT CARRIES THIS FILE** — `Closes #502`,
+      and here rather than earlier because the option this box reserves is an
+      option ON archive. Issue #502 is the commission recorded in
+      `.openspec.yaml`'s `origin.reason`; it stated three measured holes and four
+      questions, and the three holes are now canon:
+      `release-realization`'s extended antecedent and archive-ordering
+      obligation, `document-lifecycle`'s third reserved marker form, and
+      `doc-health`'s two evaluating classes. **THE FOUR QUESTIONS ARE NOT ALL
+      CLOSED BY IT AND THIS BOX DOES NOT CLAIM THEY ARE** — § 7 carries what
+      remains open, and OQ-4 is the one that is SPENT: Brett Heap ruled it
+      2026-08-31 as (a), one sweep, and the sweep ran (§ 6), so it is moot rather
+      than outstanding.
+- [x] 8.3 Confirm at the archive gate that BOTH of this packet's own MODIFIED
       blocks still read zero against canon (§ 4.2), each having been live for as
       long as the packet was. The `doc-health` block is the one to read twice:
       its subject requirement is in the same specification this change also ADDS
       to, so a hand-edit anywhere in that file is the likeliest way its carriage
       goes stale.
+      **CONFIRMED 2026-09-02 BY MEASUREMENT IMMEDIATELY BEFORE THE ARCHIVE ACT,
+      AND BOTH READ ZERO.** The pre-act
+      `doc-health.py --single-repo . --family modified-block-currency` run
+      emitted **8 findings, and not one of them names this packet** — zero
+      occurrences of `govern-sibling-added-modified-deltas` anywhere in the
+      report, in any of the seven classes, so neither block is a
+      scenario-title finding, a carriage-ledger row, an ordering subject or a
+      marker defect. THE `doc-health` BLOCK WAS READ TWICE as this box orders,
+      and its state is the one § 4.5 designed: 33 of its 35 promoted units are
+      restated BYTE-IDENTICAL and the other TWO are declared by a
+      `Removed from canon by govern-sibling-added-modified-deltas (2026-08-31):`
+      marker — the sentence asserting the family's absence from
+      `FAMILY_RESOLUTION` and the scenario bullet resting a MUST on that absence,
+      both superseded inside the same block by the paragraphs and the bullet that
+      replace them. A declared deletion is not a carriage defect, which is why
+      the arm reads zero rather than eight.
+      **AND THE PROMOTION ITSELF WAS VERIFIED PER REQUIREMENT, BYTE-FOR-BYTE,
+      AFTER THE ACT** — the check this packet's own subject demands of it:
+
+      | capability | requirements | scenarios | delta blocks | verdict |
+      | --- | --- | --- | --- | --- |
+      | `release-realization` | 7 → 7 | 18 → 24 | 1 MODIFIED | the block REPLACED 'Ordered deltas and branch vocabulary' byte-for-byte; the other 6 requirements byte-identical |
+      | `document-lifecycle` | 17 → 18 | 79 → 87 | 1 ADDED | a PURE APPEND — canon-before is a strict byte PREFIX of canon-after |
+      | `doc-health` | 41 → 43 | 196 → 220 | 2 ADDED + 1 MODIFIED | the MODIFIED block replaced its requirement in place byte-for-byte, the 2 ADDED requirements appended in delta order, the other 40 byte-identical |
+
+      Requirements were sliced from `### Requirement:` to the next `### ` or
+      `## ` heading and compared as bytes. **NOTHING WAS DROPPED, NOTHING WAS
+      REORDERED, AND NOTHING NEEDED A HAND FIX.** `doc-health`'s canon-before is
+      NOT a byte prefix of canon-after, and correctly so: its MODIFIED block
+      replaces the 39th of 41 requirements in place, so a prefix test is the
+      wrong test there and the per-requirement one is the right one. Inside the
+      `release-realization` replacement the promoted content is carried whole —
+      the one promoted body paragraph and BOTH promoted scenarios byte-identical
+      and still first, in their original order, with SEVEN new body paragraphs
+      and SIX new scenarios after them, exactly the count the delta's own
+      preamble declared.
+      `--family promotion-fidelity` over the archived packet returns **no
+      findings**, AND THAT SILENCE HAS A POSITIVE CONTROL rather than being taken
+      on trust — an empty band is produced by a working check and a broken one
+      alike. Renaming ONE promoted scenario title of the block this act promoted
+      made the family emit, BY NAME:
+      `[error] …/archive/2026-09-02-govern-sibling-added-modified-deltas/specs/release-realization/spec.md`
+      — *"requirement 'Ordered deltas and branch vocabulary' reached
+      openspec/specs/release-realization/spec.md without 1 of its 8 ratified
+      scenarios"*. The perturbation was reverted and the tree re-read clean. Note
+      what the control also establishes about the family's REACH: it compares
+      requirement and scenario TITLES, not bodies — a one-clause edit inside a
+      scenario bullet leaves it silent — so promotion-fidelity is corroboration
+      here and the byte-for-byte table above is the measurement.

@@ -1,0 +1,48 @@
+# WARNING (expect: requirement-ref-unresolved). A qualified, grammatical
+# `requirement_ref` naming a requirement id NO RECORD CARRIES — and a binding
+# that SHARES ITS SECRET WITH NOBODY, which is the whole point of the fixture.
+#
+# THE SINGLE BINDING IS THE PROBE, not an economy. Before
+# add-requirement-ref-resolution-integrity the resolution was performed in
+# exactly one place — the six-condition lift, reached only for a PAIR of
+# bindings sharing a `secret_ref` — so this record produced NOTHING: no error,
+# no warning, PASS. The reference was as dangling then as it is now; only the
+# reporting scope moved. A second binding sharing this one's secret would
+# reintroduce the pair and probe the lift instead, which is what
+# `negative/consumer-requirement-ref-unresolvable.yaml` already does.
+#
+# THE DOCUMENT IT NAMES IS REAL AND INDEXED, so the fault is unambiguously the
+# ID rather than a missing document:
+# `two-consumer-operated-identity.requirements.example.yaml` ships beside this
+# corpus and declares `projection_sync_lane`, `projection_editor_surface` and
+# `projection_report_builder` — and no `projection_archive_sweeper`. In the
+# self-test the corpus directory stands in for the repository root, so this
+# reference is relative to it.
+#
+# THE REMEDY IS AT THE REFERENCE, which is why this code is NAMED APART from
+# `requirement-ref-ambiguous`: the id is misspelled, the document moved, or the
+# requirement was never written. Repairing this record means editing this
+# reference. Repairing an AMBIGUOUS one means editing the requirements document
+# the reference names, and a reader told only "the reference did not resolve"
+# has no way to know which file to open.
+#
+# The record is VALID and WARNED: nothing narrows at this minor, and the refusal
+# lands at contract-v3.0 with the consumer block's seven acts, behind ONE
+# deprecation window rather than two.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+credential_bindings:
+  projection_archive_sweeper:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-archive-sweeper-secret
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-archive-sweeper
+      fetch_identity: example-archive-sweeper-workload-identity
+      requirement_ref:
+        requirement_id: projection_archive_sweeper
+        requirements_document_ref: two-consumer-operated-identity.requirements.example.yaml
