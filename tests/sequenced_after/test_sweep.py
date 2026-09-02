@@ -220,14 +220,35 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       `sole_modifiers - 1` 48, `active_sole - 1` 11, 3 prose headers (3
       archived), 1 declaration, 0 root claims — each identical at `518c670b`,
       `ded8b9f1`, `43cf5933`, `a951be76` and `6856f502`.
+    - `active_co_modified` reads 17, and read 18 above. It moved on 2026-09-02,
+      when PR #571 archived `govern-sibling-added-modified-deltas` — an ACTIVE
+      change carrying TWO `## MODIFIED Requirements` blocks (over
+      `release-realization`'s 'Ordered deltas and branch vocabulary' and
+      `doc-health`'s 'A modified-block-currency finding its own class map cannot
+      place is itself a finding'), therefore co-modified. THE SAME SHAPE AS
+      #563's move and for the same reason: the archive moved the change out of
+      the active corpus and into the archived one (active 30 → 29, archived
+      123 → 124), so `active_co_modified` fell 18 → 17 while the corpus-wide
+      `co_modified` held at 104 — the change is still a co-modifier, it is
+      simply no longer an ACTIVE one. MEASURED ON BOTH SIDES rather than
+      inferred from the failure: the sweep reads `30 active + 123 archived`,
+      `104`, `49`, `18 / 12` at `bbbbeda9` (`origin/main`) and
+      `29 active + 124 archived`, `104`, `49`, `17 / 12` at `da5882b4` (this
+      branch), so EXACTLY ONE of this test's pins moves and every other
+      assertion below is re-derived unchanged. `active_sole` is untouched at 12,
+      that archive having removed a CO-modified active and never a sole one, so
+      the `- 1` still subtracts `add-sequenced-after-substrate` alone and still
+      recovers the authoring 11.
     """
     sweep = sa.corpus_sweep(ROOT)
     assert sweep.co_modified == 104, (
         "the co-modified population is unchanged by this change, whose ADDED "
         "requirement titles are NOVEL")
-    assert sweep.active_co_modified == 18, (
-        "18 since add-release-tag-publication-check archived 2026-09-01 by "
-        "#563 (measured 19 at authoring, before that archive). Re-derive with "
+    assert sweep.active_co_modified == 17, (
+        "17 since govern-sibling-added-modified-deltas archived 2026-09-02 by "
+        "#571 (18 after add-release-tag-publication-check archived 2026-09-01 "
+        "by #563; measured 19 at authoring, before either archive). "
+        "Re-derive with "
         "`python3 scripts/validate-sequenced-after.py . --sweep` and move this "
         "pin in the SAME COMMIT, recording in the MOVEMENT LOG above which "
         "subject moved and why — archiving a co-modified ACTIVE change lowers "
