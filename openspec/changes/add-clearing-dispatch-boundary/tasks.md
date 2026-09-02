@@ -552,19 +552,15 @@ Deliberately not started before §2. Nothing here is authored by this packet.
 
 ## 9. Verification bar
 
-- [x] 9.1 **DONE 2026-09-02** — `OPENSPEC_TELEMETRY=0 openspec validate
+- [x] 9.1 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green at
+      every step, not only at authoring.
+      **DONE 2026-09-02** — `OPENSPEC_TELEMETRY=0 openspec validate
       add-clearing-dispatch-boundary --strict` reports "Change
       'add-clearing-dispatch-boundary' is valid"; `OPENSPEC_TELEMETRY=0
       openspec validate --all --strict` reports "Totals: 84 passed, 0
       failed (84 items)". Both run at this packet-corrections branch's
-      head (see this PR's commit) in the isolated clone, evidence filed in
-      that PR's description. `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green at
-      every step, not only at authoring.
-- [x] 9.2 **DONE 2026-09-02** — `python3 -m pytest -q tests/doc-health
-      tests/sequenced_after` reports "1529 passed, 7 warnings in 530.96s
-      (0:08:50)" at this same head — the inherited red named below (and
-      the `sequenced_after` live-pin move recorded below it) are both
-      confirmed cleared; no failing test remains in either suite. Repository validators and doc-health clean against THIS CHANGE'S
+      head, evidence filed in PR #592's description.
+- [x] 9.2 Repository validators and doc-health clean against THIS CHANGE'S
       OWN CONTENT — and the pytest suite is currently RED FOR A REASON THIS
       PACKET DID NOT CAUSE, recorded here so nobody reads a green tick that
       cannot exist yet.
@@ -645,6 +641,23 @@ Deliberately not started before §2. Nothing here is authored by this packet.
       packet references that family and nothing here claims credit for its
       fix; it is recorded solely so a reader scanning this section for "is
       main green" does not mistake a later, unrelated red for this one.
+      **DONE 2026-09-02 — the tick's evidence, targeted AND whole-suite.**
+      `python3 -m pytest -q tests/doc-health tests/sequenced_after` reports
+      "1529 passed, 7 warnings in 530.96s (0:08:50)" on this packet-
+      corrections branch's head — the inherited red named above (and the
+      `sequenced_after` live-pin move recorded above it) are both confirmed
+      cleared in those two suites. That alone does not speak for the whole
+      required `pytest-suite` check, which runs all of `tests/`
+      (`.github/workflows/pytest-suite.yml`), so it is not cited alone: the
+      required `pytest-suite` check itself ran on this same head and PASSED
+      — `opensoft/openxFactory` run `33693230302`, `python3 -m pytest
+      tests/ -q -m "not postgres"` reporting `8671 passed, 21 skipped, 338
+      deselected, 9 warnings, 46 subtests passed in 1225.73s (0:20:25)`,
+      and its pin-and-freshness step reporting `selected=8738 passed=8717
+      skipped=21 failures=0 errors=0` with the pinned freshness verifier
+      itself PASSED. Repository validators and doc-health are therefore
+      confirmed clean against the WHOLE tree on this head, not only the two
+      suites this item's inherited-red history names.
 - [ ] 9.3 Release-realization: this change declares a code surface, so it
       ARCHIVES only on merged realization plus green evidence — §5.4's filed
       reports and §6.8's cut — and stays ACTIVE until then, ratified or not.
