@@ -82,7 +82,11 @@ NOT select or reopen a window.
 
 The close operation SHALL serialize after every admission assigned before the
 window's exclusive boundary and before the first admission assigned to the next
-window. A sequence MUST NOT cross or invert that acceptance-time partition. At
+window. The SAME atomic close transaction SHALL record a
+`close_sequence_watermark` equal to the greatest signed-log sequence covered by
+that serialization point AND the immutable reference to a signed resolving log
+checkpoint whose tree size/root covers every log leaf through that watermark. A
+sequence MUST NOT cross or invert that acceptance-time partition. At
 acceptance, the log SHALL bind the next sequence exactly once to the acceptance
 timestamp, material digest, and stable owner-local dedupe key. Replay of the
 same dedupe key with the same digest SHALL return the existing leaf and sequence
@@ -92,9 +96,15 @@ public chains.
 
 A signed append-only eligibility registry SHALL enumerate the neutral owner-
 evidence event kinds counted by this profile. Each immutable registry entry SHALL
-bind its version, canonical content digest, approval record, activation log
-sequence and checkpoint, effective UTC-window boundary, and standing. At each
-UTC window open, the runtime SHALL snapshot exactly one active registry entry;
+bind its version, canonical content digest, approval record, predecessor when
+present, activation log sequence and checkpoint, half-open effective UTC-window
+interval, and standing `active`, `retired`, or `compromised`. Activating a
+successor SHALL atomically close its predecessor's effective interval and mark
+the predecessor retired; two entries MUST NOT be active for the same boundary.
+At each UTC window open, the runtime SHALL select the unique entry with
+`standing == active` whose effective interval contains that boundary and whose activation
+checkpoint is greatest; zero or multiple matches SHALL be REFUSED. The runtime
+SHALL snapshot exactly that entry;
 every admission assigned to that window SHALL use that same version, content
 digest, activation checkpoint, and standing. A registry activation during an
 open window SHALL apply only to the next window and MUST NOT change eligibility
@@ -132,8 +142,9 @@ order:
    registry version, canonical content digest, activation checkpoint and
    standing, window boundaries, first and last sequence when present, event
    count, `daily_batch_root`, daily-Merkle profile id/version/content digest,
-   `previous_daily_anchored_digest`, close reason, dedupe rule, and late-arrival
-   rule;
+   `previous_daily_anchored_digest`, `close_sequence_watermark`, resolving signed-
+   log checkpoint identity/tree size/root/signature, close reason, dedupe rule,
+   and late-arrival rule;
 3. the ratified digest construction produces `material_digest` from those exact
    canonical manifest bytes;
 4. the ratified construction produces `anchored_digest` from `material_digest`
@@ -165,6 +176,14 @@ to the previous window identity, accounting fields, registry snapshots, and
 configuration even when consecutive empty windows share the same deterministic
 empty `daily_batch_root`. A missing, duplicated, reordered, or substituted daily
 item SHALL therefore break the next manifest's continuity proof.
+
+The canonical validator SHALL verify the resolving signed-log checkpoint, walk
+all log records through `close_sequence_watermark`, apply the window's bound
+eligibility snapshot and trusted acceptance-time partition, and reproduce the
+complete ordered admission set. `first sequence`, `last sequence`, and `event
+count` are summaries of that checkpoint-derived set, not a caller-selected
+denominator. Any omitted eligible prefix, middle record, or suffix SHALL be
+REFUSED even when the supplied summaries and Merkle root are self-consistent.
 
 An event whose source time belongs to an earlier closed window but whose trusted
 acceptance occurs in the current window SHALL enter the current window exactly
@@ -198,6 +217,11 @@ witnesses through the same receipt path.
 - **WHEN** event admission and window closure execute concurrently at the exclusive UTC boundary
 - **THEN** the atomic admission/close order places the event in exactly one window, and its sequence cannot appear on both sides or invert the acceptance-time partition
 
+#### Scenario: A minter omits the final eligible admissions
+
+- **WHEN** a manifest lowers its last sequence and event count to match a retained prefix while the bound signed-log checkpoint covers later eligible admissions before `close_sequence_watermark`
+- **THEN** canonical checkpoint reconciliation detects the omitted suffix and REFUSES the batch before witness verification
+
 #### Scenario: An identical dedupe key and digest are replayed
 
 - **WHEN** the log receives a dedupe key and material digest it already accepted
@@ -217,6 +241,16 @@ witnesses through the same receipt path.
 
 - **WHEN** a new eligibility-registry entry activates after the current UTC window opened
 - **THEN** the current window continues using its bound version, content digest, activation checkpoint, and standing, and the new entry applies only when the next window opens
+
+#### Scenario: Two eligibility entries claim the same boundary
+
+- **WHEN** zero entries or more than one entry with `standing == active` has an effective interval containing the UTC window boundary
+- **THEN** window opening is REFUSED and no event is admitted under an ambiguous denominator
+
+#### Scenario: An older eligibility version is offered after successor activation
+
+- **WHEN** a successor's activation checkpoint and effective interval cover the UTC window boundary but the runtime offers its retired predecessor
+- **THEN** window opening is REFUSED as eligibility rollback
 
 #### Scenario: Eligibility content is substituted under the same version
 
@@ -255,7 +289,7 @@ witnesses through the same receipt path.
 
 #### Scenario: Batch root or mint-time configuration is substituted
 
-- **WHEN** event membership proves one `daily_batch_root` but the manifest, previous daily anchored digest, Merkle profile, material digest, witness set, horizon, timing input, confirmation-profile version, profile digest, activation checkpoint, or standing evidence differs from the values committed by `anchored_digest`
+- **WHEN** event membership proves one `daily_batch_root` but the manifest, previous daily anchored digest, close watermark, resolving log checkpoint, Merkle profile, material digest, witness set, horizon, timing input, confirmation-profile version, profile digest, activation checkpoint, or standing evidence differs from the values committed by `anchored_digest`
 - **THEN** receipt verification REFUSES the item before evaluating either witness proof
 
 ### Requirement: Witness submission and confirmation remain distinct evidence states
