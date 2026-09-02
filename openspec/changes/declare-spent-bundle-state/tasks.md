@@ -3,16 +3,21 @@
 Status: ratified
 Ratified by: declare-spent-bundle-state
 
-**GROUP 1 IS DISCHARGED AND GROUP 2 IS DELIBERATELY NOT STARTED.** Ratified
-2026-09-02 by Brett Heap; record `review/ratification-2026-09-02.md`. As first
-written this preamble said *"Group 1 is ratification, which has not happened"* —
-that was true of the packet as proposed and stopped being true on 2026-09-02,
-and it is corrected here rather than left to contradict the ticks below. Group 2
-remains open BY DECISION, not by omission: OD-8 splits this packet from its
-code, so a tick in group 2 appearing in the same PR as this file would be the
-thing that decision forbids, and **ratification authorizes realization and
-performs none of it**. Group 4 records what the authoring session MEASURED
-before the packet was put up, which is evidence rather than implementation.
+**GROUPS 1 AND 2 ARE DISCHARGED; GROUP 3 IS OWED AT THE NEXT CUT AND GROUP 5
+FOLLOWS THE MERGE.** Ratified 2026-09-02 by Brett Heap; record
+`review/ratification-2026-09-02.md`. This preamble has now been corrected
+TWICE, each time rather than left to contradict the ticks below, which is this
+file's own convention. As first written it said *"Group 1 is ratification, which
+has not happened"* — true of the packet as proposed, and untrue from
+2026-09-02. It then said *"GROUP 2 IS DELIBERATELY NOT STARTED … OD-8 splits
+this packet from its code, so a tick in group 2 appearing in the same PR as
+this file would be the thing that decision forbids"* — which was exactly right
+for the RATIFYING PR and is spent now that the SEPARATE realization PR exists:
+**OD-8 asked for two PRs, not for an unticked list.** Group 2's boxes are
+ticked in the realization PR, which is the PR OD-8 called for, and each cites
+the evidence that measures it. Group 4 records what the authoring session
+MEASURED before the packet was put up, which is evidence rather than
+implementation.
 
 Build group 2 with Speckit, not `/opsx:apply`. OpenSpec ratifies; Spec Kit
 builds. Group 2 is ONE Spec Kit feature: the reader, the ladder, the two emits,
@@ -54,7 +59,25 @@ no reader is a sentence in a changelog.
 
 ## 2. Realization — ONE Spec Kit feature, gated on 1.1
 
-- [ ] 2.1 **FIRST, AND NOT SILENTLY: write the `contract-v2.6` declaration.**
+**DISCHARGED 2026-09-02 by Spec Kit feature `027-spent-bundle-state`**
+(`specs/027-spent-bundle-state/`), authored on the branch of the same name off
+`f4fddf7c`. Every box below cites the evidence file that measures it; the
+feature's own executable steps are `specs/027-spent-bundle-state/tasks.md`
+(T001–T035) and are not re-typed here.
+
+**ONE THING COULD NOT BE MEASURED IN-BRANCH AND IS NOT CLAIMED AS IF IT COULD.**
+The family resolves "the published tip" with `git ls-remote origin
+refs/heads/main`, so `test_this_repository_reads_zero_and_the_probe_can_fire`
+reads the LIVE remote `main`'s changelog and cannot see this branch's
+declaration until the squash. It is therefore the exactly-one failure in the
+realization PR's `pytest-suite` — byte-identical to `main`'s single failure
+since `ff9ed815` — and it is NOT edited, exactly as 2.9 requires. What the
+realization does instead is prove the post-merge state against a bare
+repository whose `main` IS the branch:
+`specs/027-spent-bundle-state/evidence/post-merge-proof.md`, where the
+unedited self-gate reports **1 passed**.
+
+- [x] 2.1 **FIRST, AND NOT SILENTLY: write the `contract-v2.6` declaration.**
       ONE reserved line, in the reserved form, into the EXISTING
       `### \`contract-v2.6\` disposition` subsection under `## contract-v3.0` in
       `contracts/CHANGELOG.md` — not a new subsection, not an edit to the
@@ -66,12 +89,12 @@ no reader is a sentence in a changelog.
       explicitly declared spent, never because an undeclared bundle started
       passing** — verify that by running the family against a tree with the
       declaration removed and confirming the `error` returns.
-- [ ] 2.2 `scripts/doc_health/release_tag_publication.py` — the reader: one pure
+- [x] 2.2 `scripts/doc_health/release_tag_publication.py` — the reader: one pure
       function from the changelog bytes to `{bundle: declaration}`, parsing the
       reserved opener, the four elements and the containing `## contract-vX.Y`
       entry. Bytes in, per the module's existing rule that `blobs_at` answers raw
       blob bytes. Reject rather than skip on a malformed line.
-- [ ] 2.3 The ladder in `check_repo`, in the ABSENT arm only and after the
+- [x] 2.3 The ladder in `check_repo`, in the ABSENT arm only and after the
       `ok`/`lightweight`/`misplaced` branches, so the scope rule holds by
       construction rather than by care: no declaration → today's behaviour
       unchanged; declaration accepted, successor published AND STRICTLY LATER →
@@ -79,31 +102,31 @@ no reader is a sentence in a changelog.
       successor not later (OD-9), element missing, duplicate declaration, wrong
       containing entry, or naming the currently declared bundle → `error`; a
       declaration whose SUBJECT was never cut → `warning` on the changelog.
-- [ ] 2.4 The emits land on `contracts/releases/<bundle>.digests.yaml` rather
+- [x] 2.4 The emits land on `contracts/releases/<bundle>.digests.yaml` rather
       than `MANIFEST` (OD-5 as amended), with the spent `info` carrying
       `resolution="contested"`; the one orphan-subject `warning` lands on
       `contracts/CHANGELOG.md`, having no per-bundle inventory to land on. New
       action constants beside the four the module already has.
-- [ ] 2.5 The changelog read joins the manifest read at the SAME commit and
+- [x] 2.5 The changelog read joins the manifest read at the SAME commit and
       carries the SAME guard: `blobs_at` answering None is a skip naming that
       read, never "no declaration". This is the #338 conflation one document
       over, and the family has already been caught by it once.
-- [ ] 2.6 `tests/doc-health/test_release_tag_publication.py` — the thirteen new
+- [x] 2.6 `tests/doc-health/test_release_tag_publication.py` — the thirteen new
       scenarios as tests over the file's existing real-git fixtures, each with
       the positive control the file's own convention requires. Include the
       RED-FIRST proof for 2.1's verification: the declaration removed, the
       `error` returns.
-- [ ] 2.7 **Prove OQ-3 rather than inherit it**: a test that a contested `info`
+- [x] 2.7 **Prove OQ-3 rather than inherit it**: a test that a contested `info`
       vanishing between reports produces an `uncited-resolution` ERROR. If it
       does not, OD-5's class choice returns to Brett as an open question and is
       not quietly dropped. **And prove the Codex repair with TWO spent bundles**,
       not one: two accepted declarations, two `info`s, two DIFFERENT match keys,
       and removing one raising an uncited-resolution for that one alone. A
       single-bundle test cannot see the defect Codex found.
-- [ ] 2.8 `docs/doc-health.md` — the family's row and action line gain the third
+- [x] 2.8 `docs/doc-health.md` — the family's row and action line gain the third
       state. Check the family count sentences are untouched: this change adds no
       family and `family-enumeration` must stay silent.
-- [ ] 2.9 `python3 -m pytest tests/doc-health` green over the realized tree,
+- [x] 2.9 `python3 -m pytest tests/doc-health` green over the realized tree,
       including `test_this_repository_reads_zero_and_the_probe_can_fire`, which
       goes green as a CONSEQUENCE and is not edited.
 
@@ -129,6 +152,17 @@ no reader is a sentence in a changelog.
       INCREMENTAL cost of adding the SPENT-state paragraph to the same file is
       ZERO and it clears at the same next cut either way. The realization takes
       the routing with that measurement in hand; it is no longer forced to wait.
+      **ROUTING TAKEN 2026-09-02, AND IT STAYS OWED: the repository owner ruled
+      that #577's existing drift on this file CARRIES TO THE NEXT CUT and that
+      the realization's pre-authorized scope is "editorial member; no drift", so
+      `027-spent-bundle-state` did NOT edit
+      `docs/contract-versioning-policy.md` and this box remains open for the
+      next contract cut.** The zero-incremental-cost argument above is accepted
+      as arithmetic and declined as authority: it says the edit would cost
+      nothing, not that this realization was authorized to make it, and a
+      realization widening its own file set on its own cost analysis is the
+      scope-creep the ratification record's § *What ratification does NOT
+      authorize* exists to refuse.
 - [ ] 3.2 At the next cut, `contracts/CHANGELOG.md`'s editorial drift `info` and
       `docs/contract-versioning-policy.md`'s ERROR both clear on their own when
       the inventory re-baselines. No action; recorded so a reader does not go
