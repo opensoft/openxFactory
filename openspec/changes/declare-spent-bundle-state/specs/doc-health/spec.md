@@ -336,7 +336,7 @@ not acquire a second by being applied to cases that were only late.
 - **THEN** the family MUST emit an `error` and MUST accept nothing, because a tag that already existed before the spent bundle was cut is not a replacement for it, and a guard satisfied by an earlier release has been walked around backwards rather than met
 - **AND** the superseded-and-never-published `error` on the spent bundle MUST also stand, so that no untagged bundle goes quiet without a LATER published one
 
-#### Scenario: A SPENT declaration names a bundle this repository never cut
+#### Scenario: A SPENT declaration's SUBJECT is a bundle this repository never cut
 - **WHEN** a SPENT declaration's SUBJECT — the bundle it declares spent — is a name for which the repository holds no release inventory
 - **THEN** the family MUST emit a `warning` on `contracts/CHANGELOG.md` saying the declaration disposes nothing, this being the one finding of this state that has no per-bundle inventory to land on
 - **AND** it MUST NOT be read as disposing any other bundle, because a mistyped subject leaves the real bundle undeclared — and that bundle is still reported by the scenarios above, which is the fail-closed behaviour a typo must not be able to defeat
