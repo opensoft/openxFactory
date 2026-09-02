@@ -254,11 +254,15 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     """
     sweep = sa.corpus_sweep(ROOT)
     assert sweep.co_modified == 105, (
-        "105 since declare-spent-bundle-state was authored 2026-09-02 (104 at "
-        "authoring, and through #563's archive). The co-modified population is "
-        "unchanged by THIS change, whose ADDED requirement titles are NOVEL; a "
-        "LATER change carrying a MODIFIED block raises it, and that is the "
-        "EXPECTED cause of this failure")
+        "105 since declare-spent-bundle-state was authored 2026-09-02, which is "
+        "the change that raised it: it carries a `## MODIFIED Requirements` "
+        "block, so it joined the co-modified population. It read 104 at THIS "
+        "test's own authoring — add-sequenced-after-substrate's ADDED "
+        "requirement titles being NOVEL, so that change is a SOLE modifier and "
+        "moved this count not at all — and held at 104 through #563's archive "
+        "and #555's ADDED-only landing. ANY later change carrying a MODIFIED "
+        "block raises it again, which is one of the two EXPECTED causes of this "
+        "failure")
     assert sweep.active_co_modified == 19, (
         "19 since declare-spent-bundle-state was authored 2026-09-02, having "
         "read 18 since add-release-tag-publication-check archived 2026-09-01 by "

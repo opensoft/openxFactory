@@ -472,8 +472,9 @@ Active changes:
   the consumer-facing half of tasks § 3.1 while deliberately not defining the
   state.** OD-1 …
   OD-9 and OQ-1 … OQ-3 were FLAGGED FOR VETO; OD-1, OD-2 and OD-6 … OD-8 stand
-  as drafted and OQ-1 … OQ-3 remain OPEN. **FOUR REVIEW FINDINGS, THREE TAKEN
-  AND ONE REFUSED WITH A MEASUREMENT.** Two Codex **P1**s were taken into the
+  as drafted and OQ-1 … OQ-3 remain OPEN. **EIGHT REVIEW FINDINGS OVER THREE
+  ROUNDS, SEVEN TAKEN AND ONE REFUSED WITH A MEASUREMENT.** Three Codex **P1**s
+  were taken into the
   requirement before the ratifying commit, both NARROWINGS of what was ruled
   rather than departures from it: the successor guard was satisfiable BACKWARDS
   by an EARLIER already-published bundle (**OD-9**, new — the successor must be
@@ -481,8 +482,19 @@ Active changes:
   `(family, repo, path)` identity on `contracts/CHANGELOG.md`, defeating the
   per-state disappearance detection (**OD-5** amended — the findings land on
   `contracts/releases/<bundle>.digests.yaml`, unique per bundle by
-  construction). Copilot's delimiter finding was taken (the reserved form is now
-  a code block). Copilot's *"unquoted `#575` breaks YAML metadata"* finding is
+  construction). **The third P1 is the one that mattered most and was a defect in
+  the ENCODING of what Brett ruled rather than in the design**: OD-4's ruled
+  `warning` band was written as a non-acceptance, so the fallback clause would
+  have made a conforming family report BOTH a `warning` and an `error` during the
+  legitimate publication window. The requirement now names THREE outcomes —
+  ACCEPTED, REFUSED, **PROVISIONAL** — and a provisional declaration SUPPRESSES
+  the superseded `error`, losing nothing because the successor is graded on its
+  own account and the obligation has MOVED rather than gone. A Codex P2 (the
+  proposal's own summary still naming the old path after OD-5 was amended) and
+  three Copilot findings — the reserved form's delimiters, `recognise` →
+  `recognize` against canon's five-to-nil spelling, and a pin message pointing at
+  the wrong subject — were taken too. Copilot's *"unquoted `#575` breaks YAML
+  metadata"* finding is
   **REFUSED WITH A MEASUREMENT**: nothing parses proposal front matter as YAML —
   `yaml.safe_load` FAILS on `add-release-tag-publication-check`,
   `add-requirement-ref-resolution-integrity` and

@@ -77,14 +77,25 @@ The shape, in one paragraph. A superseded, untagged bundle may be declared SPENT
 by a reserved single-line declaration in `contracts/CHANGELOG.md`, written inside
 the changelog entry of the bundle that superseded it, naming the superseding
 bundle, the cause, the ruling that disposed it and the measurement of record.
-Where all four elements are present and the superseding bundle is itself cut AND
-itself published, the family emits ONE `info` on `contracts/CHANGELOG.md` — the
-state is recorded, not silent — and the `error` for that bundle goes away. Where
-the successor is cut but not yet published, the supersession is unproven and the
-family `warning`s. Where the successor was never cut, where an element is
-missing, where two declarations name one bundle, where the declaration sits
-outside its successor's entry, or where it names the bundle the manifest still
-declares, the family `error`s and accepts nothing. **Where there is no
+Where all four elements are present and the superseding bundle is itself cut,
+itself published, AND STRICTLY LATER (OD-9), the family emits ONE `info` — the
+state is recorded, not silent — and the `error` for that bundle goes away. **The
+`info`, and every other finding this state raises, lands on that bundle's OWN
+release inventory, `contracts/releases/<bundle>.digests.yaml`, and NOT on
+`contracts/CHANGELOG.md`** — OD-5 as amended, because a finding's identity is
+`(family, repo, path)` and a shared path would let one spent bundle's removal
+hide behind another's surviving finding. Where the successor is cut but not yet
+published, the supersession is unproven: the family emits ONE `warning` and
+SUPPRESSES the superseded `error` for that bundle, this state being PROVISIONAL
+rather than refused, and the successor is graded on its own account so the
+obligation has moved rather than gone. Where the successor was never cut, where
+it is not later than the bundle it supersedes, where an element is missing,
+where two declarations name one bundle, where the declaration sits outside its
+successor's entry, or where it names the bundle the manifest still declares, the
+family `error`s and accepts nothing — and the superseded `error` stands alongside
+it, so a bad declaration removes nothing. One finding keeps the changelog path
+because it has no bundle inventory to land on: a declaration whose SUBJECT was
+never cut disposes nothing and is a `warning` there. **Where there is no
 declaration at all, the family behaves exactly as it does today.**
 
 **The delta is SCENARIO-COMPLETE and was verified mechanically, not by eye.**
@@ -422,7 +433,7 @@ re-baselines the inventory. Net on `main`: **-1 `error`, +2 `info`**, and the
 self-gate goes green because the estate stopped having an unanswerable finding,
 not because a test was edited.
 
-## Review convergence — four findings, three taken, one refused with a measurement
+## Review convergence — eight findings over three rounds, seven taken, one refused with a measurement
 
 Recorded here rather than only in the ratification record, because a proposal
 whose text moved under review owes a reader the reason where the text is.
@@ -440,6 +451,41 @@ scenario pinning that two spent bundles carry DIFFERENT identities.
 **TAKEN — Copilot, the reserved form's delimiters.** The marker form was shown
 wrapped in double backticks, which a reader can copy as part of the literal. It
 is now an indented code block, and the requirement says why in one clause.
+
+**TAKEN — Codex P1, round 3: the PROVISIONAL band was unreachable.** OD-4's
+ruled `warning` for a cut-but-unpublished successor was written as a
+non-acceptance, and the fallback clause kept the superseded `error` for every
+declaration that was not accepted — so a conforming family would have reported
+BOTH during the legitimate publication window, contradicting the ruling it was
+written to encode. The requirement now names THREE outcomes rather than two —
+ACCEPTED, REFUSED, PROVISIONAL — and a PROVISIONAL declaration SUPPRESSES the
+superseded `error` and reports one finding. **Nothing is lost by the
+suppression, and the requirement says why**: the successor is the bundle the
+manifest now declares, so the distance arm grades it on its own account and the
+obligation has MOVED rather than been discharged. The band is bounded by that
+grading, not by this state's patience.
+
+**TAKEN — Codex P2, round 3: the proposal's own summary still said
+`contracts/CHANGELOG.md`.** OD-5 was amended and § *What changes* was not, so a
+Spec Kit implementation following the summary would have rebuilt the exact defect
+the requirement now avoids. The summary now names
+`contracts/releases/<bundle>.digests.yaml` and says why in one clause. **A
+proposal whose operative paragraph contradicts its own amended decision is a
+defect in the proposal, not a stale sentence**, and it is repaired rather than
+noted.
+
+**TAKEN — Copilot, round 3: `recognise` → `recognize`.** Canon spells it with a
+`z` five times and with an `s` never; a delta that introduces the other spelling
+into a requirement it is restating is introducing drift into text whose whole
+value is that it does not drift.
+
+**TAKEN — Copilot, round 3: a misleading pin message.** The `co_modified`
+assertion's message said the population is *"unchanged by THIS change"* — true
+of the test's OWNING change, `add-sequenced-after-substrate`, whose titles are
+ADDED and novel — while the reading it guards had just been raised BY this
+packet. The message now names which change raised it and which one does not move
+it, because a pin whose failure message points at the wrong subject invites the
+wrong repair.
 
 **REFUSED WITH A MEASUREMENT — Copilot, the unquoted `#575` in the front
 matter.** The finding says the `Origin:` line's `#575` "will be parsed as a

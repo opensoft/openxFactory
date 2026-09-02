@@ -101,7 +101,7 @@ superseded finding prescribes — retro-publication at the commit the policy's
 rule identifies — is UNPERFORMABLE for such a bundle, and a finding whose only
 prescribed action cannot be taken by anyone is one a reader learns to skip,
 which is how a report loses the readers the rest of it needs. The family SHALL
-therefore recognise a SPENT state, and SHALL recognise it ONLY from an EXPLICIT
+therefore recognize a SPENT state, and SHALL recognize it ONLY from an EXPLICIT
 DECLARATION.
 
 SILENCE IS NEVER A DECLARATION, AND THAT SENTENCE CARRIES THE WHOLE OF THIS
@@ -110,6 +110,23 @@ names SHALL be reported exactly as it is today, at `error` and in the same
 words. A bundle MUST NOT become spent by being old, by being ignored, by being
 inconvenient, or by any absence whatsoever. Every state below is entered by a
 record that exists and is refused by a record that does not.
+
+THREE OUTCOMES, NOT TWO, AND THE MIDDLE ONE IS NOT A REFUSAL — stated here
+because a two-way reading of "accepted or refused" makes the ruled `warning`
+band unreachable. A declaration is ACCEPTED (the `info`), REFUSED (an `error`,
+and the superseded-and-never-published `error` stands alongside it because a bad
+declaration must remove nothing), or PROVISIONAL: well formed in every element,
+naming a LATER superseding bundle that is CUT but NOT YET PUBLISHED. A
+PROVISIONAL declaration SHALL emit the `warning` and SHALL SUPPRESS the
+superseded-and-never-published `error` for that bundle, reporting ONE finding
+and not two. That is the ruled outcome — this case is a `warning` — and a
+conforming family reporting both would be contradicting it. **NOTHING IS LOST BY
+THE SUPPRESSION, AND THIS IS WHY THE BAND IS SAFE**: the successor is the bundle
+the manifest now declares, so it is graded by the distance arm ON ITS OWN
+ACCOUNT — `warning` inside its window, `error` past the threshold — so the
+obligation has MOVED ONTO THE SUCCESSOR rather than been discharged, which is
+exactly what the successor guard is for. The provisional band is bounded by that
+grading and not by this state's patience.
 
 THE DECLARATION SHALL BE READ FROM `contracts/CHANGELOG.md` AT THE PUBLISHED
 TIP, and from nowhere else. Three facts pick that document and no other. It is
@@ -289,7 +306,7 @@ not acquire a second by being applied to cases that were only late.
 - **WHEN** a repository has a release inventory for a bundle at or above the enforcement line, that bundle has no published annotated tag, and the manifest now declares a different bundle
 - **THEN** the family MUST emit an `error` naming the superseded bundle and the bundle that replaced it, and MUST NOT grade it by distance — the window it would be graded against closed when the next cut replaced it
 - **AND** the action MUST name retro-publication at the commit the policy's rule identifies, never a re-dating and never an edit to the inventory
-- **AND** this MUST hold wherever no accepted SPENT declaration names that bundle — silence, an absent changelog record, and a refused declaration all leave this scenario in force
+- **AND** this MUST hold wherever no accepted SPENT declaration names that bundle — silence, an absent changelog record, and a REFUSED declaration all leave this scenario in force, while a PROVISIONAL one (well formed, its later successor cut but not yet published) SUPPRESSES it in favour of its own `warning`, the successor being graded on its own account
 
 #### Scenario: A superseded bundle is declared SPENT and its successor is published
 - **WHEN** a bundle has a release inventory, has no published annotated tag, the manifest has moved on from it, `contracts/CHANGELOG.md` at the published tip carries exactly one SPENT declaration naming it — carrying the superseding bundle, the cause, the ruling's author and date, and the measurement of record — inside the changelog entry of that superseding bundle, and that superseding bundle has itself a published annotated tag peeling to a commit that declares it
@@ -301,7 +318,8 @@ not acquire a second by being applied to cases that were only late.
 #### Scenario: A SPENT declaration names a superseding bundle that is not itself published
 - **WHEN** a SPENT declaration carries every element it owes and the superseding bundle it names has a release inventory but no published annotated tag
 - **THEN** the family MUST emit a `warning` on `contracts/releases/<spent bundle>.digests.yaml` saying the supersession is UNPROVEN, because a bundle is not published until its tag exists and a successor that is not published cannot yet be shown to have carried anything forward
-- **AND** the family MUST NOT emit the `info`, and MUST NOT suppress the successor's own finding, which is raised on the successor's own account by the scenarios above
+- **AND** the family MUST NOT emit the `info`, and MUST NOT ALSO emit the superseded-and-never-published `error` for that bundle — this state is PROVISIONAL rather than REFUSED, ONE finding is reported and not two, and reporting both would contradict the ruling that this case is a `warning`
+- **AND** the family MUST NOT suppress the SUCCESSOR's own finding, which is raised on the successor's own account by the scenarios above and is what bounds this band: past the successor's threshold the estate carries an `error` again, on the bundle that owes the tag
 
 #### Scenario: A SPENT declaration names a superseding bundle this repository never cut
 - **WHEN** a SPENT declaration names as its superseding bundle a name for which the repository holds no release inventory

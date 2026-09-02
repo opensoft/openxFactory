@@ -191,6 +191,41 @@ serve. **The YAML surface that IS parsed is correct**: `.openspec.yaml` is
 loaded, and every prose field in it is a folded `>-` block precisely so a `#`
 inside it stays literal.
 
+**Codex, round 3** (`7e9267a4`, the ratifying commit) — one P1 and one P2, BOTH
+TAKEN, and the P1 matters because it is a defect in the ENCODING of what was
+ruled rather than in the design:
+
+* **P1 — the ruled PROVISIONAL band was unreachable.** OD-4's `warning` for a
+  cut-but-unpublished successor was written as a non-acceptance, and the fallback
+  clause kept the superseded `error` for every declaration that was not accepted.
+  A conforming family would therefore have reported BOTH a `warning` and an
+  `error` during the legitimate publication window — contradicting the ruling the
+  clause exists to encode. The requirement now names THREE outcomes rather than
+  two — ACCEPTED, REFUSED, PROVISIONAL — and a PROVISIONAL declaration SUPPRESSES
+  the superseded `error` and reports ONE finding. **The suppression loses
+  nothing, and the requirement now says why**: the successor is the bundle the
+  manifest declares, so the distance arm grades it on its own account, `warning`
+  inside its window and `error` past the threshold. The obligation has MOVED ONTO
+  THE SUCCESSOR rather than been discharged, which is what the successor guard is
+  for, and the band is bounded by that grading rather than by this state's
+  patience. **This is the closest the review came to a real hole in the ruling's
+  intent**, and it was in the words rather than the design.
+* **P2 — the proposal's operative summary still said `contracts/CHANGELOG.md`**
+  after OD-5 was amended, so a Spec Kit implementation following § *What changes*
+  would have rebuilt the exact shared-identity defect the requirement now avoids.
+  Repaired, not noted: a proposal whose operative paragraph contradicts its own
+  amended decision is a defect in the proposal.
+
+**Copilot, round 3** — 🟡 *Changes recommended*, two findings, BOTH TAKEN.
+`recognise` → `recognize`, canon spelling it with a `z` five times and with an
+`s` never — a delta that introduces the other spelling into text it is restating
+is introducing the drift the restatement exists to prevent. And the
+`co_modified` pin's assertion message said the population is *"unchanged by THIS
+change"* — true of the test's OWNING change, whose titles are ADDED and novel —
+while the reading it guards had just been raised BY this packet; the message now
+names which change raised it and which one does not move it, because a pin whose
+failure message points at the wrong subject invites the wrong repair.
+
 **Copilot, round 2** — 🔵 *Needs a closer look*, 0 new comments: *"introduces
 governance-significant canonical-spec amendments explicitly flagged as requiring
 owner ruling."* Which is what this record is.
@@ -247,7 +282,9 @@ block is BUILT FROM CANON at named anchors rather than retyped, and checked
 scenario-by-scenario — **11 of 11 promoted scenarios present, 10 byte-identical,
 the eleventh differing by exactly ONE added `AND` bullet with nothing removed,
 and all 67 canon body lines surviving.** Thirteen scenarios added; twenty-four in
-total.
+total. Re-verified after round 3, whose repairs moved requirement PROSE and one
+existing scenario's bullets but added no scenario: the same 11-of-11, 10
+byte-identical, one-bullet reading holds.
 
 **ONE PROMOTED PARAGRAPH IS QUALIFIED RATHER THAN REPLACED**, and the delta says
 so where it happens. *A SUPERSEDED BUNDLE IS NOT GRADED BY DISTANCE* still reads
