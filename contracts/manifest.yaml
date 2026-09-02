@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v2.6
+contract_bundle_version: contract-v3.0
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1675,18 +1675,23 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-workbench-chat-turn.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 350bfedc02696e7281a42c0bdc9a25059bf7af14d16d89d9f07018d3e691dc1d
+    sha256: e9a013f326ad6fc82f97eefe7ed49b26fd26e325db88b5d3b47d70e820705b64
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
       The doxBench grounded chat-turn wire family
-      (add-workbench-integrated-editor-chat 2.1): one file, now SIX closed
-      envelopes discriminated by kind — the v1 request, validated success and
-      fixed redacted failure, plus the co-resident widened v2 family
-      contract-v1.34 adds (add-doxbench-editing-phase-b design D15).
+      (add-workbench-integrated-editor-chat 2.1): one file, THREE closed
+      envelopes discriminated by kind — the widened v2 request, validated
+      success and fixed redacted failure that contract-v1.34 added as a
+      co-resident family (add-doxbench-editing-phase-b design D15). The v1
+      trio it was co-resident WITH — workbench-chat-turn, -success and
+      -failure — was REMOVED at contract-v3.0 (retire-doxbench-chat-turn-v1);
+      this row said SIX until that cut. The file's own
+      contract_schema_version moved 1 -> 2 there, and it is the one integer
+      that moved: this row's schema_version stays 1 and every envelope's
+      schema_version const stays 1.
       Exact-UTF-8 SHA-256 content identity; working_subject is non-identity by
-      type; only limit failures carry measured data. The v1 request carries
-      exactly one outline and one document buffer; the v2 request carries the
+      type; only limit failures carry measured data. The v2 request carries the
       outline plus every LOADED document, DECLARES its bound-buffer key, and its
       record states that key, the per-buffer observed hashes by key, a
       buffer-key proposal target, and the selected-model metadata. SINCE
@@ -1719,8 +1724,20 @@ contracts:
       validator emits a WARNING (`context-packet-blank`) and still ACCEPTS the
       record, because contract-v1.40 accepted it and
       `docs/contract-versioning-policy.md` makes a new validator warning
-      ADDITIVE while a new rejection is BREAKING; it becomes an ERROR at
-      contract-v2.0, alongside the shape's own `minLength: 1`. This
+      ADDITIVE while a new rejection is BREAKING. THIS ROW ANNOUNCED THAT IT
+      "becomes an ERROR at contract-v2.0", AND THAT NARROWING WAS NEVER TAKEN:
+      contract-v2.0 shipped 2026-08-27, contract-v3.0 ships here, and
+      `scripts/validate-ideation-dashboard-contracts.py` still calls
+      `f.warn("context-packet-blank", ...)`. The claim is CORRECTED rather than
+      carried: the promotion to ERROR is RESTATED to contract-v4.0, ahead of
+      the declared bundle, on the same rule that governs a deprecation entry
+      reaching its target unexecuted (retire-hermes-flat-keys-and-openworkflow-
+      tokens, contract-deprecation-execution: execute at the major it targets,
+      or restate with the reason). The reason is that nothing authored it —
+      not a measurement that it should not be taken — so a successor may take
+      it at that major with no new window owed, the warning having been served
+      since contract-v1.40. The shape's own `minLength: 1` is unaffected and
+      still applies. This
       repository's runtime REFUSES such a reason at construction, at the record
       derivation and at the browser adopter — a server may hold itself to more
       than the wire requires. A producer conformant by the letter can still
@@ -1729,8 +1746,8 @@ contracts:
       ONE ASYMMETRY, RECORDED RATHER THAN LEFT TO BE DISCOVERED: a third party
       that VENDORS this runtime — importing `doxbench_packet` or running this
       serve, rather than only validating against the published contract —
-      inherits contract-v2.0's strictness today, because the runtime gates
-      refuse what the validator merely warns about. That is fail-closed, and it
+      inherits the RESTATED contract-v4.0 strictness today, because the runtime
+      gates refuse what the validator merely warns about. That is fail-closed, and it
       sits outside what the versioning policy governs: the policy binds the
       published contract surface, not a consumer's choice to run this
       repository's code. A vendoring consumer should know it is holding itself
@@ -1748,12 +1765,16 @@ contracts:
       a claim that no retry occurred. It carries NO token, no token prefix or
       hash, no provider status and no provider prose; the `audit_ref` is
       disclosable by construction because the broker's declaration records no
-      token material against one. The DEPRECATED v1 success envelope is NOT widened
-      and cannot state a posture — a recorded limitation, not an omission; the
-      migration path is the v2 envelope. The v1 family is DEPRECATED at
-      contract-v1.34 with removal target contract-v2.0
-      (schema `deprecated_envelopes`; CHANGELOG migration note); it keeps
-      validating and is still served until then. Consumed through the pinned
+      token material against one. The v1 family was DEPRECATED at
+      contract-v1.34 and REMOVED at contract-v3.0; the schema's
+      `deprecated_envelopes` block went with it, having no kinds left to name,
+      while the validator's READER of that block was deliberately KEPT so the
+      next deprecation is not inert. An unrecognized or absent kind is now
+      refused in the surviving family's failure envelope carrying
+      `unrecognized_turn_kind` where a wire-valid client_turn_id exists, and in
+      the pre-identity shape where it does not. A consumer pinned at or below
+      contract-v2.5 keeps the v1 bytes its pin names. Migration:
+      CHANGELOG § contract-v3.0. Consumed through the pinned
       openxFactory checkout at the declared tag; per-file sha256 verified before
       any copy is treated as current. Hash parity, budget, unknown-model,
       duplicate turn-id, proposal-target, bound-buffer membership,

@@ -394,14 +394,6 @@ retroactively invalidate an old pin.
   the deprecating minor named above first. If that minor has not been cut when
   contract-v4.0 is reached, this entry is RESTATED AGAIN rather than the removal
   taken unphased.
-- The doxBench chat-turn v1 envelope family (`workbench-chat-turn`,
-  `workbench-chat-turn-success`, `workbench-chat-turn-failure` in
-  `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`) — replaced by
-  the co-resident widened `-v2` family that carries the outline plus every
-  loaded document, the declared bound-buffer key on request and record, keyed
-  observed hashes, a buffer-key proposal target, and the selected-model
-  metadata. Deprecated at contract-v1.34; removal target contract-v2.0. The v1
-  bytes are unchanged and keep validating until then.
 - **The undeclared `consumer:` block on a credential binding — and SEVEN acts
   that land together with it (`add-binding-consumer-identity`).** Each entry of
   `credential_bindings` in `xfactory_credential_binding_template` MAY declare a
@@ -410,9 +402,11 @@ retroactively invalidate an old pin.
   with (`fetch_identity`), optionally a qualified `requirement_ref`
   (`requirement_id` + `requirements_document_ref`), and the const-true
   `shared_credential_acknowledged` and `instantiation_stub` tokens. **The block
-  is DECLARED at contract-v2.4 and CONSTRAINED at contract-v3.0**; at
-  contract-v2.4 the schema imposes no type, no member grammar, no
-  requiredness and no closure on it, and
+  is DECLARED at contract-v2.4 and CONSTRAINED at contract-v4.0** — the target
+  read `contract-v3.0` until that major shipped without any of the eight acts
+  and the entry was restated at its cut, per the tail of this bullet; from
+  contract-v2.4 through contract-v3.0 the schema imposes no type, no member
+  grammar, no requiredness and no closure on it, and
   `scripts/validate-credential-contracts.py` emits WARNINGS instead.
 
   **THIS ENTRY NAMES EVERY ACT THAT LANDS AT THAT MAJOR, because a reader
@@ -438,7 +432,7 @@ retroactively invalidate an old pin.
   The two entries share ONE deprecation window and ONE major, so a consumer
   still upgrades once.
 
-  | act, at contract-v3.0 | the code that warns until then |
+  | act, at contract-v4.0 (target restated from contract-v3.0) | the code that warns until then |
   | --- | --- |
   | a binding declares no `consumer:` block (requiredness) | `consumer-identity-undeclared` |
   | a block exists and omits `holder_ref` or `fetch_identity`, or is not an object | `consumer-block-incomplete` |
@@ -478,16 +472,53 @@ retroactively invalidate an old pin.
   schema, and all six validate. Every consumer pinned at the prior bundle stays
   conformant until it upgrades.
 
-  Warned since contract-v2.4; removal target contract-v3.0.
+  **THE TARGET ARRIVED AND THE REMOVAL WAS NOT TAKEN — RESTATED AT
+  `contract-v3.0`, WITH THE REASON.** `contract-v3.0` shipped on 2026-09-02 and
+  **not one of the eight acts above landed**: `scripts/validate-credential-contracts.py`
+  still emits all eight codes as WARNINGS, measured at that cut rather than
+  assumed, and the schema still imposes no type, no member grammar, no
+  requiredness and no closure on the block. **THE REASON IS THAT NOTHING
+  AUTHORED IT, AND THAT IS SAID PLAINLY RATHER THAN DRESSED AS A DECISION**:
+  no change proposed the constraining, no realization carried it, and the cut
+  that reached the target had no ratified text to execute. This is NOT the
+  flat-key case one entry above, where a measurement showed the removal would
+  be unphased — the phasing here is intact and was served by `contract-v2.4`
+  and every minor since, so a successor may take these acts at the restated
+  major with **no new deprecation window owed**. The requiredness row alone
+  carries its own separate precondition, unchanged and unmet: the degraded
+  fetch-identity mode two paragraphs above, without which the OTHER SEVEN acts
+  may land and the requiredness may not.
+
+  Restated under § Deprecations Executed's own governing rule — a deprecation is
+  EXECUTED at the major it targets, or its entry is RESTATED with the reason it
+  stays — which `retire-hermes-flat-keys-and-openworkflow-tokens` promoted out
+  of one entry's prose after three entries sat past `contract-v2.0` unexecuted
+  and nothing said so. **A RESTATEMENT REFUSES NOBODY**: moving a removal target
+  later can only widen what a major accepts, which is why the cut took it rather
+  than leaving a spent target standing or, worse, executing eight unauthored
+  acts to make a sentence true.
+
+  Warned since contract-v2.4; removal target RESTATED to contract-v4.0 — the
+  eight acts were not authored by the time `contract-v3.0` was cut, and an entry
+  may not survive its own removal target unchanged. If they have still not
+  landed when contract-v4.0 is reached, this entry is RESTATED AGAIN rather than
+  the removal taken on text nobody wrote.
 - **A `requirement_ref` that RESOLVES TO NOTHING, or to more than one requirement
   of the document it names (`add-requirement-ref-resolution-integrity`).**
   A `consumer.requirement_ref` on a credential binding is a
   QUALIFIED reference — `requirement_id` plus `requirements_document_ref` — and
   the entry above governs its SHAPE. This entry governs whether it ANSWERS. At
-  contract-v3.0 a declared reference that resolves to ZERO requirements, or to
+  contract-v4.0 a declared reference that resolves to ZERO requirements, or to
   MORE THAN ONE requirement OF THE ONE DOCUMENT IT NAMES, is REFUSED; until
   then `scripts/validate-credential-contracts.py` emits a WARNING and the
-  record stays VALID.
+  record stays VALID. **THE TARGET READ `contract-v3.0` WHEN THIS ENTRY WAS
+  WRITTEN AND IS RESTATED BY THE CUT THAT FILLED IN ITS `Warned since`, AND THE
+  RESTATEMENT IS FORCED RATHER THAN CHOSEN**: these codes are PUBLISHED at
+  `contract-v3.0`, so `contract-v3.0` is the release that first SERVES the
+  warning, and § Change Classes, *Breaking (major)* requires *"at least one full
+  minor release where the old shape produced deprecation warnings"* BEFORE the
+  major that refuses. An entry warned and refused at the same bundle serves no
+  window at all. The tail of this entry carries both versions.
 
   **IT IS A SECOND FAMILY AND NOT A NINTH `consumer-*` CODE, and the reason is
   the entry above's own enumeration rule.** Those eight codes are enumerated
@@ -500,7 +531,7 @@ retroactively invalidate an old pin.
   would come to carry a record whose values match every pattern this family
   declares.
 
-  | act, at contract-v3.0 | the code that warns until then |
+  | act, at contract-v4.0 (target restated from contract-v3.0 by the publishing cut) | the code that warns until then |
   | --- | --- |
   | a declared `requirement_ref` matches NO requirement record in the repository under validation | `requirement-ref-unresolved` |
   | a declared `requirement_ref` matches MORE THAN ONE requirement record of the ONE DOCUMENT IT NAMES | `requirement-ref-ambiguous` |
@@ -554,17 +585,34 @@ retroactively invalidate an old pin.
   because a corpus holding only the failing direction cannot tell a working
   check from one that fires on everything.
 
-  Removal target contract-v3.0 — the SAME major the consumer block's seven acts
-  land at, so a consumer serves ONE deprecation window rather than two. **THE
-  `Warned since` VERSION IS DELIBERATELY UNWRITTEN HERE AND IS OWED BY THE CUT
-  THAT PUBLISHES THESE CODES**, not by the realization that implements them: the
-  bundle number is allocated by MERGE ORDER, `contracts/manifest.yaml` has had
-  several writers, and a number written in advance is a number another packet is
-  already spending. The cut that advances `contract_bundle_version` fills it in
-  here and states the class — DEPRECATING (MINOR), which owes the removal
-  version and the migration path in `contracts/CHANGELOG.md` rather than leaving
-  them optional. An entry naming a warning release that was never cut would be
-  the same defect as an entry claiming a completeness it does not have.
+  **THE `Warned since` VERSION WAS DELIBERATELY UNWRITTEN HERE AND OWED BY THE
+  CUT THAT PUBLISHES THESE CODES**, not by the realization that implements them:
+  the bundle number is allocated by MERGE ORDER, `contracts/manifest.yaml` has
+  had several writers, and a number written in advance is a number another
+  packet is already spending. **THAT CUT IS `contract-v3.0` AND IT FILLS IT IN
+  HERE.** The class is DEPRECATING (MINOR), which owes the removal version and
+  the migration path in `contracts/CHANGELOG.md` rather than leaving them
+  optional; both are stated above. An entry naming a warning release that was
+  never cut would be the same defect as an entry claiming a completeness it does
+  not have.
+
+  **AND FILLING IT IN IS WHAT MOVED THE REMOVAL TARGET, WHICH THE ENTRY COULD
+  NOT KNOW WHEN IT WAS WRITTEN.** It read *"Removal target contract-v3.0 — the
+  SAME major the consumer block's seven acts land at, so a consumer serves ONE
+  deprecation window rather than two."* The publishing cut turned out to BE
+  `contract-v3.0` — the codes landed on `main` at `e01561c5` some ninety minutes
+  after that cut's branch point and hours before its merge — so warning and
+  refusal would have fallen on one bundle. The ONE-WINDOW property is preserved
+  by moving BOTH entries together rather than by abandoning it: the consumer
+  block's acts are restated to `contract-v4.0` above (none of them was authored
+  by the time `contract-v3.0` was cut), and these two are restated to
+  `contract-v4.0` here, so a consumer still serves ONE window and still upgrades
+  once — one bundle later than either entry expected, and with the window
+  actually served rather than merely declared.
+
+  Warned since contract-v3.0; removal target RESTATED to contract-v4.0 — the
+  publishing cut and the declared removal target collided on one bundle, and a
+  warning that is first served at the bundle that refuses is not a window.
 
 ## Deprecations Executed
 
@@ -676,3 +724,71 @@ is indistinguishable from one that was never honoured.
   `contracts/schemas/xfactory-domain-stack.schema.yaml` requires and the
   domain-starter generator now emits alone. Deprecated at contract-v1.1, removed
   at contract-v3.0.
+- **The doxBench chat-turn v1 envelope family** — `workbench-chat-turn`,
+  `workbench-chat-turn-success` and `workbench-chat-turn-failure`, defined as
+  `$defs/request`, `$defs/success` and `$defs/failure` in
+  `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`, together with
+  their three top-level `oneOf` refs, the file's machine-readable
+  `deprecated_envelopes` block, the three kind→schema rows and three
+  tag-dispatch arms in `scripts/validate-ideation-dashboard-contracts.py`, the
+  v1 arm of `serve.py`'s kind discrimination, four positive and eight negative
+  packaged fixtures, and the byte-identity baseline test that existed to prove
+  the deprecated bytes never moved. **REMOVED at contract-v3.0.** The file's own
+  `contract_schema_version` moved 1 → 2 in the same cut, which is the shape of
+  this removal stated in the bytes a consumer reads.
+
+  **THE ROW IS SCOPED TO THE THREE ENVELOPES AND THEIR OWN MACHINERY. FIVE
+  SHARED `$defs` DID NOT LEAVE WITH THEM** — `content_hash`, `confined_path`,
+  `scope_key`, `buffer_state` and `transcript_turn` — because the surviving
+  family's measured reference closure reaches every one of them. A sixth,
+  `typed_proposal`, is RETAINED AND UNREFERENCED: the closure computation put it
+  OUTSIDE the surviving family (`keyed_typed_proposal` restates the shape with a
+  buffer-key target rather than `$ref`-ing it), so the ratified text's premise
+  that it is reachable is false, and removing it here would have been a
+  narrowing no entry announced and no minor warned on. The measurement and that
+  disposition are recorded at the definition's own site.
+
+  The full minor of deprecation warnings required by § Change Classes,
+  *Breaking (major)* was served by **contract-v1.34**, which introduced the
+  co-resident widened `-v2` family and declared the v1 deprecation
+  MACHINE-READABLY in the file's own `deprecated_envelopes` block. Unlike the
+  two rows above, **these warnings were still firing at the removal and the
+  count is on the record**: `python3 scripts/validate-ideation-dashboard-contracts.py`
+  reported `0 error(s), 4 warning(s)` on `main` at `af746459`, one per packaged
+  v1 fixture, and reports `0 error(s), 0 warning(s)` at contract-v3.0 — because
+  their subjects are gone, not because the reader that emitted them was removed.
+  The refused shape is exactly the warned shape: the warning named the three v1
+  kinds and nothing else, and those three kinds are precisely what is now
+  refused.
+
+  **The conformance-validator clause of that section is discharged by the
+  schema and the delegated validator together, and the deprecation READER is
+  deliberately KEPT.** The new shape — a `workbench-chat-turn-v2` request and
+  its two response envelopes — is accepted unchanged; the old one is refused
+  only from contract-v3.0, by the closed `oneOf` that no longer admits it. The
+  validator's general `deprecated_envelopes` reader survives with not one line
+  of logic changed and now reports `{}`, which is the correct report and not a
+  defect: deleting the estate's only machine-readable deprecation reader because
+  its sole current subject had gone would have left the NEXT deprecation inert,
+  which is the precise failure this whole retirement exists to correct.
+  **A REFUSAL IS NOT SILENCE HERE**: `serve.py`'s v1 arm was REPLACED rather
+  than deleted, so an unrecognized or absent `kind` — a retired v1 kind
+  included — is answered in the surviving family's failure envelope carrying
+  `unrecognized_turn_kind` (400) where a wire-valid `client_turn_id` exists, and
+  in the pre-identity shape where it does not.
+  Migration: send `workbench-chat-turn-v2` — `kind` replaced,
+  `active_document_path` dropped in favour of the DECLARED `bound_buffer` key,
+  `observed_hashes` keyed by buffer key, and `keyed_typed_proposal` in place of
+  `typed_proposal` on the success envelope; the full note is
+  `contracts/CHANGELOG.md` § `contract-v3.0`, and all SEVEN v1-only refusal
+  classes are re-expressed as packaged `-v2` negatives, none lost. A consumer
+  pinned below the major keeps the v1 bytes its pin names, by the immutability
+  of those bytes rather than by their continued presence here. Deprecated at
+  contract-v1.34, removed at contract-v3.0.
+
+  **THE ENTRY NAMED contract-v2.0 AS ITS REMOVAL TARGET AND SURVIVED IT
+  UNCHANGED FOR FIVE MINORS**, which is why openxFactory issue **#522** exists
+  and why `contract-deprecation-execution` now requires an entry reaching its
+  target to be executed or restated. This row is the first execution taken under
+  that rule; the restatements taken beside it are in § Deprecations Currently In
+  Force above.
