@@ -9,6 +9,541 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v3.0 — 2026-09-02 (BREAKING; three retirements execute, chain-attestation's content is carried, and `contract-v2.6` is superseded unpublished)
+
+**THIS ENTRY NAMES EVERY ACT THAT LANDS AT THIS MAJOR**, in the words
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+§ Deprecations Currently In Force uses of its own major-bound entry, because a
+reader at `contract-v3.0` must be able to learn from ONE place what this major
+refuses that `contract-v2.5` accepted. The list is written in both directions:
+what landed, and what named this major and did NOT.
+
+| # | act | where it landed | class |
+|---|---|---|---|
+| 1 | The `hermes` flat-key FALLBACK READ leaves the canonical domain-factory conformance validator, `LEGACY_HERMES_KEYS` with it, and the domain-starter generator stops EMITTING the deprecated keys | PR **#562**, squash `a951be76` | REMOVAL (Breaking) |
+| 2 | The `openworkflow`-prefixed `owner_layer` compatibility branch leaves the same validator, with its docstring line | PR **#562**, squash `a951be76` | REMOVAL (Breaking) |
+| 3 | The doxBench chat-turn **v1** envelope family (`workbench-chat-turn`, `-success`, `-failure`) leaves `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`, with its `deprecated_envelopes` block, the runtime and validator dispatch, twelve packaged fixtures and the byte-identity baseline test | PR **#564**, squash `6856f502` | REMOVAL (Breaking) |
+| 4 | `add-chain-attestation` tranche two — eight new schemas, four shipped schemas extended additively, the tranche-two corpus and the extended reader | PR **#556**, squash `518c670b` | ADDITIVE, carried from the never-published `contract-v2.6` |
+| 5 | The three deprecation-section moves: Executed rows for acts 1–3, and the flat KEYS' In Force entry restated to `contract-v4.0` with the recorded reason | PR **#562** (acts 1, 2 and the restatement) and THIS CUT (act 3) | policy record |
+| 6 | NO `contract_schema_version` moves at this major — set, manifest rows and contract files alike (OQ-2, answered by measurement below) | THIS CUT, as a recorded decision | metadata |
+| 7 | The doxBench consumer pin's `CONTRACT_TAG` off its knowingly stale `contract-v2.2` | THIS CUT | consumer pin |
+| 8 | `contract-v2.6` recorded as a SPENT, never-verifiable, never-published number, SUPERSEDED here | THIS CUT | release record |
+| 9 | `add-requirement-ref-resolution-integrity` — the two `requirement-ref-*` WARNING codes and their packaged probes, PUBLISHED at this bundle (its entry's owed `Warned since`, filled in here) | PR **#570**, squash `e01561c5` | DEPRECATING (minor) |
+
+**AND ONE ACT THAT NAMED THIS MAJOR AND DID NOT LAND**, recorded here because
+the sentence above is worthless if it is only true of the things that
+succeeded: the `add-binding-consumer-identity` `consumer:` block's EIGHT
+constraining acts, whose In Force entry read *"DECLARED at contract-v2.4 and
+CONSTRAINED at contract-v3.0"* and *"Warned since contract-v2.4; removal target
+contract-v3.0"*. Not one of them was authored — `scripts/validate-credential-contracts.py`
+still emits all eight codes as WARNINGS, measured at this tip — and the
+requiredness among them is additionally gated, by that entry's own text, on a
+degraded fetch-identity mode this contract family cannot yet declare. So the
+entry is **RESTATED to `contract-v4.0`** in this cut with that reason recorded,
+under the ratified requirement *"A deprecation is EXECUTED at the major it
+targets, or its entry is RESTATED with the reason it stays"*
+(`retire-hermes-flat-keys-and-openworkflow-tokens`,
+`specs/contract-deprecation-execution/spec.md`), whose scenario *"The target
+arrives and the removal is not taken"* makes leaving the spent target *"a
+defect of that cut rather than a neutral omission"*. Restating a removal
+target LATER can only widen what is accepted; it refuses nobody, and the
+warning window it re-serves is the same window.
+
+**AND A SECOND ENTRY MOVES WITH IT, FOR A DIFFERENT AND STRICTER REASON.**
+`add-requirement-ref-resolution-integrity` landed on `main` at `e01561c5`
+NINETY MINUTES AFTER THIS CUT'S FIRST BRANCH POINT and hours before its merge,
+declaring two more acts *"at contract-v3.0"*: a `consumer.requirement_ref` that
+resolves to ZERO requirements (`requirement-ref-unresolved`) or to MORE THAN ONE
+requirement of the one document it names (`requirement-ref-ambiguous`) is
+REFUSED at that major. **Its own entry left `Warned since` deliberately blank
+and owed to *"THE CUT THAT PUBLISHES THESE CODES"* — and that cut is this one.**
+So the two versions collide on one bundle: `contract-v3.0` is the release that
+first SERVES these warnings, and § Change Classes, *Breaking (major)* requires
+*"at least one full minor release where the old shape produced deprecation
+warnings"* BEFORE the major that refuses. **A warning first served at the bundle
+that refuses is not a window at all**, so this is not a judgment the cut
+exercised but an arithmetic it could not avoid. The entry is filled in as
+`Warned since contract-v3.0` and its removal target RESTATED to
+`contract-v4.0`.
+
+**THE TWO RESTATEMENTS ARE ONE ACT, and separating them would have broken a
+property that entry just bought.** It states that its removal target is *"the
+SAME major the consumer block's seven acts land at, so a consumer serves ONE
+deprecation window rather than two."* Moving one entry and not the other would
+split that window in two. Both move to `contract-v4.0`, so a consumer still
+serves ONE window and still upgrades once — one bundle later than either entry
+expected, and with the window actually served rather than merely declared.
+`scripts/validate-credential-contracts.py` is UNCHANGED by this cut in either
+family: all ten codes remain warnings, exactly as they were at `e01561c5`.
+
+### The number, FRESH-COUNTED at the cut, and why it is a MAJOR rather than `contract-v2.7`
+
+Counted at the FINAL integration point `e01561c588d99c3b55b0304d584878a8cc890c7e`
+(`origin/main` tip), not inherited. **THE COUNT WAS TAKEN TWICE, and the second
+time is the one that governs**: the cut first branched at `bbbbeda9`, `main`
+then moved under it (PR #570, `e01561c5`), and § Bundle Realization Order step 1
+was performed rather than skipped — REBASE onto the final integration point,
+then recheck. That is precisely the step whose omission made `contract-v2.6`
+unpublishable, and the recheck found a real change rather than a formality (see
+the act that did not land, above). Both readings agree on the number:
+
+* `contracts/manifest.yaml:3` declared `contract-v2.6`.
+* `contracts/releases/` held inventory files through `contract-v2.6`.
+* `git ls-remote --tags origin 'refs/tags/contract-v*'` publishes
+  `contract-v1.7` … `contract-v2.5` and **NO `contract-v2.6`**.
+* This changelog headed at `contract-v2.6`. No Unreleased block is pending.
+* `git ls-remote origin 'refs/tags/contract-v3.0'` is **empty** — the name is
+  free.
+* The only first-parent commit between the two readings is `e01561c5`, which
+  moves no `contract_bundle_version`, writes no inventory and publishes no tag;
+  it is a DEPRECATING (minor) code surface whose own entry hands its bundle
+  number to this cut. So it changes the count's inputs not at all and its
+  content substantially, which is the difference between rebasing and merely
+  re-reading.
+
+**THE CLASS RULE, NOT PREFERENCE, PICKS THE MAJOR.** § Change Classes,
+*Breaking (major)* is entered when *"a shape is removed"*, and three shapes were
+removed on `main` at 2026-09-01T19:43Z by `a951be76` and `6856f502` — a
+`layers`-less `stack.yaml` (refused where it resolved), an
+`openworkflow`-prefixed unresolvable `owner_layer` (refused where it warned),
+and the three v1 chat-turn envelopes (refused where they validated). From that
+moment no MINOR number can honestly be declared on this tree: a minor asserts
+that *"domain repos on the same major version remain conformant without
+changes"*, and this tree refuses shapes `contract-v2.5` accepted. `contract-v2.7`
+would carry the same defect `contract-v2.6` carries. The next available number
+of the class the tree actually requires is **`contract-v3.0`**, and this cut
+takes it.
+
+### Change class: BREAKING (major) — the three preconditions, each discharged and each checkable
+
+§ Change Classes, *Breaking (major)* requires three things of every removal.
+They are discharged per removal rather than in aggregate, because the three
+removals served their warnings at three different releases.
+
+| removal | (a) migration note | (b) a full minor in which the OLD SHAPE PRODUCED warnings | (c) the conformance validator accepts the new shape and rejects the old one ONLY at the new major |
+|---|---|---|---|
+| the `hermes` flat-key FALLBACK READ | § *What is removed* below, and `docs/contract-versioning-policy.md` § Deprecations Executed | **`contract-v1.1`**, which introduced `hermes.layers` and began warning on a stack declaring none — forty-plus minors, and the refused shape IS the warned shape: the warning fired on a `hermes.layers`-less stack and nothing else | discharged by a REPLACEMENT and not a deletion — `scripts/validate-domain-factory.py` emits ONE explicit error naming the missing or non-list `hermes.layers`, because deleting the fallback arm alone would have let a `layers`-less stack fall through to an EMPTY layer map and produce no finding at all, a silent WIDENING at a major |
+| the `openworkflow`-prefixed token branch | § *What is removed* below, and the Executed row | **`contract-v1.1`**, which introduced the replacement token `xfactory` and began warning on the prefix | discharged in the validator itself: it accepts a canonical role, a declared layer's display name, `omnigent`, `<domain>_omnigent` or `xfactory`, and rejects the old token only from `contract-v3.0`, through the general undeclared-layer rule |
+| the doxBench chat-turn **v1** family | § *What is removed* below, and the Executed row | **`contract-v1.34`**, which deprecated the family MACHINE-READABLY in a top-level `deprecated_envelopes` block; the warnings were real and were still firing at the removal — `python3 scripts/validate-ideation-dashboard-contracts.py` reported **`0 error(s), 4 warning(s)`** on `main` at `af746459`, one per packaged v1 fixture, and reports **`0 error(s), 0 warning(s)`** at this cut | discharged by the schema and the delegated validator together: the surviving `-v2` family is accepted unchanged, a v1 instance is refused only from `contract-v3.0`, and the machine-readable deprecation READER is KEPT (it now reports `{}`, which is the correct report and not a defect) so the NEXT deprecation is not inert |
+
+**A PINNED CONSUMER IS UNTOUCHED, and that is § Compatibility Direction rather
+than a courtesy.** A domain repository pinned at or below `contract-v2.5` reads
+the validator, the schema and the branch AT ITS OWN PIN, where all three are
+still present and still warn. Nothing in this release reaches backwards.
+
+**WHO THIS MAJOR ACTUALLY REFUSES, MEASURED.** All five supported
+DomainxFactory consumers — codexFactory, MedxFactory, AdxFactory,
+LedgerxFactory, OpsxFactory — declare `hermes.layers`, so removal 1 refuses
+none of them; there is not one `openworkflow`-prefixed `owner_layer` token in a
+workflow gate across ten reachable repositories, so removal 2 refuses none of
+them; and the only v1 chat-turn instances that existed were openxFactory's own
+four packaged fixtures, so removal 3 refuses no consumer either. **This major
+refuses shapes, not repositories** — which is why it may be taken, and is not a
+reason to have taken it silently.
+
+### What is removed
+
+* **The `hermes` flat-key FALLBACK READ — the READ, and NOT the keys.** The
+  branch of `scripts/validate-domain-factory.py` that resolved layer overlays
+  and display names from flat keys under `hermes:` when `hermes.layers` was
+  absent, the `LEGACY_HERMES_KEYS` map it read them through, the per-role
+  `no overlay resolvable for hermes role` check that followed it, and
+  `scripts/apply-domain-starter.py`'s emission of the deprecated keys into
+  every newly instantiated domain repository. **Migration**: declare
+  `hermes.layers` with exactly one template for each canonical role
+  `customer`, `client` and `domain`, each carrying `display_name` and
+  `overlay` — the shape
+  `contracts/schemas/xfactory-domain-stack.schema.yaml` requires and the
+  domain-starter generator now emits alone. **THE CO-RESIDENT KEYS ARE NOT
+  REFUSED**; their entry stays in § Deprecations Currently In Force, restated
+  to `contract-v4.0`, because the warning fired ONLY in the `layers`-absent
+  branch and all five supported consumers carry the keys ALONGSIDE
+  `hermes.layers` — a shape that has never produced a warning against any of
+  them, so refusing it would be an UNPHASED narrowing. That measurement, and
+  the deprecating minor it owes, are in the entry itself.
+* **The `openworkflow`-prefixed layer/owner token compatibility branch**, with
+  the validator docstring line that advertised it. **The removal is ONE
+  CHARACTER WIDER than the entry used to declare**: the entry and the docstring
+  both wrote `openworkflow_`, the code wrote `token.startswith("openworkflow")`,
+  so `openworkflow`, `openworkflowx` and `openworkflow-legacy` all took the
+  branch and are all covered. **It NARROWS one case and WIDENS another**,
+  because the removed `if` PRECEDED and shadowed the general
+  `elif token not in allowed`: a prefixed token resolving to nothing was warned
+  and is now reported by the general undeclared-layer rule; a prefixed token
+  whose normalized form EQUALS a declared layer's normalized display name was
+  also warned and now validates SILENTLY. Both were measured on the two
+  validators side by side. **Migration**: replace the token with `xfactory`,
+  the replacement `contract-v1.1` introduced.
+* **The doxBench chat-turn v1 envelope family** — `$defs/request`,
+  `$defs/success`, `$defs/failure` and their three `oneOf` refs in
+  `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`, the top-level
+  `deprecated_envelopes` block and its comment, the three kind→schema rows and
+  three tag-dispatch arms in `scripts/validate-ideation-dashboard-contracts.py`,
+  the v1 arm of `serve.py`'s kind discrimination, four positive and eight
+  negative packaged fixtures, and the byte-identity baseline test.
+  **Migration**: send `workbench-chat-turn-v2`; the conversion applied uniformly
+  to this repository's own corpus is `kind` → `workbench-chat-turn-v2`,
+  `active_document_path` DROPPED and `bound_buffer` declared in its place per
+  design D17's *"stated, never inferred"*, with `observed_hashes` keyed by
+  buffer key and `typed_proposal` replaced by `keyed_typed_proposal` on the
+  success envelope. Every one of the SEVEN v1-only refusal classes was
+  re-expressed as a `-v2` negative and NONE was lost — escaping path, hash
+  mismatch, identity subject, over budget, unknown model, untyped proposal and
+  duplicate turn pair, each run through `validate_instance` individually and
+  each refusing for the INTENDED reason.
+  **THE `serve.py` FALLBACK IS REDESIGNED, NOT DELETED**: an unrecognized or
+  absent `kind` is refused in the SURVIVING family's failure envelope carrying
+  the new `unrecognized_turn_kind` code (400) where a wire-valid
+  `client_turn_id` exists, and in the existing pre-identity shape where it does
+  not. A retired v1 kind takes exactly that path, which is the ruled
+  consequence: after the removal a retired kind and a kind that never existed
+  are the same fact about the wire.
+  **THE BASELINE TEST'S RETIREMENT IS NAMED RATHER THAN ABSORBED**, as the
+  packet's D4 requires. `test_the_v1_envelope_bytes_are_unchanged_by_the_release`
+  and its `chat-turn-v1-envelopes.baseline.yaml` fixture existed to prove the
+  deprecated bytes never moved. They end because the shape they protect leaves
+  the published surface and the assertion has no subject — `_v1_ref_closure`
+  would raise `KeyError` on its own seed rather than fail an assertion. A
+  consumer pinned below `contract-v3.0` keeps the promise it was given, and
+  keeps it by the IMMUTABILITY OF THE BYTES ITS PIN NAMES rather than by their
+  continued presence here.
+
+### What is carried forward from the never-published `contract-v2.6`
+
+`add-chain-attestation` tranche two landed on `main` as PR #556, squash
+`518c670b`, and was registered in `contracts/manifest.yaml` there — thirteen
+rows, eight new and four refreshed — because that family's own required
+manifest-row digest test refuses a moved schema whose row did not move in the
+SAME commit. The NUMBER was claimed by `contract-v2.6`, which is never
+published (below). **The CONTENT is carried here unchanged; only the number it
+is registered under moves.** Not one of the eight new schemas, the four
+extensions, the tranche-two corpus or the extended reader is re-cut, re-signed
+or edited by this cut.
+
+* **Four shipped schemas extended, additively** —
+  `digest-construction.schema.yaml` gains ELEVEN digest subjects and NO second
+  construction; `chain-inception.schema.yaml` gains the OPTIONAL
+  `amendment_lineage` block inside the signed bytes, REQUIRED BY THE READER for
+  any chain carrying tranche-two records; `transparency-log-leaf.schema.yaml`
+  gains seven leaf types and the extended closed refusal enumeration;
+  `conformance-declaration.schema.yaml` gains SEC-R10..SEC-R18 and the
+  `attestation_design` block.
+* `contracts/signed-execution-chain/` — **eight NEW schemas, links 4–6 and
+  10**, each with a per-file `sha256` row: `attestation-common.schema.yaml`,
+  `setup-attestation.schema.yaml`, `commitment-extension.schema.yaml`,
+  `signed-chain-binding.schema.yaml`, `runner-attestation.schema.yaml`,
+  `pr-open-decision.schema.yaml`, `closure-record.schema.yaml` and
+  `remediation-declaration.schema.yaml`.
+* `scripts/signed_execution_chain/attestation.py` — the tranche-two walk of THE
+  SAME NAMED READER: links 1–6 as eleven ordered checks in the ONE walk (org
+  ruleset **21957695** unchanged), **ninety-five closed refusal codes, every one
+  red-proven** over two packaged corpora, 74 tranche-two negatives and four
+  positive chains.
+* **What it does NOT operate**: no certificate authority, no minted tier-2
+  identity, no held private key, no running omnigent layer. SEC-R18 stays
+  declared UNMET (`execution_layer_ordering: not_enforced`), and the packet's
+  §5.1–5.3 machinery gates and its §5.8 canary pair stay OPEN.
+
+**THE ADDITIVE CLAIM IS RE-MEASURED OVER THE LANDED TREE, AND IT IS NOW TWO
+CLAIMS RATHER THAN ONE.** The `contract-v2.6` entry measured *"ADDITIVE
+(minor) … nothing narrows"* with `git diff --name-status contract-v2.5
+518c670b -- contracts/` — a tree in which `6856f502` had not yet removed the v1
+chat-turn schema. Re-measured here against what actually landed, the two facts
+are ATTRIBUTED SEPARATELY and never merged:
+
+1. **Chain-attestation's own content is additive and narrows nothing**, and
+   that survives the re-measurement intact, because its surface and the
+   retirements' surface are DISJOINT: `518c670b` touched
+   `contracts/signed-execution-chain/**` plus four editorial registration
+   files; `a951be76` and `6856f502` touched neither. No member any of the four
+   extended schemas published was removed, renamed or narrowed; the shipped
+   tranche-one corpus validates green under the extended schemas in the same
+   required check that walks the new corpus; the shipped nine-entry conformance
+   declaration stays valid because the obligations enumeration widened as
+   `minItems: 9, maxItems: 18`.
+2. **The NARROWING at this bundle is the three retirements' and theirs alone.**
+   It is what makes this a major. Attributing it to chain-attestation would be
+   false; folding it into a single "additive" verdict for the bundle would be
+   worse, because it would make the major's own reason invisible.
+
+A consumer that pinned `contract-v2.5` for the signed-execution-chain family
+and nothing else can adopt every byte of item 1 by upgrading, and pays for the
+retirements only if it holds one of the three refused shapes.
+
+### `contract-v2.6` disposition — DECLARED, NEVER VERIFIABLE, NEVER PUBLISHED, SUPERSEDED HERE
+
+Modelled on this changelog's § `contract-v2.3` disposition, which recorded a
+declared-but-untagged bundle honestly and left the tag to its owner. **The fact
+here is stronger and the disposition is therefore different**: `contract-v2.3`
+was untagged but VERIFIABLE, and its tag was published four days later at the
+commit the targeting rule names. `contract-v2.6` can never be.
+
+* **DECLARED** at `bbbbeda984353ebaeb67d3e2bb1c73fcb7bac140` — the squash of PR
+  **#565**, `add-chain-attestation` task 5.9's cut half — by three artifacts:
+  `contracts/manifest.yaml`'s `contract_bundle_version`, its changelog entry
+  above, and `contracts/releases/contract-v2.6.digests.yaml`.
+* **NEVER VERIFIABLE.** `python3 scripts/validate-contract-release.py
+  verify-commit --commit bbbbeda9…` returns FIVE
+  `HGR-RELEASE-DIGEST-MISMATCH` findings, exit 1 —
+  `contracts/CHANGELOG.md`, `contracts/manifest.yaml`,
+  `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`,
+  `docs/contract-versioning-policy.md` and
+  `scripts/validate-ideation-dashboard-contracts.py`. **The CAUSE is
+  § Bundle Realization Order step 1**: the branch `cut/contract-v2.6` forked at
+  `518c670b` and was never rebased onto the final integration point, and a
+  squash merge takes `main`'s tree and applies the PR diff — so the landed
+  commit carries five release-surface members the reviewed candidate `07986003`
+  never saw, moved by `a951be76` (#562) and `6856f502` (#564), both merged
+  four hours BEFORE that candidate was committed. Two of the five are the
+  editorial members § *What a red `verify-commit` at HEAD means* allows between
+  cuts; **three are not** — a normative schema, this policy's own versioning
+  document, and a validator — and the allowance does not reach a tag in any
+  case: *"a published bundle must verify at its own commit exactly."*
+* **NEVER PUBLISHED, and the name is still free.** No annotated tag object was
+  ever created and none was pushed; `git ls-remote origin refs/tags/contract-v2.6`
+  is empty. The post-merge checklist was run in order from an independent clone
+  and **STOPPED at step 2**, which is the release machinery doing exactly the
+  job it exists for. The full measurement is PR #565 comment `5502452624`; this
+  entry cites it and does not re-derive it, because two records of one
+  measurement is how they drift apart.
+* **NO COMMIT CAN CARRY THE TAG, EVEN AFTER A REBUILD.** The targeting rule is
+  *"the EARLIEST FIRST-PARENT COMMIT on published `main` that DECLARES the
+  bundle and at which `verify-commit` PASSES."* Exactly one first-parent commit
+  declares `contract-v2.6` and `verify-commit` fails there; `07986003` is not
+  reachable from `origin/main`. A completion commit — the
+  `contract-v1.31`/`-v1.36`/`-v1.37` shape — could have supplied a target for a
+  digest rebuild, and would still not have cured the second defect.
+* **THE SECOND DEFECT NO COMPLETION COMMIT CAN CURE, and it is the one that
+  settles the disposition.** `contract-v2.6` declares change class **ADDITIVE
+  (minor)**. From 2026-09-01T19:43Z the tree it declares on REFUSES three shapes
+  `contract-v2.5` accepted. A minor asserts that consumers on the same major
+  remain conformant without changes, and on that tree the assertion is false. A
+  rebuilt inventory moves five digest lines and moves that not at all.
+* **SUPERSEDED, at the same surface, by this bundle.** Everything
+  `contract-v2.6` was to have carried is carried here under a number whose class
+  matches the tree. **The number is SPENT and is never reused**, on the terms
+  § Immutable Tag Correction sets for a version number: *"its version number is
+  never reused."* `contracts/releases/contract-v2.6.digests.yaml` and the
+  `contract-v2.6` entry above are **left exactly as written and are not
+  edited** — they are the record of what was declared and of what was true when
+  it was written, on the same footing as
+  `docs/archive-record-discrepancies.md` and as the `contract-v2.3` PENDING
+  heading. A reader who arrives at that entry should read on to here.
+* **THIS IS INSTANCE SIX of the shape #528 tracks**, and it is a different
+  shape from the first five: those were bundles whose tags nobody published;
+  this is a bundle whose tag nobody COULD publish. The step this cut takes to
+  avoid repeating it is the one whose omission killed `contract-v2.6`:
+  § Bundle Realization Order **step 4**, rerun on the promoted commit BEFORE any
+  tag.
+
+**AND THE CHECK #528 ASKED FOR NOW EXISTS, READS THIS BUNDLE, AND HAS NO
+VOCABULARY FOR IT — WHICH THIS ENTRY DECLARES RATHER THAN LEAVES TO BE HIT.**
+The `release-tag-publication` doc-health family
+(`scripts/doc_health/release_tag_publication.py`) inspects EVERY bundle with a
+release inventory, not only the declared one. Today it reports `contract-v2.6`
+at **WARNING** — *"declared and has no published annotated tag, 1 first-parent
+landing(s) after the commit that declared it"* — and
+`tests/doc-health/test_release_tag_publication.py::test_this_repository_reads_zero_and_the_probe_can_fire`
+is consequently **RED ON `main` ALREADY**, before and independently of this cut,
+which reads `origin/main` rather than any branch. **What this cut changes is the
+SEVERITY, permanently**: once the manifest declares `contract-v3.0`,
+`contract-v2.6` becomes a SUPERSEDED bundle and the family reports it at
+**ERROR** without grading — *"cut and SUPERSEDED without ever being published"* —
+and the action it prescribes, *"publish the annotated tag at the commit the
+versioning policy's rule identifies"*, is UNPERFORMABLE for this bundle for the
+two reasons above. Its closing clause, *"never edit the manifest, the changelog
+or the inventory to match the absence"*, is exactly right and is obeyed here:
+nothing was deleted to quiet it.
+
+**THE FINDING IS TRUE. THE FAMILY IS NOT WRONG. IT SIMPLY HAS NO THIRD STATE**
+between *published* and *owes a tag*, and a spent-never-publishable number is
+that third state. **This cut does NOT weaken the family to fit the ruling**, and
+the reason is the ruling's own scope: Brett Heap ruled that `contract-v3.0`
+supersedes `contract-v2.6`, not that a checker should stop objecting to
+abandoned bundles — the shape of any such vocabulary (what record counts as a
+supersession, who may declare one, whether it is `contested` and needs a
+disposition entry) is design work that owes its own change and its own review,
+and a release cut quietly relaxing the one check that exists to stop bundles
+being walked away from is precisely the failure that check was built for. It is
+filed as **openxFactory issue #575**, which carries the measurement, why the cut
+declined to take it, and the five things a disposition owes — including the
+guard against the obvious abuse, that a bundle must never become spent by being
+ignored. It is named here so a reader meeting the ERROR knows it is DECLARED
+rather than undiscovered.
+
+### OQ-1 and OQ-2, answered at the cut
+
+Both retirement packets named these for the cutting session and neither
+proposal answered them.
+
+**OQ-1 — does `contract-v3.0` carry both retirement packets, or one?
+BOTH.** They are independent by construction and either was legal alone. They
+ride together because they landed together on `main` — `a951be76` and
+`6856f502` merged in the same minute — so any bundle declared after that point
+carries both narrowings whether it names them or not, and a cut that named one
+would have under-declared its own refusal list.
+
+**OQ-2 — is `contract_schema_version` incremented? NO — NOT the contract set's,
+NOT any manifest row's, and NOT the one contract file whose shape narrowed. The
+answer is three measurements, and the third is the one the cut got wrong first
+and is recorded rather than smoothed over.**
+
+* **The contract SET's integer does NOT move.** `contract-v2.0`, the only
+  previous major, moved none. More decisively,
+  `scripts/validate-domain-openxfactory-pins.py:92` HARD-CODES
+  `"contract_schema_version": 1` as the value every domain `stack.yaml` must
+  declare and ERRORS on any other, and all five supported consumers declare
+  `1`. Moving it would ERROR all five at the major with no warning minor ever
+  served — the exact unphased narrowing § Change Classes forbids and this
+  bundle restated two entries to avoid. The Domain Upgrade Runbook's
+  *"`contract_schema_version` if major"* is guidance to a consumer performing an
+  upgrade, not a licence for the publisher to refuse the population.
+* **No manifest ROW's `schema_version` moves**, and the estate's precedent shows
+  the row and the file are independent: `contracts/schemas/consent-instrument.schema.yaml`
+  carries `contract_schema_version: 2` while its manifest row still records
+  `schema_version: 1`.
+* **`contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`'s own
+  `contract_schema_version` STAYS 1 — AND THE ANSWER WAS ALREADY IN THE TREE,
+  ARGUED, BEFORE THIS CUT ASKED THE QUESTION.** The realization (#564) wrote it
+  into `tests/ideation-dashboard/test_doxbench_contracts.py` as an assertion
+  with its reasoning beside it: *"The file's own version does NOT move. It did
+  not move at contract-v1.34 because nothing previously valid became invalid
+  (D16); it does not move here for the opposite reason — the envelopes this file
+  no longer defines cannot be validated against it AT ALL, so there is no shape
+  left for a bumped `contract_schema_version` to describe. What changed is which
+  release a consumer pins, which is the major's own job."*
+  `tests/ideation-dashboard/test_doxchat_model_intake.py` pins the same value.
+  **THE CUT FIRST BUMPED IT TO 2 AND WAS REFUSED BY THOSE TWO TESTS, and that
+  is recorded here rather than quietly reverted**, because the packet filed
+  `contract_schema_version` to the cut *"per OQ-2's answer"* and the honest
+  finding is that the realization had already answered it — in executable form,
+  which is the strongest place an answer can sit. A cut is not the place to
+  overturn a ratified realization's reasoned decision, and the measurement that
+  would have justified doing so was itself wrong: the cut's claim that *"nothing
+  in the repository reads it as a refusal input"* was made from a truncated grep
+  and two tests read it.
+  **SO NO INTEGER MOVES AT THIS MAJOR, AND WHAT CARRIES THE BREAK INSTEAD IS
+  WHAT ALWAYS CARRIED IT**: the bundle version, the per-file `sha256` a consumer
+  verifies, and this entry. The record ENVELOPES' `schema_version: { const: 1 }`
+  are untouched in every surviving definition, as they must be — bumping those
+  would invalidate every instance in the estate, the opposite of what this
+  removal did.
+
+### The consumer pin: `CONTRACT_TAG`, and the sentinel this cut deliberately re-introduces
+
+`scripts/ideation_dashboard/doxbench_contracts.py` pinned
+`CONTRACT_TAG = "contract-v2.2"` / `CONTRACT_REF = "8ccfb67b…"`, left knowingly
+stale by the realization and owed to this cut. **It was already incoherent
+before this cut touched it, which is the fact that decides the disposition**:
+`6856f502` moved `SCHEMA_DIGESTS[CHAT_TURN_SCHEMA_FILE]` to the post-removal
+bytes, so the module pinned bytes that belong to NO published release while
+naming `contract-v2.2` as the release they came from. **This cut moves no
+schema byte and re-derives no digest**: OQ-2 above answers that no
+`contract_schema_version` moves, so `SCHEMA_DIGESTS` keeps the realization's
+`350bfedc…` and what this cut changes is the LABEL beside it — which is the
+whole of the repair, the label having been the incoherent half.
+
+`CONTRACT_TAG` becomes **`contract-v3.0`** — the release these bytes actually
+belong to — and `CONTRACT_REF` becomes **`unpublished:contract-v3.0`**, this
+module's own established sentinel, used across the `contract-v1.34`,
+`contract-v1.38`, `contract-v1.40` and `contract-v2.2` realization branches for
+exactly this moment and for exactly this reason: the policy allocates the
+version and builds the inventory AT REALIZATION and publishes the annotated tag
+against the commit that actually LANDS, so until that commit exists there is
+nothing honest to name. It is spelled so a consumer comparing against it REFUSES
+rather than matching by accident, and the mechanism is the PIN VALIDATOR rather
+than YAML: a repository can write the string, but
+`scripts/validate-domain-openxfactory-pins.py` requires a 40-character
+lowercase SHA for `contract_ref_type: commit`, so a stack carrying the sentinel
+fails its own pin check and one carrying anything else fails the module's
+equality check. The older comments in that module put this as *"a value no
+`stack.yaml` can declare"*; that overclaims, and the correction is made here
+rather than inherited.
+**THE RESIDUE THAT MECHANISM ONCE LEFT IS NAMED SO IT IS NOT REPEATED**: the
+`contract-v1.45` repin left `unpublished:contract-v1.45` standing for three days
+after the tag was published. **Resolving this sentinel to the commit
+`contract-v3.0` dereferences to is a POST-TAG act and is owed**, and it is
+listed in this cut's pull request as a post-merge step rather than left to be
+remembered.
+
+### The `typed_proposal` disposition — RETAINED, and the false premise not carried forward
+
+`retire-doxbench-chat-turn-v1` task 2.1 computed the SURVIVING family's
+reference closure rather than inspecting it, and the computation returned a
+surprise: the v1-only set is `request`, `success`, `failure` **and
+`typed_proposal`**. `keyed_typed_proposal` RESTATES the shape with a buffer-key
+target instead of `$ref`-ing `typed_proposal`, so the widened family never
+points at it. The ratified requirement names `typed_proposal` among the shared
+definitions that *"do NOT leave with the envelopes"* on the premise that it is
+*"reachable from the surviving family"*, **and that premise is false**.
+
+**DISPOSITION AT THE CUT: RETAINED, unreferenced, with the reason stated — and
+the reason is a rule rather than caution.** Removing it here would be a
+narrowing of a published contract file that NO deprecation entry ever
+announced and NO minor ever warned on, which § Change Classes, *Breaking
+(major)* forbids at this major as squarely as it forbids refusing the
+co-resident flat keys. A removal of `typed_proposal` owes its own deprecating
+minor first. The definition therefore stays, carrying at its own site the
+measurement and this disposition, so the false reachability claim is not what a
+reader finds standing at the major.
+
+### Release surface, and the deprecation-section moves
+
+* `contracts/manifest.yaml` — `contract_bundle_version: contract-v3.0`; the
+  `xfactory-workbench-chat-turn` row's `sha256` unchanged from the realization's
+  `350bfedc…` (OQ-2 moves no byte in that file) and its `consumption_rule` prose
+  dropped of the v1 clauses it still carried
+  (it described *"SIX closed envelopes"*, false the moment the v1 `$defs`
+  left — raised by Copilot against the realization, filed to the cut at that
+  packet's 6.1/6.2 rather than crossed twice).
+* `contracts/README.md` — the `xfactory-workbench-chat-turn` row, which still
+  described the v1 envelopes as byte-identical, still validating, and DEPRECATED
+  with removal target `contract-v2.0`.
+* `docs/contract-versioning-policy.md` — the doxBench chat-turn v1 entry LEAVES
+  § Deprecations Currently In Force and arrives in § Deprecations Executed
+  carrying all six elements the exemplar row establishes, closing *"Deprecated
+  at contract-v1.34, removed at contract-v3.0."*; and the
+  `add-binding-consumer-identity` `consumer:` entry is RESTATED to
+  `contract-v4.0` with its reason, per the act that did not land, above, and
+  `add-requirement-ref-resolution-integrity`'s entry has its owed `Warned since`
+  filled in as `contract-v3.0` with its removal target restated to
+  `contract-v4.0` beside it. **§ Deprecations Currently In Force now holds THREE
+  bullets and not one of them names a spent target**; § Deprecations Executed
+  holds FOUR rows. The
+  Executed rows for the fallback read and the `openworkflow` branch, and the
+  flat KEYS' restatement to `contract-v4.0`, landed in `a951be76` ahead of this
+  cut — verified unchanged here, and § Deprecations Currently In Force now
+  holds exactly two bullets, neither of which names a spent target.
+* `tests/intent-compliance/test_release_boundary.py` — the release boundary is
+  pinned by an ENUM OF NAMED BUNDLE VALUES and fails loudly on a bundle it has
+  not been told how to classify. It fired on this bump, correctly.
+  `contract-v3.0` is classified BY HAND and on the record: past the floor,
+  family registered, family present, and the membership this file asserts is
+  UNCHANGED — the three retirements touch no intent-compliance member. The enum
+  gains ONE named member handled by the SAME match arms; no test is added,
+  removed, renamed or weakened, and the next bundle trips it again.
+* `contracts/releases/contract-v3.0.digests.yaml` — this cut's inventory, built
+  by the canonical `build --tag contract-v3.0` AFTER every other member above,
+  and never hand-edited. `contracts/releases/contract-v2.6.digests.yaml` and
+  every earlier inventory are untouched.
+
+### What this release does NOT confer
+
+**The bundle is not published until its tag exists**, and at this entry it does
+not. This cut declares `contract-v3.0`; the annotated tag is a separate act on
+the commit that actually lands, taken only after § Bundle Realization Order
+step 4 — every gate and review rerun against the promoted commit — has been
+performed and verified from an independently refreshed checkout. That is the
+step whose omission produced the disposition three sections above, and this
+entry may not be cited as evidence that `contract-v3.0` is released.
+
+`add-chain-attestation`'s §5.1–5.3 machinery gates and its **§5.8 canary pair**
+remain OPEN and are honestly unticked; the canary needs the published tag and a
+real pull request, and is not the cutting session's to close. Neither retirement
+packet may archive on this cut alone: both carry a code surface, and under
+`release-realization` they archive on merged plus green realization evidence
+plus the published tag.
+
 ## contract-v2.6 — 2026-09-01 (additive; what actually ran, said by the chain itself)
 
 Realizes `add-chain-attestation` **tranche two**, ratified 2026-09-01 by the

@@ -220,6 +220,15 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       `sole_modifiers - 1` 48, `active_sole - 1` 11, 3 prose headers (3
       archived), 1 declaration, 0 root claims — each identical at `518c670b`,
       `ded8b9f1`, `43cf5933`, `a951be76` and `6856f502`.
+    - `change_ids - 1`, `sole_modifiers - 1` and `active_sole - 1` move again
+      when THIS PACKET's own directory lands: `add-clearing-dispatch-boundary`
+      is itself one more ACTIVE change, and its spec delta is ADDED-only (no
+      `## MODIFIED Requirements` block) with novel requirement titles, so it
+      is a SOLE modifier, never a co-modifier — `co_modified` and
+      `active_co_modified` hold at 104 and 18. `change_ids - 1` moves
+      152 → 153, `sole_modifiers - 1` moves 48 → 49, and `active_sole - 1`
+      moves 11 → 12, bumped in the branch's own landing commit per this rule,
+      2026-09-01 (PR #555).
     - `active_co_modified` reads 17, and read 18 above. It moved on 2026-09-02,
       when PR #571 archived `govern-sibling-added-modified-deltas` — an ACTIVE
       change carrying TWO `## MODIFIED Requirements` blocks (over
@@ -239,6 +248,22 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       that archive having removed a CO-modified active and never a sole one, so
       the `- 1` still subtracts `add-sequenced-after-substrate` alone and still
       recovers the authoring 11.
+    - MERGING the two branches together COMPOUNDS the two moves rather than
+      colliding them: PR #555's own-directory landing (bullet above) moves
+      `change_ids - 1`, `sole_modifiers - 1` and `active_sole - 1` by +1 each
+      and leaves `active_co_modified` untouched; PR #571's archive (bullet
+      above) moves `active_co_modified` alone and leaves the other three
+      where PR #555 left them. The two moved pins are DISJOINT, so combining
+      them needs no new number: the live sweep on this merge reads
+      `30 active + 124 archived` = 154 change ids, `104` co-modified, `50`
+      sole modifiers, `17 / 13` active co-modified/sole — exactly
+      `153 + 1`, `49 + 1` and `12 + 1` on PR #555's three pins, with
+      `active_co_modified` holding at PR #571's own 17 (a sole-modifier
+      landing cannot move a co-modified count). Every assertion below is
+      therefore RE-DERIVED UNCHANGED from what each side already asserted on
+      its own — confirmed against
+      `python3 scripts/validate-sequenced-after.py . --sweep` run on the
+      merged tree, not assumed from the arithmetic.
     """
     sweep = sa.corpus_sweep(ROOT)
     assert sweep.co_modified == 104, (
@@ -259,8 +284,8 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # This change is itself a sole modifier at requirement granularity — which is
     # exactly why it declaring a parent anyway is the doctrine applied to its
     # author: declaring must never be worth less than omitting.
-    assert sweep.change_ids - 1 == 152
-    assert sweep.sole_modifiers - 1 == 48
+    assert sweep.change_ids - 1 == 153
+    assert sweep.sole_modifiers - 1 == 49
     # STILL INTACT ON ITS MERITS, not by a cancelling pair of errors — checked,
     # because #563's archive landing between the authoring measurement and this
     # reading makes the coincidence worth ruling out explicitly. That archive
@@ -269,7 +294,7 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # only at `43cf5933`, when THIS change added itself as an active sole
     # modifier. The `- 1` therefore still subtracts exactly this change and
     # still recovers the authoring 11.
-    assert sweep.active_sole - 1 == 11
+    assert sweep.active_sole - 1 == 12
     assert sweep.prose_headers == 3 and sweep.prose_headers_archived == 3
     assert sweep.declaring == 1
     assert sweep.declaring_ids == ("add-sequenced-after-substrate",)
