@@ -31,7 +31,7 @@ kind: pinned_contract_manifest
 # (`openXwallet/docs/pin-resync-runbook.md`), never a CI read.
 # ============================================================================
 
-contract_bundle_tag: wallet-v1.3
+contract_bundle_tag: wallet-v1.4
 source_repository: opensoft/openXwallet
 
 # ADDED to the realized shape (D1): the gitlink this pin governs. Borrowed from
@@ -40,8 +40,8 @@ source_repository: opensoft/openXwallet
 # gitlink.
 submodule_path: openXwallet
 
-# openXwallet at `wallet-v1.3`. Exactly 40 hex characters.
-commit: "6b248d4050e1f88b3ca75c1290ad2c81f465300c"
+# openXwallet at `wallet-v1.4`. Exactly 40 hex characters.
+commit: "b7b0fbb3e6d614f60a24737c247e45dada9408aa"
 revision_kind: commit
 
 digest_algorithm: sha256

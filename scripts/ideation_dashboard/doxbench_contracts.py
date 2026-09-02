@@ -295,7 +295,56 @@ from referencing.jsonschema import DRAFT202012
 # SENTINEL TO THE COMMIT `contract-v3.0` DEREFERENCES TO IS OWED, immediately
 # after the tag is published and never before, and it is listed as a post-merge
 # step in the cut's pull request rather than left to be remembered.
-CONTRACT_REF = "unpublished:contract-v3.0"
+#
+# THE REF IS RESOLVED — 2026-09-02, THE SAME DAY THE TAG WAS PUBLISHED, which is
+# the whole point of the obligation the paragraph above records. `contract-v3.0`
+# is published: annotated tag object
+# 59f4f51f2e0ac7c833cdaee9f385e9e83777650e, which PEELS to
+# ff9ed81541ab3eb2ebeb2e79676e5a875dd58064 -- the squash-merge of PR #573 -- and
+# THAT COMMIT is what this pin names, exactly as the v2.2, v1.40, v1.38, v1.34
+# and v1.31 pins named their own, and never the tag object. The v1.45 residue
+# those paragraphs narrate stood three days; this one stood roughly two hours.
+#
+# Verified FROM THE REMOTE rather than from the local ref that created it, and
+# from a SECOND clone that never saw the tagging clone's working tree:
+# `git ls-remote origin refs/tags/contract-v3.0` returns that tag object,
+# `git rev-parse contract-v3.0^{commit}` peels to this commit, and both
+# `verify-commit --commit ff9ed815` and
+# `verify-tag --remote origin --tag contract-v3.0` pass with ZERO findings.
+# `verify-promotion --commit ff9ed815 --remote origin --tag contract-v3.0` was
+# ALSO taken green, on the PROMOTED squash and before any tag object existed --
+# § Bundle Realization Order step 4, the step whose omission left
+# `contract-v2.6` declared and permanently unpublishable. Evidence: PR #573
+# comment 5506503494.
+#
+# THE SWEEP SENTENCE ANNOTATED ABOVE IS TRUE AGAIN AT THIS COMMIT, on the terms
+# its own annotation set: no `unpublished:` value is assigned anywhere in this
+# repository. The string still appears in prose, and correctly -- every
+# paragraph above narrates a sentinel that was real when it was written, and not
+# one of them is edited.
+#
+# ONE LIVE CONSEQUENCE, STATED HERE RATHER THAN LEFT TO BE DISCOVERED (raised by
+# Copilot against the cut, where it was not yet true because the value was still
+# the sentinel): now that this is a 40-character commit sha, A doxBench CONSUMER
+# MUST PIN BY COMMIT. `verify_stack_pin` compares `xfactory.contract_ref` to
+# `CONTRACT_REF` and does NOT branch on `contract_ref_type`, so a stack pinning
+# by tag would fail the equality check below. That costs nothing real, and the
+# reason is worth writing down: `scripts/validate-domain-openxfactory-pins.py`
+# accepts a tag ref only against its `TAG_RE`,
+# `^v[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$` -- three numeric components
+# after a bare leading `v`, with an OPTIONAL prerelease or build suffix, so
+# `v1.2.3-rc.1` and `v1.2.3+meta` are accepted too; the rule is stated as the
+# regex rather than as "vX.Y.Z" so no reader infers a stricter constraint than
+# exists (Copilot, on the resolution). What disqualifies every contract bundle
+# tag is the `contract-` PREFIX and the two-component version, neither of which
+# any suffix rescues: `contract-v3.0` does not match, and no bundle tag from
+# `contract-v1.7` onward ever has. So a stack cannot name this bundle by tag and
+# pass its own pin validator either.
+# Both doors are shut for the same reason the versioning policy gives: "a
+# movable branch or tag alone is not a sufficient compatibility pin". Widening
+# `verify_stack_pin` to accept a tag-typed pin would be a behaviour change owing
+# its own tests and is deliberately not taken in this resolution.
+CONTRACT_REF = "ff9ed81541ab3eb2ebeb2e79676e5a875dd58064"
 CONTRACT_TAG = "contract-v3.0"
 
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
