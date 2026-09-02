@@ -49,7 +49,10 @@ bodies:
     # organisation is restricted. Commercial product use requires a SFIA
     # Partner Licence. REMOVED from the opsx overlay on this finding.
     reuse_licence: SFIA Foundation licensing scheme — Partner Licence required for commercial product use
-    redistribution_permitted_in_product_config: 'no'
+    # OPERATOR OVERRIDE 2026-09-01: Brett selected product-config permission
+    # without written SFIA permission. This is a policy override, not a
+    # steward-granted licence conclusion; the official conflict remains above.
+    redistribution_permitted_in_product_config: 'yes'
     source_url: https://sfia-online.org/en/about-sfia/licensing-sfia/using-and-licensing-sfia
     confidence: high
     jurisdiction: international  # UK-origin (SFIA Foundation)
@@ -61,6 +64,21 @@ bodies:
       management, USUP incident management, PROG programming, TEST testing).
       Skill-shaped rather than role-shaped, which fits worker classes more
       closely than practice frameworks do. Strong fit for opsx and codex.
+    current_version: SFIA 9
+    status: current
+    verified_on: 2026-09-01
+    source_url: https://sfia-online.org/en/sfia-9
+    operator_override:
+      status: unverified
+      decision: permit_product_configuration
+      approved_by: Brett Heap
+      approved_on: 2026-09-01
+      rationale: >-
+        Operator ruling authorizes descriptive SFIA 9 crosswalks in product
+        configuration despite the steward's restrictive licensing statement.
+      conflicting_source: >-
+        https://sfia-online.org/en/about-sfia/licensing-sfia/using-and-licensing-sfia
+      legal_review: outstanding
 
   # ---------------------------------------------------------------- IT operations
   - id: itil4
@@ -82,6 +100,23 @@ bodies:
       Deployment Management, Release Management, Monitoring and Event
       Management). ITIL 4 names PRACTICES, not roles — a worker class maps
       to the practice it acts within, never to a job title.
+    attribution_note: ITIL is a registered trade mark; reference only.
+  - id: itil5
+    current_version: ITIL Version 5
+    status: current
+    verified_on: 2026-09-01
+    source_url: https://www.peoplecert.org/news-and-announcements/itil-version-5-explained
+    confidence: high
+    jurisdiction: international  # UK-origin (PeopleCert)
+    name: ITIL Version 5
+    steward: PeopleCert
+    names: practices
+    scope: >-
+      Current IT service-management practice vocabulary. ITIL names practices,
+      not worker roles; a crosswalk is descriptive and never confers practice
+      authority or certification.
+    reuse_licence: PeopleCert proprietary — permission for product configuration not established
+    redistribution_permitted_in_product_config: unclear_treat_as_no
     attribution_note: ITIL is a registered trade mark; reference only.
   - id: cobit_2019
     # LICENCE VERDICT 2026-08-09 (live-source): DO NOT ADOPT. ISACA requires an
@@ -690,8 +725,12 @@ bodies:
       controller_reviewer, and compliance_reviewer. Process names describe
       organizational work, not artifact-only authority; approval, payment,
       posting, and filing nodes must not be applied as agent powers.
+    crosswalk_scopes:
+      - 8.0 Manage Information Technology (IT)
+      - 9.0 Manage Financial Resources
     current_version: Cross-Industry PCF 8.0, published 2026-02-27 (licence page verified 2026-08-26)
     status: current
+    verified_on: 2026-09-01
     source_url: https://www.apqc.org/resource-library/resource-listing/apqc-process-classification-framework-pcf-cross-industry-pdf-13
     term_list_availability: public  # Download is lead-form gated; public measure pages expose definitions.
     licence_page: >-
