@@ -1,0 +1,161 @@
+# LIVE INSTANCE — the SECOND review-authority grant in the stack, and the first
+# one issued by a governed RE-ISSUANCE rather than by a cold start.
+#
+# ============================================================================
+# WHAT THIS GRANT IS, AND WHAT IT REPLACES
+# ============================================================================
+#
+# IT SUPERSEDES grant-mrc-0001. That fact is recorded HERE, IN PROSE, and in the
+# walk record named below — and NOWHERE ELSE — because NO FIELD CARRIES IT. The
+# pinned grant schema (openXwallet `contracts/openxwallet/openxwallet-grant.schema.yaml`
+# at the commit `contracts/openxwallet-pin.yaml` pins) is
+# `additionalProperties: false` and has no `supersedes` key; `parent_grant_ref`
+# means DERIVED FROM, which is a different relation and is deliberately NOT
+# borrowed for this one. This grant is a ROOT grant and carries no
+# `parent_grant_ref`. The runbook states the limit in terms
+# (`docs/governed-reissuance-runbook.md` §5.1, "HONEST LIMIT"): until the
+# drift-cascade change's declared realization surface lands, the supersession
+# lives in the re-issuance record and nowhere else. Inventing a field the
+# validator would refuse is not an option; leaving the relation unrecorded is
+# not one either.
+#
+# grant-mrc-0001 IS REVOKED, NOT SUSPENDED, and it never returns. The ratified
+# core rule (openXwallet `add-composition-drift-cascade`, 2026-08-28): "A revoked
+# grant SHALL NEVER return to the active state. Authority resumes only as a NEW
+# grant, which records the grant it supersedes and the holder composition or
+# standing it was issued against."
+#
+# ============================================================================
+# WHY IT WAS ISSUED — THE COMPOSITION EVENT
+# ============================================================================
+#
+# On 2026-08-31 the merge-readiness council's DECLARED COMPOSITION changed: the
+# enrolled roster's `model_version` component moved from mutable provider
+# aliases (`opus`, `sonnet`) to exact identifiers (`claude-opus-5`,
+# `claude-sonnet-5`). Exactly one of the six declared components moved, and one
+# is sufficient — "WHEN any single component of the declared set changes, THEN
+# the change alone is sufficient to revoke, AND no threshold, score, or
+# tolerance band is consulted." A composition change ends the holder's certified
+# identity; resuming requires an EXPLICIT, HUMAN-RATIFIED issuance act against
+# the changed composition. This file is that act's product.
+#
+# ============================================================================
+# THE THREE CITATIONS THIS REGISTER ACT IS FIXED AT
+# ============================================================================
+#
+# Fixed by the convener at codexFactory
+# `hermes/domain/review-councils/records/2026-09-01-s5-seat-model-soak-run3.md`
+# §12.4 (restating run-2 §12.3). All three exist, and each was verified:
+#
+#   (i)   THE ACTIVATION RULING — codexFactory
+#         `hermes/domain/review-councils/records/2026-09-01-s5-seat-model-soak-run3.md`
+#         §12.1, landed in PR #155 at commit `fd4319aa`. "THE ACTIVATION IS NOT
+#         ISSUANCE: the REGISTER ACT — the convener's, separately, citing this
+#         activation ruling + the roster-change record + the still-owed R5
+#         Operator identity record — remains the gate before any authority
+#         continues."
+#   (ii)  THE ROSTER-CHANGE RECORD — codexFactory
+#         `hermes/domain/review-councils/records/2026-08-31-enrolled-roster-model-pin-flip.md`,
+#         carrying the re-pinned four-seat roster (§2) and the Lead's
+#         `roster_change: lead_accepted_recorded` acceptance (§10).
+#   (iii) THE OPERATOR IDENTITY RECORD — R5's Packet 2 record, signed by the
+#         Operator 2026-09-01 and carried to its governed home by this same act
+#         at `openspec/changes/add-wallet-carried-review-authority/operator-identity-record-2026-09-01.md`.
+#         The plane is EVIDENCED by read-back (EXE-1/EXE-2, xFactory run
+#         33577170272), never inferred from the transport.
+#
+# The walk record for this act:
+# `openspec/changes/add-wallet-carried-review-authority/walk-2026-09-02-register-act.md`.
+#
+# ============================================================================
+# THE SCOPE — CARRIED FORWARD DELIBERATELY, EACH ELEMENT RE-EXAMINED
+# ============================================================================
+#
+# The runbook's §5.1 requires the scope be "carried forward deliberately rather
+# than copied without looking". Each element was re-examined against the
+# composition event, and each STANDS — with the reason recorded so a later
+# reader can tell a decision from a paste:
+#
+#   * `acts: [review]` — STANDS. The composition event changed WHICH MODEL sits
+#     in each seat. It changed nothing about WHAT the holder is authorised to
+#     do. `review` is the canonical act token the register reader enforces
+#     (`register-act-not-review`), and widening the act set on a re-issuance
+#     would smuggle new authority through a recovery.
+#   * `objects: [opensoft/openxFactory]` — STANDS. One target repository, the
+#     same one row-mrc-0001 commissions. The reader enforces set-equality
+#     between this list and the row's `target_repo`, so any drift here is a
+#     `register-grant-mismatch`, not a silent widening.
+#   * `authority_tier: act` — STANDS, and it stands on an UNCHANGED basis: the
+#     custody attestation `attestations/custody-attest-wal-agent-mrc-0001.yaml`,
+#     which attests `holder_readable` custody for wal-agent-mrc-0001 and was not
+#     touched by the composition event. Without it the unattested cap applies
+#     and this grant could reach only `request`. `act_unsupervised` is refused
+#     outright for review authority and was never a candidate.
+#   * `approval_posture` — IDENTICAL, byte for byte, to grant-mrc-0001's:
+#     approval-before-apply required, authority agents may not approve, no
+#     human-escalation act enumerated. This is the compensating control that
+#     lets `holder_readable` custody reach tier `act` at all (clarifications
+#     N13), so relaxing it on a re-issuance would quietly remove the ground the
+#     tier stands on.
+#
+# The AUDIENCE is likewise unchanged: the same wallet (`wal-agent-mrc-0001`) and
+# the same holder body (`agent:merge-readiness-council`). A composition change
+# is not a change of holder; it is a change of the holder's certified identity,
+# and the wallet that must prove possession at exercise is the same wallet.
+#
+# ============================================================================
+# THE EXPIRY — RULED, NOT INHERITED
+# ============================================================================
+#
+# `expires_at: 2027-06-30T00:00:00Z`, ruled by Brett Heap in session on
+# 2026-09-02 as option A3 of three offered. It is NOT grant-mrc-0001's
+# 2026-11-23T12:00:00Z carried over: a re-issuance chooses its expiry AFRESH
+# (runbook §5.1 act 2), and re-using the superseded grant's date would have made
+# the new grant's term an artifact of when the old one happened to be cold-started.
+#
+# WHAT THE DATE IS BOUND TO: the Operator identity record's own review expiry,
+# which is itself bound to `claude-sonnet-5`'s published retirement floor — the
+# earliest floor among the two pinned seat identifiers. The grant may not outlive
+# the evidence of the identity it was issued against.
+#
+# THE HONEST CAVEAT, carried from the runbook's §6.1: NOTHING IN THIS ESTATE
+# READS A RETIREMENT DATE. This expiry is a date in a file that the register
+# reader computes against at read time (`register-row-expired`, `grant-state-stale`),
+# and that is the whole of its enforcement. The retirement horizon it is bound to
+# is a promise with a named human owner, not a control.
+#
+# ON THAT DAY, with no code change and no deploy to blame, every convening parks.
+# Re-issuance is an operator act with a lead time; this line is where the date is
+# stated as a SCHEDULED EVENT rather than discovered as an outage.
+#
+# ============================================================================
+# THE RESOLUTION PATHS, unchanged from grant-mrc-0001
+# ============================================================================
+#
+# Audience resolves to wal-agent-mrc-0001 in `../wallets/`; tier `act` stands on
+# the custody attestation in `../attestations/`; the backing register row is
+# `row-mrc-0001` in `../register.yaml`, repointed to this grant in the same
+# change that minted it. All three are cross-checked by the pinned validator's
+# register reader inside the REQUIRED `wallet-validation` check — and there is no
+# ordering of the revoke/mint/repoint writes that is green halfway, which is why
+# they are one change.
+schema_version: 1
+kind: xfactory_wallet_grant
+grant_id: grant-mrc-0002
+audience:
+  wallet_ref: wal-agent-mrc-0001
+  holder_ref: agent:merge-readiness-council
+scope:
+  acts:
+    - review
+  objects:
+    - opensoft/openxFactory
+  authority_tier: act
+  approval_posture:
+    hermes_approval_required_before_apply: true
+    authority_agents_may_approve: false
+    human_escalation_required_for: []
+expires_at: "2027-06-30T00:00:00Z"
+issued_at: "2026-09-02T13:33:48Z"
+issued_by: Brett.Heap@opensoft.one
+state: active

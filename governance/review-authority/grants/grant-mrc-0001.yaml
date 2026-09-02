@@ -7,6 +7,48 @@
 # tier act stands on the custody attestation in attestations/; the backing
 # register row lives in ../register.yaml. All three are cross-checked by the
 # validator's register reader inside the required wallet-validation check.
+#
+# ----------------------------------------------------------------------------
+# 2026-09-02 — REVOKED. Appended, and nothing above this line is rewritten: the
+# header records what this grant WAS, and it is still true of the grant it
+# describes.
+#
+# REASON CLASS: DRIFT. The declared composition of the holder body changed on
+# 2026-08-31 — the enrolled roster's `model_version` component moved from
+# mutable provider aliases (`opus`, `sonnet`) to exact identifiers
+# (`claude-opus-5`, `claude-sonnet-5`) at codexFactory
+# `6edecaf13e88fc56f9a7182b93a0d48cc2e40541`, recorded at
+# `hermes/domain/review-councils/records/2026-08-31-enrolled-roster-model-pin-flip.md`.
+# A composition change is the END of that holder's certified identity: its
+# outstanding grants are revoked at once, with no tolerance band and no grace
+# period. DRIFT propagates exactly as CAUSE — no derived authority survives on
+# the strength of its parent's reason — and this grant has no derived children.
+#
+# TERMINAL, NOT SUSPENDED. "A revoked grant SHALL NEVER return to the active
+# state" (openXwallet `add-composition-drift-cascade`, ratified 2026-08-28).
+# Do not edit `state` back to `active`; authority resumed as a NEW grant.
+#
+# SUPERSEDED BY grant-mrc-0002, minted at the same instant recorded in the
+# `revocation` block below, so there is no window between the revocation and the
+# issuance. THE SUPERSESSION IS RECORDED IN PROSE — here, in grant-mrc-0002's
+# own header, and in the walk record — because the pinned grant schema is
+# `additionalProperties: false` and carries no `supersedes` key
+# (`docs/governed-reissuance-runbook.md` §5.1). `parent_grant_ref` means DERIVED
+# FROM and is NOT borrowed for this relation.
+#
+# THE ACT: the register act of 2026-09-02, ratified by Brett Heap
+# (Brett.Heap@opensoft.one) on a permanently human-only surface. Its record is
+# `openspec/changes/add-wallet-carried-review-authority/walk-2026-09-02-register-act.md`.
+#
+# WHO PERFORMED THE WRITE, and why that is worth saying. R11 rules that
+# revocation needs no ratifier because a fail-closed cascade must not wait on a
+# human. That is not a claim that anything in this estate performed it: NOTHING
+# TODAY WRITES `state: revoked` INTO A GRANT FILE. There is no daemon, no
+# reconciler and no hook that walks a composition change into this directory.
+# This write is an OPERATOR ACT with a machine-enforced refusal behind it — the
+# reader fails the required gate when a row's grant does not back it — and it
+# must never be read as a cascade that ran while nobody was looking.
+# ----------------------------------------------------------------------------
 schema_version: 1
 kind: xfactory_wallet_grant
 grant_id: grant-mrc-0001
@@ -26,4 +68,16 @@ scope:
 expires_at: "2026-11-23T12:00:00Z"
 issued_at: "2026-08-25T12:45:00Z"
 issued_by: Brett.Heap@opensoft.one
-state: active
+state: revoked
+revocation:
+  revoked_at: "2026-09-02T13:33:48Z"
+  reason: >-
+    DRIFT: declared composition change — the enrolled roster's model pins moved
+    from mutable provider aliases (opus, sonnet) to exact identifiers
+    (claude-opus-5, claude-sonnet-5); codexFactory
+    6edecaf13e88fc56f9a7182b93a0d48cc2e40541,
+    records/2026-08-31-enrolled-roster-model-pin-flip.md, 2026-08-31. A declared
+    composition change ends this holder's certified identity at once, with no
+    tolerance band and no grace period. Re-issued as grant-mrc-0002 by the
+    register act of 2026-09-02 (walk-2026-09-02-register-act.md). Terminal: this
+    grant never returns to active.

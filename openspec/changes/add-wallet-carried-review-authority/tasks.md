@@ -668,6 +668,35 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
       resolving Ground 2 today; when R6–R12 ratifies, **the open question will be
       whether a precision-flip walk suffices or a revocation-class walk is
       owed**, and this note is where that reader should start.
+  - **2026-09-02 — THE REVOCATION-CLASS HALF OF GROUND 2 IS NOW WALKED, AND 7.6
+    STILL STAYS UNTICKED ON GROUND 1.** The register act was performed
+    ([`walk-2026-09-02-register-act.md`](walk-2026-09-02-register-act.md)):
+    `grant-mrc-0001` REVOKED for DRIFT on the 2026-08-31 composition change,
+    `grant-mrc-0002` MINTED against it at the same instant
+    (`2026-09-02T13:33:48Z`), `row-mrc-0001` REPOINTED, no row added. **That is
+    runbook §5.1's three writes and one non-write, performed for real** — the
+    exercise the bullet above named as missing when it wrote *"DONE FOR A
+    PRECISION FLIP and NOT for a revocation class"*.
+    - **GROUND 1 IS UNTOUCHED AND IT IS THE ONE THAT SHUTS THE TASK.** *"Neither
+      ruling is enforced until the change carrying R6–R12 is ratified, so this
+      task stays OPEN."* **R6–R12 is still not authored.** No act of any class
+      can discharge a condition about a different change's ratification, and the
+      bullet above already says nothing turns on Ground 2 today.
+    - **WHAT THE OPEN QUESTION BECOMES, restated for the reader that bullet sends
+      here.** It is no longer *"does a precision-flip walk suffice?"* — both
+      classes have now been walked, by two dated records. When R6–R12 ratifies,
+      the question is whether the pair discharges 7.6's *"walk it once"* limb,
+      and the answer is very likely yes on the evidence; **Ground 1 is what will
+      still need to move.**
+    - **AND THE WALK FOUND A DEFECT THAT BELONGS TO THIS TASK'S SUBJECT.** The
+      pinned reader REFUSES a correctly-performed re-issuance: `check_register`'s
+      closing loop filters REVIEW-class grants by act and **never checks
+      `state`**, so a correctly revoked grant demands a backing active row that
+      the one-row cap forbids. Measured, with the two-line remedy measured green,
+      at the 2026-09-02 walk record's **§9**. **The re-issuance the runbook
+      prescribes cannot land green until openXwallet's reader is fixed and
+      re-pinned.** That is not a 7.6 deliverable, but 7.6 is where a reader of
+      the runbook will look for it.
 - [ ] 7.7 **Gate:** a revoked holder parks a convening with a named refusal in a
       rehearsed test; an unreadable register refuses; the runbook has been
       walked once.
@@ -702,6 +731,77 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     is not gate completion; it selects no Council model or Operator version,
     authorizes no implementation, discharges no task, reopens no Q8, amends no
     design, and satisfies no S5 gate.
+  - **2026-09-02 — A REVOKED HOLDER NOW EXISTS, AND THE GATE IS STILL NOT MET.
+    READ 7.7'S OWN TEXT BEFORE READING THIS AS PROGRESS.** The gate is *"a
+    revoked holder **parks a convening** with a named refusal **in a rehearsed
+    test**; an unreadable register refuses; the runbook has been walked once."*
+    The register act was performed
+    ([`walk-2026-09-02-register-act.md`](walk-2026-09-02-register-act.md)) and
+    `grant-mrc-0001` is `state: revoked` with a DRIFT reason naming the
+    composition event. **THAT PRODUCES THE HOLDER, NOT THE PARK.**
+    - **LIMB ONE IS UNMET, AND ON A HARDER GROUND THAN BEFORE.** Until 2026-09-02
+      the bullet above could say *"no revoked holder parked anything … nothing
+      was revoked"*; the first clause is now the whole of it. **No convening
+      parked, because NO CONVENING HAS EVER RUN IN THIS ESTATE** — not one
+      commissioned soak, no deliberation row, runner provisioning is ops, tracked
+      at codexFactory issue **#156**. **The limb needs an OBSERVED park by a
+      revoked holder, and this act supplies the revoked holder and nothing else.**
+    - **LIMB TWO is unchanged** — asserted in hermes-install, not by this act.
+    - **LIMB THREE moved again**: a second dated walk, this one revocation-class.
+    - **A gate is met when all its limbs are.** Two of three moving is not a
+      discharge, and the moved limbs are the two that were never the hard ones.
+  - **THE DATED CONSEQUENCE ABOVE IS SUPERSEDED, AND ITS CROSS-REPOSITORY
+    ASSERTION IS NOW OWED AN EDIT.** The bullet naming `2026-11-23T12:00:00Z` as
+    a scheduled event records the row as it stood; **`row-mrc-0001` now expires
+    `2027-06-30T00:00:00Z`** (ruled A3 by Brett Heap on 2026-09-02, bound to the
+    Operator identity record's review expiry, itself bound to `claude-sonnet-5`'s
+    retirement floor). **The bullet is left standing, not rewritten**, because it
+    is the record of a decision taken against the earlier date.
+    - **WHAT THIS OWES, IN ANOTHER REPOSITORY, AND IT IS NOT OPTIONAL.**
+      hermes-install `origin/main` carries
+      `tests/unit/test_review_authority_projection.py::test_the_live_register_rows_expiry_is_a_fact_a_test_asserts`,
+      which asserts `LIVE_ROW_EXPIRES_AT` = `2026-11-23T12:00:00Z` **and**
+      `authority.grant_ref == "grant-mrc-0001"`, plus example and negative
+      projection fixtures carrying the same date. **It will not go red** — it
+      builds its own fixture from literals — **so nothing will announce that it
+      is now asserting a fact that stopped being true.** Its own docstring names
+      the obligation: *"When the row is re-issued, this test is the thing that
+      has to be edited, which is the point."* **THE ROW HAS BEEN RE-ISSUED.**
+      That edit is a hermes-install change and is **NOT** made from this
+      repository or by this act; it is recorded here so it is owed to a named
+      place rather than remembered. The same edit moves
+      `docs/traceability.md`'s 016 SC-006 row.
+    - **On 2027-06-30 every convening parks under
+      `review_authority.grant_expired`**, with no code change and no deploy to
+      blame — the same scheduled event, at the new instant.
+  - **WHAT THE 2026-09-02 ACT CLOSES, PRECISELY.** 7.5's tick enumerated what it
+    did not claim, including: *"THE REGISTER ACT IS OWED — sequencing step 5; the
+    declared composition moved and no governed re-issuance has been performed, so
+    `grant-mrc-0001` still stands against the prior composition."* **That gap is
+    closed.** The grant no longer stands against the prior composition; it is
+    revoked, and a grant issued against the changed one backs the row. **7.5's
+    checkbox does not move — it was already ticked — and nothing else in that
+    enumeration is discharged by this act.**
+  - **WHAT STAYS OPEN AFTER THE REGISTER ACT, named so it is not inferred.**
+    - **STEP 5b — the projection is NOT re-derived by this act**, and until it is,
+      *"the runtime still refuses with `review_authority.root_key_mismatch`"* and
+      **no authority flows**. It is machinery, not a hand act: hermes-install's
+      `hermes-register-projection-refresher` CronJob (`0 */2 * * *`, live since
+      2026-08-30) reads `opensoft/openxFactory` at `origin/HEAD`, so **it moves
+      within two hours of MERGE and not while the pull request is open**. Walk
+      record §8. `revocation_staleness_bound: P7D` travels verbatim and is not
+      touched here.
+    - **CONVENING ADMISSION — NOT PERFORMED and not performable** (§8.3). The park
+      is lifted when a real convening is admitted against the new grant, and none
+      can run.
+    - **THE PINNED READER REFUSES THE ACT.** `register-no-active-row` fires on the
+      correctly revoked `grant-mrc-0001` because `check_register`'s closing loop
+      filters on the act class and **never checks the grant's `state`** — while
+      the one-row cap forbids giving it the row the loop demands. Measured at walk
+      record **§9**, with the two-line remedy measured green and deliberately NOT
+      taken here (it is an openXwallet contract change plus a pin bump).
+      **`wallet-validation` is a REQUIRED check that runs on pull requests only**,
+      so merging before that fix reds every subsequent candidate.
 
 ## 8. Bench and governance items carried, not performed
 
