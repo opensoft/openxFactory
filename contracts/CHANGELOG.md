@@ -25,7 +25,7 @@ what landed, and what named this major and did NOT.
 | 3 | The doxBench chat-turn **v1** envelope family (`workbench-chat-turn`, `-success`, `-failure`) leaves `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`, with its `deprecated_envelopes` block, the runtime and validator dispatch, twelve packaged fixtures and the byte-identity baseline test | PR **#564**, squash `6856f502` | REMOVAL (Breaking) |
 | 4 | `add-chain-attestation` tranche two — eight new schemas, four shipped schemas extended additively, the tranche-two corpus and the extended reader | PR **#556**, squash `518c670b` | ADDITIVE, carried from the never-published `contract-v2.6` |
 | 5 | The three deprecation-section moves: Executed rows for acts 1–3, and the flat KEYS' In Force entry restated to `contract-v4.0` with the recorded reason | PR **#562** (acts 1, 2 and the restatement) and THIS CUT (act 3) | policy record |
-| 6 | `xfactory-workbench-chat-turn.schema.yaml`'s own `contract_schema_version` **1 → 2**, the one integer this major moves | THIS CUT | metadata |
+| 6 | NO `contract_schema_version` moves at this major — set, manifest rows and contract files alike (OQ-2, answered by measurement below) | THIS CUT, as a recorded decision | metadata |
 | 7 | The doxBench consumer pin's `CONTRACT_TAG` off its knowingly stale `contract-v2.2` | THIS CUT | consumer pin |
 | 8 | `contract-v2.6` recorded as a SPENT, never-verifiable, never-published number, SUPERSEDED here | THIS CUT | release record |
 | 9 | `add-requirement-ref-resolution-integrity` — the two `requirement-ref-*` WARNING codes and their packaged probes, PUBLISHED at this bundle (its entry's owed `Warned since`, filled in here) | PR **#570**, squash `e01561c5` | DEPRECATING (minor) |
@@ -331,11 +331,45 @@ commit the targeting rule names. `contract-v2.6` can never be.
   heading. A reader who arrives at that entry should read on to here.
 * **THIS IS INSTANCE SIX of the shape #528 tracks**, and it is a different
   shape from the first five: those were bundles whose tags nobody published;
-  this is a bundle whose tag nobody COULD publish. It is recorded here rather
-  than argued about — **a record is not a check, #528 is still OPEN**, and the
-  step this cut takes to avoid repeating it is the one whose omission killed
-  `contract-v2.6`: § Bundle Realization Order **step 4**, rerun on the promoted
-  commit BEFORE any tag.
+  this is a bundle whose tag nobody COULD publish. The step this cut takes to
+  avoid repeating it is the one whose omission killed `contract-v2.6`:
+  § Bundle Realization Order **step 4**, rerun on the promoted commit BEFORE any
+  tag.
+
+**AND THE CHECK #528 ASKED FOR NOW EXISTS, READS THIS BUNDLE, AND HAS NO
+VOCABULARY FOR IT — WHICH THIS ENTRY DECLARES RATHER THAN LEAVES TO BE HIT.**
+The `release-tag-publication` doc-health family
+(`scripts/doc_health/release_tag_publication.py`) inspects EVERY bundle with a
+release inventory, not only the declared one. Today it reports `contract-v2.6`
+at **WARNING** — *"declared and has no published annotated tag, 1 first-parent
+landing(s) after the commit that declared it"* — and
+`tests/doc-health/test_release_tag_publication.py::test_this_repository_reads_zero_and_the_probe_can_fire`
+is consequently **RED ON `main` ALREADY**, before and independently of this cut,
+which reads `origin/main` rather than any branch. **What this cut changes is the
+SEVERITY, permanently**: once the manifest declares `contract-v3.0`,
+`contract-v2.6` becomes a SUPERSEDED bundle and the family reports it at
+**ERROR** without grading — *"cut and SUPERSEDED without ever being published"* —
+and the action it prescribes, *"publish the annotated tag at the commit the
+versioning policy's rule identifies"*, is UNPERFORMABLE for this bundle for the
+two reasons above. Its closing clause, *"never edit the manifest, the changelog
+or the inventory to match the absence"*, is exactly right and is obeyed here:
+nothing was deleted to quiet it.
+
+**THE FINDING IS TRUE. THE FAMILY IS NOT WRONG. IT SIMPLY HAS NO THIRD STATE**
+between *published* and *owes a tag*, and a spent-never-publishable number is
+that third state. **This cut does NOT weaken the family to fit the ruling**, and
+the reason is the ruling's own scope: Brett Heap ruled that `contract-v3.0`
+supersedes `contract-v2.6`, not that a checker should stop objecting to
+abandoned bundles — the shape of any such vocabulary (what record counts as a
+supersession, who may declare one, whether it is `contested` and needs a
+disposition entry) is design work that owes its own change and its own review,
+and a release cut quietly relaxing the one check that exists to stop bundles
+being walked away from is precisely the failure that check was built for. It is
+filed as **openxFactory issue #575**, which carries the measurement, why the cut
+declined to take it, and the five things a disposition owes — including the
+guard against the obvious abuse, that a bundle must never become spent by being
+ignored. It is named here so a reader meeting the ERROR knows it is DECLARED
+rather than undiscovered.
 
 ### OQ-1 and OQ-2, answered at the cut
 
@@ -349,8 +383,10 @@ ride together because they landed together on `main` — `a951be76` and
 carries both narrowings whether it names them or not, and a cut that named one
 would have under-declared its own refusal list.
 
-**OQ-2 — is `contract_schema_version` incremented? ONE integer moves, and
-which one is a MEASUREMENT rather than a reading of the sentence.**
+**OQ-2 — is `contract_schema_version` incremented? NO — NOT the contract set's,
+NOT any manifest row's, and NOT the one contract file whose shape narrowed. The
+answer is three measurements, and the third is the one the cut got wrong first
+and is recorded rather than smoothed over.**
 
 * **The contract SET's integer does NOT move.** `contract-v2.0`, the only
   previous major, moved none. More decisively,
@@ -359,24 +395,39 @@ which one is a MEASUREMENT rather than a reading of the sentence.**
   declare and ERRORS on any other, and all five supported consumers declare
   `1`. Moving it would ERROR all five at the major with no warning minor ever
   served — the exact unphased narrowing § Change Classes forbids and this
-  bundle restated an entry to avoid. The Domain Upgrade Runbook's
+  bundle restated two entries to avoid. The Domain Upgrade Runbook's
   *"`contract_schema_version` if major"* is guidance to a consumer performing an
   upgrade, not a licence for the publisher to refuse the population.
-* **The manifest ROW's `schema_version` does NOT move**, on the estate's own
-  precedent: `contracts/schemas/consent-instrument.schema.yaml` carries
-  `contract_schema_version: 2` while its manifest row still records
+* **No manifest ROW's `schema_version` moves**, and the estate's precedent shows
+  the row and the file are independent: `contracts/schemas/consent-instrument.schema.yaml`
+  carries `contract_schema_version: 2` while its manifest row still records
   `schema_version: 1`.
 * **`contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`'s own
-  `contract_schema_version` moves 1 → 2.** It is the one contract file whose
-  shape NARROWED at this major, and the estate bumps this integer even for
-  growth (the consent-instrument pair at `contract-v1.30`). Nothing in the
-  repository reads it as a refusal input — measured: the only other occurrence
-  is a comment in `scripts/ideation_dashboard/web/views/doxbench-chat-model.js`
-  — so the bump costs nothing and buys the one thing a consumer cannot
-  otherwise get from the file: the file SAYING that its shape moved
-  incompatibly. The record ENVELOPES' `schema_version: { const: 1 }` are
-  untouched in every surviving definition; bumping those would invalidate every
-  instance in the estate, the opposite of what this removal did.
+  `contract_schema_version` STAYS 1 — AND THE ANSWER WAS ALREADY IN THE TREE,
+  ARGUED, BEFORE THIS CUT ASKED THE QUESTION.** The realization (#564) wrote it
+  into `tests/ideation-dashboard/test_doxbench_contracts.py` as an assertion
+  with its reasoning beside it: *"The file's own version does NOT move. It did
+  not move at contract-v1.34 because nothing previously valid became invalid
+  (D16); it does not move here for the opposite reason — the envelopes this file
+  no longer defines cannot be validated against it AT ALL, so there is no shape
+  left for a bumped `contract_schema_version` to describe. What changed is which
+  release a consumer pins, which is the major's own job."*
+  `tests/ideation-dashboard/test_doxchat_model_intake.py` pins the same value.
+  **THE CUT FIRST BUMPED IT TO 2 AND WAS REFUSED BY THOSE TWO TESTS, and that
+  is recorded here rather than quietly reverted**, because the packet filed
+  `contract_schema_version` to the cut *"per OQ-2's answer"* and the honest
+  finding is that the realization had already answered it — in executable form,
+  which is the strongest place an answer can sit. A cut is not the place to
+  overturn a ratified realization's reasoned decision, and the measurement that
+  would have justified doing so was itself wrong: the cut's claim that *"nothing
+  in the repository reads it as a refusal input"* was made from a truncated grep
+  and two tests read it.
+  **SO NO INTEGER MOVES AT THIS MAJOR, AND WHAT CARRIES THE BREAK INSTEAD IS
+  WHAT ALWAYS CARRIED IT**: the bundle version, the per-file `sha256` a consumer
+  verifies, and this entry. The record ENVELOPES' `schema_version: { const: 1 }`
+  are untouched in every surviving definition, as they must be — bumping those
+  would invalidate every instance in the estate, the opposite of what this
+  removal did.
 
 ### The consumer pin: `CONTRACT_TAG`, and the sentinel this cut deliberately re-introduces
 
@@ -396,8 +447,15 @@ module's own established sentinel, used across the `contract-v1.34`,
 exactly this moment and for exactly this reason: the policy allocates the
 version and builds the inventory AT REALIZATION and publishes the annotated tag
 against the commit that actually LANDS, so until that commit exists there is
-nothing honest to name. It is spelled as a value no `stack.yaml` can declare, so
-a consumer comparing against it REFUSES rather than matching by accident.
+nothing honest to name. It is spelled so a consumer comparing against it REFUSES
+rather than matching by accident, and the mechanism is the PIN VALIDATOR rather
+than YAML: a repository can write the string, but
+`scripts/validate-domain-openxfactory-pins.py` requires a 40-character
+lowercase SHA for `contract_ref_type: commit`, so a stack carrying the sentinel
+fails its own pin check and one carrying anything else fails the module's
+equality check. The older comments in that module put this as *"a value no
+`stack.yaml` can declare"*; that overclaims, and the correction is made here
+rather than inherited.
 **THE RESIDUE THAT MECHANISM ONCE LEFT IS NAMED SO IT IS NOT REPEATED**: the
 `contract-v1.45` repin left `unpublished:contract-v1.45` standing for three days
 after the tag was published. **Resolving this sentinel to the commit
@@ -429,8 +487,9 @@ reader finds standing at the major.
 ### Release surface, and the deprecation-section moves
 
 * `contracts/manifest.yaml` — `contract_bundle_version: contract-v3.0`; the
-  `xfactory-workbench-chat-turn` row's `sha256` re-derived over the bumped file
-  and its `consumption_rule` prose dropped of the v1 clauses it still carried
+  `xfactory-workbench-chat-turn` row's `sha256` unchanged from the realization's
+  `350bfedc…` (OQ-2 moves no byte in that file) and its `consumption_rule` prose
+  dropped of the v1 clauses it still carried
   (it described *"SIX closed envelopes"*, false the moment the v1 `$defs`
   left — raised by Copilot against the realization, filed to the cut at that
   packet's 6.1/6.2 rather than crossed twice).

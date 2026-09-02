@@ -382,7 +382,7 @@ cut's own record and would be a claim about a released bundle.
 - [x] 4.2 `contracts/manifest.yaml`: `contract_bundle_version`, and
       `contract_schema_version` per OQ-2's answer at the cut.
       **DONE. `contract_bundle_version: contract-v3.0`, and OQ-2 IS ANSWERED BY
-      MEASUREMENT: exactly ONE integer moves, and it is not one in this file.**
+      MEASUREMENT: NO `contract_schema_version` moves at this major.**
       The contract SET's `contract_schema_version` does NOT move —
       `scripts/validate-domain-openxfactory-pins.py:92` hard-codes
       `"contract_schema_version": 1` as the value every domain `stack.yaml` must
@@ -391,16 +391,17 @@ cut's own record and would be a claim about a released bundle.
       with no warning minor ever served. That is the same unphased-narrowing
       test § 3.3's restatement turns on, applied to the publisher's own field,
       and `contract-v2.0` (the only previous major) moved it none either. The
-      manifest ROW's `schema_version` does not move, on the consent-instrument
-      precedent (that file carries `contract_schema_version: 2` while its row
-      still records `schema_version: 1`). What DOES move is the one contract
-      FILE whose shape narrowed —
-      `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`,
-      `contract_schema_version` 1 → 2, the sibling packet's subject — measured
-      first to read as a refusal input nowhere in the repository. This packet's
-      own two retirements move NO contract file at all: they are
-      validator-and-generator removals, which is why the question had two sides
-      and why the answer is stated as a measurement rather than a rule.
+      manifest ROW's `schema_version` does not move, and neither does the one
+      contract FILE whose shape narrowed —
+      `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`, the sibling
+      packet's subject. **THE CUT BUMPED THAT FILE TO 2 AND WAS REFUSED BY TWO
+      TESTS THE SIBLING'S REALIZATION LANDED**, which assert `== 1` with the
+      reasoning beside them; the answer was already in the tree, in executable
+      form, and a cut does not overturn a ratified realization's reasoned
+      decision. This packet's own two retirements move NO contract file at all:
+      they are validator-and-generator removals, which is why the question had
+      two sides and why the answer is stated as a measurement rather than a
+      rule.
 - [x] 4.3 `contracts/releases/contract-v3.0.digests.yaml`: the cut's inventory.
       **DONE**, built by the canonical
       `python3 scripts/validate-contract-release.py build --tag contract-v3.0`

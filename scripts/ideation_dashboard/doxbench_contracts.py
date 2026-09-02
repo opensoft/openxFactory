@@ -247,10 +247,12 @@ from referencing.jsonschema import DRAFT202012
 # and are not edited, exactly as the v1.40 resolution did not edit its own.
 #
 # RE-CUT TO contract-v3.0 (retire-doxbench-chat-turn-v1 task 6.1, taken at the
-# contract-v3.0 cut). THE CHAT-TURN SCHEMA'S BYTES MOVED TWICE since the v2.2
-# repin, so this pin HAD to move: PR #564 removed the three v1 `$defs`, the
-# `oneOf` refs and the `deprecated_envelopes` block, and the cut bumped the
-# file's own `contract_schema_version` 1 -> 2. #564 already moved
+# contract-v3.0 cut). THE CHAT-TURN SCHEMA'S BYTES MOVED since the v2.2 repin,
+# so this pin HAD to move: PR #564 removed the three v1 `$defs`, the `oneOf`
+# refs and the `deprecated_envelopes` block. The file's own
+# `contract_schema_version` deliberately did NOT move with them, so the digest
+# below is the realization's and the cut re-labels it rather than re-deriving
+# it. #564 already moved
 # `SCHEMA_DIGESTS[CHAT_TURN_SCHEMA_FILE]` to the post-removal bytes and
 # knowingly left the LABEL at contract-v2.2, which the packet's own header
 # records as owed to the cut -- so between that merge and this cut the module
@@ -264,8 +266,15 @@ from referencing.jsonschema import DRAFT202012
 # allocates the version and builds the digest inventory AT REALIZATION
 # (steps 1-2) and publishes the annotated tag against the commit that actually
 # LANDS (step 5), so until that commit exists there is nothing honest to name.
-# It is spelled as a value no `stack.yaml` can declare, so a consumer comparing
-# against it REFUSES rather than matching by accident.
+# It is spelled so that a consumer comparing against it REFUSES rather than
+# matching by accident. STATED PRECISELY, because the older comments above put
+# it as "a value no `stack.yaml` can declare" and that overclaims: a repository
+# can of course WRITE the string. What it cannot do is carry it as a VALID pin
+# --- `scripts/validate-domain-openxfactory-pins.py` requires a 40-character
+# lowercase SHA for `contract_ref_type: commit` (and a `vX.Y.Z` tag otherwise),
+# so a stack declaring the sentinel fails its own pin validator, and one
+# declaring anything else fails the equality check here. Both doors are shut;
+# only one of them is the one the older wording named.
 #
 # THE SWEEP SENTENCE ABOVE IS TRUE AS OF THE COMMIT IT DESCRIBES AND IS FALSE
 # FROM THIS ONE, and it is left standing rather than rewritten, exactly as it
@@ -286,7 +295,7 @@ SCHEMA_DIGESTS = {
     CATALOG_SCHEMA_FILE:
         "e563cc9fc6ede03dfd62537935d0ae0842617d7de46702aee6ad9026aa021635",
     CHAT_TURN_SCHEMA_FILE:
-        "e9a013f326ad6fc82f97eefe7ed49b26fd26e325db88b5d3b47d70e820705b64",
+        "350bfedc02696e7281a42c0bdc9a25059bf7af14d16d89d9f07018d3e691dc1d",
 }
 
 # The four doxBench INSTANCE kinds. The catalog kind is a whole-document schema;

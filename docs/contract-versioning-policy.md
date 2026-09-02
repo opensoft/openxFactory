@@ -473,8 +473,10 @@ retroactively invalidate an old pin.
   conformant until it upgrades.
 
   **THE TARGET ARRIVED AND THE REMOVAL WAS NOT TAKEN — RESTATED AT
-  `contract-v3.0`, WITH THE REASON.** `contract-v3.0` shipped on 2026-09-02 and
-  **not one of the eight acts above landed**: `scripts/validate-credential-contracts.py`
+  `contract-v3.0`, WITH THE REASON.** `contract-v3.0` was CUT on 2026-09-02 —
+  declared, not yet published, this section's own distinction, and the target
+  arrives at the DECLARATION because that is when the removal would have had to
+  be in the bytes — and **not one of the eight acts above landed**: `scripts/validate-credential-contracts.py`
   still emits all eight codes as WARNINGS, measured at that cut rather than
   assumed, and the schema still imposes no type, no member grammar, no
   requiredness and no closure on the block. **THE REASON IS THAT NOTHING
@@ -734,8 +736,12 @@ is indistinguishable from one that was never honoured.
   v1 arm of `serve.py`'s kind discrimination, four positive and eight negative
   packaged fixtures, and the byte-identity baseline test that existed to prove
   the deprecated bytes never moved. **REMOVED at contract-v3.0.** The file's own
-  `contract_schema_version` moved 1 → 2 in the same cut, which is the shape of
-  this removal stated in the bytes a consumer reads.
+  `contract_schema_version` deliberately STAYS `1`: the envelopes this file no
+  longer defines cannot be validated against it at all, so there is no shape
+  left for a bumped integer to describe, and what changed is which release a
+  consumer pins. The break is carried by the bundle version, by the per-file
+  `sha256` a consumer verifies, and by this row — the realization pinned that
+  decision in a test with its reasoning beside it, and the cut kept it.
 
   **THE ROW IS SCOPED TO THE THREE ENVELOPES AND THEIR OWN MACHINERY. FIVE
   SHARED `$defs` DID NOT LEAVE WITH THEM** — `content_hash`, `confined_path`,

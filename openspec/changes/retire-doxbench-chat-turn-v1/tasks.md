@@ -455,27 +455,32 @@ independently refreshed checkout.
 - [x] 6.1 `contracts/manifest.yaml`: the schema's `sha256` moves off
       `2ff5f222…`; the row prose drops its v1 clauses;
       `contract_bundle_version`, and `contract_schema_version` per OQ-2's answer.
-      **DONE, AND THE `sha256` MOVED TWICE RATHER THAN ONCE.** The realization
-      already took it `2ff5f222…` → `350bfedc…` in the same commit as the byte
-      removal (the header records why it had to); this cut takes it
-      `350bfedc…` → `e9a013f3…`, because OQ-2's answer moves the file again.
-      `contract_bundle_version: contract-v3.0`. **OQ-2 ANSWERED: exactly ONE
-      integer moves, and it is the FILE's own, not this row's and not the
-      set's.** `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`'s
-      `contract_schema_version` goes 1 → 2 — it is the one contract file whose
-      shape narrowed at this major, and the estate bumps that integer even for
-      GROWTH (`consent-instrument.schema.yaml` at `contract-v1.30`). This row's
-      `schema_version` STAYS 1, on the same precedent: that file carries
-      `contract_schema_version: 2` while its manifest row still records
-      `schema_version: 1`. The contract SET's integer stays 1 because
-      `scripts/validate-domain-openxfactory-pins.py:92` hard-pins it and all
-      five supported consumers declare it — moving it would ERROR every one of
-      them at a major with no warning served. Every envelope's
+      **DONE. The `sha256` is the realization's `2ff5f222…` → `350bfedc…` and
+      the cut moves it no further**, because OQ-2's answer moves no byte in that
+      file. `contract_bundle_version: contract-v3.0`.
+      **OQ-2 ANSWERED: NO `contract_schema_version` MOVES — not the set's, not
+      this row's `schema_version`, and not the FILE's own. AND THE ANSWER WAS
+      ALREADY IN THE TREE BEFORE THIS BOX ASKED FOR IT**, which is the finding
+      worth recording. § 5's realization wrote it into
+      `tests/ideation-dashboard/test_doxbench_contracts.py` as an assertion with
+      its reasoning beside it — *"The file's own version does NOT move. It did
+      not move at contract-v1.34 because nothing previously valid became invalid
+      (D16); it does not move here for the opposite reason — the envelopes this
+      file no longer defines cannot be validated against it AT ALL, so there is
+      no shape left for a bumped `contract_schema_version` to describe."* —
+      and `test_doxchat_model_intake.py` pins the same value.
+      **THE CUT BUMPED IT TO 2 FIRST AND WAS REFUSED BY BOTH TESTS**, recorded
+      here rather than quietly reverted: this box files the question to the cut,
+      but the realization had already answered it in executable form, and a cut
+      is not the place to overturn a ratified realization's reasoned decision.
+      The measurement that would have justified doing so was itself wrong — the
+      cut's *"nothing reads it as a refusal input"* came from a truncated grep,
+      and two tests read it. The contract SET's integer stays 1 for its own
+      reason: `scripts/validate-domain-openxfactory-pins.py:92` hard-pins it and
+      all five supported consumers declare it, so moving it would ERROR every
+      one of them at a major with no warning served. Every envelope's
       `schema_version: {const: 1}` is untouched; bumping those would invalidate
-      every instance in the estate. Measured before taking it: nothing in the
-      repository reads the file's own integer as a refusal input (the only other
-      occurrence is a comment in
-      `scripts/ideation_dashboard/web/views/doxbench-chat-model.js`).
+      every instance in the estate.
       **AND ONE LINE THIS BOX DOES NOT NAME, IN THE SAME ROW, REPORTED RATHER
       THAN ABSORBED**: the `consumption_rule` also announced that the
       `context-packet-blank` warning *"becomes an ERROR at contract-v2.0"*. It

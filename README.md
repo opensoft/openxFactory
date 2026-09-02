@@ -1798,8 +1798,10 @@ Active changes:
   the text rather than on the premise), and § 2's schema byte move is coupled
   to the per-file `sha256` in `contracts/manifest.yaml`, which `tasks.md` 6.1
   files with the cut. **The `contract-v3.0` CUT IS TAKEN** — § 6 ticked with its
-  evidence, the bundle declared, the chat-turn schema's own
-  `contract_schema_version` moved 1 → 2 as OQ-2's measured answer,
+  evidence, the bundle declared, OQ-2 answered NO — no `contract_schema_version`
+  moves, the cut's attempt to bump the chat-turn schema's own integer having
+  been refused by two tests the realization landed with their reasoning beside
+  them —
   `typed_proposal` RETAINED with the reason (a removal no minor warned on),
   `CONTRACT_TAG` off its stale `contract-v2.2` — but the annotated TAG is a
   separate post-merge act after § Bundle Realization Order step 4 reruns every
