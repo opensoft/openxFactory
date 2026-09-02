@@ -254,6 +254,37 @@
       6.2-consumption half lands with this pull request's merge; the D2 half
       needs its own ceremony.
 
+      **UPDATE 2026-09-01 — the D2 half was ACHIEVED and then DELIBERATELY
+      GIVEN UP, and this task is the place that record belongs.** Two facts,
+      measured rather than remembered:
+
+      1. **xFactory DID converge, days after the observation above.**
+         `opensoft/xFactory` commit `eae4dc6` ("The re-point ceremony,
+         xFactory half: both judging surfaces move to f4702f64 with their
+         MIGRATION_PIN", 2026-08-28) advanced BOTH surfaces. Verified on
+         xFactory `main`, 2026-09-01: `merge-master-approval.yml` and
+         `council-convening-lane.yml` each pin
+         `f4702f647c285012c15717043332f68f1edefc29`. **The paragraph above is
+         a true observation with a stale date, not a standing fact** — it is
+         left as written because rewriting a dated measurement is how a record
+         stops being one.
+      2. **This repository diverged again on 2026-09-01, on purpose.** The
+         `(b′)` activation advanced `core_commit` alone, to the codexFactory
+         commit carrying the 57-entry `openspec/specs` floor extension and the
+         three drift-detection functions the caller now calls. At `f4702f64`
+         the floor is four entries and those functions do not exist, so the
+         converged commit cannot evaluate the object the advance exists to make
+         operative — the same species of forced divergence D2 recorded the first
+         time. Authority: codexFactory
+         `hermes/domain/review-councils/records/2026-08-31-gate-rules-openxfactory-bprime.md`
+         §12, ruled by Brett Heap.
+
+      **So this box stays unticked, and its meaning is unchanged**: a full D2
+      convergence remains a separate, future re-point ceremony in
+      `opensoft/xFactory`. What changed is only that the obligation has now been
+      discharged once and re-incurred once, which is worth knowing before
+      anybody prices it as never-yet-attempted.
+
 
 ## Evidence (recorded 2026-08-27)
 

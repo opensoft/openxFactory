@@ -356,6 +356,14 @@ otherwise assume landed.
   > unchanged — so `lockstep.status: diverged` in
   > `contracts/review-lane-pin.yaml` stays accurate and untouched by this
   > ceremony. See tasks 6.2 (ii)–(iii) and 6.5.
+  >
+  > **SUPERSEDED AS A STATEMENT OF TODAY, 2026-09-01 — kept as the dated
+  > observation it is.** xFactory converged both surfaces on `f4702f64` at
+  > commit `eae4dc6` (2026-08-28), and this repository diverged again on
+  > 2026-09-01 when the `(b′)` activation advanced `core_commit` alone to the
+  > core carrying the 57-entry `openspec/specs` floor. `lockstep.status:
+  > diverged` is therefore accurate again, for a new reason. The full account,
+  > with both measurements, is in tasks 6.5.
 - **NR-007**: **`add-substantive-review-lane` task 5.1 is not ticked.** Its
   ruleset half remains owed, so the task stays open and this feature is recorded
   against it rather than closing it.
