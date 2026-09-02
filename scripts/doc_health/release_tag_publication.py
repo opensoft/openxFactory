@@ -673,8 +673,16 @@ def check_repo(repo: str, repo_path: Path, git,
     # manifest had already moved past, or refuse one it had not yet reached.
     blobs = git.blobs_at(repo_path, tip, [MANIFEST, CHANGELOG])
     if blobs is None:
+        # NAMES BOTH MEMBERS OF THE READ, and Copilot was right that it owed
+        # them: `blobs_at` collapses to None only when GIT ITSELF failed, which
+        # fails the whole batch rather than one path — so a message naming the
+        # manifest alone sends an operator to look at one file when neither was
+        # read. (A per-path failure is the OTHER return shape, None for that
+        # key, and each key has its own guard below.)
         return Skip(FAMILY, f"{repo}: version control could not be consulted "
-                            f"for {MANIFEST}")
+                            f"for {MANIFEST} or {CHANGELOG} — the batch read "
+                            f"at {tip[:9]} failed as a whole, so neither was "
+                            f"obtained")
     manifest = blobs.get(MANIFEST)
     if manifest is None:
         # NOT "no bundle declared". `blobs_at` answers None PER PATH for a blob

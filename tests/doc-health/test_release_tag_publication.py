@@ -429,6 +429,20 @@ def test_a_superseded_bundle_that_was_never_tagged_is_still_reported(tmp_path):
     assert any(f.severity == ERROR for f in findings)
 
 
+def test_a_whole_batch_read_failure_names_BOTH_members(tmp_path):
+    """COPILOT ON PR #584. `blobs_at` collapses to None only when git ITSELF
+    failed, which fails the whole batch — so the skip must not name the
+    manifest alone, or an operator looks at one file when neither was read."""
+    class GitGone(FakeGit):
+        def __init__(self):
+            super().__init__(remotes={"r": "tip"}, git_unavailable=True)
+
+    out = rtp.check_repo("alphaFactory", Path("r"), GitGone())
+    assert isinstance(out, Skip)
+    assert MANIFEST in out.reason and CHANGELOG in out.reason
+    assert "failed as a whole" in out.reason
+
+
 def test_an_unfetched_published_tip_skips_rather_than_reading_no_bundle(tmp_path):
     """THE #338 CONFLATION, GUARDED IN THIS FAMILY'S OWN READS.
 
