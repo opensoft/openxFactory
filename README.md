@@ -439,11 +439,21 @@ Active changes:
   while the POLICY-CHECKED fields — class constraints, worker profile, permitted
   lanes, output schema — are RESOLVED FROM the closed permitted-operations register
   rather than read from the bundle, the bundle's copies being claims compared against
-  it and the register governing on disagreement. ADDS two requirements the basis has
+  it and the register governing on disagreement. ADDS three requirements the basis has
   no counterpart to: SIGN-ON-RETURN (the host returns unsigned results, no attestation
   private key reaches a governed host, and verification strictly precedes signing so
   the hosted signer cannot become an oracle) and WORKSPACE DISPOSAL EVIDENCE as a
-  field of the dispatch record the basis already requires and already attests. ADDS
+  field of the dispatch record the basis already requires and already attests; and the
+  INBOUND RE-SEAL the basis states only outbound — returned output is re-served to the
+  originator from the clearing side's own sealed object, the originator never fetching
+  the execution host's run artifact nor holding a credential into the estate, stated
+  rather than left to the symmetry codexFactory PR #165 currently assumes. Field (10)'s
+  digest rule NAMES TWO CONSTRUCTIONS so neither reads as a new one: the manifest takes
+  canonical `xfc-jcs-sha256-1`, which first needs a TRANCHE-3 widening of that
+  construction's CLOSED `digest_subject` enumeration to admit a manifest subject (a
+  widening of SUBJECTS, never a second construction) and is reported UNREALIZABLE until
+  it lands, while per-file content hashes are plain algorithm-tagged SHA-256 over BYTES.
+  ADDS
   the capability `factory-origin-identity` (six requirements): one Ed25519 origin
   identity per originating repository in a NEW `governance/factory-identity/` register
   that is a SIBLING of the review-authority intake register rather than an extension
@@ -462,7 +472,12 @@ Active changes:
   governed act. OQ2 is RESOLVED to REFERENCE — the basis forbids a second envelope
   vocabulary, so no manifest schema is added and no contract bundle is cut. OQ1 (the
   register's projection path, four shapes sketched) and OQ3 (who scopes the review
-  reader) remain open. Archive is ORDERED AFTER the basis archives.
+  reader) remain open. Archive is ORDERED AFTER the basis archives, and **#555 MERGES
+  FIRST** — if this packet led, its two contested `modified-block-currency` warnings
+  (raised only because the unmerged basis is absent from the tree) would enter the
+  nightly baseline, and #555 landing would resolve them uncited, becoming two ERRORs.
+  The two `health/dispositions.yaml` rows that belt that order live at the AGGREGATION
+  root and are therefore a cross-repo act, not part of this PR.
 - [add-requirement-ref-resolution-integrity](openspec/changes/add-requirement-ref-resolution-integrity/proposal.md)
   — authored 2026-08-31, **RATIFIED 2026-09-01 BY DIRECT RULING**
   (`Status: ratified`; record `review/ratification-2026-09-01.md`) — Brett Heap

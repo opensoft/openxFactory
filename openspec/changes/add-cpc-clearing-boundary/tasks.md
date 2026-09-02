@@ -55,6 +55,20 @@ carries.
       marker this delta already carries is what the arm reads. No `error` or
       `critical` finding is emitted and `--fail-on error` is green. Recorded here
       as the cited change rather than dispositioned away.
+- [ ] 1.10 **MERGE ORDER, AND THE DISPOSITION ROWS THAT COVER IT.**
+      `add-clearing-dispatch-boundary` (#555) MERGES FIRST. If this packet
+      merged first, its two contested `modified-block-currency` warnings would
+      enter the nightly baseline, and #555 landing would resolve them — a
+      contested finding vanishing without a citation, which `report.py`'s
+      uncited-resolution rule re-emits as two ERRORs. Prose in § 1.9 is NOT a
+      recorded disposition: the matcher keys on `(family, repo, path)` in
+      `health/dispositions.yaml`. **That file lives at the AGGREGATION ROOT and
+      is tracked in the `opensoft/xFactory` aggregation repo, not here**, so the
+      two rows are a cross-repo act that cannot land in this PR: family
+      `modified-block-currency`, repo `openxFactory`, path
+      `openspec/changes/add-cpc-clearing-boundary/specs/clearing-dispatch-boundary/spec.md`,
+      one per requirement title, each citing `add-clearing-dispatch-boundary`
+      as the resolving change. Tracked as the aggregation-side task in § 5.3.
 - [ ] 1.8 Ratification: operator decision on the re-scoped packet, on D2/D4/D8/
       D9/D10/D11, and on the OQ1/OQ3 dispositions.
 
@@ -62,8 +76,10 @@ carries.
 
 - [ ] 2.1 NEW `governance/factory-identity/register.yaml` — `register_version`,
       its OWN declared revocation staleness bound and ceiling, and `rows`
-      carrying holder reference, wallet reference, act, authority tier, grant
-      reference, expiry, and state. Deliberately kindless per D3; record D3's
+      carrying holder reference, wallet reference, act, grant reference, expiry,
+      and state — the six the spec's row enumeration names, and no `authority
+      tier` field, the authority cap being a property of the grant and its
+      custody attestation rather than a column of the register. Deliberately kindless per D3; record D3's
       rule-of-three trigger in the file header.
 - [ ] 2.2 NEW `governance/factory-identity/wallets/<wallet>.yaml` — the wallet
       record for the first origin identity (`schema_version` + `kind` from the
@@ -90,6 +106,21 @@ carries.
       as an EXACT SET, so it must be updated in the same act — an exact-set
       comparison against a floor that does not name the new register fails closed
       on every candidate.
+- [ ] 2.9 **Tranche-3 `digest_subject` widening (blocks the origin signature).**
+      `contracts/signed-execution-chain/digest-construction.schema.yaml` closes
+      `digest_subject` at seventeen members and none of them is a request,
+      return, or bundle manifest, so an origin signature over the manifest has
+      no admitted subject today. Widen the enumeration with the manifest
+      subjects this contract needs — the sealed bounded request manifest and the
+      sealed return — as a TRANCHE ADDITION OF SUBJECTS, never a second
+      construction, which is the one way that file is meant to move and what its
+      own header says. Until it lands, the spec reports the requirement
+      unrealizable rather than satisfied. NOT a task of this change; named here
+      because the realization cannot proceed without it.
+- [ ] 2.10 Confirm the byte-hash carve-out needs no contract change: per-file
+      content hashes are plain algorithm-tagged SHA-256 over file bytes and use
+      no canonical-JSON construction, so nothing under
+      `contracts/signed-execution-chain/` moves for them.
 - [ ] 2.8 Confirm no `contracts/` artifact moves: OQ2 is resolved to REFERENCE,
       no manifest schema is added, no bundle is cut, no digest set moves.
 
@@ -141,6 +172,11 @@ carries.
 - [ ] 5.2 Only when 5.1 lands may the read-time refusal be described as in force;
       until then the disjointness rule of task 2.5 is the whole enforcement, and
       documents saying otherwise are refused by the spec's own scenario.
+
+- [ ] 5.3 **xFactory aggregation repo** — add the two
+      `modified-block-currency` disposition rows described in § 1.10 to
+      `health/dispositions.yaml`, citing `add-clearing-dispatch-boundary`.
+      Landed before or with this packet's merge, never after.
 
 ## 6. Records and acceptance
 

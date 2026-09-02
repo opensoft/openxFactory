@@ -172,11 +172,49 @@ not a breach. Adding a requirement saying the same thing would be the exact
 duplication this rework exists to remove. It is cited in the proposal instead,
 and this decision records why no requirement was written.
 
+### D12 — Two digest constructions, named, with the manifest subject owed by a tranche widening **DECIDED**
+
+The basis forbids a second digest vocabulary, and the first pass took that to
+mean "one construction covers everything". It does not. The estate's canonical
+construction is `xfc-jcs-sha256-1` — JCS over a JSON value — and its
+`digest_subject` enumeration is CLOSED at seventeen members, none of them a
+request, return, or bundle manifest. Two consequences, both stated in the spec
+rather than glossed. First, an origin signature over the manifest needs a
+manifest SUBJECT admitted to that enumeration, which is a tranche widening of
+subjects and never a second construction — the one way that file's own header
+says it is meant to move — so until it lands the requirement is reported
+UNREALIZABLE rather than satisfied. Second, per-file content hashes are not JSON
+values at all: canonical JSON has nothing to canonicalize in a byte stream, so
+they are plain algorithm-tagged SHA-256 over bytes. Naming both is what keeps
+this from being the second vocabulary the basis refuses: one construction for
+JSON values, one byte hash for file content, both already in use, neither
+invented here.
+
+### D13 — The inbound re-seal is stated, not left to symmetry **DECIDED**
+
+The basis's re-seal requirement is OUTBOUND ONLY: the clearing side admits the
+producer's sealed object and serves the host from its own. Nothing in the basis
+or in the first pass of this packet said what happens on the way back, and
+codexFactory PR #165 currently takes the return path "by symmetry". Symmetry is
+not a requirement. An originator reading the execution host's artifact directly
+would need a credential into the execution estate — reintroducing on the return
+path exactly the cross-boundary reach the outbound rule removes — so the return
+is admitted, verified, re-sealed, and re-served from the clearing side, and this
+packet ADDS that requirement rather than filing it as a question. It is added
+here rather than left to #555's realization because it is a contract gap, not a
+realization detail, and the packet that noticed it is the cheapest place to
+close it.
+
 ## Risks / Trade-offs
 
 - **Two packets now touch one capability**, and the ordering obligation is real:
   this one archives after the basis. Declared in the front matter and carried by
   the marker.
+- **Merge order is load-bearing.** #555 merges first; if this packet led, the
+  two contested warnings would enter the baseline and #555 would resolve them
+  uncited, becoming two errors. The disposition rows are the belt — and they
+  live in the AGGREGATION repo, so they are a cross-repo act (tasks § 5.3), not
+  something this PR can carry.
 - **The pairing arm cannot see the basis until #555 merges.**
   `modified-block-currency` reports two contested warnings saying the MODIFIED
   blocks resolve to no promoted requirement and no active sibling's addition,

@@ -33,6 +33,16 @@ MODIFIED block whose requirement exists only as an active sibling's addition.
 Two requirements are ADDED to the same capability because the basis has no
 counterpart to them at all. One new capability is ADDED for the register.
 
+**#555 MERGES FIRST, AND THAT ORDER IS LOAD-BEARING, NOT COURTESY.** This
+packet's MODIFIED blocks resolve against the basis's `## ADDED Requirements`
+block. While #555 is unmerged that block is not in the tree, so
+`modified-block-currency` raises two contested warnings (cited in tasks § 1.9).
+If THIS packet merged first, those warnings would enter the nightly baseline and
+#555 landing would make them vanish — a contested finding resolved without a
+citation, which the uncited-resolution rule re-emits as two ERRORs. The order is
+the primary control; the two disposition rows in the aggregation repo's
+`health/dispositions.yaml` (tasks § 1.10 and § 5.3) are the belt behind it.
+
 **WHAT THE BASIS ALREADY RATIFIES IS CITED, NOT RE-AUTHORED.** The single door
 and its append-never, shrink-only grandfather enumeration; the ten-field sealed
 request and its refusal of any second digest or envelope vocabulary; the
@@ -97,7 +107,15 @@ it.
     ten declared fields including the per-file hashes. NO ELEVENTH FIELD, and
     no second digest, envelope, or handling-classification vocabulary — the
     signature is computed over the ten already declared, with the one digest
-    construction `signed-execution-chain` puts in force.
+    construction `signed-execution-chain` puts in force. TWO CONSTRUCTIONS ARE
+    NAMED so that neither reads as a new one: the manifest is a JSON value and
+    takes the canonical `xfc-jcs-sha256-1` construction — which first requires a
+    TRANCHE-3 widening of that construction's closed `digest_subject`
+    enumeration to admit a manifest subject, a widening of SUBJECTS and never a
+    second construction (tasks § 2.9), until which the requirement is reported
+    UNREALIZABLE rather than satisfied — while per-file content hashes are plain
+    algorithm-tagged SHA-256 over file BYTES, canonical JSON having nothing to
+    canonicalize in a byte stream.
   - *Every verifiable field is verified against the provider's authoritative
     API* — the origin signature becomes a THIRD verification class, verified
     conjunctively with the provider resolution (a verifying signature over
@@ -111,8 +129,8 @@ it.
     is a governed contract change and is named as codexFactory's task, not
     assumed here.
 
-- **ADDED to `clearing-dispatch-boundary` — two requirements** the basis has no
-  counterpart to:
+- **ADDED to `clearing-dispatch-boundary` — three requirements** the basis has
+  no counterpart to:
 
   - *Result attestation on the originating repository's hosted infrastructure
     after the return verifies* — the host returns UNSIGNED results, no
@@ -121,6 +139,12 @@ it.
   - *Workspace disposal evidence as a recorded field of the dispatch record* —
     disposal on every terminal state including failure and timeout, evidenced
     in the record the basis already requires and already attests.
+  - *Returned output re-served to the originator from the clearing side's own
+    sealed object* — the INBOUND half of the re-seal the basis states only
+    outbound. The originator never fetches an artifact belonging to the
+    execution host's run and holds no credential scoped to the execution
+    estate; the return crosses the way the request did. Stated rather than
+    left to symmetry, which is how codexFactory PR #165 currently takes it.
 
 - **NEW capability `factory-origin-identity` — six requirements**: one Ed25519
   origin identity per originating repository in a SIBLING register at
@@ -155,8 +179,8 @@ it.
 - `clearing-dispatch-boundary`: field (10) tightened for registered
   originators; origin-signature verification added as a third, conjunctive
   verification class; policy-checked fields resolved from the register rather
-  than read from the bundle; sign-on-return and workspace-disposal evidence
-  added.
+  than read from the bundle; sign-on-return, workspace-disposal evidence, and
+  inbound re-seal of the return added.
 
 ## Impact
 
@@ -186,7 +210,10 @@ it.
      the floor-file exact-set update; and the governed register change that
      would add a `deliberation` operation, which draft PR #165
      (`adopt-bundle-shaped-deliberation`) needs and which does not exist yet.
-  3. **openXwallet** — scoping the review-authority reader's wallet and grant
+  3. **xFactory aggregation repo** — the two `modified-block-currency`
+     disposition rows in `health/dispositions.yaml`, which lives at the
+     aggregation root and cannot be added from this repository.
+  4. **openXwallet** — scoping the review-authority reader's wallet and grant
      resolution to its own register, which is the only thing that can make the
      read-time refusal true in both directions (OQ3).
 - **Unblocks**: nothing on its own; it closes the identity half of a boundary

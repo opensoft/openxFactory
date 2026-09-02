@@ -48,6 +48,20 @@ construction `signed-execution-chain` already puts in force, and this
 modification defines no job-envelope, handling-classification, or digest rule of
 its own.
 
+TWO CONSTRUCTIONS ARE IN PLAY, AND NAMING BOTH IS WHAT KEEPS THIS FROM BEING A
+SECOND VOCABULARY. The manifest is a JSON value: its digest, and the origin
+signature computed over it, SHALL use the estate's canonical JSON construction
+`xfc-jcs-sha256-1`, which requires the manifest to be admitted as a SUBJECT of
+that construction's closed `digest_subject` enumeration — a tranche widening of
+SUBJECTS, never a second construction, which is the one way that enumeration is
+meant to move. Until that subject exists, this requirement is UNREALIZABLE as
+written and SHALL NOT be reported as satisfied. PER-FILE CONTENT HASHES ARE NOT
+JSON VALUES: they SHALL be plain algorithm-tagged SHA-256 over the file's BYTES.
+A canonical-JSON construction has nothing to canonicalize in a byte stream, so
+applying it to file content would be a category error rather than a stricter
+rule. One construction for JSON values and one byte hash for file content —
+both already in use, neither invented here.
+
 #### Scenario: A conformant sealed request is presented
 - **WHEN** a producer presents a sealed bounded request at the boundary
 - **THEN** all ten declared fields MUST be present
@@ -79,6 +93,16 @@ its own.
 - **WHEN** a sealed request's originating repository holds no registered origin identity and its field (10) carries trusted hosted-workflow provenance
 - **THEN** field (10) MUST be satisfied exactly as the basis states
 - **AND** the absence of a registered identity MUST NOT by itself refuse the request
+
+#### Scenario: The manifest has no admitted digest subject
+- **WHEN** an origin signature over the manifest is required and the canonical JSON construction's `digest_subject` enumeration admits no manifest subject
+- **THEN** the requirement MUST be reported as unrealizable rather than satisfied
+- **AND** the remedy MUST be a tranche widening of subjects, never a second construction
+
+#### Scenario: A canonical-JSON construction is applied to file bytes
+- **WHEN** a per-file content hash is specified using the canonical JSON construction
+- **THEN** it MUST be refused as a category error
+- **AND** per-file content hashes MUST be algorithm-tagged SHA-256 over the file's bytes
 
 #### Scenario: A signature covers less than the declared fields
 - **WHEN** an origin signature covers some of the ten declared fields but not all of them, or does not cover the per-file hashes
@@ -216,6 +240,35 @@ check SHALL be refused unsigned.
 - **WHEN** the sealed return's digest or provenance does not verify
 - **THEN** nothing MUST be signed
 - **AND** the return MUST be refused rather than attested with a caveat
+
+### Requirement: Returned output is re-served to the originator from the clearing side's own sealed object
+The clearing side SHALL RE-SEAL THE RETURN: output produced by a governed
+execution host SHALL be admitted by the clearing side, verified, and then served
+to the originating repository from the CLEARING SIDE'S OWN sealed object. The
+originating repository SHALL NOT fetch, download, or otherwise read an artifact
+belonging to the execution host's run, and SHALL NOT hold any credential scoped
+to that run or to the execution estate.
+
+This is the INBOUND half of the re-seal the basis states outbound, and it is
+stated rather than left to symmetry. A sealed object belongs to the run that
+produced it, so an originator reading the host's artifact directly would need a
+credential into the execution estate — reintroducing, on the return path, exactly
+the cross-boundary reach the outbound rule removes. The return SHALL therefore
+cross the same way the request did: admitted, verified, re-sealed, re-served.
+
+#### Scenario: The originator fetches the host's artifact
+- **WHEN** an originating repository reads, downloads, or is granted access to an artifact belonging to a governed execution host's run
+- **THEN** it MUST be refused
+- **AND** the return MUST be served from the clearing side's own sealed object instead
+
+#### Scenario: A return is re-served
+- **WHEN** a governed execution host's output is admitted and verified by the clearing side
+- **THEN** the clearing side seals its own object and serves the originator from it
+- **AND** the originator holds no credential scoped to the execution estate
+
+#### Scenario: A credential into the estate is proposed for the originator
+- **WHEN** a design would give an originating repository a credential scoped to the execution estate so it can collect its own results
+- **THEN** it MUST be refused as reintroducing the reach the boundary exists to remove
 
 ### Requirement: Workspace disposal evidence is a recorded field of the dispatch record
 A dispatch SHALL leave no residue on a governed execution host: the staged
