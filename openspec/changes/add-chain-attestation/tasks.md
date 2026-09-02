@@ -1172,16 +1172,55 @@ Each is contract content — cheap now, expensive after a bundle ships.
       the realization itself (PR #556, squash `518c670b`): thirteen manifest
       rows — eight new, four refreshed with the extension named inside each
       rule — because the family's own required manifest-row digest test refuses
-      a moved schema whose row did not move in the SAME commit. The CUT is this
-      commit: `contract_bundle_version: contract-v2.6`, the CHANGELOG v2.6
-      entry with the number FRESH-COUNTED at the cut (manifest read v2.5,
-      inventories through v2.5, tags through v2.5, zero tranche-two rows in the
-      v2.5 inventory; the #551/#552 `contract-v3.0` ratifications are
-      proposal-only and reserve nothing), the built
-      `contracts/releases/contract-v2.6.digests.yaml`, the release-boundary
-      hand-advance, and the annotated tag `contract-v2.6` pushed on the cut's
-      squash commit with verify-commit AND verify-tag run green from an
-      INDEPENDENT clone — evidence recorded in the cut pull request.
+      a moved schema whose row did not move in the SAME commit.
+
+      **THE CUT HALF IS RE-TARGETED FROM `contract-v2.6` TO `contract-v3.0`,
+      AND THE RE-TARGETING IS STATED RATHER THAN EDITED IN.** This box was
+      ticked on 2026-09-01 claiming a `contract-v2.6` cut with *"the annotated
+      tag `contract-v2.6` pushed on the cut's squash commit with verify-commit
+      AND verify-tag run green from an INDEPENDENT clone"*. **THAT SENTENCE WAS
+      NEVER TRUE OF ANY LANDED COMMIT, and it is corrected here rather than
+      quietly dropped**, because a task record claiming evidence that does not
+      exist is worse than an unticked box. What actually happened: the cut
+      branch forked at `518c670b` and was never rebased onto the final
+      integration point (§ Bundle Realization Order step 1), so the squash
+      `bbbbeda9` carries five release-surface members the reviewed candidate
+      `07986003` never saw — moved by `a951be76` (#562) and `6856f502` (#564),
+      merged four hours earlier — and `verify-commit` at `bbbbeda9` returns five
+      `HGR-RELEASE-DIGEST-MISMATCH` findings, exit 1. **The post-merge checklist
+      STOPPED at step 2 from an independent clone and NO TAG WAS EVER CREATED OR
+      PUSHED**; `git ls-remote origin refs/tags/contract-v2.6` is empty. The
+      full measurement is PR #565 comment `5502452624`.
+
+      **AND A REBUILD WOULD NOT HAVE SUFFICED**, which is why the re-target is
+      to a MAJOR rather than to a repaired v2.6. `contract-v2.6` declares change
+      class ADDITIVE (minor) on a tree that, from 2026-09-01T19:43Z, REFUSES
+      three shapes `contract-v2.5` accepted. A minor asserts that consumers on
+      the same major stay conformant without changes, and on that tree the
+      assertion is false — a class-rule violation no completion commit and no
+      recomputed digest can cure. Brett Heap ruled 2026-09-02, in session,
+      **"Supersede: v3.0 is the completion"**.
+
+      **THE CUT IS THEREFORE `contract-v3.0`**, and this family's CONTENT rides
+      it unchanged — not one of the eight new schemas, the four extensions, the
+      tranche-two corpus or the extended reader is re-cut, re-signed or edited;
+      only the NUMBER it is registered under moves. That cut carries
+      `contract_bundle_version: contract-v3.0`, the CHANGELOG `contract-v3.0`
+      entry with the number FRESH-COUNTED at its own branch point (manifest read
+      `contract-v2.6`, inventories through v2.6, published tags through v2.5
+      with NO v2.6, `refs/tags/contract-v3.0` empty), this family's ADDITIVE
+      claim RE-MEASURED over the landed tree and stated as TWO attributed claims
+      rather than one (this family narrows nothing; the narrowing at the bundle
+      is the three retirements' and theirs alone), the built
+      `contracts/releases/contract-v3.0.digests.yaml`, the release-boundary
+      hand-advance, and a `contract-v2.6` disposition recording the number as
+      SPENT, never verifiable, never published and SUPERSEDED at the same
+      surface. **THE TAG IS NOT PART OF THIS TICK.** It is published only after
+      § Bundle Realization Order step 4 — every gate and `verify-commit` rerun
+      on the PROMOTED commit — which is the step whose omission produced all of
+      the above, and it is then verified from an independent clone. Until that
+      exists this box's cut half is DECLARED, not PUBLISHED, and this packet may
+      not archive on it.
 
 ## 6. Successor — NAMED, NOT DRAFTED
 

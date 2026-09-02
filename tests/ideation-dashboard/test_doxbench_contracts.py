@@ -76,8 +76,32 @@ CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 # REMOTE. The v1.45 sentinel it replaced was never resolved to a commit
 # (that repin's own task 4.2 went undischarged); it was superseded rather than
 # repaired, since these bytes no longer belong to that bundle.
-RELEASED_REF = "8ccfb67bc0fabfa728d709a2efa0cd87b14656fb"
-RELEASED_TAG = "contract-v2.2"
+#
+# RE-PINNED at contract-v3.0 (retire-doxbench-chat-turn-v1 6.1, taken at the
+# cut): the chat-turn schema's bytes moved since v2.2 — PR #564 removed the
+# three v1 `$defs`, their `oneOf` refs and the `deprecated_envelopes` block —
+# so the digest below is the post-removal file's and the catalog's is unmoved.
+# The file's own `contract_schema_version` deliberately did NOT move (see
+# `test_the_widened_family_is_the_only_one_the_file_declares` below, which
+# carries the reasoning), so the cut re-LABELS this pin without re-deriving the
+# digest. #564 moved the module's digest and knowingly left the LABEL at
+# contract-v2.2, so between that merge and the cut the pin named a release
+# these bytes do not belong to; the cut closes that.
+#
+# The REF carries the unresolved-until-published SENTINEL again, on v1.34's,
+# v1.38's, v1.40's, v1.45's and v2.2's precedent: the policy publishes the
+# annotated tag against the commit that LANDS, so until that commit exists
+# there is nothing honest to name. The value is spelled so a consumer comparing
+# against it REFUSES rather than matching by accident — and the mechanism is
+# the PIN VALIDATOR rather than YAML: a repository can write the string, but
+# `scripts/validate-domain-openxfactory-pins.py` requires a 40-character
+# lowercase SHA for `contract_ref_type: commit`, so a stack carrying the
+# sentinel fails its own pin check and one carrying anything else fails the
+# equality check in `doxbench_contracts.verify_stack_pin`. Resolving it to
+# `contract-v3.0^{}` is owed immediately after the tag is published — the v1.45
+# residue is what that obligation exists to avoid repeating.
+RELEASED_REF = "unpublished:contract-v3.0"
+RELEASED_TAG = "contract-v3.0"
 RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:
         "e563cc9fc6ede03dfd62537935d0ae0842617d7de46702aee6ad9026aa021635",
