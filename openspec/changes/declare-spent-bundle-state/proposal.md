@@ -1,8 +1,9 @@
 ---
 code_surface: openxFactory (`scripts/doc_health/release_tag_publication.py` — one new pure reader over `contracts/CHANGELOG.md` and the accept/refuse ladder over its result, plus the two new emits; the module already owns its severity and action constants and this adds to them. `tests/doc-health/test_release_tag_publication.py` — the ten new scenarios arrive as new tests over the same real-git fixtures the file already builds, and `test_this_repository_reads_zero_and_the_probe_can_fire` goes GREEN as a consequence rather than by being edited. `contracts/CHANGELOG.md` — ONE reserved declaration line written into the `contract-v2.6` disposition subsection `contract-v3.0`'s entry already carries; it is an EDITORIAL release member, which is what makes it writable between cuts. `docs/doc-health.md` — the family's row and action line gain the third state. NO change to `Finding`, to `report.render`, to the finding or ranked-plan grammars, to `health/dispositions.yaml` or its readers, to the threshold, to the enforcement floor, to `release-inventory-drift`, to `verify_tag`, or to any other family. AND NO CHANGE TO `contracts/manifest.yaml`, `contracts/releases/contract-v2.6.digests.yaml` OR THE `contract-v2.6` CHANGELOG ENTRY — the family's own action text forbids editing the manifest, the changelog entry or the inventory to match an absence, and this change obeys it: nothing is deleted to make a check pass. ONE FILE IS TOUCHED BY THE PROPOSAL PR AND IS NOT PART OF THIS SURFACE, disclosed rather than folded in: `tests/sequenced_after/test_sweep.py` carries the LIVE corpus pin, and authoring an active change that carries a MODIFIED block moves `co_modified` 104 → 105, `active_co_modified` 18 → 19 and `change_ids - 1` 152 → 153. That pin's own protocol is that it "MOVES WITH the corpus … in the SAME COMMIT", with a dated MOVEMENT LOG entry saying which subject moved and why, so it is corpus BOOKKEEPING rather than realization — and the three counts it does NOT move (`sole_modifiers`, `active_sole`, `declaring`) are asserted unchanged, which is what rules out a change adding itself to two populations at once.)
 target_release: implemented — the openxFactory main line. This surface cuts no contract bundle: no schema under `contracts/schemas/` changes, no digest set moves, and no release tag is owed by it, so the archive gate is merge-plus-green in the shape `add-release-tag-publication-check` and `add-family-enumeration-check` both used. ONE PART OF THE INTENT IS DELIBERATELY DEFERRED TO THE NEXT BUNDLE AND IS NOT SMUGGLED IN HERE: the obligation-side statement of the SPENT state belongs in `docs/contract-versioning-policy.md`, which is a NON-EDITORIAL member of `contracts/releases/contract-v3.0.digests.yaml`, so editing it between cuts would raise a `release-inventory-drift` ERROR on `main` — trading the red this change exists to clear for a different red. See OD-6; the policy paragraph rides the next contract cut and the delta is written so that nothing here depends on it having landed.
-Status: draft
+Status: ratified
 Proposed: 2026-09-02
+Ratified: 2026-09-02 by Brett Heap (openxFactory repository owner) — in session, in TWO ACTS over the two decisions this proposal declined to take by silence. First, on PR #578: **OD-3 ACCEPTED as proposed** (a correctly declared spent bundle emits an `info` with its own finding key, not silence) and **OD-4 ACCEPTED as proposed** (an unpublished successor is a `warning`; quiet only once the superseding bundle's tag is published; `error` where the named successor was never cut). Then the ratification of the packet on that basis. Record: `review/ratification-2026-09-02.md`. **RATIFICATION AUTHORIZES REALIZATION AND PERFORMS NONE OF IT** — no checker line, no test and no changelog declaration lands in the ratifying commit; that is the next PR, and OD-8 is why.
 Origin: openxFactory issue #575, filed by the `contract-v3.0` cut (#573) at the moment it met the defect, rather than after. Commissioned in session by Brett Heap on 2026-09-02, relayed to the authoring session verbatim as **"Merge now, fix #575 next"** — an authorization to AUTHOR THE FIX, covering nothing below it. Every design decision in § Orchestrator Decisions is the authoring session's and is flagged for veto.
 ---
 
@@ -146,7 +147,7 @@ reserved. This follows `document-lifecycle`'s reserved `Modified over` marker
 exactly: **a handle on the record, not a second record**, written inside the
 human disposition subsection the cut writes anyway.
 
-**OD-3 — A CORRECTLY DECLARED SPENT BUNDLE IS AN `info`, NOT SILENCE.** Issue
+**OD-3 — RULED 2026-09-02: ACCEPTED AS PROPOSED. A CORRECTLY DECLARED SPENT BUNDLE IS AN `info`, NOT SILENCE.** Issue
 #575 § 3 put these as the two candidates. `info` is chosen for three reasons.
 This family already carries `info` for exactly this purpose — a skip is
 *"reported, not dropped"* — so the vocabulary is the family's own. A reader who
@@ -156,11 +157,18 @@ silence does not** — see OD-5, which is the argument that actually decides it.
 The cost is honest and is the enforcement floor's own argument turned back:
 `info` is a permanent finding nobody can act on. It is accepted because there is
 ONE of them in the estate's history and the requirement forbids there being a
-second by retrofit; if Brett prefers silence, the veto is here, and the change is
-scenario 1 emitting nothing plus OD-5 losing its subject.
+second by retrofit. **The veto was available and was not exercised**: Brett
+ruled on PR #578, verbatim, that *"a correctly declared spent bundle emits `info`
+with its own finding key, not silence"*, because *"the reader who finds
+`contracts/releases/contract-v2.6.digests.yaml` with no matching tag is owed the
+answer where they are looking, and the key is what makes the one permanent
+finding auditable"*. The ruling names the finding key as its reason, which is
+OD-5's subject, and OD-5 has since been strengthened on a Codex finding — see
+there.
 
-**OD-4 — THE UNPUBLISHED-SUCCESSOR CASE IS A `warning`: NOT SILENCE, NOT AN
-ERROR. This is the guard, and it is the answer to #575 § 4.** A bundle must not
+**OD-4 — RULED 2026-09-02: ACCEPTED AS PROPOSED. THE UNPUBLISHED-SUCCESSOR CASE
+IS A `warning`: NOT SILENCE, NOT AN ERROR. This is the guard, and it is the
+answer to #575 § 4.** A bundle must not
 become spent by being ignored, and the strongest available guard is not a rule
 about who may write a sentence — it is that **the only way to make a bundle
 quiet is to publish its successor's tag**, which is the very act this family
@@ -171,23 +179,46 @@ interval is legitimate — the premise of the whole distance grading — and bec
 the successor is separately graded on its own account, so nothing is lost.
 `warning` rather than silence because a declaration whose successor is not
 published is a claim not yet evidenced, and this family does not accept claims.
+**Brett ruled it on PR #578**, verbatim: *"quiet only once the superseding
+bundle's tag is published, `warning` while it is cut but untagged, `error` where
+the named successor was never cut. The only way to make a bundle quiet is to
+publish its successor's tag."*
 
-**OD-5 — THE SPENT FINDINGS LAND ON `contracts/CHANGELOG.md`, AND THE `info` IS
-`contested`.** Every existing finding of this family lands on
-`contracts/manifest.yaml`. The spent findings deliberately do not, and the reason
-is the finding key: `Finding.match_key()` is `(family, repo, path)`, so a spent
-`info` on the manifest would be indistinguishable from any other finding of this
-family about this repository, and its disappearance would be masked by any
-sibling finding on the same path. Landed on the document that carries the
-declaration, it gets its own key — and classed `contested`, its disappearance
-without a cited change becomes an `uncited-resolution` ERROR. That closes the
-one abuse a changelog-read is otherwise open to: **deleting
+**AND THE GUARD AS RULED WAS INCOMPLETE, WHICH CODEX FOUND AND THIS PROPOSAL
+REPAIRED RATHER THAN FILED — see OD-9.** Cut-and-published does not imply LATER,
+and an earlier already-published bundle satisfies it.
+
+**OD-5 — AMENDED ON A CODEX FINDING, 2026-09-02. THE SPENT FINDINGS LAND ON THE
+BUNDLE'S OWN RELEASE INVENTORY — `contracts/releases/<bundle>.digests.yaml` —
+AND THE `info` IS `contested`.** Every existing finding of this family lands on
+`contracts/manifest.yaml`. The spent findings deliberately do not, and the
+reason is the finding key: `Finding.match_key()` is `(family, repo, path)` and
+ignores the rule text, so a spent `info` on the manifest would be
+indistinguishable from every other finding of this family about this repository
+and its disappearance would be masked by any surviving sibling.
+
+**AS FIRST PROPOSED THIS DECISION SAID `contracts/CHANGELOG.md`, AND CODEX SHOWED
+THAT IS THE SAME DEFECT ONE STEP OVER** (PR #578, P1 on the ratified shape of the
+delta): two bundles legitimately declared spent would share THAT path too, so
+removing one declaration while the other stood would leave the shared key present
+in the current set and `uncited_resolutions()` would raise nothing — exactly the
+per-state disappearance detection this decision promises. The repair is the
+per-bundle inventory, which is unique to the bundle BY CONSTRUCTION: it is the
+artifact whose existence made the bundle enumerable in `cut_bundles` in the first
+place, so a path always exists for any bundle this state can reach. Classed
+`contested`, its disappearance without a cited change then becomes an
+`uncited-resolution` ERROR per bundle, which closes the one abuse a
+changelog-read is otherwise open to: **deleting
 `contracts/releases/contract-v2.6.digests.yaml` would remove the bundle from
 `cut_bundles` and take the whole finding with it**, which is precisely the *"never
 edit the manifest, the changelog or the inventory to match the absence"* this
 family already prescribes. `promotion_fidelity` lands its findings on the delta
 rather than the spec for the same reason, in the same words: the finding belongs
-on the document making the claim.
+on the document making the claim. **ONE finding of this state has no per-bundle
+inventory to land on and stays on the changelog**: a declaration whose SUBJECT is
+a bundle this repository never cut disposes nothing, and is reported at `warning`
+there — a mistyped subject leaves the real bundle undeclared and still reported,
+which is the fail-closed behaviour a typo must not defeat.
 
 **OD-6 — THE POLICY-SIDE STATEMENT RIDES THE NEXT CONTRACT CUT AND IS NOT
 LANDED HERE.** This is the one constraint #575 did not anticipate, and it is
@@ -208,6 +239,27 @@ item rather than a wish, and **nothing in the delta depends on it having
 landed**. The alternative — hold this packet until a cut is due — was rejected:
 it leaves `main` red for an unbounded interval to satisfy a sequencing
 preference, and the ordering is recoverable while the redness is not.
+
+**AND THE PREDICTION HAS SINCE COME TRUE ON `main`, FROM ANOTHER LANE — measured
+after the fact, not claimed in advance.** PR **#577** (merged `2898b104`,
+2026-09-02) recorded `contract-v2.6`'s supersession in
+`docs/contract-versioning-policy.md` — instance SIX in § *Untagged Bundles After
+Enforcement Began* — which is exactly the between-cuts edit to a non-editorial
+inventory member this decision declined to make. `release-inventory-drift` now
+reports, over `main`: **`[error] docs/contract-versioning-policy.md — bytes
+differ from the digest 'contract-v3.0' records`**. The analysis is therefore
+vindicated and its arithmetic is overtaken in the same breath: **the drift error
+exists already, so the INCREMENTAL cost of adding the SPENT-state paragraph to
+that same file is now ZERO, and it clears at the same next cut either way.** This
+proposal does not rewrite its own decision retroactively — the decision was
+right when taken and its reason is preserved above — but tasks § 3.1 records the
+new arithmetic, and the routing of the paragraph is the realization's to take
+with that measurement in hand rather than this proposal's to pre-empt. **What
+#577 DOES discharge** is the consumer-facing half: a reader of the pinned policy
+now learns that `contract-v2.6` is superseded and not dischargeable. What it does
+NOT do — and says so itself, deliberately — is DEFINE the state or its
+declaration form: *"No sentinel is invented … Building one here would be exactly
+the failure that check exists to catch."* That definition is this packet's.
 
 **OD-7 — ONE MODIFIED BLOCK OVER THE FAMILY'S OWN REQUIREMENT, NOT A NEW
 REQUIREMENT AND NOT A NEW FAMILY.** The archived packet's D1 chose a new
@@ -248,6 +300,26 @@ in the interval and no forcing function exists. Three things say to split:
 inherited** — #575 exists so that *"a reader meeting the ERROR knows it is
 DECLARED rather than undiscovered"* — and one more PR of a declared red is a
 smaller harm than an unratified relaxation of the check that declared it.
+
+**OD-9 — ADDED 2026-09-02 ON A CODEX FINDING, AND IT IS A NARROWING OF THE
+GUARD RATHER THAN A NEW DECISION. THE SUPERSEDING BUNDLE MUST BE STRICTLY
+LATER.** OD-4 as ruled requires the successor to be CUT and PUBLISHED. Codex
+showed on PR #578 that this is satisfiable BACKWARDS: a declaration for
+`contract-v2.6` written into `contract-v2.5`'s entry and naming `contract-v2.5`
+— a bundle that was cut, is published, and carries a valid annotated tag on a
+declaring commit — passes every mechanical check as first written, so an untagged
+bundle would go quiet with **no replacement published at all**. The requirement
+now demands that the superseding bundle's `(major, minor)` be STRICTLY GREATER
+than the spent bundle's, with a scenario and an `error` of its own. **Taken and
+repaired here rather than filed as a successor**, because it is not an extension
+of the guard, it is the guard: a decision whose stated purpose is *"the only way
+to make a bundle quiet is to publish its successor's tag"* is not met by a tag
+that already existed. It does NOT reopen OD-4's ruling — the three severities,
+the record, and the acceptance ladder are as ruled; a fourth refusal joins them.
+The residue is disclosed: version ordering is the CHEAP conjunct and this family
+does not prove that the successor actually carries what the spent bundle was to
+have carried, that claim living in the declaration's CAUSE and MEASUREMENT, which
+are read for presence and not for truth.
 
 ## Open questions — carried, not decided
 
@@ -319,7 +391,9 @@ than assumed:
   requirement `Deterministic check families` states in terms that no census,
   word count or canon-share figure *"SHALL … move because the lifecycle scan set
   exists"*. `status-validity` reads that set and reports no findings, which is
-  the `Status: draft` header being accepted.
+  the header being accepted — it read `Status: draft` when this was measured,
+  and reads `Status: ratified` since 2026-09-02; the measurement stands as
+  taken.
 
 The one `error` that does NOT move is the point: `release-tag-publication`
 reports `contract-v2.6` at `error` in both runs, in the same words. **This
@@ -347,6 +421,43 @@ labelled *"editorial member — expected between cuts"* until the next cut
 re-baselines the inventory. Net on `main`: **-1 `error`, +2 `info`**, and the
 self-gate goes green because the estate stopped having an unanswerable finding,
 not because a test was edited.
+
+## Review convergence — four findings, three taken, one refused with a measurement
+
+Recorded here rather than only in the ratification record, because a proposal
+whose text moved under review owes a reader the reason where the text is.
+
+**TAKEN — Codex P1, the successor ordering guard.** OD-9, above. The guard as
+ruled was satisfiable by an EARLIER already-published bundle. Repaired in the
+requirement with a new refusal and a new scenario.
+
+**TAKEN — Codex P1, the shared finding identity.** OD-5, above. Two spent
+bundles would have shared one `(family, repo, path)` key on
+`contracts/CHANGELOG.md`, defeating the per-state disappearance detection that
+decision exists to provide. Repaired to the per-bundle release inventory, with a
+scenario pinning that two spent bundles carry DIFFERENT identities.
+
+**TAKEN — Copilot, the reserved form's delimiters.** The marker form was shown
+wrapped in double backticks, which a reader can copy as part of the literal. It
+is now an indented code block, and the requirement says why in one clause.
+
+**REFUSED WITH A MEASUREMENT — Copilot, the unquoted `#575` in the front
+matter.** The finding says the `Origin:` line's `#575` "will be parsed as a
+comment and break metadata consumption". **Nothing parses that block as YAML,
+and if anything did the estate would already be broken 150 packets deep.** Three
+measurements: `yaml.safe_load` FAILS on the front matter of
+`add-release-tag-publication-check`, `add-requirement-ref-resolution-integrity`
+AND `add-clearing-dispatch-boundary` — every one of them, on `mapping values are
+not allowed here`, because these blocks are markdown headers containing prose
+with colons, never YAML documents. The reader that exists is line-wise
+(`corpus.STATUS_RE` = `^Status:\s*(.+?)\s*$`, within `STATUS_SCAN_LINES = 15`),
+and `sixteen` proposals in this repository already carry an unquoted `#<issue>`
+on their `Origin:` line, `add-release-tag-publication-check` — this packet's own
+basis — among them. Quoting this one line would make it the lone divergence from
+a convention with no YAML reader to serve, so the finding is declined and the
+measurement is recorded in its place. **A REAL YAML SURFACE EXISTS AND IS
+CORRECT**: `.openspec.yaml` is parsed, and every prose field in it is a folded
+`>-` block precisely so that a `#` inside it is literal.
 
 ## Non-goals
 

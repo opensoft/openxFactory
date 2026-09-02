@@ -1,14 +1,18 @@
 # Tasks: declare-spent-bundle-state
 
-Status: draft
+Status: ratified
+Ratified by: declare-spent-bundle-state
 
-**NOTHING BELOW GROUP 4 HAS BEEN DONE, AND GROUP 2 IS DELIBERATELY NOT STARTED.**
-Group 1 is ratification, which has not happened. Group 2 is the realization plan
-and every box in it is open by decision, not by omission — OD-8 splits this
-packet from its code, so a tick in group 2 appearing in the same PR as this file
-would be the thing that decision forbids. Group 4 records what the authoring
-session MEASURED before the packet was put up, which is evidence rather than
-implementation.
+**GROUP 1 IS DISCHARGED AND GROUP 2 IS DELIBERATELY NOT STARTED.** Ratified
+2026-09-02 by Brett Heap; record `review/ratification-2026-09-02.md`. As first
+written this preamble said *"Group 1 is ratification, which has not happened"* —
+that was true of the packet as proposed and stopped being true on 2026-09-02,
+and it is corrected here rather than left to contradict the ticks below. Group 2
+remains open BY DECISION, not by omission: OD-8 splits this packet from its
+code, so a tick in group 2 appearing in the same PR as this file would be the
+thing that decision forbids, and **ratification authorizes realization and
+performs none of it**. Group 4 records what the authoring session MEASURED
+before the packet was put up, which is evidence rather than implementation.
 
 Build group 2 with Speckit, not `/opsx:apply`. OpenSpec ratifies; Spec Kit
 builds. Group 2 is ONE Spec Kit feature: the reader, the ladder, the two emits,
@@ -17,23 +21,36 @@ splitting them would produce halves neither of which is green alone — a reader
 with no declaration to read leaves the `error` standing, and a declaration with
 no reader is a sentence in a changelog.
 
-## 1. Ratification — NOT DONE, and it gates group 2
+## 1. Ratification — DISCHARGED 2026-09-02, and it gated group 2
 
-- [ ] 1.1 Put OD-1 … OD-8 and OQ-1 … OQ-3 to Brett Heap. His commissioning
-      ("Merge now, fix #575 next") authorizes AUTHORING and covers nothing
+- [x] 1.1 OD-1 … OD-9 and OQ-1 … OQ-3 were put to Brett Heap. His commissioning
+      ("Merge now, fix #575 next") authorized AUTHORING and covered nothing
       below it; every decision in § Orchestrator Decisions is the authoring
       session's and each names the alternative it rejected.
-- [ ] 1.2 **OD-3 and OD-4 are the two that carry governance content and should
-      be ruled explicitly rather than accepted by silence.** OD-3 decides
-      whether a correctly declared spent bundle is RECORDED (`info`) or SILENT;
-      OD-4 decides that the only way to quiet a bundle is to publish its
-      successor's tag, which is what makes the state unabusable. A ruling that
-      names four decisions and not these two leaves them OWED, in the shape the
-      archived packet's D4 was carried rather than assumed.
-- [ ] 1.3 Record the ratification at `review/ratification-<date>.md`, set
-      `Status: ratified` and add the record-citing `Ratified:` line to
+- [x] 1.2 **OD-3 AND OD-4 RULED EXPLICITLY, 2026-09-02, NOT ACCEPTED BY
+      SILENCE** — the two that carry governance content, put to him as such.
+      **OD-3 ACCEPTED as proposed**: a correctly declared spent bundle emits an
+      `info` with its own finding key, not silence, because *"the reader who
+      finds `contracts/releases/contract-v2.6.digests.yaml` with no matching tag
+      is owed the answer where they are looking, and the key is what makes the
+      one permanent finding auditable"*. **OD-4 ACCEPTED as proposed**: quiet
+      only once the superseding bundle's tag is published, `warning` while it is
+      cut but untagged, `error` where the named successor was never cut — *"the
+      only way to make a bundle quiet is to publish its successor's tag"*.
+      Recorded on PR #578 and in the ratification record.
+- [x] 1.3 Ratification recorded at `review/ratification-2026-09-02.md`;
+      `Status: ratified` and the record-citing `Ratified:` line are in
       `proposal.md`. Ratification authorizes realization and performs none of
       it.
+- [x] 1.4 **OD-9 ADDED AFTER THE RULING AND BEFORE THE RATIFYING COMMIT, on a
+      Codex P1, and it is a NARROWING rather than a new decision.** The guard as
+      ruled (cut AND published) is satisfiable by an EARLIER already-published
+      bundle, so the superseding bundle must be STRICTLY LATER. Taken into the
+      requirement rather than filed as a successor, because a decision whose
+      stated purpose is *"the only way to make a bundle quiet is to publish its
+      successor's tag"* is not met by a tag that already existed. It reopens
+      nothing Brett ruled: the three severities, the record and the ladder stand,
+      and a FOURTH refusal joins them.
 
 ## 2. Realization — ONE Spec Kit feature, gated on 1.1
 
@@ -55,20 +72,23 @@ no reader is a sentence in a changelog.
       entry. Bytes in, per the module's existing rule that `blobs_at` answers raw
       blob bytes. Reject rather than skip on a malformed line.
 - [ ] 2.3 The ladder in `check_repo`, in the ABSENT arm only and after the
-      `ok`/`lightweight`/`misplaced` branches, so OD-3's scope rule holds by
+      `ok`/`lightweight`/`misplaced` branches, so the scope rule holds by
       construction rather than by care: no declaration → today's behaviour
-      unchanged; declaration accepted and successor published → `info`;
-      successor cut but unpublished → `warning`; successor never cut, element
-      missing, duplicate declaration, wrong containing entry, or naming the
-      currently declared bundle → `error`.
-- [ ] 2.4 The two new emits, on `contracts/CHANGELOG.md` rather than `MANIFEST`
-      (OD-5), with the spent `info` carrying `resolution="contested"`. New
+      unchanged; declaration accepted, successor published AND STRICTLY LATER →
+      `info`; successor cut but unpublished → `warning`; successor never cut,
+      successor not later (OD-9), element missing, duplicate declaration, wrong
+      containing entry, or naming the currently declared bundle → `error`; a
+      declaration whose SUBJECT was never cut → `warning` on the changelog.
+- [ ] 2.4 The emits land on `contracts/releases/<bundle>.digests.yaml` rather
+      than `MANIFEST` (OD-5 as amended), with the spent `info` carrying
+      `resolution="contested"`; the one orphan-subject `warning` lands on
+      `contracts/CHANGELOG.md`, having no per-bundle inventory to land on. New
       action constants beside the four the module already has.
 - [ ] 2.5 The changelog read joins the manifest read at the SAME commit and
       carries the SAME guard: `blobs_at` answering None is a skip naming that
       read, never "no declaration". This is the #338 conflation one document
       over, and the family has already been caught by it once.
-- [ ] 2.6 `tests/doc-health/test_release_tag_publication.py` — the ten new
+- [ ] 2.6 `tests/doc-health/test_release_tag_publication.py` — the thirteen new
       scenarios as tests over the file's existing real-git fixtures, each with
       the positive control the file's own convention requires. Include the
       RED-FIRST proof for 2.1's verification: the declaration removed, the
@@ -76,7 +96,10 @@ no reader is a sentence in a changelog.
 - [ ] 2.7 **Prove OQ-3 rather than inherit it**: a test that a contested `info`
       vanishing between reports produces an `uncited-resolution` ERROR. If it
       does not, OD-5's class choice returns to Brett as an open question and is
-      not quietly dropped.
+      not quietly dropped. **And prove the Codex repair with TWO spent bundles**,
+      not one: two accepted declarations, two `info`s, two DIFFERENT match keys,
+      and removing one raising an uncited-resolution for that one alone. A
+      single-bundle test cannot see the defect Codex found.
 - [ ] 2.8 `docs/doc-health.md` — the family's row and action line gain the third
       state. Check the family count sentences are untouched: this change adds no
       family and `family-enumeration` must stay silent.
@@ -91,13 +114,25 @@ no reader is a sentence in a changelog.
       *"its version number is never reused"* the `contract-v2.6` disposition
       already leans on, and naming the reserved declaration form so a consumer
       reading the pinned policy can find the state without reading doc-health.
-      **It rides the next cut** because the file is a NON-EDITORIAL member of
-      `contracts/releases/contract-v3.0.digests.yaml` and editing it between cuts
-      raises a `release-inventory-drift` ERROR. Nothing in the delta depends on
-      it having landed.
-- [ ] 3.2 At that same cut, `contracts/CHANGELOG.md`'s drift `info` clears on its
-      own when the inventory re-baselines. No action; recorded so a reader does
-      not go looking for one.
+      **PARTLY DISCHARGED BY ANOTHER LANE, AND THE ARITHMETIC HAS CHANGED — PR
+      #577, merged `2898b104` on 2026-09-02.** That PR recorded
+      `contract-v2.6`'s supersession in this very file as instance SIX, so the
+      consumer-facing half — a reader of the pinned policy learns the bundle is
+      superseded and not dischargeable — **is discharged and MUST NOT be
+      re-authored** (*"two records of one measurement is how they drift apart"*).
+      What #577 deliberately did NOT do is DEFINE the state or its declaration
+      form — *"No sentinel is invented … Building one here would be exactly the
+      failure that check exists to catch"* — and that definition is what remains
+      owed here. **AND OD-6's COST ARGUMENT IS NOW SPENT**: #577's edit already
+      raised the predicted `release-inventory-drift` ERROR on `main`
+      (*"bytes differ from the digest 'contract-v3.0' records"*), so the
+      INCREMENTAL cost of adding the SPENT-state paragraph to the same file is
+      ZERO and it clears at the same next cut either way. The realization takes
+      the routing with that measurement in hand; it is no longer forced to wait.
+- [ ] 3.2 At the next cut, `contracts/CHANGELOG.md`'s editorial drift `info` and
+      `docs/contract-versioning-policy.md`'s ERROR both clear on their own when
+      the inventory re-baselines. No action; recorded so a reader does not go
+      looking for one, and so the second is not mistaken for this packet's.
 
 ## 4. Measured before the packet was put up
 
@@ -134,8 +169,10 @@ no reader is a sentence in a changelog.
       warning / 12 info on BOTH, and the two reports are BYTE-IDENTICAL** once
       the repo-identity string is normalized. `family-enumeration`: no findings.
       `modified-block-currency`: scenario-title completeness 0, carriage ledger
-      unchanged at 8. `status-validity`: no findings, so the `Status: draft`
-      header is accepted. The census is unmoved because `proposal.md` is in the
+      unchanged at 8. `status-validity`: no findings, so the header is accepted
+      (it read `Status: draft` when this box was measured, and reads
+      `Status: ratified` since the ratification of 2026-09-02; the measurement
+      is left as taken rather than re-typed to match the later header). The census is unmoved because `proposal.md` is in the
       LIFECYCLE SCAN SET rather than the governed corpus, which the
       `Deterministic check families` requirement states in terms.
       **If a reviewer's run disagrees with this box, the disagreement is the

@@ -413,8 +413,16 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [declare-spent-bundle-state](openspec/changes/declare-spent-bundle-state/proposal.md)
-  — authored 2026-09-02, **`Status: draft` — NOT RATIFIED, and the split is
-  deliberate**. Answers openxFactory issue **#575**, filed by the
+  — authored 2026-09-02, **RATIFIED 2026-09-02 BY DIRECT RULING**
+  (`Status: ratified`; record `review/ratification-2026-09-02.md`) — Brett Heap
+  in session, in TWO ACTS: **OD-3 ACCEPTED AS PROPOSED** (a correctly declared
+  spent bundle emits an `info` with its own finding key, not silence) and
+  **OD-4 ACCEPTED AS PROPOSED** (quiet only once the superseding bundle's tag is
+  published; `warning` while it is cut but untagged; `error` where the named
+  successor was never cut — *"the only way to make a bundle quiet is to publish
+  its successor's tag"*), then the ratification on that basis. **Ratification
+  authorizes REALIZATION and performs none of it**, so the change stays ACTIVE
+  and **the split is deliberate**. Answers openxFactory issue **#575**, filed by the
   `contract-v3.0` cut (**#573**, squash `ff9ed815`) at the moment it met the
   defect: the `release-tag-publication` family has **NO THIRD STATE** between
   *published* and *owes a tag*, so `contract-v2.6` — declared at `bbbbeda9`
@@ -456,9 +464,31 @@ Active changes:
   constraint #575 did not anticipate**: the obligation-side paragraph belongs in
   `docs/contract-versioning-policy.md`, which is a NON-EDITORIAL member of
   `contracts/releases/contract-v3.0.digests.yaml`, so it rides the next cut
-  rather than trading this `error` for a `release-inventory-drift` one. OD-1 …
-  OD-8 and OQ-1 … OQ-3 are FLAGGED FOR VETO; OD-3 (`info` versus silence) and
-  OD-4 are owed an explicit ruling rather than acceptance by silence.
+  rather than trading this `error` for a `release-inventory-drift` one — **a
+  prediction another lane then made true: PR #577 (`2898b104`) edited that very
+  file and `release-inventory-drift` now reports it at `error` on `main`, so
+  OD-6's analysis is vindicated and its arithmetic overtaken in one stroke —
+  the incremental cost of the policy paragraph is now ZERO, and #577 discharges
+  the consumer-facing half of tasks § 3.1 while deliberately not defining the
+  state.** OD-1 …
+  OD-9 and OQ-1 … OQ-3 were FLAGGED FOR VETO; OD-1, OD-2 and OD-6 … OD-8 stand
+  as drafted and OQ-1 … OQ-3 remain OPEN. **FOUR REVIEW FINDINGS, THREE TAKEN
+  AND ONE REFUSED WITH A MEASUREMENT.** Two Codex **P1**s were taken into the
+  requirement before the ratifying commit, both NARROWINGS of what was ruled
+  rather than departures from it: the successor guard was satisfiable BACKWARDS
+  by an EARLIER already-published bundle (**OD-9**, new — the successor must be
+  STRICTLY LATER), and two spent bundles would have shared one
+  `(family, repo, path)` identity on `contracts/CHANGELOG.md`, defeating the
+  per-state disappearance detection (**OD-5** amended — the findings land on
+  `contracts/releases/<bundle>.digests.yaml`, unique per bundle by
+  construction). Copilot's delimiter finding was taken (the reserved form is now
+  a code block). Copilot's *"unquoted `#575` breaks YAML metadata"* finding is
+  **REFUSED WITH A MEASUREMENT**: nothing parses proposal front matter as YAML —
+  `yaml.safe_load` FAILS on `add-release-tag-publication-check`,
+  `add-requirement-ref-resolution-integrity` and
+  `add-clearing-dispatch-boundary` alike — the reader that exists is line-wise
+  (`corpus.STATUS_RE`), and sixteen proposals already carry an unquoted
+  `#<issue>` on their `Origin:` line.
   **Measured: the packet moves NOTHING in doc-health** — base and head
   `--single-repo` reports BYTE-IDENTICAL at 6 critical / 5 error / 29 warning /
   12 info, `family-enumeration` silent and `modified-block-currency`'s

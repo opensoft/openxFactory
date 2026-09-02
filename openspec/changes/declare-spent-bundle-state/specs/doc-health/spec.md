@@ -151,10 +151,12 @@ here rather than left to an implementation because a deterministic family readin
 free prose is a family whose behaviour nobody can predict from its
 specification:
 
-``**SPENT BUNDLE:** `<bundle>` — SUPERSEDED BY `<superseding bundle>` — CAUSE:
-<text> — RULED BY <author>, <YYYY-MM-DD> — MEASUREMENT: <citation>``
+    **SPENT BUNDLE:** `<bundle>` — SUPERSEDED BY `<superseding bundle>` — CAUSE: <text> — RULED BY <author>, <YYYY-MM-DD> — MEASUREMENT: <citation>
 
-The opener `**SPENT BUNDLE:**` is RESERVED: no other text in
+That is the literal line, shown as a code block so that no delimiter of the
+surrounding prose can be misread as part of it — a form quoted inside backticks
+invites a reader to copy the backticks, which is a defect a specification can
+avoid by not introducing it. The opener `**SPENT BUNDLE:**` is RESERVED: no other text in
 `contracts/CHANGELOG.md` may begin a line with it, and a line beginning with it
 that does not complete the form is a malformed declaration rather than prose to
 be ignored. The form is a HANDLE ON THE RECORD AND NOT A SECOND RECORD — it is
@@ -171,30 +173,66 @@ is disclosed rather than hidden. What makes the state safe is not the family's
 belief in the citation but the successor guard below, which cannot be satisfied
 by writing anything.
 
-THE SUCCESSOR GUARD IS WHAT MAKES THE STATE UNABUSABLE, and it SHALL hold in
-both directions. A SPENT declaration SHALL be quiet only where the superseding
-bundle it names has itself been CUT and has itself been PUBLISHED — an annotated
-tag peeling to a commit that declares it. So the only way to retire a number is
-to publish its replacement's tag, which is the very act this family exists to
-compel; a repository that walks away from a bundle by declaring it spent has
-merely moved the obligation onto the successor, where the same check meets it
-again. Where the successor is cut but not yet published the supersession is
-UNPROVEN and the family SHALL `warning` rather than accept it; where the
-successor was never cut at all the declaration points at nothing and the family
-SHALL `error`.
+THE SUCCESSOR GUARD IS WHAT MAKES THE STATE UNABUSABLE — RULED BY BRETT HEAP,
+2026-09-02 — and it SHALL hold in both directions. A SPENT declaration SHALL be
+quiet only where the superseding bundle it names has itself been CUT and has
+itself been PUBLISHED: an annotated tag peeling to a commit that declares it. So
+the only way to retire a number is to publish its replacement's tag, which is
+the very act this family exists to compel; a repository that walks away from a
+bundle by declaring it spent has merely moved the obligation onto the successor,
+where the same check meets it again. Where the successor is cut but not yet
+published the supersession is UNPROVEN and the family SHALL `warning` rather
+than accept it; where the successor was never cut at all the declaration points
+at nothing and the family SHALL `error`.
 
-A CORRECTLY DECLARED SPENT BUNDLE IS RECORDED, NOT SILENT. The family SHALL emit
-exactly one `info` for it, on `contracts/CHANGELOG.md` rather than on the
-manifest, naming the spent bundle, the bundle that superseded it, and where the
-record is. It is recorded because a reader who finds a release inventory with no
-matching tag is owed the answer in the report rather than only in a changelog
-they may not read, and because THE PATH IS THE POINT: landing it on the document
-that carries the declaration gives the state its own finding key, distinct from
-every other finding of this family, which is what lets its disappearance be
-noticed at all. The `info` SHALL be classed `contested` for exactly that reason
-— a spent state that stops being reported has had its inventory or its
-declaration removed, and *"never edit the manifest, the changelog or the
-inventory to match the absence"* is the sentence this family already prescribes.
+AND THE SUCCESSOR SHALL BE LATER THAN THE BUNDLE IT SUPERSEDES, which is the
+half a "cut and published" test does not cover and which cannot be omitted. The
+superseding bundle's `(major, minor)` SHALL be STRICTLY GREATER than the spent
+bundle's, and a declaration naming a successor that is not SHALL be an `error`
+that accepts nothing. Without it, the guard above is satisfiable by an ALREADY
+PUBLISHED EARLIER BUNDLE — a declaration for `contract-v2.6` written into
+`contract-v2.5`'s entry and naming `contract-v2.5`, which was cut, is published,
+and carries a valid tag — so an untagged bundle would go quiet with NO
+replacement published at all and the guard would have been walked around
+backwards rather than broken. Found by Codex on PR #578 against the ratified
+shape of this delta, and repaired in it rather than filed. The residue is
+disclosed: version ordering is the CHEAP conjunct, and this family does not
+prove that the successor actually CARRIES what the spent bundle was to have
+carried. That claim lives in the declaration's CAUSE and MEASUREMENT, which are
+read for presence and not for truth — the same disclosure this requirement
+already makes about the earliest-declaring-commit conjunct.
+
+A CORRECTLY DECLARED SPENT BUNDLE IS RECORDED, NOT SILENT — RULED BY BRETT HEAP,
+2026-09-02, on an alternative that was put to him and declined. The family SHALL
+emit exactly one `info` for it, naming the spent bundle, the bundle that
+superseded it, and where the record is. It is recorded because a reader who
+finds a release inventory with no matching tag is owed the answer in the report
+rather than only in a changelog they may not read.
+
+AND THE FINDING SHALL LAND ON THAT BUNDLE'S OWN RELEASE INVENTORY —
+`contracts/releases/<bundle>.digests.yaml` — NOT on the manifest and NOT on the
+changelog, because THE PATH IS THE FINDING'S IDENTITY. A finding's identity in
+this capability is `(family, repository, path)`; every other finding of this
+family lands on `contracts/manifest.yaml`, so a spent state landed there would
+share an identity with every one of them and its disappearance would be masked
+by any surviving sibling. The changelog is no better: two bundles legitimately
+declared spent would share THAT path too, and removing one declaration while the
+other stood would leave the shared identity present and the removal unreported.
+The per-bundle inventory is the one path that is unique to the bundle BY
+CONSTRUCTION — it is the artifact whose existence made the bundle enumerable in
+the first place. Found by Codex on PR #578 against a `contracts/CHANGELOG.md`
+path, and repaired rather than filed. The `info` SHALL be classed `contested`,
+so that a spent state which stops being reported without a cited change is
+re-raised: the way to make it stop is to delete that inventory or that
+declaration, and *"never edit the manifest, the changelog or the inventory to
+match the absence"* is the sentence this family already prescribes. Every OTHER
+finding this state introduces SHALL land on the same per-bundle inventory, with
+ONE exception that has no bundle to land on: a declaration naming a bundle this
+repository never cut at all disposes nothing and SHALL be reported at `warning`
+on `contracts/CHANGELOG.md`, because a mistyped bundle name leaves the real
+bundle undeclared and still reported, and an orphan record that looks like a
+disposition is worth a reader's attention.
+
 The `info` MUST NOT be read as the tag obligation having been MET. It was not
 met; it was EXTINGUISHED, by an owner act, at the cost of a version number, and
 the record says which.
@@ -255,23 +293,34 @@ not acquire a second by being applied to cases that were only late.
 
 #### Scenario: A superseded bundle is declared SPENT and its successor is published
 - **WHEN** a bundle has a release inventory, has no published annotated tag, the manifest has moved on from it, `contracts/CHANGELOG.md` at the published tip carries exactly one SPENT declaration naming it — carrying the superseding bundle, the cause, the ruling's author and date, and the measurement of record — inside the changelog entry of that superseding bundle, and that superseding bundle has itself a published annotated tag peeling to a commit that declares it
-- **THEN** the family MUST NOT emit the superseded-and-never-published `error`, and MUST instead emit exactly one `info` on `contracts/CHANGELOG.md` naming the spent bundle, the bundle that superseded it, and where the record is
+- **AND** that superseding bundle's version is STRICTLY GREATER than the spent bundle's
+- **THEN** the family MUST NOT emit the superseded-and-never-published `error`, and MUST instead emit exactly one `info` on `contracts/releases/<spent bundle>.digests.yaml` naming the spent bundle, the bundle that superseded it, and where the record is
 - **AND** that `info` MUST be classed `contested`, so that its disappearance without a cited change is re-raised rather than read as a resolution — the state is permanent, and the only way it stops being reported is that the inventory or the declaration was removed
 - **AND** the family MUST NOT record it as the tag obligation having been met, which it was not: it was extinguished by an owner act at the cost of a version number
 
 #### Scenario: A SPENT declaration names a superseding bundle that is not itself published
 - **WHEN** a SPENT declaration carries every element it owes and the superseding bundle it names has a release inventory but no published annotated tag
-- **THEN** the family MUST emit a `warning` on `contracts/CHANGELOG.md` saying the supersession is UNPROVEN, because a bundle is not published until its tag exists and a successor that is not published cannot yet be shown to have carried anything forward
+- **THEN** the family MUST emit a `warning` on `contracts/releases/<spent bundle>.digests.yaml` saying the supersession is UNPROVEN, because a bundle is not published until its tag exists and a successor that is not published cannot yet be shown to have carried anything forward
 - **AND** the family MUST NOT emit the `info`, and MUST NOT suppress the successor's own finding, which is raised on the successor's own account by the scenarios above
 
 #### Scenario: A SPENT declaration names a superseding bundle this repository never cut
 - **WHEN** a SPENT declaration names as its superseding bundle a name for which the repository holds no release inventory
-- **THEN** the family MUST emit an `error` on `contracts/CHANGELOG.md` saying the declaration names a bundle that was never cut, because retiring a number by pointing at one that does not exist is the abuse this state is most exposed to
+- **THEN** the family MUST emit an `error` on `contracts/releases/<spent bundle>.digests.yaml` saying the declaration names a bundle that was never cut, because retiring a number by pointing at one that does not exist is the abuse this state is most exposed to
 - **AND** the superseded-and-never-published `error` on the spent bundle MUST also stand, so that a bad declaration removes nothing
+
+#### Scenario: A SPENT declaration names a superseding bundle that is not later than the bundle it supersedes
+- **WHEN** a SPENT declaration is well formed, and the superseding bundle it names is cut and carries a published annotated tag on a declaring commit, but its version is not STRICTLY GREATER than the spent bundle's — including the case of a declaration written into an earlier, already-published bundle's changelog entry and naming that earlier bundle
+- **THEN** the family MUST emit an `error` and MUST accept nothing, because a tag that already existed before the spent bundle was cut is not a replacement for it, and a guard satisfied by an earlier release has been walked around backwards rather than met
+- **AND** the superseded-and-never-published `error` on the spent bundle MUST also stand, so that no untagged bundle goes quiet without a LATER published one
+
+#### Scenario: A SPENT declaration names a bundle this repository never cut
+- **WHEN** a SPENT declaration's SUBJECT — the bundle it declares spent — is a name for which the repository holds no release inventory
+- **THEN** the family MUST emit a `warning` on `contracts/CHANGELOG.md` saying the declaration disposes nothing, this being the one finding of this state that has no per-bundle inventory to land on
+- **AND** it MUST NOT be read as disposing any other bundle, because a mistyped subject leaves the real bundle undeclared — and that bundle is still reported by the scenarios above, which is the fail-closed behaviour a typo must not be able to defeat
 
 #### Scenario: A SPENT declaration omits an element it owes
 - **WHEN** a declaration of the reserved form is present and any of the superseding bundle, the cause, the ruling's author, the ruling's date or the measurement of record is absent or empty
-- **THEN** the family MUST emit an `error` on `contracts/CHANGELOG.md` naming which element is missing, and MUST NOT accept the declaration
+- **THEN** the family MUST emit an `error` on `contracts/releases/<spent bundle>.digests.yaml` naming which element is missing, and MUST NOT accept the declaration
 - **AND** it MUST NOT report that omission in the absent-tag words, because a malformed declaration is worse than none: it looks like a record
 
 #### Scenario: A SPENT declaration sits outside its superseding bundle's own changelog entry
@@ -282,6 +331,11 @@ not acquire a second by being applied to cases that were only late.
 #### Scenario: More than one SPENT declaration names the same bundle
 - **WHEN** `contracts/CHANGELOG.md` carries two or more SPENT declarations naming one bundle
 - **THEN** the family MUST emit an `error` and MUST accept none of them, because two records of one disposition is how they come to disagree
+
+#### Scenario: Two different bundles are each declared SPENT
+- **WHEN** two bundles are each named by their own accepted SPENT declaration, under their own superseding bundles
+- **THEN** the family MUST emit ONE `info` per spent bundle, each on that bundle's OWN release inventory path, so the two findings carry DIFFERENT identities
+- **AND** removing either declaration MUST re-raise that bundle's state on its own — a shared path would leave the surviving finding holding the identity, and the removal would be reported by nothing
 
 #### Scenario: A SPENT declaration names the bundle the manifest currently declares
 - **WHEN** a SPENT declaration names the bundle `contracts/manifest.yaml` declares at the published tip
