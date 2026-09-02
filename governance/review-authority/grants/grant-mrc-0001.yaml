@@ -51,9 +51,9 @@ revocation:
   reason: >-
     DRIFT — declared-composition change. The council's declared `model_version`
     component changed 2026-08-31 by the enrolled-roster alias-to-exact model pin
-    flip (codexFactory PR #146, 6edecaf13e88fc56f9a7182b93a0d48cc2e40541; record
-    records/2026-08-31-enrolled-roster-model-pin-flip.md). A declared-composition
-    change ends the holder's certified identity with no tolerance band and no
-    grace period, so this grant — issued against the composition that preceded
-    the flip — is revoked terminally. Authority resumes only as the new
-    human-ratified grant grant-mrc-0002.
+    flip (codexFactory PR #146, 6edecaf13e88fc56f9a7182b93a0d48cc2e40541;
+    record: records/2026-08-31-enrolled-roster-model-pin-flip.md). A
+    declared-composition change ends the holder's certified identity with no
+    tolerance band and no grace period, so this grant — issued against the
+    composition that preceded the flip — is revoked terminally. Authority
+    resumes only as the new human-ratified grant, grant-mrc-0002.
