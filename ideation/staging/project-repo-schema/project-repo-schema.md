@@ -61,7 +61,9 @@ provenance is the ratified change `add-wallet-carried-review-authority`
 internal projects, we can have codeXfactory recommend and run a 3 repo project
 schema. But let the human project manager decide." A fifth ruling followed
 separately the same day, resolving Q2, quoted verbatim: "yes, assembly is per
-project."
+project." A sixth ruling followed the first pilot run the same day, resolving
+Q1, chosen from three options presented: "Descendant only if it pins
+open<Product>."
 Target capabilities: ADDED `project-repo-schema` (doctrine, naming convention,
 assembly-root pin shape, bootstrap contract, lockstep obligation) and MODIFIED
 `ideation-dashboard` (the register gains a per-project `schema` election and a
@@ -281,6 +283,12 @@ to reach the file only through the recorded `project-register-edit` commission.
   not collide today, but nothing prevents a future product named `Spec`. Q1
   proposes a disambiguation rule, which is a convention and not a proof. —
   Added-by: Claude Fable 5.1 · 2026-09-02
+- **RESOLVED by Q1's ruling.** Brett Heap ruled 2026-09-02 that a
+  `<Domainx><Product>`-shaped name is a domain descendant only when it pins the
+  matching `open<Product>`, so a bare assembly-root name sharing that shape (the
+  `MedxScribe` pilot, refused under the old precedence although no `openScribe`
+  exists) is disambiguated from the descendant family without a second casing
+  scheme. — Added-by: Claude Fable 5.1 · 2026-09-02
 - **The register's "confers no authority" posture must survive two new fields.**
   `schema` and `role` are exactly the fields a later consumer reads as
   permission. The posture is stated in the schema description, the requirement
@@ -330,7 +338,20 @@ Explanation: the leg suffixes are the only part a human must learn, and
 lowercase-hyphenated puts them in a different visual class from every existing
 CamelCase family. Bare `<Project>` follows the precedent the aggregation itself
 sets — the thing you clone has no suffix.
-Disposition status: open
+Disposition status: RULED — Brett Heap, 2026-09-02, choosing "Descendant only
+if it pins open<Product>" from three options presented: a `<Domainx><Product>`
+name is a domain descendant ONLY when the project declares a pin on the
+matching `open<Product>`; otherwise the scaffold's declared role wins, the name
+is a valid assembly root, and the manifest records that it also matches the
+descendant form, keeping the policy checkable offline (the rejected
+alternatives were renaming the pilot to keep the old rule, or a live GitHub
+lookup). Evidence: the first pilot run, 2026-09-02, `MedxSoft/MedxScribe`
+(private, forked from `opensoft/openRepoShape` at `0b1660a`), refused
+`MedxScribe` as an assembly root under the old precedence although no
+`openScribe` exists, and separately hit a `setup.sh` org-detection defect that
+wrongly preferred the `upstream` remote over `origin` and refused a correct
+fork (worked around with `--org MedxSoft`) — both fixes are an openRepoShape PR
+in flight.
 Added-by: Claude Fable 5.1 · 2026-09-02
 
 ### Q2. Does ASSEMBLY mean a per-project root repository, or the one shared review-team assembly repository the ratified prose describes?
@@ -515,7 +536,10 @@ drift. A project outside codexFactory has no overlay to wait for, which makes
 self-sufficiency a hard requirement on openRepoShape: plain Python, no package
 install, no engineering-domain dependency.
 Disposition status: open — needs Brett's confirmation that a staged fragment may
-serve as a pilot's reference
+serve as a pilot's reference. The first pilot is `MedxSoft/MedxScribe`, elected
+by brettheap 2026-09-02; its first run surfaced the two openRepoShape defects
+recorded under Q1 (the `upstream`-remote org misdetection and the descendant
+naming refusal).
 Added-by: Claude Fable 5.1 · 2026-09-02
 
 ### Q11. What is the exact flow for starting a project in a NEW org?

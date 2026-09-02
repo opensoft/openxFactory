@@ -2557,6 +2557,14 @@ repo scope.
   clones; it may pin the shared review-team code from codexFactory as an
   overlay, exactly as the aggregation already consumes
   `review-lane-reusable.yml@dc21767…`. The exit change's Q2 gate is satisfied.
+- **Q1 is RULED, on the first pilot's evidence.** The first pilot,
+  `MedxSoft/MedxScribe`, ran 2026-09-02 and was refused as an assembly root
+  because it matches the `<Domainx><Product>` descendant form although no
+  `openScribe` exists. Brett Heap ruled the same day, choosing "Descendant only
+  if it pins open<Product>" from three options: a `<Domainx><Product>`-shaped
+  name is a descendant only when it declares a pin on the matching
+  `open<Product>`; otherwise the declared role wins and the name is a valid
+  assembly root. The fix is an openRepoShape PR in flight.
 - **The lockstep invariant is carried as a cost, not hidden.** The aggregation's
   own three-way pin (gitlink, the `review-lane-reusable.yml@<sha>` caller ref,
   and `PIN` in `tests/test_review_lane_workflow.py`) was practice for months and
