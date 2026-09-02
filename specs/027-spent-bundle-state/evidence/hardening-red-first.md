@@ -214,3 +214,40 @@ the live bytes.
 
 Counts after round 1: family file **76 passed**, `tests/doc-health`
 **1441 passed, 0 failed**.
+
+## § F — bot round 2, and the guard's repair becomes STRUCTURAL rather than another exclusion
+
+| # | escape (source) | on head `24be0ce9` | after | test |
+|---|---|---|---|---|
+| R2-1 | an underline-SHAPED line that underlined NOTHING is paragraph text, so the run below it IS a heading — round 1's fix excluded it ON SYNTAX and lost the boundary (Codex P1) | `## contract-v3.0` / `===` / `---` → `entry='contract-v3.0'`, **ACCEPTED** | `entry=None` | boundary-table rows `[an underline-SHAPED line that underlined NOTHING…]` and `[but a run below an underline that really DID underline…]` |
+| R2-2 | the live-corpus anti-over-read guard spliced at a BYTE OFFSET into the fence opener line, so the reserved opener landed mid-line and the assertion passed whatever the fence rule did — a VACUOUS test (Copilot) | `text[fence:fence+30]` = `'```yaml\n    relocating:\n      '` — spliced after ` ```y ` | spliced as a real line at the start of the fenced content, **and the non-vacuity itself asserted**: the same line with the fence opener removed MUST be read | `test_this_repositorys_live_declaration_survives_every_boundary_rule` |
+
+**R2-1 IS THE THIRD TIME ON THIS GUARD THAT A FIX HAS BEEN THE NEXT FINDING'S
+CAUSE** (PR #584 saw it twice), and it is why this round's repair is structural.
+`_setext_content` is GONE. In its place `_paragraph_line(line, closes, opaque)`
+takes the boundary decision the caller has already made, and the loop carries a
+BOOLEAN forward instead of the previous line's text — so `_entry_boundary(line,
+after_paragraph, in_fence)` cannot be handed a syntax question in place of a
+state one. An underline that really underlined sets `closes` and therefore ends
+the paragraph; one that only looked like an underline does not. The class of bug
+is now unrepresentable in the signature rather than absent from the body.
+
+All five Setext-family shapes measured together rather than one at a time, which
+is what the previous two rounds each failed to do:
+
+| shape | after |
+|---|---|
+| `===` / `---` | `entry=None` — the boundary is caught |
+| `Title` / `===` / `---` | `entry=None` — closed by the first; the second is not a second heading |
+| `***` / `---` | `entry='contract-v3.0'` — both thematic breaks, correctly contained |
+| blank / `-----` | `entry='contract-v3.0'` — thematic break |
+| `\| a \| b \|` / `\|---\|---\|` | `entry='contract-v3.0'` — a table rule is not an underline |
+
+**R2-2 is the more instructive of the two about test quality**: the guard was
+added in round 1 to answer a Copilot finding, and it could not fail. The
+non-vacuity assertion added here is the one that would have caught it, and it
+fails loudly for any future splice landing somewhere unreadable — which is a
+better answer than fixing the offset.
+
+Counts after round 2: family file **78 passed**, `tests/doc-health`
+**1443 passed, 0 failed**.

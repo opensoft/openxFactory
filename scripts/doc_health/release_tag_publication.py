@@ -430,40 +430,44 @@ def _fence_state(line: str, fence: str | None) -> str | None:
     return fence
 
 
-def _setext_content(line: str) -> bool:
-    """Whether `line` can be the TEXT of a Setext heading — i.e. whether a run
-    of `=` or `-` below it is an underline rather than a thematic break.
+def _paragraph_line(line: str, closes: bool, opaque: bool) -> bool:
+    """Whether `line` IS PARAGRAPH CONTENT — the only thing a Setext underline
+    may underline, and therefore the only state under which a run of `=` or `-`
+    is a heading rather than a thematic break.
 
-    CommonMark admits a Setext underline only under paragraph content, so a
-    blank line, an ATX heading of any level, a fence delimiter, a THEMATIC
-    BREAK and a Setext underline are all excluded. Without any such test every
-    `---` in the document would close an entry, which is over-closing past the
-    point where fail-closed stops being a virtue: a horizontal rule inside a
-    release entry would refuse a declaration written correctly below it.
+    ASKED OF WHAT THE LINE DID, NOT OF WHAT IT LOOKS LIKE, which is Codex's
+    round-2 P1 on PR #589 and was a hole this reader's own round-1 fix opened.
+    That fix excluded any line MATCHING the underline pattern, and in
+    `## contract-v3.0` / `===` / `---` the `===` matches while ACTING as
+    nothing: no paragraph precedes it, so CommonMark makes it paragraph TEXT and
+    the `---` below it a real Setext H2. Excluding it by syntax lost that
+    boundary and the entry stayed open — measured, and the declaration below was
+    ACCEPTED. `closes` is therefore passed IN, from the same decision the caller
+    already made, so an underline that really underlined is excluded and one
+    that only looked like it is not.
 
-    THE EXCLUSION LIST IS DELIBERATELY SHORT, AND THAT IS A JUDGMENT WITH A
-    DIRECTION. Every line added to it moves the reader toward UNDER-CLOSING,
-    which is the escape direction this whole guard exists to close, so only the
-    forms CommonMark is UNAMBIGUOUS about are here. CommonMark has other block
-    starts — list items, block quotes, link reference definitions, HTML blocks,
-    indented code — under which a following run of dashes is sometimes not an
-    underline and sometimes is (an indented line cannot interrupt a paragraph,
-    so it is lazy continuation and the dashes below it ARE an underline). Those
-    are NOT excluded, and the residue is disclosed rather than hidden: the
-    failure mode there is a FALSE REFUSAL — one `error` beside the superseded
-    `error`, quieting nothing, repaired by moving one line — where the failure
-    mode of guessing wrong in the other direction is silence about the finding
-    this family exists to raise. Full CommonMark block parsing is the honest
-    fix and is out of this guard's scope.
+    THE REMAINING EXCLUSIONS ARE DELIBERATELY FEW, AND THAT IS A JUDGMENT WITH
+    A DIRECTION. Every form added here moves the reader toward UNDER-CLOSING,
+    which is the escape direction this whole guard exists to close, so only what
+    CommonMark is UNAMBIGUOUS about is excluded: blank lines, ATX headings at
+    any level, fenced content, entry boundaries, and thematic breaks.
+    CommonMark has other block starts — list items, block quotes, link
+    reference definitions, HTML blocks, indented code — under which a following
+    run of dashes is SOMETIMES not an underline and sometimes is (an indented
+    line cannot interrupt a paragraph, so it is lazy continuation and the dashes
+    below it genuinely ARE one). Those are NOT excluded, and the residue is
+    disclosed rather than hidden: the failure mode there is a FALSE REFUSAL —
+    one `error` beside the superseded `error`, quieting nothing, repaired by
+    moving one line — where guessing wrong in the other direction is silence
+    about the finding this family exists to raise. Full CommonMark block parsing
+    is the honest fix and is out of this guard's scope.
     """
-    if not line.strip():
+    if opaque or closes or not line.strip():
         return False
-    if _ATX_ANY.match(line) or _fence_opener(line) is not None:
-        return False
-    return not (_THEMATIC_BREAK.match(line) or _SETEXT_UNDERLINE.match(line))
+    return not (_ATX_ANY.match(line) or _THEMATIC_BREAK.match(line))
 
 
-def _entry_boundary(line: str, previous: str, in_fence: str | None
+def _entry_boundary(line: str, after_paragraph: bool, in_fence: str | None
                     ) -> tuple[bool, str | None]:
     """`(closes, opens)` for one line of the changelog.
 
@@ -474,11 +478,13 @@ def _entry_boundary(line: str, previous: str, in_fence: str | None
     state a containment refusal is made of — and the state seven measured
     escapes were each a way of never reaching.
 
-    `previous` is the line above, which a Setext underline needs and no other
-    shape does. `in_fence` is the open fence marker or None; the function is
-    TOTAL over the fence state rather than trusting its caller to have skipped
-    fenced lines, so a second caller cannot reintroduce the escape by
-    forgetting to.
+    `after_paragraph` is whether the line ABOVE was paragraph content, which a
+    Setext underline needs and no other shape does — a BOOLEAN and not the
+    previous line's text, because the question is what that line ACTED as and
+    the caller is the one that knows. `in_fence` is the open fence marker or
+    None; the function is TOTAL over the fence state rather than trusting its
+    caller to have skipped fenced lines, so a second caller cannot reintroduce
+    the escape by forgetting to.
     """
     if in_fence is not None:
         # Inside a fenced block nothing is a heading — not a line that looks
@@ -487,7 +493,7 @@ def _entry_boundary(line: str, previous: str, in_fence: str | None
     if _ATX_BOUNDARY.match(line):
         heading = _ENTRY_HEADING.match(line)
         return (True, heading.group(1) if heading else None)
-    if _SETEXT_UNDERLINE.match(line) and _setext_content(previous):
+    if after_paragraph and _SETEXT_UNDERLINE.match(line):
         return (True, None)
     return (False, None)
 
@@ -522,17 +528,20 @@ def parse_spent_declarations(changelog: bytes | str | None
     out: list[SpentDeclaration] = []
     entry: str | None = None
     fence: str | None = None
-    previous = ""
+    after_paragraph = False
     for number, line in enumerate(changelog.splitlines(), start=1):
         # THE DELIMITERS BELONG TO THE BLOCK, not to the prose either side of
         # it: a line is opaque if a fence was open BEFORE it or is open AFTER
         # it, which makes both the opener and the closer part of the region and
         # neither of them prose that could carry a record.
         opaque = fence is not None
-        closes, opens = _entry_boundary(line, previous, fence)
+        closes, opens = _entry_boundary(line, after_paragraph, fence)
         fence = _fence_state(line, fence)
         opaque = opaque or fence is not None
-        previous = line
+        # CARRIED FORWARD FROM WHAT THIS LINE DID, not from what it looks like,
+        # so a Setext underline that really underlined ends the paragraph and
+        # one that only looked like an underline does not.
+        after_paragraph = _paragraph_line(line, closes, opaque)
         if closes:
             entry = opens
             continue

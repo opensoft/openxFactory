@@ -625,6 +625,13 @@ BOUNDARY_TABLE = [
      "nor after a THEMATIC BREAK, where both lines are breaks and neither is "
      "a heading (Codex P2, round 1 on PR #589)"),
     (("___", "===",), "contract-v2.9", "in any of the three break characters"),
+    (("===", "---",), None,
+     "an underline-SHAPED line that underlined NOTHING is paragraph text, and "
+     "the run below it IS a heading (Codex P1, round 2 on PR #589 — the hole "
+     "the round-1 fix opened by excluding on syntax rather than on effect)"),
+    (("Title", "===", "---",), None,
+     "but a run below an underline that really DID underline is not a second "
+     "heading, and the entry was already closed by the first"),
     (("| a | b |", "|---|---|",), "contract-v2.9",
      "and a table rule is not an underline either"),
     (("contract-v3.0", "=============",), None,
@@ -766,13 +773,32 @@ def test_this_repositorys_live_declaration_survives_every_boundary_rule():
     # and which this states properly: the form written INSIDE this document's
     # own fenced block adds NO declaration. A reader that over-read the live
     # document would gain one here.
-    fence = text.index("```")
-    inside = text[:fence + 4] + _spent_line(subject="contract-v9.9") + "\n" \
-        + text[fence + 4:]
+    #
+    # SPLICED AT THE START OF THE FENCED CONTENT, not at a byte offset into the
+    # opener line — Copilot's round-2 finding, and it was right: this document's
+    # first fence is ```` ```yaml ````, so an offset splice put the reserved
+    # opener mid-line where NO reader would have read it, and the assertion
+    # passed whatever the fence rule did. The line below is a REAL line inside
+    # the fenced region, and the test is asserted to be non-vacuous by finding
+    # that same line accepted once the fence is taken away.
+    lines = text.splitlines()
+    opener = next(i for i, line in enumerate(lines)
+                  if line.startswith("```"))
+    hidden = _spent_line(subject="contract-v9.9",
+                         superseding=lines[0].split()[-1])
+    inside = "\n".join(lines[:opener + 1] + [hidden] + lines[opener + 1:])
     assert "contract-v9.9" not in {
         d.subject for d in rtp.parse_spent_declarations(inside)}, (
         "the reserved form inside this document's fenced block was read as a "
         "record, which would let a documented example spend a bundle")
+    # NON-VACUITY: the identical line, at the identical place, with the fence
+    # opener removed, IS read — so the assertion above is about the fence and
+    # not about the splice having landed somewhere unreadable.
+    unfenced = "\n".join(lines[:opener] + [hidden] + lines[opener + 1:])
+    assert "contract-v9.9" in {
+        d.subject for d in rtp.parse_spent_declarations(unfenced)}, (
+        "the spliced line is unreadable for some reason other than the fence, "
+        "so the guard above proves nothing")
 
     # AND THE POSITIVE CONTROL: one non-release heading spliced in above the
     # declaration and the containment is gone. A live read that could only ever
