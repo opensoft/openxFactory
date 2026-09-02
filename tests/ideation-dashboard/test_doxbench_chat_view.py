@@ -4277,8 +4277,15 @@ out.fallbackTimeout = await answeredWith({ ok: false, status: 504, payload: {
   ok: false, error: "model_timeout",
   message: "__SERVER_TIMEOUT_MESSAGE__" } });
 
-// A v1-SHAPED body: it carries a kind, and not this family's -- unchanged.
-out.v1ShapedTimeout = await answeredWith({ ok: false, status: 504, payload: {
+// A FOREIGN-KIND body: it carries a kind, and not this family's -- unchanged.
+//
+// The sample is the RETIRED v1 failure spelling (contract-v3.0,
+// retire-doxbench-chat-turn-v1). Kept deliberately rather than swapped for an
+// invented kind: after the removal it is the most likely foreign kind this rail
+// will ever actually see -- an unupgraded client's own answer replayed at it --
+// and the rule under test is about kinds this rail has no released reader for,
+// which a retired one is by definition.
+out.foreignKindTimeout = await answeredWith({ ok: false, status: 504, payload: {
   schema_version: 1, kind: "workbench-chat-turn-failure",
   client_turn_id: "turn-1", error: "model_timeout",
   message: "__SERVER_TIMEOUT_MESSAGE__" } });
@@ -4351,12 +4358,17 @@ def test_a_fallback_shape_timeout_is_a_timeout_not_a_transport_refusal(
     assert t["composer"] == "a question"
 
 
-def test_a_v1_shaped_failure_body_stays_a_transport_refusal(
+def test_a_foreign_kind_failure_body_stays_a_transport_refusal(
         timeout_vocabulary_results):
     """UNCHANGED, deliberately: a body carrying a `kind` this rail has no
     released reader for is not a body it may interpret field by field. The
-    fallback shape is recognizable precisely because it carries NO kind."""
-    t = timeout_vocabulary_results["v1ShapedTimeout"]
+    fallback shape is recognizable precisely because it carries NO kind.
+
+    The probe's sample is the RETIRED v1 failure kind (see the harness comment),
+    which is why the rule stated in the present tense here has not moved with
+    contract-v3.0: this rail never had a reader for that kind, and it has one
+    fewer reason to grow one now."""
+    t = timeout_vocabulary_results["foreignKindTimeout"]
     assert t["error"] == "transport_refused"
 
 

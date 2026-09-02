@@ -1,0 +1,33 @@
+# INVALID (proposal): replacement content with NO target — untyped is refused.
+# Re-expressed against the surviving family at contract-v3.0
+# (retire-doxbench-chat-turn-v1 task 4.4). The class SURVIVES the widening
+# because `keyed_typed_proposal` is closed over exactly `{target, base_hash,
+# summary, content}` and requires all four, exactly as v1's `typed_proposal`
+# did — only the target's TYPE widened, from a two-value enum to a buffer key.
+# A proposal with no target is still replacement content nobody can route, and
+# it is still refused at the schema rather than guessed at.
+{
+  "schema_version": 1,
+  "kind": "workbench-chat-turn-v2-success",
+  "client_turn_id": "turn-v2-0007",
+  "assistant_turn_id": "srv-v2-0007",
+  "model_id": "local-authoring-1",
+  "selected_model": {
+    "requested_model_id": "local-authoring-1",
+    "routing_rule": false,
+    "data_handling": "Local process only; no content leaves this machine."
+  },
+  "bound_buffer": "ideation/staging/demo-topic/note.md",
+  "observed_hashes": {
+    "outline": "74d2e440df9974e0c1d82412165e497bb95611142b3ed1235c0bd74b3c2277ba",
+    "ideation/staging/demo-topic/note.md": "9859eb7d779f1dee12579980045bb94ecbc2cc487d8160aa239bc1bfe3416825"
+  },
+  "assistant_prose": "Here is a full replacement.",
+  "proposals": [
+    {
+      "base_hash": "9859eb7d779f1dee12579980045bb94ecbc2cc487d8160aa239bc1bfe3416825",
+      "summary": "replacement",
+      "content": "# Whole new doc\n"
+    }
+  ]
+}

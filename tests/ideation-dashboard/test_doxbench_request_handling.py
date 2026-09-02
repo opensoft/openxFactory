@@ -601,10 +601,43 @@ _INTAKE_CODES = {
     "approval_refused",
 }
 
+# PIN EVOLUTION (retire-doxbench-chat-turn-v1, contract-v3.0). ONE code, and it
+# is the answer to that packet's OQ-3, which deliberately left the token and the
+# status to the realization.
+#
+# WHAT GROUNDS IT. Until contract-v3.0 an unrecognized or absent chat-turn `kind`
+# was COERCED into the DEPRECATED v1 family and refused there, on the stated
+# reason that "a request that never named a family it could be answered in gets
+# the posture it would have got before this release". Removing the family removes
+# the reason, and the ruling on issue #522 was that the fallback be "redesigned,
+# not deleted". The redesign refuses in the SURVIVING family, which requires
+# naming the condition — so this code is not an invention looking for a use, it
+# is the removal's own requirement.
+#
+# 400, the class every other malformed-or-unservable-request refusal on this
+# surface carries: it is the caller's request that cannot be served, and a
+# different request WOULD be, which is what makes 4xx right.
+#
+# WHY `invalid_turn_request` IS NOT REUSED. Its fixed message says "the turn
+# request is malformed", which is a true sentence about a DIFFERENT failure: a
+# request naming a `kind` this release does not serve may be perfectly well
+# formed in the family it names. Reusing it would send a client hunting for a
+# shape error that is not there — the same distinction
+# `invalid_abstract_request` already records against that code, for the same
+# reason.
+#
+# It says nothing about the REMOVAL, deliberately. A retired v1 kind and a kind
+# that never existed reach it identically; the surviving contract has no
+# vocabulary for "removed at a major", and inventing one to soften a refusal
+# would put migration guidance on the wire instead of in the CHANGELOG.
+_REMOVAL_CODES = {
+    "unrecognized_turn_kind",
+}
+
 _ALL_DOXBENCH_CODES = (
     _PLANNING_CONTRACT_CODES | _ROUTE_VERBATIM_CODES
     | _ROUTE_JUDGEMENT_CALL_CODES | _DISPATCH_OUTCOME_CODES | _PACKET_CODES
-    | _THREAD_CODES | _ABSTRACT_CODES | _INTAKE_CODES
+    | _THREAD_CODES | _ABSTRACT_CODES | _INTAKE_CODES | _REMOVAL_CODES
 )
 
 

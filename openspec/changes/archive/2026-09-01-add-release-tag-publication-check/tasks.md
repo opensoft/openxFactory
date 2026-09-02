@@ -3,9 +3,16 @@
 Status: ratified
 Ratified by: add-release-tag-publication-check
 
-Nothing below group 3 has been done. Group 2 is the realization plan and every
-box in it is open; group 3 records what the authoring session measured before
-the packet was put up, which is evidence rather than implementation.
+**WRITTEN BEFORE THE BUILD, AND SUPERSEDED BY IT — KEPT, NOT REWRITTEN.** As
+first written this preamble said: *"Nothing below group 3 has been done. Group 2
+is the realization plan and every box in it is open; group 3 records what the
+authoring session measured before the packet was put up, which is evidence
+rather than implementation."* That was true of the packet as proposed. It stopped
+being true on 2026-08-31, when Brett ruled that realization land WITH the delta
+because a family addition is one landing, and group 2 was built on that ruling;
+group 5 followed at the archive on 2026-09-01. The sentence is preserved rather
+than edited because a reader of an archived packet is owed what it claimed at
+each stage, and corrected here rather than left to contradict the ticks below.
 
 Build with Speckit, not `/opsx:apply`. OpenSpec ratifies; Spec Kit builds. This
 change is ONE Spec Kit feature — group 2 — because the new module, its
@@ -162,16 +169,21 @@ exists.
 
 ## 4. Recorded, not fixed
 
-- [ ] 4.1 **#338 stands and this packet routes around it** (D5). `verify_tag`
+**A TICK IN THIS GROUP MEANS THE RECORDING IS DONE, NOT THAT THE THING IS
+FIXED.** Every item below is a live limitation carried deliberately into canon
+with the family; none is discharged by archiving, and the archive tool requires
+a ticked box for a packet to close, which is the only reason they carry one.
+
+- [x] 4.1 RECORDED, NOT FIXED. **#338 stands and this packet routes around it** (D5). `verify_tag`
       cannot distinguish "not fetched" from "unreachable from `main`"; observed
       live, it fails identically on `contract-v2.2`, whose tag is correct. If
       #338 lands first, D5 is worth revisiting — reusing the canonical verifier
       is otherwise the better shape than a second peel-and-compare.
-- [ ] 4.2 **This family does not prove the target is the EARLIEST declaring
+- [x] 4.2 RECORDED, NOT FIXED. **This family does not prove the target is the EARLIEST declaring
       commit** (D4). A tag on a later declaring commit passes it and remains a
       defect under the policy. Disclosed in the requirement's own text rather
       than left for a reader to discover.
-- [ ] 4.3 The policy's standing sentence — "Every bundle from `contract-v1.7` …
+- [x] 4.3 RECORDED, NOT FIXED. The policy's standing sentence — "Every bundle from `contract-v1.7` …
       is now tagged" — is true again today and has been false twice. This family
       does not check that sentence, and nothing does; whether canon should
       carry a claim no check defends is a question this packet raises and does
@@ -179,6 +191,8 @@ exists.
 
 ## 5. Archive
 
-- [ ] 5.1 Archive on merge-plus-green, following `add-family-enumeration-check`
-      and `add-unclassified-finding-class`: no contract bundle is cut by this
-      surface, so no tag is owed BY the change that checks tags.
+- [x] 5.1 ARCHIVED 2026-09-01 on merge-plus-green, the gate this packet set
+      itself: PR #544 squash-merged as `31fc2b6e` with all four required checks
+      green on the merged head, and no contract bundle cut by the surface — so
+      no tag is owed BY the change that checks tags. Archived via
+      `proposal-support.py archive`, never bare `openspec`.

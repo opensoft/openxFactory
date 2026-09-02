@@ -40,6 +40,12 @@ POSITIVES = (
     "two-consumer-operated-identity.requirements.example.yaml",
     "two-consumer-operated-identity.binding-template.example.yaml",
     "instantiation-stub.binding-template.example.yaml",
+    # add-requirement-ref-resolution-integrity § 4.3 (OQ-4): the SILENT
+    # direction as its own file, so a regression in it names itself. Two
+    # bindings sharing no secret, each reference resolving to exactly one
+    # requirement — the fixture a check that fired on every declared reference
+    # would fail.
+    "resolving-requirement-ref.binding-template.example.yaml",
 )
 
 NEGATIVES = (
@@ -73,6 +79,11 @@ WARNINGS = (
     "consumer-binding-key-grammar.yaml",
     "consumer-access-mode-vocabulary.yaml",
     "consumer-requirement-ref-grammar.yaml",
+    # add-requirement-ref-resolution-integrity § 4.1 / § 4.2: one probe per code
+    # of the SECOND family, each on a binding that shares its secret with
+    # nobody — which is the scope the codes exist to widen.
+    "requirement-ref-unresolved.yaml",
+    "requirement-ref-ambiguous.yaml",
 )
 
 SUPPORT = (
@@ -99,7 +110,10 @@ def test_selftest_passes_on_the_packaged_examples() -> None:
     # add-binding-consumer-identity, which adds the two-consumer positive its
     # predecessor had to decline, the stub the generator emits, eleven negatives
     # (one per named refusal) and a `warning/` channel carrying one probe per
-    # deprecation code.
+    # deprecation code. They grew a third time by
+    # add-requirement-ref-resolution-integrity: two warning probes (one per code
+    # of the resolution-integrity family) and ONE positive proving the SILENT
+    # direction — 6 -> 7 positive, 10 -> 12 warning, negatives unmoved at 16.
     assert (f"self-test: {len(POSITIVES)} positive + {len(NEGATIVES)} negative + "
             f"{len(WARNINGS)} warning example(s) confirmed") in result.stdout
 

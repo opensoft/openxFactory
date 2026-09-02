@@ -424,21 +424,21 @@ def test_a_backend_that_REFUSES_records_its_own_reason_not_the_absent_one(
         pk.REDUCED_NO_KNOWLEDGE_SERVICE)
 
 
-def test_the_deprecated_v1_record_still_succeeds_and_still_cannot_say_so(
-        tmp_path):
-    """THE RECORDED v1 LIMITATION, pinned as a limitation rather than left to
-    prose. The deprecated envelope is CLOSED and contract-v1.40 does not widen
-    it, so a v1 turn that ran reduced succeeds — the ratified "MUST NOT make
-    the editors unusable" half — and carries no posture on the wire. The
-    reduction is still stated inside the packet, which is where it always was.
-
-    If a later release widened the v1 envelope this test fails, which is the
-    point: that would be the deprecation's byte-identity promise broken."""
-    status, payload, port = _post_turn(tmp_path, _turn())
-    assert status == 200
-    assert payload["kind"] == "workbench-chat-turn-success"
-    assert "context_packet" not in payload
-    assert "posture: reduced" in _declaration(port)
+# `test_the_deprecated_v1_record_still_succeeds_and_still_cannot_say_so` stood
+# here. It pinned contract-v1.40's RECORDED LIMITATION as a limitation rather
+# than leaving it to prose: the deprecated v1 success envelope was CLOSED and
+# that release deliberately did not widen it, so a v1 turn that ran reduced
+# succeeded — the ratified "MUST NOT make the editors unusable" half — and
+# carried no posture on the wire, with the reduction stated only inside the
+# packet. It would have failed if a later release widened the v1 envelope, which
+# was the point: that would have broken the deprecation's byte-identity promise.
+#
+# DELETED at contract-v3.0 (retire-doxbench-chat-turn-v1), because the
+# limitation is gone with the envelope rather than fixed: there is no longer a
+# turn this serve can answer whose record cannot state its posture. The
+# byte-identity promise it also guarded expired at the same moment — the whole
+# release IS the removal of those bytes. Every surviving turn states its posture
+# on the wire, which the four tests above assert directly.
 
 
 def test_every_shipped_reduction_reason_fits_the_released_bound(tmp_path):
