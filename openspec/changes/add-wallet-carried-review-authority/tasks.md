@@ -743,9 +743,24 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
       the bullet above could say *"no revoked holder parked anything … nothing
       was revoked"*; the first clause is now the whole of it. **No convening
       parked, because NO CONVENING HAS EVER RUN IN THIS ESTATE** — not one
-      commissioned soak, no deliberation row, runner provisioning is ops, tracked
-      at codexFactory issue **#156**. **The limb needs an OBSERVED park by a
-      revoked holder, and this act supplies the revoked holder and nothing else.**
+      commissioned soak, no deliberation row, runner provisioning is ops.
+      **RE-MEASURED FOR THIS ACT** (walk record §8.3): codexFactory's
+      `council-deliberation-worker` (workflow id 339735899) has **1113 runs
+      across 166 distinct head shas**, and of the **30 most recent** the
+      `deliberate` job is **`skipped` in 30 of 30** — sampled through
+      2026-09-02.
+      **AND THE ISSUE THAT RECORDED THIS IS CLOSED, NOT OPEN.** codexFactory
+      issue **#156** made the same measurement at 855 runs and is **CLOSED
+      (state reason COMPLETED, 2026-09-02T00:51:24Z)**; it is cited as the
+      **closed record of the measurement**, not as a live tracking item, and its
+      own qualification travels with it — *"Stated as observed, not diagnosed —
+      no runner-provisioning investigation was done here."*
+      **NO OPEN ISSUE OWNS "no real convening has ever run" AS OF 2026-09-02** —
+      searched across codexFactory, xFactory and openxFactory; codexFactory #154
+      (carve-out protocol) and #131 (charter amendment) are not it — **and this
+      act files none.**
+      **The limb needs an OBSERVED park by a revoked holder, and this act
+      supplies the revoked holder and nothing else.**
     - **LIMB TWO is unchanged** — asserted in hermes-install, not by this act.
     - **LIMB THREE moved again**: a second dated walk, this one revocation-class.
     - **A gate is met when all its limbs are.** Two of three moving is not a
@@ -757,20 +772,33 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     Operator identity record's review expiry, itself bound to `claude-sonnet-5`'s
     retirement floor). **The bullet is left standing, not rewritten**, because it
     is the record of a decision taken against the earlier date.
-    - **WHAT THIS OWES, IN ANOTHER REPOSITORY, AND IT IS NOT OPTIONAL.**
-      hermes-install `origin/main` carries
+    - **WHAT THIS OWES, IN ANOTHER REPOSITORY, AND IT IS NOT ONE EDIT.**
+      **MEASURED, not estimated** — against a read-only shallow clone of
+      `opensoft/xFactory-Hermes-Install` `main` (`7f59baa9`, 2026-08-30):
+      `grep -rn 'grant-mrc-0001\|2026-11-23T12:00:00Z' --include='*.py'
+      --include='*.yaml' --include='*.md' .` → **90 occurrences**, and `-rln` →
+      **44 files**, in six classes: **runtime code** (1 file / 1 hit,
+      `src/hermes_install/review_authority/derivation.py`); **A VENDORED COPY OF
+      THIS REGISTER** (10 / 25, `tests/fixtures/review_authority_register/` —
+      including literal copies of `governance/register.yaml` and
+      `governance/grants/grant-mrc-0001.yaml`, an `expected-projection.yaml`, and
+      six negative fixtures); **test modules** (11 / 20, `tests/{unit,pg,api,
+      support}/`); **a config example** (1 / 6); **config negative fixtures**
+      (7 / 14); **docs** (4 / 6, incl. `docs/traceability.md`'s 016 SC-006 row);
+      **specs** (10 / 18, features 015/016/019). The full table is in the walk
+      record's **§10**, which is the durable place for it.
+      The sharpest single instance is still
       `tests/unit/test_review_authority_projection.py::test_the_live_register_rows_expiry_is_a_fact_a_test_asserts`,
       which asserts `LIVE_ROW_EXPIRES_AT` = `2026-11-23T12:00:00Z` **and**
-      `authority.grant_ref == "grant-mrc-0001"`, plus example and negative
-      projection fixtures carrying the same date. **It will not go red** — it
-      builds its own fixture from literals — **so nothing will announce that it
-      is now asserting a fact that stopped being true.** Its own docstring names
-      the obligation: *"When the row is re-issued, this test is the thing that
-      has to be edited, which is the point."* **THE ROW HAS BEEN RE-ISSUED.**
-      That edit is a hermes-install change and is **NOT** made from this
-      repository or by this act; it is recorded here so it is owed to a named
-      place rather than remembered. The same edit moves
-      `docs/traceability.md`'s 016 SC-006 row.
+      `authority.grant_ref == "grant-mrc-0001"`. **NONE OF THE 90 WILL GO RED** —
+      every one is a literal, a fixture or prose — **so nothing will announce
+      that this repository's register now disagrees with a copy of itself in
+      another repository.** That test's own docstring names the obligation:
+      *"When the row is re-issued, this test is the thing that has to be edited,
+      which is the point."* **THE ROW HAS BEEN RE-ISSUED.** The edit is a
+      hermes-install change and is **NOT** made from this repository or by this
+      act; it is recorded here at its measured size so it is owed to a named
+      place rather than remembered at a tenth of its scope.
     - **On 2027-06-30 every convening parks under
       `review_authority.grant_expired`**, with no code change and no deploy to
       blame — the same scheduled event, at the new instant.
@@ -786,11 +814,16 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     - **STEP 5b — the projection is NOT re-derived by this act**, and until it is,
       *"the runtime still refuses with `review_authority.root_key_mismatch`"* and
       **no authority flows**. It is machinery, not a hand act: hermes-install's
-      `hermes-register-projection-refresher` CronJob (`0 */2 * * *`, live since
-      2026-08-30) reads `opensoft/openxFactory` at `origin/HEAD`, so **it moves
-      within two hours of MERGE and not while the pull request is open**. Walk
-      record §8. `revocation_staleness_bound: P7D` travels verbatim and is not
-      touched here.
+      `hermes-register-projection-refresher` CronJob (`0 */2 * * *`, INSTALLED
+      2026-08-30, one manual migration run succeeded, **no scheduled firing
+      observed on record**) resolves `opensoft/openxFactory` through the GitHub
+      contents API at the repository's **default branch** — the CronJob passes no
+      `--source` and `--source` defaults to `github`; `origin/HEAD` is the
+      operator's local-checkout path, not the cluster's — so **a branch is never
+      read, and the projection cannot move while the pull request is open**.
+      "Within two hours of merge" is the **schedule's promise**, not a measured
+      property. Walk record §8. `revocation_staleness_bound: P7D` travels
+      verbatim and is not touched here.
     - **CONVENING ADMISSION — NOT PERFORMED and not performable** (§8.3). The park
       is lifted when a real convening is admitted against the new grant, and none
       can run.

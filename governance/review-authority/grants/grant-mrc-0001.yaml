@@ -48,6 +48,18 @@
 # This write is an OPERATOR ACT with a machine-enforced refusal behind it — the
 # reader fails the required gate when a row's grant does not back it — and it
 # must never be read as a cascade that ran while nobody was looking.
+#
+# WHO COMPOSED THE BYTES — appended 2026-09-02, and it belongs beside the
+# sentence above. "OPERATOR ACT" names whose ACT this is; it does not name whose
+# HANDS. THE RATIFYING HUMAN DID NOT TYPE THIS FILE. The revocation block below
+# and this header were COMPOSED BY AN AGENT — an Opus subagent, at a
+# coordinating session's direction — ON THE RATIFIER'S WORD. What is Brett
+# Heap's is the ACT: the decision to revoke, the reason class DRIFT, the
+# effective instant, and the expiry ruled for the successor (walk record §6).
+# Disclosed here because the runbook's §0.3 rule is that capacities are named
+# rather than collapsed, and "the operator wrote it" is a capacity claim nobody
+# made and nobody should infer. The full disclosure, including the coordinator's
+# admin-merge, is the walk record's §7 capacity table.
 # ----------------------------------------------------------------------------
 schema_version: 1
 kind: xfactory_wallet_grant

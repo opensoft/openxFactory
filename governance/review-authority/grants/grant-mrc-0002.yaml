@@ -124,7 +124,12 @@
 # and that is the whole of its enforcement. The retirement horizon it is bound to
 # is a promise with a named human owner, not a control.
 #
-# ON THAT DAY, with no code change and no deploy to blame, every convening parks.
+# ON THAT DAY, with no code change and no deploy to blame, every convening parks
+# — IF AND WHEN A CONVENING RUNS. NONE HAS TO DATE: the `deliberate` job of
+# codexFactory's `council-deliberation-worker` is skipped in every sampled run
+# (30 of 30, of 1113 runs across 166 head shas, sampled through 2026-09-02; walk
+# record §8.3). The sentence above describes the CONTROL'S SHAPE, not an observed
+# behaviour, and must not be read as evidence that convenings happen.
 # Re-issuance is an operator act with a lead time; this line is where the date is
 # stated as a SCHEDULED EVENT rather than discovered as an outage.
 #
@@ -139,6 +144,40 @@
 # register reader inside the REQUIRED `wallet-validation` check — and there is no
 # ordering of the revoke/mint/repoint writes that is green halfway, which is why
 # they are one change.
+#
+# ============================================================================
+# APPENDED 2026-09-02 — WHAT THE PARAGRAPH ABOVE DOES NOT SAY, AND MUST
+# ============================================================================
+#
+# The three cross-checks are real, and "no ordering is green halfway" is true.
+# What is ALSO true, measured by the act that wrote this file and recorded at the
+# walk record's §9: AT THE PINNED READER, THIS ACT DOES NOT PASS
+# `wallet-validation` AT ALL — so there is no ordering that is green at the END
+# either, and the sentence above must not be read as a claim that the reader
+# accepts this file.
+#
+# THE PIN. openXwallet is consumed here at commit
+# `6b248d4050e1f88b3ca75c1290ad2c81f465300c` (`contracts/openxwallet-pin.yaml`,
+# contract bundle tag `wallet-v1.3`).
+#
+# THE DEFECT. That reader's `check_register` closing loop iterates every
+# REVIEW-class grant and NEVER FILTERS ON GRANT STATE — it filters on the act
+# class alone. So it demands a backing ACTIVE register row for the correctly
+# revoked `grant-mrc-0001`, and the register's one-row cap
+# (`register-minimal-shape-exceeded`) forbids ever giving it one. The measured
+# result over the amended tree is a single
+# `ERROR [register-no-active-row]` on the grant this act correctly revoked, with
+# everything the act itself had to get right — the register read, the row, the
+# four seat keys, this grant, the wallet's five declared keys — green.
+#
+# SO: THE REQUIRED CHECK IS RED ON THIS ACT BY DESIGN OF THE DEFECT, NOT OF THE
+# ACT. The fix is owed in `opensoft/openXwallet` — a contract change through that
+# repository's own OpenSpec, then a pin bump here; it is deliberately NOT taken
+# from this change, and no workaround was taken either (walk §9.4 enumerates the
+# four that would have made the gate green and why each was refused). UNTIL THE
+# PIN MOVES, `wallet-validation` stays red on this act, and that red is evidence
+# about the reader rather than about the register.
+# ============================================================================
 schema_version: 1
 kind: xfactory_wallet_grant
 grant_id: grant-mrc-0002
