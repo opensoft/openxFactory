@@ -178,16 +178,23 @@ record id `s5-operator-identity-2026-09-01`, **SIGNED by the Operator
 2026-09-01** in session, all six execution acts (EXE-1…EXE-6) and the semantic
 act (SEM-1) EVIDENCED, the plane read back as the **DIRECT ANTHROPIC** plane.
 
-> **PLACEHOLDER — MUST BE FILLED BEFORE MERGE.**
-> Landing PR **opensoft/codexFactory#`<N>`** — **merge SHA to be recorded at
-> merge: `<SHA>`**.
->
-> That record was still a scratchpad artifact when this act was drafted; a
-> sibling session is opening its landing PR at the path above. **No number and
-> no SHA is invented here.** Either the Operator fills the two tokens before
-> merging this pull request, or a follow-up commit on this branch fills them
-> before merge. A citation to a record that has not landed is the one thing this
-> act may not carry silently.
+**LANDED, and the citation is now a real one.** Landing PR
+**opensoft/codexFactory#172**, *"Record the S5 Operator identity record (Packet
+2 / R5), signed 2026-09-01"*, **merged 2026-09-02T09:16:47Z at merge commit
+`2122892750224e74d34372944e86af6c6dde0e7c`** (short `21228927`), carrying
+exactly one file — the record path above.
+
+> **How this citation was filled, because the drafting rule mattered.** When
+> this act was first drafted the record was still a scratchpad artifact and its
+> landing pull request was open in a sibling session, so §2.3 carried an
+> explicit `<N>`/`<SHA>` placeholder rather than a guess: **no number and no SHA
+> was invented at any point.** The two tokens were replaced only after the merge
+> was **independently verified** against the codexFactory pull request itself —
+> state `MERGED`, the merge commit read back from the API, and the changed-file
+> list confirming the record landed at
+> `hermes/domain/review-councils/records/2026-09-01-s5-operator-identity-record.md`
+> and nowhere else. A citation to a record that has not landed is the one thing
+> this act may not carry silently, and it does not.
 
 **What that record does and does not do**, in its own words: it *"evidences the
 plane for the register act. It does not itself perform issuance or activation —
