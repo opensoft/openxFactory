@@ -34,9 +34,9 @@ and independently verified confirmation.
   denominator bound to a window-snapshotted eligibility-registry digest and
   uniquely selected effective interval, plus an atomic close watermark and
   resolving signed-log checkpoint that prove complete event inclusion. Empty-day
-  continuity checkpoints link by the preceding daily item's anchored digest. One released,
-  digest-bound Merkle construction profile makes every daily root independently
-  reproducible.
+  continuity checkpoints link by the preceding daily item's anchored digest.
+  One released, digest-bound Merkle construction profile makes every daily root
+  independently reproducible.
   Event membership produces a daily batch root, canonical manifest bytes produce
   the material digest, and the complete mint-time configuration produces the
   anchored digest whose identity aggregation root enters both witnesses. This
