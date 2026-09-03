@@ -39,6 +39,7 @@ Exit code 0 only if every check passes.
 
 from __future__ import annotations
 
+import functools
 import hashlib
 import re
 import sys
@@ -46,6 +47,23 @@ from pathlib import Path
 
 import yaml
 from jsonschema import Draft202012Validator
+
+# Running this file as a script puts only the `scripts/` directory on sys.path;
+# add the repository root so the sibling reader is imported under the SAME
+# spelling the test suite uses (`scripts.standards_body_registry`) rather than a
+# second, bare one. The pattern is `validate-contract-release.py`'s, which does
+# this for the same reason: a hyphenated entrypoint cannot itself be imported as
+# a module, so the shared code lives in an importable sibling and both callers
+# must agree on how to name it.
+_ENTRYPOINT_REPO = Path(__file__).resolve().parent.parent
+if str(_ENTRYPOINT_REPO) not in sys.path:
+    sys.path.insert(0, str(_ENTRYPOINT_REPO))
+
+from scripts.standards_body_registry import (  # noqa: E402
+    DuplicateRegistryKey,
+    load_registry,
+    registry_errors,
+)
 
 ROOT = Path(__file__).resolve().parent.parent
 CONTRACT_DIR = ROOT / "contracts" / "omnigent"
@@ -91,22 +109,57 @@ def iter_keys(node, prefix="$"):
 
 
 STANDARDS_BODIES = ROOT / "contracts" / "policies" / "standards-bodies.yaml"
+# Resolved once, because `Path.relative_to` raises when the registry sits
+# outside ROOT and the reporting lines below must not be the thing that fails.
+REGISTRY_REL = "contracts/policies/standards-bodies.yaml"
 
 
-def standards_body_ids() -> set[str]:
+@functools.lru_cache(maxsize=1)
+def standards_body_ids() -> frozenset[str]:
     """Canonical standards-body ids a terminology crosswalk may reference.
 
-    Returns an empty set when the registry is absent so the check degrades to
-    a no-op rather than failing every overlay in a checkout without it.
+    Returns an empty `frozenset()` when the registry is absent so the check
+    degrades to a no-op rather than failing every overlay in a checkout
+    without it.
+
+    CACHED because it is called once per example, fixture and repo argument,
+    and the registry cannot change inside one run. Without it a duplicate-key
+    refusal is REPORTED ONCE PER CALLER — the same defect printed eighteen times
+    — and 77 KB of YAML is re-parsed for each.
+
+    READS THROUGH `load_registry`, NOT `load_yaml`. This function is the OTHER
+    reader of the same file, and leaving it on `yaml.safe_load` would re-open
+    the exact duplicate-key collapse `load_registry` was added to close — worse
+    here than anywhere, because this set decides which crosswalk ids RESOLVE:
+    a duplicated `id` key would silently change the resolved set and a crosswalk
+    would be accepted or rejected on a document nobody wrote. A duplicate is
+    reported once and the set degrades to empty, matching the absent-file arm
+    above rather than raising through `semantic_errors`.
     """
     if not STANDARDS_BODIES.is_file():
-        return set()
-    doc = load_yaml(STANDARDS_BODIES) or {}
-    return {
-        body.get("id")
+        return frozenset()
+    try:
+        doc = load_registry(STANDARDS_BODIES) or {}
+    except DuplicateRegistryKey as exc:
+        fail(f"standards-body registry: {exc}")
+        return frozenset()
+    except yaml.YAMLError as exc:
+        # A registry that does not PARSE is a validator failure, never a
+        # traceback: `load_registry` raises `YAMLError` for a syntax error and
+        # for the `ConstructorError` an unhashable key produces, and
+        # `DuplicateRegistryKey` is a `ValueError`, so neither `except` covers
+        # the other. `yaml.safe_load` behaved this way here before the loader
+        # swap too — this arm makes the "degrades to a no-op" the docstring
+        # already promised actually true, rather than repairing a regression.
+        fail(f"standards-body registry does not parse: {exc}")
+        return frozenset()
+    return frozenset(
+        body["id"]
         for body in (doc.get("bodies") or [])
-        if isinstance(body, dict) and body.get("id")
-    }
+        if isinstance(body, dict)
+        and isinstance(body.get("id"), str)
+        and body["id"].strip()
+    )
 
 
 def semantic_errors(kind: str, doc) -> list[str]:
@@ -414,6 +467,38 @@ def main() -> int:
         Draft202012Validator.check_schema(schema)
         validators[kind] = Draft202012Validator(schema)
         print(f"ok   schema parses and is valid: {path.relative_to(ROOT)}")
+
+    # The registry is validated BEFORE the overlays that resolve ids through it,
+    # so an incomplete current-publication record or an unqualified operator
+    # override is reported as the registry defect it is rather than as a
+    # downstream crosswalk failure. The absent-file case DEGRADES TO A NO-OP
+    # rather than raising, matching `standards_body_ids()` above: a checkout
+    # without the registry must not fail every check that mentions it.
+    if not STANDARDS_BODIES.is_file():
+        print(f"skip standards-body registry absent: {REGISTRY_REL}")
+    else:
+        try:
+            registry_findings = registry_errors(load_registry(STANDARDS_BODIES))
+        except DuplicateRegistryKey as exc:
+            # A duplicate key is refused at LOAD time, so there is no document
+            # to check: report it as the one finding it is rather than letting
+            # the traceback stand in for a validator failure.
+            fail(f"standards-body registry: {exc}")
+        except yaml.YAMLError as exc:
+            # Same reasoning, one class wider: a registry that does not parse
+            # at all. THIS arm is new behaviour rather than preserved — `main()`
+            # did not read the registry before this change, so without it the
+            # change would have introduced a traceback where the validator used
+            # to report findings.
+            fail(f"standards-body registry does not parse: {exc}")
+        else:
+            for violation in registry_findings:
+                fail(f"standards-body registry: {violation}")
+            if not registry_findings:
+                print(
+                    "ok   standards-body registry current-publication and "
+                    f"override records: {REGISTRY_REL}"
+                )
 
     for kind, path in POSITIVE_EXAMPLES.items():
         violations = all_violations(validators[kind], kind, load_yaml(path))

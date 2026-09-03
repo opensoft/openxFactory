@@ -27,6 +27,43 @@ description: >-
   implicit project, rather than failing the dashboard (spec scenario "A
   repository is absent from the register").
 
+  THE SCHEMA-ELECTION FIELDS ARE GOVERNED BY THAT SAME POSTURE, UNCHANGED
+  (`add-project-repo-schema`). A project MAY declare `schema` — the project
+  repository schema it elected — `reference` — the document that election
+  followed, the staged fragment's path before ratification and the ratified
+  `docs/project-repo-schema.md` after — and `repository_roles`, assigning
+  repositories it already lists a `role` of `spec`, `code` or `assembly`.
+  All three are OPTIONAL and ADDITIVE: a project declaring none of them is
+  legal, renders identically and is reviewed identically. NEITHER `schema`
+  NOR `reference` NOR A `role` CONFERS lifecycle state, authority, gate
+  standing or clearance eligibility over any repository, project or group
+  it names, and a consumer deriving any permission from one is DEFECTIVE.
+  These are exactly the fields a later consumer reads as permission, which
+  is why the posture is restated here rather than left to the paragraph
+  above — the ratified doctrine of `add-wallet-carried-review-authority` is
+  that "Electing the schema changes no gate, no floor, no grant, and no
+  clearance eligibility", and this register is bound by it.
+
+  `repositories` STAYS THE SINGLE MEMBERSHIP ANSWER and is unchanged: it
+  remains an array of repository-id STRINGS, because
+  `scripts/ideation_dashboard/register.py` and every renderer downstream of
+  the snapshot read those items as strings, and widening the schema does not
+  widen the readers. `repository_roles` therefore ADDS roles beside
+  membership rather than retyping it.
+
+  WHERE AN ELECTING PROJECT CARRIES ITS OWN ASSEMBLY-ROOT MANIFEST, THE ROW
+  IS DERIVABLE FROM IT AND THE MANIFEST IS THE SOURCE; this register stays
+  descriptive and is never the origin of an election. The direction is what
+  lets an organisation with no aggregation and no register still be
+  conformant.
+
+  ADDITIONAL VALIDATOR-SIDE RULES for these fields (checked by
+  `scripts/validate-ideation-dashboard-contracts.py`, not by this shape):
+  every `repository_roles[].repository` MUST also appear in that project's
+  `repositories`; a repository MUST NOT be assigned a role twice within one
+  project; at most one repository per project may carry `role: assembly`;
+  and `reference` MUST NOT be declared without `schema`.
+
   VALIDATOR-SIDE RULES this schema cannot express structurally (checked by
   the register validator, not by this shape): every `id` (project and
   project-group) is unique within the register; every project id named by
@@ -96,10 +133,55 @@ $defs:
         # projects (multi-parent membership, same-day ruling — see the file
         # description; the first-declaring project in register order is the
         # snapshot's PRIMARY).
+        #
+        # UNCHANGED by `add-project-repo-schema`, deliberately: the items stay
+        # STRINGS so every live reader keeps working, and roles are added
+        # beside membership in `repository_roles` rather than by retyping this.
         items:
           type: string
           minLength: 1
           # A repository id (matches a snapshot's `repository` field).
+      # --- the schema election (add-project-repo-schema) ---
+      # All three OPTIONAL and ADDITIVE, and none of them confers anything —
+      # see the posture paragraph in the file description, which governs them
+      # unchanged.
+      schema:
+        type: string
+        minLength: 1
+        # The project repository schema this project elected, e.g.
+        # `project-repo-schema`. The value set is DELIBERATELY NOT ENUMERATED:
+        # closing an enumeration in the first change that opens it forecloses a
+        # second schema nobody has proposed. It confers nothing.
+      reference:
+        type: string
+        minLength: 1
+        # The document the election followed — the staged fragment's path
+        # before ratification, `docs/project-repo-schema.md` after. Recording
+        # it is what makes a project started ahead of ratification legible
+        # rather than undeclared. VALIDATOR-SIDE: MUST NOT appear without
+        # `schema`, a reference to an election nobody declared naming nothing.
+      repository_roles:
+        type: array
+        # Roles for repositories this project ALREADY lists in `repositories`.
+        # Named for what it holds rather than for the shape that produced it:
+        # a project that declined the schema has no "legs", and the register
+        # must read identically for an electing and a declining project.
+        items:
+          type: object
+          required: [repository, role]
+          properties:
+            repository:
+              type: string
+              minLength: 1
+              # VALIDATOR-SIDE: MUST also appear in this project's
+              # `repositories`, which stays the single membership answer.
+            role:
+              type: string
+              enum: [spec, code, assembly]
+              # VALIDATOR-SIDE: at most one `assembly` per project — an
+              # electing project has exactly one per-project root. A consumer
+              # reading `role: spec` as "spec authority lives here" is
+              # DEFECTIVE; the register is a map, not a governance boundary.
   # --- a group of projects (D10) ---
   project_group:
     type: object

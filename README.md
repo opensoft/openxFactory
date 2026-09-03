@@ -118,6 +118,22 @@ Core domain-neutral docs:
   [`rulings-2026-08-29.md`](openspec/changes/add-wallet-carried-review-authority/rulings-2026-08-29.md)
   R8/R9; `Status: draft`, because neither ruling is enforced until the change
   carrying R6–R12 is ratified and task 7.6 stays OPEN by its own text)
+- [The Project Repository Schema](docs/project-repo-schema.md)
+  (the ELECTIVE three-repository shape — `<Project>` assembly root,
+  `<Project>-spec`, `<Project>-code` — and the doctrine that electing it
+  confers NOTHING: the assembly leg as the per-project root, the four naming
+  families with a descendant form read as a CLAIM needing a declared
+  `open<Product>` pin, the double pin and its lockstep invariant, the
+  assembly-root manifest as the SOURCE a register row derives from, the
+  schema-neutral bootstrap and its `authority is not wallet-carried in this
+  org` degrade line, and overlays that attach to a shape rather than the
+  reverse. The MECHANICS are pinned, not authored here: `opensoft/openRepoShape`
+  at [`contracts/openreposhape-pin.yaml`](contracts/openreposhape-pin.yaml),
+  verified by
+  [`scripts/validate-openreposhape-pin.py`](scripts/validate-openreposhape-pin.py).
+  `Status: ratified` + `Ratified by: add-project-repo-schema` since
+  2026-09-02; NOT `standard`, which needs a promoted spec, and nothing
+  promotes until that change archives)
 - [Document Lifecycle](docs/document-lifecycle.md)
 - [Release Realization Flow](docs/release-realization-flow.md)
 - [The `scope_globs` Scope Surface Is a Never-Clearable Trust-Root Floor](docs/scope-globs-trust-root-floor.md)
@@ -412,106 +428,229 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [declare-spent-bundle-state](openspec/changes/declare-spent-bundle-state/proposal.md)
-  — authored 2026-09-02, **RATIFIED 2026-09-02 BY DIRECT RULING**
-  (`Status: ratified`; record `review/ratification-2026-09-02.md`) — Brett Heap
-  in session, in TWO ACTS: **OD-3 ACCEPTED AS PROPOSED** (a correctly declared
-  spent bundle emits an `info` with its own finding key, not silence) and
-  **OD-4 ACCEPTED AS PROPOSED** (quiet only once the superseding bundle's tag is
-  published; `warning` while it is cut but untagged; `error` where the named
-  successor was never cut — *"the only way to make a bundle quiet is to publish
-  its successor's tag"*), then the ratification on that basis. **Ratification
-  authorizes REALIZATION and performs none of it**, so the change stays ACTIVE
-  and **the split is deliberate**. Answers openxFactory issue **#575**, filed by the
-  `contract-v3.0` cut (**#573**, squash `ff9ed815`) at the moment it met the
-  defect: the `release-tag-publication` family has **NO THIRD STATE** between
-  *published* and *owes a tag*, so `contract-v2.6` — declared at `bbbbeda9`
-  (**#565**), never verifiable (five `HGR-RELEASE-DIGEST-MISMATCH`, measurement
-  of record PR #565 comment `5502452624`), never publishable under the targeting
-  rule, and ADDITIVE-classed over a tree that refuses three shapes
-  `contract-v2.5` accepted — makes the family `error` **permanently** and keeps
-  `tests/doc-health/test_release_tag_publication.py::test_this_repository_reads_zero_and_the_probe_can_fire`
-  **RED on `main`** (18 passed, 1 failed at the merge base). Brett Heap ruled the
-  supersession 2026-09-02, verbatim as quoted in #575: *"Supersede: v3.0 is the
-  completion"* — and, separately, commissioned this packet: *"Merge now, fix
-  #575 next"*. **ONE `## MODIFIED Requirements` BLOCK over the promoted
-  `Release-tag publication` requirement**, adding a **SPENT** state that is
-  entered ONLY by an explicit reserved declaration and refused by every absence:
-  **silence still `error`s**, and the only way to quiet a spent bundle is to
-  publish its SUCCESSOR's tag — which is the act the family exists to compel, so
-  the escape hatch cannot be taken by writing anything (OD-4). The record is
-  `contracts/CHANGELOG.md` and **not** `health/dispositions.yaml`, measured
-  rather than preferred: that file keys on `(family, repo, path)` and every
-  finding of this family lands on `contracts/manifest.yaml`, so one row would
-  suppress the whole family for the repository forever, and its own loader
-  records that it is unreachable in the `--single-repo` scope the red self-gate
-  runs in (OD-1). **SCENARIO-COMPLETE AND VERIFIED MECHANICALLY**: 11 of 11
-  canon scenarios present, 10 byte-identical, the eleventh differing by exactly
-  one added `AND` bullet with nothing removed, all 67 canon body lines
-  surviving, block BUILT FROM CANON at named anchors rather than retyped — the
-  #331/#329 loss shape checked rather than asserted. Thirteen scenarios added,
-  **twenty-four in total** — ten as first proposed and three more for the Codex
-  P1s. **PROPOSAL ONLY (OD-8)**: #544's one-landing shape was
-  ruled for a mechanical reason — a family ADDITION reddens
-  `family-enumeration`'s self-gate in the interval — and this change adds no
-  family and moves no count, so no forcing function exists, while the cut's own
-  entry says this vocabulary *"owes its own change and its own review"*. `main`
-  therefore stays red for one more PR, on a red that is **declared, named and
-  inherited**. **NO `## MODIFIED` BLOCK over `Deterministic check families`**,
-  and OQ-1 says why: that requirement's document-set sentence for this family is
-  ALREADY stale — it omits the `contracts/releases/` read the family's own
-  accepted amendment added — so the staleness is inherited, its operative
-  conclusion stays true, and no check reads the input enumeration. **OD-6 is the
-  constraint #575 did not anticipate**: the obligation-side paragraph belongs in
-  `docs/contract-versioning-policy.md`, which is a NON-EDITORIAL member of
-  `contracts/releases/contract-v3.0.digests.yaml`, so it rides the next cut
-  rather than trading this `error` for a `release-inventory-drift` one — **a
-  prediction another lane then made true: PR #577 (`2898b104`) edited that very
-  file and `release-inventory-drift` now reports it at `error` on `main`, so
-  OD-6's analysis is vindicated and its arithmetic overtaken in one stroke —
-  the incremental cost of the policy paragraph is now ZERO, and #577 discharges
-  the consumer-facing half of tasks § 3.1 while deliberately not defining the
-  state.** OD-1 …
-  OD-9 and OQ-1 … OQ-3 were FLAGGED FOR VETO; OD-1, OD-2 and OD-6 … OD-8 stand
-  as drafted and OQ-1 … OQ-3 remain OPEN. **EIGHT REVIEW FINDINGS OVER THREE
-  ROUNDS, SEVEN TAKEN AND ONE REFUSED WITH A MEASUREMENT.** Three Codex **P1**s
-  were taken into the
-  requirement before the ratifying commit, both NARROWINGS of what was ruled
-  rather than departures from it: the successor guard was satisfiable BACKWARDS
-  by an EARLIER already-published bundle (**OD-9**, new — the successor must be
-  STRICTLY LATER), and two spent bundles would have shared one
-  `(family, repo, path)` identity on `contracts/CHANGELOG.md`, defeating the
-  per-state disappearance detection (**OD-5** amended — the findings land on
-  `contracts/releases/<bundle>.digests.yaml`, unique per bundle by
-  construction). **The third P1 is the one that mattered most and was a defect in
-  the ENCODING of what Brett ruled rather than in the design**: OD-4's ruled
-  `warning` band was written as a non-acceptance, so the fallback clause would
-  have made a conforming family report BOTH a `warning` and an `error` during the
-  legitimate publication window. The requirement now names THREE outcomes —
-  ACCEPTED, REFUSED, **PROVISIONAL** — and a provisional declaration SUPPRESSES
-  the superseded `error`, losing nothing because the successor is graded on its
-  own account and the obligation has MOVED rather than gone. A Codex P2 (the
-  proposal's own summary still naming the old path after OD-5 was amended) and
-  three Copilot findings — the reserved form's delimiters, `recognise` →
-  `recognize` against canon's five-to-nil spelling, and a pin message pointing at
-  the wrong subject — were taken too. Copilot's *"unquoted `#575` breaks YAML
-  metadata"* finding is
-  **REFUSED WITH A MEASUREMENT**: nothing parses proposal front matter as YAML —
-  `yaml.safe_load` FAILS on `add-release-tag-publication-check`,
-  `add-requirement-ref-resolution-integrity` and
-  `add-clearing-dispatch-boundary` alike — the reader that exists is line-wise
-  (`corpus.STATUS_RE`), and sixteen proposals already carry an unquoted
-  `#<issue>` on their `Origin:` line.
-  **Measured: the packet moves NOTHING in doc-health** — base and head
-  `--single-repo` reports BYTE-IDENTICAL at 6 critical / 5 error / 29 warning /
-  12 info, `family-enumeration` silent and `modified-block-currency`'s
-  gate-bearing arm at 0. **One thing did move and CI found it rather than the
-  measurement**: authoring an ACTIVE change carrying a MODIFIED block raises the
-  `sequenced_after` live pin (`co_modified` 104 → 105, `active_co_modified`
-  18 → 19, `change_ids` 154 → 155 — its `- 1` reading, which subtracts the pin's own owning change, moving 153 → 154), so
-  `tests/sequenced_after/test_sweep.py`
-  moves in the same commit with a dated MOVEMENT LOG entry, which is that pin's
-  own protocol — corpus bookkeeping, not the realization OD-8 defers.
+- [update-standards-body-current-publications](openspec/changes/update-standards-body-current-publications/proposal.md)
+  — authored 2026-09-01, **RATIFIED 2026-09-03 by Brett Heap, in-session**
+  (verbatim "merge 210 and ratify and merge 593"), with **D1–D4 ADOPTED AS
+  WRITTEN**. **RESCUED, NOT RE-AUTHORED**: the authoring
+  session ended without pushing, so the packet and its code existed on no branch
+  and not on `main` (openxFactory issue **#591**); PR **#593** snapshot `d1799988`
+  carries it byte-identical, and the same 2026-09-03 in-session word both ruled
+  it adopted and owned by lane `openxfactory-f2` and ratified it; **realization
+  lands with this PR** — the archive gate is **merged-plus-green on `main`**
+  (`pytest tests/test_standards_body_registry.py`, `validate-omnigent-contracts.py`,
+  `openspec validate --all --strict`), measured after landing, never assumed,
+  per the release-realization gate (`docs/release-realization-flow.md` § The
+  Archive Gate).
+  Adds a distinct **`itil5`** body for ITIL Version 5 while preserving `itil4`
+  for historical consumers — *no silent rename* — records **SFIA 9** as current
+  beside the steward's restrictive licence statement and Brett's product-config
+  permission as an **explicit `status: unverified` operator override** carrying
+  approver, date, rationale and the conflicting source (a validator refuses an
+  override missing any of them, so the decision is preserved without being
+  laundered into a licence conclusion), and re-verifies **APQC PCF 8.0** with its
+  IT-process crosswalk scope and mandatory attribution. Crosswalks stay
+  **descriptive**: no practice text, skill definition or process hierarchy is
+  copied, and no mapping confers archetype, permission, credential tier or
+  terminal-action authority. **THE SNAPSHOT WAS IN THREE UNLAWFUL SHAPES AND
+  EACH WAS REPAIRED**: it sat under `openspec/changes/archive/2026-09-01-…`
+  though it had never landed and, carrying a code surface, could not archive
+  under `docs/release-realization-flow.md` § The Archive Gate — moved to the
+  ACTIVE corpus; it had **PRE-PROMOTED** its delta into
+  `openspec/specs/standards-body-registry/spec.md`, a verbatim duplicate under
+  the archiver's `TBD - created by archiving` purpose line — **REMOVED**,
+  promotion being the archive step's act; and it declared `target_release: none`
+  while shipping a module, a validator line and tests, `none` being reserved for
+  `code_surface: none` — corrected to **`implemented`**, with the front matter
+  fenced so a machine reads it at all and an `ad_hoc` **origin declaration**
+  added (there is no staged topic; searched). **THE RELEASE-INVENTORY QUESTION
+  IS ANSWERED BY MEASUREMENT, NOT BY PREFERENCE**:
+  `contracts/policies/standards-bodies.yaml` is a member of NEITHER
+  `contracts/manifest.yaml` NOR
+  `contracts/releases/contract-v3.0.digests.yaml` (283 entries, zero under
+  `contracts/policies/`), so the policy edit raises **no**
+  `release-inventory-drift` finding, needs no editorial allowance, and **rides
+  this PR rather than the next cut**. One thing moved that is bookkeeping and
+  not realization: adopting an ADDED-only packet over a NEW capability with
+  novel requirement titles makes it an **ACTIVE SOLE modifier**, so the
+  `sequenced_after` live pin moves `sole_modifiers - 1` 48 → 49 and
+  `active_sole - 1` 11 → 12, and moves the two co-modified readings NOT AT ALL.
+  `change_ids - 1` reads **157** on the merged tree rather than the 156 this
+  packet alone would leave, because `add-project-repo-schema` landed on `main`
+  in the same window and is one more ACTIVE change too — and, carrying a
+  MODIFIED block where this packet carries none, it is that other packet and not
+  this one that moves `co_modified` and `active_co_modified` to 108 and 21. The
+  two sets of moves are DISJOINT except on the population count, so nothing here
+  is a net of opposed moves. Measured on all three trees and confirmed BY
+  EXCLUSION (dropping either packet from the merged corpus reproduces the other
+  branch's own reading exactly), moved in the same commit, with a dated MOVEMENT
+  LOG entry, which is that pin's own protocol.
+- [add-project-repo-schema](openspec/changes/add-project-repo-schema/proposal.md)
+  — proposed 2026-09-02 as the FULL promotion of the `project-repo-schema` staged
+  topic, on Brett Heap's in-session instruction *"start the
+  add-project-repo-schema exit change"* — **admission into the proposal queue,
+  NOT a ratification.** **`Status: ratified`** (2026-09-02, Brett Heap the
+  convener, in the working session, verbatim *"ratify it"*, read on the packet as
+  it landed on `main` at squash `642ac147` (#605) with five checks green; record
+  `openspec/changes/add-project-repo-schema/review/ratification-2026-09-02.md`).
+  **RATIFIED AND STILL ACTIVE**: `code_surface` is non-empty and
+  `target_release` names the next additive contract bundle after `contract-v3.0`,
+  so under `release-realization`'s realization archive gate it archives only when
+  that bundle is cut (`tasks.md` 9.3, UNTICKED and this packet's own act),
+  with 9.2 and 9.4 as the remaining archive preflight. `docs/project-repo-schema.md`
+  moved to `Status: ratified` + `Ratified by: add-project-repo-schema` at the same
+  act; `Status: standard` is not claimed and is not owed until promotion.
+  **THE FORCING FINDING IS A GAP THE FAMILY ALREADY RULED ON AND NEVER WROTE
+  DOWN.** `add-wallet-carried-review-authority` (ratified 2026-08-23) RECOMMENDS
+  a SPEC/CODE/ASSEMBLY shape at `proposal.md:600-617`, rules who elects it (a
+  `PA` decision, `CA`-constrained and `PM`-sequenced) and rules that *"Electing
+  the schema changes no gate, no floor, no grant, and no clearance
+  eligibility"* — and then stops: that change's own `specs/` deltas are exactly
+  two, no `project-repo-schema` capability exists under `openspec/specs/`, and
+  greps for the recommendation resolve only to that one proposal plus its
+  `tasks.md:811-814`. A `PA` who says yes has nothing to say yes to, so the
+  delta is ADDED and not MODIFIED. **ADDS `project-repo-schema`, ELEVEN
+  requirements**, each carrying the doctrine rather than qualifying it: the
+  shape is ELECTIVE and CONFERS NOTHING and a one-repository project is reviewed
+  identically; the ASSEMBLY leg IS the per-project ROOT an engineer clones
+  (Brett Heap, 2026-09-02, *"yes, assembly is per project"*) and MAY pin shared
+  review-team code as an OVERLAY; `<Project>` / `<Project>-spec` /
+  `<Project>-code`, one CamelCase token, suffixes lowercase and hyphenated, the
+  topic `xf-project-<id>` on every leg; the four naming families governed as
+  DATA in the pinned standard, with a `<Domainx><Product>` form read as a CLAIM
+  that needs a DECLARED `open<Product>` pin (Brett Heap, 2026-09-02,
+  *"Descendant only if it pins open<Product>"*; the declared role wins otherwise
+  and the manifest records `also_matches`, and the check stays OFFLINE); each leg
+  pinned TWICE with the gitlink, the pin file and every workflow `@<sha>` moving
+  in ONE commit — the aggregation's own measured defect (seven pin-syncs from
+  2026-08-25, `validate` red on every PR for a day, xFactory #146) written down
+  as machinery; the assembly root's manifest as the SOURCE with a register row
+  DERIVED from it, which is the only construction under which an org with no
+  register is conformant; ONE bootstrap command after
+  `git clone --recurse-submodules`, SCHEMA-NEUTRAL and DEGRADING — the exact line
+  `authority is not wallet-carried in this org` where no wallet register is
+  found, never a failure; review lanes and wallet-carried authority as OPT-IN
+  OVERLAYS that attach to a shape and never the reverse; the standard living in
+  the PUBLIC Apache-2.0 `opensoft/openRepoShape` (both ruled 2026-09-02),
+  consumed by FORK and pinned by openxFactory under `neutral-product-pin`; the
+  four-way ownership split, which **NARROWS the ratified prose *"codexFactory may
+  recommend — and scaffold"* in exactly one respect — where the mechanics LIVE**
+  — codexFactory keeping the recommending role and its engineering overlay in
+  full; and the pre-ratification election rule under which a project records the
+  reference it followed. **MODIFIES `ideation-dashboard`** — the register gains
+  an optional per-project `schema`, an optional `reference` and an optional
+  `repository_roles` list of `spec|code|assembly`, all additive, `repositories`
+  unchanged as the single membership answer, and the existing confers-nothing
+  posture governing the new fields unchanged. **`neutral-product-pin`,
+  `domain-descendant-boundary`, `repo-boundary-governance` and
+  `shared-contract-ownership` were read requirement by requirement and NONE is
+  modified**, the reading recorded in `design.md` § D9. FOUR artifacts LAND WITH
+  THE PROPOSAL and are the only ticked tasks: `docs/project-repo-schema.md`;
+  `contracts/openreposhape-pin.yaml` at openRepoShape
+  `deacbdcce4f52af427bcb4edd075fcc992e3dabe` with SIXTEEN per-file digests
+  computed from the real bytes and EIGHTEEN `pinned_by_commit_only:` members, so
+  all 34 files are declared and none is an undeclared consumption;
+  `scripts/validate-openreposhape-pin.py` (standard-library only, five ordered
+  checks including a SURFACE-COMPLETENESS check the sibling wallet verifier has
+  no counterpart to, six refusal codes, one fixed remediation trailer) with
+  `.github/workflows/openreposhape-pin-gate.yml`, green against the real bytes
+  through both resolvers; and the register schema delta with its four cross-field
+  validator rules and 34 tests. `code_surface: openxFactory`,
+  `target_release:` the next additive contract bundle after `contract-v3.0`,
+  UNNUMBERED because `docs/contract-versioning-policy.md` forbids reserving a
+  minor before merge order is known. ONE registered artifact moves —
+  `scripts/validate-ideation-dashboard-contracts.py`, row 1417 of the v3.0
+  digest inventory — and only by GAINING rules over new OPTIONAL fields, so the
+  class is additive; the schema and the pin are not registered rows and spend
+  nothing. Until the cut, `release-inventory-drift` reporting that validator is
+  the expected between-cuts state, never to be silenced by editing the
+  inventory. Realization evidence is the
+  `MedxSoft/MedxScribe` run of 2026-09-02 against `deacbdc`, and **that pilot is
+  TEMPORARY and not a real project** (Brett Heap, 2026-09-02) — scaffolded only
+  to test openRepoShape end to end and deletable once the standard is ratified;
+  the evidence is the RECORDED RUN, which survives the pilot's deletion. Every
+  authority question is DEFERRED by name to the sibling staged topic
+  `wallet-carried-work-authority`; this packet declares no grant, no clearance
+  and no gate standing, and the layout confers nothing.
+- [add-cpc-clearing-boundary](openspec/changes/add-cpc-clearing-boundary/proposal.md)
+  — authored 2026-09-01, RE-SCOPED the same day after adversarial review,
+  **`Status: ratified`** (2026-09-02, Brett Heap, in-session, on the recorded
+  word *"Ratify + merge openxFactory #560"*; ratified head `33fa2b54`; record
+  `openspec/changes/add-cpc-clearing-boundary/review/ratification-2026-09-02.md`).
+  THIS IS
+  AN EXTENSION DELTA, NOT A SECOND CLEARING CONTRACT: `add-clearing-dispatch-boundary`
+  (PR #555) was RATIFIED 2026-09-01 on the recorded word *"merge #192 and ratify
+  #555"*, promotes `clearing-dispatch-boundary` with TEN requirements from the same
+  operator ruling, and its realization is live on xFactory main. An earlier draft of
+  this packet re-authored roughly seven of those requirements in divergent vocabulary
+  without citing the basis; that draft is withdrawn, and the `.openspec.yaml` records
+  the corrected duplicate check — run against ACTIVE CHANGES and recent
+  RATIFICATIONS, not the promoted index alone, which is why the overlap was missed.
+  What remains is the ruling's SAME-DAY EXTENSION on codexFactory issue #156, which
+  the basis does not reach. MODIFIES THREE of the basis's ten requirements, each carried
+  VERBATIM with additions marked in place and every original scenario retained — 177
+  basis units, none lost — and each carrying its OWN `Modified over` marker IN ITS
+  REQUIREMENT BODY, which is where `govern-sibling-added-modified-deltas` requires the
+  marker of a MODIFIED requirement defined only by an active sibling's addition (per
+  requirement, never per section: a section-level paragraph leaves every requirement in
+  the block declaring nothing). The third widens the basis's periodic single-door
+  attestation by ONE FIELD — a dispatch record with no workspace-disposal evidence is
+  reported an UNATTESTED DISPOSAL — declared as a MODIFIED block rather than left as an
+  implicit extension reaching into a ratified requirement from outside it, and changing
+  nothing the attestation authorizes. The other two: field (10)
+  ceases to be a free disjunction for an originating repository that holds a
+  REGISTERED ORIGIN IDENTITY — the signature branch becomes required and must cover
+  all ten declared fields including the per-file hashes, with NO eleventh field and no
+  second digest, envelope, or handling-classification vocabulary, the signature being
+  computed with the one construction `signed-execution-chain` already puts in force;
+  and origin-signature verification becomes a THIRD verification class, conjunctive
+  with the provider resolution (a verifying signature over contradicted provenance
+  refuses; confirmed provenance with no verifying signature refuses) and reported as
+  its own dispatch-record outcome rather than folded into the provider-verified set,
+  while the POLICY-CHECKED fields — class constraints, worker profile, permitted
+  lanes, output schema — are RESOLVED FROM the closed permitted-operations register
+  rather than read from the bundle, the bundle's copies being claims compared against
+  it and the register governing on disagreement. ADDS three requirements the basis has
+  no counterpart to: SIGN-ON-RETURN (the host returns unsigned results, no attestation
+  private key reaches a governed host, and verification strictly precedes signing so
+  the hosted signer cannot become an oracle) and WORKSPACE DISPOSAL EVIDENCE as a
+  field of the dispatch record the basis already requires and already attests; and the
+  INBOUND RE-SEAL the basis states only outbound — returned output is re-served to the
+  originator from the clearing side's own sealed object, the originator never fetching
+  the execution host's run artifact nor holding a credential into the estate, stated
+  rather than left to the symmetry codexFactory PR #165 currently assumes. Field (10)'s
+  digest rule NAMES TWO CONSTRUCTIONS so neither reads as a new one: the manifest takes
+  canonical `xfc-jcs-sha256-1`, which first needs a TRANCHE-3 widening of that
+  construction's CLOSED `digest_subject` enumeration to admit a manifest subject (a
+  widening of SUBJECTS, never a second construction) and is reported UNREALIZABLE until
+  it lands, while per-file content hashes are plain algorithm-tagged SHA-256 over BYTES.
+  ADDS
+  the capability `factory-origin-identity` (six requirements): one Ed25519 origin
+  identity per originating repository in a NEW `governance/factory-identity/` register
+  that is a SIBLING of the review-authority intake register rather than an extension
+  (design D1, confirmed by the operator 2026-09-01), declaring `holder_class:
+  organisation` and explicitly NOT inheriting the seat-council spelling or per-seat
+  key-block shape a factory holder would fail; public key references only;
+  hosted-environment custody with the unattested cap; and two deliberately honest
+  limits — act distinctness ships as a CHECKED DISJOINTNESS RULE over the two
+  register families (no shared `key_id`, `did`, or fingerprint), with the read-time
+  refusal declared NOT YET IN FORCE because the pinned openXwallet reader still indexes
+  every wallet record in the tree into one context, and the register declares its OWN
+  staleness bound and ceiling with at-clearing revocation declared UNREALIZABLE until a
+  projection path exists, each carrying a scenario that REFUSES the premature claim.
+  The register is a permanently human-only surface floored BY NAME, and because
+  codexFactory's floor file is compared as an EXACT SET it must be updated in the same
+  governed act. OQ2 is RESOLVED to REFERENCE — the basis forbids a second envelope
+  vocabulary, so no manifest schema is added and no contract bundle is cut. OQ1 (the
+  register's projection path, four shapes sketched) and OQ3 (who scopes the review
+  reader) remain open, alongside the tranche-3 `digest_subject` widening the origin
+  signature needs before it is realizable. Archive is ORDERED AFTER the basis archives,
+  and **#555 MERGED FIRST**, 2026-09-02T09:16Z (`ab0bb2dd`) — the merge-order control
+  held, so the three contested `modified-block-currency` warnings this packet's
+  MODIFIED blocks raised while the basis was unmerged are gone (0 warnings at the
+  caught-up head `33fa2b54`; `--all --strict` 85/85). The three `health/
+  dispositions.yaml` disposition rows that would have belted a different order —
+  tracked as `opensoft/xFactory#201` — were CLOSED AS UNNECESSARY once the intended
+  order held.
 - [add-requirement-ref-resolution-integrity](openspec/changes/add-requirement-ref-resolution-integrity/proposal.md)
   — authored 2026-08-31, **RATIFIED 2026-09-01 BY DIRECT RULING**
   (`Status: ratified`; record `review/ratification-2026-09-01.md`) — Brett Heap
@@ -1876,6 +2015,46 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [declare-spent-bundle-state](openspec/changes/archive/2026-09-03-declare-spent-bundle-state/proposal.md)
+  — **ARCHIVED 2026-09-03 on merged-and-green realization evidence.** Ratified
+  2026-09-02 by direct ruling over two flagged decisions (OD-3: a correctly
+  declared spent bundle emits an `info` with its own finding key, not silence;
+  OD-4: quiet only once the superseding bundle's tag is published — *"the only
+  way to make a bundle quiet is to publish its successor's tag"*), proposal
+  landed **PR #578** (squash `f4fddf7c`). Realized as ONE vertical Speckit slice
+  — **PR #587** (squash **`3fa222f3`**, merged `--admin` 2026-09-02T16:19Z on
+  Brett Heap's ruling *"merge the realization on the dispositioned red"*,
+  tracking issue #575) — the `contract-v2.6` changelog declaration, the reader,
+  the acceptance ladder (ACCEPTED/PROVISIONAL/REFUSED), the per-bundle-inventory
+  emits (OD-5 amended), the STRICTLY-LATER successor guard (OD-9 added), and the
+  thirteen new tests, all against the ratified `## MODIFIED Requirements` block
+  over `doc-health`'s promoted `Release-tag publication` requirement. **THE
+  INHERITED RED IS NOW GREEN, AS PREDICTED RATHER THAN EDITED**:
+  `tests/doc-health/test_release_tag_publication.py::test_this_repository_reads_zero_and_the_probe_can_fire`
+  was RED on `main` since `ff9ed815` (#573) because `contract-v2.6` — declared at
+  `bbbbeda9` (#565), never verifiable, never publishable — has no legal tag and
+  no completion commit can cure it; it goes green at the squash that lands the
+  changelog declaration, unedited, confirmed on the **`main`** `pytest-suite` run
+  **`33654163291`** (`success`, head `3fa222f3`). **FOUR ORCHESTRATOR DECISIONS
+  AFFIRMED ON PR #587** (Brett Heap, in session, comment 2026-09-03T02:49:08Z):
+  an unreadable declaration SUBJECT is an `error` on `contracts/CHANGELOG.md`
+  rather than the orphan `warning`, as the fail-closed reading; the
+  `**SPENT BUNDLE:**` opener is reserved over the whole document, with no
+  code-fence tracking; task 3.1's policy-side paragraph in
+  `docs/contract-versioning-policy.md` is DEFERRED to the next contract cut per
+  OD-6's shape argument, and is **not** written by this archive; and a
+  bundle-declaring repository with no `contracts/CHANGELOG.md` at its published
+  tip is disclosed to skip this family with an `info`, acknowledged as-is.
+  **PROMOTION VERIFIED PER REQUIREMENT, BYTE-FOR-BYTE**: `doc-health/spec.md`
+  sliced on every `### Requirement:` header, before and after the archive
+  commit — all 42 requirements other than `Release-tag publication` are
+  byte-identical, and the promoted `Release-tag publication` body is
+  byte-for-byte identical to the delta's own requirement text (392 lines, zero
+  diff), consistent with the proposal's own 11-of-11-scenario, one-`AND`-bullet
+  verification and `git diff --stat`'s `263 insertions(+), 0 deletions(-)`. Task
+  3.2 (the editorial drift `info` and the policy `error` clearing on their own
+  at the next cut) travels OPEN, by design, into the archived packet — it names
+  a future event rather than a task this act can discharge.
 - [govern-sibling-added-modified-deltas](openspec/changes/archive/2026-09-02-govern-sibling-added-modified-deltas/proposal.md)
   — **ARCHIVED 2026-09-02 on merged-and-green realization evidence, and on a
   MEASURED estate rather than a predicted one.** Ratified 2026-08-31 by direct

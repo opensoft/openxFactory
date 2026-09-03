@@ -916,8 +916,25 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     # `lost`/`uncovered`/`vanished`/`arrived` are untouched. Note this test cannot
     # see an uncommitted manifest — `pc.verify` reads the committed tree — so a
     # promotion's own pre-commit run passes and CI is where the count lands.
-    assert len(report.results) == 67
-    assert len({r.site.member_id for r in report.results}) == 23
+    #
+    # 69, AND THIS ONE MOVE IS TWO SITES FROM ONE CHANGE, arriving by the two
+    # different routes this census distinguishes. `add-project-repo-schema`
+    # (2026-09-02) is a FULL PROMOTION, so it writes the 68th by the mechanism
+    # the paragraph above already describes — its `supporting-docs/manifest.yaml`
+    # `source_revision`. The 69th is new in kind: `contracts/openreposhape-pin.yaml`
+    # `commit`, the second neutral-product pin this repository carries, which is
+    # ALSO the one move that takes the MEMBER count off 23 — every promotion
+    # before it joined a class that already existed, and this one declares
+    # `openreposhape-pin-product-commit`.
+    #
+    # IT ANNOUNCED ITSELF AS `uncovered`, WHICH IS THE COVERAGE HALF WORKING.
+    # The key `commit` was already in `PIN_KEY_VOCABULARY` from
+    # `openxwallet-pin-product-commit`, so the scanner FOUND the site; no member
+    # declared that PATH, so nothing covered it. That is the intended failure
+    # shape for a new pin artifact — found, not covered, reported — and it is
+    # why the member had to be declared rather than the count merely bumped.
+    assert len(report.results) == 69
+    assert len({r.site.member_id for r in report.results}) == 24
     assert len(report.lost) == 1
     assert len(report.lost_awaiting_record) == 0
     assert report.uncovered == ()

@@ -1,6 +1,7 @@
 # Staged: a project's repositories are named, pinned and cloned as one — and the layout still confers nothing
 
-Status: staged
+Status: draft
+Proposed by: add-project-repo-schema
 Kind: capability-proposal
 Summary: GitHub has no folder that groups repositories, so a project spanning
 several of them is held together by convention or by nothing. The ratified change
@@ -144,7 +145,7 @@ Layout is also now FREE to be optimized for humans.
 `add-wallet-carried-review-authority` demoted repository topology from the spine
 of authority to an elective layout so layout would carry no governance weight,
 and the sibling topic
-[wallet-carried-work-authority](../wallet-carried-work-authority/wallet-carried-work-authority.md),
+[wallet-carried-work-authority](../../../../ideation/staging/wallet-carried-work-authority/wallet-carried-work-authority.md),
 staged the same day and landed on `main` first, removes the last hidden coupling
 by making grants path-scoped rather than repository-granular. This topic takes that freedom and does the ergonomics, only.
 
@@ -539,7 +540,25 @@ Disposition status: open — needs Brett's confirmation that a staged fragment m
 serve as a pilot's reference. The first pilot is `MedxSoft/MedxScribe`, elected
 by brettheap 2026-09-02; its first run surfaced the two openRepoShape defects
 recorded under Q1 (the `upstream`-remote org misdetection and the descendant
-naming refusal).
+naming refusal). Both defects were fixed upstream and merged 2026-09-02:
+openRepoShape PR #3 (org detected from the fork's own `origin`, `7edd6bb`) and
+PR #4 (a descendant-shaped name is a claim that needs a declared pin; the
+declared role wins otherwise, `deacbdc`). A second run, 2026-09-02, from the
+MedxSoft fork synced to upstream `deacbdc`, command
+`./setup.sh --project MedxScribe --visibility private --yes`, SUCCEEDED end to
+end: it created private `MedxSoft/MedxScribe` (assembly root, `07060d4`),
+`MedxSoft/MedxScribe-spec` (`52c96cb`) and `MedxSoft/MedxScribe-code`
+(`023a27f`), topic `xf-project-medxscribe` on all three, legs mounted at
+`spec/` and `code/`, shape pin `opensoft/openRepoShape @ deacbdc`, elected by
+brettheap 2026-09-02 with this fragment's path recorded as reference; the
+manifest records that `MedxScribe` also matches the descendant form with no
+referent pin declared, so it is not a descendant unless
+`contracts/openscribe-pin.yaml` is added. Bootstrap after
+`git clone --recurse-submodules` left both legs on `main` at their pins, the
+naming/manifest/lockstep-pin validators green, the shape copy pin (9 files)
+green, and printed the degrade line verbatim: "authority is not
+wallet-carried in this org". This is the realization evidence the exit change
+`add-project-repo-schema` cites for "the first such project is the pilot".
 Added-by: Claude Fable 5.1 · 2026-09-02
 
 ### Q11. What is the exact flow for starting a project in a NEW org?
@@ -606,3 +625,8 @@ Q2 is RULED (Brett Heap, 2026-09-02), so that precondition on proposing the
 openxFactory change is satisfied; it still cannot pin openRepoShape until that
 product cuts a digested release. Nothing in the exit elects the schema for any project — that stays a `PA`
 decision, per project, conferring nothing.
+
+Realization evidence for this exit change now exists: the pilot's second run,
+2026-09-02, succeeded end to end against openRepoShape `deacbdc`, creating
+`MedxSoft/MedxScribe`, `MedxSoft/MedxScribe-spec` and
+`MedxSoft/MedxScribe-code`.

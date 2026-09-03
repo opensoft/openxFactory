@@ -725,6 +725,90 @@ def check_project_register_rules(f: Findings, label: str, doc: dict) -> None:
                     f"{label}: project {member!r} belongs to multiple groups {parents} "
                     f"(single-parent D10; snapshot carries a singular project_group field)")
 
+    check_project_schema_election(f, label, projects)
+
+
+# THE FOUR RULES THE SHAPE CANNOT EXPRESS (`add-project-repo-schema`).
+#
+# The JSON-Schema half already constrains `role` to the three values and
+# requires both keys of an entry. What it cannot say is anything RELATING one
+# field to another, and all four rules here are relations:
+#
+#   1. a role names a repository the project does not list — `repositories`
+#      stays the SINGLE membership answer, and a role beside a membership that
+#      does not exist is a row two readers would answer differently;
+#   2. the same repository is given a role twice in one project — the second
+#      row is either a contradiction or a duplicate, and neither is a state a
+#      derivation from an assembly-root manifest could produce;
+#   3. more than one repository is given `role: assembly` — an electing project
+#      has exactly ONE per-project root, which is the whole content of Brett
+#      Heap's 2026-09-02 ruling "yes, assembly is per project";
+#   4. `reference` without `schema` — a record of which document an election
+#      followed, for an election nobody declared.
+#
+# NONE OF THEM IS AN AUTHORITY RULE, and the distinction is load-bearing. They
+# check that the row is INTERNALLY COHERENT. A consumer that reads `role: spec`
+# as "spec authority lives in that repository" is defective no matter how well
+# this function passes — the register is a map, not a governance boundary, and
+# the ratified doctrine of `add-wallet-carried-review-authority` is that
+# electing the schema "changes no gate, no floor, no grant, and no clearance
+# eligibility".
+def check_project_schema_election(f: Findings, label: str, projects: list) -> None:
+    """`schema` / `reference` / `repository_roles` coherence, per project."""
+    for p in projects:
+        if not isinstance(p, dict):
+            continue
+        pid = p.get("id")
+        members = {r for r in (p.get("repositories") or []) if isinstance(r, str)}
+
+        if p.get("reference") is not None and p.get("schema") is None:
+            f.error("project-reference-without-schema",
+                    f"{label}: project {pid!r} declares a `reference` and no "
+                    f"`schema` — a reference records which document an election "
+                    f"followed, and no election is declared")
+
+        roles = p.get("repository_roles")
+        if roles is None:
+            continue
+        if not isinstance(roles, list):
+            f.error("project-roles-not-a-list",
+                    f"{label}: project {pid!r} `repository_roles` is not a list "
+                    f"({roles!r})")
+            continue
+        seen: dict[str, int] = {}
+        assemblies: list[str] = []
+        for entry in roles:
+            if not isinstance(entry, dict):
+                f.error("project-role-malformed",
+                        f"{label}: project {pid!r} has a non-mapping "
+                        f"`repository_roles` entry ({entry!r})")
+                continue
+            repo = entry.get("repository")
+            role = entry.get("role")
+            if not isinstance(repo, str) or not repo:
+                f.error("project-role-malformed",
+                        f"{label}: project {pid!r} has a `repository_roles` "
+                        f"entry with no repository ({entry!r})")
+                continue
+            seen[repo] = seen.get(repo, 0) + 1
+            if repo not in members:
+                f.error("project-role-unknown-repository",
+                        f"{label}: project {pid!r} assigns role {role!r} to "
+                        f"{repo!r}, which is not among its `repositories`; "
+                        f"membership is declared once, in `repositories`")
+            if role == "assembly":
+                assemblies.append(repo)
+        for repo, n in seen.items():
+            if n > 1:
+                f.error("project-duplicate-repository-role",
+                        f"{label}: project {pid!r} assigns {repo!r} a role "
+                        f"{n} times")
+        if len(assemblies) > 1:
+            f.error("project-multiple-assembly-roles",
+                    f"{label}: project {pid!r} names {len(assemblies)} assembly "
+                    f"roots {assemblies} — an electing project has exactly one "
+                    f"per-project root repository")
+
 
 # --------------------------- gate-action precondition ---------------------------
 
