@@ -239,3 +239,63 @@
       wanting the LANDED state should read that comment and the packet's merge
       provenance, never this line, which speaks only for the moment it was
       written.
+
+      **FILED FORWARD 2026-09-03 (LATER THE SAME DAY) — THE FLOOR REPAIR
+      COMPLETED, AS THE SECOND LANDER OF A TWO-PACKET COLLISION.** The
+      paragraph above records the repair's codexFactory half as PR **#184**
+      (`8cb17373`, 58 entries). That half was CORRECT FOR THE TREE IT READ AND
+      NEVERTHELESS INSUFFICIENT, and the reason is worth the record: two
+      openxFactory packets each promoted a new capability on 2026-09-03, and
+      regeneration ENUMERATES A TREE rather than editing a list.
+      `add-project-repo-schema` (PR **#616**, merged 20:49Z as `19d00872`)
+      landed FIRST and codexFactory PR **#183** (`605d48ac`) regenerated for
+      it; codexFactory **#184** then regenerated for THIS packet at
+      `c9928846` — PR #615's PRE-MERGE branch head, which did not yet carry
+      #616's promotion — so its block went 54 -> 54 rather than 54 -> 55 and
+      **silently dropped `openspec/specs/project-repo-schema/spec.md`**, the
+      entry #183 had just landed. Neither pull request is defective; this is
+      the failure mode a two-lander collision has, and the pinned core's
+      `docs/repository-gate-floor-repair-runbook.md` already answers it by
+      making the SECOND LANDER regenerate once at its OWN POST-MAIN-MERGE
+      head. Also true and worth stating so nobody hunts an incident that did
+      not happen: **`main` was never broken in the interval** — its pin named
+      `605d48ac`, whose 58-entry floor covers `main`'s 54-spec tree including
+      `project-repo-schema`; the gap becomes reachable only when THIS packet's
+      fifty-fifth spec lands.
+      **THE SECOND-LANDER REGENERATION LANDED**: codexFactory PR **#186**,
+      merge (not squash) **`8f770afb`**
+      (`8f770afbf86043ee0f5494ded0f12f51c2a9b45e`, 2026-09-03T21:55:35Z),
+      regenerated at openxFactory **`8d893a0f`** — this branch's merge of
+      `main` `19d00872`, and the FIRST COMMIT ANYWHERE carrying fifty-five
+      tracked paths under `openspec/specs` — restoring `project-repo-schema`
+      BESIDE `standards-body-registry`.
+      **THE OPENXFACTORY HALF IS THIS COMMIT**, by lane `openxfactory-f2`: a
+      FIFTH catch-up merge of `origin/main` (`9a773a31`, the `contract-v3.2`
+      cut) and the pin advance across all five sites in one logical change —
+      `contracts/review-lane-pin.yaml` `core_commit`,
+      `merge-master-approval.yml`'s `PINNED_CORE_COMMIT` and its checkout
+      `ref:`, `pytest-suite.yml`'s core-checkout `ref:`, and the vendored byte
+      copy `contracts/review-lane-floor-snapshot.yaml` with its `sha256`
+      (`b8f95136…`) and `entry_count` 58 -> **63**. The copy is GIT-VERIFIED
+      byte-identical to the pinned core's blob (`351c47fb`, 12492 bytes), not
+      merely equal by a digest this repository computed itself.
+      **THE FLOOR GREW BY FIVE, AND ONLY ONE IS A SPEC** — measured on the
+      merged tree rather than inferred from the proposal. The spec is
+      `standards-body-registry` (55 generated paths, all 55 tracked paths
+      covered, zero uncovered, zero dead). The other FOUR are CHOKEPOINTS from
+      codexFactory PR **#182** (merge `e5534552`, 20:51:52Z — authored before
+      #183/#184 but merged after both, which is why they surface here for the
+      first time at an advance whose stated object is a spec): the sibling
+      factory-identity register family — `governance/factory-identity/`'s
+      register, wallet, grant and custody attestation — floored BY NAME,
+      realizing THIS repository's ratified `add-cpc-clearing-boundary` task
+      2.7. All four exist on this tree, verified path by path, so the advisory
+      lane gains four reachable floor paths and no dead entry.
+      **THE LOCKSTEP WAS RE-MEASURED, NOT CARRIED OVER**: both xFactory
+      judging surfaces still name `f4702f64` (read from xFactory `main`
+      2026-09-03), so `lockstep.status` stays `diverged` and the obligation to
+      converge at a future re-point ceremony stands.
+      **STILL NOT MERGED AS OF THIS NOTE** — anchored to the instant, as
+      above: written at branch head `45ab834b`+1, before any merge of PR #615.
+      The squash SHA remains deliberately unwritten and uninvented; it is
+      filled in at landing by the merge-provenance comment, by whoever merges.
