@@ -170,13 +170,14 @@
       cannot write for itself. The act carries no content change: the four
       promoted requirements and their ten scenarios are byte-identical to the
       delta this packet ratified, which is what `promotion-fidelity` reads.
-- [x] 5.7 **DONE 2026-09-03 — LANDED ON `main` VIA THIS PR.** The archive act
+- [x] 5.7 **DONE 2026-09-03 — LANDED ON `main` VIA PR #615.** The archive act
       (§5.6) ran uncommitted, on disk, in an isolated clone after the
       authoring session was killed twice by provider errors; lane
-      `openxfactory-f2` finished it, took a catch-up merge of
-      `declare-spent-bundle-state`'s own archive (PR #611, `7af2725c`) first,
+      `openxfactory-f2` finished it, took TWO catch-up merges of `origin/main`
+      first — `declare-spent-bundle-state`'s own archive (PR #611, `7af2725c`)
+      and five further commits (`#603 #599 #601 #614 #602`, tip `1c3e744f`) —
       re-measured every gate in this section and in the README entry against
-      that merged base rather than the stale `6da1e1f5`, and opened this PR to
-      carry the moved files, the promoted spec, and the `sequenced_after` pin
-      correction (`tests/sequenced_after/test_sweep.py`) to `main` in one
-      commit. PR number and squash SHA recorded here once landed.
+      the fully merged base rather than the stale `6da1e1f5`, and opened
+      **PR #615** to carry the moved files, the promoted spec, and the
+      `sequenced_after` pin correction (`tests/sequenced_after/test_sweep.py`)
+      to `main`. Squash SHA recorded here once merged.
