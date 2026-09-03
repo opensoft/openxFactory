@@ -316,10 +316,54 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       co-modified/sole, via
       `python3 scripts/validate-sequenced-after.py . --sweep` run after this
       merge.
+    - `co_modified` reads 107, `active_co_modified` reads 20, `change_ids`
+      reads 156 and `active` reads 32 — each one up from the reading the entry
+      above left. They moved on 2026-09-02 when PR #560
+      (`add-cpc-clearing-boundary`) merged: one more ACTIVE change, and it
+      carries a `## MODIFIED Requirements` block — THREE requirements over
+      `clearing-dispatch-boundary` ("Work crosses the boundary only as a
+      sealed bounded request", "Every verifiable field is verified against the
+      provider's authoritative API", "Every dispatch is recorded, and the
+      single door is attested rather than assumed") — so it is itself a
+      CO-modifier. All three of those titles trace to the SAME single earlier
+      active change, `add-clearing-dispatch-boundary`, which owned all three
+      and, before this PR, shared none of its ten requirement keys with any
+      other change in the corpus — it was SOLE. A change's co-modified/sole
+      status is BOOLEAN, not a count of its shared titles, so sharing three
+      keys with one other change flips it ONCE: `co_modified` rises by exactly
+      TWO — the new change entering the set (+1) and
+      `add-clearing-dispatch-boundary` leaving `sole` for it (+1) — never by
+      three or four. `active_co_modified` rises by the same two, since both
+      changes are ACTIVE. `sole_modifiers` and `active_sole` each fall by
+      exactly one — the one flipped change leaving the sole set — landing at
+      49 and 12. `change_ids` and `active` each rise by one —
+      `add-cpc-clearing-boundary` itself entering the corpus as one more
+      active change — landing at 156 and 32; `archived` holds at 124, prose
+      headers hold at 3 (3 archived), and `declaring`/`root_claims` hold at
+      1/0, none of which is this PR's business. MEASURED, not inferred:
+      excluding `add-cpc-clearing-boundary` from the corpus reproduces the
+      entry above's own reading EXACTLY (155 change ids, 105 co-modified, 50
+      sole modifiers, 18 / 13 active co-modified/sole), and
+      `add-clearing-dispatch-boundary` is independently confirmed absent from
+      the co-modified set on that exclusion — so the entire two-count rise is
+      this one PR's contribution and no other change moved in the same window.
+      Via `python3 scripts/validate-sequenced-after.py . --sweep` run on this
+      branch's own catch-up merge with `main` (commit `f7865ffc`):
+      `32 active + 124 archived` = 156 change ids, `107` co-modified, `49`
+      sole modifiers, `20 / 12` active co-modified/sole.
     """
     sweep = sa.corpus_sweep(ROOT)
-    assert sweep.co_modified == 105, (
-        "105 since declare-spent-bundle-state was authored 2026-09-02 on "
+    assert sweep.co_modified == 107, (
+        "107 since add-cpc-clearing-boundary (PR #560, 2026-09-02) carries "
+        "three `## MODIFIED Requirements` blocks over "
+        "clearing-dispatch-boundary — all three tracing to the single "
+        "earlier active change add-clearing-dispatch-boundary, previously "
+        "SOLE, now flipped to CO-modified by sharing those three keys with "
+        "#560 (a change's co-modified membership is boolean, so three shared "
+        "titles flip it ONCE, not three times: `co_modified` rises by "
+        "exactly two — #560 itself entering the set and "
+        "add-clearing-dispatch-boundary leaving `sole` for it). It read 105 "
+        "since declare-spent-bundle-state was authored 2026-09-02 on "
         "main, which is the change that raised it: it carries a `## MODIFIED "
         "Requirements` block, so it joined the co-modified population. It "
         "read 104 at THIS test's own authoring — add-sequenced-after-substrate's "
@@ -329,8 +373,13 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "archive moves `active_co_modified`, never the corpus-wide "
         "`co_modified`). ANY later change carrying a MODIFIED block raises it "
         "again, which is one of the two EXPECTED causes of this failure")
-    assert sweep.active_co_modified == 18, (
-        "18 on the merged tree: PR #571 archived govern-sibling-added-modified-"
+    assert sweep.active_co_modified == 20, (
+        "20 since add-cpc-clearing-boundary (PR #560, 2026-09-02) is itself "
+        "an ACTIVE co-modifier entering the active corpus, AND flips "
+        "add-clearing-dispatch-boundary — also ACTIVE — from sole to "
+        "co-modified by sharing three requirement keys with it: two ACTIVE "
+        "co-modifiers entering the set at once, so `active_co_modified` rises "
+        "by two rather than one. It read 18 on the merged tree: PR #571 archived govern-sibling-added-modified-"
         "deltas (an ACTIVE co-modifier leaving the active corpus, 18 → 17 on "
         "this branch alone) the SAME DAY main authored declare-spent-bundle-"
         "state (an ACTIVE co-modifier entering it, 18 → 19 on main alone) — "
@@ -348,12 +397,18 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # This change is itself a sole modifier at requirement granularity — which is
     # exactly why it declaring a parent anyway is the doctrine applied to its
     # author: declaring must never be worth less than omitting.
-    assert sweep.change_ids - 1 == 154, (
+    assert sweep.change_ids - 1 == 155, (
         "the `- 1` subtracts THIS change and nothing else, so the reading is "
         "the corpus without it: 152 at authoring, 153 when "
         "add-clearing-dispatch-boundary landed 2026-09-01, 154 when "
-        "declare-spent-bundle-state was authored 2026-09-02")
-    assert sweep.sole_modifiers - 1 == 49
+        "declare-spent-bundle-state was authored 2026-09-02, 155 when "
+        "add-cpc-clearing-boundary (PR #560) merged 2026-09-02")
+    # MOVED 2026-09-02: `sole_modifiers` fell 50 → 49 for the same reason
+    # `active_sole` falls below — add-clearing-dispatch-boundary left the sole
+    # set when add-cpc-clearing-boundary (PR #560) began sharing three
+    # requirement keys with it. The `- 1` still subtracts only
+    # add-sequenced-after-substrate (unaffected, still sole).
+    assert sweep.sole_modifiers - 1 == 48
     # STILL INTACT ON ITS MERITS, not by a cancelling pair of errors — checked,
     # because #563's archive landing between the authoring measurement and this
     # reading makes the coincidence worth ruling out explicitly. That archive
@@ -362,7 +417,17 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # only at `43cf5933`, when THIS change added itself as an active sole
     # modifier. The `- 1` therefore still subtracts exactly this change and
     # still recovers the authoring 11.
-    assert sweep.active_sole - 1 == 12
+    #
+    # MOVED AGAIN 2026-09-02: `active_sole` fell 13 → 12 when
+    # add-cpc-clearing-boundary (PR #560) flipped
+    # add-clearing-dispatch-boundary — an ACTIVE change, previously sole — to
+    # co-modified by sharing three requirement keys with it. UNLIKE #563's
+    # archive, this move DOES touch an active sole modifier, which is exactly
+    # the failure mode the note above ruled out for that earlier case; here it
+    # is the actual cause. The `- 1` still subtracts only
+    # add-sequenced-after-substrate (unaffected, still sole), so the reading
+    # falls with `active_sole` to 11.
+    assert sweep.active_sole - 1 == 11
     assert sweep.prose_headers == 3 and sweep.prose_headers_archived == 3
     assert sweep.declaring == 1
     assert sweep.declaring_ids == ("add-sequenced-after-substrate",)

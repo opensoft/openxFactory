@@ -377,3 +377,15 @@ Ratification authorizes the realization sequence in `tasks.md` and performs
 none of it — no workflow, no console act, no contract byte follows from
 this document's approval alone; #555's own merge stays gated on the
 inherited pytest-suite failure recorded at `tasks.md` §9.2.
+
+**CORRECTION, 2026-09-02 — the gate this paragraph names has since
+cleared, and the PR it named has since merged.** #555 MERGED as squash
+`ab0bb2dd2e642fce43bee3d02128bafd664d3be3` on 2026-09-02T09:16:29Z, admin
+squash with provenance on Brett Heap's recorded word (PR #555 comment,
+2026-09-02T09:16:26Z), at head `8d6f091d` — reached after both inherited
+reds this packet did not cause were fixed (PR #557, squash `5383e72c`; PR
+#568, squash `d308c012`) and this packet's own `sequenced_after` live-pin
+move landed in the same branch, per `tasks.md` §9.2's own dated
+corrections. This paragraph's "stays gated" clause is therefore historical,
+not current — filed forward rather than reworded, per this repository's
+correction convention.
