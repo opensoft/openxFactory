@@ -112,6 +112,23 @@ merge it follows exists.
       given and what is missing, and four parametrized tests pin it at either
       field of either pair. No spec text moved: the delta already said a pair
       is declared in full or not at all, and the writer was not saying it.
+- [x] 2.11 **THE SECOND CORPUS-CENSUS PIN, FOUND BY CI AND NOT BY THE LOCAL
+      RUN** — `tests/sequenced_after/test_sweep.py`'s live sweep. The local
+      gate this packet ran was `pytest tests/doc-health`, and this pin lives
+      outside it: `co_modified` reads the WHOLE corpus for changes sharing a
+      `(capability, requirement)` key, so a packet carrying MODIFIED blocks
+      moves it. Measured on the merged tree rather than reasoned: `change_ids`
+      158 → 159, `co_modified` 109 → 110, `active_co_modified` 21 → 22, and
+      `sole_modifiers`/`active_sole` UNMOVED at 49/12. THE RISE IS ONE, NOT
+      TWO, and the file's own rule says why a rise of one never comes with the
+      sole set falling: co-modified membership is boolean, so this packet
+      enters once, and BOTH its keys have the same single earlier owner — the
+      archived `add-proposal-origin-contract`, which ADDED both requirements
+      and was ALREADY co-modified through two other keys (doc-health's
+      "Deterministic check families", shared with fifteen changes, and
+      document-lifecycle's "Proposal-owned supporting documents", shared with
+      two). All three moved pins carry their dated narrative and the movement
+      log gains a bullet, in that file's own convention.
 
 ## 3. Evidence measured before the packet went up
 

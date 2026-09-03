@@ -204,6 +204,17 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     MOVEMENT LOG — the sibling carriage ledger's dated-narrative practice
     (`tests/doc-health/test_modified_block_currency_self_gate.py`), applied here:
 
+    - 2026-09-03, `add-drafted-proposal-origin` (issue #318): `change_ids`
+      158 → 159, `co_modified` 109 → 110, `active_co_modified` 21 → 22, and
+      `sole_modifiers`/`active_sole` UNMOVED at 49/12. A new active change
+      directory carrying two `## MODIFIED Requirements` blocks: it raises the
+      population by one and enters both co-modified sets, and it flips nobody
+      out of the sole set because both of its requirement keys have the same
+      single earlier owner — the archived `add-proposal-origin-contract`,
+      already co-modified through two other keys. THE FOURTH DISTINCT CAUSE
+      recorded in this log, and the plainest: authoring a packet that
+      MODIFIES requirements another packet already wrote.
+
     - `active_co_modified` reads 18, and was measured 19 at authoring. It moved
       at `ded8b9f1` on 2026-09-01, when PR #563 archived
       `add-release-tag-publication-check` — an ACTIVE change carrying a
@@ -548,8 +559,22 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       merge commit itself — which is this test's own protocol.
     """
     sweep = sa.corpus_sweep(ROOT)
-    assert sweep.co_modified == 109, (
-        "109 since create-medxchart-overlay-boundary was RATIFIED 2026-09-03 "
+    assert sweep.co_modified == 110, (
+        "110 since add-drafted-proposal-origin was AUTHORED 2026-09-03 "
+        "(issue #318). It carries TWO `## MODIFIED Requirements` blocks — "
+        "document-lifecycle's 'Proposal origin declaration' and doc-health's "
+        "'Proposal-origin checks enforced by reference' — and raises this "
+        "count by exactly ONE, not two, for the reason the entry below states "
+        "in general and this one states by measurement: co-modified "
+        "membership is boolean, so the packet enters the set once; and BOTH "
+        "of its keys have the SAME single earlier owner, the archived "
+        "add-proposal-origin-contract that ADDED both requirements, which was "
+        "ALREADY co-modified without this packet through two other keys "
+        "(doc-health's 'Deterministic check families', shared with fifteen "
+        "changes, and document-lifecycle's 'Proposal-owned supporting "
+        "documents', shared with two). Nothing flipped, so `sole_modifiers` "
+        "holds at 49 — a rise of one never comes with the sole set falling. "
+        "It read 109 since create-medxchart-overlay-boundary was RATIFIED 2026-09-03 "
         "and gained a `## MODIFIED Requirements` block over "
         "domain-descendant-boundary's 'A descendant is placed at a ratified "
         "placement'. THE THIRD EXPECTED CAUSE OF THIS FAILURE, distinct from "
@@ -592,8 +617,15 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "archive moves `active_co_modified`, never the corpus-wide "
         "`co_modified`). ANY later change carrying a MODIFIED block raises it "
         "again, which is one of the two EXPECTED causes of this failure")
-    assert sweep.active_co_modified == 21, (
-        "21 since create-medxchart-overlay-boundary was RATIFIED 2026-09-03, "
+    assert sweep.active_co_modified == 22, (
+        "22 since add-drafted-proposal-origin was AUTHORED 2026-09-03 "
+        "(issue #318) as an ACTIVE change carrying two `## MODIFIED "
+        "Requirements` blocks: it enters both the corpus-wide co-modified set "
+        "and the active one in the same move, so this count and `co_modified` "
+        "rise together by one. `active_sole` holds at 12 — the packet was "
+        "never in the sole set to leave it, which is what distinguishes an "
+        "AUTHORING rise from the RATIFICATION rise recorded next. "
+        "It read 21 since create-medxchart-overlay-boundary was RATIFIED 2026-09-03, "
         "making an ALREADY-ACTIVE change a co-modifier, with `active_sole` "
         "falling 13 -> 12 in the same move because it is the same change "
         "leaving the sole set. THE 20 IT ROSE FROM IS MAIN'S OWN, measured on "
@@ -634,7 +666,7 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # This change is itself a sole modifier at requirement granularity — which is
     # exactly why it declaring a parent anyway is the doctrine applied to its
     # author: declaring must never be worth less than omitting.
-    assert sweep.change_ids - 1 == 157, (
+    assert sweep.change_ids - 1 == 158, (
         "the `- 1` subtracts THIS change and nothing else, so the reading is "
         "the corpus without it: 152 at authoring, 153 when "
         "add-clearing-dispatch-boundary landed 2026-09-01, 154 when "
@@ -646,7 +678,9 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "2026-09-03 (#611, moves a change between buckets, not the total) "
         "and through create-medxchart-overlay-boundary's RATIFICATION "
         "2026-09-03, which moves four membership readings and no population "
-        "count at all")
+        "count at all -- then 158 when add-drafted-proposal-origin was "
+        "AUTHORED 2026-09-03 (issue #318), a NEW active change directory, "
+        "which is the one move that does raise the population")
     # MOVED 2026-09-02: `sole_modifiers` fell 50 → 49 for the same reason
     # `active_sole` falls below — add-clearing-dispatch-boundary left the sole
     # set when add-cpc-clearing-boundary (PR #560) began sharing three
