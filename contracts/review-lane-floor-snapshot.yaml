@@ -70,12 +70,12 @@ floor:
     # ==== BEGIN MACHINE-GENERATED BLOCK — DO NOT HAND-EDIT ====
     # prefix:             openspec/specs
     # source_repository:  opensoft/openxFactory
-    # generated_at:       1a69b7cb3e3080ffed4593d8519fc4da27028439
-    # entry_count:        53
+    # generated_at:       c9928846828947dd29975e4ce358d86da462c402
+    # entry_count:        54
     # regenerate with:
     #   python3 scripts/merge_master/generate_specs_floor_block.py \
     #     --repo <opensoft/openxFactory checkout> \
-    #     --ref 1a69b7cb3e3080ffed4593d8519fc4da27028439 --write
+    #     --ref c9928846828947dd29975e4ce358d86da462c402 --write
     #
     # ONE GROUND FOR THE WHOLE BLOCK, and it is not the ground above it.
     # The four entries ABOVE are separately reasoned GATE CHOKEPOINTS: each one
@@ -151,6 +151,7 @@ floor:
     - openspec/specs/roles-authority-model/spec.md
     - openspec/specs/shared-contract-ownership/spec.md
     - openspec/specs/signed-execution-chain/spec.md
+    - openspec/specs/standards-body-registry/spec.md
     - openspec/specs/workflow-gate-contract/spec.md
     - openspec/specs/workflow-visualization/spec.md
     - openspec/specs/workstation-intake/spec.md
