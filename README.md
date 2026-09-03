@@ -705,23 +705,22 @@ Active changes:
   dispositions.yaml` disposition rows that would have belted a different order —
   tracked as `opensoft/xFactory#201` — were CLOSED AS UNNECESSARY once the intended
   order held.
-  **REALIZATION IN FLIGHT (tasks 2.1-2.6), AND IT DELIBERATELY DOES NOT MERGE
-  YET.** The sibling register family `governance/factory-identity/` — register,
-  wallet, grant and custody attestation for the first originating repository
-  `opensoft/codexFactory` — plus the disjointness validator
-  `scripts/validate-factory-identity.py`, the operator mint program
-  `scripts/mint-factory-origin-key.py`, their 80 tests, its wiring into the
-  REQUIRED `wallet-validation` check with a positive log conjunction, and the
-  mint runbook `docs/factory-origin-key-mint-runbook.md`. **The operator has not
-  minted the per-factory Ed25519 origin key**, so the three public values are the
-  literal sentinel `FILL-IN-AT-MINT` rather than a plausible base64url literal
-  that would pass a scanner and a reader alike, and BOTH readers refuse the tree
-  while they stand: the new one with the named finding
-  `factory-identity-placeholder-unminted`, and the PINNED openXwallet reader with
-  three schema pattern refusals. The draft therefore CANNOT merge until the mint
-  happens — which is the intended state, not a defect. Task 2.7's cross-repo half
-  (codexFactory's exact-set floor file) is its own draft, landed in the same
-  governed act.
+  **REALIZATION COMPLETE AT THIS PR.** The sibling register family
+  `governance/factory-identity/` — register, wallet, grant and custody
+  attestation for the first originating repository `opensoft/codexFactory` —
+  plus the disjointness validator `scripts/validate-factory-identity.py`, the
+  operator mint program `scripts/mint-factory-origin-key.py`, their 80 tests,
+  its wiring into the REQUIRED `wallet-validation` check with a positive log
+  conjunction, and the mint runbook
+  `docs/factory-origin-key-mint-runbook.md`. **The operator minted the
+  codexFactory origin key at 2026-09-03T19:34:59Z** via
+  `scripts/mint-factory-origin-key.py`: the private half exists only as the
+  `FACTORY_ORIGIN_SIGNING_KEY` secret in codexFactory's `worker-credentials`
+  environment, the register at `governance/factory-identity/` is filled with
+  the derived public values, and the mint record is recorded in
+  codexFactory's `hermes/domain/factory-identity/records/`. The realization
+  for `opensoft/codexFactory` is therefore COMPLETE at this PR, and further
+  factories are added by the same runbook.
 - [add-requirement-ref-resolution-integrity](openspec/changes/add-requirement-ref-resolution-integrity/proposal.md)
   — authored 2026-08-31, **RATIFIED 2026-09-01 BY DIRECT RULING**
   (`Status: ratified`; record `review/ratification-2026-09-01.md`) — Brett Heap
