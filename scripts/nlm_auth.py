@@ -241,12 +241,22 @@ def profile_dir(profile: str, store: str | os.PathLike | None = None) -> Path:
 
 
 def read_profile_metadata(pdir: Path) -> dict:
-    """The existing metadata.json as a dict; {} when absent or unreadable."""
+    """The existing metadata.json as a dict; {} when absent or unreadable.
+
+    ValueError covers BOTH json.JSONDecodeError (malformed JSON) and
+    UnicodeDecodeError (non-UTF-8 bytes) — an unreadable store must degrade to
+    "nothing to carry forward", never crash the extraction.
+    """
     try:
         data = json.loads((pdir / "metadata.json").read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+    except (OSError, ValueError):
         return {}
     return data if isinstance(data, dict) else {}
+
+
+def _clean(value) -> str | None:
+    """A non-blank string, or None. Anything else in the store reads as unknown."""
+    return value.strip() or None if isinstance(value, str) else None
 
 
 def merge_profile_metadata(existing: dict, *, profile: str, csrf: str | None,
@@ -285,9 +295,8 @@ def merge_profile_metadata(existing: dict, *, profile: str, csrf: str | None,
     deliberate, documented relaxation in the safe direction.
     """
     metadata = dict(existing)
-    stored_email = existing.get("email")
-    stored_email = stored_email.strip() if isinstance(stored_email, str) else None
-    captured = email.strip() if isinstance(email, str) else None
+    stored_email = _clean(existing.get("email"))
+    captured = _clean(email)
     notes: list[str] = []
 
     if captured and stored_email and captured.casefold() != stored_email.casefold():
@@ -300,28 +309,29 @@ def merge_profile_metadata(existing: dict, *, profile: str, csrf: str | None,
         # Same account: keep the stored spelling rather than the scraped one.
         metadata["email"] = stored_email
         notes.append(f"captured {captured} from the live session; it matches "
-                     f"the stored address")
+                     "the stored address")
     elif captured:
         metadata["email"] = captured
         notes.append(f"captured {captured} from the live session (the store "
-                     f"recorded none)")
+                     "recorded none)")
     elif stored_email:
         metadata["email"] = stored_email
         notes.append(f"carried the stored address {stored_email} forward (the "
-                     f"live session yielded none)")
+                     "live session yielded none)")
     else:
-        metadata["email"] = metadata.get("email")  # keep the key, value null
+        # Keep the KEY (the CLI's own shape has it) but normalise the value to
+        # null: a blank or non-string leftover reads as UNKNOWN to the sync
+        # anyway, and writing it back would preserve junk as if it meant
+        # something.
+        metadata["email"] = None
         notes.append("no account address recorded — none stored, none captured; "
                      "the sync will verify this profile by NAME only")
 
-    stored_label = existing.get("build_label")
-    if build_label:
-        metadata["build_label"] = build_label
-    elif stored_label:
-        metadata["build_label"] = stored_label
+    # Same rule for build_label: carry a real value forward, normalise anything
+    # blank or non-string to null rather than round-tripping it.
+    metadata["build_label"] = _clean(build_label) or _clean(existing.get("build_label"))
+    if not _clean(build_label) and metadata["build_label"]:
         notes.append("build_label carried forward")
-    else:
-        metadata["build_label"] = metadata.get("build_label")
 
     metadata["csrf_token"] = csrf
     metadata["session_id"] = session

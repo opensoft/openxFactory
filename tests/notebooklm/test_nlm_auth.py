@@ -45,12 +45,19 @@ def _load_nlm_auth():
 
     The stub's `sync_playwright` RAISES: nothing in this file may drive a
     browser, and a silently-working stub would hide a test that tried.
+
+    sys.modules is left EXACTLY as it was found — whatever was under those two
+    names (a real package, or another module's own stub) is saved and restored,
+    not popped — because this runs at import time inside a shared interpreter.
     """
-    stubbed: list[str] = []
+    names = ("playwright", "playwright.sync_api")
     try:
         have_playwright = importlib.util.find_spec("playwright.sync_api") is not None
     except (ImportError, ValueError):
         have_playwright = False
+
+    saved = {n: sys.modules[n] for n in names if n in sys.modules}
+    injected: tuple[str, ...] = ()
     if not have_playwright:
         def _refuse(*_a, **_kw):  # pragma: no cover - defensive
             raise AssertionError("no test in this suite may start a browser")
@@ -59,9 +66,8 @@ def _load_nlm_auth():
         sync_api = types.ModuleType("playwright.sync_api")
         sync_api.sync_playwright = _refuse
         pkg.sync_api = sync_api
-        sys.modules["playwright"] = pkg
-        sys.modules["playwright.sync_api"] = sync_api
-        stubbed = ["playwright.sync_api", "playwright"]
+        sys.modules["playwright"], sys.modules["playwright.sync_api"] = pkg, sync_api
+        injected = names
     try:
         spec = importlib.util.spec_from_file_location("nlm_auth", SCRIPT)
         module = importlib.util.module_from_spec(spec)
@@ -70,9 +76,13 @@ def _load_nlm_auth():
         spec.loader.exec_module(module)
         return module
     finally:
-        # Leave sys.modules as we found it; the module holds its own reference.
-        for name in stubbed:
-            sys.modules.pop(name, None)
+        # The loaded module holds its own reference to what it imported, so
+        # nothing here needs the stub to survive.
+        for name in injected:
+            if name in saved:
+                sys.modules[name] = saved[name]
+            else:
+                sys.modules.pop(name, None)
 
 
 nlm_auth = _load_nlm_auth()
@@ -146,6 +156,24 @@ class MergeCarriesIdentityForward(unittest.TestCase):
         self.assertIsNone(metadata["email"])
         self.assertIsNone(metadata["build_label"])
         self.assertIn("no account address recorded", note)
+
+    def test_blank_and_non_string_leftovers_normalise_to_null(self):
+        # A blank or wrongly-typed value already reads as UNKNOWN to the sync
+        # (`profile_account()` blanks it too), so writing it back would preserve
+        # junk as if it meant something.
+        for junk in ("", "   ", 17, [], {"a": 1}):
+            with self.subTest(stored=repr(junk)):
+                metadata, note = self.merge({"email": junk, "build_label": junk})
+                self.assertIsNone(metadata["email"])
+                self.assertIsNone(metadata["build_label"])
+                self.assertIn("no account address recorded", note)
+                self.assertNotIn("build_label carried forward", note)
+
+    def test_a_new_build_label_wins_over_the_stored_one(self):
+        metadata, note = self.merge({"build_label": "old"}, build_label="new")
+
+        self.assertEqual(metadata["build_label"], "new")
+        self.assertNotIn("build_label carried forward", note)
 
     def test_other_existing_keys_survive(self):
         existing = {"email": STORED, "provider": "builtin", "quirk": {"a": 1}}
@@ -222,12 +250,15 @@ class WriteNativeProfile(unittest.TestCase):
 
     def test_unreadable_metadata_does_not_abort_the_write(self):
         self.pdir.mkdir(parents=True)
-        (self.pdir / "metadata.json").write_text("{not json", encoding="utf-8")
+        for content in (b"{not json", b"\xff\xfe not utf-8", b"[1, 2, 3]"):
+            with self.subTest(content=content[:12]):
+                (self.pdir / "metadata.json").write_bytes(content)
 
-        nlm_auth.write_native_profile("company", [], "csrf", "session",
-                                      store=self.store)
+                nlm_auth.write_native_profile("company", [], "csrf", "session",
+                                              store=self.store)
 
-        self.assertEqual(self.written()["csrf_token"], "csrf")
+                self.assertEqual(self.written()["csrf_token"], "csrf")
+                self.assertIsNone(self.written()["email"])
 
     def test_a_wrong_account_capture_writes_NOTHING(self):
         self.seed({"email": STORED, "csrf_token": "old", "session_id": "old"},

@@ -259,7 +259,8 @@ liveness cannot be proven cross-checkout. Wants its own change; noted in the
    `... refresh --profile company --cdp-url http://127.0.0.1:9444`, which is
    how the 2026-08-24 migration authenticated. Pass `--profile` explicitly: it
    names the profile STORE the harness writes, and its default is still the
-   legacy `personal` (`scripts/nlm_auth.py:207`). **Do NOT use `nlm login
+   legacy `personal` (the `--profile` default in `scripts/nlm_auth.py`'s
+   `main()`). **Do NOT use `nlm login
    --cdp-url` — the rebrand broke it** (F1 / #537, see above); it only burns its
    300 s timeout against a browser that is genuinely signed in. The same defect
    is why `nlm login --profile company` — the first-time route the sync's own
