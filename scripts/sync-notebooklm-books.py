@@ -895,10 +895,73 @@ def _ensure_alias(spec: BookSpec, notebook_id: str) -> None:
               f"(non-fatal: {exc})")
 
 
-def ensure_workspace_record(root: Path, spec: BookSpec, notebook_id: str) -> None:
-    """Write the book's external_source_workspace record at creation — its
-    provider id does not exist until the notebook does
-    (split-ideation-book-per-repo; model: docs/notebooklm-source-workspaces.md §6)."""
+def _is_record_id_line(line: str, record_id: str) -> bool:
+    """An ACTIVE record's own `id:` line, matched WHOLE.
+
+    Two things the old `f"id: {record_id}" in text` substring test could not
+    tell apart, both live in the registry today: a RETIRED record kept as a
+    commented block (`# id: workspace-xfactory-lifecycle-ideation`, retained by
+    split-ideation-book-per-repo as the audit trail), and a longer id that
+    merely STARTS with this one (`…-ideation` is a prefix of
+    `…-ideation-opsxfactory`). Rewriting a field inside either would be a write
+    against the wrong book."""
+    stripped = line.strip()
+    if stripped.startswith("#"):
+        return False
+    return stripped == f"id: {record_id}"
+
+
+def _record_item_span(lines: list[str], idx: int) -> tuple[int, int]:
+    """Bounds of the `workspaces:` list item that owns line `idx`.
+
+    A field is only ever read or rewritten INSIDE the record that owns it, so
+    the scan is bounded by the item's own `- ` line and the next one. The
+    registry is edited as TEXT rather than round-tripped through a YAML loader
+    on purpose: its header comments carry the migration record — including one
+    line whose wording is frozen by citation — and a loader would drop every
+    one of them."""
+    start = idx
+    while start > 0 and not lines[start].lstrip().startswith("- "):
+        start -= 1
+    end = idx + 1
+    while end < len(lines):
+        line = lines[end]
+        if line.lstrip().startswith("- "):
+            break
+        if line.strip() and not line[0].isspace() and not line.startswith("#"):
+            break                       # back out at a top-level mapping key
+        end += 1
+    return start, end
+
+
+def ensure_workspace_record(root: Path, spec: BookSpec, notebook_id: str,
+                            apply: bool) -> None:
+    """Register the book's external_source_workspace record, REPLACING the
+    provider id when the record already stands for a different notebook.
+
+    Written at creation because a book's provider id does not exist until the
+    notebook does (split-ideation-book-per-repo; model:
+    docs/notebooklm-source-workspaces.md §6), and re-asserted on every resolve
+    so the registration converges instead of drifting.
+
+    THE REPLACEMENT is the point (issue #536, realizing
+    `lifecycle-notebook-projection`'s "The migration SHALL replace each book's
+    workspace record rather than merely retiring it"). A hosting-account move
+    re-derives the book under a NEW provider notebook id while the record id,
+    being derived from the book's KEY, is unchanged. This used to print
+    `reconcile by hand` and return, so the record kept pointing at the retired
+    notebook — and retiring the record on top of that would leave the live book
+    with no registration at all. Exactly ONE active record per live book: the
+    record IS the live book's registration, and what a migration retires is the
+    legacy PROVIDER NOTEBOOK, never this record.
+
+    A re-point is never silent, because a silent one would hide an accidental
+    binding to the WRONG notebook: without `--apply` the planned replacement is
+    printed naming both ids and nothing is written; with it, the write is
+    announced the same way. Only `provider_notebook_id` moves — every other
+    field, `created_at` included, is the record's own history and is preserved
+    (the 2026-08-24 migration kept the legacy→new mapping in a file comment,
+    not in a record field; the schema has none)."""
     path = root / "openxFactory/examples/lifecycle-notebook-workspaces.yaml"
     record_id = f"workspace-xfactory-lifecycle-{spec.key}"
     if not path.is_file():
@@ -906,10 +969,39 @@ def ensure_workspace_record(root: Path, spec: BookSpec, notebook_id: str) -> Non
               f"record {record_id} not written")
         return
     text = path.read_text(encoding="utf-8")
-    if f"id: {record_id}" in text:
-        if notebook_id not in text:
-            print(f"[{spec.key}] NOTICE workspace record {record_id} exists "
-                  f"with a DIFFERENT provider_notebook_id — reconcile by hand")
+    lines = text.splitlines()
+    hit = next((i for i, line in enumerate(lines)
+                if _is_record_id_line(line, record_id)), None)
+    if hit is not None:
+        start, end = _record_item_span(lines, hit)
+        field = next((i for i in range(start, end)
+                      if not lines[i].lstrip().startswith("#")
+                      and lines[i].strip().startswith("provider_notebook_id:")),
+                     None)
+        if field is None:
+            # Nothing to replace and nothing safe to append: the record exists,
+            # so a second one would break the one-record invariant.
+            print(f"[{spec.key}] NOTICE workspace record {record_id} carries no "
+                  f"provider_notebook_id line — reconcile by hand")
+            return
+        current = lines[field].split(":", 1)[1].strip()
+        if current == notebook_id:
+            return                      # already the live book's registration
+        if not apply:
+            print(f"[{spec.key}] REPLACE workspace record {record_id}: "
+                  f"{current} -> {notebook_id} (re-pointed on --apply)")
+            return
+        indent = lines[field][:len(lines[field]) - len(lines[field].lstrip())]
+        lines[field] = f"{indent}provider_notebook_id: {notebook_id}"
+        path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        print(f"[{spec.key}] REPLACED workspace record {record_id}: "
+              f"{current} -> {notebook_id} in {path.relative_to(root)} "
+              f"(one active record per live book; commit it with the "
+              f"migration evidence)")
+        return
+    if not apply:
+        print(f"[{spec.key}] REGISTER workspace record {record_id} -> "
+              f"{notebook_id} (written on --apply)")
         return
     created = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
     repo = spec.title.removeprefix(IDEATION_TITLE_PREFIX)
@@ -953,6 +1045,28 @@ def resolve_or_create_book(root: Path, spec: BookSpec, apply: bool,
         # xf-canon is not a proof, it is a migration nobody asked for.
         if bind_alias:
             _ensure_alias(spec, nid)
+        # Re-assert the registration on the FOUND path too, which is the only
+        # path a re-derived book takes on the run AFTER the one that created it
+        # (issue #536). Read-only callers stay read-only: with `apply` false
+        # this prints the planned replacement and writes nothing.
+        #
+        # AMBIGUOUS TITLE FIRST. `by_title` keeps whichever row the provider
+        # returned LAST, so two notebooks under one title resolve to an
+        # arbitrary one of them. Projecting into an arbitrary notebook is a
+        # pre-existing hazard; RE-POINTING the governed record at it would be a
+        # new one — it could overwrite an already-correct registration and flap
+        # it as the provider's ordering changes. Report and leave the record
+        # exactly as it stands: an ambiguous title is precisely the case a hand
+        # reconciliation exists for (PR #602, Codex P2).
+        titled = {r.get("id") for r in rows
+                  if r.get("title") == spec.title and r.get("id")}
+        if len(titled) > 1:
+            print(f"[{spec.key}] NOTICE {len(titled)} notebooks are titled "
+                  f"{spec.title!r} ({', '.join(sorted(titled))}) — the "
+                  f"workspace record is left unchanged; resolve the duplicate "
+                  f"by hand before trusting this book's registration")
+        else:
+            ensure_workspace_record(root, spec, nid, apply)
         return nid, True
     if not apply:
         print(f"[{spec.key}] CREATE {spec.title} (book missing; created on --apply)")
@@ -988,7 +1102,7 @@ def resolve_or_create_book(root: Path, spec: BookSpec, apply: bool,
     except Exception as exc:  # noqa: BLE001
         ok = False
         print(f"[{spec.key}] FAILED chat framing for {spec.title!r}: {exc}")
-    ensure_workspace_record(root, spec, nid)
+    ensure_workspace_record(root, spec, nid, apply)
     time.sleep(2)
     return nid, ok
 
