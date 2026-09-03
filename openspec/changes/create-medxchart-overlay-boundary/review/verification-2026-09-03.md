@@ -50,19 +50,23 @@ $ OPENSPEC_TELEMETRY=0 openspec validate --all --strict
 …
 ✓ spec/workstation-intake
 ✓ spec/xfactory-semantic-kernel
-Totals: 87 passed, 0 failed (87 items)
+Totals: 86 passed, 0 failed (86 items)
 ```
 
-Eighty-seven items, zero failures — every active change and every promoted
-specification in the repository, this change included. **The total moved TWICE
-while this branch was open and NEITHER MOVE IS THIS PACKET'S**: it read 85 as
-first written; 86 once `add-project-repo-schema` (PR #605) landed on `main` at
-`642ac147` and this branch was rebased onto it; and 87 once
+Eighty-six items, zero failures — every active change and every promoted
+specification in the repository, this change included. **The total moved THREE
+TIMES while this branch was open and NONE OF THE MOVES IS THIS PACKET'S**: it
+read 85 as first written; 86 once `add-project-repo-schema` (PR #605) landed on
+`main` at `642ac147` and this branch was rebased onto it; 87 once
 `update-standards-body-current-publications` was adopted as an ACTIVE change
-(PR #593) and this branch took the catch-up merge of `main` at `6da1e1f5`. This
-packet adds no change id of its own — it ratifies one that was already active
-and already counted — so it moves this total not at all. The total was
-re-derived on each tree and corrected before capture (§ 9).
+(PR #593) and this branch took the catch-up merge of `main` at `6da1e1f5`; and
+back to 86 once `declare-spent-bundle-state` was ARCHIVED (#611) and this
+branch took the second catch-up merge of `main` at `2b0615da` — an archive
+retires an active change id without adding a replacement, which is the
+opposite direction from the two authoring moves before it. This packet adds no
+change id of its own — it ratifies one that was already active and already
+counted — so it moves this total not at all. The total was re-derived on each
+tree and corrected before capture (§ 9).
 
 ## 3. The pin agreement, read from an INDEPENDENT clone
 
@@ -407,3 +411,51 @@ evidence block, no console output, no finding and no citation moved.
 and PR #608 has not merged; the record is still uncaptured, which is the whole
 reason this correction is lawful. The re-derivation is a SECOND pre-capture
 correction, not an edit to a captured record.
+
+**RE-DERIVED A THIRD TIME, 2026-09-03, AFTER MERGING `main` AT `2b0615da`
+(#611, #614, #602 AND #604 LANDED).** The race the two paragraphs above
+measure ran a third time while this pull request still sat: `main` moved
+seven commits past `6da1e1f5`, of which #611 ARCHIVED
+`declare-spent-bundle-state` — the very change whose AUTHORING the second
+re-derivation measured — and #614, #602 and #604 landed beside it touching
+neither the corpus pin nor this record. This branch took a SECOND CATCH-UP
+MERGE of `main` rather than a third rebase — the repository forbids
+force-pushing here. Counts moved, and only counts:
+
+- `openspec validate --all --strict` **87/87 → 86/86** (#611 ARCHIVED one
+  ACTIVE change without adding a replacement; this packet adds none and
+  moves this total not at all).
+- The live sweep, ON THIS BRANCH'S OWN TREE before this merge,
+  `158 / 109 / 49 / 22 / 12` → **`158 / 109 / 49 / 21 / 12`** (change ids /
+  co-modified / sole modifiers / active co-modified / active sole) — of the
+  five readings, ONLY `active_co_modified` moves, by exactly one, because
+  `declare-spent-bundle-state` was itself a co-modified ACTIVE change and its
+  archive is the only event in the window that touches this sweep at all.
+  This packet's own four-pin contribution is UNCHANGED IN SHAPE a third
+  time: +1 `co_modified`, +1 `active_co_modified`, -1 `sole_modifiers`, -1
+  `active_sole`, relative to whatever baseline `main` presents.
+- The MEASURED-BY-EXCLUSION baseline, which is `main`'s own reading,
+  `158 / 108 / 50 / 21 / 13` → **`158 / 108 / 50 / 20 / 13`** — proved by
+  moving
+  `openspec/changes/create-medxchart-overlay-boundary/specs/domain-descendant-boundary/`
+  aside on the merged tree and re-running the sweep, and independently
+  confirmed by running the same sweep on `origin/main` at `2b0615da` itself,
+  which prints the same five numbers.
+
+Doc-health on the merged tree reads `6 critical, 6 error, 29 warning, 14
+info`, 0 new regressions, with zero findings naming this change — matching
+the same run on `origin/main` at `2b0615da` in every finding and count, the
+two differing only in one `staged-candidate-aging` trend line's day count (a
+clock artifact of wall time between the two runs, not a corpus difference).
+`openspec validate create-medxchart-overlay-boundary --strict` is valid and
+`python3 -m pytest tests/sequenced_after -q` is 118 passed against the
+re-derived pin. **NOTHING ELSE IN EITHER RECORD CHANGED** — beyond those
+counts and the `Captured:` header's naming of the third tree, no governance
+statement, no evidence block, no console output, no finding and no citation
+moved.
+
+**NO CAPTURE HAPPENED BEFORE THE MERGE — #611 (and the three after it) won
+the race this time.** Capture is the merge of PR #608 and PR #608 has not
+merged; the record is still uncaptured, which is the whole reason this
+correction is lawful. The re-derivation is a THIRD pre-capture correction,
+not an edit to a captured record.

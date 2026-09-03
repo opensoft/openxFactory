@@ -10,9 +10,10 @@ Ratified baseline: this change as committed in the ratification commit carrying
 this record — `proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml`,
 `specs/medxchart-overlay-boundary/spec.md` (THREE ADDED requirements) and
 `specs/domain-descendant-boundary/spec.md` (ONE MODIFIED requirement) — with
-`openspec validate --strict` and `--all --strict` green (87/87, re-derived on
-the rebased tree and then A SECOND TIME on the merged tree after `main` moved to
-`6da1e1f5` — see `verification-2026-09-03.md` § 9) and the verification run
+`openspec validate --strict` and `--all --strict` green (86/86, re-derived on
+the rebased tree, A SECOND TIME on the merged tree after `main` moved to
+`6da1e1f5`, and A THIRD TIME on the merged tree after `main` moved to
+`2b0615da` — see `verification-2026-09-03.md` § 9) and the verification run
 captured beside this file at `verification-2026-09-03.md`.
 
 **This record is CAPTURED AT MERGE, not at first push, and it was RE-DERIVED ON
@@ -298,7 +299,7 @@ carries the LIVE corpus pin, whose own protocol is that it "MOVES WITH the
 corpus … in the SAME COMMIT" with a dated MOVEMENT LOG entry saying which
 subject moved and why. Adding a `## MODIFIED Requirements` block to an active
 change moves four of its readings — `co_modified` 108 → 109,
-`active_co_modified` 21 → 22, `sole_modifiers` 50 → 49 (`- 1`: 49 → 48), and
+`active_co_modified` 20 → 21, `sole_modifiers` 50 → 49 (`- 1`: 49 → 48), and
 `active_sole` 13 → 12 (`- 1`: 12 → 11) — and moves `change_ids`, `active` and
 `archived` **not at all**, because this is a RATIFICATION of a change that
 already existed rather than the authoring of a new one. That is a THIRD distinct
@@ -319,9 +320,9 @@ raised `change_ids` 157 → 158, `sole_modifiers` 49 → 50 and `active_sole`
 above are stated from that baseline. The move was **MEASURED BY EXCLUSION**, not
 inferred: removing only `specs/domain-descendant-boundary/` from this packet on
 the MERGED tree reproduces `main`'s own reading exactly (158 change ids, 108
-co-modified, 50 sole modifiers, 21 / 13 active co-modified/sole), a reading
+co-modified, 50 sole modifiers, 20 / 13 active co-modified/sole), a reading
 independently confirmed by running the same sweep on `origin/main` at
-`6da1e1f5` itself, so this one delta file is the whole of the difference and no
+`2b0615da` itself, so this one delta file is the whole of the difference and no
 other change moved in the same window.
 
 **Corrected before capture, in the fix commit on top of `c39d29bc` — and
@@ -330,7 +331,13 @@ of `main` at `6da1e1f5`: re-derived a second time after merging main at
 `6da1e1f5` (#606, #593, #589 landed); the counts moved `--all --strict` 86/86 →
 87/87, this branch's sweep 157 / 109 / 48 / 22 / 11 → 158 / 109 / 49 / 22 / 12
 and the measured-by-exclusion baseline 157 / 108 / 49 / 21 / 12 →
-158 / 108 / 50 / 21 / 13; nothing else in the records changed.** The
+158 / 108 / 50 / 21 / 13; nothing else in the records changed. AND CORRECTED A
+THIRD TIME, also before capture, in the commit on top of the second catch-up
+merge of `main` at `2b0615da` (after #611 archived `declare-spent-bundle-state`,
+then #614, #602, #604): the counts moved `--all --strict` 87/87 → 86/86, this
+branch's sweep 158 / 109 / 49 / 22 / 12 → 158 / 109 / 49 / 21 / 12 and the
+measured-by-exclusion baseline 158 / 108 / 50 / 21 / 13 →
+158 / 108 / 50 / 20 / 13; nothing else in the records changed.** The
 governance substance above is unchanged; the EVIDENTIARY layer was repaired.
 `verification-2026-09-03.md` § 9 lists every item and its reason: the
 `--all --strict` total (`85/85` → `86/86`, `add-project-repo-schema` having
