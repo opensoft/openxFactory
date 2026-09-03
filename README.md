@@ -2085,8 +2085,7 @@ Archived changes:
   OPPOSITE HALF of that same sibling archive's move, and the exact mirror of
   #571's 2026-09-02 archive: one moves `active_co_modified` alone, this one
   moves `active_sole` alone. Measured on both trees, moved in the same commit,
-  with
-  a dated MOVEMENT LOG entry, which is that pin's own protocol.
+  with a dated MOVEMENT LOG entry, which is that pin's own protocol.
   **RESCUED, NOT RE-AUTHORED, AND THE RESCUE IS PART OF THE RECORD**: the
   authoring session of 2026-09-01 ended without pushing, so the packet and its
   code existed on no branch and not on `main` (openxFactory issue **#591**); PR

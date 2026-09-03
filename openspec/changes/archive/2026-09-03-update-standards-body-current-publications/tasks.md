@@ -156,9 +156,8 @@
       stands between realization and this act — § 5.1 measured why.
 - [x] 5.6 **DONE 2026-09-03 — THE ARCHIVE ACT, SEPARATELY AND THROUGH
       `scripts/proposal-support.py`.** Run as
-      `python3 scripts/proposal-support.py . archive
-      update-standards-body-current-publications --date 2026-09-03 --yes` from
-      the repository root — **never bare `openspec archive`**, which drops the
+      `python3 scripts/proposal-support.py . archive update-standards-body-current-publications --date 2026-09-03 --yes`
+      from the repository root — **never bare `openspec archive`**, which drops the
       origin gate, the incomplete-task refusal and the supporting-docs
       bookkeeping the wrapper carries (the `F0` lesson: always archive via
       `proposal-support`). The packet moved to
