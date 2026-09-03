@@ -1565,8 +1565,11 @@ Active changes:
   `domain-descendant-boundary` placement delta** — the explicit amendment that
   promoted requirement asked for by name, ratifying the aggregation's
   `xFactories/` placement and naming BOTH `MedxChart` and `MedxPractice` as its
-  realized placements; the sibling `create-medxpractice-overlay-boundary` cites
-  it and carries none. MedxChart is a REPORTED EMPTY BOUNDARY under the
+  realized placements; the sibling `create-medxpractice-overlay-boundary` carries
+  none of its own, and its ratification packet is to cite this delta — an
+  obligation stated in the future tense because no sibling pull request has
+  merged and that packet carries no reference to it yet. MedxChart is a REPORTED
+  EMPTY BOUNDARY under the
   lazy-creation rule (composition metadata only, zero openChart profile
   artifacts) and is **not** precedent for creating more. **ARCHIVE IS GATED** on
   `tasks.md` § 5: the descendant pin validator, its required `pin-validation`

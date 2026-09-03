@@ -10,10 +10,26 @@ Ratified baseline: this change as committed in the ratification commit carrying
 this record — `proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml`,
 `specs/medxchart-overlay-boundary/spec.md` (THREE ADDED requirements) and
 `specs/domain-descendant-boundary/spec.md` (ONE MODIFIED requirement) — with
-`openspec validate --strict` and `--all --strict` green (85/85) and the
-verification run captured beside this file at `verification-2026-09-03.md`.
+`openspec validate --strict` and `--all --strict` green (86/86, re-derived on
+the rebased tree — see `verification-2026-09-03.md` § 9) and the verification run
+captured beside this file at `verification-2026-09-03.md`.
 
-This is a CAPTURED record. It is written once and never edited.
+**This record is CAPTURED AT MERGE, not at first push, and it was RE-DERIVED ON
+THE REBASED TREE before capture.** `record-immutability` forbids editing a
+`Status: record` document AFTER capture; capture is the merge of the pull request
+that establishes it, and nothing is merged yet. This branch was rebased onto
+`main` at `642ac147` after `add-project-repo-schema` (PR #605) moved the same
+live corpus pin, which RESET record-immutability's baseline — the record had
+never been merged, so it had never been captured. **What changed between the
+first push (`edae4c66`, PR #607) and this head:** twenty-two lines in § 6 below,
+all of them the corpus-pin readings following the rebase (`co_modified`
+107 → 108 became 108 → 109, `active_co_modified` 20 → 21 became 21 → 22, the
+measured-by-exclusion baseline 156 / 107 / 49 / 20 / 12 became
+157 / 108 / 49 / 21 / 12), plus the paragraph naming `642ac147` as the tree they
+are stated against. The `86/86` total above and this paragraph were corrected in
+the fix commit before capture. The full list, measured, is
+`verification-2026-09-03.md` § 9. After merge this record is written once and
+never edited.
 
 ---
 
@@ -89,13 +105,13 @@ line each, with the file and line where the fix landed.
   amended by an EXPLICIT DELTA to say so rather than by re-reading".
   **FIXED — the delta is written**: a new
   `specs/domain-descendant-boundary/spec.md` in this packet carries a
-  `## MODIFIED Requirements` block (`:12`, `:14`) restating the requirement in
-  full with the placement **RATIFIED 2026-09-03** (`:18`) and naming BOTH
+  `## MODIFIED Requirements` block (`:22`, `:24`) restating the requirement in
+  full with the placement **RATIFIED 2026-09-03** (`:28`) and naming BOTH
   realized placements, `xFactories/MedxChart` and `xFactories/MedxPractice`,
   with their gitlinks. All four canon scenario titles are kept; the two bullets
-  and the one body sentence the amendment replaces are declared by a
+  and the TWO body sentences the amendment replaces are declared by a
   `**Removed from canon by create-medxchart-overlay-boundary (2026-09-03):**`
-  marker (`:34`) rather than deleted silently, which is the instrument
+  marker (`:44`) rather than deleted silently, which is the instrument
   `doc-health`'s `modified-block-currency` family exists to require.
   **THIS CHANGE OWNS THE PLACEMENT DELTA AND THE SIBLING CARRIES NONE** — one
   requirement, one writer, so the ordering hazard `release-realization`'s
@@ -125,10 +141,10 @@ line each, with the file and line where the fix landed.
   **FIXED in all three places**: `proposal.md`'s final Impact bullet
   (`:63`, **CORRECTED 2026-09-03 — the remote EXISTS**, quoting what it used to
   say); `design.md`'s Open Question, struck through and **ANSWERED**
-  (`:133`), including the half that was really open — the visibility is
+  (`:135`), including the half that was really open — the visibility is
   PRIVATE, so publishing the boundary did not publish the Medx composition; and
   `design.md`'s now-spent `[No remote yet]` risk bullet, marked **DISCHARGED**
-  (`:101`). The README row is § 6 below.
+  (`:103`). The README row is § 6 below.
 
 ### P2 — substantive
 
@@ -146,10 +162,13 @@ line each, with the file and line where the fix landed.
   `domain-descendant-boundary`, which is what the P1-1 delta modifies.
 - **P2-4 / P2-5, Brett's option 1** — the empty-boundary position and the bound
   follow-on. **FIXED**: § 4 and § 5 of this record, and `tasks.md` § 6.1
-  (`:127`) and § 5 (`:84`).
+  (`:139`) and § 5 (`:91`). **§ 6.1 carries NO CHECKBOX**: it was authored as a
+  new checkbox already ticked, which is an agent certifying its own act, and it
+  was converted to a plain report before capture. Nothing is owed there, so
+  neither a ticked nor an unticked box is the right shape.
 - **P2-7, task 4.3's report that was never written.** **FIXED without unticking
   the box** — unticking would assert the checks were not run, and they were.
-  A dated note under 4.3 (`tasks.md:71`) points to
+  A dated note under 4.3 (`tasks.md:78`) points to
   `review/verification-2026-09-03.md` (`Status: record`), into which this lane
   pasted the verification it actually ran today: both `openspec validate`
   invocations with their output, the pin agreement read from an INDEPENDENT
@@ -169,12 +188,17 @@ line each, with the file and line where the fix landed.
   2026-08-23), one insertion and one deletion in
   `ideation/brainstorm/one-patient-intake-vertical-slice-delivery-plan-and-acceptance-gates.md`,
   repointing row P4 of the delivery-plan table. **FIXED by an append-only note**
-  at `tasks.md:41`; the plural in the task text is corrected in the note rather
+  at `tasks.md:48`; the plural in the task text is corrected in the note rather
   than by editing a closed task.
 - **P3-9, tasks 1.1 and 4.1.** **FIXED by append-only notes** at `tasks.md:6`
-  and `tasks.md:59`, both pointing at the re-verification. 4.1's note adds the
+  and `tasks.md:66`, both pointing at the re-verification. 4.1's note adds the
   thing the original verification could not say: nothing ENFORCES the pin
-  agreement today, which is § 5's whole subject.
+  agreement today, which is § 5's whole subject. **1.1's note was AMENDED before
+  capture** (a second append at `tasks.md:18`): as first written it said the
+  landing commits "carry only the paths this packet names", which contradicted
+  `verification-2026-09-03.md` § 8's own disclosure that `bed2a69` also moved the
+  `openxFactory` and `xFactories/MedxFactory` gitlinks. Copilot's round-1 review
+  named the contradiction and it is taken.
 - **P3-11, the MedxSoft transfer.** `adopt-medxsoft-repository-identity` names
   **only** `opensoft/MedxFactory` and `opensoft/MedxEHR`, and the aggregation
   commit that executed the operational half — `0c6ea39`, 2026-08-26, "Repoint
@@ -289,8 +313,25 @@ from this packet on the rebased tree reproduces `main`'s own reading exactly
 co-modified/sole), so this one delta file is the whole of the difference and no
 other change moved in the same window.
 
+**Corrected before capture, in the fix commit on top of `c39d29bc`.** The
+governance substance above is unchanged; the EVIDENTIARY layer was repaired.
+`verification-2026-09-03.md` § 9 lists every item and its reason: the
+`--all --strict` total (`85/85` → `86/86`, `add-project-repo-schema` having
+landed mid-flight), the `Captured:` header's branch, the host-absolute-path sweep
+that printed `(no matches)` for a command the record itself falsifies, § 8's two
+console blocks (re-read through the GitHub API, verbatim and runnable), the
+sibling-citation tense in four places, `tasks.md` 1.1's note, the `STANDING`
+clause and the archive→ratification trigger in the placement delta, the
+self-referential archive scenario, `tasks.md` § 6.1's self-ticked checkbox, and
+the subject/body break in `design.md`'s quote of `386e7ee2`. **The commit message
+of `c39d29bc` carries the pre-rebase figures (`85/85`; doc-health 6/5/29/13) and
+cannot be amended — force-pushing is forbidden here — so it is SUPERSEDED by the
+fix commit's message rather than rewritten.**
+
 **Does not change.** `.openspec.yaml` — see § 2. No existing `tasks.md` checkbox
-is flipped in either direction; every task edit is an append. No promoted
+is flipped in either direction; every task edit is an append, and the one NEW
+checkbox this packet had added already ticked (§ 6.1) is now a plain report
+carrying no box at all. No promoted
 specification is edited directly; the amendment to `domain-descendant-boundary`
 travels as a delta and promotes at archive, which is what "amended by an
 explicit delta rather than by re-reading" asks for. And no contract byte,
@@ -299,11 +340,18 @@ schema, manifest row, digest, or release tag moves.
 ## 7. Sequencing, and the lane
 
 **The sibling ratifies SECOND.** `create-medxpractice-overlay-boundary`'s
-ratification pull request follows this one and merges after it. It **cites this
-change's placement delta and carries none of its own** — the delta names
-`xFactories/MedxPractice` as a realized placement, so the sibling needs no
-second writer for one requirement. Decision 2 option 1, which concerns that
-packet's own spec delta, is executed there.
+ratification pull request follows this one and merges after it. It **carries none
+of its own, and its ratification packet IS TO CITE this change's placement
+delta** — the delta names `xFactories/MedxPractice` as a realized placement, so
+the sibling needs no second writer for one requirement. Decision 2 option 1,
+which concerns that packet's own spec delta, is executed there.
+
+**The citation is an OBLIGATION, not yet a fact, and it is stated in the future
+tense for that reason.** At this head no sibling pull request has merged and the
+`create-medxpractice-overlay-boundary` packet carries ZERO references to this
+delta. The sibling pull request is being authored stacked on this branch and
+will carry the citation; until it does, "cites this delta" would be a claim
+outrunning its machinery, and this record does not make it.
 
 **Lane claim.** This pull request is authored and carried by lane
 `openxfactory-max001` (max-001, session `5e783e4d`) **through merge**. The lane

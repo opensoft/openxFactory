@@ -11,8 +11,15 @@
     dirty/staged half was a point-in-time observation of shared working trees on
     2026-08-23 and is NOT reproducible after the fact; it is recorded as an
     unreproducible observation rather than re-asserted. Nothing was committed
-    from those trees by this change — `git show --stat` on the three landing
-    commits carries only the paths this packet names.
+    from those trees by this change — the three landing commits carry only the
+    paths this packet names, **plus two ordinary submodule pin-syncs**
+    (`openxFactory` and `xFactories/MedxFactory`, both moved by `bed2a69`),
+    disclosed and measured at `review/verification-2026-09-03.md` § 8.
+  - *Amended 2026-09-03, before capture.* As first written the sentence above
+    stopped at "the paths this packet names", which CONTRADICTED § 8 of this
+    packet's own verification record. Copilot's round-1 review named the
+    contradiction; it is taken, and the correction is an append to this note
+    rather than an edit of the closed task.
 - [x] 1.2 Record the topology decision and implementation handoff in this
   OpenSpec change without adding host-absolute paths.
 
@@ -120,28 +127,37 @@ check, ruleset `21701436`.
       two-pin shape (`contracts/openpractice-pin.yaml`, `kind:
       medxpractice_openpractice_pin`, nested `openPractice` gitlink
       `9526bd9e`), and the sibling change
-      `create-medxpractice-overlay-boundary` cites this delta rather than
-      carrying its own. Deciding it here keeps one answer for one shape; the
+      `create-medxpractice-overlay-boundary` carries no delta of its own, its
+      ratification packet being the one that IS TO CITE this delta — a future
+      obligation, not a present fact: no sibling pull request has merged and that
+      packet carries no reference to this file yet. Deciding it here keeps one
+      answer for one shape; the
       DOING of it belongs to whichever packet the decision assigns.
 
 ## 6. Standing of the boundary itself — reported, not precedent
 
-- [x] 6.1 **MedxChart is a REPORTED EMPTY BOUNDARY under
-      `domain-descendant-boundary` "A descendant is created on its first
-      profile, not before" (`openspec/specs/domain-descendant-boundary/spec.md:103-120`),
-      and is recorded as such rather than cited.** Its tracked tree at
-      `68d2f1f5` is composition metadata ONLY — `.gitmodules`, `AGENTS.md`,
-      `README.md`, `contracts/openchart-pin.yaml`, the `openChart` gitlink, and
-      two `.gitkeep` placeholders under `openspec/` — with **ZERO openChart
-      profile artifacts**. That rule's fourth scenario is exactly this shape:
-      "WHEN a descendant repository exists carrying no profile artifact of the
-      product THEN it is an empty boundary, and it is reported rather than cited
-      as precedent for creating more." `opensoft/MedxPractice` at `d8d73195` is
-      the same shape (`.gitmodules`, `AGENTS.md`, `README.md`,
-      `contracts/openpractice-pin.yaml`, the `openPractice` gitlink).
-      **Neither is citable as precedent for creating another descendant.** The
-      PLACEMENT this change ratifies and the CREATION rule are different
-      requirements, and ratifying the first grants nothing under the second.
-      Both boundaries predate the rule that would have gated them
-      (`split-openxwallet-repo`, 2026-08-28), which is why they are reported
-      rather than refused.
+**6.1 is a REPORT, not a task, and it carries no checkbox.** It was authored as
+a NEW checkbox already ticked, which is an agent certifying its own act; the
+checkbox is removed rather than left ticked or left unticked, because nothing
+here is owed. The evidence is `review/verification-2026-09-03.md` § 5 (the whole
+tracked file list of both descendants, read from an independent clone).
+
+**MedxChart is a REPORTED EMPTY BOUNDARY under
+`domain-descendant-boundary` "A descendant is created on its first
+profile, not before" (`openspec/specs/domain-descendant-boundary/spec.md:103-120`),
+and is recorded as such rather than cited.** Its tracked tree at
+`68d2f1f5` is composition metadata ONLY — `.gitmodules`, `AGENTS.md`,
+`README.md`, `contracts/openchart-pin.yaml`, the `openChart` gitlink, and
+two `.gitkeep` placeholders under `openspec/` — with **ZERO openChart
+profile artifacts**. That rule's fourth scenario is exactly this shape:
+"WHEN a descendant repository exists carrying no profile artifact of the
+product THEN it is an empty boundary, and it is reported rather than cited
+as precedent for creating more." `opensoft/MedxPractice` at `d8d73195` is
+the same shape (`.gitmodules`, `AGENTS.md`, `README.md`,
+`contracts/openpractice-pin.yaml`, the `openPractice` gitlink).
+**Neither is citable as precedent for creating another descendant.** The
+PLACEMENT this change ratifies and the CREATION rule are different
+requirements, and ratifying the first grants nothing under the second.
+Both boundaries predate the rule that would have gated them
+(`split-openxwallet-repo`, 2026-08-28), which is why they are reported
+rather than refused.
