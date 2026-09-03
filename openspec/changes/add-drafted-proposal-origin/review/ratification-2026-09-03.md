@@ -18,8 +18,8 @@ checks enforced by reference" (five added), so
 ratification commit, which are the COMMIT'S gates and not `tasks.md` § 5's
 archive gate: `OPENSPEC_TELEMETRY=0 openspec validate add-drafted-proposal-origin
 --strict` **valid** and `--all --strict` **87 passed / 0 failed**;
-`python3 -m pytest tests/doc-health` **1528 passed / 0 failed** (the same
-suite reads 1500 at the merge-base, so this change adds 28 items); doc-health
+`python3 -m pytest tests/doc-health` **1532 passed / 0 failed** (the same
+suite reads 1500 at the merge-base, so this change adds 32 items); doc-health
 `--single-repo` against
 the merge-base `2b0615da`, measured in a clean worktree so the base tree
 genuinely lacks this packet — base **6 critical, 6 error, 29 warning, 14 info**,
