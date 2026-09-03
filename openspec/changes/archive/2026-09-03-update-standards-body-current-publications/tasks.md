@@ -170,8 +170,8 @@
       cannot write for itself. The act carries no content change: the four
       promoted requirements and their ten scenarios are byte-identical to the
       delta this packet ratified, which is what `promotion-fidelity` reads.
-- [x] 5.7 **DONE 2026-09-03 — LANDED ON `main` VIA PR #615.** The archive act
-      (§5.6) ran uncommitted, on disk, in an isolated clone after the
+- [x] 5.7 **DONE 2026-09-03 — OPENED AS PR #615, NOT YET MERGED.** The archive
+      act (§5.6) ran uncommitted, on disk, in an isolated clone after the
       authoring session was killed twice by provider errors; lane
       `openxfactory-f2` finished it, took TWO catch-up merges of `origin/main`
       first — `declare-spent-bundle-state`'s own archive (PR #611, `7af2725c`)
@@ -180,4 +180,9 @@
       the fully merged base rather than the stale `6da1e1f5`, and opened
       **PR #615** to carry the moved files, the promoted spec, and the
       `sequenced_after` pin correction (`tests/sequenced_after/test_sweep.py`)
-      to `main`. Squash SHA recorded here once merged.
+      to `main`. This lane does not merge; PR #615 is open, awaiting review
+      and Brett's or a reviewer's merge. **NOT YET TRUE, AND NAMED SO IT
+      STAYS FALSE UNTIL IT ISN'T**: `main` does not yet carry this archive.
+      A follow-up line — squash SHA and merge date — gets added here once
+      PR #615 actually merges; until then this task records only that the
+      PR exists and is open, not that it landed.
