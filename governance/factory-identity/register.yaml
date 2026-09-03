@@ -1,0 +1,151 @@
+# THE FACTORY-IDENTITY REGISTER — ORIGIN identity of an originating repository.
+#
+# Realization of the ratified change `add-cpc-clearing-boundary` (openxFactory
+# PR #560, merged c0270d28 on 2026-09-03), capability
+# `factory-origin-identity`, tasks 2.1–2.4. It answers ONE question — "did this
+# sealed bounded request come from this repository" — and it answers no other.
+#
+# A SIBLING OF `governance/review-authority/`, NEVER AN EXTENSION OF IT
+# (design D1, confirmed by the operator 2026-09-01). Separate file, separate
+# rows, separate reader invocation, its OWN staleness bound. The intake
+# register's rows say "may this holder decide about this repository's objects";
+# a row here says "did this request originate here". Provenance, not decision
+# authority — different consumers, different custody, different blast radius.
+#
+# NO SEAT SPELLING (design D2, and a ratified scenario refuses it by name). An
+# originating repository is an ORGANISATION holder. This file carries
+# `holder_class: organisation` on the wallet beside it, carries NO `seat_keys`
+# block, and carries NO `agent:` holder prefix. A conformant origin row written
+# in the intake register's council-seat spelling would fail rules written for a
+# different subject, so the omission is declared rather than inferred.
+#
+# DELIBERATELY KINDLESS (design D3), inherited from the intake register: no
+# contract schema is minted for a register shape, and the READER is the shape.
+# THE RULE-OF-THREE TRIGGER IS RECORDED HERE SO THE THIRD REGISTER'S AUTHOR
+# FINDS IT: this file is INSTANCE TWO. Two does not fire the rule of three. The
+# author of INSTANCE THREE mints a contract schema for the register shape
+# instead of copying this header a third time. The records beside this file —
+# `wallets/`, `grants/` — do carry `schema_version` + `kind` from the pinned
+# neutral openXwallet vocabulary; `attestations/` is kindless for the same
+# reason its review-authority counterpart is (no custody-attestation record
+# kind exists in that family, and inventing one here would be an unratified
+# contract release).
+#
+# PERMANENTLY HUMAN-ONLY SURFACE (ratified requirement, named here rather than
+# inferred): no council verdict, and no autonomous or council-cleared approval
+# path, may ever land a change to this file or to the records beside it. Where
+# a gate enumerates never-clearable floor members, `governance/factory-identity/`
+# is entered BY NAME and never matched by a path-shaped clause — codexFactory
+# `scripts/merge_master/openxfactory-review-authority-floor.yaml`, which is
+# compared as an EXACT SET, is updated in the SAME governed act that creates
+# this file (task 2.7). An exact-set comparison against a floor that does not
+# name this register fails closed on every candidate, so the two are one change.
+#
+# PUBLIC KEY REFERENCES ONLY, AND NO SECRET NAME. The ratified requirement is
+# stricter here than the intake register's practice: this family "SHALL NOT
+# contain a private key, a seed, a passphrase, A SECRET NAME RESOLVABLE TO KEY
+# MATERIAL, or any credential value". So the environment-variable name under
+# which the private half lives is DELIBERATELY ABSENT from this file and from
+# every record beside it — it is written once, in the operator runbook
+# `docs/factory-origin-key-mint-runbook.md`, and `scripts/validate-factory-identity.py`
+# REFUSES this tree if an environment-variable-shaped token naming key material
+# ever appears in it. That is a deliberate divergence from
+# `governance/review-authority/register.yaml`, which does name its seat secrets
+# in prose; the divergence is the ratified sentence, not an oversight.
+#
+# WHAT IS NOT A COLUMN HERE, and why. There is NO `authority_tier` field on a
+# row. The authority a row's key can carry is a property of the GRANT and of the
+# custody attestation beside it, and restating it as a register column would be
+# two places for one fact to disagree (task 2.1).
+#
+# WHAT REFUSAL THIS FILE DOES NOT PERFORM (ratified, and stated rather than
+# papered over). A key registered here being REFUSED AT READ TIME for a review
+# act is NOT in force: the pinned openXwallet reader indexes every wallet and
+# grant record in a scanned tree into one context, so a wallet record in this
+# sibling tree is still resolvable BY IT as a review row's `wallet_ref`. The
+# enforceable half that ships with this register is the CHECKED DISJOINTNESS
+# RULE in `scripts/validate-factory-identity.py` — no `key_id`, `did` or
+# public-key fingerprint may appear in both register families. The outstanding
+# reader change is an openXwallet dependency (tasks 5.1/5.2, OQ3), and until it
+# lands no document, gate or report may claim the read-time refusal.
+register_version: 1
+
+# THIS REGISTER'S OWN REVOCATION STALENESS BOUND (ratified requirement; design
+# D9). It is NOT inherited from `governance/review-authority/register.yaml` and
+# NOT inherited from any revocation mechanism realized for that register — the
+# withdrawn draft borrowed exactly that and asserted a strength the estate does
+# not have.
+#
+# WHAT IT BOUNDS: the maximum age of the view of THIS register that a consumer
+# resolves an origin signature against, measured from the instant the view was
+# taken to the instant a clearing decision is made. Older than this, unreadable,
+# or absent, and the consumer REFUSES rather than proceeding on that view — with
+# an UNREACHABLE store diagnosed distinctly from an ABSENT one, though both
+# refuse.
+#
+# REVOCATION AT THE MOMENT OF CLEARING IS UNREALIZABLE TODAY AND IS NOT CLAIMED.
+# No projection path from this file to a clearing workflow exists; OQ1 names
+# four candidate shapes and chooses none. Until one is settled, an origin row's
+# revocation propagates no faster than the view a consumer holds, and the line
+# below is the honest ceiling on that lag. Any statement that origin revocation
+# is effective at clearing is refused by this capability's own scenario.
+#
+# WHY P7D. It is the cadence an operator establishing a view BY HAND actually
+# meets — the same measured ground the intake register records for its own P7D.
+# A tighter number nobody can meet does not make revocation faster; it parks
+# every dispatch.
+revocation_staleness_bound: P7D
+
+# THE CEILING ON THAT BOUND, declared here because the ratified requirement says
+# this register declares its own. It is the widest window this governance
+# surface will ever admit. It is set EQUAL to the bound on purpose: from today
+# the bound can be TIGHTENED by an edit to one line and nothing else, and can be
+# WIDENED by no edit at all — widening requires moving this ceiling, which is a
+# governed change with its own record and its own ratifier. An artifact must
+# never be able to widen its own trust window, and a ceiling a future edit can
+# raise silently is not a ceiling.
+revocation_staleness_ceiling: P7D
+
+rows:
+  # THE FIRST ORIGIN ROW: codexFactory as an originating repository.
+  #
+  # EXACTLY ONE ACTIVE ROW PER ORIGINATING REPOSITORY (ratified). A second
+  # concurrent active row for `opensoft/codexFactory` is refused by the reader;
+  # rotation SUPERSEDES this row rather than adding a second, and a superseding
+  # row names the row it replaces in `supersedes:`. A revoked row never returns
+  # to active.
+  #
+  # THE SIX FACTS THE RATIFIED ROW ENUMERATION NAMES are `holder_ref`,
+  # `wallet_ref`, `act`, `grant_ref`, `expires_at` and `state`. `row_id` is the
+  # row's own NAME rather than a seventh fact — it exists because the ratified
+  # revocation scenario requires a resuming row to NAME the row it supersedes,
+  # and a row with no name cannot be named. `supersedes` is optional and legal
+  # only on a row that replaces another.
+  #
+  # THE ACT IS `originate`, and the choice is recorded rather than assumed. The
+  # ratified spec names "the ORIGIN act" without fixing a token; `originate` is
+  # chosen because it is a VERB IN THE SAME GRAMMAR AS `review` (the intake
+  # register's act), it names the thing being evidenced (this repository
+  # ORIGINATED this request) rather than the artifact, and it collides with no
+  # act in the intake register — which is the whole point of act distinctness.
+  # `sign`, `seal` and `attest` were rejected: each names a mechanism that
+  # several different acts share, so a grant scoped to one would confer more
+  # than the origin act.
+  #
+  # `expires_at` IS CHARACTER-FOR-CHARACTER EQUAL to the backing grant's own
+  # `expires_at`, and the reader compares the two. 90 days from issuance, which
+  # is the ceiling this realization adopts for an origin grant.
+  #
+  # UNTIL THE MINT, THIS ROW CONFERS NOTHING. The wallet it points at declares
+  # `FILL-IN-AT-MINT` where its public half belongs, and both
+  # `scripts/validate-factory-identity.py` and the PINNED openXwallet reader
+  # REFUSE the tree while that sentinel stands. That refusal is the point: the
+  # register cannot merge holding a placeholder, and no plausible-looking key
+  # was invented to make it green.
+  - row_id: row-origin-codexfactory-0001
+    holder_ref: opensoft/codexFactory
+    wallet_ref: wal-origin-codexfactory-0001
+    act: originate
+    grant_ref: grant-origin-codexfactory-0001
+    expires_at: "2026-12-01T00:00:00Z"
+    state: active

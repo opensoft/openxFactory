@@ -118,6 +118,17 @@ Core domain-neutral docs:
   [`rulings-2026-08-29.md`](openspec/changes/add-wallet-carried-review-authority/rulings-2026-08-29.md)
   R8/R9; `Status: draft`, because neither ruling is enforced until the change
   carrying R6–R12 is ratified and task 7.6 stays OPEN by its own text)
+- [Factory Origin Key — Mint Runbook](docs/factory-origin-key-mint-runbook.md)
+  (the operator ceremony for the ONE Ed25519 origin key an originating
+  repository holds: generate the seed offline, derive `did` / fingerprint /
+  multibase through the PINNED openXwallet decoders with
+  `scripts/validate-factory-identity.py --derive`, provision the private half
+  into the repository's own hosted `worker-credentials` environment and nowhere
+  else, replace the `FILL-IN-AT-MINT` sentinels, and record the mint. It is the
+  ONLY governed document that names the secret, because the ratified
+  requirement forbids "a secret name resolvable to key material" anywhere in
+  `governance/factory-identity/` and the reader refuses one. Realizes
+  `add-cpc-clearing-boundary` tasks 2.1-2.4)
 - [The Project Repository Schema](docs/project-repo-schema.md)
   (the ELECTIVE three-repository shape — `<Project>` assembly root,
   `<Project>-spec`, `<Project>-code` — and the doctrine that electing it
@@ -284,6 +295,31 @@ POSITIVELY that the intake register was opened: the log must carry the
 `repo scan:` note AND the `intake register read:` NOTE and must carry neither
 `no intake register at this tree` nor any `register-*` finding code, because a
 green check that opened no register is a vacuous pass.
+
+A SECOND REGISTER IS READ IN THE SAME REQUIRED CHECK. Since the realization of
+`add-cpc-clearing-boundary` (capability `factory-origin-identity`) the job also
+runs [`scripts/validate-factory-identity.py`](scripts/validate-factory-identity.py)
+over the same tree. That reader is an openxFactory file rather than a pinned one,
+because the register it reads — [`governance/factory-identity/`](governance/factory-identity/README.md),
+the sibling ORIGIN register — is an openxFactory artifact with no contract schema
+(deliberately kindless, design D3, so the reader IS the shape). It DERIVES
+NOTHING OF ITS OWN: every public-key decoding and every fingerprint comes from
+the pinned `openXwallet/scripts/validate-openxwallet.py`, IMPORTED rather than
+copied, and it REFUSES rather than falling back to arithmetic of its own when
+the gitlink is absent — one derivation, one place. It carries the ratified
+DISJOINTNESS RULE (no `key_id`, decentralized identifier or public-key
+fingerprint may appear in both register families, and the condition is not
+waivable by declaring different acts), and its own positive assertion step:
+the log must carry the `factory-identity register read:` NOTE, a LITERAL active
+row count, and a disjointness note ending `0 shared`, and must carry no
+`factory-identity-*` finding code.
+
+A REFUSAL AT READ TIME IS NOT IN FORCE AND IS NOT CLAIMED. The pinned reader
+indexes every wallet and grant record in a scanned tree into one context, so an
+origin wallet in the sibling tree is still resolvable BY IT as a review row's
+`wallet_ref`. Scoping that reader is an openXwallet dependency
+(`add-cpc-clearing-boundary` tasks 5.1/5.2, OQ3); until it lands, the
+disjointness rule is the whole of the enforcement.
 
 **The FILE was renamed; the TOKEN was not.** Ruleset 21538893 pins the check
 `wallet-validation`, which is a JOB ID and not a filename, so the new workflow
@@ -595,6 +631,22 @@ Active changes:
   dispositions.yaml` disposition rows that would have belted a different order —
   tracked as `opensoft/xFactory#201` — were CLOSED AS UNNECESSARY once the intended
   order held.
+  **REALIZATION IN FLIGHT (tasks 2.1-2.6), AND IT DELIBERATELY DOES NOT MERGE
+  YET.** The sibling register family `governance/factory-identity/` — register,
+  wallet, grant and custody attestation for the first originating repository
+  `opensoft/codexFactory` — plus the disjointness validator
+  `scripts/validate-factory-identity.py`, its 44 tests, its wiring into the
+  REQUIRED `wallet-validation` check with a positive log conjunction, and the
+  mint runbook `docs/factory-origin-key-mint-runbook.md`. **The operator has not
+  minted the per-factory Ed25519 origin key**, so the three public values are the
+  literal sentinel `FILL-IN-AT-MINT` rather than a plausible base64url literal
+  that would pass a scanner and a reader alike, and BOTH readers refuse the tree
+  while they stand: the new one with the named finding
+  `factory-identity-placeholder-unminted`, and the PINNED openXwallet reader with
+  three schema pattern refusals. The draft therefore CANNOT merge until the mint
+  happens — which is the intended state, not a defect. Task 2.7's cross-repo half
+  (codexFactory's exact-set floor file) is its own draft, landed in the same
+  governed act.
 - [declare-spent-bundle-state](openspec/changes/declare-spent-bundle-state/proposal.md)
   — authored 2026-09-02, **RATIFIED 2026-09-02 BY DIRECT RULING**
   (`Status: ratified`; record `review/ratification-2026-09-02.md`) — Brett Heap
