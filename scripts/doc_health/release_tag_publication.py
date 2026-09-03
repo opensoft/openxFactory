@@ -210,11 +210,230 @@ def inventory_path(bundle: str) -> str:
 # `document-lifecycle`'s reserved `Modified over` marker already sets.
 SPENT_OPENER = "**SPENT BUNDLE:**"
 
-# The containing entry. `contracts/CHANGELOG.md`'s bundle entries are `##`
-# headings whose first token is the bundle name; the declaring act is the
-# SUPERSEDING bundle's own entry, so this is what decides whether a declaration
-# was written by the cut that allocated the replacement or by somebody else.
-_ENTRY_HEADING = re.compile(r"^##\s+(contract-v\d+\.\d+)")
+# --- THE CONTAINING ENTRY, AND ITS BOUNDARIES -------------------------------
+#
+# `contracts/CHANGELOG.md`'s bundle entries are `##` headings whose first token
+# is the bundle name; the declaring act is the SUPERSEDING bundle's own entry,
+# so this is what decides whether a declaration was written by the cut that
+# allocated the replacement or by somebody else. It is the guard the ratified
+# requirement leans on hardest — *"accepted only where the changelog entry
+# CONTAINING it is the entry of the bundle it names as the superseding one"*.
+#
+# EVERY WAY OF CLOSING AN ENTRY THE READER DOES NOT KNOW ABOUT IS AN ACCEPT.
+# That is the asymmetry the hardening turns on: a declaration under an
+# unrecognized boundary keeps the PREVIOUS release entry's authority, matches
+# the bundle it names, and quiets the superseded-and-never-published `error`
+# this family exists to raise. Ten such escapes were measured against the first
+# implementation of this rule (PR #584's five bot rounds, and the read-only
+# comparison of them against this module recorded in that PR's 2026-09-02
+# 17:05Z comment); the lesson of them is structural rather than per-case, so
+# the rule now lives in ONE function — `_entry_boundary` — that every heading
+# shape passes through, rather than in one regex a reader has to re-derive.
+#
+# OVER-CLOSING IS FAIL-CLOSED AND UNDER-CLOSING IS NOT, which decides every
+# judgment below. Closing an entry can only move a declaration OUT of one, and
+# a declaration inside no entry is REFUSED with the superseded `error` standing
+# beside it. Failing to close one can only leave a declaration holding
+# authority nobody granted it. So a boundary is recognized wherever CommonMark
+# says a heading may be, while a boundary OPENS an entry only in the single
+# shape the requirement names.
+
+# ATX headings at level ONE and TWO close the open entry; level THREE and
+# deeper do not, and that exclusion is LOAD-BEARING rather than tidy: this
+# repository's own reserved line lives inside a
+# ``### `contract-v2.6` disposition`` subsection OF the `## contract-v3.0`
+# entry, so a rule that closed on `###` would refuse the live declaration.
+# Up to three leading spaces, because CommonMark says an ATX heading may carry
+# them — `  ## Deprecations` IS a heading and was being missed; FOUR spaces is
+# an indented code block and is not a heading at all. The trailing lookahead is
+# `[ \t]|$` so that `##` ALONE is a boundary (a legal EMPTY ATX heading) while
+# `#550 example` — real text in this repository's changelog — is correctly not
+# a heading, because `#` followed immediately by a non-space is none.
+#
+# AND IT IS `[ \t]` RATHER THAN `\s`, WHICH IS AN ESCAPE AND NOT A STYLE
+# PREFERENCE (Codex P1, round 3 on PR #589). CommonMark's ATX opening sequence
+# must be followed by a SPACE, a TAB or the end of line; Python's `\s` also
+# matches U+00A0 and the other Unicode spaces. So `## contract-v3.0` is
+# PARAGRAPH TEXT to every renderer and opened a FICTITIOUS `contract-v3.0`
+# entry here — measured, and a declaration below it was ACCEPTED under a
+# heading that does not exist. The narrower class is fail-closed in both
+# directions: such a line now neither opens an entry nor closes one, matching
+# what the document actually means.
+_ATX_BOUNDARY = re.compile(r"^ {0,3}#{1,2}(?!#)(?=[ \t]|$)")
+
+# Any ATX heading, at any legal level, used only to decide what CANNOT be the
+# text of a Setext heading. Seven or more `#` is not a heading in CommonMark,
+# which is what the negative lookahead says; `[ \t]` for the reason above.
+_ATX_ANY = re.compile(r"^ {0,3}#{1,6}(?!#)(?=[ \t]|$)")
+
+# THE VERSION TOKEN MUST BE COMPLETE, AND `\b` IS NOT THAT TEST. `\b` matches
+# between `0` and `.`, so `## contract-v3.0.1` and `## contract-v3.0-notes`
+# each OPENED an entry named `contract-v3.0`, containing a declaration the
+# `contract-v3.0` entry never wrote. `## contract-v3.01` is deliberately NOT in
+# that class and still opens an entry: it is a well-formed bundle name (major
+# 3, minor 01), and a declaration under it is refused later for naming a
+# DIFFERENT bundle, which is the honest reason.
+#
+# BOTH SPACE CLASSES ARE `[ \t]` for the reason `_ATX_BOUNDARY` records: the
+# separator after `##` because a Unicode space there means the line is not a
+# heading at all, and the one after the version token so that a name followed
+# by U+00A0 is not read as a complete token.
+_ENTRY_HEADING = re.compile(
+    r"^ {0,3}##(?!#)[ \t]+(contract-v\d+\.\d+)(?=[ \t]|$)")
+
+# SETEXT HEADINGS CLOSE AN ENTRY AND NEVER OPEN ONE. `Title` over `===` is an
+# H1 and `Title` over `---` an H2 — both boundaries. Neither opens an entry:
+# the requirement names `##` entries, and under-opening is the fail-closed half
+# (a declaration below a Setext bundle name then sits in no entry and is
+# refused, where reading it as an opener would accept a containment nobody
+# wrote as an entry). A run of `=` or `-` is an UNDERLINE only where a
+# paragraph line precedes it, which is exactly what separates `Title`/`---`
+# from the thematic break `---` standing after a blank line, and from a
+# `|---|---|` table rule, which does not match at all.
+_SETEXT_UNDERLINE = re.compile(r"^ {0,3}(=+|-+)[ \t]*$")
+
+# A FENCED BLOCK IS OPAQUE — TO HEADINGS AND TO DECLARATIONS ALIKE — and this
+# is the one escape the LIVE document could already hit, because
+# `contracts/CHANGELOG.md` carries a fenced block. Both directions were
+# measured: a fenced `## contract-v3.0` REOPENED an entry, so a declaration
+# under a later `## Notes` read as contained by the v3.0 entry and was
+# ACCEPTED.
+#
+# THE SUPPRESSION EXTENDS TO THE RESERVED OPENER, deliberately, and it is
+# fail-closed in BOTH directions: a declaration shown as an EXAMPLE inside a
+# fence cannot spend a bundle, and a real declaration HIDDEN inside a fence
+# does not count — which leaves the superseded `error` standing rather than
+# quieting it. The reserved opener is therefore reserved over the document's
+# PROSE, and a fence is where the form may be DOCUMENTED without being
+# PERFORMED. This REPLACES the module's earlier "no fence tracking,
+# deliberately" reading, whose stated fear — a declaration hidden by
+# indentation — is not reachable here: the opener is matched at column zero.
+#
+# A CLOSER IS NOT MERELY ANOTHER OPENER. It must use the SAME fence character,
+# be AT LEAST as long, and be followed by nothing but whitespace, which is why
+# the closer is its own pattern: ```` ```yaml ```` opens a block and does not
+# close one.
+#
+# AND A BACKTICK FENCE'S INFO STRING MAY NOT CONTAIN A BACKTICK, which
+# CommonMark says and the omission of which is an ESCAPE rather than a nicety
+# (Codex P1, round 1 on PR #589). ```` ```bad`info ```` opens NO fence, so a
+# reader that thinks it does is one fence out of phase with the document: the
+# next bare ```` ``` ```` closes the reader's fictitious block while OPENING a
+# real one, every boundary inside the real block is then read as prose, and a
+# declaration inside it is read as a record — measured, and it was accepted from
+# under a `## Notes` heading. A TILDE fence's info string MAY carry backticks,
+# so the two openers are separate patterns rather than one with a shared class.
+_FENCE_OPEN_BACKTICK = re.compile(r"^ {0,3}(`{3,})([^`]*)$")
+_FENCE_OPEN_TILDE = re.compile(r"^ {0,3}(~{3,})")
+_FENCE_CLOSE = re.compile(r"^ {0,3}(`{3,}|~{3,})[ \t]*$")
+
+# --- RAW HTML: NOT PARSED, REFUSED ------------------------------------------
+#
+# RULED BY BRETT HEAP, 2026-09-03, ON A MEASURED TAIL. A ```-shaped line inside
+# a raw HTML block is HTML CONTENT and not a fence delimiter, so a reader that
+# calls it one runs a fence OUT OF PHASE with the document: real boundaries are
+# swallowed as code and a declaration inside the next real fence is read under
+# an earlier release entry. Three review rounds tried to answer that by
+# PARSING HTML blocks to CommonMark fidelity, and each fix produced the next
+# finding — the single-line block, the mismatched kind-1 closer, the
+# whitespace class of the opener, the case of the kind-4 letter. The tail was
+# not converging, and the reason is structural: this family would have needed a
+# Markdown block parser, which is a change with a proposal and not a line in a
+# review round.
+#
+# SO THE READER DOES NOT MODEL RAW HTML AT ALL. It RECOGNIZES an opener and
+# REFUSES: the changelog carries an `error` naming the line, and NO DECLARATION
+# BELOW THAT LINE IS READ. That is fail-closed by construction rather than by
+# fidelity — a construct this reader cannot parse can never quiet the
+# superseded-and-never-published `error`, whatever a renderer makes of it —
+# and it costs a document nothing that this estate's changelog has ever used:
+# `contracts/CHANGELOG.md` carries no raw HTML at all.
+#
+# OVER-RECOGNITION IS THEREFORE THE SAFE ERROR HERE, AND THAT IS THE WHOLE
+# POINT OF THE INVERSION. Under variant A a line of prose mistaken for HTML
+# swallowed a boundary silently; here it produces a visible `error` on the
+# changelog that an author repairs by moving one line. The patterns are still
+# CommonMark's, because a finding a reader cannot predict is its own defect —
+# but the direction they fail in is now the harmless one.
+#
+# FENCES REMAIN THE ONLY OPAQUE REGION, and a fence-shaped line inside a fence
+# is still content, so an HTML opener shown as an EXAMPLE inside a fenced block
+# is not an opener.
+_HTML_TYPE6_TAGS = (
+    "address|article|aside|base|basefont|blockquote|body|caption|center|col"
+    "|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure"
+    "|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hr|html|iframe"
+    "|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup|option|p"
+    "|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr"
+    "|track|ul")
+_HTML_TAGNAME = r"[A-Za-z][A-Za-z0-9-]*"
+# THE UNQUOTED VALUE TOKEN IS `[ \t\v\f]` TOO, WHICH IT WAS NOT UNTIL ROUND 12
+# (Copilot, round 12 on PR #589). Every other whitespace slot in this
+# attribute — the separator before the name, and around `=` — was already
+# narrowed to CommonMark's class; the value token alone was still `\s`, so
+# `<mytag class=a\N{NO-BREAK SPACE}b>` split at the NBSP and the line was not
+# read as a kind-7 opener at all — measured, and it is over-CLOSING rather
+# than an accept (see the evidence file): the reader kept reading and treated
+# headings inside the block as headings, which contradicts this file's own
+# stated rule regardless of which direction it happens to fail in.
+_HTML_ATTR = (r"(?:[ \t\v\f]+[A-Za-z_:][A-Za-z0-9_.:-]*"
+              r"(?:[ \t\v\f]*=[ \t\v\f]*"
+              r"(?:[^ \t\v\f\"'=<>`]+|'[^']*'|\"[^\"]*\"))?)")
+# ONE PATTERN, because there is no longer a state machine to tell the kinds
+# apart — only the question "does a raw HTML block begin here". `[ \t\v\f]` is
+# CommonMark's whitespace class rather than `\s`, for the reason the ATX
+# patterns give: `\s` is Python's and admits U+00A0, which CommonMark does not.
+#
+# WHERE THE KINDS ARE AMBIGUOUS IN THE SPECIFICATION, THE WIDER READING WINS —
+# and that is the inversion applied rather than an inconsistency. Under the
+# fidelity reading, recognizing one line too many made a region opaque and
+# swallowed a real boundary SILENTLY, so the narrower class was the safe one and
+# two rounds narrowed toward it. Here recognizing one line too many produces a
+# VISIBLE `error` an author repairs by moving one line, while recognizing one
+# too FEW is the silent escape: the reader would read past a construct a
+# renderer treats as a block. Two places where that reverses a decision this
+# branch had already made, both deliberate:
+#
+#   KIND 4 admits any ASCII letter, which is CommonMark 0.30's rule and a
+#   SUPERSET of GFM 0.29's uppercase-only. Round 7 narrowed it to uppercase
+#   because accepting `<!doctype` made the reader MORE OPAQUE than GitHub's
+#   renderer; under this reading that narrowing is the wrong direction — if
+#   GitHub's cmark-gfm ever moves to 0.30, an uppercase-only reader would read
+#   PAST a real block. Written as an explicit class rather than left to the
+#   `re.I` flag, so it is a decision and not an accident of a flag.
+#
+#   KIND 7 IS NOT GATED ON WHETHER A PARAGRAPH IS OPEN. CommonMark forbids kind
+#   7 from interrupting a paragraph, and the removed state machine tracked that.
+#   Tracking it means carrying parser state, which is what this reading gives
+#   up; and the cost of not tracking it is that a bare complete tag alone on a
+#   line inside a paragraph is refused rather than read — one more visible
+#   error, in the direction this rule is willing to be wrong.
+_HTML_OPENER = re.compile(
+    r"^ {0,3}(?:"
+    r"<(?:pre|script|style|textarea)(?:[ \t\v\f>]|$)"          # kind 1
+    r"|<!--"                                                    # kind 2
+    r"|<\?"                                                     # kind 3
+    r"|<!\[CDATA\["                                             # kind 5
+    r"|<![A-Za-z]"                                              # kind 4
+    rf"|</?(?:{_HTML_TYPE6_TAGS})(?:[ \t\v\f]|/?>|$)"           # kind 6
+    rf"|(?:<{_HTML_TAGNAME}{_HTML_ATTR}*[ \t\v\f]*/?>"          # kind 7
+    rf"|</{_HTML_TAGNAME}[ \t\v\f]*>)[ \t\v\f]*$"
+    r")", re.I)
+
+_RAW_HTML_ACTION = (
+    "remove the raw HTML from contracts/CHANGELOG.md, or move the SPENT "
+    "declaration above it — this family reads the changelog as CommonMark "
+    "PROSE and does not model raw HTML blocks, so it refuses to read past one "
+    "rather than guess at what a renderer makes of the lines below; a "
+    "construct the reader cannot parse must never be able to quiet a finding")
+
+# A THEMATIC BREAK IS NOT PARAGRAPH CONTENT, so a run of `=` or `-` below one is
+# a second thematic break and NOT a Setext underline (Codex P2, round 1). This
+# is the one exclusion that moves the reader toward UNDER-closing and is still
+# right to make: CommonMark is unambiguous about it, and the alternative refused
+# a CORRECTLY CONTAINED declaration written below a horizontal rule.
+_THEMATIC_BREAK = re.compile(
+    r"^ {0,3}((\*[ \t]*){3,}|(-[ \t]*){3,}|(_[ \t]*){3,})$")
 
 _SUBJECT_PROBE = re.compile(re.escape(SPENT_OPENER) + r"\s*`([^`]+)`")
 _RULING_PROBE = re.compile(r"^(?P<author>.+?),\s*(?P<ruled_on>\d{4}-\d{2}-\d{2})$")
@@ -295,6 +514,163 @@ def _read_elements(line: str) -> tuple[dict[str, str], tuple[str, ...]]:
     return values, tuple(missing)
 
 
+# COMMONMARK'S LINE ENDINGS, AND ONLY THOSE — a CARRIAGE RETURN, a LINE FEED,
+# or the two together. `str.splitlines()` also breaks on U+2028, U+2029,
+# U+0085, VT, FF and the information separators, and that difference is an
+# ESCAPE rather than a nicety (Codex P1, round 4 on PR #589, and the same class
+# as round 1's one layer down): ```` ```bad<U+2028>`info ```` is ONE line to
+# CommonMark and an INVALID backtick opener, because its info string carries a
+# backtick — but `splitlines()` hands the reader ```` ```bad ```` as a VALID
+# opener and ```` `info ```` as its content. The reader is then one fence out of
+# phase again: a `## Notes` boundary is swallowed as code, the next bare fence
+# closes the fictitious block while opening a real one, and a declaration inside
+# the real block is read under the earlier release entry. Measured: ACCEPTED,
+# for all seven of the separators CommonMark does not recognize.
+_LINE_ENDING = re.compile(r"\r\n|\r|\n")
+
+
+def _lines(text: str) -> list[str]:
+    """The document's lines, split on CommonMark's line endings and no others.
+
+    A single trailing empty element is dropped so a document ending in a
+    newline has the line count a reader would count, which is what the `line`
+    field of a `SpentDeclaration` is compared against by a human repairing one.
+    """
+    out = _LINE_ENDING.split(text)
+    if out and out[-1] == "":
+        out.pop()
+    return out
+
+
+def _fence_opener(line: str) -> str | None:
+    """The fence marker `line` OPENS, or None where it opens none.
+
+    Two patterns rather than one, because the backtick form forbids a backtick
+    in its info string and the tilde form does not.
+    """
+    backtick = _FENCE_OPEN_BACKTICK.match(line)
+    if backtick is not None:
+        return backtick.group(1)
+    tilde = _FENCE_OPEN_TILDE.match(line)
+    return tilde.group(1) if tilde is not None else None
+
+
+def _fence_state(line: str, fence: str | None) -> str | None:
+    """The open FENCE marker after `line`, given the one open before it.
+
+    FENCES ARE THE ONLY OPAQUE REGION under this reading. Raw HTML is not
+    modelled; it is REFUSED — see `_HTML_OPENER` above and `raw_html_refusal`
+    below.
+
+    SEPARATE FROM `_entry_boundary` BECAUSE THE TWO ANSWER DIFFERENT QUESTIONS:
+    this one is bookkeeping over the document's structure, and the other is a
+    judgment about one line given that bookkeeping. A single function doing both
+    would have to decide whether a fence DELIMITER is a boundary, and it is
+    neither — it is the edge of a region in which the question does not arise.
+    """
+    if fence is None:
+        return _fence_opener(line)
+    closer = _FENCE_CLOSE.match(line)
+    if (closer is not None and closer.group(1)[0] == fence[0]
+            and len(closer.group(1)) >= len(fence)):
+        return None
+    return fence
+
+
+def _blank(line: str) -> bool:
+    r"""Whether `line` is a COMMONMARK BLANK LINE — spaces and tabs, nothing else.
+
+    *"A line containing no characters, or a line containing only spaces (U+0020)
+    or tabs (U+0009), is called a blank line."* `str.strip()` is PYTHON's and
+    strips every Unicode space, which is **round 3's lesson arriving in the
+    BLANK-LINE TEST rather than in a pattern** (Copilot, round 11 on PR #589):
+    `\s` is a Python fact, not CommonMark's, and the two differ exactly where a
+    document can be made to hide something.
+
+    MEASURED, and it was an UNDER-CLOSING escape — the direction this whole
+    guard exists to close. A line holding only U+00A0 (or U+2028, or VT, or FF)
+    is PARAGRAPH CONTENT to CommonMark, so a run of `=` below it is a Setext
+    underline and a real heading that CLOSES the entry. Read as blank, it made
+    `after_paragraph` false, the `===` stopped being an underline, the entry
+    never closed, and the declaration below it was **ACCEPTED** under an entry
+    CommonMark places it outside of. Reproduced for U+00A0, U+2028, VT and FF,
+    and for the same character INSIDE a paragraph rather than alone.
+
+    Note the ASYMMETRY with `_lines`, which is not an inconsistency: VT and FF
+    are not LINE ENDINGS (round 4) and they are not BLANK-LINE characters
+    either, so a VT-only line is one line, and it is a paragraph.
+    """
+    return not line.strip(" \t")
+
+
+def _paragraph_line(line: str, closes: bool, opaque: bool) -> bool:
+    """Whether `line` IS PARAGRAPH CONTENT — the only thing a Setext underline
+    may underline, and therefore the only state under which a run of `=` or `-`
+    is a heading rather than a thematic break.
+
+    ASKED OF WHAT THE LINE DID, NOT OF WHAT IT LOOKS LIKE, which is Codex's
+    round-2 P1 on PR #589 and was a hole this reader's own round-1 fix opened.
+    That fix excluded any line MATCHING the underline pattern, and in
+    `## contract-v3.0` / `===` / `---` the `===` matches while ACTING as
+    nothing: no paragraph precedes it, so CommonMark makes it paragraph TEXT and
+    the `---` below it a real Setext H2. Excluding it by syntax lost that
+    boundary and the entry stayed open — measured, and the declaration below was
+    ACCEPTED. `closes` is therefore passed IN, from the same decision the caller
+    already made, so an underline that really underlined is excluded and one
+    that only looked like it is not.
+
+    THE REMAINING EXCLUSIONS ARE DELIBERATELY FEW, AND THAT IS A JUDGMENT WITH
+    A DIRECTION. Every form added here moves the reader toward UNDER-CLOSING,
+    which is the escape direction this whole guard exists to close, so only what
+    CommonMark is UNAMBIGUOUS about is excluded: blank lines, ATX headings at
+    any level, fenced content, entry boundaries, and thematic breaks.
+    CommonMark has other block starts — list items, block quotes, link
+    reference definitions, HTML blocks, indented code — under which a following
+    run of dashes is SOMETIMES not an underline and sometimes is (an indented
+    line cannot interrupt a paragraph, so it is lazy continuation and the dashes
+    below it genuinely ARE one). Those are NOT excluded, and the residue is
+    disclosed rather than hidden: the failure mode there is a FALSE REFUSAL —
+    one `error` beside the superseded `error`, quieting nothing, repaired by
+    moving one line — where guessing wrong in the other direction is silence
+    about the finding this family exists to raise. Full CommonMark block parsing
+    is the honest fix and is out of this guard's scope.
+    """
+    if opaque or closes or _blank(line):
+        return False
+    return not (_ATX_ANY.match(line) or _THEMATIC_BREAK.match(line))
+
+
+def _entry_boundary(line: str, after_paragraph: bool,
+                    in_fence: str | None) -> tuple[bool, str | None]:
+    """`(closes, opens)` for one line of the changelog.
+
+    ONE STRUCTURAL FUNCTION FOR EVERY HEADING SHAPE, which is this hardening's
+    whole shape. `closes` is whether the line ENDS the open entry; `opens` is
+    the bundle whose entry it BEGINS, or None where it begins none. A line that
+    closes and opens nothing leaves the reader inside NO entry, which is the
+    state a containment refusal is made of — and the state seven measured
+    escapes were each a way of never reaching.
+
+    `after_paragraph` is whether the line ABOVE was paragraph content, which a
+    Setext underline needs and no other shape does — a BOOLEAN and not the
+    previous line's text, because the question is what that line ACTED as and
+    the caller is the one that knows. `in_fence` is the open fence marker or
+    None; the function is TOTAL over that state rather than trusting its caller
+    to have skipped fenced lines, so a second caller cannot reintroduce the
+    escape by forgetting to.
+    """
+    if in_fence is not None:
+        # Inside a fenced block nothing is a heading — not a line that looks
+        # exactly like one, and not one that names a bundle.
+        return (False, None)
+    if _ATX_BOUNDARY.match(line):
+        heading = _ENTRY_HEADING.match(line)
+        return (True, heading.group(1) if heading else None)
+    if after_paragraph and _SETEXT_UNDERLINE.match(line):
+        return (True, None)
+    return (False, None)
+
+
 def parse_spent_declarations(changelog: bytes | str | None
                              ) -> list[SpentDeclaration]:
     """Every line of `contracts/CHANGELOG.md` beginning with the reserved opener.
@@ -312,24 +688,69 @@ def parse_spent_declarations(changelog: bytes | str | None
     is reserved and a malformed declaration is worse than none: it looks like a
     record.
 
-    NO FENCE TRACKING, deliberately. The requirement reserves the opener over the
-    WHOLE document, so a line inside a code block that begins with it is a
-    declaration too. That reading is the fail-closed one — it recognizes more
-    lines and therefore refuses more of them — and the alternative would let a
-    declaration be hidden from the reader by four leading spaces.
+    FENCED BLOCKS ARE OPAQUE, and are the ONLY opaque region: the entry a
+    declaration sits in is decided by `_entry_boundary` for every line, and a
+    fenced block is one in which neither a heading nor a declaration exists, so
+    the form can be DOCUMENTED there without being PERFORMED. See the boundary
+    block above for the rule and for the measured escapes it answers.
+
+    AND THE READ STOPS AT RAW HTML. `_HTML_OPENER` is not a parser and this
+    reader models no HTML block; on meeting an opener OUTSIDE a fence it stops
+    reading declarations entirely, because it cannot say what a renderer makes
+    of the lines below and a construct it cannot parse must never be able to
+    quiet a finding. `read_changelog` returns that line so the caller can
+    report it; `parse_spent_declarations` keeps its signature and answers the
+    declarations alone.
     """
+    return read_changelog(changelog).declarations
+
+
+@dataclass(frozen=True)
+class ChangelogRead:
+    """What one read of `contracts/CHANGELOG.md` found.
+
+    TWO ANSWERS AND NOT ONE, because the raw-HTML refusal is a finding about
+    the DOCUMENT rather than about any declaration: there may be no declaration
+    at all below the opener, and the refusal is owed either way.
+    """
+
+    declarations: list[SpentDeclaration]
+    raw_html: tuple[int, str] | None
+
+
+def read_changelog(changelog: bytes | str | None) -> ChangelogRead:
+    """The declarations, and the raw-HTML opener the read stopped at, if any."""
     if not changelog:
-        return []
+        return ChangelogRead([], None)
     if isinstance(changelog, bytes):
         changelog = changelog.decode("utf-8", errors="replace")
     out: list[SpentDeclaration] = []
     entry: str | None = None
-    for number, line in enumerate(changelog.splitlines(), start=1):
-        heading = _ENTRY_HEADING.match(line)
-        if heading:
-            entry = heading.group(1)
+    fence: str | None = None
+    after_paragraph = False
+    for number, line in enumerate(_lines(changelog), start=1):
+        # THE DELIMITERS BELONG TO THE BLOCK, not to the prose either side of
+        # it: a line is opaque if a fence was open BEFORE it or is open AFTER
+        # it, which makes both the opener and the closer part of the region and
+        # neither of them prose that could carry a record.
+        opaque = fence is not None
+        closes, opens = _entry_boundary(line, after_paragraph, fence)
+        if not opaque and _HTML_OPENER.match(line):
+            # THE READ STOPS HERE. Not "this line is opaque" — the reader has
+            # no model of what follows it, so everything below is unread and
+            # the caller is handed the line to report. Declarations ABOVE the
+            # opener stand: they were read as prose and prose is what they are.
+            return ChangelogRead(out, (number, line.strip()))
+        fence = _fence_state(line, fence)
+        opaque = opaque or fence is not None
+        # CARRIED FORWARD FROM WHAT THIS LINE DID, not from what it looks like,
+        # so a Setext underline that really underlined ends the paragraph and
+        # one that only looked like an underline does not.
+        after_paragraph = _paragraph_line(line, closes, opaque)
+        if closes:
+            entry = opens
             continue
-        if not line.startswith(SPENT_OPENER):
+        if opaque or not line.startswith(SPENT_OPENER):
             continue
         subject_match = _SUBJECT_PROBE.match(line)
         subject = subject_match.group(1) if subject_match else None
@@ -386,7 +807,7 @@ def parse_spent_declarations(changelog: bytes | str | None
             entry=entry,
             missing=missing,
             line=number))
-    return out
+    return ChangelogRead(out, None)
 
 
 def version_of(bundle: str | None) -> tuple[int, int] | None:
@@ -397,6 +818,25 @@ def version_of(bundle: str | None) -> tuple[int, int] | None:
         return None
     found = _VERSION.match(bundle)
     return (int(found.group(1)), int(found.group(2))) if found else None
+
+
+def _at_or_above_floor(bundle: str | None) -> bool:
+    """Whether this family may report on `bundle` at all."""
+    version = version_of(bundle)
+    return version is not None and version >= ENFORCEMENT_FLOOR
+
+
+def _below_floor(bundle: str | None) -> bool:
+    """Whether `bundle` is a WELL-FORMED name below the enforcement floor.
+
+    NOT THE NEGATION OF `_at_or_above_floor`, and the gap between them is
+    exactly the distinction the orphan sweep turns on: a name of the wrong
+    SHAPE is neither above the floor nor below it, because there is no version
+    to compare. A declaration naming `contract-v1.3` is out of this family's
+    scope; one naming `not-a-bundle` is a defect in the record.
+    """
+    version = version_of(bundle)
+    return version is not None and version < ENFORCEMENT_FLOOR
 
 
 def cut_bundles(git, repo_path: Path, tip: str) -> set[str] | None:
@@ -530,6 +970,27 @@ def _refusal_findings(repo: str, decls: list[SpentDeclaration],
     candidates: dict[str, SpentDeclaration] = {}
     reported_duplicate: set[str] = set()
     for decl in decls:
+        if _below_floor(decl.subject):
+            # A BELOW-FLOOR SUBJECT LEAVES THE WHOLE SWEEP, not one branch of
+            # it — Codex's round-7 P2 on PR #589, and it was right that
+            # exempting only the orphan arm was half a rule. The enforcement
+            # floor says this family reports NOTHING about a bundle under
+            # `contract-v1.7`; a declaration naming one therefore disposes
+            # nothing whatever its shape, and every state below would be a
+            # finding ABOUT A BUNDLE THIS FAMILY MAY NOT SPEAK OF — landing, at
+            # that, on an inventory path for a bundle it does not grade.
+            # Measured before the change: a legacy repository declaring
+            # `contract-v1.6` and naming it spent emitted a `live-bundle`
+            # error; malformed and wrong-entry below-floor declarations emitted
+            # theirs.
+            #
+            # SUBJECTS OF THE WRONG SHAPE AND UNREADABLE SUBJECTS ARE NOT
+            # EXCLUDED, which is the other half and the hole this exclusion
+            # could open: `_below_floor` is false for both, so `not-a-bundle`
+            # still raises the orphan warning and a line carrying the opener
+            # and no subject at all is still `unreadable`. Neither is an
+            # out-of-scope NAME; both are defects.
+            continue
         state = _declaration_state(decl, counts[decl.subject], cut, declared)
         if state is None:
             candidates[decl.subject] = decl
@@ -652,8 +1113,15 @@ def check_repo(repo: str, repo_path: Path, git,
                             f"no landing distance can be counted")
     blobs = git.blobs_at(repo_path, tip, [MANIFEST, CHANGELOG])
     if blobs is None:
+        # BOTH MEMBERS OF THE BATCH, NAMED. `blobs_at` collapses to None only
+        # when GIT ITSELF failed, which fails the whole two-member read — so a
+        # message naming one document sends an operator to a file when neither
+        # was obtained. The other return shape is per-path None, which each
+        # guard below answers in its own words; conflating the two is the #338
+        # class one layer down.
         return Skip(FAMILY, f"{repo}: version control could not be consulted "
-                            f"for {MANIFEST}")
+                            f"for {MANIFEST} or {CHANGELOG} — the whole batch "
+                            f"read failed, so NEITHER document was obtained")
     manifest = blobs.get(MANIFEST)
     if manifest is None:
         # NOT "no bundle declared". `blobs_at` answers None PER PATH for a blob
@@ -667,19 +1135,6 @@ def check_repo(repo: str, repo_path: Path, git,
                             f"published tip {tip[:9]} — the commit may not be "
                             f"present locally, which is not the same fact as "
                             f"declaring no bundle")
-    changelog = blobs.get(CHANGELOG)
-    if changelog is None:
-        # THE SAME GUARD ONE DOCUMENT OVER, and this family has already been
-        # caught by the #338 conflation once. `blobs_at` answers None PER PATH
-        # for a blob it cannot read, and the commonest cause is a checkout that
-        # has not fetched the published tip. NOT FETCHED IS NOT AN ANSWER — in
-        # either direction: the absence of a declaration this run could not look
-        # for must never be read as the absence of a declaration, because that
-        # reading turns an unfetched clone into an `error` nobody can act on.
-        return Skip(FAMILY, f"{repo}: {CHANGELOG} could not be read at the "
-                            f"published tip {tip[:9]}, so a SPENT declaration "
-                            f"could not be looked for — which is not the same "
-                            f"fact as there being none")
     declared = parse_bundle(manifest)
     if declared is None:
         return Skip(FAMILY, f"{repo}: no contract bundle declared")
@@ -693,12 +1148,59 @@ def check_repo(repo: str, repo_path: Path, git,
         return Skip(FAMILY, f"{repo}: the release inventories under "
                             f"{RELEASES}/ could not be listed, so the set of "
                             f"cut bundles is unknown")
-    declarations = parse_spent_declarations(changelog)
-    findings, candidates = _refusal_findings(repo, declarations, cut, declared)
-    for bundle in sorted(cut | {declared}):
-        version = version_of(bundle)
-        if version is None or version < ENFORCEMENT_FLOOR:
-            continue
+    # EVERY BUNDLE THIS FAMILY MAY SPEAK ABOUT, computed once. The floor is
+    # applied here rather than inside the loop so that the SPENT read below can
+    # be gated on whether anything is in scope at all — which is the honest
+    # condition, and the one that satisfies two findings at once.
+    in_scope = sorted(bundle for bundle in cut | {declared}
+                      if _at_or_above_floor(bundle))
+
+    changelog = blobs.get(CHANGELOG)
+    if changelog is None:
+        # THE SAME #338 GUARD ONE DOCUMENT OVER, AND IT IS GATED ON
+        # IN-SCOPE-NESS RATHER THAN ON POSITION. `blobs_at` answers None PER
+        # PATH for a blob it cannot read, and the commonest cause is a checkout
+        # that has not fetched the published tip; NOT FETCHED IS NOT AN ANSWER,
+        # in either direction, because reading a declaration this run could not
+        # LOOK FOR as an absent declaration turns an unfetched clone into an
+        # `error` nobody can act on.
+        #
+        # BUT A REPOSITORY WITH NOTHING IN SCOPE IS NOT OWED THAT SKIP, and
+        # standing above `parse_bundle` this guard fired before the bundle was
+        # known — so a below-floor repository holding no `contracts/CHANGELOG.md`
+        # at all, which this family had always answered with silence, became a
+        # silent "not checked" instead. There is no bundle here whose state a
+        # declaration could change, so the answer is the one it always was.
+        if not in_scope:
+            return []
+        return Skip(FAMILY, f"{repo}: {CHANGELOG} could not be read at the "
+                            f"published tip {tip[:9]}, so a SPENT declaration "
+                            f"for {', '.join(in_scope)} could not be looked "
+                            f"for — which is not the same fact as there being "
+                            f"none")
+    read = read_changelog(changelog)
+    findings, candidates = _refusal_findings(repo, read.declarations, cut,
+                                             declared)
+    if read.raw_html is not None:
+        # THE REFUSAL, AND IT IS REPORTED RATHER THAN SILENT. The read stopped
+        # at this line, so every declaration below it is unread — including one
+        # that would have been ACCEPTED — and that is exactly the fail-closed
+        # direction: the superseded `error` stands. Reported at `error` because
+        # a document this family cannot read is a defect in the document, and
+        # `contested` because the repair is an editorial judgment (move the
+        # declaration, or take the HTML out) rather than a mechanical one.
+        number, text = read.raw_html
+        findings.append(_finding(
+            ERROR, repo,
+            f"{CHANGELOG} line {number} carries an UNPARSEABLE CONSTRUCT: RAW "
+            f"HTML ({text!r}) — this family reads the changelog as CommonMark "
+            f"PROSE and does not model raw HTML blocks, so the SPENT reader "
+            f"REFUSES TO READ PAST it rather than guess at what a renderer "
+            f"makes of the lines below. No SPENT declaration below this line "
+            f"is read, which means any bundle a declaration there would have "
+            f"quieted goes on being reported",
+            _RAW_HTML_ACTION, resolution="contested", path=CHANGELOG))
+    for bundle in in_scope:
         kind, detail = _tag_state(git, repo_path, bundle)
         if kind == "unlistable":
             return Skip(FAMILY, f"{repo}: the published refs for {bundle} "
