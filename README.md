@@ -429,14 +429,16 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [update-standards-body-current-publications](openspec/changes/update-standards-body-current-publications/proposal.md)
-  — authored 2026-09-01, **ADOPTED 2026-09-03 AND STILL `Status: draft`** — the
-  distinction is the whole record. **RESCUED, NOT RE-AUTHORED**: the authoring
+  — authored 2026-09-01, **RATIFIED 2026-09-03 by Brett Heap, in-session**
+  (verbatim "merge 210 and ratify and merge 593"), with **D1–D4 ADOPTED AS
+  WRITTEN**. **RESCUED, NOT RE-AUTHORED**: the authoring
   session ended without pushing, so the packet and its code existed on no branch
   and not on `main` (openxFactory issue **#591**); PR **#593** snapshot `d1799988`
-  carries it byte-identical, and Brett Heap ruled 2026-09-03 that it be adopted
-  and owned by lane `openxfactory-f2`. **THAT RULING AUTHORIZED THE ADOPTION AND
-  THE RESHAPING AND RATIFIES NOTHING IN IT** — D1 … D4 are still owed a ruling,
-  D2 (the SFIA operator override) and D3 (the APQC crosswalk scope) most of all.
+  carries it byte-identical, and the same 2026-09-03 in-session word both ruled
+  it adopted and owned by lane `openxfactory-f2` and ratified it — **REALIZATION
+  IS MERGED-PLUS-GREEN ON `main`**; the archive is owed under the
+  release-realization gate (`docs/release-realization-flow.md` § The Archive
+  Gate).
   Adds a distinct **`itil5`** body for ITIL Version 5 while preserving `itil4`
   for historical consumers — *no silent rename* — records **SFIA 9** as current
   beside the steward's restrictive licence statement and Brett's product-config

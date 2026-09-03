@@ -118,8 +118,9 @@ REGISTRY_REL = "contracts/policies/standards-bodies.yaml"
 def standards_body_ids() -> frozenset[str]:
     """Canonical standards-body ids a terminology crosswalk may reference.
 
-    Returns an empty set when the registry is absent so the check degrades to
-    a no-op rather than failing every overlay in a checkout without it.
+    Returns an empty `frozenset()` when the registry is absent so the check
+    degrades to a no-op rather than failing every overlay in a checkout
+    without it.
 
     CACHED because it is called once per example, fixture and repo argument,
     and the registry cannot change inside one run. Without it a duplicate-key

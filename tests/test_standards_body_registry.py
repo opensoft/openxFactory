@@ -6,6 +6,7 @@ import pytest
 import yaml
 
 from scripts.standards_body_registry import (
+    VERIFICATION_CLAIM_FIELD,
     DuplicateRegistryKey,
     load_registry,
     registry_errors,
@@ -93,7 +94,12 @@ class TestStandardsBodyRegistry:
         document = load_registry(REGISTRY_PATH)
         bodies = document["bodies"]
         current = [b for b in bodies if b.get("status") == "current"]
-        claiming = [b for b in current if b.get("verified_on")]
+        # Presence of the key is the claim, not its truthiness — mirrors the
+        # validator's own rule in `registry_errors` (`VERIFICATION_CLAIM_FIELD
+        # in body`). A truthiness test would silently drop a MALFORMED claim
+        # (`verified_on: ""` or `verified_on:` null) into "not claiming",
+        # exactly the escape `registry_errors` was fixed to close.
+        claiming = [b for b in current if VERIFICATION_CLAIM_FIELD in b]
 
         assert len(current) == 32 and len(claiming) == 3
         assert {b["id"] for b in claiming} == {"itil5", "sfia", "apqc_pcf"}
