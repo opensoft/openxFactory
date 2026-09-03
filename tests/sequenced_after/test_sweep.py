@@ -1048,6 +1048,60 @@ def test_the_SEED_LEDGER_cli_writes_a_ledger_the_diff_then_ACCEPTS(tmp_path):
     assert rows["add-old"]["state"] == "archived"
 
 
+def test_MOVED_ROWS_names_exactly_the_rows_a_re_seed_moves(tmp_path):
+    # The one place that decides "did this row move?", so the provenance the
+    # renderer stamps and the summary the CLI prints cannot disagree.
+    _change(tmp_path, "add-a")
+    _change(tmp_path, "add-b")
+    path = _ledger(tmp_path, [_row("add-a"), _row("add-b")])
+    previous = sa.load_ledger(path)
+    readings = sa.classify_corpus(tmp_path)
+    assert sa.moved_rows(readings, previous) == ()
+    assert sa.moved_rows(readings, None) == ("add-a", "add-b"), (
+        "with no previous ledger every row is new, so every row moved")
+    _change(tmp_path, "add-c")
+    assert sa.moved_rows(sa.classify_corpus(tmp_path), previous) == ("add-c",)
+    # A row carrying a key the grammar does not know is MOVED, because a
+    # re-seed drops it and dropping a key is a move.
+    stale = sa.load_ledger(_ledger(tmp_path, [
+        'add-a: {state: active, class: sole, declares: absent, prose: false, '
+        'guess: 1, moved_by: "#1", moved_on: "2026-09-03"}',
+        _row("add-b"), _row("add-c")]))
+    assert sa.moved_rows(sa.classify_corpus(tmp_path), stale) == ("add-a",)
+
+
+def test_the_SEED_summary_counts_ONLY_the_rows_it_MOVED(tmp_path):
+    # A row that merely already carried this pull request is NOT one this run
+    # moved, and reporting it as moved would misdescribe the diff.
+    _change(tmp_path, "add-a")
+    first = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#623", "--moved-on", "2026-09-03"],
+        capture_output=True, text=True)
+    assert first.returncode == 0, first.stdout + first.stderr
+    assert "1 rows, 1 moved by #623" in first.stdout
+    again = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#623", "--moved-on", "2026-09-03"],
+        capture_output=True, text=True)
+    assert again.returncode == 0, again.stdout + again.stderr
+    assert "1 rows, 0 moved by #623" in again.stdout
+
+
+def test_the_CLI_MODES_are_MUTUALLY_EXCLUSIVE(tmp_path):
+    # Combining two modes can only mean the caller believed both would run;
+    # silently running the first is the answer to a question nobody asked.
+    for flags in (["--seed-ledger", "--ledger-diff"],
+                  ["--sweep", "--ledger-diff"],
+                  ["--sweep", "--seed-ledger"],
+                  ["--archive-gate", str(tmp_path), "--sweep"]):
+        result = subprocess.run(
+            [sys.executable, str(VALIDATOR), str(tmp_path), *flags],
+            capture_output=True, text=True)
+        assert result.returncode != 0, flags
+        assert "not allowed with argument" in result.stderr, flags
+
+
 def test_the_SEED_LEDGER_cli_REQUIRES_a_moving_pull_request(tmp_path):
     _change(tmp_path, "add-a")
     result = subprocess.run(

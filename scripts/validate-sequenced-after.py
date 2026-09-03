@@ -57,6 +57,11 @@ Usage:
     --repository NAME
         The declaring repository token, which decides which qualified entries
         normalize to the bare form (default: openxFactory).
+
+    `--archive-gate`, `--sweep`, `--ledger-diff` and `--seed-ledger` are MODES
+    and are mutually exclusive: combining two can only mean the caller believed
+    both would run, and silently running whichever the dispatch reaches first is
+    the answer to a question nobody asked.
 """
 from __future__ import annotations
 
@@ -177,16 +182,22 @@ def _seed_ledger(repo_root: Path, repository: str, moved_by: str,
     readings = sa.classify_corpus(repo_root, declaring_repository=repository)
     path = sa.ledger_path(repo_root)
     previous = sa.load_ledger(path) if path.is_file() else None
+    # THE ROWS THIS RUN MOVES, from the same helper the renderer stamps by, so
+    # the summary cannot overcount: a row that merely already carried this pull
+    # request is NOT one this run moved.
+    moved = sa.moved_rows(readings, previous)
     text = sa.render_ledger(
         readings, moved_by=moved_by,
         moved_on=moved_on or datetime.date.today().isoformat(),
         previous=previous, seeded_from=seeded_from)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
-    stamped = sum(1 for row in sa.load_ledger(path).rows.values()
-                  if row.get("moved_by") == moved_by)
-    print(f"wrote {path} ({len(readings)} rows, {stamped} carrying "
+    print(f"wrote {path} ({len(readings)} rows, {len(moved)} moved by "
           f"{moved_by}).")
+    for change_id in moved[:20]:
+        print(f"  - {change_id}")
+    if len(moved) > 20:
+        print(f"  … and {len(moved) - 20} more; read the diff.")
     return 0
 
 
@@ -194,22 +205,27 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("repo_root", nargs="?", default=".",
                         help="repository root to scan (default: cwd)")
-    parser.add_argument("--archive-gate", metavar="CHANGE_DIR",
-                        help="run the parent-declaration retention freeze gate "
-                             "on one change dir")
+    # THE MODES ARE MUTUALLY EXCLUSIVE, declared rather than resolved by the
+    # order of the dispatch below: combining two of them can only mean the
+    # caller believed both would run, and silently running the first is the
+    # answer to a question nobody asked.
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--archive-gate", metavar="CHANGE_DIR",
+                       help="run the parent-declaration retention freeze gate "
+                            "on one change dir")
     parser.add_argument("--ratified-ref", metavar="REF",
                         help="git ref carrying the ratified proposal (with "
                              "--archive-gate)")
-    parser.add_argument("--sweep", action="store_true",
-                        help="print the re-runnable corpus sweep (a measurement, "
-                             "not a gate) and exit 0")
-    parser.add_argument("--ledger-diff", action="store_true",
-                        help="check the per-change sweep ledger against the "
-                             "live corpus, naming every stale row; exit 1 when "
-                             "it is stale")
-    parser.add_argument("--seed-ledger", action="store_true",
-                        help="rewrite the per-change sweep ledger from the live "
-                             "corpus, preserving the provenance of unmoved rows")
+    modes.add_argument("--sweep", action="store_true",
+                       help="print the re-runnable corpus sweep (a measurement, "
+                            "not a gate) and exit 0")
+    modes.add_argument("--ledger-diff", action="store_true",
+                       help="check the per-change sweep ledger against the "
+                            "live corpus, naming every stale row; exit 1 when "
+                            "it is stale")
+    modes.add_argument("--seed-ledger", action="store_true",
+                       help="rewrite the per-change sweep ledger from the live "
+                            "corpus, preserving the provenance of unmoved rows")
     parser.add_argument("--moved-by", metavar="#PR",
                         help="the pull request stamped on the rows this "
                              "re-seed moves (with --seed-ledger)")

@@ -98,7 +98,22 @@ measurement is carried per subject, never as a shared total"
   2026-09-01 first-post-adoption table exactly as it stands — that section is
   explicitly a dated measurement and not a currency obligation.
 
-## Group 6 — Gates
+## Group 6 — Review rounds
+
+- [x] 6.0 **BOT ROUND 1 (Copilot), both findings TAKEN.** (a) The `--seed-ledger`
+  summary counted rows whose `moved_by` already equalled the given pull request,
+  so it reported UNMOVED rows as moved — fixed by extracting `moved_rows()`, the
+  one place that decides whether a row moved, and having the renderer stamp by it
+  and the CLI report from it, so the two cannot disagree. (b) The mode flags were
+  combinable and the dispatch order silently picked one — `--archive-gate`,
+  `--sweep`, `--ledger-diff` and `--seed-ledger` are now an argparse mutually
+  exclusive group. Both carry fixtures
+  (`test_MOVED_ROWS_names_exactly_the_rows_a_re_seed_moves`,
+  `test_the_SEED_summary_counts_ONLY_the_rows_it_MOVED`,
+  `test_the_CLI_MODES_are_MUTUALLY_EXCLUSIVE`). **Codex was ABSENT, not
+  clearing**: it answered the review request with a usage-limit refusal.
+
+## Group 6b — Gates
 
 - [x] 6.1 `OPENSPEC_TELEMETRY=0 openspec validate add-per-change-sweep-ledger
   --strict` and `--all --strict`.

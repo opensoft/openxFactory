@@ -1352,6 +1352,39 @@ rows:
 """
 
 
+def moved_rows(
+    readings: dict[str, Reading],
+    previous: Ledger | None,
+) -> tuple[str, ...]:
+    """The change ids whose DERIVED keys a re-seed actually moves, in order.
+
+    THE ONE PLACE THAT DECIDES "did this row move?", so the provenance a re-seed
+    stamps and the summary it prints cannot disagree — counting rows that merely
+    already carry the same pull request would report unmoved rows as moved. A
+    row is moved when it is NEW, when any derived key differs, or when it
+    carries a key the row grammar does not know (which a re-seed drops, and
+    dropping a key is a move).
+    """
+    if previous is None:
+        return tuple(sorted(readings))
+    moved: list[str] = []
+    for change_id, reading in sorted(readings.items()):
+        row = previous.rows.get(change_id)
+        if row is None:
+            moved.append(change_id)
+            continue
+        body = reading.row()
+        unchanged = all(_row_value(row, key) == body.get(key, _MISSING)
+                        for key in ROW_KEYS)
+        extra = set(row) - set(ROW_KEYS) - set(PROVENANCE_KEYS)
+        prior_by, prior_on = row.get("moved_by"), row.get("moved_on")
+        readable = (isinstance(prior_by, str) and bool(MOVED_BY.match(prior_by))
+                    and is_moved_on(prior_on))
+        if not (unchanged and not extra and readable):
+            moved.append(change_id)
+    return tuple(moved)
+
+
 def render_ledger(
     readings: dict[str, Reading],
     moved_by: str,
@@ -1381,20 +1414,13 @@ def render_ledger(
         kind=LEDGER_KIND,
         seeded_from=f'"{seeded_from}"' if seeded_from else "~",
     )]
+    moved = set(moved_rows(readings, previous))
     for change_id, reading in sorted(readings.items()):
         body = reading.row()
-        by, on = moved_by, moved_on
-        if previous is not None:
-            row = previous.rows.get(change_id)
-            if row is not None:
-                unchanged = all(
-                    _row_value(row, key) == body.get(key, _MISSING)
-                    for key in ROW_KEYS)
-                extra = set(row) - set(ROW_KEYS) - set(PROVENANCE_KEYS)
-                if unchanged and not extra:
-                    prior_by, prior_on = row.get("moved_by"), row.get("moved_on")
-                    if (isinstance(prior_by, str) and MOVED_BY.match(prior_by)
-                            and is_moved_on(prior_on)):
-                        by, on = prior_by, prior_on
+        if change_id in moved or previous is None:
+            by, on = moved_by, moved_on
+        else:
+            row = previous.rows[change_id]
+            by, on = str(row["moved_by"]), str(row["moved_on"])
         lines.append(f"  {change_id}: {_render_row(body, by, on)}\n")
     return "".join(lines)
