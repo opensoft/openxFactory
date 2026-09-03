@@ -64,7 +64,7 @@ scope:
     hermes_approval_required_before_apply: true
     authority_agents_may_approve: false
     human_escalation_required_for: []
-expires_at: "2026-12-01T00:00:00Z"
-issued_at: "2026-09-02T00:00:00Z"
+expires_at: "2026-12-02T00:00:00Z"
+issued_at: "2026-09-03T00:00:00Z"
 issued_by: Brett.Heap@opensoft.one
 state: active
