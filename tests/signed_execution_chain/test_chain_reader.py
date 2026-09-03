@@ -751,6 +751,55 @@ def test_the_exclusion_ignores_components_above_the_scanned_tree(
     assert "0 artifact(s) checked" in findings.notes[0]
 
 
+def test_skip_dir_names_ignore_components_above_the_scanned_tree(
+        tmp_path, registry_and_docs, carried):
+    """THE SAME PLACEMENT EVASION, ONE CHECK EARLIER THAN THE ONE ABOVE.
+
+    `SKIP_DIR_NAMES` was matched over the ABSOLUTE path too, so a checkout
+    parked under a `.venv/`, `node_modules/`, `.git/` or `__pycache__/`
+    ANCESTOR gave every file in it one of those names by inheritance and
+    switched the whole sweep off, before `under_packaged_examples()` is ever
+    reached — the same checkout-location evasion closed two commits ago, on
+    the check that runs immediately after this one. Found by Copilot on #566.
+
+    The ancestor case is asserted first so the test cannot pass by the fixture
+    simply being inert; the in-tree control then proves relativizing did not
+    cost the property SKIP_DIR_NAMES exists for.
+    """
+    registry, docs = registry_and_docs
+    invalid = CONSUMED_FIXTURE.read_text(encoding="utf-8")
+
+    def swept_under(ancestor: str):
+        root = tmp_path / ancestor / "domain-repo"
+        record = root / "governance" / "live-and-malformed.yaml"
+        record.parent.mkdir(parents=True, exist_ok=True)
+        record.write_text(invalid, encoding="utf-8")
+        findings = reader.Findings()
+        # RESOLVED, exactly as `main()` hands it over — an unresolved relative
+        # path would not carry the ancestor this test is about.
+        reader.repo_scan(findings, root.resolve(), registry, docs, carried)
+        return findings
+
+    for skip_name in sorted(reader.SKIP_DIR_NAMES):
+        findings = swept_under(skip_name)
+        assert "1 artifact(s) checked" in findings.notes[0], (
+            f"a checkout parked under a {skip_name}/ ancestor had its whole "
+            f"sweep excluded by its own location: {findings.notes[0]}")
+        assert reader.codes_of(findings.errors) == {"carried-vocabulary"}
+
+    # AND A SKIP-NAMED DIRECTORY INSIDE THE TREE IS STILL EXCLUDED — the
+    # property relativizing must not cost, since a real checkout does carry a
+    # `.venv/` or `node_modules/` of its own.
+    root = tmp_path / "consumer"
+    record = root / ".venv" / "vendor-lib" / "fixture.yaml"
+    record.parent.mkdir(parents=True, exist_ok=True)
+    record.write_text(invalid, encoding="utf-8")
+    findings = reader.Findings()
+    reader.repo_scan(findings, root.resolve(), registry, docs, carried)
+    assert findings.errors == []
+    assert "0 artifact(s) checked" in findings.notes[0]
+
+
 def test_an_unadjudicated_scope_is_never_reported_as_checked(
         tmp_path, registry_and_docs, carried):
     """THE NOTE MUST NOT CALL A SCOPE "CHECKED" THAT NO RULE WAS APPLIED TO.

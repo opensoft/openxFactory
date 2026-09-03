@@ -1940,7 +1940,18 @@ def repo_scan(f: Findings, target: Path, registry: Registry, docs: dict[str, dic
     records: list[tuple[str, dict]] = []
     checked = skipped = 0
     for path in files:
-        if set(path.parts) & SKIP_DIR_NAMES:
+        # SAME PLACEMENT EVASION AS `under_packaged_examples()`, one check
+        # earlier: matched over the ABSOLUTE path, a `.venv/`, `node_modules/`,
+        # `.git/` or `__pycache__/` ANCESTOR of the checkout — wherever a runner
+        # happened to put it — gave every file the excluded name by inheritance
+        # and switched the whole sweep off. Relativized to `scan_root`, failing
+        # CLOSED (never skipping) when a path is not under the tree at all.
+        # Found by Copilot on #566.
+        try:
+            rel_parts = path.relative_to(scan_root).parts
+        except ValueError:
+            rel_parts = ()
+        if set(rel_parts) & SKIP_DIR_NAMES:
             continue
         # Exclude ANY packaged corpus — this family's own and the CONSUMED
         # trust-anchor family's, whose examples/ carries deliberately-invalid
