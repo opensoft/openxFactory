@@ -1088,6 +1088,37 @@ def test_the_SEED_summary_counts_ONLY_the_rows_it_MOVED(tmp_path):
     assert "1 rows, 0 moved by #623" in again.stdout
 
 
+def test_the_SEEDER_REPAIRS_a_ledger_too_malformed_to_READ(tmp_path):
+    # Refusing here would leave the only tool that can rewrite the file
+    # unusable on the only file that needs rewriting.
+    _change(tmp_path, "add-a")
+    path = sa.ledger_path(tmp_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("schema_version: 1\nkind: k\nrows: not-a-mapping\n",
+                    encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#623", "--moved-on", "2026-09-03"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "could not be read" in result.stderr
+    assert "EVERY row is stamped #623" in result.stderr
+    assert "1 rows, 1 moved by #623" in result.stdout
+    assert sa.ledger_problems(sa.classify_corpus(tmp_path),
+                              sa.load_ledger(path)) == []
+
+
+def test_the_SEED_LEDGER_help_does_not_call_moved_by_OPTIONAL():
+    # The usage text and the refusal must agree: `--moved-by` is required with
+    # `--seed-ledger`, and help that brackets it teaches the opposite.
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), "--help"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "--seed-ledger --moved-by '#PR'" in " ".join(result.stdout.split())
+    assert "REQUIRED with --seed-ledger" in " ".join(result.stdout.split())
+
+
 def test_the_CLI_MODES_are_MUTUALLY_EXCLUSIVE(tmp_path):
     # Combining two modes can only mean the caller believed both would run;
     # silently running the first is the answer to a question nobody asked.

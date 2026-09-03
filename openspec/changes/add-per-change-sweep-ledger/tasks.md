@@ -113,18 +113,31 @@ measurement is carried per subject, never as a shared total"
   `test_the_CLI_MODES_are_MUTUALLY_EXCLUSIVE`). **Codex was ABSENT, not
   clearing**: it answered the review request with a usage-limit refusal.
 
+- [x] 6.1 **BOT ROUND 2 (Copilot), both findings TAKEN.** (a) `--seed-ledger`
+  called `load_ledger` unconditionally when the file existed, so a MALFORMED
+  ledger made the only tool that can rewrite it unusable on the only file that
+  needed rewriting — it now says on stderr what it could not read and re-seeds
+  from the corpus, stamping EVERY row (none of the old provenance was readable,
+  so none can be preserved) and dropping `seeded_from` unless `--seeded-from` is
+  given. (b) The usage text bracketed `--moved-by` as optional while the code
+  refused without it — the usage line, the flag's help and the refusal now agree,
+  and a fixture asserts the help text itself. Fixtures:
+  `test_the_SEEDER_REPAIRS_a_ledger_too_malformed_to_READ`,
+  `test_the_SEED_LEDGER_help_does_not_call_moved_by_OPTIONAL`. **Codex ABSENT
+  again**: a second usage-limit refusal on the same request.
+
 ## Group 6b — Gates
 
-- [x] 6.1 `OPENSPEC_TELEMETRY=0 openspec validate add-per-change-sweep-ledger
+- [x] 6b.1 `OPENSPEC_TELEMETRY=0 openspec validate add-per-change-sweep-ledger
   --strict` and `--all --strict`.
-- [x] 6.2 `python3 scripts/validate-sequenced-after.py .` (no flag) passes, and
+- [x] 6b.2 `python3 scripts/validate-sequenced-after.py .` (no flag) passes, and
   `--ledger-diff` exits 0 on the branch tip.
-- [x] 6.3 `python3 scripts/validate-sequenced-after.py . --sweep` output is
+- [x] 6b.3 `python3 scripts/validate-sequenced-after.py . --sweep` output is
   unchanged from `main`'s, byte for byte, apart from the readings this
   packet's own directory and declaration move.
-- [x] 6.4 `python3 scripts/doc-health.py --single-repo .` stays clean of any
+- [x] 6b.4 `python3 scripts/doc-health.py --single-repo .` stays clean of any
   new finding.
-- [x] 6.5 `python3 -m pytest tests/ -q -m "not postgres"` green.
+- [x] 6b.5 `python3 -m pytest tests/ -q -m "not postgres"` green.
 
 ## Group 7 — Archive preflight (after ratification)
 

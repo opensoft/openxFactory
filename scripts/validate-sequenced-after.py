@@ -48,11 +48,20 @@ Usage:
         corpus — unlike `--sweep`, this IS a gate, because a ledger that no
         longer describes the corpus is a stale pin rather than a measurement.
 
-    --seed-ledger [--moved-by '#PR'] [--moved-on YYYY-MM-DD] [--seeded-from SHA]
+    --seed-ledger --moved-by '#PR' [--moved-on YYYY-MM-DD] [--seeded-from SHA]
         REWRITE the ledger from the live corpus, stamping `moved_by`/`moved_on`
         on the rows that actually moved and PRESERVING the provenance of every
         row that did not. This is how an author moves a row: run it, then read
-        the diff as the list of rows the change moved.
+        the diff as the list of rows the change moved. `--moved-by` is REQUIRED
+        — a moved row with no moving pull request is provenance nobody can
+        follow. `--moved-on` defaults to today.
+
+        AN EXISTING LEDGER TOO MALFORMED TO READ DOES NOT BLOCK THE REPAIR: the
+        seeder says so on stderr and rewrites from the live corpus, stamping
+        EVERY row (none of the old provenance could be read, so none of it can
+        be preserved) and dropping `seeded_from` unless `--seeded-from` is
+        given. Refusing here would leave the only tool that can fix the file
+        unusable on the only file that needs fixing.
 
     --repository NAME
         The declaring repository token, which decides which qualified entries
@@ -181,7 +190,19 @@ def _seed_ledger(repo_root: Path, repository: str, moved_by: str,
     """Rewrite the ledger from the live corpus, preserving unmoved provenance."""
     readings = sa.classify_corpus(repo_root, declaring_repository=repository)
     path = sa.ledger_path(repo_root)
-    previous = sa.load_ledger(path) if path.is_file() else None
+    previous = None
+    if path.is_file():
+        try:
+            previous = sa.load_ledger(path)
+        except sa.SequencedAfterError as exc:
+            # THE SEEDER IS THE REPAIR. Refusing to read a broken ledger would
+            # leave the only tool that can rewrite it unusable on the only file
+            # that needs rewriting, so it says what it could not read and
+            # re-seeds from the corpus instead.
+            print(f"the existing ledger could not be read ({exc}); re-seeding "
+                  f"from the live corpus, so EVERY row is stamped "
+                  f"{moved_by} and `seeded_from` is dropped unless "
+                  f"--seeded-from is given", file=sys.stderr)
     # THE ROWS THIS RUN MOVES, from the same helper the renderer stamps by, so
     # the summary cannot overcount: a row that merely already carried this pull
     # request is NOT one this run moved.
@@ -228,7 +249,7 @@ def main(argv: list[str] | None = None) -> int:
                             "corpus, preserving the provenance of unmoved rows")
     parser.add_argument("--moved-by", metavar="#PR",
                         help="the pull request stamped on the rows this "
-                             "re-seed moves (with --seed-ledger)")
+                             "re-seed moves; REQUIRED with --seed-ledger")
     parser.add_argument("--moved-on", metavar="YYYY-MM-DD",
                         help="the date stamped on the rows this re-seed moves "
                              "(default: today)")
