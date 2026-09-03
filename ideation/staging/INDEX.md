@@ -2564,7 +2564,11 @@ repo scope.
   if it pins open<Product>" from three options: a `<Domainx><Product>`-shaped
   name is a descendant only when it declares a pin on the matching
   `open<Product>`; otherwise the declared role wins and the name is a valid
-  assembly root. The fix is an openRepoShape PR in flight.
+  assembly root. The fix landed as openRepoShape PR #3 (`7edd6bb`) and PR #4
+  (`deacbdc`), both merged 2026-09-02, and the pilot's second run — from the
+  MedxSoft fork synced to `deacbdc` — succeeded end to end, creating
+  `MedxSoft/MedxScribe`, `MedxSoft/MedxScribe-spec` and
+  `MedxSoft/MedxScribe-code`.
 - **The lockstep invariant is carried as a cost, not hidden.** The aggregation's
   own three-way pin (gitlink, the `review-lane-reusable.yml@<sha>` caller ref,
   and `PIN` in `tests/test_review_lane_workflow.py`) was practice for months and
