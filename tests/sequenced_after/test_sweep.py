@@ -380,6 +380,28 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       `python3 scripts/validate-sequenced-after.py . --sweep`:
       `33 active + 124 archived` = 157 change ids, `108` co-modified, `49`
       sole modifiers, `21 / 12` active co-modified/sole.
+    - `active_co_modified` reads 20, and read 21 above. It moved on
+      2026-09-03, when `declare-spent-bundle-state` was ARCHIVED — the change
+      whose AUTHORING raised `co_modified` 104 → 105 and `active_co_modified`
+      18 → 19 several bullets above. THE SAME SHAPE AS #563's and #571's
+      moves, and for the same reason: archiving a co-modified ACTIVE change
+      moves it out of the active corpus and into the archived one (active
+      33 → 32, archived 124 → 125), so `active_co_modified` falls by exactly
+      one while the corpus-wide `co_modified` — a count of REQUIREMENT-KEY
+      pairings, which an archive never un-shares — holds at 108. Every other
+      pin is untouched: `change_ids` (33 + 124 = 157 → 32 + 125 = 157, the
+      total unaffected by moving one change between buckets),
+      `sole_modifiers` (49, this change having always been a co-modifier and
+      never a sole one), and `active_sole` (12, an archive of a co-modified
+      active never touching the sole set). MEASURED, not inferred: excluding
+      this archive and reading the corpus as it stood one commit earlier
+      reproduces the entry above's own numbers EXACTLY, and the promoted
+      `doc-health` requirement this change's `## MODIFIED Requirements` block
+      targeted is now canon rather than an active delta, which is what makes
+      the change a former co-modifier rather than a present one. Via
+      `python3 scripts/validate-sequenced-after.py . --sweep`:
+      `32 active + 125 archived` = 157 change ids, `108` co-modified, `49`
+      sole modifiers, `20 / 12` active co-modified/sole.
     """
     sweep = sa.corpus_sweep(ROOT)
     assert sweep.co_modified == 108, (
@@ -411,8 +433,12 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "archive moves `active_co_modified`, never the corpus-wide "
         "`co_modified`). ANY later change carrying a MODIFIED block raises it "
         "again, which is one of the two EXPECTED causes of this failure")
-    assert sweep.active_co_modified == 21, (
-        "21 since add-project-repo-schema was authored 2026-09-02 as one "
+    assert sweep.active_co_modified == 20, (
+        "20 since declare-spent-bundle-state was ARCHIVED 2026-09-03: "
+        "archiving a co-modified ACTIVE change lowers this count while "
+        "leaving the corpus-wide `co_modified` untouched, the same shape "
+        "#563's and #571's archives moved. It read 21 "
+        "since add-project-repo-schema was authored 2026-09-02 as one "
         "more ACTIVE co-modifier entering the active corpus — by ONE and not "
         "two, because the earlier writers of the requirement key it shares "
         "are both ARCHIVED and were already co-modified, so no ACTIVE change "
