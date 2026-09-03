@@ -292,14 +292,30 @@ lane-collision protocol's landing window, amended operator-locally):
    nothing, so the collision surface shrinks by construction rather than by
    engineering — but two changes that both owe an entry still collide at the
    tail.
-3. **Two NEW rows that sort ADJACENTLY.** Measured, not assumed: two changes
-   each adding a row whose ids sort with no existing row between them —
-   `add-mmm-alpha` and `add-mmm-beta` — share ONE INSERTION POINT and conflict;
-   the same pair with any row between them merges clean. Sorted order shrinks
-   the collision surface from "every change-dir pull request" to "two ids that
-   sort adjacent with nothing between them", which is the whole of the claim
-   this design makes. It does not remove it, the requirement's scenarios say so
-   in as many words, and the remainder is the landing window's.
+3. **Two NEW rows that sort ADJACENTLY.** Measured on a 159-row base, the size
+   of the live ledger, by varying the number of EXISTING rows between the two
+   insertion points:
+
+   | existing rows between the two new ones | git merge |
+   | --- | --- |
+   | 0 (they sort adjacent) | **CONFLICT** |
+   | 1 | clean |
+   | 2, 3, 4, 5 | clean |
+
+   **ONE INTERVENING ROW IS ENOUGH**, because git needs surrounding context
+   lines to treat two insertions as separate hunks and a one-line row supplies
+   them. So the residue is narrow and exactly stated: two changes whose ids sort
+   with NOTHING between them share one insertion point and still collide.
+   Sorted order shrinks the collision surface from "every change-dir pull
+   request" to that case, which is the whole of the claim this design makes; it
+   does not remove it, the requirement carries a scenario saying so, and the
+   remainder is the landing window's.
+
+   (The same measurement on a TWO-row base conflicts at every gap, which is an
+   artifact of there being too few context lines to separate any two hunks, not
+   a property of the ledger. It is recorded because the first run of this
+   experiment used such a base and briefly read as though separation never
+   helped.)
 
 **And a merge queue does not address either.** GitHub's merge queue serializes
 merges and re-runs CI; it does not resolve a textual conflict. Two branches

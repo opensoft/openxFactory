@@ -867,9 +867,11 @@ def corpus_sweep(
 #
 # ONE RESIDUE, MEASURED RATHER THAN ARGUED AWAY. Two NEW change ids that sort
 # ADJACENTLY, with no existing row between them, share ONE INSERTION POINT and
-# still conflict — `add-mmm-alpha` and `add-mmm-beta` do; the same pair with any
-# row between them merges clean. Sorted order shrinks the collision surface from
-# "every change-dir pull request" to "two ids that sort adjacent", it does not
+# still conflict. Measured on a 159-row base by varying the gap: 0 intervening
+# rows CONFLICTS, and ONE intervening row is already enough to merge clean (git
+# needs context lines to separate two hunks, and a one-line row supplies them).
+# Sorted order therefore shrinks the collision surface from "every change-dir
+# pull request" to "two ids that sort with nothing between them"; it does not
 # remove it, and the remainder is the landing window's (issue #618 item 1).
 #
 # THE DERIVATION IS DELIBERATELY INDEPENDENT OF `corpus_sweep`. `classify_corpus`
