@@ -151,7 +151,18 @@ directory; it holds no material.
   namespace beside the stub token keeps the exemption; the ninth code sits beside
   its family and carries a probe; the grammar warning says the value is not read
   as a namespace; the raw-secret screen covers it.
-  **EXECUTED** — nineteen tests, all named for the claim they make.
+  **EXECUTED** — twenty tests, all named for the claim they make.
+- [x] 4.2a `[#511]` **THE PREDICATE'S WHOLE TRUTH TABLE, EIGHT ROWS, EACH
+  ASSERTED SYMMETRICALLY.** **EXECUTED** —
+  `test_the_authority_predicate_over_its_WHOLE_truth_table`. The fallback is a
+  rule about ABSENCE, and a rule about absence is only as good as its
+  enumeration of the ways a value can be missing: not declared, declared and
+  ungrammatical, declared as null. Testing the first alone would leave the other
+  two to a reader's confidence. EXACTLY ONE row clears — both sides declaring a
+  grammatical namespace and the two differing — and the other seven fall back
+  and report. Symmetry is ASSERTED rather than assumed, because the predicate is
+  called over `combinations`, which fixes an order, and a rule whose outcome
+  depends on which was found first is not a rule.
 - [x] 4.3 `[#511]` `tests/credential_contracts/major_projection.py` gains the
   member with the identifier `pattern`, and DOES NOT add it to the `then:
   required` list. **EXECUTED.** Stated as a decision: most estates run one
@@ -273,7 +284,8 @@ directory; it holds no material.
 - [x] 7.3 `python3 scripts/validate-manifest-digests.py`. **EXECUTED**:
   `OK contracts/manifest.yaml: 163 per-file digest(s) verify`.
 - [x] 7.4 `python3 -m pytest tests/credential_contracts tests/manifest_digests -q`.
-  **EXECUTED**: **239 passed**.
+  **EXECUTED**: **239 passed**, and **247 passed** after § 8.3's round and
+  § 4.2a.
 - [x] 7.5 doc-health, branch against a same-clock `origin/main` baseline from an
   IDENTICALLY-NAMED checkout (the finding identity is `(family, repo, path)` and
   the repo is the basename, so a differently-named baseline manufactures
@@ -300,7 +312,9 @@ evidence.
 - **credential-contracts self-test**: 8 positive + 19 negative + 13 warning,
   11 deprecation codes probed.
 - **manifest digests**: 163 of 163 verify.
-- **`pytest tests/credential_contracts tests/manifest_digests`**: 239 passed.
+- **`pytest tests/credential_contracts tests/manifest_digests`**: 239 passed at
+  the first head; **247 passed** at `e2fa9102`+ after the Copilot round's arity
+  pins and § 4.2a's eight-row truth table.
 - **doc-health** and **`pytest tests/doc-health`**: § 8.1 and § 8.2 below.
 
 ### 8.1 doc-health delta
@@ -311,7 +325,7 @@ both `--as-of 2026-09-03`.
 | | critical | error | warning | info | total |
 | --- | --- | --- | --- | --- | --- |
 | baseline (`origin/main` `ea117d4e`) | 6 | 6 | 39 | 13 | 64 |
-| branch (`14cfbad2`) | 6 | 6 | 39 | 16 | 67 |
+| branch (`e2fa9102`, the Copilot-round head) | 6 | 6 | 39 | 16 | 67 |
 
 **ZERO NEW critical, error or warning.** The delta is exactly THREE findings and
 all three are INFO — the editorial band:
@@ -333,6 +347,12 @@ all three are INFO — the editorial band:
 BRANCH'S** — measured, not assumed. Its `release-inventory-drift` **error** is
 present on the BASELINE at `ea117d4e` (another writer moved the file since
 `contract-v3.0` was cut), so this packet's edit to it adds no finding at all.
+
+**RE-MEASURED AFTER THE COPILOT ROUND rather than carried forward.** The round
+moved `docs/credential-access-model.md` and `docs/domain-factory-starter-pack.md`,
+neither of which is a member of the `contract-v3.0` inventory (checked, not
+assumed), and the second run over `e2fa9102` returns the SAME figures and the
+SAME three-finding delta as the first over `14cfbad2`.
 
 The set difference was taken in BOTH directions over the machine block: the
 branch **removes** nothing, and family counts are identical on both sides except

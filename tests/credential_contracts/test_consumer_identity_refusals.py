@@ -839,6 +839,43 @@ def test_a_namespace_carrying_a_raw_secret_is_screened_like_the_two_beside_it():
                for f in _findings(doc))
 
 
+@pytest.mark.parametrize("name,ns_a,ns_b,fetch_b,same_authority", [
+    ("neither side declares one — every record that exists today", ..., ..., "x", True),
+    ("both declare the same one", "dir-a", "dir-a", "x", True),
+    ("both declare DIFFERENT ones — the only clearing case", "dir-a", "dir-b", "x", False),
+    ("one side only", "dir-a", ..., "x", True),
+    ("one side's value is ungrammatical", "not a ns!", "dir-b", "x", True),
+    ("both values are ungrammatical", "not a ns!", "also bad!", "x", True),
+    ("a declared null is a value nothing can read", None, "dir-b", "x", True),
+    ("the identities already differ", "dir-a", "dir-a", "y", False),
+])
+def test_the_authority_predicate_over_its_WHOLE_truth_table(name, ns_a, ns_b, fetch_b,
+                                                            same_authority):
+    """EIGHT CASES, WHICH IS THE WHOLE TABLE, AND EACH ASSERTED SYMMETRICALLY.
+
+    The fallback is stated in canon as a rule about ABSENCE, and a rule about
+    absence is only as good as its enumeration of the ways a value can be
+    missing: not declared, declared and ungrammatical, declared as null. Testing
+    the first alone would leave the other two to a reader's confidence. EXACTLY
+    ONE row clears — both sides declaring a grammatical namespace and the two
+    differing — and every other row falls back to the bare identity and reports.
+
+    SYMMETRY IS ASSERTED RATHER THAN ASSUMED because the predicate is called
+    over `combinations`, which fixes an order: a predicate that answered
+    differently depending on which binding came first would produce a finding
+    that depends on declaration order, and a rule whose outcome depends on which
+    was found first is not a rule.
+    """
+    con_a = {"fetch_identity": "x"}
+    con_b = {"fetch_identity": fetch_b}
+    if ns_a is not ...:
+        con_a["identity_namespace"] = ns_a
+    if ns_b is not ...:
+        con_b["identity_namespace"] = ns_b
+    assert V._same_fetch_authority(con_a, con_b) is same_authority, name
+    assert V._same_fetch_authority(con_b, con_a) is same_authority, f"{name} (reversed)"
+
+
 # --------------------------- the screen (§2.6, openxFactory#506) ---------------------------
 
 @pytest.mark.parametrize("value", [
