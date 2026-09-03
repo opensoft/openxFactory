@@ -335,9 +335,14 @@ Active proposals promoted from staging:
   openRepoShape `deacbdc` with sixteen per-file digests and eighteen
   path-only members, `scripts/validate-openreposhape-pin.py` with its gate
   workflow, and the register schema delta with its validator rules and tests.
-  Owns the former staged fragment under `supporting-docs/`. `Status: draft`;
-  every authority question is deferred by name to the sibling staged topic
-  `wallet-carried-work-authority`. The `MedxSoft/MedxScribe` run of
+  Owns the former staged fragment under `supporting-docs/`. **`Status: ratified`**
+  — 2026-09-02, Brett Heap the convener, in the working session, verbatim
+  *"ratify it"*, on the packet as landed at squash `642ac147` (#605); record
+  `review/ratification-2026-09-02.md`. It stays ACTIVE all the same: with a
+  non-empty `code_surface` and `target_release` naming the next additive contract
+  bundle after `contract-v3.0`, `release-realization` archives it only when that
+  bundle is cut. Every authority question is deferred by name to the sibling
+  staged topic `wallet-carried-work-authority`. The `MedxSoft/MedxScribe` run of
   2026-09-02 is cited as realization evidence and is a TEMPORARY PILOT that
   exists only to test openRepoShape — not a real project, and deletable once
   the standard is ratified; the evidence is the recorded run, which survives

@@ -11,7 +11,9 @@ this record — `proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml`,
 `specs/medxchart-overlay-boundary/spec.md` (THREE ADDED requirements) and
 `specs/domain-descendant-boundary/spec.md` (ONE MODIFIED requirement) — with
 `openspec validate --strict` and `--all --strict` green (86/86, re-derived on
-the rebased tree — see `verification-2026-09-03.md` § 9) and the verification run
+the rebased tree, A SECOND TIME on the merged tree after `main` moved to
+`6da1e1f5`, and A THIRD TIME on the merged tree after `main` moved to
+`2b0615da` — see `verification-2026-09-03.md` § 9) and the verification run
 captured beside this file at `verification-2026-09-03.md`.
 
 **This record is CAPTURED AT MERGE, not at first push, and it was RE-DERIVED ON
@@ -26,10 +28,13 @@ all of them the corpus-pin readings following the rebase (`co_modified`
 107 → 108 became 108 → 109, `active_co_modified` 20 → 21 became 21 → 22, the
 measured-by-exclusion baseline 156 / 107 / 49 / 20 / 12 became
 157 / 108 / 49 / 21 / 12), plus the paragraph naming `642ac147` as the tree they
-are stated against. The `86/86` total above and this paragraph were corrected in
-the fix commit before capture. The full list, measured, is
-`verification-2026-09-03.md` § 9. After merge this record is written once and
-never edited.
+are stated against. The `--all --strict` total above and this paragraph were
+corrected in the fix commit before capture (`85/85` → `86/86`), and CORRECTED A
+SECOND TIME, still before capture, when `main` moved to `6da1e1f5` (#606, #593,
+#589) and this branch took the catch-up merge (`86/86` → `87/87`, with the
+corpus-pin readings in § 6 re-derived on the merged tree). The full list,
+measured, is `verification-2026-09-03.md` § 9. After merge this record is
+written once and never edited.
 
 ---
 
@@ -294,8 +299,8 @@ carries the LIVE corpus pin, whose own protocol is that it "MOVES WITH the
 corpus … in the SAME COMMIT" with a dated MOVEMENT LOG entry saying which
 subject moved and why. Adding a `## MODIFIED Requirements` block to an active
 change moves four of its readings — `co_modified` 108 → 109,
-`active_co_modified` 21 → 22, `sole_modifiers` 49 → 48 (`- 1`: 48 → 47), and
-`active_sole` 12 → 11 (`- 1`: 11 → 10) — and moves `change_ids`, `active` and
+`active_co_modified` 20 → 21, `sole_modifiers` 50 → 49 (`- 1`: 49 → 48), and
+`active_sole` 13 → 12 (`- 1`: 12 → 11) — and moves `change_ids`, `active` and
 `archived` **not at all**, because this is a RATIFICATION of a change that
 already existed rather than the authoring of a new one. That is a THIRD distinct
 cause of that test's failure, different from both causes its assertion messages
@@ -303,17 +308,36 @@ name, and the MOVEMENT LOG entry says so. It is also a shape neither prior entry
 shows: the rise is by ONE **and** the sole set falls, because the change entering
 the co-modified population is the same change leaving the sole one.
 
-The readings are stated against `main` at `642ac147`
-(`add-project-repo-schema`, PR #605), which landed while this branch was open
-and moved the same pin; this branch was REBASED onto it and the pin re-derived
-there rather than merged with a stale number. The move was **MEASURED BY
-EXCLUSION**, not inferred: removing only `specs/domain-descendant-boundary/`
-from this packet on the rebased tree reproduces `main`'s own reading exactly
-(157 change ids, 108 co-modified, 49 sole modifiers, 21 / 12 active
-co-modified/sole), so this one delta file is the whole of the difference and no
+The readings are stated against `main` at `6da1e1f5`, and they were re-derived
+there rather than carried over. `main` moved TWICE under this branch: first to
+`642ac147` (`add-project-repo-schema`, PR #605), which this branch took by
+REBASE; then to `6da1e1f5` (#606 ratifying that packet, #593 adopting
+`update-standards-body-current-publications` as an ACTIVE change, #589's
+SPENT-state hardening), which this branch took by CATCH-UP MERGE because
+force-pushing is forbidden here. Of the three, only #593 moves this pin — it
+raised `change_ids` 157 → 158, `sole_modifiers` 49 → 50 and `active_sole`
+12 → 13 as an ADDED-only packet over a new capability — so the four readings
+above are stated from that baseline. The move was **MEASURED BY EXCLUSION**, not
+inferred: removing only `specs/domain-descendant-boundary/` from this packet on
+the MERGED tree reproduces `main`'s own reading exactly (158 change ids, 108
+co-modified, 50 sole modifiers, 20 / 13 active co-modified/sole), a reading
+independently confirmed by running the same sweep on `origin/main` at
+`2b0615da` itself, so this one delta file is the whole of the difference and no
 other change moved in the same window.
 
-**Corrected before capture, in the fix commit on top of `c39d29bc`.** The
+**Corrected before capture, in the fix commit on top of `c39d29bc` — and
+CORRECTED A SECOND TIME, also before capture, in the commit on top of the merge
+of `main` at `6da1e1f5`: re-derived a second time after merging main at
+`6da1e1f5` (#606, #593, #589 landed); the counts moved `--all --strict` 86/86 →
+87/87, this branch's sweep 157 / 109 / 48 / 22 / 11 → 158 / 109 / 49 / 22 / 12
+and the measured-by-exclusion baseline 157 / 108 / 49 / 21 / 12 →
+158 / 108 / 50 / 21 / 13; nothing else in the records changed. AND CORRECTED A
+THIRD TIME, also before capture, in the commit on top of the second catch-up
+merge of `main` at `2b0615da` (after #611 archived `declare-spent-bundle-state`,
+then #614, #602, #604): the counts moved `--all --strict` 87/87 → 86/86, this
+branch's sweep 158 / 109 / 49 / 22 / 12 → 158 / 109 / 49 / 21 / 12 and the
+measured-by-exclusion baseline 158 / 108 / 50 / 21 / 13 →
+158 / 108 / 50 / 20 / 13; nothing else in the records changed.** The
 governance substance above is unchanged; the EVIDENTIARY layer was repaired.
 `verification-2026-09-03.md` § 9 lists every item and its reason: the
 `--all --strict` total (`85/85` → `86/86`, `add-project-repo-schema` having

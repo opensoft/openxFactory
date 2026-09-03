@@ -169,6 +169,50 @@ source operation; manifest at `<workspace-root>/.claude/nlm-sync-manifest.json`
 rebuilds it), keyed per book and FLUSHED AFTER EACH BOOK so an interrupted
 run resumes as a no-op over finished books.
 
+**Oversized documents** (issues #438, #462): a document above
+`MAX_TEXT_ARG_BYTES` (100,000) cannot ride a single `--text` argv string, so it
+uploads as a temp file and is renamed to its contract title — the CLI titles a
+`--file` source by FILENAME. Three properties, each written after the
+corresponding failure was proven live:
+
+- **The rename is polled, then RE-VERIFIED after a settle delay**
+  (`RENAME_SETTLE_DELAY_S`, 45s). A read-back proves a moment: on 2026-08-28 two
+  applies each passed the poll on attempt 1 and the title later regressed to the
+  temp filename when ingestion of the 279KB body completed. One re-rename is
+  attempted; a regression that survives it raises.
+- **A stray is ADOPTED, never duplicated.** A temp-titled `xf-sync-*.md` source
+  matching the document on the manifest's digest is renamed into place. When
+  that strict digest cannot match — the provider returned 281,645 bytes for a
+  279,235-byte document — a bounded fallback considers only strays within
+  `ADOPTION_LENGTH_TOLERANCE_BYTES` (4,096) of the projected body and adopts the
+  one whose provider-normalized digest matches (JSON unwrap, NFC, line endings,
+  per-line trailing whitespace, trailing newlines). Length never adopts on its
+  own and a title pattern never adopts at all.
+- **When the fallback cannot decide, the run STOPS instead of uploading.** A
+  within-tolerance stray that does not match, or more than one match, is exactly
+  the state in which adding again compounds (two applies took Canon from three
+  strays to four, silently, exit 0). The book fails with every candidate named
+  and the run exits nonzero; the other books still complete.
+
+**Hand repair when the run stops** (the recipe that worked live, and the one the
+error message prints): rename ONE fully-ingested stray to the contract title,
+wait, verify the title is STILL present, then re-plan — it should converge to
+zero operations. Delete the remaining duplicates once you have confirmed what
+they are. Do NOT re-run `--apply` to repair a stray.
+
+```bash
+nlm source list xf-canon | grep xf-sync-          # what stray copies exist
+nlm source rename <stray-id> "[spec] openxFactory: ideation-dashboard" \
+    --notebook xf-canon
+sleep 60 && nlm source list xf-canon | grep "ideation-dashboard"   # still there?
+python3 openxFactory/scripts/sync-notebooklm-books.py .            # expect zero ops
+```
+
+The oversized path prints a sub-line per operation even when it succeeds
+(`uploaded as <id>`, `renamed on attempt N`, `settle re-verify: title held`,
+`adopted stray <id> by strict|normalized digest`), so a stray-minting run is
+distinguishable from a clean one in the transcript.
+
 **Capacity guard** (split-ideation-book-per-repo): the platform per-notebook
 source cap is a named constant in the sync (`NOTEBOOK_SOURCE_CAP = 300`;
 plan-dependent — change it only with the plan). Projected occupancy counts

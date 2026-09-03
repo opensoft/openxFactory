@@ -1,0 +1,16 @@
+schema_version: 1
+kind: standards_body_registry
+bodies:
+  - id: sfia
+    current_version: SFIA 9
+    source_url: https://sfia-online.org/en/sfia-9
+    verified_on: 2026-09-01
+    confidence: high
+    redistribution_permitted_in_product_config: 'yes'
+    operator_override:
+      status: unverified
+      decision: permit_product_configuration
+      approved_on: 2026-09-01
+      rationale: operator ruling without written permission
+      conflicting_source: https://sfia-online.org/en/about-sfia/licensing-sfia/using-and-licensing-sfia
+      legal_review: outstanding
