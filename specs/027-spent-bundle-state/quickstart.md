@@ -110,8 +110,9 @@ print("2 no measurement:", why(good.split(" — MEASUREMENT")[0])[:66])
 print("3 earlier succ. :", why(good.replace("`contract-v3.0`", "`contract-v2.5`"),
                                entry="contract-v2.5")[:66])
 print("4 wrong entry   :", why(good, entry="contract-v2.6")[:66])
+F = "`" * 3   # built, not typed, so this block's own fence survives
 print("5 fenced example:", len(rtp.parse_spent_declarations(
-    f"## contract-v3.0 — x\n\n```\n{good}\n```\n")))
+    f"## contract-v3.0 — x\n\n{F}\n{good}\n{F}\n")))
 print("6 opener alone  :", why("**SPENT BUNDLE:** trust me")[:66])
 PY
 ```
@@ -175,14 +176,65 @@ own declaration lives inside a `### \`contract-v2.6\` disposition` subsection of
 the `contract-v3.0` entry, so a rule that closed on `###` would refuse the
 declaration that makes `main` green.
 
-## 5. Run the tests
+## 5. See the reader REFUSE raw HTML
+
+**Ruled 2026-09-03 (variant B): the reader parses no raw-HTML blocks — it
+recognizes an opener and refuses to read past it.** Fences remain the only
+opaque region. Same declaration in every document, only what sits above it
+changes:
+
+```bash
+python3 - <<'PY'
+import sys; sys.path.insert(0, "scripts")
+from doc_health import release_tag_publication as rtp
+F = "`" * 3   # built, not typed, so this block's own fence survives
+line = ("**SPENT BUNDLE:** `contract-v2.6` — SUPERSEDED BY `contract-v3.0` — "
+        "CAUSE: c — RULED BY Brett Heap, 2026-09-02 — MEASUREMENT: PR #565")
+for label, above in [("no raw HTML", []),
+                     ("a `<div>` above it", ["<div>"]),
+                     ("a comment above it", ["<!-- x -->"]),
+                     ("`<pre>` inside a fence", [F + "html", "<pre>", F]),
+                     ("prose naming `<pre>`", ["the `<pre>` element"])]:
+    doc = "\n".join(["## contract-v3.0 — a cut", ""] + above + ["", line])
+    read = rtp.read_changelog(doc)
+    stopped = "-" if read.raw_html is None else f"line {read.raw_html[0]}"
+    entry = read.declarations[0].entry if read.declarations else "UNREAD"
+    print(f"{label:24s} -> stopped {stopped:7s} entry {entry}")
+live = rtp.read_changelog(open("contracts/CHANGELOG.md", "rb").read())
+print(f"{'live changelog':24s} -> stopped", live.raw_html or "-")
+PY
+```
+
+Output:
+
+```text
+no raw HTML              -> stopped -       entry contract-v3.0
+a `<div>` above it       -> stopped line 3  entry UNREAD
+a comment above it       -> stopped line 3  entry UNREAD
+`<pre>` inside a fence   -> stopped -       entry contract-v3.0
+prose naming `<pre>`     -> stopped -       entry contract-v3.0
+live changelog           -> stopped -
+```
+
+**`UNREAD` is the point.** The declaration below the opener is well formed and
+correctly contained — row 1 proves it would be accepted — and it is refused
+anyway, because this reader has no model of what a renderer makes of the lines
+below raw HTML and a construct it cannot parse must never be able to quiet a
+finding. The changelog gets ONE `contested` `error` naming the line, and the
+superseded-and-never-published `error` for the bundle stands beside it. Rows 4
+and 5 are the controls in the other direction: an opener shown as an EXAMPLE
+inside a fence is not an opener, and prose that merely mentions a tag is prose.
+The last row is why the rule costs this estate nothing today — and it reds the
+day that changes.
+
+## 6. Run the tests
 
 ```bash
 python3 -m pytest tests/doc-health/test_release_tag_publication.py -q
 python3 -m pytest tests/doc-health -q
 ```
 
-Expected on this branch: **117 passed** and **1482 passed**, zero failures in
-both. There is no declared red here — `main` reads 46 and 1411 passed, also with
-zero failures, because the declaration landed with PR #587. Anything failing is
-a real defect.
+Expected on this branch: **120 passed** and **1485 passed**, zero failures in
+both. There is no declared red here — `main` at `642ac147` reads **46** and
+**1411**, also with zero failures, because the declaration landed with PR #587,
+and 1411 − 46 + 120 = 1485. Anything failing is a real defect.

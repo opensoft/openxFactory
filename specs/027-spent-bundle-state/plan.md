@@ -21,10 +21,13 @@ bot rounds found and `main` does not carry.
 function (`_entry_boundary`) plus its fence bookkeeping (`_fence_state`,
 `_setext_content`), two floor predicates (`_at_or_above_floor`, `_below_floor`),
 a tightened `_ENTRY_HEADING`, a relocated changelog guard and a corrected batch-
-read message. `tests/doc-health/test_release_tag_publication.py` gains the rule
+read message — and, per D7, a raw-HTML opener detector (`_HTML_OPENER`) with the
+two-answer read (`read_changelog` / `ChangelogRead`) that reports it.
+`tests/doc-health/test_release_tag_publication.py` gains the rule
 as ONE PARAMETRIZED TABLE plus six scenario tests, each carrying a positive
-control per this file's own convention. `docs/doc-health.md` gains one paragraph
-saying what "inside the entry" means; **family counts are untouched**, and
+control per this file's own convention. `docs/doc-health.md` gains two
+paragraphs — what "inside the entry" means, and the raw-HTML refusal;
+**family counts are untouched**, and
 `contracts/CHANGELOG.md`, `contracts/manifest.yaml`, `contracts/releases/*`,
 `docs/contract-versioning-policy.md` and `health/dispositions.yaml` are NOT
 edited — the declaration this state was built for is already live and this
@@ -156,6 +159,54 @@ vacuous.
    is CONSTRUCTED and may not yet exist on disk if the same cut writes it. A
    finding's path is its identity, and a constructed path is unique per bundle,
    which is what identity needs.
+
+### D7 — RAW HTML IS REFUSED, NOT PARSED (ruled 2026-09-03)
+
+**The ruling, verbatim.** *"VARIANT B — fail closed on raw HTML. The reader
+parses NO raw-HTML blocks. Fenced code (``` / ~~~) stays the ONLY opaque region.
+A top-level raw-HTML block opener in `contracts/CHANGELOG.md` (any CommonMark
+kind 1–7 start condition, at ≤3 leading spaces, outside a fence) makes the
+family emit ONE `contested` `error` on the changelog naming the line
+("unparseable construct: raw HTML; the SPENT reader refuses to read past it"),
+read NO declaration below that line, and leave declarations ABOVE it standing;
+the superseded-and-never-published `error` for any bundle whose declaration was
+below the opener stands beside it."* — Brett Heap, lane openxfactory-1d, on
+PR #589.
+
+**What it decides between.** Rounds 5 to 8 tried to MODEL CommonMark's raw HTML
+blocks, because a ```-shaped line inside one is HTML content and a reader that
+calls it a fence delimiter runs one fence out of phase with the document. Each
+fix produced the next finding — the single-line block, the mismatched kind-1
+closer, the opener's whitespace class, the case of the kind-4 letter — and then
+a differential against a reference CommonMark implementation found that round
+6's fix, which BOTH bots had asked for independently and neither retracted, had
+itself introduced a live containment escape (evidence § K). Fidelity here means
+a Markdown block parser inside a doc-health family, which is a change with a
+proposal and not a line in a review round.
+
+**Why refusing is stronger than parsing, and it is not a retreat.** A construct
+the reader cannot parse can never quiet the superseded-and-never-published
+`error`, whatever a renderer makes of the lines below it. That is fail-closed BY
+CONSTRUCTION rather than by fidelity, and it needs no oracle outside the review
+loop to stay true. The error direction inverts with it: under the fidelity
+reading a line of prose mistaken for HTML swallowed a boundary SILENTLY, and
+here an over-recognized line produces a VISIBLE `error` an author repairs by
+moving one line.
+
+**Which is why two narrowings this branch had already made are reversed** —
+stated because they were taken as findings and are now given back on purpose.
+Kind 4 admits any ASCII letter again (CommonMark 0.30's rule, a superset of GFM
+0.29's uppercase-only), and kind 7 is no longer gated on whether a paragraph is
+open. Both narrowings were right while over-opacity was the danger; both are the
+unsafe direction now, because an opener this reader fails to recognize is one it
+reads PAST. The patterns are still CommonMark's where CommonMark is
+unambiguous — a finding a reader cannot predict is its own defect — and the
+five-row not-an-opener table pins that a changelog which merely MENTIONS `<pre>`
+in a sentence is not refused.
+
+**What it costs the corpus: nothing measured.** `contracts/CHANGELOG.md` has
+never carried raw HTML, and a live test asserts it, so the rule reds the moment
+that changes rather than the moment it lands.
 
 ## Routing — OpenSpec tasks § 3.1, and why it is NOT discharged here
 

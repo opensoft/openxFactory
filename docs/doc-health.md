@@ -213,6 +213,17 @@ declaration hidden in a fence does not count, leaving the superseded `error`
 standing. Over-closing is the safe error and under-closing is not, which is what
 picks each of these readings.
 
+**Raw HTML is not read at all — it is REFUSED, and a fence is the only opaque
+region.** The family reads `contracts/CHANGELOG.md` as CommonMark PROSE and
+models no HTML block, so a raw-HTML block opener outside a fence (any of
+CommonMark's seven start conditions, at up to three leading spaces) produces one
+`contested` `error` naming the line, and NO SPENT declaration below that line is
+read — declarations above it stand, and any bundle a declaration below it would
+have quieted goes on being reported. A construct this reader cannot parse must
+never be able to quiet a finding, whatever a renderer makes of the lines below
+it; the repair is to remove the HTML or to move the declaration above it. An
+opener shown as an EXAMPLE inside a fence is not an opener.
+
 ## Finding Severities
 
 | Severity | Meaning | Examples |

@@ -498,3 +498,125 @@ introduced a containment escape that two independent reviewers endorsed**, and
 that only an oracle outside the review loop caught it. Variant B needs no such
 oracle: it recognizes a raw-HTML opener and refuses, so a construct the reader
 cannot parse can never quiet a finding, whatever a renderer makes of it.
+
+## § L — raw HTML: FAIL CLOSED BY RULING
+
+*(Lettered L rather than K because § K above — the differential — already took
+that letter when the revert landed.)*
+
+**THE RULING, VERBATIM.**
+
+> RULING for lane openxfactory-1d's PR #589: **VARIANT B — fail closed on raw
+> HTML.** The reader parses NO raw-HTML blocks. Fenced code (``` / ~~~) stays
+> the ONLY opaque region. A top-level raw-HTML block opener in
+> `contracts/CHANGELOG.md` (any CommonMark kind 1–7 start condition, at ≤3
+> leading spaces, outside a fence) makes the family emit ONE `contested`
+> `error` on the changelog naming the line ("unparseable construct: raw HTML;
+> the SPENT reader refuses to read past it"), read NO declaration below that
+> line, and leave declarations ABOVE it standing; the
+> superseded-and-never-published `error` for any bundle whose declaration was
+> below the opener stands beside it.
+>
+> — Brett Heap, 2026-09-03
+
+### The probe: an opener stops the read, and the superseded `error` stands
+
+Seven documents, each ending in the SAME well-formed and correctly contained
+declaration, read at the pushed head `e19bb2a4` (the fidelity reading, with the
+§ K revert in it) and at this head:
+
+| # | document | at `e19bb2a4` | at this head |
+|---|---|---|---|
+| P1 | the § K escape — `</script>` ends a `<pre>`, so `## Notes` is a real heading | `entry=None` (refused, post-revert) | **read stops at line 5 `'<pre>'`** — nothing read |
+| P2 | round 5's out-of-phase document — a ```-shaped line inside `<pre>` | nothing read | **read stops at line 3 `'<pre>'`** — nothing read, and now REPORTED |
+| P3 | a plain `<div>` block above the declaration | `entry='contract-v3.0'` — ACCEPTED | **read stops at line 3 `'<div>'`** — nothing read |
+| P4 | `<!doctype html>` above the declaration | `entry='contract-v3.0'` — ACCEPTED | **read stops at line 3** — nothing read |
+| P5 | a bare `<mytag>` below paragraph content | `entry='contract-v3.0'` — ACCEPTED | **read stops at line 4** — nothing read |
+| P6 | *control* — an opener shown inside a FENCE | `entry='contract-v3.0'` | `entry='contract-v3.0'`, read not stopped |
+| P7 | *control* — prose that merely names `` `<pre>` `` | `entry='contract-v3.0'` | `entry='contract-v3.0'`, read not stopped |
+
+**P3 TO P5 ARE THE COST, AND THEY ARE NOT DEFECTS BEING FIXED — they are
+documents this family now refuses that CommonMark reads.** Stated plainly
+because the ruling's whole claim is about DIRECTION, not about fidelity: P3 is a
+declaration a renderer really does place inside its entry, and the family now
+declines to read it. What that buys is that no arrangement of raw HTML can
+produce the other error, the silent one — a declaration read under an entry it
+is not in. The repair is one line long (move the declaration above the HTML, or
+take the HTML out) and the finding says so.
+
+**And the refusal is REPORTED**, which is the other half. Both findings, measured
+on a fixture whose changelog is `<div>` + blank + the declaration:
+
+```text
+[error] contracts/CHANGELOG.md   resolution=contested
+    contracts/CHANGELOG.md line 7 carries an UNPARSEABLE CONSTRUCT: RAW HTML
+    ('<div>') — this family reads the changelog as CommonMark PROSE and does not
+    model raw HTML blocks, so the SPENT reader REFUSES TO READ PAST it rather
+    than guess at what a renderer makes of the lines below. No SPENT declaration
+    below this line is read, which means any bundle a declaration there would
+    have quieted goes on being reported
+[error] contracts/manifest.yaml   resolution=auto-fixable
+    contract-v2.6 was cut and SUPERSEDED without ever being published: …
+```
+
+**ONE changelog `error`, `contested`, naming the line — and the superseded
+`error` standing beside it.** That is the ruling's shape exactly, and
+`test_raw_html_is_one_contested_error_on_the_changelog` asserts all of it
+including the absence of any `info`: nothing was quieted.
+
+### What came out, and what went in
+
+**REMOVED — 11 test functions, 29 parametrized cases, of CommonMark
+raw-HTML-fidelity behaviour.** They tested a machine that no longer exists;
+keeping them would have been keeping the parser.
+
+| removed test | what it pinned |
+|---|---|
+| `test_a_fence_shaped_line_inside_raw_html_opens_no_fence` (×8) | § I R5-1 — the eight-kind opacity table |
+| `test_over_approximating_an_html_block_is_its_own_escape` (×5) | § I — the over-approximation direction |
+| `test_kind_7_cannot_interrupt_a_paragraph_and_kind_6_can` | CommonMark's kind-6/kind-7 asymmetry |
+| `test_a_declaration_inside_a_raw_html_block_is_not_a_record` | the declaration-inside-`<pre>` rule |
+| `test_a_fenced_block_is_opaque_to_html_openers_and_the_reverse` | fence/HTML mutual exclusion |
+| `test_an_html_block_that_closes_on_its_opening_line_swallows_nothing` (×5) | § J R6-1 — the single-line block |
+| `test_a_type_one_html_block_ends_on_ANY_of_the_four_end_tags` (16 pairs) | § K — the spec's own kind-1 end condition |
+| `test_an_unclosed_type_one_block_is_opaque_to_the_end_and_that_is_safe` | the unclosed-block-to-EOF trade |
+| `test_a_type_one_opener_admits_every_commonmark_space` (×4) | round 7 — VT and FF in the kind-1 opener |
+| `test_a_unicode_space_after_a_type_one_tag_opens_no_block` | round 7's refused half — U+00A0 |
+| `test_a_kind_four_declaration_needs_an_uppercase_letter` | round 7 — GFM 0.29's uppercase kind 4 |
+
+The code they covered went with them: `_HTML_TYPE1_OPEN`, `_HTML_OPENERS`,
+`_HTML_CLOSERS`, `_HTML_TYPE7`, `_html_opener`, `_html_closed` and the unified
+`_opaque_state`. `_fence_state` — which `_opaque_state` had absorbed in round
+5 — is restored, because fences are again the only region there is.
+
+**ADDED — 7 test functions, 22 cases, of fail-closed behaviour**: a twelve-row
+opener table each row carrying its own control (the identical declaration
+WITHOUT the opener is accepted, so each row is about the HTML and not about the
+fixture), a five-row not-an-opener table, the fenced-example rule,
+declarations-above-the-opener, the reported `error` with the superseded `error`
+beside it, the kind-7 widening, and **a live check that this estate's changelog
+carries no raw HTML at all** — which is what makes the refusal free today and
+red the day it would stop being.
+
+### Two narrowings this branch had already made are REVERSED, deliberately
+
+Both were taken as findings; both are given back, because the direction of the
+safe error inverted under the ruling and an opener this reader fails to
+recognize is one it reads PAST.
+
+| narrowing | round | why it was right | why it is now wrong |
+|---|---|---|---|
+| kind 4 needs an UPPERCASE letter (GFM 0.29) | 7 | accepting `<!doctype` made the reader MORE OPAQUE than GitHub's renderer, which swallowed boundaries silently | if cmark-gfm moves to CommonMark 0.30 — which relaxed the rule — an uppercase-only reader reads PAST a real block. The superset is the safe side now, and it is written as an explicit `[A-Za-z]` rather than left to the `re.I` flag |
+| kind 7 may not interrupt a paragraph | 5 | a line of prose ending in a bare tag is prose, and calling it a block swallowed the boundary below | knowing whether a paragraph is open is parser state, which this reading gives up. The cost is one more VISIBLE error (P5); the cost of the alternative was a SILENT accept |
+
+The patterns are still CommonMark's wherever CommonMark is unambiguous — a
+finding a reader cannot predict is its own defect — and the five-row
+not-an-opener table pins that a changelog merely MENTIONING `` `<pre>` `` in a
+sentence is never refused.
+
+Counts after the ruling: family file **120 passed** (127 → 120: −29 removed,
++22 added), `tests/doc-health` **1485 passed, 0 failed** — collected 1492 → 1485
+for the same −7. The total sits above § J's 1482 because `main` has advanced
+under this branch and its own suite grew, not because this PR added seven: on
+`origin/main` at `642ac147` the same two commands read **1411** and **46**, and
+1411 − 46 + 120 = 1485 exactly.

@@ -327,41 +327,38 @@ _FENCE_OPEN_BACKTICK = re.compile(r"^ {0,3}(`{3,})([^`]*)$")
 _FENCE_OPEN_TILDE = re.compile(r"^ {0,3}(~{3,})")
 _FENCE_CLOSE = re.compile(r"^ {0,3}(`{3,}|~{3,})[ \t]*$")
 
-# --- RAW HTML BLOCKS, which are opaque for the same reason fences are --------
+# --- RAW HTML: NOT PARSED, REFUSED ------------------------------------------
 #
-# A ```-shaped line inside a raw HTML block is HTML CONTENT, not a fence
-# delimiter, and a reader that treats it as one goes a fence OUT OF PHASE with
-# the document — the failure round 1 and round 4 each found by a different
-# route. CommonMark's seven kinds, of which all can hold such a line:
+# RULED BY BRETT HEAP, 2026-09-02, ON A MEASURED TAIL. A ```-shaped line inside
+# a raw HTML block is HTML CONTENT and not a fence delimiter, so a reader that
+# calls it one runs a fence OUT OF PHASE with the document: real boundaries are
+# swallowed as code and a declaration inside the next real fence is read under
+# an earlier release entry. Three review rounds tried to answer that by
+# PARSING HTML blocks to CommonMark fidelity, and each fix produced the next
+# finding — the single-line block, the mismatched kind-1 closer, the
+# whitespace class of the opener, the case of the kind-4 letter. The tail was
+# not converging, and the reason is structural: this family would have needed a
+# Markdown block parser, which is a change with a proposal and not a line in a
+# review round.
 #
-#   1  `<pre` `<script` `<style` `<textarea`, ending at the matching close tag,
-#      SPANNING BLANK LINES — which is what makes it the useful hiding place
-#   2  `<!--` … `-->`        3  `<?` … `?>`
-#   4  `<!` + letter … `>`   5  `<![CDATA[` … `]]>`
-#   6  one of CommonMark's own block-tag names, ending at a BLANK line
-#   7  any COMPLETE tag alone on its line, ending at a blank line, and unable
-#      to interrupt a paragraph
+# SO THE READER DOES NOT MODEL RAW HTML AT ALL. It RECOGNIZES an opener and
+# REFUSES: the changelog carries an `error` naming the line, and NO DECLARATION
+# BELOW THAT LINE IS READ. That is fail-closed by construction rather than by
+# fidelity — a construct this reader cannot parse can never quiet the
+# superseded-and-never-published `error`, whatever a renderer makes of it —
+# and it costs a document nothing that this estate's changelog has ever used:
+# `contracts/CHANGELOG.md` carries no raw HTML at all.
 #
-# KIND 6'S LIST IS COMMONMARK'S AND NOTHING WIDER, and kind 7 demands a
-# complete tag, because OVER-approximating an HTML block is an escape of its
-# own in the same silent direction: a line of prose read as HTML content would
-# swallow a real `## Notes` boundary and leave a declaration below it holding
-# an entry it is not inside. `<not a tag` opens nothing.
-# `[ \t\v\f]` IS COMMONMARK'S WHITESPACE CLASS, and the omission of VT and FF
-# was reachable only after round 4 stopped splitting lines on them (Codex,
-# round 7): `<pre<VT>x>` is a kind-1 opener CommonMark recognizes and this
-# pattern did not, so the fence-shaped line inside the block opened a fictitious
-# fence and a declaration below was ACCEPTED. Measured for both characters.
+# OVER-RECOGNITION IS THEREFORE THE SAFE ERROR HERE, AND THAT IS THE WHOLE
+# POINT OF THE INVERSION. Under variant A a line of prose mistaken for HTML
+# swallowed a boundary silently; here it produces a visible `error` on the
+# changelog that an author repairs by moving one line. The patterns are still
+# CommonMark's, because a finding a reader cannot predict is its own defect —
+# but the direction they fail in is now the harmless one.
 #
-# U+00A0 IS DELIBERATELY NOT HERE, and that half of the finding is REFUSED with
-# a measurement: CommonMark's "whitespace character" is space, tab, newline, VT,
-# FF or CR, and U+00A0 is none of them. `<pre<U+00A0>x>` is therefore NOT a
-# kind-1 opener, and a reader that treated it as one would be MORE opaque than
-# any renderer — the under-closing direction this whole guard exists to close.
-# Measured: the reader's current answer for that line is already the
-# CommonMark-correct one.
-_HTML_TYPE1_OPEN = re.compile(
-    r"^ {0,3}<(pre|script|style|textarea)([ \t\v\f>]|$)", re.I)
+# FENCES REMAIN THE ONLY OPAQUE REGION, and a fence-shaped line inside a fence
+# is still content, so an HTML opener shown as an EXAMPLE inside a fenced block
+# is not an opener.
 _HTML_TYPE6_TAGS = (
     "address|article|aside|base|basefont|blockquote|body|caption|center|col"
     "|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure"
@@ -369,57 +366,57 @@ _HTML_TYPE6_TAGS = (
     "|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup|option|p"
     "|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr"
     "|track|ul")
-_HTML_OPENERS = (
-    ("html1", _HTML_TYPE1_OPEN),
-    ("html2", re.compile(r"^ {0,3}<!--")),
-    ("html3", re.compile(r"^ {0,3}<\?")),
-    ("html5", re.compile(r"^ {0,3}<!\[CDATA\[")),
-    # AFTER kind 5, because `<![CDATA[` also matches kind 4's shape and the two
-    # have different closers — ordering is the whole difference between ending
-    # at `]]>` and ending at the first `>`.
-    # UPPERCASE, because the document is rendered by GitHub and GFM's spec
-    # (CommonMark 0.29) says kind 4 is `<!` followed by an UPPERCASE ASCII
-    # letter — CommonMark 0.30 later relaxed it to any letter (Codex, round 7).
-    # The narrower class is also the safe one: accepting `<!doctype` would make
-    # this reader MORE opaque than the renderer, which swallows boundaries.
-    ("html4", re.compile(r"^ {0,3}<![A-Z]")),
-    ("html6", re.compile(rf"^ {{0,3}}</?({_HTML_TYPE6_TAGS})([ \t\v\f]|/?>|$)",
-                         re.I)),
-)
-# KIND 1 ENDS ON ANY OF THE FOUR END TAGS, AND THE SPEC SAYS SO IN WORDS:
-# "line contains an end tag </script>, </pre>, </style>, or </textarea>
-# (case-insensitive; IT NEED NOT MATCH THE START TAG)".
-#
-# ROUND 6 GOT THIS WRONG IN BOTH DIRECTIONS AT ONCE, AND IT IS THE MOST
-# INSTRUCTIVE FAILURE ON THIS BRANCH. Codex and Copilot INDEPENDENTLY asked for
-# a matching closer, twenty-five minutes apart, and their agreement was taken as
-# corroboration — two reviewers converging on a precise mechanism. Both were
-# wrong on the specification, and the fix they asked for INTRODUCED the very
-# escape class it claimed to close: requiring `</pre>` to end a `<pre>` block
-# made this reader MORE OPAQUE than CommonMark, so a real `## Notes` heading
-# after a `</script>` was swallowed and a declaration below it was ACCEPTED
-# under an entry it is not inside. Measured against a reference CommonMark
-# implementation, which ends the block exactly where the spec says.
-#
-# WHAT IT COST TO FIND: nothing a bot round produced. Both bots had reviewed the
-# fix and neither retracted it; it surfaced only when the reader's boundary
-# decisions were run as a DIFFERENTIAL against a reference parser over every
-# construct this branch had touched. Bot agreement is not evidence about a
-# specification — a differential is.
-_HTML_CLOSERS = {
-    "html1": re.compile(r"</(pre|script|style|textarea)>", re.I),
-    "html2": re.compile(r"-->"),
-    "html3": re.compile(r"\?>"),
-    "html4": re.compile(r">"),
-    "html5": re.compile(r"\]\]>"),
-}
 _HTML_TAGNAME = r"[A-Za-z][A-Za-z0-9-]*"
 _HTML_ATTR = (r"(?:[ \t\v\f]+[A-Za-z_:][A-Za-z0-9_.:-]*"
               r"(?:[ \t\v\f]*=[ \t\v\f]*"
               r"(?:[^\s\"'=<>`]+|'[^']*'|\"[^\"]*\"))?)")
-_HTML_TYPE7 = re.compile(
-    rf"^ {{0,3}}(?:<{_HTML_TAGNAME}{_HTML_ATTR}*[ \t\v\f]*/?>"
-    rf"|</{_HTML_TAGNAME}[ \t\v\f]*>)[ \t\v\f]*$")
+# ONE PATTERN, because there is no longer a state machine to tell the kinds
+# apart — only the question "does a raw HTML block begin here". `[ \t\v\f]` is
+# CommonMark's whitespace class rather than `\s`, for the reason the ATX
+# patterns give: `\s` is Python's and admits U+00A0, which CommonMark does not.
+#
+# WHERE THE KINDS ARE AMBIGUOUS IN THE SPECIFICATION, THE WIDER READING WINS —
+# and that is the inversion applied rather than an inconsistency. Under the
+# fidelity reading, recognizing one line too many made a region opaque and
+# swallowed a real boundary SILENTLY, so the narrower class was the safe one and
+# two rounds narrowed toward it. Here recognizing one line too many produces a
+# VISIBLE `error` an author repairs by moving one line, while recognizing one
+# too FEW is the silent escape: the reader would read past a construct a
+# renderer treats as a block. Two places where that reverses a decision this
+# branch had already made, both deliberate:
+#
+#   KIND 4 admits any ASCII letter, which is CommonMark 0.30's rule and a
+#   SUPERSET of GFM 0.29's uppercase-only. Round 7 narrowed it to uppercase
+#   because accepting `<!doctype` made the reader MORE OPAQUE than GitHub's
+#   renderer; under this reading that narrowing is the wrong direction — if
+#   GitHub's cmark-gfm ever moves to 0.30, an uppercase-only reader would read
+#   PAST a real block. Written as an explicit class rather than left to the
+#   `re.I` flag, so it is a decision and not an accident of a flag.
+#
+#   KIND 7 IS NOT GATED ON WHETHER A PARAGRAPH IS OPEN. CommonMark forbids kind
+#   7 from interrupting a paragraph, and the removed state machine tracked that.
+#   Tracking it means carrying parser state, which is what this reading gives
+#   up; and the cost of not tracking it is that a bare complete tag alone on a
+#   line inside a paragraph is refused rather than read — one more visible
+#   error, in the direction this rule is willing to be wrong.
+_HTML_OPENER = re.compile(
+    r"^ {0,3}(?:"
+    r"<(?:pre|script|style|textarea)(?:[ \t\v\f>]|$)"          # kind 1
+    r"|<!--"                                                    # kind 2
+    r"|<\?"                                                     # kind 3
+    r"|<!\[CDATA\["                                             # kind 5
+    r"|<![A-Za-z]"                                              # kind 4
+    rf"|</?(?:{_HTML_TYPE6_TAGS})(?:[ \t\v\f]|/?>|$)"           # kind 6
+    rf"|(?:<{_HTML_TAGNAME}{_HTML_ATTR}*[ \t\v\f]*/?>"          # kind 7
+    rf"|</{_HTML_TAGNAME}[ \t\v\f]*>)[ \t\v\f]*$"
+    r")", re.I)
+
+_RAW_HTML_ACTION = (
+    "remove the raw HTML from contracts/CHANGELOG.md, or move the SPENT "
+    "declaration above it — this family reads the changelog as CommonMark "
+    "PROSE and does not model raw HTML blocks, so it refuses to read past one "
+    "rather than guess at what a renderer makes of the lines below; a "
+    "construct the reader cannot parse must never be able to quiet a finding")
 
 # A THEMATIC BREAK IS NOT PARAGRAPH CONTENT, so a run of `=` or `-` below one is
 # a second thematic break and NOT a Setext underline (Codex P2, round 1). This
@@ -549,105 +546,26 @@ def _fence_opener(line: str) -> str | None:
     return tilde.group(1) if tilde is not None else None
 
 
-def _html_opener(line: str, after_paragraph: bool) -> tuple[str, str] | None:
-    """`(kind, tag)` for the CommonMark HTML block `line` opens, or None.
+def _fence_state(line: str, fence: str | None) -> str | None:
+    """The open FENCE marker after `line`, given the one open before it.
 
-    `tag` is the kind-1 element name and is empty for every other kind, because
-    kind 1 is the only one whose END CONDITION depends on which tag opened it.
+    FENCES ARE THE ONLY OPAQUE REGION under this reading. Raw HTML is not
+    modelled; it is REFUSED — see `_HTML_OPENER` above and `raw_html_refusal`
+    below.
 
-    `after_paragraph` gates kind 7 alone, because kind 7 is the one CommonMark
-    forbids from interrupting a paragraph — a line of prose that happens to end
-    in a bare tag is prose.
+    SEPARATE FROM `_entry_boundary` BECAUSE THE TWO ANSWER DIFFERENT QUESTIONS:
+    this one is bookkeeping over the document's structure, and the other is a
+    judgment about one line given that bookkeeping. A single function doing both
+    would have to decide whether a fence DELIMITER is a boundary, and it is
+    neither — it is the edge of a region in which the question does not arise.
     """
-    one = _HTML_TYPE1_OPEN.match(line)
-    if one is not None:
-        return ("html1", one.group(1).lower())
-    for kind, pattern in _HTML_OPENERS:
-        if pattern.match(line):
-            return (kind, "")
-    if not after_paragraph and _HTML_TYPE7.match(line):
-        return ("html7", "")
-    return None
-
-
-def _html_closed(kind: str, tag: str, line: str) -> bool:
-    """Whether `line` satisfies the END CONDITION of an open HTML block.
-
-    ASKED OF THE OPENING LINE TOO, which is round 6's finding from Codex and
-    Copilot alike: a kind 1 to 5 block may open AND close on ONE line, and a
-    reader that returns the new state without testing that line keeps the block
-    open through everything after it. Measured on `<!-- first -->` … `## Notes`
-    … `<!-- second -->` … declaration: the first comment stayed open THROUGH the
-    real heading and used the SECOND comment as its delayed close, so the
-    declaration kept the earlier entry and was ACCEPTED. Reproduced for all five
-    of comment, declaration, processing instruction, CDATA and `<pre>`.
-    """
-    end = _HTML_CLOSERS.get(kind)
-    if end is not None:
-        return end.search(line) is not None
-    # Kinds 6 and 7 end at the first BLANK line, which is not part of the block
-    # — and which an opening line can never be, since it begins with `<`.
-    return not line.strip()
-
-
-def _opaque_state(line: str, state: tuple[str, str] | None,
-                  after_paragraph: bool) -> tuple[str, str] | None:
-    """`(kind, marker)` for the OPAQUE REGION open after `line`, or None.
-
-    ONE STATE MACHINE FOR EVERY OPAQUE REGION, and that is the point rather
-    than a tidiness: a fenced block and a raw HTML block are MUTUALLY
-    EXCLUSIVE in CommonMark — a fence-shaped line inside an HTML block is HTML
-    content, and an HTML-block opener inside a fence is code — so two machines
-    running side by side would each be wrong about the other's region. Codex's
-    round-5 P1 on PR #589 is exactly that: a ```-shaped line inside `<pre>`
-    opened a FICTITIOUS fence, the reader went one fence out of phase, a
-    `## Notes` boundary was swallowed, and a declaration inside the next real
-    fence was read under the earlier release entry. Measured ACCEPTED for all
-    EIGHT of the HTML-block kinds that can contain such a line.
-
-    WHY THIS CLASS TERMINATES HERE, stated because three rounds of it have not.
-    A phase error needs a line the reader calls a fence delimiter and
-    CommonMark does not, at column 0 to 3. Every construct that can hold such a
-    line is now accounted for: another fenced block (this machine's own state),
-    a raw HTML block (these eight kinds), an indented code block (whose content
-    is at column 4 or more, which the `^ {0,3}` in every pattern here
-    excludes), and a block quote or list item (whose content carries its
-    marker, so a bare fence at column 0 is a new block at document level, and a
-    fence cannot be lazily continued). Nothing else remains — and the reverse
-    error, MISSING a real fence at column 0 to 3, cannot happen either, because
-    `_fence_opener` now rejects exactly what CommonMark rejects there.
-
-    AND MATCHING COMMONMARK IS THE CRITERION, NOT MAXIMISING SUPPRESSION.
-    Over-approximating an HTML block is an escape in its own right, in the same
-    silent direction: a line of prose read as HTML content would swallow a real
-    `## Notes` boundary and leave a declaration below it holding an entry it is
-    not in. So kind 6 is CommonMark's tag list and nothing wider, kind 7 is a
-    COMPLETE tag alone on its line and may not interrupt a paragraph, and
-    `<not a tag` opens nothing.
-    """
-    if state is None:
-        marker = _fence_opener(line)
-        if marker is not None:
-            return ("fence", marker)
-        opened = _html_opener(line, after_paragraph)
-        if opened is None:
-            return None
-        # THE OPENING LINE IS TESTED AGAINST ITS OWN END CONDITION, because a
-        # kind 1 to 5 block may open and close on one line and a block left
-        # open past its close swallows every boundary after it.
-        return None if _html_closed(*opened, line) else opened
-    kind, marker = state
-    if kind == "fence":
-        closer = _FENCE_CLOSE.match(line)
-        if (closer is not None and closer.group(1)[0] == marker[0]
-                and len(closer.group(1)) >= len(marker)):
-            return None
-        return state
-    # Kinds 1 to 5 end on their own closing string, ANYWHERE on the line, and
-    # that line is part of the block — so they span blank lines, which is what
-    # makes `<pre>` able to hold a fence-shaped line at all. Kinds 6 and 7 end
-    # at a blank line.
-    return None if _html_closed(kind, marker, line) else state
+    if fence is None:
+        return _fence_opener(line)
+    closer = _FENCE_CLOSE.match(line)
+    if (closer is not None and closer.group(1)[0] == fence[0]
+            and len(closer.group(1)) >= len(fence)):
+        return None
+    return fence
 
 
 def _paragraph_line(line: str, closes: bool, opaque: bool) -> bool:
@@ -688,8 +606,7 @@ def _paragraph_line(line: str, closes: bool, opaque: bool) -> bool:
 
 
 def _entry_boundary(line: str, after_paragraph: bool,
-                    in_opaque: tuple[str, str] | None
-                    ) -> tuple[bool, str | None]:
+                    in_fence: str | None) -> tuple[bool, str | None]:
     """`(closes, opens)` for one line of the changelog.
 
     ONE STRUCTURAL FUNCTION FOR EVERY HEADING SHAPE, which is this hardening's
@@ -702,14 +619,14 @@ def _entry_boundary(line: str, after_paragraph: bool,
     `after_paragraph` is whether the line ABOVE was paragraph content, which a
     Setext underline needs and no other shape does — a BOOLEAN and not the
     previous line's text, because the question is what that line ACTED as and
-    the caller is the one that knows. `in_opaque` is the open OPAQUE REGION —
-    a fenced block or a raw HTML block — or None; the function is TOTAL over
-    that state rather than trusting its caller to have skipped opaque lines, so
-    a second caller cannot reintroduce the escape by forgetting to.
+    the caller is the one that knows. `in_fence` is the open fence marker or
+    None; the function is TOTAL over that state rather than trusting its caller
+    to have skipped fenced lines, so a second caller cannot reintroduce the
+    escape by forgetting to.
     """
-    if in_opaque is not None:
-        # Inside a fenced block or a raw HTML block nothing is a heading — not
-        # a line that looks exactly like one, and not one that names a bundle.
+    if in_fence is not None:
+        # Inside a fenced block nothing is a heading — not a line that looks
+        # exactly like one, and not one that names a bundle.
         return (False, None)
     if _ATX_BOUNDARY.match(line):
         heading = _ENTRY_HEADING.match(line)
@@ -736,30 +653,61 @@ def parse_spent_declarations(changelog: bytes | str | None
     is reserved and a malformed declaration is worse than none: it looks like a
     record.
 
-    OPAQUE REGIONS ARE OPAQUE — fenced code blocks and raw HTML blocks alike —
-    and the entry a declaration sits in is decided by `_entry_boundary` for
-    every line. See the boundary block above for the rule and for the thirteen
-    measured escapes it answers. An opaque region is one in which neither a
-    heading nor a declaration exists, so the form can be DOCUMENTED there
-    without being PERFORMED.
+    FENCED BLOCKS ARE OPAQUE, and are the ONLY opaque region: the entry a
+    declaration sits in is decided by `_entry_boundary` for every line, and a
+    fenced block is one in which neither a heading nor a declaration exists, so
+    the form can be DOCUMENTED there without being PERFORMED. See the boundary
+    block above for the rule and for the measured escapes it answers.
+
+    AND THE READ STOPS AT RAW HTML. `_HTML_OPENER` is not a parser and this
+    reader models no HTML block; on meeting an opener OUTSIDE a fence it stops
+    reading declarations entirely, because it cannot say what a renderer makes
+    of the lines below and a construct it cannot parse must never be able to
+    quiet a finding. `read_changelog` returns that line so the caller can
+    report it; `parse_spent_declarations` keeps its signature and answers the
+    declarations alone.
     """
+    return read_changelog(changelog).declarations
+
+
+@dataclass(frozen=True)
+class ChangelogRead:
+    """What one read of `contracts/CHANGELOG.md` found.
+
+    TWO ANSWERS AND NOT ONE, because the raw-HTML refusal is a finding about
+    the DOCUMENT rather than about any declaration: there may be no declaration
+    at all below the opener, and the refusal is owed either way.
+    """
+
+    declarations: list[SpentDeclaration]
+    raw_html: tuple[int, str] | None
+
+
+def read_changelog(changelog: bytes | str | None) -> ChangelogRead:
+    """The declarations, and the raw-HTML opener the read stopped at, if any."""
     if not changelog:
-        return []
+        return ChangelogRead([], None)
     if isinstance(changelog, bytes):
         changelog = changelog.decode("utf-8", errors="replace")
     out: list[SpentDeclaration] = []
     entry: str | None = None
-    opaque_state: tuple[str, str] | None = None
+    fence: str | None = None
     after_paragraph = False
     for number, line in enumerate(_lines(changelog), start=1):
         # THE DELIMITERS BELONG TO THE BLOCK, not to the prose either side of
-        # it: a line is opaque if a region was open BEFORE it or is open AFTER
+        # it: a line is opaque if a fence was open BEFORE it or is open AFTER
         # it, which makes both the opener and the closer part of the region and
         # neither of them prose that could carry a record.
-        opaque = opaque_state is not None
-        closes, opens = _entry_boundary(line, after_paragraph, opaque_state)
-        opaque_state = _opaque_state(line, opaque_state, after_paragraph)
-        opaque = opaque or opaque_state is not None
+        opaque = fence is not None
+        closes, opens = _entry_boundary(line, after_paragraph, fence)
+        if not opaque and _HTML_OPENER.match(line):
+            # THE READ STOPS HERE. Not "this line is opaque" — the reader has
+            # no model of what follows it, so everything below is unread and
+            # the caller is handed the line to report. Declarations ABOVE the
+            # opener stand: they were read as prose and prose is what they are.
+            return ChangelogRead(out, (number, line.strip()))
+        fence = _fence_state(line, fence)
+        opaque = opaque or fence is not None
         # CARRIED FORWARD FROM WHAT THIS LINE DID, not from what it looks like,
         # so a Setext underline that really underlined ends the paragraph and
         # one that only looked like an underline does not.
@@ -824,7 +772,7 @@ def parse_spent_declarations(changelog: bytes | str | None
             entry=entry,
             missing=missing,
             line=number))
-    return out
+    return ChangelogRead(out, None)
 
 
 def version_of(bundle: str | None) -> tuple[int, int] | None:
@@ -1195,8 +1143,28 @@ def check_repo(repo: str, repo_path: Path, git,
                             f"could not be looked for for "
                             f"{', '.join(in_scope)} — which is not the same "
                             f"fact as there being none")
-    declarations = parse_spent_declarations(changelog)
-    findings, candidates = _refusal_findings(repo, declarations, cut, declared)
+    read = read_changelog(changelog)
+    findings, candidates = _refusal_findings(repo, read.declarations, cut,
+                                             declared)
+    if read.raw_html is not None:
+        # THE REFUSAL, AND IT IS REPORTED RATHER THAN SILENT. The read stopped
+        # at this line, so every declaration below it is unread — including one
+        # that would have been ACCEPTED — and that is exactly the fail-closed
+        # direction: the superseded `error` stands. Reported at `error` because
+        # a document this family cannot read is a defect in the document, and
+        # `contested` because the repair is an editorial judgment (move the
+        # declaration, or take the HTML out) rather than a mechanical one.
+        number, text = read.raw_html
+        findings.append(_finding(
+            ERROR, repo,
+            f"{CHANGELOG} line {number} carries an UNPARSEABLE CONSTRUCT: RAW "
+            f"HTML ({text!r}) — this family reads the changelog as CommonMark "
+            f"PROSE and does not model raw HTML blocks, so the SPENT reader "
+            f"REFUSES TO READ PAST it rather than guess at what a renderer "
+            f"makes of the lines below. No SPENT declaration below this line "
+            f"is read, which means any bundle a declaration there would have "
+            f"quieted goes on being reported",
+            _RAW_HTML_ACTION, resolution="contested", path=CHANGELOG))
     for bundle in in_scope:
         kind, detail = _tag_state(git, repo_path, bundle)
         if kind == "unlistable":
