@@ -460,9 +460,10 @@ Active changes:
   2026-08-25 by PR #333, so the present tense had been false for nine days. The
   paragraph is past-tensed with the retro-publication dated and attributed, the
   treatment **PR #333 itself gave the identical claim** in
-  `scripts/doc_health/release_inventory.py`'s docstring; the rule it justifies —
+  `scripts/doc_health/release_inventory.py`'s docstring. The rule it justifies —
   a declared bundle need not carry a tag, so the inventory FILE at the commit is
-  the reference — and the scenario that states it are byte-identical. **BOTH
+  the reference — survives with only the tense-driven rewrap, and the scenario
+  that states it (*The declared bundle was never tagged*) is byte-identical. **BOTH
   BLOCKS WERE BUILT FROM CANON BY EXTRACTION, NEVER RETYPED**, so the diff is
   measured rather than hoped: two words in the first (`warning` -> `error`, in
   the body clause and in the scenario's THEN bullet) and one paragraph in the

@@ -22,9 +22,23 @@
       A second delta is therefore carried rather than reported as unreachable
 - [x] 1.4 Confirm no ACTIVE change already holds a delta on either
       requirement, so this packet is not a second live writer of one:
-      `find openspec/changes -mindepth 3 -path '*/specs/workflow-gate-contract/*'
-      -o -path '*/specs/release-surface-integrity/*' -not -path '*archive*'`
-      returns nothing, re-run after refreshing to `origin/main` at `0bf37d14`.
+      `find openspec/changes -mindepth 3 \( -path '*/specs/workflow-gate-contract/*'
+      -o -path '*/specs/release-surface-integrity/*' \) -not -path '*archive*' -print`
+      returned NOTHING when run against `origin/main` at `0bf37d14`, before
+      this packet's own two delta directories existed; run today it returns
+      those two and nothing else, which is the same answer read from the other
+      side.
+      THE PARENTHESES ARE LOAD-BEARING and are the command as run: `find`
+      binds `-a` tighter than `-o`, so an ungrouped
+      `-path A -o -path B -not -path '*archive*'` applies the archive
+      exclusion to the SECOND branch alone and returns every archived
+      `workflow-gate-contract` delta — including
+      `archive/2026-07-09-promote-workflow-gate-contract/`, which exists — so
+      the ungrouped form's "returns nothing" would be a claim no run supports.
+      Raised by Copilot on this packet's own pull request and corrected to the
+      run's own text. The finding was in the QUOTE and not in the measurement:
+      the grouped form is what was executed, and the sentence that follows is
+      an independent corpus-wide reading of the same absence
       The one active mention of `owner_layer` anywhere in a delta is
       `retire-hermes-flat-keys-and-openworkflow-tokens`'s
       `contract-deprecation-execution` requirement, which is a DIFFERENT
