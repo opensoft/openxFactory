@@ -64,6 +64,37 @@ This is policy metadata and evidence, not a neutral contract schema change.
 Archive requires merged registry content, validator-green evidence, and a
 clean source record; no contract version is allocated.
 
+### D5 — Key the completeness obligation to the CLAIM, not to `status: current`
+
+**ADDED 2026-09-03 on PR #593, Copilot review round 2, and it is a correction
+rather than a refinement.** The requirement as first drafted obliged "every body
+marked current" to carry a complete current-publication record including a
+verification date. Measured against the registry it governs: of 45 bodies, **32
+carry `status: current` and exactly 3 carry a verification date** — the three
+this change read against primary sources. The requirement would have been FALSE
+of 29 records on the day it was promoted, and the validator's three-id allowlist
+was quietly doing something narrower than the requirement claimed, which is the
+worse half of the defect: a rule nobody could see was not being applied.
+
+Two ways to make it true were available and both were refused. Backfilling 29
+verification dates is the fabrication the registry's own header forbids in terms
+— those entries are "drawn from working knowledge, not verified against each
+body's current publication", an asymmetry it calls "deliberate rather than
+hidden". Demoting 29 records out of `status: current` would misstate their
+currency to satisfy a checker.
+
+So the obligation is keyed to `verified_on`, which IS the verification claim: a
+body declaring one asserts its facts were read from that body's own material on
+that date and owes the whole record; a body declaring none asserts nothing and is
+left as it stands. The named three are a FLOOR on top of that, so the claim
+cannot be withdrawn to escape a finding. The rule is now true of every record
+that makes a claim, enforced on every record added or amended from here, and
+silent about records that assert nothing.
+
+**The 29 are not thereby blessed.** Re-verifying them is real work, named in
+Open Questions below and owed to a successor; this change does not pretend it
+away and does not attempt it.
+
 ## Risks / Trade-offs
 
 - **[Risk]** The SFIA override may conflict with the steward's licence terms.
@@ -96,3 +127,12 @@ untouched, so rollback does not invalidate existing archived references.
   the unverified operator override?
 - Which exact APQC PCF 8.0 IT-process terms are honest counterparts for each of
   the nine Opsx worker classes? The Opsx follow-up must answer this per class.
+- **Who re-verifies the 29 `status: current` bodies that carry no verification
+  date, and in what order?** Measured 2026-09-03 (D5): 32 bodies are marked
+  current and 3 carry a claim. The gap is the registry's original sourcing
+  caveat, unresolved rather than introduced here, and it is the reason this
+  change's completeness obligation is keyed to the claim. A successor doing that
+  work needs only to add `verified_on` plus the record beside it, one body at a
+  time — the checker already enforces the whole record the moment a claim
+  appears, so the migration is incremental by construction and cannot land
+  half-done in a single body.

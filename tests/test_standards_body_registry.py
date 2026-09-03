@@ -79,12 +79,71 @@ class TestStandardsBodyRegistry:
 
         assert registry_errors(document) == []
 
+    def test_the_29_UNVERIFIED_current_bodies_are_reported_against(self) -> None:
+        """The measurement the requirement's scope rests on, kept re-runnable.
+
+        32 bodies carry `status: current`; 3 declare a verification date. If a
+        later change re-verifies some of the other 29 these numbers move, and
+        this test is where that shows up — but the SHAPE must not: a body
+        without a verification claim is never reported against, because the
+        registry's own header discloses those entries as working knowledge and
+        the only ways to satisfy a `status`-keyed rule are to fabricate dates or
+        to demote records whose currency is not in doubt.
+        """
+        document = load_registry(REGISTRY_PATH)
+        bodies = document["bodies"]
+        current = [b for b in bodies if b.get("status") == "current"]
+        claiming = [b for b in current if b.get("verified_on")]
+
+        assert len(current) == 32 and len(claiming) == 3
+        assert {b["id"] for b in claiming} == {"itil5", "sfia", "apqc_pcf"}
+        assert registry_errors(document) == [], (
+            "no unverified legacy body is reported against — see the "
+            "'An unverified legacy record is left as it stands' scenario")
+
     def test_unverified_override_requires_approver(self) -> None:
         document = load_registry(INVALID_OVERRIDE_FIXTURE)
 
         errors = registry_errors(document)
 
         assert any("operator_override.approved_by" in error for error in errors)
+
+
+class TestVerificationClaimScope:
+    """The obligation is keyed to the CLAIM, never to `status: current`."""
+
+    def test_a_body_DECLARING_a_verification_date_owes_the_whole_record(
+        self,
+    ) -> None:
+        errors = registry_errors(
+            {"bodies": [{"id": "newcomer", "status": "current",
+                         "verified_on": "2026-09-03"}]}
+        )
+
+        assert any("newcomer.current_version" in e for e in errors)
+        assert any("newcomer.source_url" in e for e in errors)
+        assert any("newcomer.confidence" in e for e in errors)
+
+    def test_a_body_CLAIMING_NOTHING_is_not_reported_against(self) -> None:
+        # The 29 legacy entries' shape: current, sourced, but never re-read
+        # against the body's own material. Inventing a date for it is the one
+        # thing the registry's sourcing caveat forbids.
+        assert registry_errors(
+            {"bodies": [{"id": "legacy", "status": "current",
+                         "source_url": "https://example.invalid",
+                         "confidence": "medium"}]}
+        ) == []
+
+    def test_the_named_three_cannot_ESCAPE_by_dropping_the_claim(self) -> None:
+        # Without the floor, deleting `verified_on` would move a verified body
+        # out of scope — repairing the finding by withdrawing the assertion.
+        errors = registry_errors(
+            {"bodies": [{"id": "sfia", "status": "current",
+                         "source_url": "https://example.invalid",
+                         "current_version": "SFIA 9", "confidence": "high"}]}
+        )
+
+        assert any("sfia.verified_on" in e for e in errors)
 
 
 class TestRegistryLoader:

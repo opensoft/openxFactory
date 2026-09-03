@@ -84,11 +84,22 @@ def load_registry(path: str | Path):
     return yaml.load(Path(path).read_text(encoding="utf-8"), Loader=_NoDuplicatesLoader)
 
 
+#: The FLOOR, not the rule. These three bodies were read against their own
+#: primary sources by `update-standards-body-current-publications` and must stay
+#: complete, so that dropping `verified_on` from one of them cannot move it out
+#: of scope — which is the one escape the claim-keyed rule below would otherwise
+#: leave open.
 CURRENT_PUBLICATION_IDS = frozenset({"itil5", "sfia", "apqc_pcf"})
+
+#: The CLAIM. A body declaring a verification date asserts that its
+#: current-publication facts were read from that body's own material on that
+#: date; a body declaring none asserts nothing.
+VERIFICATION_CLAIM_FIELD = "verified_on"
+
 CURRENT_PUBLICATION_FIELDS = (
     "current_version",
     "source_url",
-    "verified_on",
+    VERIFICATION_CLAIM_FIELD,
     "confidence",
 )
 OVERRIDE_FIELDS = (
@@ -132,7 +143,15 @@ def registry_errors(document: object) -> list[str]:
             errors.append(f"registry.bodies[{index}].id: duplicate '{body_id}'")
         seen_ids.add(body_id)
 
-        if body_id in CURRENT_PUBLICATION_IDS:
+        # THE OBLIGATION IS KEYED TO THE CLAIM, NOT TO `status: current`.
+        # Measured 2026-09-03: 32 of this registry's 45 bodies carry
+        # `status: current` and 3 carry a verification date, the other 29 being
+        # the working-knowledge entries the file's own header discloses as
+        # unverified. Checking `status: current` would demand 29 verification
+        # dates nobody performed. A body that DECLARES a verification date has
+        # made the claim and owes the whole record; the named three owe it
+        # whatever they declare, so the claim cannot be withdrawn to escape.
+        if body_id in CURRENT_PUBLICATION_IDS or body.get(VERIFICATION_CLAIM_FIELD):
             for field in CURRENT_PUBLICATION_FIELDS:
                 if not body.get(field):
                     errors.append(

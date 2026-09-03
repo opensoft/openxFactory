@@ -13,7 +13,7 @@
 
 ## 3. Validation and regression coverage
 
-- [x] 3.1 **DONE 2026-09-01 —** `scripts/standards_body_registry.py` checks current-publication metadata completeness for the amended entries.
+- [x] 3.1 **DONE 2026-09-01, SCOPE CORRECTED 2026-09-03 —** `scripts/standards_body_registry.py` checks current-publication metadata completeness for **every body that claims primary-source verification**, plus the three amended entries as a floor. The correction is D5, forced by Copilot review round 2: the requirement said "every body marked current" while the checker used a three-id allowlist, and MEASURED against the registry — 45 bodies, **32 `status: current`, 3 carrying a verification date** — the requirement was false of 29 records. Backfilling 29 dates nobody performed is the fabrication the registry's own header forbids; demoting 29 records would misstate their currency. The obligation is now keyed to `verified_on`, which IS the claim.
 - [x] 3.2 **DONE 2026-09-01 —** validator checks override completeness and requires the explicit unverified status.
 - [x] 3.3 **DONE 2026-09-01 —** registry regression tests and the existing unknown-body negative fixture cover the selected positive and negative paths.
 - [x] 3.4 **DONE 2026-09-01, RE-RUN 2026-09-03 —** registry tests (5 passed at

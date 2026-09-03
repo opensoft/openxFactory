@@ -2,16 +2,50 @@
 
 ### Requirement: Current publication metadata is explicit
 
-The standards-body registry SHALL identify the current publication for every
-body marked current with a stable body id, steward, term kind, current version,
-primary source URL, verification date, and confidence. Historical body ids and
-records SHALL remain resolvable and SHALL NOT be silently renamed.
+A registry body that CLAIMS PRIMARY-SOURCE VERIFICATION SHALL carry the complete
+current-publication record — a stable body id, steward, term kind, current
+version, primary source URL, verification date, and confidence — and the registry
+SHALL keep such a body distinguishable from one whose record predates
+verification. The verification date IS the claim: a body that declares one is
+asserting that its current-publication facts were read from the body's own
+material on that date, and a body that declares none is making no such assertion
+and SHALL NOT have one invented for it. Historical body ids and records SHALL
+remain resolvable and SHALL NOT be silently renamed.
 
-#### Scenario: A current body has a complete source record
+**Why the obligation is keyed to the claim and not to `status: current`.**
+Measured on the registry this requirement governs, 2026-09-03: of 45 bodies, 32
+carry `status: current` and exactly 3 carry a verification date — the three this
+change read against primary sources. The other 29 are the entries the registry's
+own header discloses as "drawn from working knowledge, not verified against each
+body's current publication", an asymmetry it calls "deliberate rather than
+hidden". An obligation written over `status: current` would therefore be FALSE of
+29 records on the day it was promoted, and the only two ways to make it true are
+to backfill 29 verification dates nobody performed — which is the fabrication the
+sourcing caveat exists to forbid — or to demote records whose currency is not in
+doubt. Keying the obligation to the CLAIM makes it true of every record that
+makes one, enforceable on every record added or amended from here, and silent
+about records that assert nothing. Re-verifying the 29 is real work owed to a
+successor change; it is named here rather than pretended away.
 
-- **WHEN** a registry body has `status: current`
-- **THEN** it carries `current_version`, `source_url`, `confidence`, and a
-  verification date tied to a primary source
+#### Scenario: A body claiming verification carries a complete source record
+
+- **WHEN** a registry body declares a verification date
+- **THEN** it carries `current_version`, `source_url` and `confidence`, each
+  tied to that body's own primary source
+
+#### Scenario: A half-verified record is rejected
+
+- **WHEN** a body declares a verification date but omits its current version,
+  its primary source URL, or its confidence
+- **THEN** registry validation rejects the record with a named finding
+- **AND** the omission is never repaired by dropping the verification date to
+  move the body out of scope
+
+#### Scenario: An unverified legacy record is left as it stands
+
+- **WHEN** a body carries `status: current` and declares no verification date
+- **THEN** registry validation reports nothing against it
+- **AND** no verification date, current version or confidence is invented for it
 
 #### Scenario: A historical ITIL id remains resolvable
 
