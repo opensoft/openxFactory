@@ -174,6 +174,13 @@ whenever anybody else lands.
 | prose `Sequenced-after:` headers (all archived) | 3 |
 | **deepest declared chain resolved** | **1 hop** |
 
+**Later reading, not an edit to the dated table above.** As at
+`add-per-change-sweep-ledger` (proposed 2026-09-03, `Status: draft`) the deepest
+resolvable declared chain is **2 hops**, from `add-per-change-sweep-ledger` to
+`add-sequenced-after-substrate` to `add-structured-scope-substrate`. The table
+stays as the 2026-09-01 first-post-adoption measurement it is; re-run the sweep
+for the current reading, which is derived from the per-change ledger.
+
 The **deepest declared chain it resolves is 1 hop**, from
 `add-sequenced-after-substrate` to `add-structured-scope-substrate` — the
 substrate's own first instance. At authoring time, one day earlier, the field

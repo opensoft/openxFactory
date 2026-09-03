@@ -45,6 +45,18 @@ makes it dishonest rather than merely redundant.
 
 **Decision: `## ADDED Requirements`, one novel title, in `release-realization`.**
 
+**AND THIS DEPARTS FROM THE ISSUE, KNOWINGLY.** Issue #618's "Shape of the
+packet" paragraph specified the opposite: *"`sequenced_after:
+[add-sequenced-after-substrate]` (it MODIFIES that change's still-active '…bound
+SHALL be measured' requirement, so both are co-modifiers and the declaration is
+owed)"*. This packet delivers ALL-ADDED, both rows read `class: sole`, and the
+declaration is ELECTIVE rather than owed (D2). The issue's paragraph was written
+before the requirement's text was read line by line; the reading above is the one
+taken here, and it is recorded as a DEPARTURE rather than quietly delivered, so
+that ratifying this packet ratifies the departure knowingly. If the convener
+prefers the issue's shape, the change is a MODIFIED restatement plus the two
+class flips that follow, and it is a different packet from this one.
+
 **What the choice costs and buys, stated so it is not read as convenience.** It
 buys the estate's "one requirement, one writer" preference (the shape
 `create-medxpractice-overlay-boundary` took when it cited rather than modified)
@@ -87,7 +99,7 @@ each would have been a third, fourth and fifth line to hand-edit.
 
 `corpus_sweep` is left exactly as ratified. `classify_corpus` walks the corpus
 again and `sweep_from_readings` folds the per-change readings into the same
-fifteen-field `Sweep`. The test asserts the two are equal field by field.
+fourteen-field `Sweep`. The test asserts the two are equal field by field.
 
 The alternative — refactor `corpus_sweep` into
 `sweep_from_readings(classify_corpus(...))` — is shorter and removes the
@@ -135,13 +147,22 @@ change id, ONE LINE per row.
 **One reading is left as a FLOOR rather than a pin, and it is named here as
 required.** `test_the_live_sweep_records_a_NON_ZERO_deepest_chain` asserted
 `deepest_chain == 1` and `deepest_chain_change == "add-sequenced-after-substrate"`.
-Both are now derived, and what the test asserts on the live corpus is
-`deepest_chain >= 1` plus agreement with the ledger's own deepest row. The
-doctrine at stake in that test is that the reading is NO LONGER "0 hops BY
-CONSTRUCTION" — a floor states that exactly, and a pin would re-serialize on
-every change that declares the field. The exact value remains asserted, because
-the ledger row that produces it is asserted against the live corpus like every
-other row.
+Both are now derived, and what that test asserts on the live corpus is
+`deepest_chain >= 1`. The doctrine at stake in it is that the reading is NO
+LONGER "0 hops BY CONSTRUCTION" — a floor states that exactly, and a pin would
+re-serialize on every change that declares the field.
+
+**The exact depth is still pinned, and NOT by that test.** It is pinned by the
+declaring change's OWN LEDGER ROW, checked in
+`test_the_LIVE_corpus_and_the_LEDGER_agree_row_by_row`: setting `depth: 9` on
+that row fails THAT test, naming the row, the key and both values. This is
+stated carefully because an earlier draft of it was wrong: the deepest-chain
+test's second assertion reads `classify_corpus` and never opens the ledger, so
+`deepest.depth == sweep.deepest_chain` holds BY CONSTRUCTION of
+`sweep_from_readings`. It is kept for what it does prove — that the fold names a
+row that DECLARES and reports THAT row's depth rather than some other row's
+number — and is labelled in the test as a self-consistency check on the fold,
+not a ledger check.
 
 **Absence is spelled `absent`, not `~`.** `sequenced_after:` can carry a null
 value (a key with no value), which `read_declaration` returns as `None` and
@@ -230,11 +251,33 @@ row (or rows) and "the ledger is consistent with the corpus at `<sha>`" — neve
 a corpus-wide total. Stated in `proposal.md`, in the requirement, and in the
 ledger's own header comment, which is where the next author will look.
 
+**`<sha>` IS THE HEAD `--ledger-diff` LAST RAN CLEAN ON, AND IS NOT
+`seeded_from`.** The ledger carries `seeded_from`, the commit the file was first
+seeded from. It is preserved across re-seeds, so it goes further out of date with
+every landing, and the ledger is NOT consistent with the corpus at it — diffing
+this branch's ledger at `995c0ad5` reports eleven findings (this change's own row
+is extra there, `add-project-repo-schema` has since archived, the deepest chain
+was 1 and is 2, …). A record author reaching for the nearest sha in the file
+would therefore cite a commit at which the claim is FALSE, while the sentence
+read as though it had been checked. `seeded_from` is documented as history in
+the header's own FILE KEYS block for exactly that reason, and the requirement
+says the cited commit must be one at which the check was actually run and
+passed.
+
 **Records already written are NOT rewritten.** Two live packets cite scalar
 totals in verification records (`create-medxchart-overlay-boundary`,
 `create-medxpractice-overlay-boundary`). Those are historical measurements,
 true at the commit they name, and a `Status: record` file is not edited to
 match a later mechanism. The guidance is forward-looking.
+
+## D8a — An estate defect this packet ran into, and does not own
+
+`python3 -m pytest -q` (no path argument) fails COLLECTION on `main` with 19
+`ModuleNotFoundError: avatar_f0` under `experiments/avatar-brokered-call/`,
+independent of this change. CI runs `python3 -m pytest tests/ -q -m
+"not postgres"` (`.github/workflows/pytest-suite.yml:414`), which does not reach
+that tree. Recorded because a reviewer running the bare command will see red that
+is not this packet's; filed separately by the coordinator, and NOT fixed here.
 
 ## D9 — What is NOT solved, and is left to the landing window
 
@@ -249,6 +292,14 @@ lane-collision protocol's landing window, amended operator-locally):
    nothing, so the collision surface shrinks by construction rather than by
    engineering — but two changes that both owe an entry still collide at the
    tail.
+3. **Two NEW rows that sort ADJACENTLY.** Measured, not assumed: two changes
+   each adding a row whose ids sort with no existing row between them —
+   `add-mmm-alpha` and `add-mmm-beta` — share ONE INSERTION POINT and conflict;
+   the same pair with any row between them merges clean. Sorted order shrinks
+   the collision surface from "every change-dir pull request" to "two ids that
+   sort adjacent with nothing between them", which is the whole of the claim
+   this design makes. It does not remove it, the requirement's scenarios say so
+   in as many words, and the remainder is the landing window's.
 
 **And a merge queue does not address either.** GitHub's merge queue serializes
 merges and re-runs CI; it does not resolve a textual conflict. Two branches

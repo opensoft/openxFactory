@@ -71,7 +71,7 @@ only when the change declares), `prose` (the legacy free-text header) — plus
 keys and the date.
 
 **Every total is derived; none is asserted.** `sweep_from_readings` folds the
-rows back into the same fifteen-field `Sweep` the measurement produces, and the
+rows back into the same fourteen-field `Sweep` the measurement produces, and the
 test asserts (a) that the derived reading equals `corpus_sweep`'s, field by
 field, (b) that the ledger holds exactly the corpus's change ids, (c) that each
 row's keys equal the live reading, and (d) that the rows are sorted. Every
@@ -101,6 +101,15 @@ corpus at `<sha>`", never a corpus-wide total. A total moves whenever anyone
 else lands, so a record that quotes one owes re-derivation on every merge from
 main; a row moves only when the fact it states about that change moves. Records
 already written are historical and are NOT rewritten.
+
+**`<sha>` is the head `--ledger-diff` last ran CLEAN on — never the ledger's own
+`seeded_from` stamp.** That field records where the file was FIRST seeded, is
+preserved across re-seeds, and goes further out of date with every landing: the
+ledger is provably INCONSISTENT with the corpus at it (11 findings at
+`995c0ad5`, measured). It is the nearest sha in the file, so it is exactly what
+an author would reach for, which is why the header documents it as history, the
+requirement says the cited commit must be one at which the check was run and
+passed, and this paragraph says it too.
 
 ## What this deliberately does not change
 
@@ -143,7 +152,7 @@ promoted text, drops none, and owes no `Modified over`, `Removed from canon by`
 or `Merged into` marker — the same shape, and the same reasoning, that
 `add-sequenced-after-substrate`'s own delta recorded under this heading.
 
-**The declaration is owed anyway, and is made.** Front matter declares
+**The declaration is made anyway, and is NOT owed.** Front matter declares
 `sequenced_after: [add-sequenced-after-substrate]`. Being ALL-ADDED makes this
 change a SOLE modifier at requirement granularity, so no rule compels the field;
 the substrate's own doctrine does — *declaring must never be worth less than

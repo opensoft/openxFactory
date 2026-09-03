@@ -43,10 +43,12 @@ Usage:
 
     --ledger-diff
         THE PER-CHANGE SWEEP LEDGER, checked against the live corpus. Prints the
-        ledger-derived totals beside the measured ones and then every stale,
-        missing or extra ROW BY NAME. Exit 1 when the ledger disagrees with the
-        corpus — unlike `--sweep`, this IS a gate, because a ledger that no
-        longer describes the corpus is a stale pin rather than a measurement.
+        LEDGER-DERIVED reading — or the MEASURED one when the ledger cannot be
+        read, so the re-runnable report survives a broken file — and then every
+        stale, missing or extra ROW BY NAME. Exit 1 when the ledger disagrees
+        with the corpus — unlike `--sweep`, this IS a gate, because a ledger
+        that no longer describes the corpus is a stale pin rather than a
+        measurement.
 
     --seed-ledger --moved-by '#PR' [--moved-on YYYY-MM-DD] [--seeded-from SHA]
         REWRITE the ledger from the live corpus, stamping `moved_by`/`moved_on`
@@ -71,6 +73,12 @@ Usage:
     and are mutually exclusive: combining two can only mean the caller believed
     both would run, and silently running whichever the dispatch reaches first is
     the answer to a question nobody asked.
+
+    A FLAG OUTSIDE ITS MODE IS REFUSED FOR THE SAME REASON, rather than accepted
+    and ignored. `--ratified-ref` belongs to `--archive-gate`;
+    `--moved-by`, `--moved-on` and `--seeded-from` belong to `--seed-ledger`.
+    `--ledger-diff --moved-by garbage` exiting 0 would tell a caller their flag
+    was honoured when nothing read it.
 """
 from __future__ import annotations
 
@@ -238,6 +246,13 @@ def _seed_ledger_inner(repo_root: Path, repository: str, moved_by: str,
     return 0
 
 
+def _mode_only(parser: argparse.ArgumentParser, args: argparse.Namespace,
+               flag: str, given: bool, mode: str, mode_selected: object) -> None:
+    """Refuse `flag` unless `mode` is the selected mode."""
+    if given and not mode_selected:
+        parser.error(f"{flag} is only meaningful with {mode}")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("repo_root", nargs="?", default=".",
@@ -276,6 +291,18 @@ def main(argv: list[str] | None = None) -> int:
                         help="declaring repository token (default: "
                              f"{sa.DECLARING_REPOSITORY})")
     args = parser.parse_args(argv)
+
+    # A FLAG OUTSIDE ITS MODE IS REFUSED, NOT SILENTLY IGNORED. The modes
+    # already refuse to combine on the reasoning that "combining two can only
+    # mean the caller believed both would run"; accepting `--ledger-diff
+    # --moved-by garbage` and exiting 0 is the same mistake wearing a different
+    # hat — the caller believed the flag did something, and it did nothing.
+    _mode_only(parser, args, "--ratified-ref", args.ratified_ref is not None,
+               "--archive-gate", args.archive_gate)
+    for flag, given in (("--moved-by", args.moved_by is not None),
+                        ("--moved-on", args.moved_on is not None),
+                        ("--seeded-from", args.seeded_from is not None)):
+        _mode_only(parser, args, flag, given, "--seed-ledger", args.seed_ledger)
 
     if args.archive_gate:
         if not args.ratified_ref:

@@ -21,7 +21,7 @@ measurement is carried per subject, never as a shared total"
   declares nothing; a refused declaration reads as absence, a measurement not
   being a gate).
 - [x] 1.2 Add `sweep_from_readings(readings) -> Sweep` folding the rows into
-  EVERY field of the existing fifteen-field `Sweep`, with the sweep's own
+  EVERY field of the existing fourteen-field `Sweep`, with the sweep's own
   deepest-chain tie-break (strictly greater, ids in sorted order).
 - [x] 1.3 **LEAVE `corpus_sweep` UNTOUCHED.** The derivation is independent so
   that their equality is a cross-check rather than a tautology (`design.md` D3).
@@ -71,8 +71,13 @@ measurement is carried per subject, never as a shared total"
   well-formed provenance on every row.
 - [x] 4.2 KEEP every synthetic-corpus test that proves the counting method,
   unchanged.
-- [x] 4.3 Turn the deepest-chain pin into a FLOOR (`>= 1`) plus agreement with
-  the ledger's own deepest row, and record why in `design.md` D4.
+- [x] 4.3 Turn the deepest-chain pin into a FLOOR (`>= 1`), and record why in
+  `design.md` D4. THE EXACT DEPTH IS STILL PINNED — by the declaring change's
+  own LEDGER ROW in the row-agreement test (`depth: 9` on that row fails it,
+  naming row, key and both values), not by the deepest-chain test, whose second
+  assertion reads `classify_corpus` and never opens the ledger and is therefore
+  a self-consistency check on the fold rather than a ledger check. Labelled as
+  such in that test's docstring.
 - [x] 4.4 Fixtures for every failure shape, in the existing `tmp_path`
   synthetic-corpus style: row missing, extra row, stale `state`, stale `class`,
   a PARTNER flip naming both ids, unsorted ledger, malformed provenance,
@@ -90,7 +95,13 @@ measurement is carried per subject, never as a shared total"
 - [x] 5.2 State the record-citation rule (cite the row and
   "ledger ⇔ corpus consistent at `<sha>`", never a total) in `proposal.md`, the
   requirement, and the ledger's header comment. Records already written are
-  historical and are NOT rewritten (`design.md` D8).
+  historical and are NOT rewritten (`design.md` D8). **`<sha>` IS THE HEAD
+  `--ledger-diff` LAST RAN CLEAN ON, NOT `seeded_from`** — that field is the
+  commit the file was FIRST seeded from, is preserved across re-seeds, and the
+  ledger is provably inconsistent with the corpus at it (eleven findings at
+  `995c0ad5`). Documented as history in the header's FILE KEYS block, and the
+  ADDED requirement says the cited commit must be one at which the check was
+  actually run and passed.
 - [x] 5.3 Add the change's row to the README "OpenSpec Records" block (Active),
   and repoint the README's own scalar-pin prose at the ledger.
 - [x] 5.4 `docs/sequenced-after-trust-root-floor.md` § The measured bound: name
@@ -138,6 +149,40 @@ measurement is carried per subject, never as a shared total"
   message. Fixture:
   `test_the_SEEDER_REFUSES_a_bad_provenance_WITHOUT_a_traceback` asserts three
   bad inputs refuse with no `Traceback` in stderr.
+
+- [x] 6.3 **BOT ROUND 4 (Copilot, 21:30:47Z), both findings TAKEN.** Both were
+  posted as SUPPRESSED "previously missed" comments in the review body rather
+  than as inline comments, so they are transcribed here. (a) The
+  `test_sweep.py` docstring said the ledger pin was **"Ratified by
+  `add-per-change-sweep-ledger`"** while the packet is `Status: draft`
+  everywhere else — a ratification claimed in running code is worse than one
+  claimed in prose, because it is what the next author copies. Now "Proposed by
+  … admitted on the convener's ruling … `Status: draft` until ratified." (b)
+  `--ledger-diff`'s usage text promised "the ledger-derived totals BESIDE the
+  measured ones"; `_ledger_diff` prints one OR the other, never both. Text
+  corrected to what it does.
+- [x] 6.4 **BOT ROUND 5 (Copilot, 21:35:16Z), both findings TAKEN, and one was
+  a real defect in the repair tool.** Likewise suppressed-body findings. (a)
+  `_render_row` wrote `declares` entries UNQUOTED. A shape-refused declaration
+  is still recorded as a declaration (only a strict-LOADER refusal reads as
+  absence), so an entry can carry a comma or a bracket: `["a, b"]` read back as
+  TWO entries and `["a] b: {c"]` did not parse at all — meaning `--seed-ledger`,
+  **the documented repair tool**, could print "wrote" for a file `--ledger-diff`
+  then called unparseable. Fixed twice over: `_render_entry` quotes any entry
+  that is not a safe YAML plain scalar in a flow sequence (bare and
+  repository-qualified ids stay plain, so the ordinary file is unchanged), AND
+  `render_ledger` now ROUND-TRIPS its own output through `load_ledger` +
+  `ledger_problems` before returning, so the renderer can never emit a file it
+  cannot read back. (b) `--ratified-ref` was accepted in every mode and silently
+  ignored outside `--archive-gate` — the same defect the mutually exclusive
+  modes were introduced to remove. Every mode-scoped flag
+  (`--ratified-ref`; `--moved-by`/`--moved-on`/`--seeded-from`) is now refused
+  outside its mode with exit 2. Fixtures:
+  `test_an_UNSAFE_declares_entry_is_QUOTED_and_reads_back`,
+  `test_a_WELL_FORMED_entry_is_NOT_quoted_for_show`,
+  `test_the_RENDERER_REFUSES_output_that_does_not_READ_BACK`,
+  `test_a_FLAG_OUTSIDE_ITS_MODE_is_REFUSED_not_ignored`. **Codex ABSENT for a
+  third request.**
 
 ## Group 6b — Gates
 

@@ -52,6 +52,7 @@ from __future__ import annotations
 
 import datetime
 import importlib.util
+import json
 import re
 import subprocess
 import sys
@@ -864,6 +865,13 @@ def corpus_sweep(
 # conflict; two changes that really do move the same fact still collide, which
 # is correct — that collision is a real disagreement about one row.
 #
+# ONE RESIDUE, MEASURED RATHER THAN ARGUED AWAY. Two NEW change ids that sort
+# ADJACENTLY, with no existing row between them, share ONE INSERTION POINT and
+# still conflict — `add-mmm-alpha` and `add-mmm-beta` do; the same pair with any
+# row between them merges clean. Sorted order shrinks the collision surface from
+# "every change-dir pull request" to "two ids that sort adjacent", it does not
+# remove it, and the remainder is the landing window's (issue #618 item 1).
+#
 # THE DERIVATION IS DELIBERATELY INDEPENDENT OF `corpus_sweep`. `classify_corpus`
 # walks the corpus again rather than being refactored out of the sweep, so
 # `sweep_from_readings(classify_corpus(root)) == corpus_sweep(root)` is a
@@ -956,9 +964,17 @@ def classify_corpus(
 
     The per-change derivation the ledger records. Reads exactly what
     `corpus_sweep` reads and makes the same allowances — an unreadable proposal
-    declares nothing and carries no prose header; a refused declaration reads as
-    absence, because a measurement is not a gate and `validate_corpus` is where
-    a refusal is reported.
+    declares nothing and carries no prose header, because a measurement is not a
+    gate and `validate_corpus` is where a refusal is reported.
+
+    TWO KINDS OF REFUSAL, AND THEY LAND DIFFERENTLY. A STRICT-LOADER refusal (a
+    duplicate key, an anchor, an alias) raises out of `read_declaration`, so the
+    change reads as declaring NOTHING. A SHAPE refusal (`sequenced_after:
+    add-other` — a scalar where a sequence is owed) does NOT: the field is
+    present, `read_declaration` returns its raw value, and the change is recorded
+    as DECLARING, exactly as `corpus_sweep` counts it. That is why a `declares`
+    entry can be something no reference grammar would accept, and why the
+    renderer quotes an entry that would not read back as itself.
     """
     repo_root = Path(repo_root)
     corpus = corpus_change_dirs(repo_root)
@@ -1054,7 +1070,7 @@ def sweep_mismatches(derived: Sweep, measured: Sweep) -> list[str]:
     """Field-by-field disagreements between two readings of one corpus.
 
     NAMES THE FIELD AND BOTH VALUES. A bare `assert derived == measured` on a
-    fifteen-field dataclass tells an author that something moved and not what,
+    fourteen-field dataclass tells an author that something moved and not what,
     which is the failure mode this whole change exists to remove.
     """
     problems: list[str] = []
@@ -1277,6 +1293,35 @@ def readings_from_ledger(ledger: Ledger) -> dict[str, Reading]:
     return readings
 
 
+#: An entry safe to write UNQUOTED inside a `[...]` flow sequence. Deliberately
+#: narrow: bare `add-foo` and repository-qualified `openxFactory:add-foo` — the
+#: only two shapes the reference grammar allows — both match, so the ordinary
+#: file keeps its stable one-line format and nothing is quoted for show.
+_PLAIN_ENTRY = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/@+-]*$")
+
+
+def _render_entry(entry: str) -> str:
+    """One `declares` entry, quoted only when it would not read back as itself.
+
+    A MALFORMED DECLARATION IS A REAL INPUT HERE. `classify_corpus` records what
+    the sweep READ, and the sweep reads a shape-refused declaration as a
+    declaration (only a strict-LOADER refusal reads as absence), so an entry may
+    contain a comma, a bracket or a colon-space. Written raw, `["a, b"]` would
+    read back as TWO entries and `["a] b: {c"]` would not parse at all — and the
+    seeder is documented as the REPAIR tool, so it must never be the thing that
+    writes a file it cannot read.
+    """
+    if _PLAIN_ENTRY.match(entry):
+        try:
+            if fms.yaml is not None and fms.yaml.safe_load(entry) == entry:
+                return entry
+        except Exception:  # pragma: no cover - a scalar PyYAML will not resolve
+            pass
+    # A JSON string IS a valid YAML double-quoted scalar: the escape set is a
+    # subset, so this needs no hand-rolled escaping to get right.
+    return json.dumps(entry)
+
+
 def _render_row(body: dict[str, object], moved_by: str, moved_on: str) -> str:
     parts: list[str] = []
     for key in ROW_KEYS:
@@ -1284,7 +1329,7 @@ def _render_row(body: dict[str, object], moved_by: str, moved_on: str) -> str:
             continue
         value = body[key]
         if key == "declares" and isinstance(value, list):
-            rendered = "[" + ", ".join(value) + "]"
+            rendered = "[" + ", ".join(_render_entry(e) for e in value) + "]"
         elif isinstance(value, bool):
             rendered = "true" if value else "false"
         else:
@@ -1334,13 +1379,26 @@ kind: {kind}
 #   prose     whether the proposal carries a legacy free-text `Sequenced-after:`
 #             header, which is NOT a machine-readable declaration.
 #   moved_by  the pull request that last moved this row's DERIVED keys.
-#   moved_on  the date it did.
+#             AUTHOR-SUPPLIED AND UNVERIFIED: only its SHAPE is checked
+#             (`#<digits>`), never that the pull request exists, that it touched
+#             this row, or that it had landed when the row was stamped. It is a
+#             pointer for a human reading the history, not evidence.
+#   moved_on  the date it did. Shape- and calendar-checked, likewise unverified.
 #
-# WHAT A `Status: record` FILE CITES. Its own change's row(s) and
-# "ledger consistent with the corpus at <sha>" — never a corpus-wide total. A
-# total moves whenever anyone else lands, so a record that quoted one would owe
-# re-derivation on every merge from main; a row moves only when the fact it
-# states about that change moves.
+# FILE KEYS (not row keys)
+#   seeded_from  the commit this file was FIRST seeded from, once, as history.
+#                It is PRESERVED across re-seeds and therefore goes further out
+#                of date with every landing — the ledger is NOT consistent with
+#                the corpus at that commit and was never claimed to be.
+#                **IT IS NOT THE SHA A RECORD CITES.** A record cites the head
+#                at which `--ledger-diff` last ran clean.
+#
+# WHAT A `Status: record` FILE CITES. Its own change's row(s) and "the ledger is
+# consistent with the corpus at <sha>", where <sha> is THE HEAD THE AUTHOR RAN
+# `--ledger-diff` ON AND SAW EXIT 0 — never `seeded_from`, and never a
+# corpus-wide total. A total moves whenever anyone else lands, so a record that
+# quoted one would owe re-derivation on every merge from main; a row moves only
+# when the fact it states about that change moves.
 #
 # THE HAND-WRITTEN NARRATIVE STAYS IN ONE PLACE and it is not this file: the
 # MOVEMENT LOG in `tests/sequenced_after/test_sweep.py`, appended only when a
@@ -1423,4 +1481,22 @@ def render_ledger(
             row = previous.rows[change_id]
             by, on = str(row["moved_by"]), str(row["moved_on"])
         lines.append(f"  {change_id}: {_render_row(body, by, on)}\n")
-    return "".join(lines)
+    text = "".join(lines)
+
+    # THE RENDERER PROVES ITS OWN OUTPUT BEFORE RETURNING IT. The seeder is the
+    # REPAIR tool, so the one thing it must never do is report "wrote" for a
+    # file that does not read back — which is exactly what an unquoted
+    # malformed entry used to produce. Re-reading here costs one parse of a
+    # file of a few hundred lines and converts a silent corruption into a
+    # refusal at the point of writing.
+    try:
+        parsed = load_ledger(text)
+    except SequencedAfterError as exc:
+        raise SequencedAfterError(
+            f"the rendered ledger does not read back: {exc}") from exc
+    problems = ledger_problems(readings, parsed)
+    if problems:
+        raise SequencedAfterError(
+            "the rendered ledger does not read back as what was rendered: "
+            + "; ".join(problems[:3]))
+    return text

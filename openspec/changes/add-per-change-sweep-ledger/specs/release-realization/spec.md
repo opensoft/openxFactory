@@ -55,6 +55,13 @@ corpus-wide total. A total moves whenever any other contributor lands, so a
 record quoting one owes re-derivation on every merge from the main line, for a
 number that was never that record's claim.
 
+THE NAMED COMMIT SHALL BE ONE AT WHICH THE CONSISTENCY CHECK WAS ACTUALLY RUN
+AND PASSED, and SHALL NOT be a seeding or creation stamp the ledger happens to
+carry. A stamp recording where a file came from is preserved as history and goes
+further out of date with every landing; citing it would name a commit at which
+the ledger is provably INCONSISTENT, while reading as though it had been
+checked.
+
 A DATED HAND-WRITTEN NARRATIVE SHALL BE KEPT IN EXACTLY ONE PLACE and SHALL be
 appended only where a move is NOT explained by the row diff itself — a change to
 the counting method, a subject whose reading moved because of another subject's
@@ -64,9 +71,14 @@ the diff is not permitted: a narrative that restates what the diff already says
 is noise that hides the entries that carry judgement.
 
 #### Scenario: Two changes move two different subjects' readings
-- **WHEN** two changes in flight each move only their own subject's row
+- **WHEN** two changes in flight each move only their own subject's row, and their rows are not adjacent in the ordering
 - **THEN** each edits its own row and the two merge without a textual conflict
 - **AND** neither is required to re-derive a total the other moved
+
+#### Scenario: Two new subjects sort adjacently
+- **WHEN** two changes each ADD a row and their identities sort with no existing row between them
+- **THEN** they share one insertion point and MAY still conflict, which the ordering reduces rather than removes
+- **AND** that residue MUST be resolved by the repository's landing convention rather than by re-deriving a total
 
 #### Scenario: A change flips another subject's reading
 - **WHEN** a change's own delta is what moves another subject's recorded reading

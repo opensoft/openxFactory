@@ -36,13 +36,26 @@ kind: sequenced_after_corpus_ledger
 #   prose     whether the proposal carries a legacy free-text `Sequenced-after:`
 #             header, which is NOT a machine-readable declaration.
 #   moved_by  the pull request that last moved this row's DERIVED keys.
-#   moved_on  the date it did.
+#             AUTHOR-SUPPLIED AND UNVERIFIED: only its SHAPE is checked
+#             (`#<digits>`), never that the pull request exists, that it touched
+#             this row, or that it had landed when the row was stamped. It is a
+#             pointer for a human reading the history, not evidence.
+#   moved_on  the date it did. Shape- and calendar-checked, likewise unverified.
 #
-# WHAT A `Status: record` FILE CITES. Its own change's row(s) and
-# "ledger consistent with the corpus at <sha>" — never a corpus-wide total. A
-# total moves whenever anyone else lands, so a record that quoted one would owe
-# re-derivation on every merge from main; a row moves only when the fact it
-# states about that change moves.
+# FILE KEYS (not row keys)
+#   seeded_from  the commit this file was FIRST seeded from, once, as history.
+#                It is PRESERVED across re-seeds and therefore goes further out
+#                of date with every landing — the ledger is NOT consistent with
+#                the corpus at that commit and was never claimed to be.
+#                **IT IS NOT THE SHA A RECORD CITES.** A record cites the head
+#                at which `--ledger-diff` last ran clean.
+#
+# WHAT A `Status: record` FILE CITES. Its own change's row(s) and "the ledger is
+# consistent with the corpus at <sha>", where <sha> is THE HEAD THE AUTHOR RAN
+# `--ledger-diff` ON AND SAW EXIT 0 — never `seeded_from`, and never a
+# corpus-wide total. A total moves whenever anyone else lands, so a record that
+# quoted one would owe re-derivation on every merge from main; a row moves only
+# when the fact it states about that change moves.
 #
 # THE HAND-WRITTEN NARRATIVE STAYS IN ONE PLACE and it is not this file: the
 # MOVEMENT LOG in `tests/sequenced_after/test_sweep.py`, appended only when a

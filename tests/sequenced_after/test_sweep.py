@@ -235,9 +235,13 @@ def test_the_LIVE_corpus_and_the_LEDGER_agree_row_by_row():
     DERIVED from those rows. A pull request now moves ITS OWN ROW (and a
     partner's row when its own `## MODIFIED Requirements` block flips that
     partner from sole to co-modifier), so two changes in flight edit two
-    non-adjacent lines and merge without a conflict. Ratified by
-    `add-per-change-sweep-ledger` on the convener's ruling of 2026-09-03 (issue
-    #618): *"do 1 and 3, keep the log in one place"*.
+    non-adjacent lines and merge without a conflict — UNLESS their ids sort
+    with no row between them, where they share one insertion point and collide
+    like any other adjacent insertion; that residue is the landing window's
+    (issue #618 item 1), not something the row shape removes. Proposed by
+    `add-per-change-sweep-ledger`, admitted on the convener's ruling of
+    2026-09-03 (issue #618): *"do 1 and 3, keep the log in one place"*;
+    `Status: draft` until ratified.
 
     Move your row with
 
@@ -265,12 +269,10 @@ def test_the_LIVE_corpus_and_the_LEDGER_agree_row_by_row():
       what the diff already says is noise that hides the entries carrying
       judgement. That is why the rule is about what the diff does NOT say.
 
-    - **SEEDED 2026-09-03** from the live corpus at
-      `995c0ad5713dc2a22d35a00b083e3445e711b30c` (`origin/main`, the base of
-      `change/add-per-change-sweep-ledger`), by
+    - **SEEDED 2026-09-03** from the live corpus, by
       `validate-sequenced-after.py --seed-ledger`, in PR #623
-      (`add-per-change-sweep-ledger`). 159 rows: the 158 change ids `main`
-      carried at that commit, plus this packet's own directory — which is
+      (`add-per-change-sweep-ledger`). 159 rows: every change id in the active
+      and archived corpora both, plus this packet's own directory — which is
       itself a corpus member, an ACTIVE SOLE modifier on its ALL-ADDED delta
       over a novel `release-realization` title, and the only change besides
       `add-sequenced-after-substrate` that declares `sequenced_after:`, taking
@@ -279,22 +281,40 @@ def test_the_LIVE_corpus_and_the_LEDGER_agree_row_by_row():
       THE SEEDING IS THE LAST ENTRY OWED FOR A MOVE THE DIFF ALSO STATES: the
       whole file is new, so the diff states everything, and the entry exists
       because a seeding is one of the four cases the rule above keeps.
-      MEASURED, not assumed: `--sweep` at `995c0ad5` reads
-      `33 active + 125 archived` = 158 change ids, `109` co-modified, `49`
-      sole modifiers, `21 / 12` active co-modified/sole, 1 declaration, 3
-      prose headers (3 archived), deepest chain 1 hop; the same sweep on this
-      branch reads `34 active + 125 archived` = 159, `109`, `50`, `21 / 13`, 2
-      declarations, 3 prose headers (3 archived), deepest chain 2 hops — and
-      every one of those numbers is now DERIVED from the rows and cross-checked
-      against the measurement rather than asserted below.
+      `seeded_from` in the ledger records `995c0ad5713dc2a22d35a00b083e3445e711b30c`
+      as THE COMMIT THE FILE WAS FIRST SEEDED FROM — not the branch's base,
+      which has moved twice since (`19d00872`, then `9a773a31`), and NOT a sha
+      any record should cite: the ledger is deliberately no longer consistent
+      with the corpus at it, and diffing it there reports eleven findings.
+      RE-MEASURED AT THE HEAD THIS ENTRY LANDS ON, rather than left at the
+      reading taken before the merge with `main`: `--sweep` on `origin/main` at
+      `9a773a31` reads `32 active + 126 archived` = 158 change ids, `109`
+      co-modified, `49` sole modifiers, `20 / 12` active co-modified/sole, 1
+      declaration, 3 prose headers (3 archived), deepest chain 1 hop; the same
+      sweep on this branch reads `33 active + 126 archived` = 159, `109`, `50`,
+      `20 / 13`, 2 declarations, 3 prose headers (3 archived), deepest chain 2
+      hops. THE DIFFERENCE IS THIS PACKET AND NOTHING ELSE — one more ACTIVE
+      SOLE modifier and one more declaration — and every one of those numbers
+      is DERIVED from the rows and cross-checked against the measurement rather
+      than asserted below. The earlier reading in this entry said
+      `34 active + 125 archived` and `21 / 13`; it was taken before the merge
+      of `main` at `19d00872` (#616 archived `add-project-repo-schema`) and was
+      never re-measured, which is precisely the staleness this packet exists to
+      stop, caught here by review rather than by a red build.
 
     HISTORY, RETAINED VERBATIM. Every entry below is the record of a move that
     really happened under the rule that stood until 2026-09-03 — five scalar
     totals, moved in the same commit as the corpus, narrated here. They are
     kept because they are the evidence for this change: several exist only to
     reconcile two branches' readings of one corpus, and one had to REPLACE an
-    earlier entry whose arithmetic went stale between authoring and merge. The
-    numbers in them are historical and are no longer asserted anywhere.
+    earlier entry whose arithmetic went stale between authoring and merge.
+    EVERYTHING BELOW IS PAST TENSE, INCLUDING ITS PROSE. The retained preamble
+    states the rule THAT STOOD UNTIL 2026-09-03 in the present tense — where
+    the live pin lived ("THE LIVE PIN IS THIS TEST, and only this test"), what
+    moved with the corpus, and what an author had to re-derive. It is left
+    unedited because retaining history verbatim is this packet's own rule, and
+    it is read as a record of the old regime rather than as instruction: the
+    live pin is now the LEDGER, and the numbers below are asserted nowhere.
 
     ----------------------------------------------------------------------
 
@@ -781,11 +801,28 @@ def test_the_live_ledger_reports_the_SAME_totals_the_sweep_MEASURES():
 
 
 def test_the_live_sweep_records_a_NON_ZERO_deepest_chain():
-    # The first post-adoption reading: no longer "0 hops BY CONSTRUCTION". A
-    # FLOOR and not a pin — the doctrine at stake is that the reading is
-    # non-zero, and pinning the value would re-serialize on every change that
-    # declares the field. The exact value is still asserted, by the LEDGER ROW
-    # that produces it being asserted against the live corpus like every other.
+    """WHAT THIS TEST PINS, and what it does NOT — stated because the two are
+    easy to confuse and an earlier draft of this comment confused them.
+
+    THIS TEST ASSERTS A FLOOR: the reading is `>= 1`, no longer
+    "0 hops BY CONSTRUCTION". That is the doctrine at stake, and pinning the
+    exact value HERE would re-serialize on every change that declares the
+    field — the very cost this packet removes.
+
+    THE EXACT DEPTH IS STILL PINNED, but by the DECLARING CHANGE'S OWN LEDGER
+    ROW, checked in `test_the_LIVE_corpus_and_the_LEDGER_agree_row_by_row`:
+    setting `depth: 9` on that row fails THAT test, naming the row, the key and
+    both values. So the number is not unpinned, it is pinned per change like
+    every other reading.
+
+    THE SECOND ASSERTION IS A SELF-CONSISTENCY CHECK ON THE FOLD, NOT A LEDGER
+    CHECK. It reads `classify_corpus` and never opens the ledger, so
+    `deepest.depth == sweep.deepest_chain` holds by construction of
+    `sweep_from_readings`. It is kept for what it does prove — that the fold
+    names a row that DECLARES and reports THAT row's depth, rather than a
+    non-declaring row or some other row's number — and it is labelled so no
+    later reader mistakes it for the pin.
+    """
     readings = sa.classify_corpus(ROOT)
     sweep = sa.sweep_from_readings(readings)
     assert sweep.deepest_chain >= 1
@@ -1088,6 +1125,60 @@ def test_the_SEED_summary_counts_ONLY_the_rows_it_MOVED(tmp_path):
     assert "1 rows, 0 moved by #623" in again.stdout
 
 
+def test_an_UNSAFE_declares_entry_is_QUOTED_and_reads_back(tmp_path):
+    # A MALFORMED DECLARATION IS A REAL INPUT: the sweep reads a shape-refused
+    # declaration AS a declaration (only a strict-LOADER refusal reads as
+    # absence), so an entry can carry a comma or a bracket. Written raw,
+    # `[a, b]` reads back as TWO entries and `[a] b: {c]` does not parse — and
+    # the seeder is the documented REPAIR tool.
+    directory = _change(tmp_path, "add-bad")
+    (directory / "proposal.md").write_text(
+        '---\ncode_surface: openxFactory\n'
+        'sequenced_after: ["a, b", "c] d: {e"]\n---\n\n# add-bad\n',
+        encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#623", "--moved-on", "2026-09-03"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    written = sa.ledger_path(tmp_path).read_text(encoding="utf-8")
+    assert '["a, b", "c] d: {e"]' in written, written
+    rows = sa.load_ledger(sa.ledger_path(tmp_path)).rows
+    assert rows["add-bad"]["declares"] == ["a, b", "c] d: {e"], (
+        "the entries must read back as themselves, not split on the comma")
+    assert sa.ledger_problems(sa.classify_corpus(tmp_path),
+                              sa.load_ledger(sa.ledger_path(tmp_path))) == []
+
+
+def test_a_WELL_FORMED_entry_is_NOT_quoted_for_show(tmp_path):
+    # Both shapes the reference grammar allows stay plain, so the ordinary file
+    # keeps its stable one-line format.
+    _change(tmp_path, "add-root", declaration="[]")
+    _change(tmp_path, "add-child",
+            declaration="[add-root, openxFactory:add-root]")
+    text = sa.render_ledger(sa.classify_corpus(tmp_path), moved_by="#1",
+                            moved_on="2026-09-03")
+    assert "declares: [add-root, openxFactory:add-root]" in text, text
+
+
+def test_the_RENDERER_REFUSES_output_that_does_not_READ_BACK(tmp_path, monkeypatch):
+    # The guard itself, driven by restoring the unquoted renderer: the seeder
+    # must never report "wrote" for a file it cannot read.
+    directory = _change(tmp_path, "add-bad")
+    (directory / "proposal.md").write_text(
+        '---\ncode_surface: openxFactory\n'
+        'sequenced_after: ["a] b: {c"]\n---\n\n# add-bad\n',
+        encoding="utf-8")
+    monkeypatch.setattr(sa, "_render_entry", lambda entry: entry)
+    try:
+        sa.render_ledger(sa.classify_corpus(tmp_path), moved_by="#1",
+                         moved_on="2026-09-03")
+    except sa.SequencedAfterError as exc:
+        assert "does not read back" in str(exc), str(exc)
+    else:  # pragma: no cover - the refusal is the assertion
+        raise AssertionError("a ledger that does not read back must refuse")
+
+
 def test_the_SEEDER_REPAIRS_a_ledger_too_malformed_to_READ(tmp_path):
     # Refusing here would leave the only tool that can rewrite the file
     # unusable on the only file that needs rewriting.
@@ -1150,6 +1241,36 @@ def test_the_CLI_MODES_are_MUTUALLY_EXCLUSIVE(tmp_path):
             capture_output=True, text=True)
         assert result.returncode != 0, flags
         assert "not allowed with argument" in result.stderr, flags
+
+
+def test_a_FLAG_OUTSIDE_ITS_MODE_is_REFUSED_not_ignored(tmp_path):
+    # The same doctrine the mutually exclusive modes rest on: accepting
+    # `--ledger-diff --moved-by garbage` and exiting 0 tells a caller their flag
+    # was honoured when nothing read it.
+    _change(tmp_path, "add-a")
+    for flags, expected in (
+        (["--ledger-diff", "--moved-by", "garbage"],
+         "--moved-by is only meaningful with --seed-ledger"),
+        (["--ledger-diff", "--ratified-ref", "HEAD"],
+         "--ratified-ref is only meaningful with --archive-gate"),
+        (["--sweep", "--seeded-from", "abc"],
+         "--seeded-from is only meaningful with --seed-ledger"),
+        (["--sweep", "--moved-on", "2026-09-03"],
+         "--moved-on is only meaningful with --seed-ledger"),
+    ):
+        result = subprocess.run(
+            [sys.executable, str(VALIDATOR), str(tmp_path), *flags],
+            capture_output=True, text=True)
+        assert result.returncode == 2, (flags, result.stdout, result.stderr)
+        assert expected in result.stderr, result.stderr
+    # ...and the legitimate pairings still run.
+    for flags in (["--seed-ledger", "--moved-by", "#1", "--moved-on",
+                   "2026-09-03", "--seeded-from", "abc"], ["--ledger-diff"],
+                  ["--sweep"]):
+        result = subprocess.run(
+            [sys.executable, str(VALIDATOR), str(tmp_path), *flags],
+            capture_output=True, text=True)
+        assert result.returncode == 0, (flags, result.stdout, result.stderr)
 
 
 def test_the_SEED_LEDGER_cli_REQUIRES_a_moving_pull_request(tmp_path):

@@ -494,11 +494,15 @@ Active changes:
   replaced by `tests/sequenced_after/corpus-ledger.yaml` — **one row per change
   id** over the active and archived corpora both, sorted, one line each, carrying
   that change's `state`, `class`, `declares`, `depth` and `prose` plus the pull
-  request that last moved it — from which **every one of the sweep's fifteen
+  request that last moved it — from which **every one of the sweep's fourteen
   fields is DERIVED**. A pull request now edits ITS OWN ROW, and a partner's row
   when its own `## MODIFIED Requirements` block flips that partner from sole to
   co-modifier; two disjoint changes insert two non-adjacent lines and merge
-  clean. **WHY: a total is a shared mutable every change-dir PR writes to.**
+  clean — **with one measured residue: two NEW ids that sort with no row
+  between them share one insertion point and still conflict**, so the ordering
+  shrinks the collision surface from "every change-dir PR" to "two adjacent
+  ids" rather than removing it, and that remainder stays with the landing
+  window. **WHY: a total is a shared mutable every change-dir PR writes to.**
   Authoring, adopting, ratifying or archiving a change each move at least one,
   so two PRs that look disjoint collide and the loser owes a merge-from-main, a
   re-derived pin, a log entry and re-derived record files — one CI window per
@@ -515,9 +519,11 @@ Active changes:
   SOLE modifier and owes no declaration, but the relation is real and *declaring
   must never be worth less than omitting*; that takes the deepest declared chain
   from 1 hop to 2. **`Status: record` FILES NOW CITE THEIR OWN ROW** and
-  "ledger ⇔ corpus consistent at `<sha>`", never a total, so a merge from main
-  no longer forces record re-derivation; records already written are historical
-  and are not rewritten. **THE MOVEMENT LOG STAYS ONE HAND-WRITTEN LEDGER IN ONE
+  "ledger ⇔ corpus consistent at `<sha>`" — where `<sha>` is the head
+  `--ledger-diff` last ran CLEAN on, never the file's `seeded_from` stamp (the
+  ledger is provably inconsistent at that commit: 11 findings, measured) and
+  never a total — so a merge from main no longer forces record re-derivation;
+  records already written are historical and are not rewritten. **THE MOVEMENT LOG STAYS ONE HAND-WRITTEN LEDGER IN ONE
   PLACE** — the convener's constraint — retained verbatim in `test_sweep.py`,
   with a new rule: an entry is owed only where a move is NOT explained by the row
   diff (a counting-method change, a partner's flip, a non-per-change reading, a
