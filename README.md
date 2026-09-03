@@ -412,6 +412,51 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [update-standards-body-current-publications](openspec/changes/update-standards-body-current-publications/proposal.md)
+  — authored 2026-09-01, **ADOPTED 2026-09-03 AND STILL `Status: draft`** — the
+  distinction is the whole record. **RESCUED, NOT RE-AUTHORED**: the authoring
+  session ended without pushing, so the packet and its code existed on no branch
+  and not on `main` (openxFactory issue **#591**); PR **#593** snapshot `d1799988`
+  carries it byte-identical, and Brett Heap ruled 2026-09-03 that it be adopted
+  and owned by lane `openxfactory-f2`. **THAT RULING AUTHORIZED THE ADOPTION AND
+  THE RESHAPING AND RATIFIES NOTHING IN IT** — D1 … D4 are still owed a ruling,
+  D2 (the SFIA operator override) and D3 (the APQC crosswalk scope) most of all.
+  Adds a distinct **`itil5`** body for ITIL Version 5 while preserving `itil4`
+  for historical consumers — *no silent rename* — records **SFIA 9** as current
+  beside the steward's restrictive licence statement and Brett's product-config
+  permission as an **explicit `status: unverified` operator override** carrying
+  approver, date, rationale and the conflicting source (a validator refuses an
+  override missing any of them, so the decision is preserved without being
+  laundered into a licence conclusion), and re-verifies **APQC PCF 8.0** with its
+  IT-process crosswalk scope and mandatory attribution. Crosswalks stay
+  **descriptive**: no practice text, skill definition or process hierarchy is
+  copied, and no mapping confers archetype, permission, credential tier or
+  terminal-action authority. **THE SNAPSHOT WAS IN THREE UNLAWFUL SHAPES AND
+  EACH WAS REPAIRED**: it sat under `openspec/changes/archive/2026-09-01-…`
+  though it had never landed and, carrying a code surface, could not archive
+  under `docs/release-realization-flow.md` § The Archive Gate — moved to the
+  ACTIVE corpus; it had **PRE-PROMOTED** its delta into
+  `openspec/specs/standards-body-registry/spec.md`, a verbatim duplicate under
+  the archiver's `TBD - created by archiving` purpose line — **REMOVED**,
+  promotion being the archive step's act; and it declared `target_release: none`
+  while shipping a module, a validator line and tests, `none` being reserved for
+  `code_surface: none` — corrected to **`implemented`**, with the front matter
+  fenced so a machine reads it at all and an `ad_hoc` **origin declaration**
+  added (there is no staged topic; searched). **THE RELEASE-INVENTORY QUESTION
+  IS ANSWERED BY MEASUREMENT, NOT BY PREFERENCE**:
+  `contracts/policies/standards-bodies.yaml` is a member of NEITHER
+  `contracts/manifest.yaml` NOR
+  `contracts/releases/contract-v3.0.digests.yaml` (283 entries, zero under
+  `contracts/policies/`), so the policy edit raises **no**
+  `release-inventory-drift` finding, needs no editorial allowance, and **rides
+  this PR rather than the next cut**. One thing moved that is bookkeeping and
+  not realization: adopting an ADDED-only packet over a NEW capability with
+  novel requirement titles makes it an **ACTIVE SOLE modifier**, so the
+  `sequenced_after` live pin moves `change_ids - 1` 154 → 155,
+  `sole_modifiers - 1` 49 → 50 and `active_sole - 1` 12 → 13 while `co_modified`
+  and `active_co_modified` hold at 105 and 18 — measured on both trees, moved in
+  the same commit, with a dated MOVEMENT LOG entry, which is that pin's own
+  protocol.
 - [declare-spent-bundle-state](openspec/changes/declare-spent-bundle-state/proposal.md)
   — authored 2026-09-02, **RATIFIED 2026-09-02 BY DIRECT RULING**
   (`Status: ratified`; record `review/ratification-2026-09-02.md`) — Brett Heap

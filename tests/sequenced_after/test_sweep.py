@@ -316,6 +316,36 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       co-modified/sole, via
       `python3 scripts/validate-sequenced-after.py . --sweep` run after this
       merge.
+    - `change_ids - 1` reads 155, `sole_modifiers - 1` reads 50 and
+      `active_sole - 1` reads 13 — each one up from the reading the entry above
+      left, and `co_modified` and `active_co_modified` hold at 105 and 18. They
+      moved on 2026-09-03 when `update-standards-body-current-publications` was
+      ADOPTED as an ACTIVE change (PR #593, the rescue of work stranded
+      uncommitted in a shared checkout, openxFactory issue #591). ITS DELTA IS
+      `## ADDED Requirements` ONLY, over a NEW capability `standards-body-registry`
+      whose four requirement titles exist nowhere else in the corpus, so it is a
+      SOLE modifier and never a co-modifier — the exact shape
+      `add-clearing-dispatch-boundary`'s landing had two entries above, and the
+      exact OPPOSITE of `declare-spent-bundle-state`'s, which carried a MODIFIED
+      block and moved the two co-modified readings instead. A packet moving BOTH
+      would still be a defect in the sweep rather than a corpus event.
+      THE MOVE IS ONE STEP AND NOT TWO, which is the part specific to a rescue:
+      the snapshot placed the packet under `openspec/changes/archive/2026-09-01-…`,
+      where it ALREADY counted as one archived change id and one sole modifier,
+      so `git mv`-ing it to the active corpus moves the ACTIVE/ARCHIVED SPLIT
+      (`31 active + 125 archived` → `32 active + 124 archived`) and
+      `active_sole` alone — while `change_ids` and `sole_modifiers` were raised
+      by the snapshot's own landing rather than by the move. MEASURED ON BOTH
+      SIDES rather than inferred: `origin/main` at `1a0cd035` reads
+      `31 active + 124 archived` = 155, `105`, `50`, `18 / 13`; this branch
+      after the merge and the move reads `32 active + 124 archived` = 156,
+      `105`, `51`, `18 / 14`, via
+      `python3 scripts/validate-sequenced-after.py . --sweep` on each tree. The
+      pin moves in the SAME COMMIT as the corpus, which is this test's own
+      protocol, and that PR discloses that it touches this file for that reason
+      and for no other: corpus BOOKKEEPING, not realization. `declaring` holds
+      at 1 — the packet declares no `sequenced_after:` field, the field being
+      carried by an ACTIVE, UNPROMOTED change.
     """
     sweep = sa.corpus_sweep(ROOT)
     assert sweep.co_modified == 105, (
@@ -348,12 +378,13 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # This change is itself a sole modifier at requirement granularity — which is
     # exactly why it declaring a parent anyway is the doctrine applied to its
     # author: declaring must never be worth less than omitting.
-    assert sweep.change_ids - 1 == 154, (
+    assert sweep.change_ids - 1 == 155, (
         "the `- 1` subtracts THIS change and nothing else, so the reading is "
         "the corpus without it: 152 at authoring, 153 when "
         "add-clearing-dispatch-boundary landed 2026-09-01, 154 when "
-        "declare-spent-bundle-state was authored 2026-09-02")
-    assert sweep.sole_modifiers - 1 == 49
+        "declare-spent-bundle-state was authored 2026-09-02, 155 when "
+        "update-standards-body-current-publications was adopted 2026-09-03")
+    assert sweep.sole_modifiers - 1 == 50
     # STILL INTACT ON ITS MERITS, not by a cancelling pair of errors — checked,
     # because #563's archive landing between the authoring measurement and this
     # reading makes the coincidence worth ruling out explicitly. That archive
@@ -362,7 +393,11 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # only at `43cf5933`, when THIS change added itself as an active sole
     # modifier. The `- 1` therefore still subtracts exactly this change and
     # still recovers the authoring 11.
-    assert sweep.active_sole - 1 == 12
+    assert sweep.active_sole - 1 == 13, (
+        "13 since update-standards-body-current-publications was adopted as an "
+        "ACTIVE change 2026-09-03 (PR #593): an ADDED-only delta over a new "
+        "capability with novel requirement titles is an ACTIVE SOLE modifier. "
+        "The `- 1` still subtracts add-sequenced-after-substrate alone")
     assert sweep.prose_headers == 3 and sweep.prose_headers_archived == 3
     assert sweep.declaring == 1
     assert sweep.declaring_ids == ("add-sequenced-after-substrate",)
