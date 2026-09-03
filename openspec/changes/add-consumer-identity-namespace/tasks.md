@@ -224,8 +224,14 @@ directory; it holds no material.
   ceasing to refuse.
 - [ ] 5.4 `[#511]` Two `release-inventory-drift` findings — `contracts/manifest.yaml`
   and `docs/contract-versioning-policy.md`, both members of the standing
-  `contract-v3.0` inventory — are RAISED by this branch and are DISCHARGED BY
-  § 5.3, not by this packet. **UNTICKED RATHER THAN TICKED WITH AN EXCUSE.** The
+  release inventory (`contract-v3.0` when this was written, **`contract-v3.2`
+  since PR #624 cut the superseding release for a defective `contract-v3.1`**)
+  — are RAISED by this branch and are DISCHARGED BY § 5.3, not by this packet.
+  **THE SEVERITY OF ONE OF THEM ROSE UNDER THIS PACKET WITHOUT THIS PACKET
+  MOVING**: while `main` was itself drifting the policy doc, this branch's edit
+  to it added no finding; #624's cut rebaselined the inventory and made `main`
+  clean, so the same unchanged edit now raises a NEW ERROR against the branch.
+  Recorded in § 8.1, and still not hand-fixed. **UNTICKED RATHER THAN TICKED WITH AN EXCUSE.** The
   family's own remedy line is *"cut a release through the bundle realization
   order; never hand-edit an inventory or `contract_bundle_version` to make this
   comparison pass"*, and `add-binding-consumer-identity` § 6.3 took exactly these
@@ -290,11 +296,15 @@ directory; it holds no material.
 - [x] 7.4 `python3 -m pytest tests/credential_contracts tests/manifest_digests -q`.
   **EXECUTED**: **239 passed**, and **247 passed** after § 8.3's round and
   § 4.2a.
-- [x] 7.5 doc-health, branch against a same-clock `origin/main` baseline from an
+- [ ] 7.5 doc-health, branch against a same-clock `origin/main` baseline from an
   IDENTICALLY-NAMED checkout (the finding identity is `(family, repo, path)` and
   the repo is the basename, so a differently-named baseline manufactures
-  phantoms). **EXECUTED** — figures and the both-directions set difference are
-  recorded in § 8.
+  phantoms). **EXECUTED AND NOT ZERO AT THE CURRENT BASELINE — UNTICKED
+  DELIBERATELY.** One new ERROR, `release-inventory-drift` on
+  `docs/contract-versioning-policy.md` against the `contract-v3.2` inventory
+  #624 cut, plus three INFO. It is § 5.3's to discharge and § 5.4's to refuse to
+  hand-edit; figures, both-directions set difference and the reason the answer
+  changed are in § 8.1.
 - [x] 7.6 `python3 -m pytest tests/doc-health -q`. **EXECUTED**: 1500 passed
   after § 4.4a; the first run's single failure was the corpus-movement gate and
   is recorded in § 8.2 rather than smoothed away.
@@ -325,6 +335,44 @@ evidence.
 
 Both sides run with `--single-repo`, both checkouts named exactly `openxFactory`,
 both `--as-of 2026-09-03`.
+
+**RE-MEASURED 2026-09-03 AT `origin/main` `6a39d2ab`, AFTER #617 AND #624, AND
+THE ANSWER CHANGED — IT IS NO LONGER ZERO-NEW-ERROR.** The earlier reading below
+is kept as the record of what was true then; this is the reading that governs.
+
+| | critical | error | warning | info | total |
+| --- | --- | --- | --- | --- | --- |
+| baseline `6a39d2ab` | 6 | **4** | 39 | 12 | 61 |
+| branch `ef57fdeb` | 6 | **5** | 39 | 15 | 65 |
+
+**THE DELTA IS FOUR FINDINGS: ONE ERROR AND THREE INFO.** The error is
+`release-inventory-drift` on `docs/contract-versioning-policy.md` — *"bytes
+differ from the digest `contract-v3.2` records"*.
+
+**IT IS A NEW ERROR AND IT WAS NOT ONE BEFORE, and the reason is a fact about
+`main` rather than about this packet.** At the earlier reading that same finding
+sat on BOTH sides: `main` had already drifted that file since `contract-v3.0`,
+so this packet's edit to it added nothing. **PR #624 then cut `contract-v3.2`**
+— the superseding release for a defective `contract-v3.1` — which REBASELINED
+the inventory and made `main` clean on that file. This packet's edit to
+§ Deprecations Currently In Force now reintroduces the drift on its own.
+
+**THE BOX STAYS UNTICKED RATHER THAN TICKED WITH AN EXCUSE, and it is NOT
+hand-fixed.** The family's own remedy line is *"cut a release through the bundle
+realization order; never hand-edit an inventory or `contract_bundle_version` to
+make this comparison pass"*, and the finding's class is `auto-fixable` only in
+the sense that a CUT fixes it. Editing the inventory to green this comparison is
+the one thing the family forbids, and greening it would also make a published
+digest describe bytes nobody shipped. It is § 5.3's to discharge.
+`add-binding-consumer-identity` § 6.3 took the identical finding for the
+identical reason and discharged it at its cut.
+
+The three INFO are `contracts/manifest.yaml`'s editorial-band drift against the
+same new inventory, and the two contested `modified-block-currency` rows, one
+per MODIFIED block, named in `_LEDGER_SUBJECTS`.
+
+**EARLIER READING, kept as the record of what was true then** — taken at
+`origin/main` `ea117d4e`, before #616, #617 and #624:
 
 | | critical | error | warning | info | total |
 | --- | --- | --- | --- | --- | --- |
@@ -367,8 +415,9 @@ staged-topic-template 26/26, register-lifecycle-consistency 10/10, tag-hygiene
 
 ### 8.2 `pytest tests/doc-health`
 
-**1500 passed, 7 warnings** in 487s. The FIRST run of this suite reported **1
-failed** — `test_every_carriage_ledger_finding_over_the_real_tree_is_named`,
+**1500 passed, 7 warnings** — re-run on the merged tree at `ef57fdeb` (431s)
+after #617 and #624 landed, not carried forward from the earlier head. The FIRST
+run of this suite reported **1 failed** — `test_every_carriage_ledger_finding_over_the_real_tree_is_named`,
 which is the corpus-movement gate doing its job: it compares the named subject
 set with `==`, and this packet added two subjects it had not been told about.
 Discharged by § 4.4a exactly as that gate's failure message prescribes — the
