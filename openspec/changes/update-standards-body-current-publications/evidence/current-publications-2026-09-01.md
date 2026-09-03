@@ -27,6 +27,15 @@ licensing posture; it does not reproduce framework content.
 - Official licensing reading: the source states that SFIA cannot be
   sublicensed through products or services and that commercial product use
   requires a Partner Licence.
+- **Where each URL lives in the registry, and why it matters** (repaired
+  2026-09-03 on PR #593, Copilot review round 1): the SFIA-9 publication page is
+  the entry's `source_url` and the licensing page is its `licence_page` — the
+  field the registry already uses for a licence source on APQC and IAB Tech Lab.
+  They were BOTH written to `source_url` when this change was authored, and
+  `yaml.safe_load` takes the last key silently, so the licensing evidence this
+  record calls load-bearing was absent from every reader while both lines sat
+  visibly in the file. The registry loader now refuses a duplicate key outright
+  rather than collapsing it.
 - Registry ruling: Brett selected product-config permission without written
   permission. The registry records this as an explicit unverified operator
   override, not as a steward-granted licence conclusion.

@@ -58,7 +58,11 @@ _ENTRYPOINT_REPO = Path(__file__).resolve().parent.parent
 if str(_ENTRYPOINT_REPO) not in sys.path:
     sys.path.insert(0, str(_ENTRYPOINT_REPO))
 
-from scripts.standards_body_registry import registry_errors  # noqa: E402
+from scripts.standards_body_registry import (  # noqa: E402
+    DuplicateRegistryKey,
+    load_registry,
+    registry_errors,
+)
 
 ROOT = Path(__file__).resolve().parent.parent
 CONTRACT_DIR = ROOT / "contracts" / "omnigent"
@@ -104,6 +108,9 @@ def iter_keys(node, prefix="$"):
 
 
 STANDARDS_BODIES = ROOT / "contracts" / "policies" / "standards-bodies.yaml"
+# Resolved once, because `Path.relative_to` raises when the registry sits
+# outside ROOT and the reporting lines below must not be the thing that fails.
+REGISTRY_REL = "contracts/policies/standards-bodies.yaml"
 
 
 def standards_body_ids() -> set[str]:
@@ -431,15 +438,27 @@ def main() -> int:
     # The registry is validated BEFORE the overlays that resolve ids through it,
     # so an incomplete current-publication record or an unqualified operator
     # override is reported as the registry defect it is rather than as a
-    # downstream crosswalk failure.
-    registry_findings = registry_errors(load_yaml(STANDARDS_BODIES))
-    for violation in registry_findings:
-        fail(f"standards-body registry: {violation}")
-    if not registry_findings:
-        print(
-            "ok   standards-body registry current-publication and override "
-            f"records: {STANDARDS_BODIES.relative_to(ROOT)}"
-        )
+    # downstream crosswalk failure. The absent-file case DEGRADES TO A NO-OP
+    # rather than raising, matching `standards_body_ids()` above: a checkout
+    # without the registry must not fail every check that mentions it.
+    if not STANDARDS_BODIES.is_file():
+        print(f"skip standards-body registry absent: {REGISTRY_REL}")
+    else:
+        try:
+            registry_findings = registry_errors(load_registry(STANDARDS_BODIES))
+        except DuplicateRegistryKey as exc:
+            # A duplicate key is refused at LOAD time, so there is no document
+            # to check: report it as the one finding it is rather than letting
+            # the traceback stand in for a validator failure.
+            fail(f"standards-body registry: {exc}")
+        else:
+            for violation in registry_findings:
+                fail(f"standards-body registry: {violation}")
+            if not registry_findings:
+                print(
+                    "ok   standards-body registry current-publication and "
+                    f"override records: {REGISTRY_REL}"
+                )
 
     for kind, path in POSITIVE_EXAMPLES.items():
         violations = all_violations(validators[kind], kind, load_yaml(path))

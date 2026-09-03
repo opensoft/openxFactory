@@ -53,7 +53,17 @@ bodies:
     # without written SFIA permission. This is a policy override, not a
     # steward-granted licence conclusion; the official conflict remains above.
     redistribution_permitted_in_product_config: 'yes'
-    source_url: https://sfia-online.org/en/about-sfia/licensing-sfia/using-and-licensing-sfia
+    # The licensing source moved from `source_url` to `licence_page` on
+    # 2026-09-03 (PR #593, Copilot review round 1). It had NOT moved when the
+    # current-publication block below added its own `source_url`: the entry then
+    # carried the key TWICE, and `yaml.safe_load` takes the LAST silently — so
+    # every reader, this file's own validator included, saw the SFIA 9 page and
+    # the licensing evidence D2 exists to preserve was GONE from the parsed
+    # document while still visibly present in the text. `licence_page` is the
+    # field the registry already uses for exactly this (APQC, IAB Tech Lab), and
+    # separating the two URLs is what makes the current-publication source and
+    # the licensing source independently readable rather than positional.
+    licence_page: https://sfia-online.org/en/about-sfia/licensing-sfia/using-and-licensing-sfia
     confidence: high
     jurisdiction: international  # UK-origin (SFIA Foundation)
     name: SFIA (Skills Framework for the Information Age)

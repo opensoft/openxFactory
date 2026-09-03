@@ -16,7 +16,26 @@
 - [x] 3.1 **DONE 2026-09-01 —** `scripts/standards_body_registry.py` checks current-publication metadata completeness for the amended entries.
 - [x] 3.2 **DONE 2026-09-01 —** validator checks override completeness and requires the explicit unverified status.
 - [x] 3.3 **DONE 2026-09-01 —** registry regression tests and the existing unknown-body negative fixture cover the selected positive and negative paths.
-- [x] 3.4 **DONE 2026-09-01 —** registry tests (5 passed) and `scripts/validate-omnigent-contracts.py` both pass with zero findings.
+- [x] 3.4 **DONE 2026-09-01, RE-RUN 2026-09-03 —** registry tests (5 passed at
+      authoring, **9 passed** after the review round below) and
+      `scripts/validate-omnigent-contracts.py` both pass with zero findings.
+- [x] 3.5 **DONE 2026-09-03 — THE DUPLICATE-KEY DEFECT, FOUND BY REVIEW AND
+      CLOSED AS A CLASS.** The `sfia` entry carried `source_url` TWICE — the
+      licensing page written 2026-08-09 and the SFIA-9 publication page added by
+      this change — and `yaml.safe_load` takes the last silently, so every
+      reader saw the publication URL and **the licensing evidence D2 exists to
+      preserve was gone from the parsed document while both lines sat visibly in
+      the file**. `registry_errors` could not have caught it and no post-parse
+      check can: by then there is one key. The licensing URL moved to
+      `licence_page` (the field APQC and IAB Tech Lab already use for exactly
+      this), and `scripts/standards_body_registry.py` gained `load_registry()`,
+      a `SafeLoader` subclass that **refuses a repeated key at any mapping
+      level** — the rule `scripts/frontmatter_strict.py` applies to proposal
+      front matter, applied here, though not that module reused (its
+      65,536-byte ceiling sits below this registry's ~77,000). The validator and
+      the tests both read through it; `yaml.safe_load` on the registry is now a
+      defect in the caller. Four new tests, one asserting that the permissive
+      loader is GREEN on the same bytes, which is the whole point.
 
 ## 4. Consumer handoff
 
