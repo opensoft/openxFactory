@@ -309,6 +309,44 @@ staged file is added, removed, or promoted.
 
 Active proposals promoted from staging:
 
+- [add-project-repo-schema](../openspec/changes/add-project-repo-schema/proposal.md)
+  — raised 2026-09-02 as the FULL promotion of the `project-repo-schema`
+  staged topic, whose row and detail section leave
+  [staging/INDEX.md](staging/INDEX.md) with this pointer, on Brett Heap's
+  in-session instruction the same day: *"start the add-project-repo-schema
+  exit change"* — admission into the proposal queue, not a ratification.
+  It ADDS the neutral `project-repo-schema` capability (eleven requirements:
+  the shape is elective and confers nothing; the ASSEMBLY leg is the
+  per-project root, ruled 2026-09-02; the `<Project>` / `<Project>-spec` /
+  `<Project>-code` naming and the four families as pinned data; a
+  descendant form is a CLAIM that needs a declared `open<Product>` pin, also
+  ruled 2026-09-02; the double pin and its lockstep invariant; the
+  assembly-root manifest as SOURCE with a register row DERIVED from it; the
+  one-command bootstrap and its `authority is not wallet-carried in this org`
+  degrade line; review lanes and wallet authority as OVERLAYS; the standard
+  living in the public Apache-2.0 `opensoft/openRepoShape`, consumed by fork
+  and pinned by openxFactory; the four-way ownership split that NARROWS the
+  ratified "codexFactory may recommend — and scaffold" to where the mechanics
+  live; and the pre-ratification election rule) and MODIFIES
+  `ideation-dashboard` (the register gains an optional per-project `schema`
+  and `reference` and an optional `repository_roles` list — all additive, all
+  conferring nothing). FOUR of its artifacts land with the proposal:
+  `docs/project-repo-schema.md`, `contracts/openreposhape-pin.yaml` at
+  openRepoShape `deacbdc` with sixteen per-file digests and eighteen
+  path-only members, `scripts/validate-openreposhape-pin.py` with its gate
+  workflow, and the register schema delta with its validator rules and tests.
+  Owns the former staged fragment under `supporting-docs/`. **`Status: ratified`**
+  — 2026-09-02, Brett Heap the convener, in the working session, verbatim
+  *"ratify it"*, on the packet as landed at squash `642ac147` (#605); record
+  `review/ratification-2026-09-02.md`. It stays ACTIVE all the same: with a
+  non-empty `code_surface` and `target_release` naming the next additive contract
+  bundle after `contract-v3.0`, `release-realization` archives it only when that
+  bundle is cut. Every authority question is deferred by name to the sibling
+  staged topic `wallet-carried-work-authority`. The `MedxSoft/MedxScribe` run of
+  2026-09-02 is cited as realization evidence and is a TEMPORARY PILOT that
+  exists only to test openRepoShape — not a real project, and deletable once
+  the standard is ratified; the evidence is the recorded run, which survives
+  the pilot's deletion.
 - [qualify-avatar-live-voice](../openspec/changes/qualify-avatar-live-voice/proposal.md)
   — raised 2026-08-26 as the FULL promotion of the
   `qualify-avatar-live-voice` staged topic, whose row and detail section

@@ -351,9 +351,41 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       branch's own catch-up merge with `main` (commit `f7865ffc`):
       `32 active + 124 archived` = 156 change ids, `107` co-modified, `49`
       sole modifiers, `20 / 12` active co-modified/sole.
-    - `change_ids - 1` reads 156, `sole_modifiers - 1` reads 49 and
-      `active_sole - 1` reads 12 — each one up from the reading the entry above
-      left, and `co_modified` and `active_co_modified` hold at 107 and 20. They
+    - `co_modified` reads 108, `active_co_modified` reads 21 and `change_ids`
+      reads 157 — each up by exactly ONE from the entry above, and the ONE is
+      what makes this entry worth writing rather than a repetition of it.
+      They moved on 2026-09-02 when `add-project-repo-schema` was authored: one
+      more ACTIVE change, carrying a `## MODIFIED Requirements` block over
+      `ideation-dashboard`'s "Project grouping hierarchy", so it is itself a
+      CO-modifier. **IT RISES BY ONE AND NOT BY TWO, and the difference from
+      #560 is the STANDING OF THE EARLIER WRITERS rather than anything about
+      this change.** #560 rose by two because the one earlier writer of its
+      three keys, `add-clearing-dispatch-boundary`, had shared no key with
+      anything and was SOLE — so it flipped, and a flip is a second increment.
+      The earlier writers here are TWO ARCHIVED changes,
+      `archive/2026-08-06-add-project-scoped-selection` and
+      `archive/2026-07-29-add-ideation-dashboard`, which already shared that
+      requirement key WITH EACH OTHER and were therefore already co-modified
+      before this change existed. Nothing flips; only the newcomer enters. That
+      is why `sole_modifiers` and `active_sole` are UNTOUCHED at 49 and 12 —
+      the rise-by-two shape is always accompanied by a sole set falling, and
+      the rise-by-one shape never is, which makes the two readings a check on
+      each other rather than two numbers to remember. `archived` holds at 124,
+      prose headers hold at 3 (3 archived), and `declaring`/`root_claims` hold
+      at 1/0. MEASURED, not inferred: the same sweep run on this branch's
+      merge-base (`origin/main` at `c0270d28`) reproduces the entry above
+      EXACTLY — 156 change ids, 107 co-modified, 49 sole modifiers, 20 / 12
+      active co-modified/sole — so the entire one-count rise is this one
+      change's contribution and no other change moved in the same window. Via
+      `python3 scripts/validate-sequenced-after.py . --sweep`:
+      `33 active + 124 archived` = 157 change ids, `108` co-modified, `49`
+      sole modifiers, `21 / 12` active co-modified/sole.
+    - SIBLING READING, taken from the SAME merge-base as the entry above
+      (`origin/main` at `c0270d28`) and therefore NOT a step after it:
+      `change_ids - 1` reads 156, `sole_modifiers - 1` reads 49 and
+      `active_sole - 1` reads 12 — each one up from the reading the
+      `add-cpc-clearing-boundary` entry left, and `co_modified` and
+      `active_co_modified` hold at 107 and 20. They
       moved on 2026-09-03 when `update-standards-body-current-publications` was
       ADOPTED as an ACTIVE change (PR #593, the rescue of work stranded
       uncommitted in a shared checkout, openxFactory issue #591). ITS DELTA IS
@@ -387,10 +419,53 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       and for no other: corpus BOOKKEEPING, not realization. `declaring` holds
       at 1 — the packet declares no `sequenced_after:` field, the field being
       carried by an ACTIVE, UNPROMOTED change.
+    - MERGING THE TWO SIBLING ENTRIES ABOVE COMPOUNDS EXACTLY ONE PIN, and the
+      reason is the boolean-membership rule both of them already invoke:
+      the two packets move DISJOINT sets. `add-project-repo-schema` carries a
+      MODIFIED block, so it moved the two CO-modified readings alone
+      (`co_modified` 107 → 108, `active_co_modified` 20 → 21) and left the sole
+      readings where they were; `update-standards-body-current-publications` is
+      ADDED-only over a NEW capability, so it moved the two SOLE readings alone
+      (`sole_modifiers - 1` 48 → 49, `active_sole - 1` 11 → 12) and left the
+      co-modified readings where they were. Only `change_ids` is moved by BOTH —
+      each is one more ACTIVE change — so it alone compounds: `change_ids - 1`
+      reads 156 on either branch taken singly and 157 on the merge. NO PIN HERE
+      IS THE NET OF TWO OPPOSED MOVES, which is what makes this merge different
+      from the 2026-09-02 `active_co_modified` reconciliation four entries above,
+      where an archive and an authoring cancelled on one pin; here nothing
+      cancels and only the population grows twice.
+      MEASURED ON ALL THREE TREES rather than inferred from the arithmetic, via
+      `python3 scripts/validate-sequenced-after.py . --sweep`: `origin/main` at
+      `ee294f9f` reads `33 active + 124 archived` = 157 change ids, `108`
+      co-modified, `49` sole modifiers, `21 / 12` active co-modified/sole; this
+      branch at `1d9ae04c` reads `33 active + 124 archived` = 157, `107`, `50`,
+      `20 / 13`; the merge of the two reads `34 active + 124 archived` = 158,
+      `108`, `50`, `21 / 13`. AND MEASURED BY EXCLUSION, which is the step that
+      rules out a THIRD change having moved in the same window: dropping
+      `add-project-repo-schema` from the merged corpus reproduces this branch's
+      own reading EXACTLY (157, 107, 50, 20 / 13), and dropping
+      `update-standards-body-current-publications` reproduces `main`'s EXACTLY
+      (157, 108, 49, 21 / 12) — so every count above is the two named packets'
+      contribution and no other's. `archived` holds at 124, prose headers hold
+      at 3 (3 archived), and `declaring`/`root_claims` hold at 1/0, none of
+      which either packet touches. The pin moves in the SAME COMMIT as the
+      corpus — here the merge commit itself, PR #593's catch-up with `main` of
+      2026-09-03, taken to re-fire the `pull_request` checks GitHub had skipped
+      while the test-merge commit could not be built — which is this test's own
+      protocol.
     """
     sweep = sa.corpus_sweep(ROOT)
-    assert sweep.co_modified == 107, (
-        "107 since add-cpc-clearing-boundary (PR #560, 2026-09-02) carries "
+    assert sweep.co_modified == 108, (
+        "108 since add-project-repo-schema was authored 2026-09-02: it "
+        "carries a `## MODIFIED Requirements` block over "
+        "ideation-dashboard's \"Project grouping hierarchy\", so it joined the "
+        "co-modified population — and it raised this count by exactly ONE, "
+        "not two, because the only earlier writers of that key are TWO "
+        "ARCHIVED changes that already shared it with each other and were "
+        "already co-modified, so nothing flipped and `sole_modifiers` held "
+        "at 49. A rise of two always comes with the sole set falling; a rise "
+        "of one never does. It read 107 "
+        "since add-cpc-clearing-boundary (PR #560, 2026-09-02), which carries "
         "three `## MODIFIED Requirements` blocks over "
         "clearing-dispatch-boundary — all three tracing to the single "
         "earlier active change add-clearing-dispatch-boundary, previously "
@@ -409,9 +484,14 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "archive moves `active_co_modified`, never the corpus-wide "
         "`co_modified`). ANY later change carrying a MODIFIED block raises it "
         "again, which is one of the two EXPECTED causes of this failure")
-    assert sweep.active_co_modified == 20, (
-        "20 since add-cpc-clearing-boundary (PR #560, 2026-09-02) is itself "
-        "an ACTIVE co-modifier entering the active corpus, AND flips "
+    assert sweep.active_co_modified == 21, (
+        "21 since add-project-repo-schema was authored 2026-09-02 as one "
+        "more ACTIVE co-modifier entering the active corpus — by ONE and not "
+        "two, because the earlier writers of the requirement key it shares "
+        "are both ARCHIVED and were already co-modified, so no ACTIVE change "
+        "flipped and `active_sole` held at 12. It read 20 "
+        "since add-cpc-clearing-boundary (PR #560, 2026-09-02), which is "
+        "itself an ACTIVE co-modifier entering the active corpus AND flips "
         "add-clearing-dispatch-boundary — also ACTIVE — from sole to "
         "co-modified by sharing three requirement keys with it: two ACTIVE "
         "co-modifiers entering the set at once, so `active_co_modified` rises "
@@ -433,14 +513,15 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # This change is itself a sole modifier at requirement granularity — which is
     # exactly why it declaring a parent anyway is the doctrine applied to its
     # author: declaring must never be worth less than omitting.
-    assert sweep.change_ids - 1 == 156, (
+    assert sweep.change_ids - 1 == 157, (
         "the `- 1` subtracts THIS change and nothing else, so the reading is "
         "the corpus without it: 152 at authoring, 153 when "
         "add-clearing-dispatch-boundary landed 2026-09-01, 154 when "
         "declare-spent-bundle-state was authored 2026-09-02, 155 when "
         "add-cpc-clearing-boundary (PR #560) merged 2026-09-02, 156 when "
+        "add-project-repo-schema was authored 2026-09-02, 157 when "
         "update-standards-body-current-publications was adopted 2026-09-03")
-    # MOVED 2026-09-02: `sole_modifiers` fell 50 -> 49 for the same reason
+    # MOVED 2026-09-02: `sole_modifiers` fell 50 → 49 for the same reason
     # `active_sole` falls below — add-clearing-dispatch-boundary left the sole
     # set when add-cpc-clearing-boundary (PR #560) began sharing three
     # requirement keys with it. MOVED AGAIN 2026-09-03: it rose 49 -> 50 when

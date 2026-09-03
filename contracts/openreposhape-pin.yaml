@@ -1,0 +1,135 @@
+schema_version: 1
+kind: pinned_contract_manifest
+
+# ============================================================================
+# openreposhape-pin.yaml — content-addressed consumption of opensoft/openRepoShape.
+#
+# openxFactory does not OWN the project repository schema's mechanics; it
+# RATIFIES the doctrine (`docs/project-repo-schema.md`) and CONSUMES the
+# mechanics at a commit and a set of digests. This file is the whole of that
+# claim, and `scripts/validate-openreposhape-pin.py` is the running code that
+# checks it.
+#
+# WHY `kind: pinned_contract_manifest` UNCHANGED. The grammar is ratified by
+# `neutral-product-pin` and realized twice already — `contracts/openxwallet-pin.yaml`
+# here, and openRepoShape's own assembly-root templates. Only the PRODUCT is new,
+# so reusing the kind keeps `neutral-product-pin` a statement about direction
+# rather than a new shape. A new kind was REJECTED for the same reason the wallet
+# pin rejected one: the `<consumer>_<product>_pin` template governs DESCENDANTS,
+# and openxFactory is not a descendant of the shape standard.
+#
+# WHY THERE IS NO `submodule_path:` AND NO GITLINK. openxFactory CITES this
+# standard; it does not MOUNT it. Nothing in this repository runs out of an
+# openRepoShape checkout — the doctrine is ratified here and the mechanics run in
+# the projects that fork the standard — so a gitlink would put a working-tree
+# obligation on every clone of this repository in exchange for nothing. The
+# verifier therefore resolves bytes from a checkout the caller supplies
+# (`--checkout`) or from the host API (`--from-gh`), and REFUSES rather than
+# passing when it can resolve neither. An unanswerable question is never an
+# implicit pass.
+#
+# THE TRUSTED REFERENT IS `commit` PLUS THE SIXTEEN `sha256`s. `revision_kind:
+# commit` is declared and a tag-only pin is REFUSED (`pin-tag-only`). No tag is
+# recorded beside the commit today because openRepoShape has cut none; when it
+# does, a tag may be recorded as a LABEL and never as the referent — a movable
+# name is not a compatibility pin.
+#
+# THE TWO LISTS COVER THE WHOLE SURFACE, and that is an obligation rather than a
+# courtesy. `neutral-product-pin`'s own scenario says an artifact appearing in
+# neither list "is an undeclared consumption, not a permitted omission", so the
+# sixteen digested members below plus the eighteen `pinned_by_commit_only:`
+# members are exactly the 34 files present at `commit`. The verifier asserts that
+# completeness against the resolved tree; a file at the pinned commit that
+# neither list names is `pin-surface-undeclared`.
+#
+# WHICH SIXTEEN, AND WHY THOSE. They are the standard's NORMATIVE SURFACE — the
+# artifacts a reader of the ratified doctrine must be able to hold openxFactory
+# to: the naming policy as data, the four assembly-root contract and manifest
+# templates, the scaffold, the setup entry point, the bootstrap, the four shipped
+# validators and their shared library, the agent instruction file, the README
+# that states the doctrine in the standard's own words, and the LICENCE the
+# convener ruled. The eighteen path-only members are the standard's own tests,
+# its CI, its ignore files, the `CLAUDE.md` that says only "Read AGENTS.md.", and
+# the spec/code leg skeletons — content the commit addresses and this repository
+# makes no byte-level claim about.
+# ============================================================================
+
+source_repository: opensoft/openRepoShape
+source_url: https://github.com/opensoft/openRepoShape
+
+# openRepoShape at PR #4 (`Naming: a descendant form is a claim that needs a
+# pin`), which is ALSO the commit the pilot's successful end-to-end run was made
+# against and the commit carrying both defects the first pilot run found. Exactly
+# 40 hex characters.
+commit: "deacbdcce4f52af427bcb4edd075fcc992e3dabe"
+revision_kind: commit
+
+digest_algorithm: sha256
+
+# NAMED here so the pin is running code rather than an obligation stated in
+# prose, matching the sibling pin's own `verify_pin:` key.
+verify_pin: scripts/validate-openreposhape-pin.py
+
+# The doctrine this pin serves. openxFactory ratifies the DOCTRINE and pins the
+# MECHANICS; the split is the whole point of the standard being a separate
+# product, and naming the document here keeps the two halves findable from each
+# other.
+doctrine: docs/project-repo-schema.md
+
+# THE SIXTEEN DIGESTED MEMBERS — the standard's normative surface.
+files:
+  - path: contracts/repository-naming.yaml
+    sha256: "77bbecc9e7c3b0883749276be8a056df65e551f370f7361e97e8ec0c3240c9e5"
+  - path: templates/assembly-root/project.yaml
+    sha256: "2beffb829c0cdf19a64b79071eaaf31ec2cb40f6aa85d41412c5c478f154016d"
+  - path: templates/assembly-root/contracts/spec-pin.yaml
+    sha256: "49dd01b80325bbe37d7049b6b6ec0fa9b6636fffdf0fb08a8a858d15e45f16a7"
+  - path: templates/assembly-root/contracts/code-pin.yaml
+    sha256: "32de2faeec6c5630be204de13ba0a7995de403f9ba2b3d7281c8387f7959a0f5"
+  - path: templates/assembly-root/contracts/shape-pin.yaml
+    sha256: "f40230dd50f7ac7eeacecaf5489fe6377b69d807416eb2b5bed4a4a369bb44d5"
+  - path: scaffold-project.py
+    sha256: "4eb8ba8977b28c2596e176ec68162f5aae9be9ef4aa5a0789b2a4dd880c7e08c"
+  - path: setup.sh
+    sha256: "3619df8c8b4c2e1ef0c8abb1ca08d95e2bd103c4fadd150e7361c4eb2ea70abe"
+  - path: bootstrap
+    sha256: "7bf4681f2dc48da5adbc82118d5695d08968e059bfe4add79deb8d422264c303"
+  - path: scripts/repo_shape.py
+    sha256: "bd63bdaa071830eecd70e2a676eca2c54f9d62e9f146017d763b0a9bed84e31d"
+  - path: scripts/validate-repository-naming.py
+    sha256: "7f5696a68875e3f052c5b19be4e87ca12c87783c85b1bf030eb0757de53d402c"
+  - path: templates/assembly-root/scripts/bootstrap.py
+    sha256: "c000abd2871dcaa12e847e1f897c84e4b90f064206e1996be9320e75a6d7bde2"
+  - path: templates/assembly-root/scripts/validate-manifest.py
+    sha256: "83b0c7ebf1bcac1832ddfbf182fa26185f9453cf433c7ed76e580aae558a24f2"
+  - path: templates/assembly-root/scripts/validate-pins.py
+    sha256: "ce2ff38ae65c76f8ead6fa4d6c32380e0bd5a09538471324a91563b51228a278"
+  - path: AGENTS.md
+    sha256: "df58b126279cd5b3d2363bf3ca9ea4e6f66ac47344decaf4c220060232b40b81"
+  - path: README.md
+    sha256: "497930526e1ffa67e6aa90d05e1ac9d0c8ae0aec1a334cb1fb0c1abdf864d8b7"
+  - path: LICENSE
+    sha256: "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+
+# THE EIGHTEEN PATH-ONLY MEMBERS. Presence is checked; identity comes from the
+# commit. Naming them is what makes the surface COMPLETE rather than partially
+# declared — see the header note on `pin-surface-undeclared`.
+pinned_by_commit_only:
+  - .github/workflows/tests.yml
+  - .gitignore
+  - CLAUDE.md
+  - templates/assembly-root/.github/workflows/validate.yml
+  - templates/assembly-root/.gitignore
+  - templates/assembly-root/Makefile
+  - templates/assembly-root/README.md
+  - templates/code-root/README.md
+  - templates/code-root/src/.gitkeep
+  - templates/spec-root/README.md
+  - templates/spec-root/requirements/.gitkeep
+  - tests/conftest.py
+  - tests/test_manifest_validator.py
+  - tests/test_naming_policy.py
+  - tests/test_pin_validator.py
+  - tests/test_repo_hygiene.py
+  - tests/test_scaffold_e2e.py
+  - tests/test_setup_sh.py
