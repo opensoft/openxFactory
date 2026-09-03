@@ -560,93 +560,6 @@ Active changes:
   EXCLUSION (dropping either packet from the merged corpus reproduces the other
   branch's own reading exactly), moved in the same commit, with a dated MOVEMENT
   LOG entry, which is that pin's own protocol.
-- [add-project-repo-schema](openspec/changes/add-project-repo-schema/proposal.md)
-  — proposed 2026-09-02 as the FULL promotion of the `project-repo-schema` staged
-  topic, on Brett Heap's in-session instruction *"start the
-  add-project-repo-schema exit change"* — **admission into the proposal queue,
-  NOT a ratification.** **`Status: ratified`** (2026-09-02, Brett Heap the
-  convener, in the working session, verbatim *"ratify it"*, read on the packet as
-  it landed on `main` at squash `642ac147` (#605) with five checks green; record
-  `openspec/changes/add-project-repo-schema/review/ratification-2026-09-02.md`).
-  **RATIFIED AND STILL ACTIVE**: `code_surface` is non-empty and
-  `target_release` names the next additive contract bundle after `contract-v3.0`,
-  so under `release-realization`'s realization archive gate it archives only when
-  that bundle is cut (`tasks.md` 9.3, UNTICKED and this packet's own act),
-  with 9.2 and 9.4 as the remaining archive preflight. `docs/project-repo-schema.md`
-  moved to `Status: ratified` + `Ratified by: add-project-repo-schema` at the same
-  act; `Status: standard` is not claimed and is not owed until promotion.
-  **THE FORCING FINDING IS A GAP THE FAMILY ALREADY RULED ON AND NEVER WROTE
-  DOWN.** `add-wallet-carried-review-authority` (ratified 2026-08-23) RECOMMENDS
-  a SPEC/CODE/ASSEMBLY shape at `proposal.md:600-617`, rules who elects it (a
-  `PA` decision, `CA`-constrained and `PM`-sequenced) and rules that *"Electing
-  the schema changes no gate, no floor, no grant, and no clearance
-  eligibility"* — and then stops: that change's own `specs/` deltas are exactly
-  two, no `project-repo-schema` capability exists under `openspec/specs/`, and
-  greps for the recommendation resolve only to that one proposal plus its
-  `tasks.md:811-814`. A `PA` who says yes has nothing to say yes to, so the
-  delta is ADDED and not MODIFIED. **ADDS `project-repo-schema`, ELEVEN
-  requirements**, each carrying the doctrine rather than qualifying it: the
-  shape is ELECTIVE and CONFERS NOTHING and a one-repository project is reviewed
-  identically; the ASSEMBLY leg IS the per-project ROOT an engineer clones
-  (Brett Heap, 2026-09-02, *"yes, assembly is per project"*) and MAY pin shared
-  review-team code as an OVERLAY; `<Project>` / `<Project>-spec` /
-  `<Project>-code`, one CamelCase token, suffixes lowercase and hyphenated, the
-  topic `xf-project-<id>` on every leg; the four naming families governed as
-  DATA in the pinned standard, with a `<Domainx><Product>` form read as a CLAIM
-  that needs a DECLARED `open<Product>` pin (Brett Heap, 2026-09-02,
-  *"Descendant only if it pins open<Product>"*; the declared role wins otherwise
-  and the manifest records `also_matches`, and the check stays OFFLINE); each leg
-  pinned TWICE with the gitlink, the pin file and every workflow `@<sha>` moving
-  in ONE commit — the aggregation's own measured defect (seven pin-syncs from
-  2026-08-25, `validate` red on every PR for a day, xFactory #146) written down
-  as machinery; the assembly root's manifest as the SOURCE with a register row
-  DERIVED from it, which is the only construction under which an org with no
-  register is conformant; ONE bootstrap command after
-  `git clone --recurse-submodules`, SCHEMA-NEUTRAL and DEGRADING — the exact line
-  `authority is not wallet-carried in this org` where no wallet register is
-  found, never a failure; review lanes and wallet-carried authority as OPT-IN
-  OVERLAYS that attach to a shape and never the reverse; the standard living in
-  the PUBLIC Apache-2.0 `opensoft/openRepoShape` (both ruled 2026-09-02),
-  consumed by FORK and pinned by openxFactory under `neutral-product-pin`; the
-  four-way ownership split, which **NARROWS the ratified prose *"codexFactory may
-  recommend — and scaffold"* in exactly one respect — where the mechanics LIVE**
-  — codexFactory keeping the recommending role and its engineering overlay in
-  full; and the pre-ratification election rule under which a project records the
-  reference it followed. **MODIFIES `ideation-dashboard`** — the register gains
-  an optional per-project `schema`, an optional `reference` and an optional
-  `repository_roles` list of `spec|code|assembly`, all additive, `repositories`
-  unchanged as the single membership answer, and the existing confers-nothing
-  posture governing the new fields unchanged. **`neutral-product-pin`,
-  `domain-descendant-boundary`, `repo-boundary-governance` and
-  `shared-contract-ownership` were read requirement by requirement and NONE is
-  modified**, the reading recorded in `design.md` § D9. FOUR artifacts LAND WITH
-  THE PROPOSAL and are the only ticked tasks: `docs/project-repo-schema.md`;
-  `contracts/openreposhape-pin.yaml` at openRepoShape
-  `deacbdcce4f52af427bcb4edd075fcc992e3dabe` with SIXTEEN per-file digests
-  computed from the real bytes and EIGHTEEN `pinned_by_commit_only:` members, so
-  all 34 files are declared and none is an undeclared consumption;
-  `scripts/validate-openreposhape-pin.py` (standard-library only, five ordered
-  checks including a SURFACE-COMPLETENESS check the sibling wallet verifier has
-  no counterpart to, six refusal codes, one fixed remediation trailer) with
-  `.github/workflows/openreposhape-pin-gate.yml`, green against the real bytes
-  through both resolvers; and the register schema delta with its four cross-field
-  validator rules and 34 tests. `code_surface: openxFactory`,
-  `target_release:` the next additive contract bundle after `contract-v3.0`,
-  UNNUMBERED because `docs/contract-versioning-policy.md` forbids reserving a
-  minor before merge order is known. ONE registered artifact moves —
-  `scripts/validate-ideation-dashboard-contracts.py`, row 1417 of the v3.0
-  digest inventory — and only by GAINING rules over new OPTIONAL fields, so the
-  class is additive; the schema and the pin are not registered rows and spend
-  nothing. Until the cut, `release-inventory-drift` reporting that validator is
-  the expected between-cuts state, never to be silenced by editing the
-  inventory. Realization evidence is the
-  `MedxSoft/MedxScribe` run of 2026-09-02 against `deacbdc`, and **that pilot is
-  TEMPORARY and not a real project** (Brett Heap, 2026-09-02) — scaffolded only
-  to test openRepoShape end to end and deletable once the standard is ratified;
-  the evidence is the RECORDED RUN, which survives the pilot's deletion. Every
-  authority question is DEFERRED by name to the sibling staged topic
-  `wallet-carried-work-authority`; this packet declares no grant, no clearance
-  and no gate standing, and the layout confers nothing.
 - [add-cpc-clearing-boundary](openspec/changes/add-cpc-clearing-boundary/proposal.md)
   — authored 2026-09-01, RE-SCOPED the same day after adversarial review,
   **`Status: ratified`** (2026-09-02, Brett Heap, in-session, on the recorded
@@ -2159,6 +2072,64 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-project-repo-schema](openspec/changes/archive/2026-09-03-add-project-repo-schema/proposal.md)
+  — **ARCHIVED 2026-09-03 on merged-and-green realization evidence, with this
+  pull request.** Ratified 2026-09-02 by Brett Heap, the convener, verbatim
+  *"ratify it"* (record: `review/ratification-2026-09-02.md`). **THE ARCHIVE
+  BLOCKER WAS `tasks.md` 9.3**, and it is discharged here: under
+  `release-realization`'s realization archive gate a code-surface change
+  archives only on merged-plus-green realization evidence, and this packet's
+  ONE registered artifact, `scripts/validate-ideation-dashboard-contracts.py`,
+  needed its bundle CUT before the gate could open. **Cut as `contract-v3.1`**
+  (`contracts/CHANGELOG.md` § `contract-v3.1`), ADDITIVE (minor) — the schema
+  gains three OPTIONAL fields and the validator four new rules over them
+  alone, with `repositories` unchanged as strings and every existing rule's
+  behaviour untouched, so no consumer pinned at `contract-v3.0` is made
+  non-conformant. 9.2 (pin re-verified against the real `opensoft/openRepoShape`
+  bytes via `--from-gh`, all four slice-4/5 validator lines re-run green) and
+  9.4 (`supporting-docs/` packaged into a verified deterministic bundle) are
+  the remaining archive preflight, both done in the same pull request.
+  **PROMOTES**: `project-repo-schema`, ELEVEN requirements — the shape is
+  ELECTIVE and CONFERS NOTHING, the ASSEMBLY leg IS the per-project root, the
+  four naming families, the double pin and its lockstep invariant, the
+  manifest-is-the-source rule, the bootstrap contract and its degrade line,
+  and the ownership split with the neutral public `opensoft/openRepoShape`
+  standard and codexFactory's engineering overlay. **MODIFIES**
+  `ideation-dashboard`'s "Project grouping hierarchy" — the register's optional
+  `schema`, `reference` and `repository_roles` election, carried verbatim from
+  the ratified delta with every original scenario retained. **PROMOTED SPEC'S
+  `Purpose:` SET FROM THE PROPOSAL, NOT LEFT `TBD`** — `openspec/specs/project-
+  repo-schema/spec.md` states the doctrine in one paragraph rather than the
+  archiver's placeholder line.
+  **REALIZATION EVIDENCE, MEASURED RATHER THAN THE PILOT ALONE.**
+  `MedxSoft/MedxScribe` (2026-09-02, against openRepoShape `deacbdc`) is the
+  TEMPORARY PILOT Brett Heap named as such — *"it is not a real project ...
+  make sure it noted as pilot to test the openRepoShape"* — and is not counted
+  as an adoption. The counted adoptions are dated 2026-09-03, after the pin's
+  `update-shape` re-sync at `opensoft/openRepoShape@51836ba` (`v0.3`):
+  `MedxSoft/MedxEHR` converted IN PLACE (legs `MedxEHR-spec` / `MedxEHR-code`,
+  assembly root `f1e07bd`) and `MedxSoft/MedxGlass` scaffolded as a DECLARED
+  DESCENDANT of `openGlass` (assembly root `a0e1897`), both bootstrap-verified.
+  Full evidence: `openspec/changes/archive/2026-09-03-add-project-repo-schema/tasks.md`
+  § 9.3. **THE SEQUENCED-AFTER SWEEP PIN MOVES IN THIS SAME PULL REQUEST**
+  (`tests/sequenced_after/test_sweep.py`): archiving this co-modified ACTIVE
+  change moves `active_co_modified` alone, exactly the shape #563's, #571's and
+  `declare-spent-bundle-state`'s own archives moved, and the corpus-wide
+  `co_modified`, `sole_modifiers` and `active_sole` readings are untouched.
+  **THAT NOTE IS NOW DISCHARGED.** This pull request was authored against
+  `origin/main` at `7af2725c` while PRs #608 and #609 were landing separately,
+  and both named conflict points were re-measured on the merge of `main` at
+  `0bf37d14` rather than resolved by taking either side blind: this block and
+  main's two RATIFIED active entries were kept BOTH, and the sweep pin was
+  re-derived on the MERGED tree, where `active_co_modified` reads **20** —
+  neither branch's number, because #608's ratification raised it 20 -> 21 and
+  this archive lowered it 21 -> 20, two moves off the same baseline cancelling
+  in one commit. Every other sweep reading holds at main's post-#608/#609
+  value, `main` at `0bf37d14` being the by-exclusion control: 158 change ids,
+  `co_modified` 109, `sole_modifiers` 49, `active_sole` 12, with `active`
+  33 -> 32 and `archived` 125 -> 126 the archive's only other trace. No
+  `contract-v3.1` INVENTORY MEMBER moved on `main` across that window, so the
+  digests stand as cut.
 - [declare-spent-bundle-state](openspec/changes/archive/2026-09-03-declare-spent-bundle-state/proposal.md)
   — **ARCHIVED 2026-09-03 on merged-and-green realization evidence.** Ratified
   2026-09-02 by direct ruling over two flagged decisions (OD-3: a correctly
