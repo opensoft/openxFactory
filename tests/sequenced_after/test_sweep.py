@@ -498,6 +498,46 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       than a present one. The pin moves in the SAME COMMIT as the corpus — here
       the merge commit that resolves this conflict — which is this test's own
       protocol.
+    - `active_co_modified` reads 19, and read 20 above. It moved on 2026-09-03,
+      when `add-project-repo-schema` was ARCHIVED — the change whose AUTHORING
+      raised `co_modified` 107 → 108 and `active_co_modified` 20 → 21 several
+      bullets above, on the very same `## MODIFIED Requirements` block (over
+      `ideation-dashboard`'s "Project grouping hierarchy"). THE SAME SHAPE AS
+      #563's, #571's and `declare-spent-bundle-state`'s own archives: archiving
+      a co-modified ACTIVE change moves it out of the active corpus and into
+      the archived one, so `active_co_modified` falls by exactly one while the
+      corpus-wide `co_modified` — a count of REQUIREMENT-KEY pairings, which an
+      archive never un-shares — holds at 108. The archive was gated on
+      `add-project-repo-schema`'s own `tasks.md` 9.3, the cut of
+      `contract-v3.1` carrying `scripts/validate-ideation-dashboard-
+      contracts.py`'s new bytes, per `release-realization`'s realization
+      archive gate for a code-surface change — this move is therefore dated to
+      the CUT landing rather than to the ratification several bullets above.
+      MEASURED ON BOTH TREES rather than adjusted by arithmetic, via
+      `python3 scripts/validate-sequenced-after.py . --sweep`: `origin/main` at
+      `7af2725c` reads `33 active + 125 archived` = 158 change ids, `108`
+      co-modified, `50` sole modifiers, `20 / 13` active co-modified/sole; this
+      branch after the archive reads `32 active + 126 archived` = 158, `108`,
+      `50`, `19 / 13`. EXACTLY ONE PIN MOVES — `active_co_modified` 20 → 19 —
+      and `main`'s own reading IS the by-exclusion control, this archive being
+      the only difference between the two trees. `change_ids - 1` holds at 157
+      (moving one change between buckets cannot change the total),
+      `sole_modifiers - 1` holds at 49 (this change was always a co-modifier
+      and never a sole one), and `active_sole - 1` holds at 12 (an archive of a
+      co-modified active never touches the sole set). `archived` rises
+      125 → 126; prose headers hold at 3 (3 archived); `declaring`/`root_claims`
+      hold at 1/0. The promoted `project-repo-schema` capability (eleven ADDED
+      requirements) and the promoted `ideation-dashboard` requirement this
+      change's `## MODIFIED Requirements` block targeted are now CANON rather
+      than an active delta, which is what makes the change a FORMER
+      co-modifier rather than a present one. **THIS PULL REQUEST WAS AUTHORED
+      AGAINST `origin/main` AT `7af2725c` WHILE PRs #608 AND #609 WERE LANDING
+      SEPARATELY**, per the coordinating session's instruction not to rebase
+      repeatedly — so this pin, like the README OpenSpec Records block, is a
+      KNOWN, NAMED conflict point that MUST be re-measured against `main`'s
+      post-#608/#609 state before merge rather than resolved by taking either
+      side blind. The pin moves in the SAME COMMIT as the corpus — here the
+      archive commit — which is this test's own protocol.
     """
     sweep = sa.corpus_sweep(ROOT)
     assert sweep.co_modified == 108, (
@@ -529,8 +569,13 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "archive moves `active_co_modified`, never the corpus-wide "
         "`co_modified`). ANY later change carrying a MODIFIED block raises it "
         "again, which is one of the two EXPECTED causes of this failure")
-    assert sweep.active_co_modified == 20, (
-        "20 since declare-spent-bundle-state was ARCHIVED 2026-09-03: "
+    assert sweep.active_co_modified == 19, (
+        "19 since add-project-repo-schema was ARCHIVED 2026-09-03, on its own "
+        "`tasks.md` 9.3 cut of `contract-v3.1`: archiving a co-modified ACTIVE "
+        "change lowers this count while leaving the corpus-wide `co_modified` "
+        "untouched, the same shape #563's, #571's and declare-spent-bundle-"
+        "state's own archives moved. It read 20 "
+        "since declare-spent-bundle-state was ARCHIVED 2026-09-03: "
         "archiving a co-modified ACTIVE change lowers this count while "
         "leaving the corpus-wide `co_modified` untouched, the same shape "
         "#563's and #571's archives moved. It read 21 "
