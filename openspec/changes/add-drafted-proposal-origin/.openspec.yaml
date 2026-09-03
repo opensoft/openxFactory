@@ -1,0 +1,39 @@
+schema: spec-driven
+created: 2026-09-03
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-03-add-drafted-proposal-origin
+  reason: >-
+    RULED IN SESSION on 2026-09-03 by Brett Heap, verbatim: "implement your
+    recommendations on all these", over the lane's written recommendations for
+    openxFactory issues #561/#339, #318, #511, #553 and the #543 fix (b). The
+    ruling and its resolution for THIS issue are recorded as a comment on
+    openxFactory issue #318 — shape 1, a drafted origin state: "The
+    proposal-origin contract gains an origin state that declares provenance
+    without asserting approval (a `drafted` kind, or `proposed_on` without
+    `approved_on`), so an unapproved packet is expressible and lawful;
+    `approved_on` appears when the approval does, and a `Status: ratified`
+    proposal still requires it." Not a staged ideation topic — none exists,
+    searched across `ideation/staging/` and its INDEX. The forcing fact is
+    issue #318 itself, filed out of the `add-release-inventory-drift-check`
+    drafting: a drafted-but-unapproved packet had NO lawful origin shape, so
+    `ad_hoc` without `approved_on` and no origin block at all were both
+    errors, and the two medx boundary packets carried the finding long enough
+    to become part of the standing error baseline every session's zero-new
+    gate is measured against. The issue names the cost this change removes and
+    the move it forbids: "inventing an approval date to make a check pass is
+    the exact move that change's own policy correction now forbids in
+    writing."
+  approved_by: >-
+    Brett Heap — in-session ruling of 2026-09-03, verbatim: "implement your
+    recommendations on all these". THE RULING SETTLES THE SHAPE (shape 1 of
+    the two the issue offered) AND AUTHORIZES THE VEHICLE (an OpenSpec change
+    on `doc-health` with a code surface, proposal and realization authored
+    together). It does NOT cover the six design decisions the authoring
+    session took inside that shape — which of the two shape-1 encodings to
+    use, where the status rule keys, the resolution classes, the
+    one-finding-for-no-provenance-state restructure, the split of the rule
+    between the family and the gate, and the writer's new arm. All six are
+    flagged for veto in `proposal.md` § Orchestrator Decisions and argued in
+    `design.md`.
+  approved_on: 2026-09-03

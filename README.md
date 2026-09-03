@@ -428,6 +428,28 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-drafted-proposal-origin](openspec/changes/add-drafted-proposal-origin/proposal.md)
+  — authored and **RATIFIED 2026-09-03 by Brett Heap, in-session** (verbatim
+  "implement your recommendations on all these"; the ruling and its resolution
+  for this issue are recorded on openxFactory issue **#318**), realization
+  landing with the same PR. Gives a drafted-but-unapproved change packet a
+  LAWFUL ORIGIN SHAPE: an `ad_hoc` origin may declare `proposed_by` +
+  `proposed_on` in place of `approved_by` + `approved_on`, so an unapproved
+  packet is expressible and reports nothing, while approval becomes an
+  ADDITION to a fixed origin identity — `kind` and `id` never move, so the
+  support manifest that repeats them never comes to disagree with the packet.
+  `approved_on` remains required in full wherever approval is claimed, and a
+  proposal whose own `Status:` declares `ratified` or beyond over an
+  unapproved origin is a NEW `error` finding with resolution class
+  `contested` (`unapproved-origin-at-ratification`), because approval must
+  appear when the status claims it and inventing the date is the defect the
+  field exists to catch. Before this, the two shapes available to a drafted
+  packet were both errors and two medx boundary packets carried one long
+  enough to join the standing error baseline. Empty population by
+  construction: all 109 ad-hoc origins in this corpus carry a complete
+  approval pair. Archive gate is **merged-plus-green on `main`**
+  (`pytest tests/doc-health`, `openspec validate --all --strict`, a
+  doc-health run moving by the predicted amount and no other line).
 - [update-standards-body-current-publications](openspec/changes/update-standards-body-current-publications/proposal.md)
   — authored 2026-09-01, **RATIFIED 2026-09-03 by Brett Heap, in-session**
   (verbatim "merge 210 and ratify and merge 593"), with **D1–D4 ADOPTED AS

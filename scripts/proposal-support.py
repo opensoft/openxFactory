@@ -276,6 +276,20 @@ def change_dir(root: Path, change: str, archived: bool) -> Path:
 
 STAGED_ID_RE = re.compile(r"^[A-Za-z0-9_.-]+:staging:[a-z0-9][a-z0-9-]*$")
 ADHOC_ID_RE = re.compile(r"^[A-Za-z0-9_.-]+:adhoc:[A-Za-z0-9][A-Za-z0-9-]*$")
+
+# The two provenance pairs an `ad_hoc` origin can carry
+# (`add-drafted-proposal-origin`, issue #318). COPIED, not imported, on the
+# same reasoning this file already states for `manifest_rel` and for the two
+# id grammars above: `doc_health.proposal_origin` is a sibling under
+# `scripts/` but it depends on PyYAML and on two further package modules,
+# so it fails the "nothing outside the standard library" test that earned
+# `doc_health.pin_sentinels` its import. The duplication is therefore held by
+# an explicit agreement test rather than by convention —
+# `test_the_gate_and_the_family_name_the_same_provenance_fields` in
+# `tests/doc-health/test_proposal_origin.py`, the suite that already loads
+# both sides.
+APPROVAL_FIELDS = ("approved_by", "approved_on")
+DRAFTING_FIELDS = ("proposed_by", "proposed_on")
 STAGING_HEADER_RE = re.compile(r"^Staging ID:\s*`?([^`\s]+)`?\s*$", re.M)
 
 
@@ -360,10 +374,36 @@ def origin_errors(root: Path, directory: Path, *, strict: bool,
                     f"`Staging ID:` ({header}) does not equal the declared "
                     f"origin id ({oid})")
     else:
-        for field in ("reason", "approved_by", "approved_on"):
-            if not str(origin.get(field) or "").strip():
-                errors.append(f"{name}: ad-hoc origin lacks required "
-                              f"`{field}`")
+        if not str(origin.get("reason") or "").strip():
+            errors.append(f"{name}: ad-hoc origin lacks required `reason`")
+        # THE GATE ACCEPTS THE UNAPPROVED STATE TOO, and it has to: a state
+        # the nightly family calls lawful while `verify` rejects it is not a
+        # lawful state, it is a state with two answers. Same three arms as
+        # `doc_health.proposal_origin.check_change`, same field pairs, in the
+        # same order. What the gate does NOT carry is the family's
+        # ratified-status rule (class 7): this function is called at creation
+        # and at transition, when the packet's status claim is `draft` by
+        # construction, and the violation it names can only arise later —
+        # which is when the nightly measures.
+        claims_approval = any(str(origin.get(f) or "").strip()
+                              for f in APPROVAL_FIELDS)
+        claims_drafting = any(str(origin.get(f) or "").strip()
+                              for f in DRAFTING_FIELDS)
+        if claims_approval:
+            for field in APPROVAL_FIELDS:
+                if not str(origin.get(field) or "").strip():
+                    errors.append(f"{name}: ad-hoc origin lacks required "
+                                  f"`{field}`")
+        elif not claims_drafting:
+            errors.append(
+                f"{name}: ad-hoc origin declares no provenance state — "
+                "neither approval (`approved_by` + `approved_on`) nor "
+                "drafting (`proposed_by` + `proposed_on`)")
+        if claims_drafting:
+            for field in DRAFTING_FIELDS:
+                if not str(origin.get(field) or "").strip():
+                    errors.append(f"{name}: drafting origin lacks required "
+                                  f"`{field}`")
     if isinstance(manifest, dict) and isinstance(manifest.get("origin"), dict):
         m_origin = manifest["origin"]
         fields = ["kind", "id"] + (["path"] if kind == "staged" else [])
@@ -399,8 +439,24 @@ def write_origin_block(directory: Path, origin: dict,
         body.append("  reason: >-")
         for chunk in origin["reason"].splitlines() or [origin["reason"]]:
             body.append(f"    {chunk}")
-        body.append(f"  approved_by: {origin['approved_by']}")
-        body.append(f"  approved_on: {origin['approved_on']}")
+        # EVERY LAWFUL AD-HOC SHAPE IS WRITABLE BY THE SANCTIONED WRITER
+        # (`add-drafted-proposal-origin`), or the unapproved state the gate
+        # now accepts has no producer and is hand-authorable only. Both pairs
+        # are written where both are given: who drafted a proposal is not
+        # erased by who later approved it, and the drafting record is the only
+        # trace of the interval.
+        wrote = False
+        for pair in (APPROVAL_FIELDS, DRAFTING_FIELDS):
+            if all(str(origin.get(field) or "").strip() for field in pair):
+                for field in pair:
+                    body.append(f"  {field}: {origin[field]}")
+                wrote = True
+        if not wrote:
+            raise SupportError(
+                f"{directory.name}: an ad-hoc origin needs either "
+                "`approved_by` + `approved_on` (an approved exception) or "
+                "`proposed_by` + `proposed_on` (an unapproved draft); "
+                "neither pair is complete")
     prefix = packet_file.read_text(encoding="utf-8").rstrip("\n") + "\n" \
         if packet_file.is_file() else "\n".join(lines) + "\n"
     packet_file.write_text(prefix + "\n".join(body) + "\n",
@@ -1088,8 +1144,15 @@ def parser() -> argparse.ArgumentParser:
     adhoc = sub.add_parser("declare-adhoc")
     adhoc.add_argument("change")
     adhoc.add_argument("--reason", required=True)
-    adhoc.add_argument("--approved-by", required=True)
-    adhoc.add_argument("--approved-on", required=True)
+    # NEITHER PAIR IS ARGPARSE-REQUIRED, because exactly one of them is
+    # (`add-drafted-proposal-origin`): an approved exception passes
+    # --approved-by/--approved-on, an unapproved draft passes
+    # --proposed-by/--proposed-on, and `write_origin_block` refuses a call
+    # that completes neither pair with a message naming both shapes.
+    adhoc.add_argument("--approved-by")
+    adhoc.add_argument("--approved-on")
+    adhoc.add_argument("--proposed-by")
+    adhoc.add_argument("--proposed-on")
     adhoc.add_argument("--slug")
 
     archive = sub.add_parser("archive")
@@ -1112,14 +1175,28 @@ def main() -> None:
         elif args.command == "declare-adhoc":
             directory = active_change_dir(args.root.resolve(), args.change)
             slug = args.slug or args.change.removeprefix("add-")
-            write_origin_block(directory, {
+            # THE ID DATE IS THE DECLARATION DATE AND IT NEVER MOVES AGAIN.
+            # An origin declared unapproved keeps the date it was drafted on
+            # when its approval later lands: the durable id is part of the
+            # identity the support manifest repeats, and rewriting it at
+            # approval is exactly the mutation the origin-mismatch check
+            # reports. Approval is an ADDITION to this block, never a
+            # re-minting of it.
+            stamp = args.approved_on or args.proposed_on
+            if not stamp:
+                raise SupportError(
+                    "declare-adhoc needs --approved-on (an approved "
+                    "exception) or --proposed-on (an unapproved draft)")
+            origin = {
                 "kind": "ad_hoc",
-                "id": f"{args.root.resolve().name}:adhoc:"
-                      f"{args.approved_on}-{slug}",
+                "id": f"{args.root.resolve().name}:adhoc:{stamp}-{slug}",
                 "reason": args.reason,
-                "approved_by": args.approved_by,
-                "approved_on": args.approved_on,
-            }, args.approved_on)
+            }
+            for field in APPROVAL_FIELDS + DRAFTING_FIELDS:
+                value = getattr(args, field, None)
+                if value:
+                    origin[field] = value
+            write_origin_block(directory, origin, stamp)
             print(f"ad-hoc origin declared for {args.change}")
         elif args.command == "verify":
             errors = verify(args.root, args.change)
