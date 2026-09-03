@@ -114,8 +114,8 @@ the archived
 change then added a fifth `unplaced` class for findings its own arms/
 marker-defect map cannot place, per the canon `Requirement: A
 modified-block-currency finding its own class map cannot place is itself a
-finding`. The ratified
-[`govern-sibling-added-modified-deltas`](../openspec/changes/govern-sibling-added-modified-deltas/proposal.md)
+finding`. The archived
+[`2026-09-02-govern-sibling-added-modified-deltas`](../openspec/changes/archive/2026-09-02-govern-sibling-added-modified-deltas/proposal.md)
 change adds a SIXTH and a SEVENTH class, both `warning` at launch and both
 inserted BEFORE `unplaced` so that the gate-bearing arm still reads first and
 the drift class still reads last: `sibling-pairing`, which evaluates the
@@ -156,6 +156,76 @@ changelog or the inventory to match the absence*. The gap it closes reached
 `contract-v1.33`/`v1.35`/`v1.39` in August and recurred on `contract-v2.3`
 and `contract-v2.4`; a human found it both times (issue #528).
 
+The archived
+[`2026-09-03-declare-spent-bundle-state`](../openspec/changes/archive/2026-09-03-declare-spent-bundle-state/proposal.md)
+change gave that family a **THIRD STATE — SPENT** (ratified 2026-09-02, realized
+PR #587 squash `3fa222f3`, archived 2026-09-03, issue #575),
+between *published* and *owes a tag*. It adds **no family** and moves no family
+count. A bundle that was cut, superseded, and can never carry a legal tag —
+`contract-v2.6` is the first and so far only instance in this estate — may be
+declared spent by ONE reserved single-line form in `contracts/CHANGELOG.md` at
+the published tip, written inside the changelog entry of the bundle that
+superseded it:
+
+    **SPENT BUNDLE:** `<bundle>` — SUPERSEDED BY `<superseding bundle>` — CAUSE: <text> — RULED BY <author>, <YYYY-MM-DD> — MEASUREMENT: <citation>
+
+**Silence is never a declaration.** An untagged superseded bundle that no
+declaration names is reported exactly as before, at `error` and in the same
+words; a bundle never becomes spent by being old, ignored, or inconvenient.
+There are **three outcomes and the middle one is not a refusal**. ACCEPTED —
+every element present, the line inside its superseding bundle's own entry, and
+that bundle itself cut, itself carrying a published annotated tag on a declaring
+commit, and **strictly later** — emits exactly one `info`, classed `contested`,
+on the spent bundle's OWN release inventory
+(`contracts/releases/<bundle>.digests.yaml`, never the manifest and never the
+changelog, because a finding's identity is family + repo + path). PROVISIONAL —
+well formed, successor cut but not yet published — emits one `warning` and
+suppresses the superseded `error`, the successor being graded on its own account.
+REFUSED — successor never cut, successor not later, an element missing, two
+declarations naming one bundle, a declaration outside its successor's entry, or
+one naming the bundle the manifest still declares — is an `error` that accepts
+nothing, and the superseded `error` stands alongside it so a bad declaration
+removes nothing. A declaration whose SUBJECT was never cut disposes nothing and
+is a `warning` on `contracts/CHANGELOG.md`, the one finding of this state with no
+per-bundle inventory to land on. Its action line for the accepted state: *no
+action, and this is NOT the tag obligation having been met — it was
+EXTINGUISHED, by an owner act, at the cost of a version number*. **The successor
+guard is what makes the state unabusable**: the only way to retire a number is to
+publish its replacement's tag, which is the act this family exists to compel. The
+state reaches the ABSENT-tag arm and nothing else — it never quiets a MISPLACED
+tag, a LIGHTWEIGHT ref, or the distance grading of the bundle the manifest
+currently declares — and it is not read backwards onto the five bundles the
+versioning policy records under § *Untagged Bundles After Enforcement Began*, all
+of which were publishable and were published.
+
+**What "inside the entry" means, since containment is the guard the state leans
+on hardest.** An entry runs from its `## <bundle>` heading to the next
+STRUCTURAL BOUNDARY, and every boundary closes it while only a `##` heading
+whose first token is a COMPLETE bundle name opens one — so a declaration under a
+non-release section, under a level-one heading, under an empty or Setext
+heading, or under `## contract-v3.0.1` sits inside NO entry and is REFUSED
+rather than inheriting the previous release's authority. Level THREE and deeper
+do not close (this repository's own reserved line lives inside a
+``### `contract-v2.6` disposition`` subsection of the `contract-v3.0` entry),
+and up to three leading spaces are a heading while four is an indented code
+block. **Fenced blocks are opaque** — to headings and to the reserved opener
+alike — so the form may be DOCUMENTED inside a fence without being PERFORMED,
+which is fail-closed in both directions: an example cannot spend a bundle, and a
+declaration hidden in a fence does not count, leaving the superseded `error`
+standing. Over-closing is the safe error and under-closing is not, which is what
+picks each of these readings.
+
+**Raw HTML is not read at all — it is REFUSED, and a fence is the only opaque
+region.** The family reads `contracts/CHANGELOG.md` as CommonMark PROSE and
+models no HTML block, so a raw-HTML block opener outside a fence (any of
+CommonMark's seven start conditions, at up to three leading spaces) produces one
+`contested` `error` naming the line, and NO SPENT declaration below that line is
+read — declarations above it stand, and any bundle a declaration below it would
+have quieted goes on being reported. A construct this reader cannot parse must
+never be able to quiet a finding, whatever a renderer makes of the lines below
+it; the repair is to remove the HTML or to move the declaration above it. An
+opener shown as an EXAMPLE inside a fence is not an opener.
+
 ## Finding Severities
 
 | Severity | Meaning | Examples |
@@ -163,7 +233,7 @@ and `contract-v2.4`; a human found it both times (issue #528).
 | `critical` | Governance integrity broken | Unbacked `standard` claim; dangling provenance; `record` mutation |
 | `error` | Contract violation | Malformed/unresolved marker; free-form status; aging past escalation; a ratified spec delta that never reached its promoted spec |
 | `warning` | Drift or first-stage aging | Pin drift; copy drift; projection drift; 30-day staged item |
-| `info` | Inventory and metrics | Canon share; per-stage counts; age distributions |
+| `info` | Inventory, metrics, and RECORDED STATES | Canon share; per-stage counts; age distributions; a bundle declared SPENT, which is recorded rather than silent because a reader who finds a release inventory with no matching tag is owed the answer in the report (ruled 2026-09-02) |
 
 **Regression rule:** any `critical` or `error` finding not present in the
 previous report (matched by family + path) opens one issue per run in the

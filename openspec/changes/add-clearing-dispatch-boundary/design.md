@@ -383,6 +383,15 @@ settled question whose alternatives have been erased reads like a question
 nobody asked, and the rejected candidates are the reason the answer is the
 answer.
 
+**CORRECTION, 2026-09-02 — the "PENDING RATIFICATION" half of this
+heading is now historical.** Ratification landed 2026-09-01 (`tasks.md`
+§2.1, "DONE 2026-09-01"), and that same ratification act confirmed OQ3 in
+the terms this section states — the governed data file, read by both the
+L4 guard and the L5 attestation, with per-member group attribution and
+allowlist status. The heading and the "carried to ratification for
+confirmation" sentence above are left as this packet wrote them; this note
+records that the confirmation they anticipate has since happened.
+
 **The question as it stood.** Candidates: the clearing workflow's own
 comments (closest to what it describes, invisible to tooling), a file in
 xFactory (tool-readable, but the neutral contract cannot cite it), or the

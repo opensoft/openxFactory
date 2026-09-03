@@ -8,11 +8,15 @@ nobody shipped — and that is not hypothetical here: `validate-manifest-digests
 exists at all because one stale row (`content-manifest.schema.yaml`) rode through
 THREE bundle cuts undetected.
 
-**AND THAT SWEEPER IS WIRED INTO NOTHING.** `grep -rn validate-manifest-digests`
-finds it in prose — a README line, changelog history, task lists — and in no
-workflow and no test. So it catches drift only when a human remembers to run it,
-which is the same failure mode it was written to close, one level up. This test
-is the standing check for the rows THIS family owns.
+**THAT SWEEPER WAS WIRED INTO NOTHING, until issue #512's second half gave it
+a lane.** `grep -rn validate-manifest-digests` used to find it in prose — a
+README line, changelog history, task lists — and in no workflow and no test;
+it now also finds `tests/manifest_digests/test_manifest_digest_sweep.py`,
+which runs it as a subprocess on every required-suite pass and proves it can
+fail closed, not only that it passes today. It used to catch drift only when
+a human remembered to run it, which was the same failure mode it was written
+to close, one level up. This test remains the standing check for the rows
+THIS family owns.
 
 WHY NOT THE WHOLE MANIFEST. The estate-wide sweep is
 `scripts/validate-manifest-digests.py`'s job and it is the right tool for it
