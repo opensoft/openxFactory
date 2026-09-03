@@ -105,6 +105,39 @@ carried forward unchanged and re-baselined by whichever cut comes next. This
 one does. No content is altered by the re-baseline; the digest simply now
 matches what has been on `main` since 2026-09-02.
 
+**AND THAT DOCUMENT MOVES A SECOND TIME AT THIS CUT, FOR A REASON OF ITS OWN.**
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+gains a new subsection, *The SPENT State — a Cut Number That Can Never Be
+Published*, under § *Immutable Tag Correction*. That is
+`declare-spent-bundle-state`'s task **3.1**: the obligation-side DEFINITION of
+the SPENT state — the third state between published and owes-a-tag, its
+reserved single-line declaration form and the entry that must contain it, the
+successor guard in all three of its conjuncts, and the three severities the
+`release-tag-publication` family reports it at. OD-6 routed that paragraph to
+*"the next contract cut"* and Brett Heap affirmed the routing on PR **#587**
+(2026-09-03T02:49:08Z): *"Task 3.1 (policy-side SPENT paragraph in
+`docs/contract-versioning-policy.md`) deferred to the next cut per OD-6's shape
+argument: affirmed."* **THIS IS THAT CUT.** The consumer-facing half is NOT
+re-authored here: #577 recorded the supersession as Instance Six and the new
+subsection cites it rather than restating it, *"two records of one measurement
+is how they drift apart"*.
+
+**THE TWO MOVEMENTS IN THIS ONE FILE ARE DISTINCT, AND THE PARAGRAPH ABOVE IS
+ABOUT THE FIRST.** #577's bytes are carried forward with no content altered;
+this cut's bytes are content deliberately ADDED. ONE rebuilt inventory
+re-baselines both, which is why `docs-contract-versioning-policy.md`'s digest
+in [`contract-v3.1.digests.yaml`](releases/contract-v3.1.digests.yaml) records
+the policy document's bytes AS CUT rather than as `contract-v3.0` recorded
+them — and that re-baseline is what discharges `declare-spent-bundle-state`
+§ 3.2, under which this changelog's editorial drift `info` and the policy
+document's `release-inventory-drift` ERROR *"both clear on their own when the
+inventory re-baselines"*.
+
+**NOTHING IS DECLARED SPENT BY THIS CUT.** `contract-v2.6`'s declaration stands
+exactly where it was written, inside § `contract-v3.0`'s own entry below, and
+this cut neither adds a declaration nor edits one. DEFINING the state and
+PERFORMING it are different acts, and only the first happens here.
+
 ### Realization evidence
 
 `MedxSoft/MedxScribe` (2026-09-02, against openRepoShape `deacbdc`) is a
