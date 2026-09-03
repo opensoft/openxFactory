@@ -232,9 +232,11 @@ credential_bindings:
 The binding says where the credential can be resolved after approval. It must
 not include the raw secret value, and it must not include one in
 `consumer.holder_ref`, `consumer.fetch_identity` or
-`consumer.identity_namespace` either — those three members are free strings on
-the record kind whose invariant is "never bake a secret", so the same discipline
-governs all four.
+`consumer.identity_namespace` either. FOUR FREE STRINGS ON THIS RECORD KIND ARE
+SCREENED, and they are named rather than counted: `secret_ref` itself, and those
+three members of the `consumer:` block. The record kind's invariant is "never
+bake a secret", so one discipline governs all four and a new free-string member
+joins the screen in the release that declares it.
 
 `consumer:` declares WHO holds this binding and WHAT IDENTITY that system uses
 to authenticate to the secret store. It is optional at the release that

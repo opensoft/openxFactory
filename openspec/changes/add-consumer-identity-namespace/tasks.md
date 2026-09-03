@@ -351,6 +351,47 @@ Discharged by § 4.4a exactly as that gate's failure message prescribes — the
 subjects NAMED, in the same commit, with the reason. No test was added, removed,
 renamed or weakened, and no assertion was loosened.
 
+## 8.3 The bench round
+
+**Codex was REQUESTED ONCE AND REFUSED, and the refusal is recorded verbatim
+rather than summarised** (PR #622, 2026-09-03T20:19:42Z):
+
+> You have reached your Codex usage limits for code reviews. You can see your
+> limits in the Codex usage dashboard. To continue using code reviews, you can
+> upgrade your account or add credits to your account and enable them for code
+> reviews in your settings.
+
+No further request was made. **Sourcery is an upsell stub on this repository**
+and returned its standing "your private repo does not have access" notice, which
+is not a review.
+
+**COPILOT DID READ IT** and returned 🟡 *Changes recommended* with THREE
+findings. Two TAKEN, one REFUTED FROM THE RECORD:
+
+1. **TAKEN** — `docs/credential-access-model.md` said "those three members …
+   governs all four", leaving the fourth sink to arithmetic. The count was
+   correct and the sentence was still misreadable, which a reviewer proved by
+   misreading it. Repaired by NAMING all four — `secret_ref` and the three
+   `consumer:` members — instead of counting them.
+2. **TAKEN** — `docs/domain-factory-starter-pack.md`: the inserted clause left a
+   run-on line breaking the list's wrapping. Re-wrapped.
+3. **REFUTED, with the substantive half TAKEN.** Copilot asked that
+   `_consumers()` sort the binding keys, calling positional indexing fragile.
+   Sorting is REFUSED: no test in that section depends on WHICH binding receives
+   an edit — every assertion is symmetric over the pair, because the fault is a
+   property of the PAIR — so sorting would fix an order the tests do not read
+   while implying they do. The REAL fragility underneath it is different and is
+   taken: two tests read `_findings(doc)[0]` without pinning the arity, so a
+   second finding arriving later would change what they assert about WITHOUT
+   failing them. Both now assert `len(findings) == 1` first, and `_consumers`
+   carries a docstring saying which property is load-bearing and which is not.
+
+**ONE BENCH READ THIS PACKET, NOT TWO**, and that is stated rather than rounded
+up. The prescriber whose absence the predecessor recorded as a verification gap
+was absent here too — for the same reason, its usage limit — and the mitigation
+relied on is the packaged corpus in both directions plus the gates in § 7, not a
+second reader.
+
 ## 9. NOT part of this change
 
 - **The CUT** — the ruling's own exclusion. § 5.3 says what it owes.

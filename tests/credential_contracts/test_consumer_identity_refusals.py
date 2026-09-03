@@ -648,6 +648,16 @@ def _same_name_different_holders(secret_b="a-different-secret"):
 
 
 def _consumers(doc):
+    """The two consumer blocks, in the template's own declaration order.
+
+    ORDER IS DELIBERATELY NOT SORTED, and the reason is that no test in this
+    section depends on WHICH binding receives an edit — every assertion is
+    symmetric over the pair, because the fault this section is about is a
+    property of the PAIR and not of either side. Sorting the keys would fix an
+    order the tests do not read while implying they do. What DOES matter is the
+    arity of the findings, and the two tests that index into a finding list pin
+    `len(...) == 1` before they do.
+    """
     return [b["consumer"] for b in doc["credential_bindings"].values()]
 
 
@@ -696,9 +706,13 @@ def test_the_one_sided_message_names_the_remedy_that_keeps_the_record_TRUE():
     that carries it."""
     doc = _same_name_different_holders()
     _consumers(doc)[0]["identity_namespace"] = "directory-tenant-a"
-    message = _findings(doc)[0]
-    assert "identity_namespace" in message
-    assert "BOTH bindings" in message
+    findings = _findings(doc)
+    # PIN THE ARITY BEFORE READING AN INDEX. `[0]` on an unpinned list reads
+    # whichever finding happened to sort first, so a second finding arriving
+    # later would change what this test asserts about without failing it.
+    assert len(findings) == 1
+    assert "identity_namespace" in findings[0]
+    assert "BOTH bindings" in findings[0]
 
 
 def test_an_UNGRAMMATICAL_namespace_is_not_read_as_one_and_the_pair_still_reports():
@@ -720,7 +734,9 @@ def test_the_message_names_the_namespace_when_BOTH_sides_share_one():
     doc = _same_name_different_holders()
     for consumer in _consumers(doc):
         consumer["identity_namespace"] = "directory-tenant-a"
-    assert "in identity_namespace 'directory-tenant-a'" in _findings(doc)[0]
+    findings = _findings(doc)
+    assert len(findings) == 1
+    assert "in identity_namespace 'directory-tenant-a'" in findings[0]
 
 
 def test_the_namespace_does_not_reach_a_pair_whose_fetch_identities_ALREADY_differ():
