@@ -367,9 +367,18 @@ _HTML_TYPE6_TAGS = (
     "|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr"
     "|track|ul")
 _HTML_TAGNAME = r"[A-Za-z][A-Za-z0-9-]*"
+# THE UNQUOTED VALUE TOKEN IS `[ \t\v\f]` TOO, WHICH IT WAS NOT UNTIL ROUND 12
+# (Copilot, round 12 on PR #589). Every other whitespace slot in this
+# attribute — the separator before the name, and around `=` — was already
+# narrowed to CommonMark's class; the value token alone was still `\s`, so
+# `<mytag class=a\N{NO-BREAK SPACE}b>` split at the NBSP and the line was not
+# read as a kind-7 opener at all — measured, and it is over-CLOSING rather
+# than an accept (see the evidence file): the reader kept reading and treated
+# headings inside the block as headings, which contradicts this file's own
+# stated rule regardless of which direction it happens to fail in.
 _HTML_ATTR = (r"(?:[ \t\v\f]+[A-Za-z_:][A-Za-z0-9_.:-]*"
               r"(?:[ \t\v\f]*=[ \t\v\f]*"
-              r"(?:[^\s\"'=<>`]+|'[^']*'|\"[^\"]*\"))?)")
+              r"(?:[^ \t\v\f\"'=<>`]+|'[^']*'|\"[^\"]*\"))?)")
 # ONE PATTERN, because there is no longer a state machine to tell the kinds
 # apart — only the question "does a raw HTML block begin here". `[ \t\v\f]` is
 # CommonMark's whitespace class rather than `\s`, for the reason the ATX

@@ -656,3 +656,82 @@ either — so a VT-only line is ONE line, and it is a PARAGRAPH.
 
 Counts after round 11: family file **128 passed** (120 → 128), `tests/doc-health`
 **1493 passed, 0 failed**.
+
+## § N — bot round 12: the unquoted attribute VALUE token was still `\s`
+
+**Copilot, on round 11's head `c1b6eb3e`, and it is round 3's lesson arriving
+in the ONE piece of `_HTML_ATTR` round 3 did not reach.** The separator before
+an attribute name and the whitespace around `=` were already narrowed to
+`[ \t\v\f]`; the unquoted VALUE token alone was still `[^\s"'=<>` `]+`, so
+Python's `\s` — which admits U+00A0 and the other Unicode spaces CommonMark
+does not — could split a value CommonMark reads as one token. The comment
+immediately above `_HTML_ATTR` already claimed the narrower class for the
+whole pattern; the code did not yet match its own comment.
+
+A `div` (or any other `_HTML_TYPE6_TAGS` member) cannot exercise this: kind 6
+matches on the tag name alone with no `$` anchor, so it matches regardless of
+what the attribute-value fix touches. The measurement below uses `mytag`, a
+name in no kind, so only the kind-7 path is live.
+
+BEFORE (head `c1b6eb3e`):
+```
+input : '<mytag class=a\xa0b>'   (U+00A0 inside the unquoted `class` value)
+call  : _HTML_OPENER.match(line)
+result: None — NOT recognized as a kind-7 opener
+```
+
+AFTER (this fix):
+```
+input : '<mytag class=a\xa0b>'   (unchanged)
+call  : _HTML_OPENER.match(line)
+result: a Match — recognized as a kind-7 opener
+```
+
+The control, both before and after: `<mytag class=a b>` (a real space, not
+U+00A0) matches on both sides of the fix — unaffected, as expected, since the
+space still ends the `class` token and `b` still parses as a second bare
+attribute either way. And the live corpus: `contracts/CHANGELOG.md` still
+reads `raw_html=None` after the fix (`test_this_repositorys_changelog_carries_
+no_raw_html`) — the estate has never used raw HTML, so this costs it nothing.
+
+**THE DIRECTION, STATED HONESTLY, BECAUSE IT IS THE OPPOSITE OF WHAT THE
+REVIEW COMMENT CALLED IT.** Copilot's comment named this "the unsafe
+direction." Measured, it is not. A MISSED kind-7 opener does not make the
+reader ACCEPT anything: `read_changelog` never sets `raw_html`, so it never
+stops, and it just keeps reading the lines that follow as ordinary CommonMark
+prose. If one of those lines — content that a correct reader would have left
+opaque inside the raw HTML block — happens to be heading-shaped, the reader
+closes (or reopens) an entry on it exactly as it would for any other line that
+looks like a heading, per the module's OVER-CLOSING-IS-FAIL-CLOSED rule
+recorded at the top of this file's boundary section. That can only move a
+REAL declaration below it OUT of the entry it should have been contained by —
+a false REFUSAL of a correctly contained declaration, i.e. the
+superseded-and-never-published `error` stands where an `info` was owed — never
+the reverse. A missed opener is therefore a CONSISTENCY defect against this
+module's own stated whitespace rule (the comment already claimed `[ \t\v\f]`
+throughout; the code did not deliver it), not a containment escape, and it is
+fixed for that reason: a pattern contradicting the module's own rule is a
+defect regardless of which direction it happens to fail in, and this one
+happens to fail on the safe side.
+
+**Test-only correction carried in the same round**: the live-changelog splice
+test (`test_this_repositorys_live_declaration_survives_every_boundary_rule`)
+built its splice point with `text.splitlines()`, which breaks on the same
+eight separators round 4 (§ H) removed from the parser's own `_lines`. A
+splice built with `splitlines()` could land at a line boundary `_lines` does
+not recognize, testing a document the parser never actually sees. Switched to
+`rtp._lines(text)` — the parser's own splitter — with no other change to the
+test's behaviour; `_lines` exists and is documented at line 523 of
+`release_tag_publication.py` ("The document's lines, split on CommonMark's
+line endings and no others").
+
+**ADDED — 1 test function, 7 cases**:
+`test_unquoted_attribute_value_token_uses_commonmarks_whitespace_class`,
+parametrized over U+00A0 and U+2028 (stay inside the token — recognized), a
+plain letter run (the control — recognized), and a real space, tab, vertical
+tab and form feed (each splits the token — a bare digit right after the split
+can never open a new attribute name, so the opener is refused).
+
+Counts after round 12: family file **135 passed** (128 → 135), `tests/doc-health`
+**1500 passed, 0 failed** (1493 → 1500, the same +7), `tests/sequenced_after`
+**118 passed**.

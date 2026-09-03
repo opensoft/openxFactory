@@ -1027,6 +1027,54 @@ def test_kind_7_is_not_gated_on_whether_a_paragraph_is_open():
     assert control.declarations[0].entry == "contract-v3.0"
 
 
+# THE KIND-7 UNQUOTED ATTRIBUTE VALUE, ROUND 12 (Copilot on PR #589). A `mytag`
+# name is used rather than `div` or another `_HTML_TYPE6_TAGS` member — a kind
+# 6 tag matches on the tag name alone, with no `$` anchor, so it would match
+# regardless of anything this fix touches and would exercise nothing. A digit
+# placed right after the separator makes the token boundary observable either
+# way, because a bare digit can never itself open an attribute name: the
+# opener is recognized only when the character before the digit stayed inside
+# the unquoted value token rather than ending it.
+#
+# CommonMark's whitespace is SPACE, TAB, VT, FF, CR or LF — nothing else.
+# U+00A0 (no-break space) and U+2028 (line separator) are in Python's `\s` but
+# are not CommonMark whitespace, so they stay inside the token; a real
+# CommonMark space, tab, VT or FF ends it, and what follows must then parse as
+# a new attribute name, which a bare digit cannot.
+UNQUOTED_ATTR_VALUE_TOKENS = (
+    ("U+00A0 stays inside the token", "\N{NO-BREAK SPACE}", True),
+    ("U+2028 stays inside the token", "\N{LINE SEPARATOR}", True),
+    ("a plain letter run, the control", "z", True),
+    ("a space splits the token", " ", False),
+    ("a tab splits the token", "\t", False),
+    ("a vertical tab splits the token", "\v", False),
+    ("a form feed splits the token", "\f", False),
+)
+
+
+@pytest.mark.parametrize("name,infix,is_opener", UNQUOTED_ATTR_VALUE_TOKENS,
+                         ids=[row[0] for row in UNQUOTED_ATTR_VALUE_TOKENS])
+def test_unquoted_attribute_value_token_uses_commonmarks_whitespace_class(
+        name, infix, is_opener):
+    """`_HTML_ATTR`'s unquoted-value token must exclude CommonMark's
+    whitespace class and nothing wider, so a character CommonMark does not
+    treat as whitespace stays inside one token while one it does treat as
+    whitespace ends it — see the comment above `_HTML_ATTR` for the round-12
+    finding this corrects."""
+    doc = "\n".join(["## contract-v3.0 — a cut", "",
+                      f"<mytag class=a{infix}5>", "", _spent_line()])
+    read = rtp.read_changelog(doc)
+    if is_opener:
+        assert read.raw_html is not None and read.raw_html[0] == 3, (
+            f"{name}: expected a kind-7 opener")
+        assert read.declarations == []
+    else:
+        assert read.raw_html is None, (
+            f"{name}: the split token should not have matched an opener")
+        assert len(read.declarations) == 1
+        assert read.declarations[0].entry == "contract-v3.0"
+
+
 def test_an_html_opener_inside_a_fence_is_an_example_and_not_an_opener():
     """FENCES REMAIN THE ONLY OPAQUE REGION, so the form of a raw HTML block may
     be DOCUMENTED without being PERFORMED — exactly as the reserved SPENT opener
@@ -1115,7 +1163,13 @@ def test_this_repositorys_live_declaration_survives_every_boundary_rule():
     # passed whatever the fence rule did. The line below is a REAL line inside
     # the fenced region, and the test is asserted to be non-vacuous by finding
     # that same line accepted once the fence is taken away.
-    lines = text.splitlines()
+    #
+    # SPLIT WITH `rtp._lines`, NOT `str.splitlines()` — Copilot's round-12
+    # finding: the parser's own line splitter is CommonMark's line endings and
+    # no others, so a splice built with `splitlines()` could land at a line
+    # boundary the parser does not recognize, testing a document the parser
+    # never sees.
+    lines = rtp._lines(text)
     opener = next(i for i, line in enumerate(lines)
                   if line.startswith("```"))
     hidden = _spent_line(subject="contract-v9.9",
