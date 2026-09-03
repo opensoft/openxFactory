@@ -546,10 +546,63 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       `declaring`/`root_claims` hold at 1/0, none of which this ratification
       touches. The pin moves in the SAME COMMIT as the corpus — here the
       merge commit itself — which is this test's own protocol.
+    - `co_modified` reads 111, `active_co_modified` reads 22,
+      `change_ids - 1` reads 158 and `sole_modifiers - 1` falls to 47, while
+      `active_sole - 1` HOLDS at 11. They moved on 2026-09-03 when
+      `amend-owner-layer-severity` was AUTHORED (lane `openxfactory-smalls`,
+      openxFactory issues #561 and #339): one more ACTIVE change, carrying TWO
+      `## MODIFIED Requirements` blocks — over `workflow-gate-contract`'s
+      'Owner layer constraint' and `release-surface-integrity`'s 'The declared
+      bundle describes the release surface' — so it is itself a CO-modifier.
+      THE RISE IS TWO AND THE SOLE SET FALLS BY ONE, which is the
+      `add-cpc-clearing-boundary` shape rather than the `add-project-repo-schema`
+      one, and the STANDING OF THE EARLIER WRITERS is again what decides it:
+      the earlier writer of the `release-surface-integrity` key,
+      `archive/2026-08-24-add-release-inventory-drift-check`, was ALREADY
+      co-modified and does not flip; the earlier writer of the
+      `workflow-gate-contract` key,
+      `archive/2026-07-09-promote-workflow-gate-contract`, was SOLE and DOES —
+      so `co_modified` rises by exactly two (the newcomer entering, that one
+      change leaving `sole` for it) and `sole_modifiers` falls by exactly one.
+      Sharing keys with TWO earlier changes flips membership ONCE for each of
+      them and never twice for either, membership being boolean.
+      `active_co_modified` rises by ONE and not two, and `active_sole` holds,
+      because the change that flipped is ARCHIVED: an archived flip cannot
+      enter or leave an ACTIVE population. `change_ids` rises by one
+      (`33 active + 125 archived` = 158 becomes `34 active + 125 archived` =
+      159), `archived` holds at 125, prose headers hold at 3 (3 archived), and
+      `declaring`/`root_claims` hold at 1/0 — the packet declares no
+      `sequenced_after:` field, the field being carried by an ACTIVE,
+      UNPROMOTED change.
+      MEASURED ON BOTH TREES AND BY EXCLUSION rather than inferred from the
+      arithmetic, via `python3 scripts/validate-sequenced-after.py . --sweep`:
+      `origin/main` at `0bf37d14` reads `33 active + 125 archived` = 158 change
+      ids, `109` co-modified, `49` sole modifiers, `21 / 12` active
+      co-modified/sole; this branch reads `34 active + 125 archived` = 159,
+      `111`, `48`, `22 / 12`; and the SAME sweep on this branch with only
+      `openspec/changes/amend-owner-layer-severity/specs/` moved aside reads
+      `159`, `109`, `50`, `21 / 13` — the packet still present as one more
+      change id but owning no requirement key, which reproduces main's two
+      co-modified readings EXACTLY and isolates the entire move to those two
+      delta directories. The pin moves in the SAME COMMIT as the corpus, which
+      is this test's own protocol, and that PR discloses that it touches this
+      file for that reason and for no other: corpus BOOKKEEPING, not a code
+      surface — the packet declares `code_surface: none` and names this pin in
+      that declaration.
     """
     sweep = sa.corpus_sweep(ROOT)
-    assert sweep.co_modified == 109, (
-        "109 since create-medxchart-overlay-boundary was RATIFIED 2026-09-03 "
+    assert sweep.co_modified == 111, (
+        "111 since amend-owner-layer-severity was AUTHORED 2026-09-03 with TWO "
+        "`## MODIFIED Requirements` blocks — over workflow-gate-contract's "
+        "'Owner layer constraint' and release-surface-integrity's 'The declared "
+        "bundle describes the release surface'. It rose by TWO and not one: the "
+        "newcomer entering the set, plus the ARCHIVED "
+        "promote-workflow-gate-contract leaving `sole` for it, its "
+        "owner-layer key having been shared with nothing until now — while the "
+        "other earlier writer, the archived add-release-inventory-drift-check, "
+        "was already co-modified and did not flip. A rise of two always comes "
+        "with the sole set falling, and it did (49 -> 48). It read 109 "
+        "since create-medxchart-overlay-boundary was RATIFIED 2026-09-03 "
         "and gained a `## MODIFIED Requirements` block over "
         "domain-descendant-boundary's 'A descendant is placed at a ratified "
         "placement'. THE THIRD EXPECTED CAUSE OF THIS FAILURE, distinct from "
@@ -592,8 +645,14 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "archive moves `active_co_modified`, never the corpus-wide "
         "`co_modified`). ANY later change carrying a MODIFIED block raises it "
         "again, which is one of the two EXPECTED causes of this failure")
-    assert sweep.active_co_modified == 21, (
-        "21 since create-medxchart-overlay-boundary was RATIFIED 2026-09-03, "
+    assert sweep.active_co_modified == 22, (
+        "22 since amend-owner-layer-severity was AUTHORED 2026-09-03 as one "
+        "more ACTIVE co-modifier entering the active corpus — by ONE while the "
+        "corpus-wide `co_modified` rose by TWO, and by ONE while `active_sole` "
+        "HELD at 12, because the change it flipped out of the sole set is "
+        "ARCHIVED and an archived flip can neither enter nor leave an ACTIVE "
+        "population. It read 21 "
+        "since create-medxchart-overlay-boundary was RATIFIED 2026-09-03, "
         "making an ALREADY-ACTIVE change a co-modifier, with `active_sole` "
         "falling 13 -> 12 in the same move because it is the same change "
         "leaving the sole set. THE 20 IT ROSE FROM IS MAIN'S OWN, measured on "
@@ -634,7 +693,9 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # This change is itself a sole modifier at requirement granularity — which is
     # exactly why it declaring a parent anyway is the doctrine applied to its
     # author: declaring must never be worth less than omitting.
-    assert sweep.change_ids - 1 == 157, (
+    assert sweep.change_ids - 1 == 158, (
+        "158 since amend-owner-layer-severity was authored 2026-09-03, one "
+        "more ACTIVE change in the corpus. Before that: "
         "the `- 1` subtracts THIS change and nothing else, so the reading is "
         "the corpus without it: 152 at authoring, 153 when "
         "add-clearing-dispatch-boundary landed 2026-09-01, 154 when "
@@ -671,7 +732,17 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # change leaving sole. The `- 1` still subtracts only
     # add-sequenced-after-substrate (unaffected, still sole), so the reading
     # falls with `sole_modifiers` to 48.
-    assert sweep.sole_modifiers - 1 == 48
+    #
+    # AND MOVED AGAIN 2026-09-03: `sole_modifiers` fell 49 -> 48 when
+    # amend-owner-layer-severity was AUTHORED and its `## MODIFIED
+    # Requirements` block over workflow-gate-contract's 'Owner layer
+    # constraint' flipped the ARCHIVED promote-workflow-gate-contract — sole
+    # until then on that key — into the co-modified set. The newcomer is a
+    # co-modifier itself and never joins `sole`, so this pin records the
+    # FLIPPED change alone. The `- 1` still subtracts only
+    # add-sequenced-after-substrate (unaffected, still sole), so the reading
+    # falls with `sole_modifiers` to 47.
+    assert sweep.sole_modifiers - 1 == 47
     # STILL INTACT ON ITS MERITS, not by a cancelling pair of errors — checked,
     # because #563's archive landing between the authoring measurement and this
     # reading makes the coincidence worth ruling out explicitly. That archive
@@ -709,6 +780,15 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # together, as they always do when the change that flips is itself
     # ACTIVE. The `- 1` still subtracts add-sequenced-after-substrate alone,
     # so the reading falls to 11.
+    #
+    # HELD 2026-09-03 through amend-owner-layer-severity's authoring, and the
+    # hold is asserted rather than assumed because the same commit moves the
+    # other four readings: that packet is a CO-modifier, so it never enters
+    # `sole`, and the one change it flipped OUT of `sole`
+    # (promote-workflow-gate-contract) is ARCHIVED, so no ACTIVE sole modifier
+    # moved in either direction. This is the same reading the
+    # add-project-repo-schema entry relied on and the OPPOSITE of #560's, where
+    # the flipped change was itself active.
     assert sweep.active_sole - 1 == 11
     assert sweep.prose_headers == 3 and sweep.prose_headers_archived == 3
     assert sweep.declaring == 1

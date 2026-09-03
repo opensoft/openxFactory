@@ -567,6 +567,41 @@ _LEDGER_SUBJECTS = {
     # block is promoted.
     ("add-chain-attestation", "signed-execution-chain",
      "A gate validates the short chain as a hash-linked chain"),
+    # ADDED 2026-09-03 BY `amend-owner-layer-severity` — TWO ROWS, one per
+    # MODIFIED block, from the doc-only packet that carries openxFactory issues
+    # #561 and #339 on Brett Heap's 2026-09-03 ruling ("implement your
+    # recommendations on all these", recorded verbatim on both issues).
+    #
+    # THE FIRST ROW IS A RULED SEVERITY CHANGE, and it is the narrowest one a
+    # requirement of three units can carry: promoted canon says an unresolvable
+    # `owner_layer` "SHALL be reported as a validator warning", while
+    # `scripts/validate-domain-factory.py` has reported it with `rpt.error`
+    # since `493fb33d` (2026-07-03) — six days BEFORE the requirement was
+    # promoted at `a1a2802b`. The ruling brings CANON to the code, so the block
+    # says `error` in the body clause and `an error` in the scenario's THEN
+    # bullet. Those are the 2 of 3 units the arm reports as uncarried, and the
+    # third — the scenario's WHEN bullet — is byte-identical. The word-diff
+    # against canon is exactly two words and nothing else. NO LINE OF THE
+    # VALIDATOR MOVES in that packet; the finding is INFO and it is the audit
+    # trail for the amendment.
+    ("amend-owner-layer-severity", "workflow-gate-contract",
+     "Owner layer constraint"),
+    # THE SECOND ROW IS A DATED ILLUSTRATION, not a rule change: canon's
+    # tag-is-not-the-reference-point paragraph names `contract-v1.33`,
+    # `contract-v1.35` and `contract-v1.39` as bundles that "are recorded in
+    # the changelog and the manifest with no published tag", and all three were
+    # retro-tagged on 2026-08-25 by PR #333, so the present tense is false. The
+    # ONE of 23 units the arm reports as uncarried is exactly that paragraph,
+    # past-tensed with the retro-publication dated — the same treatment #333
+    # gave the identical claim in `scripts/doc_health/release_inventory.py`'s
+    # docstring, and the treatment issue #339 named. The rule the paragraph
+    # justifies, the fourth scenario that states it, and the other 22 units are
+    # carried byte-for-byte.
+    #
+    # BOTH ROWS RETIRE when the packet archives and its blocks are promoted;
+    # `code_surface: none`, so that is its landing.
+    ("amend-owner-layer-severity", "release-surface-integrity",
+     "The declared bundle describes the release surface"),
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -922,7 +957,9 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "together; 7 since add-notebook-projection-identity archived on "
         "2026-08-31 and its block promoted byte-identical; 8 since "
         "add-chain-attestation's proposal merged 2026-09-01 via #510's "
-        "landing, its MODIFIED block resolving canon)",
+        "landing, its MODIFIED block resolving canon; 10 since "
+        "amend-owner-layer-severity was authored 2026-09-03 with TWO MODIFIED "
+        "blocks, one per issue it carries)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
