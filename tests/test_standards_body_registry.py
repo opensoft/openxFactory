@@ -128,6 +128,24 @@ class TestVerificationClaimScope:
                       "confidence"):
             assert any(f"newcomer.{field}" in e for e in errors), field
 
+    def test_an_EMPTY_verification_date_is_a_MALFORMED_claim_not_an_absent_one(
+        self,
+    ) -> None:
+        """The shape most likely to be a mistake must not be the one that escapes.
+
+        A truthiness test read `verified_on: ""` and `verified_on:` (null) as
+        "makes no claim", so a half-written record slipped through while a
+        record that never mentioned verification was held to nothing. Presence
+        of the key is the claim.
+        """
+        for blank in ("", None):
+            errors = registry_errors(
+                {"bodies": [{"id": "newcomer", "status": "current",
+                             "verified_on": blank}]}
+            )
+            assert any("newcomer.verified_on" in e for e in errors), blank
+            assert any("newcomer.names" in e for e in errors), blank
+
     def test_a_body_CLAIMING_NOTHING_is_not_reported_against(self) -> None:
         # The 29 legacy entries' shape: current, sourced, but never re-read
         # against the body's own material. Inventing a date for it is the one

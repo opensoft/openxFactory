@@ -55,6 +55,26 @@
       `ConstructorError`, exactly as `yaml.safe_load` refuses it; a REPEATED one
       is now caught as the duplicate it is.
 
+- [x] 3.7 **DONE 2026-09-03 — the claim trigger let the likeliest mistake
+      through, and the OTHER reader of the registry still used the permissive
+      loader.** Two findings, Copilot review round 4, both taken. (a) the
+      claim-scoping condition tested `body.get("verified_on")` for TRUTHINESS,
+      so `verified_on: ""` and `verified_on:` (null) read as *makes no claim* —
+      a half-written record escaped validation entirely while a record that
+      never mentioned verification was held to nothing. **Presence of the key is
+      the claim.** (b) `standards_body_ids()` in
+      `scripts/validate-omnigent-contracts.py` still read the registry through
+      `yaml.safe_load`, re-opening the exact duplicate-key collapse
+      `load_registry` was added to close — and worse there than anywhere,
+      because that set decides which crosswalk ids RESOLVE: a duplicated `id`
+      would silently change the resolved set and a crosswalk would be accepted
+      or rejected on a document nobody wrote. It now reads through
+      `load_registry`, reports a duplicate once and degrades to an empty set,
+      matching its own absent-file arm. Cached with `lru_cache` while there:
+      it is called once per example, fixture and repo argument, so without it
+      the same refusal printed eighteen times and 77 KB of YAML was re-parsed
+      for each.
+
 ## 4. Consumer handoff
 
 - [x] 4.1 **DONE 2026-09-01 —** published `handoff/opsx-overlay-current-standards.md` naming `itil5`, SFIA 9's

@@ -190,7 +190,16 @@ def registry_errors(document: object) -> list[str]:
         # dates nobody performed. A body that DECLARES a verification date has
         # made the claim and owes the whole record; the named three owe it
         # whatever they declare, so the claim cannot be withdrawn to escape.
-        if body_id in CURRENT_PUBLICATION_IDS or body.get(VERIFICATION_CLAIM_FIELD):
+        # PRESENCE OF THE KEY IS THE CLAIM, NOT ITS TRUTHINESS. `verified_on: ""`
+        # and `verified_on:` (null) are MALFORMED CLAIMS, not absent ones, and a
+        # truthiness test read them as absent — so the one record shape most
+        # likely to be a mistake escaped validation entirely while a record that
+        # never mentioned verification was held to nothing. Found by Copilot on
+        # PR #593 round 4. A body that writes the key is asking to be checked.
+        if (
+            body_id in CURRENT_PUBLICATION_IDS
+            or VERIFICATION_CLAIM_FIELD in body
+        ):
             for field in CURRENT_PUBLICATION_FIELDS:
                 if not body.get(field):
                     errors.append(

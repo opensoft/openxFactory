@@ -39,6 +39,7 @@ Exit code 0 only if every check passes.
 
 from __future__ import annotations
 
+import functools
 import hashlib
 import re
 import sys
@@ -113,20 +114,39 @@ STANDARDS_BODIES = ROOT / "contracts" / "policies" / "standards-bodies.yaml"
 REGISTRY_REL = "contracts/policies/standards-bodies.yaml"
 
 
-def standards_body_ids() -> set[str]:
+@functools.lru_cache(maxsize=1)
+def standards_body_ids() -> frozenset[str]:
     """Canonical standards-body ids a terminology crosswalk may reference.
 
     Returns an empty set when the registry is absent so the check degrades to
     a no-op rather than failing every overlay in a checkout without it.
+
+    CACHED because it is called once per example, fixture and repo argument,
+    and the registry cannot change inside one run. Without it a duplicate-key
+    refusal is REPORTED ONCE PER CALLER — the same defect printed eighteen times
+    — and 77 KB of YAML is re-parsed for each.
+
+    READS THROUGH `load_registry`, NOT `load_yaml`. This function is the OTHER
+    reader of the same file, and leaving it on `yaml.safe_load` would re-open
+    the exact duplicate-key collapse `load_registry` was added to close — worse
+    here than anywhere, because this set decides which crosswalk ids RESOLVE:
+    a duplicated `id` key would silently change the resolved set and a crosswalk
+    would be accepted or rejected on a document nobody wrote. A duplicate is
+    reported once and the set degrades to empty, matching the absent-file arm
+    above rather than raising through `semantic_errors`.
     """
     if not STANDARDS_BODIES.is_file():
-        return set()
-    doc = load_yaml(STANDARDS_BODIES) or {}
-    return {
-        body.get("id")
+        return frozenset()
+    try:
+        doc = load_registry(STANDARDS_BODIES) or {}
+    except DuplicateRegistryKey as exc:
+        fail(f"standards-body registry: {exc}")
+        return frozenset()
+    return frozenset(
+        body["id"]
         for body in (doc.get("bodies") or [])
         if isinstance(body, dict) and body.get("id")
-    }
+    )
 
 
 def semantic_errors(kind: str, doc) -> list[str]:
