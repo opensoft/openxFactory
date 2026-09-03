@@ -632,7 +632,7 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       `add-cpc-clearing-boundary` shape rather than the `add-project-repo-schema`
       one, and the STANDING OF THE EARLIER WRITERS is again what decides it:
       the earlier writer of the `release-surface-integrity` key,
-      `archive/2026-08-24-add-release-inventory-drift-check`, was ALREADY
+      `archive/2026-08-25-add-release-inventory-drift-check`, was ALREADY
       co-modified and does not flip; the earlier writer of the
       `workflow-gate-contract` key,
       `archive/2026-07-09-promote-workflow-gate-contract`, was SOLE and DOES —
