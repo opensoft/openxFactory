@@ -51,4 +51,7 @@ origin:
     covers the RESCUE AND THE RESHAPING. It ratifies no requirement, disposes
     no design decision, and does not stand in for the ratification this packet
     is still owed.
+    RATIFIED 2026-09-03 — Brett Heap, in-session, verbatim "merge 210 and
+    ratify and merge 593"; D1–D4 adopted as written; header flipped to
+    Status: ratified in the same commit (lane openxfactory-f2, PR #593).
   approved_on: 2026-09-01

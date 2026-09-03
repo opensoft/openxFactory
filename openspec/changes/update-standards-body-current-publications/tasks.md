@@ -130,11 +130,15 @@
       `openspec/changes/update-standards-body-current-publications/` (ACTIVE)
       and REMOVED the pre-promoted copy, which duplicated the change's own
       delta verbatim under a `TBD - created by archiving` purpose line.
-- [ ] 5.4 **OWED — RATIFICATION.** `Status: draft`. Brett Heap ratifies, or
+- [x] 5.4 **OWED — RATIFICATION.** `Status: draft`. Brett Heap ratifies, or
       vetoes, D1 … D4 — D2 (the SFIA unverified operator override) and D3 (the
       scope of the later APQC crosswalk authorization) in particular, both
       being the authoring session's decisions and neither covered by the
       commissioning citation in `.openspec.yaml`.
+      **RATIFIED 2026-09-03** — Brett Heap, in-session, verbatim "merge 210
+      and ratify and merge 593"; D1–D4 adopted as written; header flipped to
+      Status: ratified with a Ratified: citation in the same commit (lane
+      openxfactory-f2, PR #593).
 - [ ] 5.5 **OWED — REALIZATION EVIDENCE ON `main`.** The code surface lands in
       the same PR as the packet, so the archive gate's merged-plus-green
       condition is discharged by this PR's own merge plus a green
