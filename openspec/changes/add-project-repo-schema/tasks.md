@@ -1,14 +1,24 @@
 # Tasks: add-project-repo-schema
 
-Status: draft
+Status: ratified
 
-**NOTHING IS TICKED THAT DID NOT LAND IN THIS PULL REQUEST.** Slices 1–5 are
-complete and their evidence — command lines and outcomes — is recorded beside
-each task. Slices 6–9 are open: three of them are successor changes in other
-repositories, and one of them is the convener's act.
+**NOTHING IS TICKED THAT DID NOT LAND.** Slices 1–5 landed in the proposing
+pull request (#605, squash `642ac147`) and their evidence — command lines and
+outcomes — is recorded beside each task. 3.3 and 9.1 were ticked by the
+RATIFICATION act of 2026-09-02 and by nothing else.
 
-**Ratification is the convener's.** No task below may be read as having decided
-that.
+**Ratification was the convener's, and it has happened** — 2026-09-02, Brett
+Heap, in the working session, verbatim *"ratify it"*; record
+`review/ratification-2026-09-02.md`. No task below decided that; 9.1 records it.
+
+**THE CHANGE IS RATIFIED AND STILL ACTIVE.** 9.3 — the additive contract bundle
+carrying `scripts/validate-ideation-dashboard-contracts.py`'s new bytes — is
+UNTICKED, and under `release-realization`'s realization archive gate a change
+with a non-empty code surface does not archive until its realization evidence
+exists. 9.2 and 9.4 are the remaining archive preflight. Slices 7 and 8 are
+successor changes in other repositories, 4.6 is an operator act on an
+organisation ruleset, and 6.2 is the convener's option; none of the four blocks
+the archive gate, and each names its owner where 9.3 names this packet.
 
 ---
 
@@ -96,9 +106,16 @@ that.
       flow, and the pre-ratification election rule with the pilot on record.
 - [x] **3.2** Link it from the openxFactory README's "Core domain-neutral docs"
       index.
-- [ ] **3.3** On ratification, move the header to `Status: ratified` +
-      `Ratified by: add-project-repo-schema`, per the document lifecycle. **The
-      convener's act, and not this packet's.**
+- [x] **3.3** **DONE 2026-09-02, BY THE RATIFICATION ACT.** `docs/project-repo-schema.md`
+      moves to `Status: ratified` + `Ratified by: add-project-repo-schema`, the
+      lifecycle's PRIMARY citation spelling (an approving OpenSpec change exists
+      to name, so `Ratified:` would be the wrong one), replacing the
+      `Proposed by:` line rather than sitting beside it — exactly one citation
+      line, which is what `document-lifecycle` § Status Claim Rules requires.
+      The header blockquote is rewritten to record the act and to say why
+      `Status: standard` is NOT claimed: that status needs a PROMOTED spec, and
+      nothing promotes until this change archives. **The convener's act, and
+      this packet only records it.**
 
 ## Slice 4 — the openRepoShape pin and its running code
 
@@ -227,19 +244,26 @@ that.
 
 ## Slice 9 — ratification and archive
 
-- [ ] **9.1** **RATIFICATION — the convener's act.** Record it as
-      `review/ratification-<date>.md` and move `Status:` to `ratified` with the
-      citation, per the promoted lifecycle rule.
-- [ ] **9.2** Before archive, re-verify the pin against openRepoShape at the
+- [x] **9.1** **RATIFIED 2026-09-02 by Brett Heap, the convener** — in the
+      working session, verbatim: *"ratify it"*, given on this packet as it
+      stands on `main` after PR #605 landed at squash `642ac147` with five
+      checks green. Recorded as `review/ratification-2026-09-02.md`;
+      `proposal.md` moves to `Status: ratified` in BOTH its front matter and its
+      body header and carries ONE `Ratified:` citation line, the record-citing
+      spelling being the legal one for a proposal (there is no approving change
+      other than itself to name). That record also carries the archive decision
+      and the evidence table it rests on.
+- [ ] **9.2** STILL OPEN — archive preflight. Before archive, re-verify the pin against openRepoShape at the
       recorded commit and re-run the four validator lines in slices 4 and 5, so
       the archive gate promotes deltas over a tree that still holds.
-- [ ] **9.3** Cut the next additive contract bundle carrying
+- [ ] **9.3** STILL OPEN, AND IT IS THE ARCHIVE BLOCKER — this packet's own act,
+      not a successor's. Cut the next additive contract bundle carrying
       `scripts/validate-ideation-dashboard-contracts.py`'s new bytes — manifest
       row, `contracts/CHANGELOG.md` entry, release digest inventory and the
       annotated tag, allocated by merge order at realization. Until it is cut,
       `release-inventory-drift` reporting that validator is the EXPECTED
       between-cuts state; NEVER hand-edit the inventory or
       `contract_bundle_version` to silence it.
-- [ ] **9.4** Package `supporting-docs/` into the deterministic bundle with its
+- [ ] **9.4** STILL OPEN — archive preflight. Package `supporting-docs/` into the deterministic bundle with its
       readable manifest (`proposal-support.py package`), per
       `release-realization`'s proposal-support archive gate.

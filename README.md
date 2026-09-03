@@ -131,7 +131,9 @@ Core domain-neutral docs:
   at [`contracts/openreposhape-pin.yaml`](contracts/openreposhape-pin.yaml),
   verified by
   [`scripts/validate-openreposhape-pin.py`](scripts/validate-openreposhape-pin.py).
-  `Status: draft` until `add-project-repo-schema` is ratified)
+  `Status: ratified` + `Ratified by: add-project-repo-schema` since
+  2026-09-02; NOT `standard`, which needs a promoted spec, and nothing
+  promotes until that change archives)
 - [Document Lifecycle](docs/document-lifecycle.md)
 - [Release Realization Flow](docs/release-realization-flow.md)
 - [The `scope_globs` Scope Surface Is a Never-Clearable Trust-Root Floor](docs/scope-globs-trust-root-floor.md)
@@ -430,7 +432,17 @@ Active changes:
   — proposed 2026-09-02 as the FULL promotion of the `project-repo-schema` staged
   topic, on Brett Heap's in-session instruction *"start the
   add-project-repo-schema exit change"* — **admission into the proposal queue,
-  NOT a ratification; `Status: draft` and ratification is the convener's.**
+  NOT a ratification.** **`Status: ratified`** (2026-09-02, Brett Heap the
+  convener, in the working session, verbatim *"ratify it"*, read on the packet as
+  it landed on `main` at squash `642ac147` (#605) with five checks green; record
+  `openspec/changes/add-project-repo-schema/review/ratification-2026-09-02.md`).
+  **RATIFIED AND STILL ACTIVE**: `code_surface` is non-empty and
+  `target_release` names the next additive contract bundle after `contract-v3.0`,
+  so under `release-realization`'s realization archive gate it archives only when
+  that bundle is cut (`tasks.md` 9.3, UNTICKED and this packet's own act),
+  with 9.2 and 9.4 as the remaining archive preflight. `docs/project-repo-schema.md`
+  moved to `Status: ratified` + `Ratified by: add-project-repo-schema` at the same
+  act; `Status: standard` is not claimed and is not owed until promotion.
   **THE FORCING FINDING IS A GAP THE FAMILY ALREADY RULED ON AND NEVER WROTE
   DOWN.** `add-wallet-carried-review-authority` (ratified 2026-08-23) RECOMMENDS
   a SPEC/CODE/ASSEMBLY shape at `proposal.md:600-617`, rules who elects it (a

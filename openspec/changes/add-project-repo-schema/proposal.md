@@ -1,21 +1,27 @@
 ---
 code_surface: openxFactory — FIVE artifacts, all NEW or ADDITIVE, and four of them land in this pull request. (1) `docs/project-repo-schema.md`, the ratifying home of the doctrine (`Status: draft` now; `ratified` when this packet is). (2) `contracts/openreposhape-pin.yaml`, openxFactory's consumption of `opensoft/openRepoShape` at commit `deacbdcce4f52af427bcb4edd075fcc992e3dabe`, in the `neutral-product-pin` shape and the `kind: pinned_contract_manifest` grammar reused unchanged. (3) `scripts/validate-openreposhape-pin.py`, the running code that checks that claim — standard library only, fail-closed, five named refusal codes and one fixed remediation trailer — wired into a new `.github/workflows/openreposhape-pin-gate.yml` on the `openxwallet-consumer-gate.yml` pattern. (4) `contracts/schemas/project-register.schema.yaml` gains an optional per-project `schema`/`reference` election and an optional `repository_roles` list, with the cross-field rules in `scripts/validate-ideation-dashboard-contracts.py` and tests in `tests/ideation-dashboard/` and `tests/openreposhape_pin/`. (5) NOT in this pull request and not owed by it: the codexFactory ENGINEERING OVERLAY and the OpsxFactory org-naming/topic administration, each a successor change in its own repository. The standard's own mechanics are NOT openxFactory's code surface at all — they live in `opensoft/openRepoShape`, which openxFactory consumes and does not author.
 target_release: the next additive contract bundle after `contract-v3.0` — number ALLOCATED AT REALIZATION by merge order, never reserved here, per `docs/contract-versioning-policy.md` § Version Identity: "A proposed change MUST NOT reserve a minor number before merge order is known". ONE REGISTERED ARTIFACT MOVES, and it is not the one an earlier draft of this field named: `scripts/validate-ideation-dashboard-contracts.py` is row `scripts-validate-ideation-dashboard-contracts.py` of `contracts/releases/contract-v3.0.digests.yaml` (`:1417-1418`), and this change edits it. THE CLASS IS ADDITIVE: the validator only GAINS four cross-field rules over three new OPTIONAL register fields, no existing field changes, and no consumer pinned at `contract-v3.0` is made non-conformant. The other two artifacts are NOT registered rows and spend nothing — `contracts/schemas/project-register.schema.yaml` appears in neither `contracts/manifest.yaml` nor the v3.0 inventory (measured: zero occurrences in each), and `contracts/openreposhape-pin.yaml` is a CONSUMPTION pin in the shape of `contracts/openxwallet-pin.yaml`, likewise absent from the inventory. UNTIL THAT CUT, `doc-health`'s `release-inventory-drift` family reports the validator's bytes as differing from the digest `contract-v3.0` records. That is the EXPECTED between-cuts state its own action string describes — "cut a release through the bundle realization order" — and it MUST NOT be resolved by hand-editing the inventory or `contract_bundle_version`, which that same action string forbids in as many words.
-Status: draft
+Status: ratified
 ---
 
 # Proposal: add-project-repo-schema
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-02 by Brett Heap (openxFactory convener) — in the working
+session, verbatim: *"ratify it"*, given on this packet as it stands on `main`
+after PR #605 landed at squash `642ac147` with five checks green. Record:
+`review/ratification-2026-09-02.md`, and the ratification commit carrying this
+line and its pull request.
 Proposed: 2026-09-02 — the FULL promotion of the staged topic
 `project-repo-schema` (`openxFactory:staging:project-repo-schema`, staged
 2026-09-02), on Brett Heap's in-session instruction the same day: *"start the
 add-project-repo-schema exit change"*. That instruction is ADMISSION INTO THE
 PROPOSAL QUEUE AND NOT A RATIFICATION OF CONTENT. It supplies the origin and
-approval pair the proposal-origin contract requires and nothing more: this
-packet carries no ratification citation and none is owed, the promoted lifecycle
-rule requiring one only for `Status: ratified`. **Ratification is the
-convener's.**
+approval pair the proposal-origin contract requires and nothing more: at the
+time it was given this packet carried no ratification citation and owed none,
+the promoted lifecycle rule requiring one only for `Status: ratified`.
+**Ratification was the convener's separate act, and it has now happened** — the
+`Ratified:` line above is that citation, and § Ratification records it.
 
 ## Why
 
@@ -84,7 +90,10 @@ codexFactory and no wallet register.
 **What this change realizes IN THIS PULL REQUEST** (each ticked in `tasks.md`,
 and nothing else is ticked):
 
-1. `docs/project-repo-schema.md` — the doctrine document, `Status: draft`.
+1. `docs/project-repo-schema.md` — the doctrine document, `Status: draft` as
+   it landed in this pull request; moved to `Status: ratified` +
+   `Ratified by: add-project-repo-schema` by the ratification act of
+   2026-09-02, per task 3.3 and the document lifecycle.
 2. `contracts/openreposhape-pin.yaml` — the pin, `revision_kind: commit`,
    commit `deacbdcce4f52af427bcb4edd075fcc992e3dabe`, sixteen per-file `sha256`
    digests computed from the real bytes at that commit and
@@ -237,7 +246,26 @@ openxFactory ratifies is the one the pilot proved, not the one it broke.
 
 ## Ratification
 
-**Ratification is the convener's.** This packet is `Status: draft`. Brett Heap's
-instruction of 2026-09-02 authorized AUTHORING it and recorded the rulings above
-as locked constraints; it decided nothing about the content, which is declared
-here and not accepted.
+**RATIFIED 2026-09-02 by Brett Heap, the convener**, in the working session, on
+his word *"ratify it"*, read on this packet as it stands on `main` after PR #605
+landed at squash `642ac147` with five checks green. The record is
+`review/ratification-2026-09-02.md`.
+
+**The two acts were separate, and the record keeps them separate.** Brett Heap's
+instruction of 2026-09-02 — *"start the add-project-repo-schema exit change"* —
+authorized AUTHORING this packet and recorded R1–R7 as locked constraints; it
+decided nothing about the content. The `.openspec.yaml` origin pair
+(`approved_by` / `approved_on`) is that authoring permission and is NOT a
+ratification, which is why `Status:` stayed `draft` through the proposing pull
+request and moved only on the act above.
+
+**Ratification authorizes realization; it does not perform it.** `code_surface`
+is non-empty and `target_release` names the next additive contract bundle after
+`contract-v3.0`, unnumbered. Under `release-realization`'s realization archive
+gate this change therefore stays ACTIVE — approved-but-unrealized intent —
+until the bundle carrying `scripts/validate-ideation-dashboard-contracts.py`'s
+new bytes is cut (`tasks.md` 9.3), the pre-archive re-verification is run (9.2)
+and `supporting-docs/` is packaged (9.4). Until that cut,
+`release-inventory-drift` reporting that validator against the `contract-v3.0`
+digest is the EXPECTED between-cuts state, and it is never to be silenced by
+hand-editing an inventory or `contract_bundle_version`.
