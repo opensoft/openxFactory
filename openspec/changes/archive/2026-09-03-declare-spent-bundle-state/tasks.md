@@ -79,6 +79,20 @@ no reader is a sentence in a changelog.
       successor not later (OD-9), element missing, duplicate declaration, wrong
       containing entry, or naming the currently declared bundle → `error`; a
       declaration whose SUBJECT was never cut → `warning` on the changelog.
+      - **2026-09-02 (lane openxfactory-1d): the CONTAINING-ENTRY half of this
+        box is HARDENED by PR #589**, on top of the realization that landed as
+        PR #587 (`3fa222f3`). Ten escapes measured against `main`'s reader
+        before the fix, seven of them letting a declaration be ACCEPTED from
+        outside its superseding bundle's entry: a non-release `##` heading, an
+        incomplete version token (`## contract-v3.0.1`), a level-one heading, a
+        heading inside a code fence, an indented ATX heading, Setext headings,
+        and an empty ATX heading — plus a below-floor repository with no
+        changelog being skipped entirely, a batch-read skip naming one of two
+        members it read, and a spurious orphan warning on a below-floor
+        subject. The rule now passes through one structural-boundary function
+        and is pinned as one table; fenced blocks are declared OPAQUE. NOTHING
+        IN THIS BOX IS RE-TICKED BY THAT PR — the ladder is #587's, and this
+        line records what was hardened over it.
 - [x] 2.4 The emits land on `contracts/releases/<bundle>.digests.yaml` rather
       than `MANIFEST` (OD-5 as amended), with the spent `info` carrying
       `resolution="contested"`; the one orphan-subject `warning` lands on
@@ -133,7 +147,7 @@ no reader is a sentence in a changelog.
 
 ## 3. Owed at the next contract cut — NOT here (OD-6)
 
-- [x] 3.1 `docs/contract-versioning-policy.md` gains the obligation-side
+- [ ] 3.1 `docs/contract-versioning-policy.md` gains the obligation-side
       statement of the SPENT state, beside § *Immutable Tag Correction* whose
       *"its version number is never reused"* the `contract-v2.6` disposition
       already leans on, and naming the reserved declaration form so a consumer
@@ -174,8 +188,13 @@ no reader is a sentence in a changelog.
       routing here — is what was awaiting Brett's affirmation, and the answer is
       to leave it: **the paragraph is NOT written by this change or by the
       archive act**, and the obligation stands owed at the next contract cut
-      exactly as § 3's heading already said. Ticked because the decision this
-      box existed to carry is now made, not because the paragraph exists.
+      exactly as § 3's heading already said. PR #611 TICKED THIS BOX on that
+      reading — the decision being made — and **the tick was REVERTED by lane
+      openxfactory-1d on 2026-09-03**, because what this box names is the
+      PARAGRAPH and not the decision about it: the paragraph is deliberately
+      owed to the next contract cut under the owner's 2026-09-02 ruling to
+      CARRY #577's drift, so the box travels OPEN into the archived packet the
+      way 3.2 does, and § 3's heading is what discharges it.
 - [ ] 3.2 At the next cut, `contracts/CHANGELOG.md`'s editorial drift `info` and
       `docs/contract-versioning-policy.md`'s ERROR both clear on their own when
       the inventory re-baselines. No action; recorded so a reader does not go
@@ -267,6 +286,26 @@ no reader is a sentence in a changelog.
       and 5.2 are ticked in this same pass, immediately after), applied the ONE
       MODIFIED block to `openspec/specs/doc-health/spec.md`, and moved the
       packet to `openspec/changes/archive/2026-09-03-declare-spent-bundle-state/`.
+      **THE MERGE-PLUS-GREEN GATE IS SATISFIED TWICE OVER, AND THE SECOND
+      READING IS THE ONE THE ARCHIVE NOW RESTS ON.** The realization landed as
+      PR #587 (squash `3fa222f3`, `main` `pytest-suite` run `33654163291`,
+      `success`). The containment guard was then HARDENED on `main` by PR #589
+      (squash `6da1e1f5`, `main` `pytest-suite` run **`33719770363`**,
+      conclusion **`success`**) — ten escapes measured against #587's reader
+      before a line was written, seven of them letting a declaration be
+      accepted from OUTSIDE its superseding bundle's entry — carrying the
+      Speckit feature `specs/027-spent-bundle-state/` with
+      `evidence/hardening-red-first.md` measuring each escape before and
+      after, and taking the family file from **46 to 135 tests**. § 2.3 above
+      records that hardening and re-ticks nothing; this archive follows the
+      LATER of the two greens, so the packet is archived over a reader whose
+      containment rule has been probed rather than asserted. **RE-RUN BY LANE
+      openxfactory-1d, 2026-09-03**, resolving this branch's conflict with the
+      post-#589 `main`: task 3.1's tick was reverted (see above), so the
+      archived packet carries FOUR open boxes (3.1, 3.2, and — at the moment
+      the bare `openspec archive` ran — 5.1 and 5.2) rather than the three the
+      run above reported, and the wrapper would refuse it for the same
+      unconditional reason.
 - [x] 5.2 At promotion, re-verify the MODIFIED block byte-for-byte against the
       canon it replaces. This requirement has now been restated once; the estate
       has lost scenarios to a MODIFIED block three times, and every catch was
@@ -287,3 +326,16 @@ no reader is a sentence in a changelog.
       insertions(+), 0 deletions(-)`, consistent with the proposal's own claim
       that ten of eleven promoted scenarios are untouched and the eleventh gains
       exactly one `AND` bullet with nothing removed.
+      **RE-VERIFIED ON THE POST-#589 TREE, BY LANE openxfactory-1d,
+      2026-09-03, RATHER THAN CARRIED FORWARD ON THE EARLIER READING.** #589
+      (`6da1e1f5`) landed on `main` between #611's measurement and its merge,
+      and it touches `scripts/doc_health/`, `tests/doc-health/` and
+      `docs/doc-health.md` — **not** `openspec/specs/doc-health/spec.md` — so
+      the promoted requirement could not have moved and was checked instead of
+      assumed: the archived delta's `### Requirement: Release-tag publication`
+      block and the promoted requirement in `openspec/specs/doc-health/spec.md`
+      were extracted from the MERGED tree and `diff`ed — **zero lines of
+      difference**, 24 scenarios present, and zero lines REMOVED against
+      `main`'s pre-promotion requirement's 11 scenarios. The family test file
+      `tests/doc-health/test_release_tag_publication.py` reads **135 tests** on
+      this tree, #589 having taken it from 46, and all 135 pass.
