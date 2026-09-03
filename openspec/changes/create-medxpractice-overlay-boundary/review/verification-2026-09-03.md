@@ -315,8 +315,16 @@ Also not reproducible, and named rather than inferred: **why** the standalone
 `openPractice` checkout's relocation (task 2.1) left no artifact anywhere a
 remote can be read from. It is a local filesystem move of a repository whose
 history, origin and tracked content are unchanged BY DESIGN — the act's own
-success criterion is that it leaves no trace in Git. The narrowed spec delta's
-second requirement states the resulting obligation (the checkout lives at the
-workspace root and the aggregation reaches openPractice only through
-MedxPractice's gitlink), and the half of that which IS remotely checkable — no
-direct `xFactories/openPractice` aggregate entry — is confirmed in § 5.
+success criterion is that it leaves no trace in Git.
+
+**And that is why the spec delta's second requirement now obliges only half of
+it** — corrected pre-capture, on this pull request's own review. As first
+narrowed, that requirement stated BOTH halves: that the checkout lives at the
+projects workspace root AND that the aggregation reaches openPractice only
+through MedxPractice's gitlink. The first half is exactly what this section
+reports as unverifiable, so swearing it as a SHALL contradicted this record. It
+is now recorded as a LOCAL CONVENTION at `design.md` Decision 4, and the
+requirement — retitled **"The aggregation reaches openPractice only through
+MedxPractice"** — keeps only the remotely checkable half, which § 5 confirms:
+the entry is `xFactories/MedxPractice` at its `git@github.com:opensoft/` remote,
+and `grep -c 'openPractice'` over the aggregation's `.gitmodules` returns `0`.
