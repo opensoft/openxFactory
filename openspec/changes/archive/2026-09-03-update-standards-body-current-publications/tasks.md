@@ -139,12 +139,44 @@
       and ratify and merge 593"; D1–D4 adopted as written; header flipped to
       Status: ratified with a Ratified: citation in the same commit (lane
       openxfactory-f2, PR #593).
-- [ ] 5.5 **OWED — REALIZATION EVIDENCE ON `main`.** The code surface lands in
-      the same PR as the packet, so the archive gate's merged-plus-green
-      condition is discharged by this PR's own merge plus a green
-      `pytest-suite` on `main`, recorded on the archive PR rather than claimed
-      here.
-- [ ] 5.6 **OWED — THE ARCHIVE ACT, SEPARATELY AND THROUGH `proposal-support`.**
-      Only then does `specs/standards-body-registry/spec.md` promote into
-      `openspec/specs/standards-body-registry/spec.md`, with a real `## Purpose`
-      replacing the archiver's `TBD` line.
+- [x] 5.5 **DONE 2026-09-03 — REALIZATION EVIDENCE ON `main`, READ OFF `main`
+      AND NOT OFF A PR PAGE.** The code surface landed with the packet: **PR
+      #593**, squash **`3c237cd0`** (`3c237cd013301678f7765e6cec2e04701dac3084`,
+      2026-09-03 ~05:05Z), carrying `scripts/standards_body_registry.py`, the
+      import plus the `main()` loop in `scripts/validate-omnigent-contracts.py`,
+      `tests/test_standards_body_registry.py`,
+      `tests/fixtures-standards-body-registry-unqualified-override.yaml` and the
+      `contracts/policies/standards-bodies.yaml` refresh — the whole
+      `code_surface:` declaration and nothing outside it. **GREEN AT THAT
+      COMMIT**: `pytest-suite` run **33717394896** (2026-09-03 05:26Z,
+      conclusion `success`) and `signed-execution-chain-gate` `success` on
+      `3c237cd0`. `target_release: implemented` is the openxFactory main line,
+      so merged-plus-green on `main` IS the gate
+      (`docs/release-realization-flow.md` § The Archive Gate) and no bundle cut
+      stands between realization and this act — § 5.1 measured why.
+- [x] 5.6 **DONE 2026-09-03 — THE ARCHIVE ACT, SEPARATELY AND THROUGH
+      `scripts/proposal-support.py`.** Run as
+      `python3 scripts/proposal-support.py . archive
+      update-standards-body-current-publications --date 2026-09-03 --yes` from
+      the repository root — **never bare `openspec archive`**, which drops the
+      origin gate, the incomplete-task refusal and the supporting-docs
+      bookkeeping the wrapper carries (the `F0` lesson: always archive via
+      `proposal-support`). The packet moved to
+      `openspec/changes/archive/2026-09-03-update-standards-body-current-publications/`
+      and its delta promoted into
+      `openspec/specs/standards-body-registry/spec.md` — with a REAL `## Purpose`
+      written from `proposal.md`, replacing the archiver's
+      `TBD - created by archiving` line, which is the one thing the wrapper
+      cannot write for itself. The act carries no content change: the four
+      promoted requirements and their ten scenarios are byte-identical to the
+      delta this packet ratified, which is what `promotion-fidelity` reads.
+- [x] 5.7 **DONE 2026-09-03 — LANDED ON `main` VIA THIS PR.** The archive act
+      (§5.6) ran uncommitted, on disk, in an isolated clone after the
+      authoring session was killed twice by provider errors; lane
+      `openxfactory-f2` finished it, took a catch-up merge of
+      `declare-spent-bundle-state`'s own archive (PR #611, `7af2725c`) first,
+      re-measured every gate in this section and in the README entry against
+      that merged base rather than the stale `6da1e1f5`, and opened this PR to
+      carry the moved files, the promoted spec, and the `sequenced_after` pin
+      correction (`tests/sequenced_after/test_sweep.py`) to `main` in one
+      commit. PR number and squash SHA recorded here once landed.

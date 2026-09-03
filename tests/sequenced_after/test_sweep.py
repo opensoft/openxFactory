@@ -498,6 +498,55 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       than a present one. The pin moves in the SAME COMMIT as the corpus — here
       the merge commit that resolves this conflict — which is this test's own
       protocol.
+    - `active_sole - 1` reads 11. The entry immediately above and the one
+      before it both held it at 12 (`active_sole` 13, unmoved by
+      `declare-spent-bundle-state`'s archive, which is a co-modified change
+      and never touches the sole set); this entry is what drops it, on
+      2026-09-03, by archiving `update-standards-body-current-publications` —
+      the SAME packet whose ADOPTION raised it to 13 several entries above,
+      so this is that packet's other half, written beside the adoption entry
+      rather than over it. The archive was earned and not merely taken: the
+      packet was ratified 2026-09-03 (Brett Heap, in-session) and realized by
+      PR #593 (squash `3c237cd0`) with `pytest-suite` run 33717394896 green
+      on `main`, which is what `docs/release-realization-flow.md` § The
+      Archive Gate requires of a code-surface change.
+      THIS BRANCH TOOK A CATCH-UP MERGE FIRST: `declare-spent-bundle-state`'s
+      own archive (PR #611, squash landed on `main` as `7af2725c`) merged
+      ahead of this one, so the tree this act works from already carries that
+      archive's `active_co_modified` 21 → 20 move. EXACTLY ONE PIN MOVES here
+      and it is DISJOINT from that one, for the shape the adoption entry
+      already recorded: the packet's delta is `## ADDED Requirements` ONLY
+      over the NEW capability `standards-body-registry`, whose four
+      requirement titles exist nowhere else in the corpus, so it is a SOLE
+      modifier and never a co-modifier. Archiving it therefore removes an
+      ACTIVE SOLE modifier — `active_sole` 13 → 12 — and touches nothing
+      else: `co_modified` holds at 108, `active_co_modified` holds at 20
+      (already moved by the sibling archive, not by this one),
+      `sole_modifiers` holds at 50 and `change_ids` at 158 (both count BOTH
+      corpora, and an archive moves a change between them rather than out of
+      them). THE OPPOSITE HALF OF #571's 2026-09-02 move and the SAME SHAPE
+      as the sibling entry immediately above: one archive moves
+      `active_co_modified` alone, the other moves `active_sole` alone, and a
+      packet moving both would still be a defect in the sweep rather than a
+      corpus event.
+      MEASURED ON BOTH SIDES rather than inferred from the failure, via
+      `python3 scripts/validate-sequenced-after.py . --sweep`: `origin/main`
+      at `7af2725c` (`declare-spent-bundle-state` already archived, this
+      packet still active) reads `33 active + 125 archived` = 158 change
+      ids, `108` co-modified, `50` sole modifiers, `20 / 13` active
+      co-modified/sole; this branch after archiving
+      `update-standards-body-current-publications` reads
+      `32 active + 126 archived` = 158, `108`, `50`, `20 / 12`. The `- 1`
+      still subtracts `add-sequenced-after-substrate` alone — an ACTIVE
+      change, still sole, and untouched by this act — so the reading falls
+      with `active_sole` to 11, which is also the authoring measurement this
+      test reproduces. `declaring` holds at 1 and `root_claims` at 0: the
+      archived packet declares no `sequenced_after:` field, and prose
+      headers hold at 3 (3 archived), this packet carrying no prose
+      `Sequenced-after:` header to move into the archived count. The pin
+      moves in the SAME COMMIT as the corpus, which is this test's own
+      protocol, and the archive PR discloses that it touches this file for
+      that reason and for no other: corpus BOOKKEEPING, not realization.
     """
     sweep = sa.corpus_sweep(ROOT)
     assert sweep.co_modified == 108, (
@@ -609,7 +658,19 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # population #560 had just removed one from. The two moves are unrelated and
     # cancel only numerically; the `- 1` still subtracts
     # add-sequenced-after-substrate alone.
-    assert sweep.active_sole - 1 == 12
+    #
+    # AND MOVED AGAIN 2026-09-03, THE SAME DAY AND BY THE SAME PACKET'S OTHER
+    # HALF: `active_sole` fell 13 -> 12 when
+    # update-standards-body-current-publications was ARCHIVED on merged-and-
+    # green realization evidence (PR #593's squash `3c237cd0`, `pytest-suite`
+    # run 33717394896). Archiving a SOLE active removes it from `active_sole`
+    # while leaving `sole_modifiers` and `change_ids` untouched — both count
+    # BOTH corpora — and leaving the two co-modified readings untouched too,
+    # this packet having never been in that population. It is the exact mirror
+    # of #571's 2026-09-02 archive, which moved `active_co_modified` alone.
+    # The `- 1` still subtracts add-sequenced-after-substrate alone, so the
+    # reading falls to 11 — which is the authoring measurement.
+    assert sweep.active_sole - 1 == 11
     assert sweep.prose_headers == 3 and sweep.prose_headers_archived == 3
     assert sweep.declaring == 1
     assert sweep.declaring_ids == ("add-sequenced-after-substrate",)
