@@ -19,6 +19,7 @@ part a self-test cannot check about itself:
 from __future__ import annotations
 
 import importlib.util
+import re
 import sys
 from pathlib import Path
 
@@ -690,6 +691,106 @@ def test_an_ambiguous_scope_is_not_walked_at_all(tmp_path, registry_and_docs,
                              if "consumed-record-id-duplicate" in line), (
         "the refusal must SAY the walk did not run, or a reader takes the "
         "absence of further findings for their absence in the tree")
+
+
+def test_the_exclusion_ignores_components_above_the_scanned_tree(
+        tmp_path, registry_and_docs, carried):
+    """THE CHECKOUT'S OWN LOCATION MUST NOT SWITCH A REQUIRED GATE OFF.
+
+    `main()` resolves the scan path, so every swept file's components include the
+    directories a runner happened to put the checkout under. Matching the
+    excluded sequence over that whole absolute path made the ENTIRE sweep
+    skippable from outside the repository: a tree at
+    `<anything>/contracts/<family>/examples/<checkout>` gave every file in it the
+    sequence by inheritance, and the sweep reported `0 artifact(s) checked, 0
+    skipped` over a live malformed record — never seen, no refusal, gate green.
+    That is worse than the in-tree placement evasion below, because it needs no
+    fabricated path inside the repository and takes out every file at once.
+    Found by Codex on #566.
+
+    Measured before the repair, for BOTH family names. The neutral-ancestor case
+    is asserted first so the test cannot pass by the fixture simply being inert.
+    """
+    registry, docs = registry_and_docs
+    invalid = CONSUMED_FIXTURE.read_text(encoding="utf-8")
+
+    def swept_under(ancestor: str):
+        root = tmp_path / ancestor / "domain-repo"
+        record = root / "governance" / "live-and-malformed.yaml"
+        record.parent.mkdir(parents=True, exist_ok=True)
+        record.write_text(invalid, encoding="utf-8")
+        findings = reader.Findings()
+        # RESOLVED, exactly as `main()` hands it over — an unresolved relative
+        # path would not carry the ancestors this test is about.
+        reader.repo_scan(findings, root.resolve(), registry, docs, carried)
+        return findings
+
+    baseline = swept_under("work")
+    assert "1 artifact(s) checked" in baseline.notes[0]
+    assert reader.codes_of(baseline.errors) == {"carried-vocabulary"}, (
+        "the baseline for this test is that the record refuses at a live path")
+
+    for family in ("trust-anchor", "signed-execution-chain"):
+        findings = swept_under(f"work/contracts/{family}/examples")
+        assert "1 artifact(s) checked" in findings.notes[0], (
+            f"a checkout parked under contracts/{family}/examples had its whole "
+            f"sweep excluded by its own location: {findings.notes[0]}")
+        assert reader.codes_of(findings.errors) == {"carried-vocabulary"}
+
+    # AND THE VENDORED CORPUS INSIDE THE TREE IS STILL EXCLUDED — the property
+    # relativizing must not cost, since a domain repo scans a COPY.
+    vendored = tmp_path / "consumer"
+    for family in ("trust-anchor", "signed-execution-chain"):
+        target = (vendored / "vendor" / "openxFactory" / "contracts" / family
+                  / "examples" / "negative" / "fixture.yaml")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(invalid, encoding="utf-8")
+    findings = reader.Findings()
+    reader.repo_scan(findings, vendored.resolve(), registry, docs, carried)
+    assert findings.errors == []
+    assert "0 artifact(s) checked" in findings.notes[0]
+
+
+def test_an_unadjudicated_scope_is_never_reported_as_checked(
+        tmp_path, registry_and_docs, carried):
+    """THE NOTE MUST NOT CALL A SCOPE "CHECKED" THAT NO RULE WAS APPLIED TO.
+
+    Under an ambiguous consumed set the walk does not run — the test above pins
+    that — but the operator-facing note still counted the collected documents as
+    `N artifact(s) checked`. A reader who trusts that count takes the absence of
+    further findings for a clean reading of those records, which is the vacuous
+    pass in miniature and the exact confusion the walk was skipped to avoid.
+    Found by Copilot on #566.
+
+    ZERO is the honest count, the collected size is still reported, and the
+    gate's own anti-vacuity grep — which asks for `N artifact(s) checked` — is
+    satisfied by the truthful zero rather than being fooled by a false N."""
+    registry, docs = registry_and_docs
+    source = [d for d in yaml.safe_load_all(
+        (EXAMPLES / "tranche-two" / "consumed-trust-anchor-records.example.yaml")
+        .read_text(encoding="utf-8")) if d]
+    certificate = next(d for d in source
+                       if d.get("kind") == "xfactory_certificate_record")
+    for name in ("a-first.yaml", "z-last.yaml"):
+        (tmp_path / name).write_text(yaml.safe_dump(certificate, sort_keys=False),
+                                     encoding="utf-8")
+    findings = reader.Findings()
+    reader.repo_scan(findings, tmp_path, registry, docs, carried)
+    note = findings.notes[0]
+    assert reader.codes_of(findings.errors) == {"consumed-record-id-duplicate"}, (
+        "the baseline for this test is an ambiguous, unwalked scope")
+    assert "2 artifact(s) checked" not in note, (
+        "the note reported an unadjudicated scope as checked: " + note)
+    assert "0 artifact(s) checked" in note
+    assert "2 collected and then NOT ADJUDICATED" in note
+    assert "THE CHAIN WALK OVER THIS SCOPE WAS NOT RUN" in note
+
+    # THE GATE'S OWN GREP still matches, so the ambiguous run fails on its
+    # refusal and not on a misdiagnosed "the sweep did not run".
+    assert re.match(r"^note  repo scan \(.*\): [0-9]+ artifact\(s\) checked",
+                    note), (
+        "the gate's anti-vacuity step greps this exact shape; an ambiguous run "
+        "must fail on its refusal, not on a misdiagnosed 'sweep did not run'")
 
 
 def test_the_corpus_exclusion_is_not_evadable_by_placement(

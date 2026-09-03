@@ -1777,22 +1777,35 @@ PACKAGED_CORPUS_FAMILIES = ("signed-execution-chain", "trust-anchor")
 
 
 #: The component sequence a family's PACKAGED corpus actually occupies. Matched
-#: PREFIX-INDEPENDENTLY, never anchored to the scan root — see below.
+#: at ANY PREFIX WITHIN THE SCANNED TREE, and never above it — see below.
 PACKAGED_EXAMPLES_SHAPE = ("contracts", "{family}", "examples")
 
 
-def under_packaged_examples(path: Path, family: str) -> bool:
+def under_packaged_examples(path: Path, family: str, root: Path) -> bool:
     """True when `path` lies under a family's PACKAGED `examples/` tree — the
     THREE-COMPONENT SEQUENCE `contracts/<family>/examples`, adjacent and in that
-    order, at ANY prefix.
+    order, at ANY PREFIX INSIDE `root`.
 
-    IT IS DELIBERATELY NOT ANCHORED TO THE SCAN ROOT. A domain repo that vendors
-    openxFactory scans a COPY, so matching `contracts/<family>/examples`
-    *relative to the scan root* would re-adjudicate every vendored negative as a
-    live record — the reason the original exclusion was written over path
-    components at all. Prefix-independence keeps
+    IT IS NOT ANCHORED TO THE TOP OF THE SCANNED TREE. A domain repo that vendors
+    openxFactory scans a COPY, so requiring `contracts/<family>/examples` to be
+    the tree's FIRST three components would re-adjudicate every vendored negative
+    as a live record — the reason the exclusion was written over path components
+    at all. Prefix-independence WITHIN the tree keeps
     `vendor/openxFactory/contracts/trust-anchor/examples/negative/x.yaml`
     excluded.
+
+    AND IT IS SEARCHED RELATIVE TO `root`, WHICH IS WHAT KEEPS THE ENVIRONMENT
+    FROM DISABLING A REQUIRED GATE. `main()` resolves the scan path, so the
+    components ABOVE the tree are wherever a runner happened to put the
+    checkout, and matching them made the whole sweep skippable by the
+    CHECKOUT'S OWN LOCATION: a tree at
+    `/work/contracts/signed-execution-chain/examples/domain-repo` gave every file
+    in it the excluded sequence by inheritance, and the gate reported
+    `0 artifact(s) checked, 0 skipped` over a live malformed record — measured,
+    for both family names, before this was repaired. That is the placement
+    evasion one level up from the one below, and worse, because it takes out the
+    ENTIRE checkout rather than one file and needs no fabricated path inside the
+    repository at all. Found by Codex on #566.
 
     AND IT IS NOT A BARE MEMBERSHIP TEST, which is what made the REQUIRED GATE
     EVADABLE BY PLACEMENT. Asking only whether `examples` and the family name
@@ -1807,7 +1820,7 @@ def under_packaged_examples(path: Path, family: str) -> bool:
     change added AND the one it copied.
 
     WHAT REMAINS, STATED RATHER THAN IMPLIED: any component-shaped exclusion is
-    evadable by FABRICATING the shape — a record at
+    evadable by FABRICATING the shape INSIDE THE SCANNED TREE — a record at
     `governance/contracts/signed-execution-chain/examples/x.yaml` is still
     skipped. That path is no longer innocuous-looking, though: it requires a
     SECOND `contracts/` tree in the repository, which is the packaged-corpus
@@ -1816,12 +1829,28 @@ def under_packaged_examples(path: Path, family: str) -> bool:
     shape — the nearest marker being a `manifest.yaml` beside the `contracts/`
     component — which trades a path rule for a filesystem assumption about how
     consumers carve the bundle, and is a bigger change than this fix carries.
+
+    A SINGLE EXPLICITLY NAMED FILE IS THEREFORE NEVER EXCLUDED, and that is the
+    right reading rather than a side effect: `root` is the tree the operator
+    pointed the reader at, and for a named file that tree is its own directory,
+    so no sequence survives the relativization. Naming
+    `contracts/trust-anchor/examples/negative/x.yaml` outright is a request to
+    READ it, and the refusal it then draws is a TRUE statement about those bytes
+    — layer 1's self-test already asserts the same fixture invalid for the same
+    reason. What the exclusion exists to stop is a SWEEP silently adjudicating
+    another layer's fixtures, and a sweep still cannot.
     """
-    parts = path.parts
+    try:
+        parts = path.relative_to(root).parts
+    except ValueError:
+        # Not under the scanned tree at all. `rglob` cannot produce this and a
+        # named file's own parent cannot either; fail CLOSED to adjudication
+        # rather than excluding a path whose relation to the tree is unknown.
+        return False
     shape = tuple(part.format(family=family) for part in PACKAGED_EXAMPLES_SHAPE)
     width = len(shape)
     return any(parts[index:index + width] == shape
-               for index in range(len(parts) - width))
+               for index in range(len(parts) - width + 1))
 
 
 #: The identifier each consumed record is RESOLVED THROUGH. `add-trust-anchor`
@@ -1900,6 +1929,12 @@ def consumed_identifiers_are_ambiguous(
 def repo_scan(f: Findings, target: Path, registry: Registry, docs: dict[str, dict],
               carried: dict[str, dict]) -> None:
     sweep = target.is_dir()
+    # THE TREE THE OPERATOR POINTED AT, which is what the packaged-corpus
+    # exclusion is searched relative to. For a named file that tree is its own
+    # directory. Components ABOVE it are the environment's — `main()` resolves
+    # the path — and letting them match let a checkout's own location switch the
+    # whole sweep off.
+    scan_root = target if sweep else target.parent
     files = sorted(list(target.rglob("*.yaml")) + list(target.rglob("*.yml"))) \
         if sweep else [target]
     records: list[tuple[str, dict]] = []
@@ -1912,7 +1947,7 @@ def repo_scan(f: Findings, target: Path, registry: Registry, docs: dict[str, dic
         # negatives that ITS reader adjudicates. Sweeping either here as live
         # records would re-adjudicate fixtures another layer already asserts
         # exactly how.
-        if any(under_packaged_examples(path, family)
+        if any(under_packaged_examples(path, family, scan_root)
                for family in PACKAGED_CORPUS_FAMILIES):
             continue
         try:
@@ -1958,7 +1993,24 @@ def repo_scan(f: Findings, target: Path, registry: Registry, docs: dict[str, dic
     ambiguous = consumed_identifiers_are_ambiguous(f, records)
     if records and not ambiguous:
         validate_scope(f, records, registry, docs, carried)
-    f.note(f"repo scan ({target}): {checked} artifact(s) checked, {skipped} skipped "
+    # AN UNADJUDICATED SCOPE IS NOT REPORTED AS "CHECKED". Under ambiguity the
+    # walk above does not run, so the documents were COLLECTED and nothing was
+    # applied to them; a note saying N were checked would invite a reader to take
+    # the absence of further findings for a clean reading of them, which is the
+    # vacuous pass this family refuses. ZERO were checked, and the count that was
+    # collected is still reported so the operator can see the scope's size.
+    # Found by Copilot on #566. The gate's own anti-vacuity grep still matches —
+    # it asks for `N artifact(s) checked` and gets a truthful zero — and the run
+    # is red regardless, on the duplicate refusal recorded above.
+    scope_note = f"{checked} artifact(s) checked"
+    if ambiguous:
+        scope_note = (
+            f"0 artifact(s) checked ({checked} collected and then NOT "
+            f"ADJUDICATED: the consumed identifier set is AMBIGUOUS, refused "
+            f"above, and THE CHAIN WALK OVER THIS SCOPE WAS NOT RUN, so no rule "
+            f"was applied to any of them and the absence of further findings "
+            f"below is UNEVALUABLE rather than clean)")
+    f.note(f"repo scan ({target}): {scope_note}, {skipped} skipped "
            f"(no kind this reader adjudicates — neither one of this family's own "
            f"nor one of the CONSUMED trust-anchor kinds a tier-2 issuance composes); "
            f"BOTH families' packaged examples/ excluded, this one's and "
