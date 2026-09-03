@@ -1049,7 +1049,24 @@ def resolve_or_create_book(root: Path, spec: BookSpec, apply: bool,
         # path a re-derived book takes on the run AFTER the one that created it
         # (issue #536). Read-only callers stay read-only: with `apply` false
         # this prints the planned replacement and writes nothing.
-        ensure_workspace_record(root, spec, nid, apply)
+        #
+        # AMBIGUOUS TITLE FIRST. `by_title` keeps whichever row the provider
+        # returned LAST, so two notebooks under one title resolve to an
+        # arbitrary one of them. Projecting into an arbitrary notebook is a
+        # pre-existing hazard; RE-POINTING the governed record at it would be a
+        # new one — it could overwrite an already-correct registration and flap
+        # it as the provider's ordering changes. Report and leave the record
+        # exactly as it stands: an ambiguous title is precisely the case a hand
+        # reconciliation exists for (PR #602, Codex P2).
+        titled = {r.get("id") for r in rows
+                  if r.get("title") == spec.title and r.get("id")}
+        if len(titled) > 1:
+            print(f"[{spec.key}] NOTICE {len(titled)} notebooks are titled "
+                  f"{spec.title!r} ({', '.join(sorted(titled))}) — the "
+                  f"workspace record is left unchanged; resolve the duplicate "
+                  f"by hand before trusting this book's registration")
+        else:
+            ensure_workspace_record(root, spec, nid, apply)
         return nid, True
     if not apply:
         print(f"[{spec.key}] CREATE {spec.title} (book missing; created on --apply)")

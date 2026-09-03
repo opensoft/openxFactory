@@ -307,16 +307,40 @@ class ResolvedBooksReassertTheirRegistrationTests(unittest.TestCase):
 
     DRAFTS = sync.static_spec("drafts")
 
-    def _resolve(self, root: Path, apply: bool) -> str:
+    def _resolve(self, root: Path, apply: bool, notebooks=None) -> str:
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
             nid, ok = sync.resolve_or_create_book(
                 root, self.DRAFTS, apply,
-                [{"id": NEW_ID, "title": self.DRAFTS.title}],
+                notebooks if notebooks is not None
+                else [{"id": NEW_ID, "title": self.DRAFTS.title}],
                 bind_alias=False)
-        self.assertEqual(nid, NEW_ID)
         self.assertTrue(ok)
         return out.getvalue()
+
+    def test_two_notebooks_under_one_title_leave_the_record_alone(self):
+        """An arbitrary resolution must not become a governed write.
+
+        `by_title` keeps whichever row the provider returned LAST, so a
+        duplicate title resolves to an arbitrary notebook. Projecting into one
+        is a pre-existing hazard; re-pointing the record at it would overwrite
+        an already-correct registration and flap it as ordering changes.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            path = _write_registry(root)
+            before = path.read_text(encoding="utf-8")
+            text = self._resolve(
+                root, apply=True,
+                notebooks=[{"id": NEW_ID, "title": self.DRAFTS.title},
+                           {"id": OTHER_ID, "title": self.DRAFTS.title}])
+            after = path.read_text(encoding="utf-8")
+        self.assertEqual(before, after,
+                         "an ambiguous title is what hand reconciliation is for")
+        self.assertIn("NOTICE", text)
+        self.assertIn(NEW_ID, text)
+        self.assertIn(OTHER_ID, text)
+        self.assertNotIn("REPLACED", text)
 
     def test_a_read_only_resolve_plans_the_replacement_without_writing(self):
         with TemporaryDirectory() as td:

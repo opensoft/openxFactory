@@ -185,8 +185,10 @@ run session migrations through the sync above, not through the workbench.
 unchanged in the new account. Finding that id with a different
 `provider_notebook_id`, **the sync now performs the replacement itself under
 `--apply`** (issue #536): it re-points that record's `provider_notebook_id` in
-`examples/lifecycle-notebook-workspaces.yaml` to the new notebook's id, in
-place, leaving exactly ONE active record per live book, and announces it as
+openxFactory's `examples/lifecycle-notebook-workspaces.yaml` to the new
+notebook's id, in place, leaving exactly ONE active record per live book — the
+sync writes it at `<root>/openxFactory/examples/…`, the root being the
+aggregation directory the commands above are run from — and announces it as
 `REPLACED workspace record <id>: <old> -> <new>`. Until then it printed
 `reconcile by hand` and returned without registering the replacement, which is
 why the 2026-08-24 migration did this step by hand.
