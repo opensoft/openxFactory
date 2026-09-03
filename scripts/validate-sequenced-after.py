@@ -311,7 +311,7 @@ def main(argv: list[str] | None = None) -> int:
         # mode's paths, not against the current directory. Absolute paths are
         # unaffected, and so is the ordinary `--archive-gate openspec/changes/x`
         # run from the repo root, `repo_root` defaulting to `.`. What changes is
-        # `validate-sequenced-after.py /elsewhere --archive-gate
+        # `validate-sequenced-after.py path/to/repo --archive-gate
         # openspec/changes/x`, which resolved against the CWD: at best it failed
         # to find the directory, and at worst it found a DIFFERENT repository's
         # change of the same name and gated THAT — the failure mode a gate can

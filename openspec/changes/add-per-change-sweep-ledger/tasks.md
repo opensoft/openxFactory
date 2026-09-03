@@ -204,7 +204,7 @@ measurement is carried per subject, never as a shared total"
   against the `repo_root` positional; `git show origin/main` confirms the same
   line, byte-identical, so this packet inherited it rather than caused it. Taken
   anyway, because the failure mode belongs to a GATE: run as
-  `validate-sequenced-after.py /elsewhere --archive-gate openspec/changes/x`, it
+  `validate-sequenced-after.py path/to/repo --archive-gate openspec/changes/x`, it
   did not merely fail to find the directory — it could find a DIFFERENT
   repository's change of the same name and gate THAT, which passes. A relative
   `CHANGE_DIR` now resolves against `repo_root`; absolute paths are unaffected
@@ -212,6 +212,24 @@ measurement is carried per subject, never as a shared total"
   root, `repo_root` defaulting to `.`. Fixture:
   `test_the_ARCHIVE_GATE_resolves_a_relative_dir_against_REPO_ROOT` puts a decoy
   change of the same id in the CWD and asserts the gate does not reach it.
+
+- [x] 6.7 **BOT ROUND 8: ZERO new findings** (Copilot, 22:25:33Z) — its only
+  remark was that the change "warrants final human verification", which is a
+  description of ratification rather than a finding, and this packet is
+  `Status: draft` precisely because that act has not happened.
+- [x] 6.8 **BOT ROUND 9 (Copilot, 22:29:29Z), both findings TAKEN, and the rule
+  was CHECKED rather than believed.** The finding cited "the repository
+  constitution's no host-absolute paths rule" against a `/elsewhere` placeholder
+  in a code comment and in task 6.6. A bot citing a house rule is exactly the
+  claim worth verifying before acting on it, so it was: `.specify/memory/`
+  `constitution.md` Principle IV says in as many words *"Committed files MUST
+  NOT contain host-absolute paths; use repo-relative paths or runtime
+  resolution"*, and the README already cites that principle for the same reason
+  at another packet's entry. The rule is real, the finding is right, and both
+  placeholders are now `path/to/repo`. The whole diff was then swept for any
+  other host-absolute path in committed text: none. The FIXTURE was already
+  compliant — it builds its paths from `tmp_path` at runtime, which is the
+  "runtime resolution" the principle names.
 
 ## Group 6b — Gates
 
