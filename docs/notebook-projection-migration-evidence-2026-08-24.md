@@ -457,6 +457,22 @@ re-run that followed.
 **This is the document Brett's retirement gate turned on.** Its projected form is
 what cleared the hold, so its title landing correctly is not a cosmetic matter.
 
+**Residual, filed as #462 and fixed 2026-09-02.** The next real apply
+(2026-08-28, post-#452) exercised both halves and BOTH MISSED, each doing exactly
+what it was written to do. Adoption compares the projected body against
+`nlm source content`, and the provider returns 281,645 bytes for this
+279,235-byte document — so the strict digest could never match this class and the
+documented safe fall-through to a normal add minted a fresh duplicate on every
+run (Canon went 3 strays → 4, silently, exit 0). And the rename poll passed on
+attempt 1 both times, after which the title regressed to the temp filename when
+ingestion completed — the read-back proved a moment, not a steady state. The fix
+adds a settle re-verify with one re-rename (`RENAME_SETTLE_DELAY_S`), a bounded
+normalized-digest adoption fallback gated on a byte-length tolerance and
+uniqueness, and — where the old code uploaded another copy — **a loud stop that
+names every candidate stray and the hand adoption**. Section 5 of
+[Lifecycle Notebook Projection](lifecycle-notebook-projection.md) carries the
+behaviour and the hand-repair recipe.
+
 ### Verification — all three clean
 
 ```

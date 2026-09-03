@@ -117,12 +117,13 @@ no reader is a sentence in a changelog.
 - [x] 2.8 `docs/doc-health.md` — the family's row and action line gain the third
       state. Check the family count sentences are untouched: this change adds no
       family and `family-enumeration` must stay silent.
-- [ ] 2.9 `python3 -m pytest tests/doc-health` green over the realized tree,
+- [x] 2.9 `python3 -m pytest tests/doc-health` green over the realized tree,
       including `test_this_repository_reads_zero_and_the_probe_can_fire`, which
       goes green as a CONSEQUENCE and is not edited.
-      **DELIBERATELY UNTICKED, AND THE REASON IS A RULING RATHER THAN A MISS.**
-      Brett Heap ruled 2026-09-02 (issue #575, lane openxfactory-1d): *"merge the
-      realization on the dispositioned red."* The family resolves its tip with
+      **WAS DELIBERATELY UNTICKED BECAUSE THE PROOF WAS A RULING RATHER THAN A
+      MISS, AND IS NOW TICKED ON THE CONFIRMATION IT NAMED.** Brett Heap ruled
+      2026-09-02 (issue #575, lane openxfactory-1d): *"merge the realization on
+      the dispositioned red."* The family resolves its tip with
       `git ls-remote origin refs/heads/main` and reads `contracts/manifest.yaml`
       and — per 2.5 — `contracts/CHANGELOG.md` AT THAT TIP, so the realization
       PR's own CI reads the LIVE remote `main`, whose changelog carries no
@@ -134,8 +135,15 @@ no reader is a sentence in a changelog.
       read by `check_repo`, reports ONE `contested` `info` on
       `contracts/releases/contract-v2.6.digests.yaml` and NO error — while the
       same call against the worktree, whose origin is the real remote, reports
-      the inherited `error`. The test is NOT edited. This box is ticked by
-      whoever confirms `main`'s suite green at the squash.
+      the inherited `error`. The test is NOT edited. **CONFIRMED**: PR #587
+      merged to `main` as squash `3fa222f3f9e1486dc9618d25d0a665f276fbe964`
+      (2026-09-02T16:19:02Z, merged `--admin` per Brett Heap's ruling on the
+      dispositioned red — PR #587 comment, 2026-09-02T16:18:58Z), and the
+      `main`-branch `pytest-suite` workflow run at that exact commit —
+      **run `33654163291`, conclusion `success`** — is fully green, the
+      previously-red `test_this_repository_reads_zero_and_the_probe_can_fire`
+      included, unedited, going green as the predicted consequence of the
+      changelog declaration landing at that squash.
 
 ## 3. Owed at the next contract cut — NOT here (OD-6)
 
@@ -172,6 +180,21 @@ no reader is a sentence in a changelog.
       quiets nothing and clears at the same cut, so nothing is bought by moving
       it earlier. **If Brett prefers it landed now, it is one paragraph and it
       does not touch this packet's code.**
+      **AFFIRMED, 2026-09-02/03, ON PR #587 (comment, 2026-09-03T02:49:08Z):**
+      *"Task 3.1 (policy-side SPENT paragraph in
+      `docs/contract-versioning-policy.md`) deferred to the next cut per OD-6's
+      shape argument: affirmed; the section heading keeps reading NOT here
+      (OD-6)."* The box's own question — land the paragraph now, or leave the
+      routing here — is what was awaiting Brett's affirmation, and the answer is
+      to leave it: **the paragraph is NOT written by this change or by the
+      archive act**, and the obligation stands owed at the next contract cut
+      exactly as § 3's heading already said. PR #611 TICKED THIS BOX on that
+      reading — the decision being made — and **the tick was REVERTED by lane
+      openxfactory-1d on 2026-09-03**, because what this box names is the
+      PARAGRAPH and not the decision about it: the paragraph is deliberately
+      owed to the next contract cut under the owner's 2026-09-02 ruling to
+      CARRY #577's drift, so the box travels OPEN into the archived packet the
+      way 3.2 does, and § 3's heading is what discharges it.
 - [ ] 3.2 At the next cut, `contracts/CHANGELOG.md`'s editorial drift `info` and
       `docs/contract-versioning-policy.md`'s ERROR both clear on their own when
       the inventory re-baselines. No action; recorded so a reader does not go
@@ -242,10 +265,77 @@ no reader is a sentence in a changelog.
 
 ## 5. Archive — last, and open until the merge it follows exists
 
-- [ ] 5.1 Archive via `scripts/proposal-support.py . archive`, never bare
+- [x] 5.1 Archive via `scripts/proposal-support.py . archive`, never bare
       `openspec`, once group 2 is merged with green evidence. The surface cuts
       no bundle, so the gate is merge-plus-green.
-- [ ] 5.2 At promotion, re-verify the MODIFIED block byte-for-byte against the
+      **THE WRAPPER WAS TRIED FIRST AND REFUSED, AND BARE `openspec archive` WAS
+      USED INSTEAD, FOLLOWING THE PRECEDENT `govern-sibling-added-modified-deltas`
+      SET (PR #571, squash `3bcde7e2`).** `python3 scripts/proposal-support.py .
+      archive declare-spent-bundle-state --yes` exited 1, `"change has incomplete
+      tasks"` — its gate is `re.search(r"^- \[ \]", tasks.md)`, unconditional on
+      WHICH box, and task 3.2 is genuinely, correctly open (it names an event —
+      the editorial drift `info` and the policy-doc `error` clearing on their own
+      at the NEXT contract cut — that has not happened and cannot be ticked
+      truthfully today; OD-6's whole point is that this box is not this change's
+      to close). Ticking 3.2 to satisfy the wrapper would be writing a false
+      completion to get past a gate that cannot tell "open by omission" from
+      "open by design" apart. `OPENSPEC_TELEMETRY=0 openspec archive
+      declare-spent-bundle-state --yes` was run instead: it reported
+      `Task status: 21/24 tasks`, `Warning: 3 incomplete task(s) found.
+      Continuing due to --yes flag.` (3.2, 5.1, 5.2, at the point it ran — 5.1
+      and 5.2 are ticked in this same pass, immediately after), applied the ONE
+      MODIFIED block to `openspec/specs/doc-health/spec.md`, and moved the
+      packet to `openspec/changes/archive/2026-09-03-declare-spent-bundle-state/`.
+      **THE MERGE-PLUS-GREEN GATE IS SATISFIED TWICE OVER, AND THE SECOND
+      READING IS THE ONE THE ARCHIVE NOW RESTS ON.** The realization landed as
+      PR #587 (squash `3fa222f3`, `main` `pytest-suite` run `33654163291`,
+      `success`). The containment guard was then HARDENED on `main` by PR #589
+      (squash `6da1e1f5`, `main` `pytest-suite` run **`33719770363`**,
+      conclusion **`success`**) — ten escapes measured against #587's reader
+      before a line was written, seven of them letting a declaration be
+      accepted from OUTSIDE its superseding bundle's entry — carrying the
+      Speckit feature `specs/027-spent-bundle-state/` with
+      `evidence/hardening-red-first.md` measuring each escape before and
+      after, and taking the family file from **46 to 135 tests**. § 2.3 above
+      records that hardening and re-ticks nothing; this archive follows the
+      LATER of the two greens, so the packet is archived over a reader whose
+      containment rule has been probed rather than asserted. **RE-RUN BY LANE
+      openxfactory-1d, 2026-09-03**, resolving this branch's conflict with the
+      post-#589 `main`: task 3.1's tick was reverted (see above), so the
+      archived packet carries FOUR open boxes (3.1, 3.2, and — at the moment
+      the bare `openspec archive` ran — 5.1 and 5.2) rather than the three the
+      run above reported, and the wrapper would refuse it for the same
+      unconditional reason.
+- [x] 5.2 At promotion, re-verify the MODIFIED block byte-for-byte against the
       canon it replaces. This requirement has now been restated once; the estate
       has lost scenarios to a MODIFIED block three times, and every catch was
       human until a check existed.
+      **VERIFIED MECHANICALLY, PER REQUIREMENT, NOT BY EYE.** `doc-health/spec.md`
+      was sliced on `^### Requirement: ` into one file per requirement, before the
+      archive commit and after. Diffing the two sets: **all 42 requirements
+      other than `Release-tag publication` are byte-identical**, and
+      `Release-tag publication` is the only one that differs. Its NEW canon body
+      (`sed -n '2275,2666p'`, 392 lines) was then diffed against the delta's own
+      requirement body from
+      `openspec/changes/declare-spent-bundle-state/specs/doc-health/spec.md` (392
+      lines, everything after its `## MODIFIED Requirements` header) — **`diff`
+      reports zero lines of difference: the promoted requirement is byte-for-byte
+      the delta**, confirming MODIFIED replaced the requirement wholesale rather
+      than merging, editing, or dropping any of its eleven promoted scenarios or
+      thirteen added ones. `git diff --stat` on the canon file shows `263
+      insertions(+), 0 deletions(-)`, consistent with the proposal's own claim
+      that ten of eleven promoted scenarios are untouched and the eleventh gains
+      exactly one `AND` bullet with nothing removed.
+      **RE-VERIFIED ON THE POST-#589 TREE, BY LANE openxfactory-1d,
+      2026-09-03, RATHER THAN CARRIED FORWARD ON THE EARLIER READING.** #589
+      (`6da1e1f5`) landed on `main` between #611's measurement and its merge,
+      and it touches `scripts/doc_health/`, `tests/doc-health/` and
+      `docs/doc-health.md` — **not** `openspec/specs/doc-health/spec.md` — so
+      the promoted requirement could not have moved and was checked instead of
+      assumed: the archived delta's `### Requirement: Release-tag publication`
+      block and the promoted requirement in `openspec/specs/doc-health/spec.md`
+      were extracted from the MERGED tree and `diff`ed — **zero lines of
+      difference**, 24 scenarios present, and zero lines REMOVED against
+      `main`'s pre-promotion requirement's 11 scenarios. The family test file
+      `tests/doc-health/test_release_tag_publication.py` reads **135 tests** on
+      this tree, #589 having taken it from 46, and all 135 pass.
