@@ -1799,7 +1799,7 @@ def under_packaged_examples(path: Path, family: str, root: Path) -> bool:
     components ABOVE the tree are wherever a runner happened to put the
     checkout, and matching them made the whole sweep skippable by the
     CHECKOUT'S OWN LOCATION: a tree at
-    `/work/contracts/signed-execution-chain/examples/domain-repo` gave every file
+    `<checkout>/contracts/signed-execution-chain/examples/domain-repo` gave every file
     in it the excluded sequence by inheritance, and the gate reported
     `0 artifact(s) checked, 0 skipped` over a live malformed record — measured,
     for both family names, before this was repaired. That is the placement
