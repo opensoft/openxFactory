@@ -156,8 +156,10 @@ changelog or the inventory to match the absence*. The gap it closes reached
 `contract-v1.33`/`v1.35`/`v1.39` in August and recurred on `contract-v2.3`
 and `contract-v2.4`; a human found it both times (issue #528).
 
-[`declare-spent-bundle-state`](../openspec/changes/declare-spent-bundle-state/proposal.md)
-gave that family a **THIRD STATE — SPENT** (ratified 2026-09-02, issue #575),
+The archived
+[`2026-09-03-declare-spent-bundle-state`](../openspec/changes/archive/2026-09-03-declare-spent-bundle-state/proposal.md)
+change gave that family a **THIRD STATE — SPENT** (ratified 2026-09-02, realized
+PR #587 squash `3fa222f3`, archived 2026-09-03, issue #575),
 between *published* and *owes a tag*. It adds **no family** and moves no family
 count. A bundle that was cut, superseded, and can never carry a legal tag —
 `contract-v2.6` is the first and so far only instance in this estate — may be

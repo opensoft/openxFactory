@@ -453,6 +453,51 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       2026-09-03, taken to re-fire the `pull_request` checks GitHub had skipped
       while the test-merge commit could not be built — which is this test's own
       protocol.
+    - `active_co_modified` reads 20, and read 21 above. It moved on 2026-09-03,
+      when `declare-spent-bundle-state` was ARCHIVED — the change whose
+      AUTHORING raised `co_modified` 104 → 105 and `active_co_modified`
+      18 → 19 several bullets above. THE SAME SHAPE AS #563's and #571's moves,
+      and for the same reason: archiving a co-modified ACTIVE change moves it
+      out of the active corpus and into the archived one, so
+      `active_co_modified` falls by exactly one while the corpus-wide
+      `co_modified` — a count of REQUIREMENT-KEY pairings, which an archive
+      never un-shares — holds at 108.
+      THIS ENTRY REPLACES THE ONE PR #611 FIRST WROTE, and the two are not both
+      kept because they CONTRADICT on the split. #611's reasoning was right and
+      its arithmetic went stale: it was authored 2026-09-03T03:55Z against the
+      `main` of 2026-09-02 (`ee294f9f`, `33 active + 124 archived`) and recorded
+      the after-state as `32 active + 125 archived` = 157. Two commits then
+      landed on `main` before this branch could merge — PR #593 (`3c237cd0`),
+      which ADOPTED `update-standards-body-current-publications` as an ACTIVE
+      change, and PR #589 (`6da1e1f5`), which hardened the SPENT containment
+      guard — so the before-state this archive actually acts on is
+      `34 active + 124 archived` = 158 and the after-state is
+      `33 active + 125 archived` = 158. The TOTAL being unchanged is the
+      invariant that entry was making and it survives; both of its addends were
+      one lower than the corpus now carries, so the corrected reading is
+      recorded here and the stale one is removed rather than left to contradict
+      it. Corrected by lane openxfactory-1d, 2026-09-03, while resolving #611's
+      conflict with `main`.
+      MEASURED ON BOTH TREES rather than adjusted by arithmetic, via
+      `python3 scripts/validate-sequenced-after.py . --sweep`: `origin/main` at
+      `6da1e1f5` reads `34 active + 124 archived` = 158 change ids, `108`
+      co-modified, `50` sole modifiers, `21 / 13` active co-modified/sole; this
+      merge reads `33 active + 125 archived` = 158, `108`, `50`, `20 / 13`.
+      EXACTLY ONE PIN MOVES — `active_co_modified` 21 → 20 — and `main`'s own
+      reading IS the by-exclusion control, this archive being the only
+      difference between the two trees. `change_ids - 1` holds at 157 (moving
+      one change between buckets cannot change the total), `sole_modifiers - 1`
+      holds at 49 (this change was always a co-modifier and never a sole one),
+      and `active_sole - 1` holds at 12 (an archive of a co-modified active
+      never touches the sole set) — the three #593 last moved, re-derived on the
+      merged tree rather than assumed to have survived it. `archived` rises
+      124 → 125; prose headers hold at 3 (3 archived); `declaring`/`root_claims`
+      hold at 1/0. The promoted `doc-health` requirement this change's
+      `## MODIFIED Requirements` block targeted is now CANON rather than an
+      active delta, which is what makes the change a FORMER co-modifier rather
+      than a present one. The pin moves in the SAME COMMIT as the corpus — here
+      the merge commit that resolves this conflict — which is this test's own
+      protocol.
     """
     sweep = sa.corpus_sweep(ROOT)
     assert sweep.co_modified == 108, (
@@ -484,12 +529,18 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "archive moves `active_co_modified`, never the corpus-wide "
         "`co_modified`). ANY later change carrying a MODIFIED block raises it "
         "again, which is one of the two EXPECTED causes of this failure")
-    assert sweep.active_co_modified == 21, (
-        "21 since add-project-repo-schema was authored 2026-09-02 as one "
+    assert sweep.active_co_modified == 20, (
+        "20 since declare-spent-bundle-state was ARCHIVED 2026-09-03: "
+        "archiving a co-modified ACTIVE change lowers this count while "
+        "leaving the corpus-wide `co_modified` untouched, the same shape "
+        "#563's and #571's archives moved. It read 21 "
+        "since add-project-repo-schema was authored 2026-09-02 as one "
         "more ACTIVE co-modifier entering the active corpus — by ONE and not "
         "two, because the earlier writers of the requirement key it shares "
         "are both ARCHIVED and were already co-modified, so no ACTIVE change "
-        "flipped and `active_sole` held at 12. It read 20 "
+        "flipped and `active_sole` held at 12 as it then stood — PR #593 "
+        "raised it to 13 on 2026-09-03, which the MOVEMENT LOG records and "
+        "which this pin does not read. It read 20 "
         "since add-cpc-clearing-boundary (PR #560, 2026-09-02), which is "
         "itself an ACTIVE co-modifier entering the active corpus AND flips "
         "add-clearing-dispatch-boundary — also ACTIVE — from sole to "
