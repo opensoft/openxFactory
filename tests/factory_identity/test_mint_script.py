@@ -515,7 +515,7 @@ def test_the_dry_run_spends_nothing_and_prints_the_plan(
     assert "DRY RUN" in out
     for name in ("gh-auth", "environment", "openxwallet-gitlink",
                  "openxFactory-clean", "codexFactory-clean", "mint-sentinels",
-                 "secret-absent", "mint-record-absent", "expiry"):
+                 "secret-absent", "mint-record-absent", "expiry", "operator"):
         assert f"ok [{name}]" in out, f"the plan does not report {name!r}"
     assert "would generate" in out
     assert "would store" in out
@@ -647,6 +647,17 @@ def test_the_whole_mint(mint, tree, capsys) -> None:
     assert mint.ENVIRONMENT in body
     assert "#610" in body and "#182" in body
     assert seed_hex not in body
+    # THE OPERATOR'S NAME COMES FROM THE ATTESTATION, not from the program.
+    attested_name = yaml.safe_load(
+        (openx / mint.ATTESTATION_REL).read_text(encoding="utf-8")
+    )["verified_by"]["name"]
+    assert f"Ruled by: {attested_name}," in body, (
+        "the record attributes its ruling to somebody other than the operator "
+        "the REGISTER names; two spellings of one fact is one of them being "
+        "wrong")
+    # AND NO QUOTATION IS INVENTED. With no --ruling given, the record must say
+    # so rather than put a plausible sentence in a named person's mouth.
+    assert "no word was recorded in session" in body
 
     # -- both commits name their pathspecs; neither is a bare commit
     commits = [args for args in runner.argvs() if "commit" in args]
@@ -770,6 +781,32 @@ def test_a_duplicated_sentinel_refuses(mint) -> None:
             sentinel="FILL-IN-AT-MINT", where="w")
     assert excinfo.value.code == "sentinel-not-exactly-once"
     assert "found 2" in str(excinfo.value)
+
+
+def test_the_recorded_ruling_is_the_operators_own(mint, tree) -> None:
+    """`--ruling` carries the operator's word into the record verbatim."""
+    openx, codex = tree
+    runner = runner_for(mint, openx, codex)
+    assert invoke(mint, openx, codex, runner, "--ruling",
+                  "mint it, and do not merge it for me") == 0
+    body = (codex / mint.RECORD_DIR_REL
+            / "2026-09-03-factory-origin-key-minted.md").read_text(
+        encoding="utf-8")
+    assert '— "mint it, and do not merge it for me".' in body
+    assert "no word was recorded" not in body
+
+
+def test_an_attestation_naming_no_operator_refuses(mint, tree, capsys) -> None:
+    """The record attributes a ruling to a person. The program will not invent
+    one, and the register is where that name already lives."""
+    openx, codex = tree
+    attestation = openx / mint.ATTESTATION_REL
+    attestation.write_text(
+        attestation.read_text(encoding="utf-8").replace(
+            "  name: Brett Heap\n", ""), encoding="utf-8")
+    runner = runner_for(mint, openx, codex)
+    assert invoke(mint, openx, codex, runner, "--dry-run") == 1
+    assert "refused [operator-unnamed]" in capsys.readouterr().err
 
 
 def test_the_restamp_matches_on_the_old_value_not_only_the_field(mint) -> None:

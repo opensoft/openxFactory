@@ -420,6 +420,12 @@ class Plan:
     record_path: Path
     register_pr: int
     floor_pr: int
+    #: READ FROM THE CUSTODY ATTESTATION's `verified_by.name`, never restated
+    #: here: the record must attribute the ruling to whoever the register says
+    #: attested the custody.
+    operator: str = ""
+    #: The operator's own recorded word, from `--ruling`.
+    ruling: str = ""
     checks: list[Check] = field(default_factory=list)
     #: The PINNED openXwallet decoder module, loaded during preflight so the
     #: gitlink refusal happens before anything is spent and the mint does not
@@ -453,6 +459,15 @@ def sentinel_distribution(validator, root: Path) -> dict[str, int]:
                 f"are.")
         out[match.group("rel")] = out.get(match.group("rel"), 0) + 1
     return out
+
+
+def _mapping_get(doc, *keys):
+    node = doc
+    for key in keys:
+        if not isinstance(node, dict):
+            return None
+        node = node.get(key)
+    return node
 
 
 def _git(runner, root: Path, *args) -> tuple[int, str]:
@@ -613,8 +628,21 @@ def preflight(runner, validator, args, openx_root: Path,
            f"{today.isoformat()}, {grant_days} days)"
            if restamp else f" -> no re-stamp (today is {today.isoformat()})")))
 
+    attestation = yaml.safe_load(
+        (openx_root / ATTESTATION_REL).read_text(encoding="utf-8"))
+    operator = str(_mapping_get(attestation, "verified_by", "name"))
+    if not operator or operator == "None":
+        raise Refusal(
+            "operator-unnamed",
+            f"{ATTESTATION_REL} declares no `verified_by.name`. The mint record "
+            f"attributes its ruling to the responsible operator the REGISTER "
+            f"names, and this program will not invent one.")
+    checks.append(Check("operator", f"{operator} (from the attestation's "
+                                    f"verified_by.name)"))
+
     plan = Plan(
         openx_root=openx_root, codex_root=codex_root, today=today,
+        operator=operator, ruling=args.ruling,
         grant_issued_at=str(grant["issued_at"]),
         grant_expires_at=str(grant["expires_at"]),
         row_expires_at=str(row["expires_at"]),
@@ -797,7 +825,7 @@ Qualifies: tasks 2.1-2.4 of openxFactory `add-cpc-clearing-boundary`
   (capability `factory-origin-identity`), and task 4.2 of the same packet's
   codexFactory realization.
 Recorded: {today}
-Ruled by: Brett Heap, in session {today} — "mint the codexFactory origin key".
+Ruled by: {operator}, in session {today} — "{ruling}".
 
 ## The obligation this discharges
 
@@ -919,6 +947,20 @@ leaves the tree modified and uncommitted for inspection.
 
 def write_record(runner, plan: Plan, values: dict[str, str],
                  instant: str) -> Path:
+    """The mint record, from the runbook's template.
+
+    THE OPERATOR'S NAME IS READ FROM THE ATTESTATION, not restated here. The
+    custody attestation already declares `verified_by.name` as the responsible
+    operator under the Human Escalation Contract; a second spelling in this
+    program would be two places for one fact to disagree, and the record would
+    then attribute a ruling to whoever the program's author had in mind rather
+    than to whoever the register says attested the custody.
+
+    THE RECORDED WORD IS THE OPERATOR'S, not the program's. `--ruling` carries
+    it. Its default says plainly that no word was recorded, because a program
+    inventing a quotation and attributing it to a named person in a governed
+    record is a fabrication however innocuous the sentence is.
+    """
     code, out = _git(runner, plan.openx_root, "rev-parse", "HEAD")
     openx_commit = out.strip() if code == 0 else "<unknown>"
     code, out = _git(runner, plan.openx_root, "rev-parse", "HEAD:openXwallet")
@@ -931,6 +973,7 @@ def write_record(runner, plan: Plan, values: dict[str, str],
             key_fingerprint=values["key_fingerprint"],
             did=values["did"],
             public_key_multibase=values["public_key_multibase"],
+            operator=plan.operator, ruling=plan.ruling,
             secret_name=SECRET_NAME, environment=ENVIRONMENT,
             target_repo=TARGET_REPO, register_pr=plan.register_pr,
             floor_pr=plan.floor_pr, register_branch=REGISTER_BRANCH,
@@ -1193,6 +1236,14 @@ generating a seed, writing a file, committing or pushing.
         help="the date the expiry re-stamp is computed from (default: today "
              "UTC). Present so the re-stamp arithmetic is testable, not so a "
              "mint can be back-dated")
+    parser.add_argument(
+        "--ruling", metavar="TEXT",
+        default="no word was recorded in session; see the pull request thread",
+        help="the operator's OWN recorded word, quoted in the mint record's "
+             "`Ruled by:` line. The default says plainly that none was "
+             "recorded: a program that invented a quotation and attributed it "
+             "to a named person in a governed record would be fabricating "
+             "one, however innocuous the sentence")
     parser.add_argument("--register-pr", metavar="N", type=int,
                         help=f"the {REGISTER_REPO} pull request to ready "
                              f"(default: the one open on {REGISTER_BRANCH})")
@@ -1274,6 +1325,12 @@ def run_mint(args, runner) -> int:
 
     print()
     print("=" * 72)
+    print("READ THE RECORD BEFORE YOU MERGE. It is written from the runbook's")
+    print("template and it states facts about YOUR act — the ruling it quotes "
+          "is")
+    print(f"whatever `--ruling` carried ({plan.ruling!r}), and the obligation")
+    print("sections are prose this program cannot judge for you.")
+    print()
     print("THE MINT IS COMPLETE. The public values, which are safe to publish:")
     print(f"  did:                  {values['did']}")
     print(f"  key_fingerprint:      {values['key_fingerprint']}")

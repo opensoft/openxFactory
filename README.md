@@ -144,7 +144,9 @@ Core domain-neutral docs:
   `governance/factory-identity/` is a permanently human-only surface. A second
   run refuses at `secret-already-exists` or `register-already-minted`. The
   runbook's manual checklist is retained as its appendix for the day the
-  program cannot run)
+  program cannot run. The record's `Ruled by:` line quotes the operator's own
+  `--ruling` and names whoever the custody attestation's `verified_by.name`
+  names, so the program invents neither a quotation nor an attribution)
 - [The Project Repository Schema](docs/project-repo-schema.md)
   (the ELECTIVE three-repository shape — `<Project>` assembly root,
   `<Project>-spec`, `<Project>-code` — and the doctrine that electing it
@@ -652,7 +654,7 @@ Active changes:
   wallet, grant and custody attestation for the first originating repository
   `opensoft/codexFactory` — plus the disjointness validator
   `scripts/validate-factory-identity.py`, the operator mint program
-  `scripts/mint-factory-origin-key.py`, their 77 tests, its wiring into the
+  `scripts/mint-factory-origin-key.py`, their 80 tests, its wiring into the
   REQUIRED `wallet-validation` check with a positive log conjunction, and the
   mint runbook `docs/factory-origin-key-mint-runbook.md`. **The operator has not
   minted the per-factory Ed25519 origin key**, so the three public values are the

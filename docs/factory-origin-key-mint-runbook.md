@@ -87,10 +87,15 @@ is why a backup copy is not worth its blast radius.
 python3 scripts/mint-factory-origin-key.py --dry-run \
     --codex-worktree /path/to/codexFactory-on-realize-factory-identity-floor-entry
 
-# Then, once the plan reads correctly:
+# Then, once the plan reads correctly. `--ruling` is your OWN recorded word,
+# quoted in the mint record; omit it and the record says none was recorded.
 python3 scripts/mint-factory-origin-key.py \
-    --codex-worktree /path/to/codexFactory-on-realize-factory-identity-floor-entry
+    --codex-worktree /path/to/codexFactory-on-realize-factory-identity-floor-entry \
+    --ruling "mint the codexFactory origin key"
 ```
+
+**Then read the record it wrote, before you merge.** It states facts about YOUR
+act, and the two merge commands it prints are the only remaining steps.
 
 That is the whole ceremony. `--help` documents every step and every refusal
 code; this section says what the program does and — more importantly — what it
