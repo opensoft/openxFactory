@@ -145,9 +145,10 @@ title, in canon's order.
 
 ## What this packet MOVES, measured
 
-**Two new `info` findings and nothing else at any severity.** Both are this
-packet's own carriage-ledger rows, and both name exactly the units the
-word-diffs above name:
+**Two new `info` findings and nothing else at any severity, WHILE THE PACKET
+STOOD ACTIVE — and none at all on the landed tree.** Both are this packet's own
+carriage-ledger rows, and both name exactly the units the word-diffs above
+name:
 
 * `workflow-gate-contract` — 2 of 3 units: the body clause and the scenario's
   `**THEN**` bullet. The `**WHEN**` bullet is byte-identical.
@@ -155,9 +156,14 @@ word-diffs above name:
   paragraph. The other 22, including all four scenarios, are byte-identical.
 
 The arm cannot distinguish a ruled amendment from stale text and does not claim
-to; the rows ARE the audit trail. Both are named in
-`tests/doc-health/test_modified_block_currency_self_gate.py` with dated notes
-and both retire when the packet archives and its blocks are promoted.
+to; the rows ARE the audit trail. Both were named in
+`tests/doc-health/test_modified_block_currency_self_gate.py` with dated notes,
+and both RETIRED IN THIS SAME COMMIT on the condition they were written with —
+the packet archived and its blocks promoted — with both halves verified before
+the rows were deleted. **On the landed tree the two finding sets are
+IDENTICAL**: 55 lines each, `6 critical / 6 error / 29 warning / 14 info` on
+the branch and on the `origin/main` baseline alike, zero new at any severity
+and zero lost.
 
 **No `sibling-pairing` finding is possible**: both requirement titles are
 promoted canon rather than an active sibling's `## ADDED` block, so this packet
@@ -171,10 +177,22 @@ a diff. `tests/sequenced_after/test_sweep.py`: `co_modified` 109 -> 111,
 `sole_modifiers - 1` 48 -> 47, `active_sole - 1` HELD at 11 with the hold
 asserted. Measured on both trees and BY EXCLUSION.
 `tests/doc-health/test_modified_block_currency_self_gate.py`: the two rows
-above.
+above, added and retired in the one commit — the population 8 -> 10 -> 8, both
+halves recorded rather than netted, because a reader who sees only the net
+cannot tell an archived packet from one that was never authored. The
+`sequenced_after` pin moved twice for the same reason: `active_co_modified`
+21 -> 22 on the authoring and 22 -> 21 on the archive, while `co_modified`
+HELD at 111 (an archive never un-shares a requirement key), `change_ids - 1`
+held at 158 and `sole_modifiers - 1` at 47.
 
-## Next
+## Next — nothing, and that is the point of `code_surface: none`
 
-Adversarial review runs on the pull request. Promotion and archive
-(`tasks.md` § 6) are owed at landing; `code_surface: none`, so no realization
-evidence stands between this act and that one.
+Promotion and archive (`tasks.md` § 6) were PERFORMED in the landing commit
+that carries this record, through
+`python3 scripts/proposal-support.py . archive amend-owner-layer-severity --yes`
+and never a bare `openspec archive`, the shape
+`2026-08-25-reconcile-lifecycle-books-count` set for a doc-only packet. Both
+blocks promoted byte-identical to the delta bodies under the hashes in
+§ *Fidelity to canon*, `promotion-fidelity` reads zero over the landed tree,
+and no realization evidence stands owed. Adversarial review ran on the pull
+request and is recorded there.

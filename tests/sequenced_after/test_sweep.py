@@ -589,6 +589,38 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       file for that reason and for no other: corpus BOOKKEEPING, not a code
       surface — the packet declares `code_surface: none` and names this pin in
       that declaration.
+    - `active_co_modified` reads 21, and read 22 in the entry directly above.
+      It moved LATER THE SAME DAY AND IN THE SAME PULL REQUEST, when
+      `amend-owner-layer-severity` was ARCHIVED — the packet whose AUTHORING
+      the entry above records. THE TWO ENTRIES ARE ONE COMMIT'S TWO HALVES,
+      which is what a doc-only packet looks like on this pin: `code_surface:
+      none` makes the archive gate LANDING rather than merged-plus-green, so
+      the authoring and the archive ride one PR and this pin is moved TWICE
+      before anything is pushed. Both halves are recorded rather than netted,
+      because a reader who sees only the net reading cannot tell an archived
+      packet from one that was never authored.
+      THE SHAPE IS #563'S, #571'S AND #611'S, and for their reason: archiving
+      a co-modified ACTIVE change moves it out of the active corpus and into
+      the archived one, so `active_co_modified` falls by exactly one while the
+      corpus-wide `co_modified` — a count of REQUIREMENT-KEY pairings, which an
+      archive never un-shares — HOLDS at 111. `change_ids - 1` holds at 158
+      (moving a change between buckets cannot change the total),
+      `sole_modifiers - 1` holds at 47 (this change was always a co-modifier
+      and never a sole one, and `promote-workflow-gate-contract`, the change it
+      flipped out of `sole`, was already archived), and `active_sole - 1` holds
+      at 11 (an archive of a co-modified active never touches the sole set).
+      The two promoted requirements this packet's MODIFIED blocks targeted are
+      now CANON rather than active deltas, which is what makes the change a
+      FORMER active co-modifier rather than a present one.
+      MEASURED ON BOTH SIDES OF THE ACT rather than adjusted by arithmetic, via
+      `python3 scripts/validate-sequenced-after.py . --sweep`: before the
+      archive the branch read `34 active + 125 archived` = 159 change ids,
+      `111` co-modified, `48` sole modifiers, `22 / 12` active
+      co-modified/sole; after it the branch reads `33 active + 126 archived` =
+      159, `111`, `48`, `21 / 12`. EXACTLY ONE PIN MOVES, and the pre-archive
+      reading is its own by-exclusion control, the archive act being the only
+      difference between the two trees. `archived` rises 125 -> 126; prose
+      headers hold at 3 (3 archived); `declaring`/`root_claims` hold at 1/0.
     """
     sweep = sa.corpus_sweep(ROOT)
     assert sweep.co_modified == 111, (
@@ -645,13 +677,18 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "archive moves `active_co_modified`, never the corpus-wide "
         "`co_modified`). ANY later change carrying a MODIFIED block raises it "
         "again, which is one of the two EXPECTED causes of this failure")
-    assert sweep.active_co_modified == 22, (
-        "22 since amend-owner-layer-severity was AUTHORED 2026-09-03 as one "
-        "more ACTIVE co-modifier entering the active corpus — by ONE while the "
-        "corpus-wide `co_modified` rose by TWO, and by ONE while `active_sole` "
-        "HELD at 12, because the change it flipped out of the sole set is "
-        "ARCHIVED and an archived flip can neither enter nor leave an ACTIVE "
-        "population. It read 21 "
+    assert sweep.active_co_modified == 21, (
+        "21 since amend-owner-layer-severity was ARCHIVED 2026-09-03 in the "
+        "same pull request that authored it — `code_surface: none`, so the "
+        "archive gate is LANDING and the packet is authored and archived in "
+        "one commit, which moves this pin TWICE. The authoring took it 21 -> "
+        "22 as one more ACTIVE co-modifier; the archive took it 22 -> 21 by "
+        "moving that same change out of the active corpus, the shape #563's, "
+        "#571's and #611's archives moved, while the corpus-wide "
+        "`co_modified` HELD at 111 — an archive never un-shares a requirement "
+        "key. `active_sole` held at 12 through BOTH halves: the packet is a "
+        "co-modifier and never joins `sole`, and the change it flipped out of "
+        "`sole` (promote-workflow-gate-contract) was already archived. It read 21 "
         "since create-medxchart-overlay-boundary was RATIFIED 2026-09-03, "
         "making an ALREADY-ACTIVE change a co-modifier, with `active_sole` "
         "falling 13 -> 12 in the same move because it is the same change "

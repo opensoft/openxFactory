@@ -88,9 +88,15 @@
 - [x] 3.3 `python3 scripts/proposal-support.py . verify amend-owner-layer-severity`
 - [x] 3.4 List this change in the README's OpenSpec Records block
 - [x] 3.5 Doc-health rendered on this branch and on a detached `origin/main`
-      baseline at the same commit, and the finding sets diffed: ZERO new
-      `critical`, `error` or `warning` findings. The `info` rows this packet
-      adds are its own carriage-ledger rows and are enumerated in § 5
+      baseline at `0bf37d14`, and the finding sets diffed. TWO READINGS, taken
+      at the two states this one commit passes through, and both recorded:
+      with the packet ACTIVE, `6 critical / 6 error / 29 warning` IDENTICAL on
+      both trees and `info` 14 -> 16, the two rows being the packet's own
+      carriage-ledger rows enumerated in § 5, with ZERO findings lost; after
+      the archive act of § 6, the two finding sets are IDENTICAL — 55 lines
+      each, `6 critical / 6 error / 29 warning / 14 info` on both, zero new at
+      any severity and zero lost — because the carriage rows retire with the
+      promotion. The landed tree is the second reading
 - [x] 3.6 `python3 -m pytest tests/doc-health`
 - [x] 3.7 `python3 -m pytest tests/sequenced_after`
 
@@ -125,11 +131,14 @@ note, which is those pins' own stated protocol, and the proposal's
 
 ## 5. What this packet MOVES in doc-health, measured
 
-- [x] 5.1 Two new `info` findings, both this packet's own carriage-ledger
-      rows, and nothing else at any severity. The arm cannot distinguish a
-      ruled amendment from stale text and does not claim to; the rows ARE the
-      audit trail for the two amendments, and both name exactly the units the
-      word-diffs in § 2 name
+- [x] 5.1 WHILE THE PACKET STOOD ACTIVE: two new `info` findings, both its own
+      carriage-ledger rows, and nothing else at any severity. The arm cannot
+      distinguish a ruled amendment from stale text and does not claim to; the
+      rows ARE the audit trail for the two amendments, and both name exactly
+      the units the word-diffs in § 2 name. ON THE LANDED TREE both rows are
+      GONE, retired by the promotion on the condition they were written with
+      (§ 6.4), so the packet's net effect on the report is ZERO findings at
+      every severity
 - [x] 5.2 The `modified-block-currency` scenario-title arm — the one that
       gates at `error` — reads ZERO for this packet, both blocks carrying
       every promoted scenario title
@@ -139,22 +148,65 @@ note, which is those pins' own stated protocol, and the proposal's
 
 ## 6. Promotion and archive
 
-- [ ] 6.1 Promote both deltas into
+PERFORMED IN THE LANDING COMMIT, the shape `2026-08-25-reconcile-lifecycle-books-count`
+set for a doc-only packet: `code_surface: none` means the archive gate is
+LANDING rather than merged-plus-green, so the promotion and the archive ride
+the same pull request as the packet and canon moves in one commit rather than
+two.
+
+- [x] 6.1 Promote both deltas into
       `openspec/specs/workflow-gate-contract/spec.md` and
-      `openspec/specs/release-surface-integrity/spec.md` through
-      `openspec archive`, and archive this packet. `code_surface: none`, so
-      the archive gate is LANDING and not merged-plus-green — but the act is
-      still an act, and it is deliberately NOT performed on an unmerged
-      branch. Owed at landing
-- [ ] 6.2 After promotion, re-run the promotion-fidelity family: this change
-      becomes the latest archived writer of BOTH requirements, so the family
-      measures it from that moment and must read zero findings for
-      openxFactory
-- [ ] 6.3 After promotion, the two carriage-ledger subjects added in § 4.3
-      RETIRE — the blocks are canon rather than active deltas — and the
-      `sequenced_after` pin's `active_co_modified` falls by one while the
-      corpus-wide `co_modified` holds, the shape every archive in that pin's
-      movement log has
+      `openspec/specs/release-surface-integrity/spec.md`, and archive this
+      packet to `openspec/changes/archive/2026-09-03-amend-owner-layer-severity/`.
+      Executed 2026-09-03 through
+      `python3 scripts/proposal-support.py . archive amend-owner-layer-severity --yes`,
+      never a bare `openspec archive`: the wrapper runs the origin gate, the
+      incomplete-task gate and `openspec validate --strict` BEFORE the act, and
+      it is the sanctioned path
+- [x] 6.2 Prove the promotion by sha256 rather than asserting it. Each block
+      extracted from canon AFTER promotion hashes identical to this packet's
+      delta block — `035fb896…bc4ed439` for *Owner layer constraint* and
+      `6e102b2e…d02a1d19a` for *The declared bundle describes the release
+      surface* — and the post-promotion word-diff against pre-promotion canon
+      (`abe58572…77118237`, `4c9e0b71…313f29567`) shows the two ruled words and
+      the one dated paragraph and nothing else
+- [x] 6.3 Re-run the promotion-fidelity family through the real code path.
+      This change is now the latest archived writer of BOTH requirements, so
+      the family measures IT against canon from this moment.
+      `python3 scripts/doc-health.py --single-repo . --family promotion-fidelity`
+      reports `0 critical, 0 error, 0 warning, 0 info` — openxFactory reads
+      ZERO, no finding names this packet, and no finding appears anywhere else
+- [x] 6.4 The two carriage-ledger subjects added in § 4.3 RETIRE ON THE
+      CONDITION THEY WERE WRITTEN WITH — the packet archives and its blocks are
+      promoted — and BOTH HALVES ARE VERIFIED BEFORE THE ROWS ARE DELETED, not
+      after: the packet is at
+      `openspec/changes/archive/2026-09-03-amend-owner-layer-severity/`, the
+      promoted requirements are byte-identical to the delta blocks under the
+      hashes in § 6.2, and the family excludes `openspec/changes/archive/` in
+      its reader by construction, so no finding can name either path this
+      packet ever had
+- [x] 6.5 Re-measure the `sequenced_after` live pin on both trees after the
+      act rather than adjusting § 4.1's numbers by arithmetic. The archive
+      moves the packet from the ACTIVE corpus into the ARCHIVED one, so
+      `active_co_modified` falls back to 21 while the corpus-wide
+      `co_modified` HOLDS at 111 — an archive never un-shares a requirement
+      key — which is the shape every archive in that pin's movement log has.
+      `change_ids - 1` holds at 158 (moving a change between buckets cannot
+      change the total) and `sole_modifiers - 1` holds at 47 (this change was
+      always a co-modifier and never a sole one, and the change it flipped was
+      already archived). MEASURED ON BOTH SIDES OF THE ACT rather than adjusted
+      by arithmetic, via `python3 scripts/validate-sequenced-after.py . --sweep`:
+      before the archive the branch read `34 active + 125 archived` = 159 change
+      ids, `111`, `48`, `22 / 12`; after it the branch reads
+      `33 active + 126 archived` = 159, `111`, `48`, `21 / 12`. EXACTLY ONE PIN
+      MOVES, and the pre-archive reading is its own by-exclusion control, the
+      archive act being the only difference between the two trees. Both halves
+      of the day's movement are recorded in the pin rather than netted, because
+      a reader who sees only the net cannot tell an archived packet from one
+      that was never authored
+- [x] 6.6 Move the README record row from `Active changes:` to
+      `Archived changes:` and restate it in the archived voice, the shape the
+      precedent set
 
 ## 7. Owed elsewhere, not here
 

@@ -5,9 +5,7 @@
 Define the neutral workflow contract schema, the gate record and blocking
 vocabulary, the owner-layer constraint, and the adoption rules promoted from
 convergent domain evidence (DTN-001, DTN-002).
-
 ## Requirements
-
 ### Requirement: Neutral workflow contract schema
 Domain workflow contracts SHALL validate against the canonical
 `contracts/schemas/xfactory-workflow.schema.yaml`: an envelope of
@@ -49,11 +47,11 @@ blocking declaration is a validator error.
 Gate and workflow `owner_layer` values SHALL be canonical role names
 (`customer`, `client`, `domain`, `xfactory`, or the domain's Omnigent
 layer) or a layer id declared in that domain's `stack.yaml` Hermes layers;
-any other value SHALL be reported as a validator warning.
+any other value SHALL be reported as a validator error.
 
 #### Scenario: A gate names an undeclared layer
 - **WHEN** a gate's `owner_layer` matches neither a canonical role nor a declared stack layer id
-- **THEN** the validator MUST report a warning identifying the gate and the unknown layer
+- **THEN** the validator MUST report an error identifying the gate and the unknown layer
 
 ### Requirement: Adoption completion
 The DTN-001/DTN-002 promotion SHALL be complete only when every domain's
@@ -69,3 +67,4 @@ schema surviving adoption SHALL be reported as a health finding.
 #### Scenario: Adoption stalls mid-promotion
 - **WHEN** the schema is promoted but a domain has not completed re-validation
 - **THEN** that domain's local workflow shape remains authoritative for it and the register entry status is the tiebreaker, per the promotion process
+
