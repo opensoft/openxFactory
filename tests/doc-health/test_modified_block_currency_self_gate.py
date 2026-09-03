@@ -138,6 +138,7 @@ import inspect
 import re
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -1408,6 +1409,13 @@ _HEADLINE = re.compile(
 _SECTION = re.compile(r"^(#{2,3}) ([A-Za-z][\w -]*)$")
 _PREAMBLE = "(preamble)"
 
+# THE SECOND CLOCK (#613). `runner.py`'s `--as-of` defaults to
+# `datetime.now(timezone.utc).date()` PER INVOCATION, so two renderings left
+# to pick their own default age `staged-candidate-aging` a day apart across a
+# midnight-UTC boundary — moving a section this family never touched. Fixed
+# once at import, ahead of either call, and handed to both.
+_AS_OF = datetime.now(timezone.utc).date().isoformat()
+
 
 def _report(root: Path, out_dir: Path, skip: bool) -> str:
     """One single-repo report rendering of `root`, with or without this family.
@@ -1423,10 +1431,18 @@ def _report(root: Path, out_dir: Path, skip: bool) -> str:
     worktree's `main`. No other family's behaviour changed, so skipping this one
     is exactly the pre-registration report, and it is a rendering of the same
     corpus rather than of a different one.
+
+    ONE CLOCK, NOT TWO (#613). `_sections` already drops the dated report
+    TITLE because two renders a few seconds apart could straddle midnight;
+    `--as-of` was the one date dependency that guard did not cover, so a
+    straddle still moved `staged-candidate-aging` between the two calls. Both
+    renderings are pinned to `_AS_OF`, computed once before either runs, so
+    they share their aging reference by construction rather than by luck.
     """
     out = out_dir / ("without.md" if skip else "with.md")
     cmd = [sys.executable, "scripts/doc-health.py",
-           "--single-repo", str(root), "--report-out", str(out)]
+           "--single-repo", str(root), "--report-out", str(out),
+           "--as-of", _AS_OF]
     if skip:
         cmd += ["--skip-family", mbc.FAMILY]
     proc = subprocess.run(cmd, cwd=str(root), capture_output=True, text=True)
