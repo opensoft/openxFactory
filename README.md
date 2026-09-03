@@ -2046,6 +2046,69 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [amend-owner-layer-severity](openspec/changes/archive/2026-09-03-amend-owner-layer-severity/proposal.md)
+  — **ARCHIVED 2026-09-03 IN ITS OWN LANDING COMMIT**, the shape
+  `2026-08-25-reconcile-lifecycle-books-count` set for a doc-only packet:
+  `code_surface: none`, so the archive gate is LANDING rather than
+  merged-plus-green and canon moves in the same pull request as the packet
+  rather than a commit later. Authored and **RATIFIED 2026-09-03 by Brett
+  Heap, in-session** (verbatim "implement your recommendations on all these",
+  recorded VERBATIM as the latest comment on openxFactory issues **#561** and
+  **#339**; record `review/ratification-2026-09-03.md`). Two
+  `## MODIFIED Requirements` blocks, one per issue.
+  **#561: CANON MOVED TO THE CODE, NOT THE CODE TO CANON.**
+  `workflow-gate-contract`'s *Owner layer constraint* said an `owner_layer`
+  resolving to neither a canonical role nor a declared layer id "SHALL be
+  reported as a validator warning" — promoted at `a1a2802b` on 2026-07-09,
+  while `scripts/validate-domain-factory.py`'s `check_workflows` has reported
+  it with `rpt.error` since `493fb33d` on 2026-07-03, **six days EARLIER**. Not
+  a regression against canon: canon was written after the code and did not
+  match it on the day it landed. `retire-hermes-flat-keys-and-openworkflow-tokens`
+  met the divergence, recorded it as **D4** and deliberately left it — its
+  requirement names the fall-through's severity as "whatever the general rule
+  carries", so this change could move it without reopening that row — and its
+  tasks § 6.1 commissioned the issue. **THE MEASUREMENT CAME BEFORE THE
+  RULING**, which is what the issue's own item 2 demanded: at `96b2b968`, ZERO
+  gates across codexFactory, MedxFactory, LedgerxFactory, OpsxFactory and
+  AdxFactory carry an `owner_layer` that resolves to nothing — so no consumer
+  is refused whichever text moved, **no deprecation phasing is owed**, and the
+  stricter gate every consumer has conformed to for two months is the one that
+  stays. Canon now reads `error` in the body clause and "MUST report an error"
+  in the scenario. **NOT ONE LINE OF THE VALIDATOR MOVED**, which is the ruling
+  rather than an omission from it. **#339: AN ILLUSTRATION WAS DATED, NOT
+  DELETED.** `release-surface-integrity`'s *The declared bundle describes the
+  release surface* justified its tag-free reference point with three bundles
+  that "are recorded in the changelog and the manifest with no published tag" —
+  `contract-v1.33`, `contract-v1.35` and `contract-v1.39`, all three
+  retro-published 2026-08-25 by PR #333, so the present tense had been false for
+  nine days. The paragraph is past-tensed with the retro-publication dated and
+  attributed, the treatment **PR #333 itself gave the identical claim** in
+  `scripts/doc_health/release_inventory.py`'s docstring. The rule it justifies
+  — a declared bundle need not carry a tag, so the inventory FILE at the commit
+  is the reference — survives with only the tense-driven rewrap, and the
+  scenario that states it (*The declared bundle was never tagged*) is
+  byte-identical. **BOTH BLOCKS WERE BUILT FROM CANON BY EXTRACTION, NEVER
+  RETYPED, AND THE PROMOTION IS PROVEN BY sha256 RATHER THAN ASSERTED**: each
+  block extracted from canon AFTER promotion hashes identical to the packet's
+  own delta block (`035fb896…bc4ed439`, `6e102b2e…d02a1d19a`), and the
+  post-promotion word-diff against pre-promotion canon (`abe58572…77118237`,
+  `4c9e0b71…313f29567`) shows two words in the first requirement and one dated
+  paragraph in the second and nothing else, with canon's 1 + 4 scenario titles
+  all restated in canon's order. Archived through
+  `scripts/proposal-support.py … archive`, never a bare `openspec archive`.
+  Doc-health over the landed tree reads **no new `critical`, `error` or
+  `warning` finding** against the `origin/main` baseline and **no new `info`
+  either**: the two carriage-ledger rows the active packet carried RETIRED on
+  the condition they were written with when the blocks promoted, both halves
+  verified before the rows were deleted. Two live corpus pins moved TWICE in
+  the one commit and both halves are recorded rather than netted —
+  `tests/sequenced_after/test_sweep.py` `co_modified` 109 -> 111,
+  `change_ids - 1` 157 -> 158, `sole_modifiers - 1` 48 -> 47,
+  `active_co_modified` 21 -> 22 on the authoring and 22 -> 21 on the archive,
+  `active_sole - 1` HELD at 11 through both with the hold asserted; and the
+  carriage-ledger population 8 -> 10 -> 8 — each moved in this change's own
+  commit with a dated note per those pins' own protocol, and named in the
+  proposal's `code_surface` line rather than left to a diff.
 - [add-project-repo-schema](openspec/changes/archive/2026-09-03-add-project-repo-schema/proposal.md)
   — **ARCHIVED 2026-09-03 on merged-and-green realization evidence, with this
   pull request.** Ratified 2026-09-02 by Brett Heap, the convener, verbatim
