@@ -1,0 +1,33 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "c868cd545d45f1c00aa32a51d5add6ba433794d5a64a276ad783b1b1f6c8a34e"
+  },
+  "change_id": "add-project-repo-schema",
+  "files": [
+    {
+      "path": "manifest.yaml",
+      "sha256": "2bf17b5b1031adecae2c679dafbf2ee530004e0f709a6c2ff57c8cb7f9412f4d"
+    },
+    {
+      "path": "project-repo-schema.md",
+      "sha256": "da2f3d1d6c2b3dd5ff2084b99fb31db6210e1178784ed73eacccafa5bed21a1f"
+    },
+    {
+      "path": "source-snapshots/project-repo-schema.md",
+      "sha256": "3e0b3df504c120b6e9ef9a5cf6d4d27190f67b8c4ffcf360989360778f711d71"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin": {
+    "id": "openxFactory:staging:project-repo-schema",
+    "kind": "staged",
+    "path": "ideation/staging/project-repo-schema"
+  },
+  "origin_path": "ideation/staging/project-repo-schema",
+  "packaged_at": "2026-09-03",
+  "source_revision": "c0270d28e4bb1539430aa2bfaff91deb1de1f4f0",
+  "transitioned_at": "2026-09-02"
+}
