@@ -380,10 +380,55 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       `python3 scripts/validate-sequenced-after.py . --sweep`:
       `33 active + 124 archived` = 157 change ids, `108` co-modified, `49`
       sole modifiers, `21 / 12` active co-modified/sole.
+    - `co_modified` reads 109, `active_co_modified` reads 22, `sole_modifiers`
+      falls to 48 and `active_sole` to 11 — moved 2026-09-03 by the
+      RATIFICATION of `create-medxchart-overlay-boundary`, which added a
+      `## MODIFIED Requirements` block over `domain-descendant-boundary`'s
+      'A descendant is placed at a ratified placement'.
+      **`change_ids` AND `active` DO NOT MOVE, AND THAT IS THIS ENTRY'S WHOLE
+      NEWS.** Every entry above moved this pin by AUTHORING a change or by
+      ARCHIVING one; this one ratifies a change that was already active and
+      already counted, so the corpus size is untouched while four membership
+      readings move. That is a THIRD cause of this test's failure, distinct
+      from both the authoring cause and the archiving cause the assertion
+      messages name, and a reader who assumes one of those two will look for a
+      new change id that does not exist.
+      THE RISE IS BY ONE AND THE SOLE SET FALLS, which is a shape neither
+      entry above shows and is worth stating because the two readings check
+      each other. #560 rose by TWO with the sole set falling (an ACTIVE earlier
+      writer flipped); `add-project-repo-schema` rose by ONE with the sole set
+      HELD (its earlier writers were archived and already co-modified). Here
+      the rise is ONE and the sole set FALLS — because the change that enters
+      the co-modified set is the SAME change that leaves the sole one. Its
+      earlier co-writer is the ARCHIVED `2026-08-28-split-openxwallet-repo`
+      that promoted the requirement, already co-modified, so nothing else
+      flips; and this packet was sole until now on its NOVEL
+      `medxchart-overlay-boundary` titles, so its own flip is what moves
+      `sole_modifiers` and `active_sole` together.
+      MEASURED BY EXCLUSION on this branch's own rebase onto `main` at
+      `642ac147`, not inferred: removing only
+      `openspec/changes/create-medxchart-overlay-boundary/specs/domain-descendant-boundary/`
+      and re-running the sweep reproduces the entry above EXACTLY — 157 change
+      ids, `108` co-modified, `49` sole modifiers, `21 / 12` active
+      co-modified/sole — so this one delta file is the whole of the difference
+      and no other change moved in the same window. Via
+      `python3 scripts/validate-sequenced-after.py . --sweep`:
+      `33 active + 124 archived` = 157 change ids, `109` co-modified, `48`
+      sole modifiers, `22 / 11` active co-modified/sole.
     """
     sweep = sa.corpus_sweep(ROOT)
-    assert sweep.co_modified == 108, (
-        "108 since add-project-repo-schema was authored 2026-09-02: it "
+    assert sweep.co_modified == 109, (
+        "109 since create-medxchart-overlay-boundary was RATIFIED 2026-09-03 "
+        "and gained a `## MODIFIED Requirements` block over "
+        "domain-descendant-boundary's 'A descendant is placed at a ratified "
+        "placement'. THE THIRD EXPECTED CAUSE OF THIS FAILURE, distinct from "
+        "the authoring cause and the archiving cause named below: RATIFYING "
+        "an already-active change moves this pin while `change_ids` and "
+        "`active` do not move at all. The rise is ONE and `sole_modifiers` "
+        "FALLS with it — the same change enters co-modified and leaves sole, "
+        "its only earlier co-writer being the archived split-openxwallet-repo "
+        "that promoted the requirement. It read 108 "
+        "since add-project-repo-schema was authored 2026-09-02: it "
         "carries a `## MODIFIED Requirements` block over "
         "ideation-dashboard's \"Project grouping hierarchy\", so it joined the "
         "co-modified population — and it raised this count by exactly ONE, "
@@ -411,8 +456,12 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "archive moves `active_co_modified`, never the corpus-wide "
         "`co_modified`). ANY later change carrying a MODIFIED block raises it "
         "again, which is one of the two EXPECTED causes of this failure")
-    assert sweep.active_co_modified == 21, (
-        "21 since add-project-repo-schema was authored 2026-09-02 as one "
+    assert sweep.active_co_modified == 22, (
+        "22 since create-medxchart-overlay-boundary's ratification 2026-09-03 "
+        "made an ALREADY-ACTIVE change a co-modifier, with `active_sole` "
+        "falling to 11 in the same move because it is the same change leaving "
+        "the sole set. It read 21 "
+        "since add-project-repo-schema was authored 2026-09-02 as one "
         "more ACTIVE co-modifier entering the active corpus — by ONE and not "
         "two, because the earlier writers of the requirement key it shares "
         "are both ARCHIVED and were already co-modified, so no ACTIVE change "
@@ -452,7 +501,16 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # set when add-cpc-clearing-boundary (PR #560) began sharing three
     # requirement keys with it. The `- 1` still subtracts only
     # add-sequenced-after-substrate (unaffected, still sole).
-    assert sweep.sole_modifiers - 1 == 48
+    #
+    # MOVED AGAIN 2026-09-03: `sole_modifiers` fell 49 → 48 when
+    # create-medxchart-overlay-boundary's ratification added a MODIFIED block
+    # and took that packet out of the sole set — it was sole until then on its
+    # NOVEL medxchart-overlay-boundary titles. UNLIKE add-project-repo-schema's
+    # authoring, which held this pin at 49, this move DOES touch the sole set,
+    # because the change entering co-modified is the same change leaving sole.
+    # The `- 1` still subtracts only add-sequenced-after-substrate (unaffected,
+    # still sole), so the reading falls with `sole_modifiers` to 47.
+    assert sweep.sole_modifiers - 1 == 47
     # STILL INTACT ON ITS MERITS, not by a cancelling pair of errors — checked,
     # because #563's archive landing between the authoring measurement and this
     # reading makes the coincidence worth ruling out explicitly. That archive
@@ -471,7 +529,13 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # is the actual cause. The `- 1` still subtracts only
     # add-sequenced-after-substrate (unaffected, still sole), so the reading
     # falls with `active_sole` to 11.
-    assert sweep.active_sole - 1 == 11
+    #
+    # MOVED AGAIN 2026-09-03: `active_sole` fell 12 → 11 alongside
+    # `sole_modifiers` above — create-medxchart-overlay-boundary is ACTIVE and
+    # its ratification moved it out of the sole set, so the two pins move
+    # together. The `- 1` still subtracts only add-sequenced-after-substrate,
+    # so the reading falls to 10.
+    assert sweep.active_sole - 1 == 10
     assert sweep.prose_headers == 3 and sweep.prose_headers_archived == 3
     assert sweep.declaring == 1
     assert sweep.declaring_ids == ("add-sequenced-after-substrate",)

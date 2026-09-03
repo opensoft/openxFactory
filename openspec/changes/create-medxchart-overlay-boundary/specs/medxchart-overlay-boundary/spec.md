@@ -26,7 +26,13 @@ The xFactory aggregate SHALL track MedxChart at the Medx clinical submodule
 boundary and SHALL NOT track a direct `xFactories/openChart` gitlink. The
 aggregate's project register and repository documentation MUST identify
 MedxChart as the Medx clinical component while preserving openChart as its
-upstream dependency.
+upstream dependency. The aggregate's `.gitmodules` entry SHALL record the
+ABSOLUTE `git@github.com:opensoft/MedxChart.git` remote — the form its sibling
+submodules use — and SHALL NOT record a RELATIVE URL and SHALL NOT record a
+host-absolute local path. A relative URL is refused for a measured reason and
+not a stylistic one: it resolves against whatever URL cloned the SUPERPROJECT,
+so on an HTTPS-cloned runner it becomes a plain `https://` URL that a `git@`-only
+token rewrite never reaches.
 
 #### Scenario: Aggregate submodules are inspected
 
@@ -34,11 +40,17 @@ upstream dependency.
 - **THEN** `xFactories/MedxChart` is present
 - **AND** `xFactories/openChart` is absent
 
-#### Scenario: Aggregate is cloned from a compatible workspace
+#### Scenario: The aggregate resolves the MedxChart submodule URL
 
-- **WHEN** the aggregate resolves its relative MedxChart submodule URL
-- **THEN** the URL does not contain a host-absolute local path
+- **WHEN** the aggregate resolves its `xFactories/MedxChart` submodule URL
+- **THEN** the URL is `git@github.com:opensoft/MedxChart.git`, containing neither a relative path nor a host-absolute local path
 - **AND** the checked-out gitlink matches the MedxChart commit selected by the aggregate
+
+#### Scenario: The aggregate is cloned over HTTPS by an automated runner
+
+- **WHEN** a runner clones the superproject over HTTPS and initializes its submodules through a `git@`-only token rewrite
+- **THEN** the MedxChart clone succeeds, because the recorded URL is already the `git@` form the rewrite reaches
+- **AND** a relative `../MedxChart` URL is refused, having resolved to an unrewritable `https://` URL and killed every nightly from 2026-08-24 until `opensoft/xFactory` `386e7ee2` normalized it on 2026-08-25
 
 ### Requirement: Moving openChart preserves standalone use
 
