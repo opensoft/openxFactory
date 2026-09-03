@@ -487,9 +487,15 @@ Active changes:
   `.github/workflows/openreposhape-pin-gate.yml`, green against the real bytes
   through both resolvers; and the register schema delta with its four cross-field
   validator rules and 34 tests. `code_surface: openxFactory`,
-  `target_release: implemented` — NO bundle number is spent or reserved, neither
-  artifact being a registered row in `contracts/manifest.yaml` or
-  `contracts/releases/contract-v3.0.digests.yaml`. Realization evidence is the
+  `target_release:` the next additive contract bundle after `contract-v3.0`,
+  UNNUMBERED because `docs/contract-versioning-policy.md` forbids reserving a
+  minor before merge order is known. ONE registered artifact moves —
+  `scripts/validate-ideation-dashboard-contracts.py`, row 1417 of the v3.0
+  digest inventory — and only by GAINING rules over new OPTIONAL fields, so the
+  class is additive; the schema and the pin are not registered rows and spend
+  nothing. Until the cut, `release-inventory-drift` reporting that validator is
+  the expected between-cuts state, never to be silenced by editing the
+  inventory. Realization evidence is the
   `MedxSoft/MedxScribe` run of 2026-09-02 against `deacbdc`, and **that pilot is
   TEMPORARY and not a real project** (Brett Heap, 2026-09-02) — scaffolded only
   to test openRepoShape end to end and deletable once the standard is ratified;

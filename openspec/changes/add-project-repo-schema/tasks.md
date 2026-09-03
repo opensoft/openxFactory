@@ -15,13 +15,19 @@ that.
 ## Slice 1 — the packet
 
 - [x] **1.1** Author `proposal.md` with `code_surface:` and `target_release:`
-      front-matter per `release-realization`. `target_release: implemented`, with
-      the measurement that establishes it recorded in the field itself: neither
-      artifact is a registered row in `contracts/manifest.yaml` (measured: zero
-      occurrences of `project-register`) or in
-      `contracts/releases/contract-v3.0.digests.yaml` (zero), so no bundle number
-      is spent, and `docs/contract-versioning-policy.md` forbids reserving one
-      before merge order is known.
+      front-matter per `release-realization`. **CORRECTED IN THIS PULL REQUEST,
+      and the correction is worth recording rather than quietly applying.** The
+      field first read `target_release: implemented`, on a measurement that
+      checked the two CONTRACT artifacts — `project-register.schema.yaml` and
+      `openreposhape-pin.yaml`, neither a registered row — and never checked the
+      VALIDATOR. `scripts/validate-ideation-dashboard-contracts.py` IS a
+      registered row (`contracts/releases/contract-v3.0.digests.yaml:1417-1418`),
+      so a registered artifact does move and the change owes the next additive
+      bundle. The defect surfaced the way it should have: `doc-health`'s
+      `release-inventory-drift` family reported the validator's bytes against the
+      `contract-v3.0` digest on the first run after the edit. The field now reads
+      the next additive bundle, unnumbered per
+      `docs/contract-versioning-policy.md`, with the class argued as ADDITIVE.
 - [x] **1.2** Author `design.md` — thirteen decisions, each with its alternatives
       REJECTED and named, drawn from the fragment's Q1–Q12; the convener's
       rulings recorded as rulings with dates rather than re-argued; the two
@@ -227,6 +233,13 @@ that.
 - [ ] **9.2** Before archive, re-verify the pin against openRepoShape at the
       recorded commit and re-run the four validator lines in slices 4 and 5, so
       the archive gate promotes deltas over a tree that still holds.
-- [ ] **9.3** Package `supporting-docs/` into the deterministic bundle with its
+- [ ] **9.3** Cut the next additive contract bundle carrying
+      `scripts/validate-ideation-dashboard-contracts.py`'s new bytes — manifest
+      row, `contracts/CHANGELOG.md` entry, release digest inventory and the
+      annotated tag, allocated by merge order at realization. Until it is cut,
+      `release-inventory-drift` reporting that validator is the EXPECTED
+      between-cuts state; NEVER hand-edit the inventory or
+      `contract_bundle_version` to silence it.
+- [ ] **9.4** Package `supporting-docs/` into the deterministic bundle with its
       readable manifest (`proposal-support.py package`), per
       `release-realization`'s proposal-support archive gate.
