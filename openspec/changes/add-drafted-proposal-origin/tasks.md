@@ -173,8 +173,8 @@ FIXED.**
 | Command | Result |
 | --- | --- |
 | `OPENSPEC_TELEMETRY=0 openspec validate add-drafted-proposal-origin --strict` | `Change 'add-drafted-proposal-origin' is valid` |
-| `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` | (recorded at the ratification commit — see `review/ratification-2026-09-03.md`) |
-| `python3 -m pytest tests/doc-health -q` | (recorded at the ratification commit — see `review/ratification-2026-09-03.md`) |
+| `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` | **87 passed, 0 failed** (87 items) |
+| `python3 -m pytest tests/doc-health -q` | **1528 passed, 0 failed** on the landed tree. Baseline for comparison: the same suite at `origin/main` `2b0615da` in a clean worktree, **1500 passed, 0 failed** — this change adds 28 test items. ONE FLAKE OBSERVED AND CHARACTERIZED RATHER THAN SWALLOWED: an intermediate run of the same tree failed `test_the_report_moves_only_in_this_family_s_lines` with an `info` movement of 11 against the family's 10, i.e. ONE NON-FAMILY `info` finding absent from one of that test's two report renderings. It did not reproduce, in that run's own predecessor or its successor over the identical tree, and it cannot be this change's: the missing finding belongs to another family, and every finding this change can emit has an empty population here. The class is the one `#613`/`#614` narrowed by pinning `--as-of` across both renderings — a report-to-report comparison with a per-run input, the remaining candidate being a family that reads published git refs. Recorded for the next reader; not fixed here, and not this packet's to fix. |
 | `python3 -m pytest tests/doc-health/test_proposal_origin.py -q` | **58 passed, 0 failed** (40 before this change) |
 | `python3 scripts/doc-health.py --single-repo .` on `origin/main` (`2b0615da`, clean worktree) | **6 critical, 6 error, 29 warning, 14 info**; `proposal-origin`: no findings |
 | the same run on this branch | **6 critical, 6 error, 29 warning, 16 info**; `proposal-origin`: no findings |
