@@ -118,6 +118,35 @@ Core domain-neutral docs:
   [`rulings-2026-08-29.md`](openspec/changes/add-wallet-carried-review-authority/rulings-2026-08-29.md)
   R8/R9; `Status: draft`, because neither ruling is enforced until the change
   carrying R6–R12 is ratified and task 7.6 stays OPEN by its own text)
+- [Factory Origin Key — Mint Runbook](docs/factory-origin-key-mint-runbook.md)
+  (the operator ceremony for the ONE Ed25519 origin key an originating
+  repository holds: generate the seed offline, derive `did` / fingerprint /
+  multibase through the PINNED openXwallet decoders with
+  `scripts/validate-factory-identity.py --derive`, provision the private half
+  into the repository's own hosted `worker-credentials` environment and nowhere
+  else, replace the `FILL-IN-AT-MINT` sentinels, and record the mint. It is the
+  ONLY governed document that names the secret, because the ratified
+  requirement forbids "a secret name resolvable to key material" anywhere in
+  `governance/factory-identity/` and the reader refuses one. Realizes
+  `add-cpc-clearing-boundary` tasks 2.1-2.4.
+  **The ceremony is EXECUTED by
+  [`scripts/mint-factory-origin-key.py`](scripts/mint-factory-origin-key.py)** —
+  one operator command (`--dry-run` first) that fails closed on eight
+  read-only preflight checks, derives the three public values by CALLING
+  `validate-factory-identity.py`'s own `derive` in-process rather than
+  implementing an encoding of its own, writes the 32-byte seed to
+  `gh secret set` on stdin and nowhere else (`--body` OMITTED, because that
+  flag takes no magic dash and `--body -` would store the string `-`), fills
+  all five sentinels
+  as ONE act, re-stamps the expiry pair character-for-character, runs all four
+  gates before either commit, writes the mint record into the originating
+  repository, readies both draft pull requests — and does NOT merge, because
+  `governance/factory-identity/` is a permanently human-only surface. A second
+  run refuses at `secret-already-exists` or `register-already-minted`. The
+  runbook's manual checklist is retained as its appendix for the day the
+  program cannot run. The record's `Ruled by:` line quotes the operator's own
+  `--ruling` and names whoever the custody attestation's `verified_by.name`
+  names, so the program invents neither a quotation nor an attribution)
 - [The Project Repository Schema](docs/project-repo-schema.md)
   (the ELECTIVE three-repository shape — `<Project>` assembly root,
   `<Project>-spec`, `<Project>-code` — and the doctrine that electing it
@@ -284,6 +313,31 @@ POSITIVELY that the intake register was opened: the log must carry the
 `repo scan:` note AND the `intake register read:` NOTE and must carry neither
 `no intake register at this tree` nor any `register-*` finding code, because a
 green check that opened no register is a vacuous pass.
+
+A SECOND REGISTER IS READ IN THE SAME REQUIRED CHECK. Since the realization of
+`add-cpc-clearing-boundary` (capability `factory-origin-identity`) the job also
+runs [`scripts/validate-factory-identity.py`](scripts/validate-factory-identity.py)
+over the same tree. That reader is an openxFactory file rather than a pinned one,
+because the register it reads — [`governance/factory-identity/`](governance/factory-identity/README.md),
+the sibling ORIGIN register — is an openxFactory artifact with no contract schema
+(deliberately kindless, design D3, so the reader IS the shape). It DERIVES
+NOTHING OF ITS OWN: every public-key decoding and every fingerprint comes from
+the pinned `openXwallet/scripts/validate-openxwallet.py`, IMPORTED rather than
+copied, and it REFUSES rather than falling back to arithmetic of its own when
+the gitlink is absent — one derivation, one place. It carries the ratified
+DISJOINTNESS RULE (no `key_id`, decentralized identifier or public-key
+fingerprint may appear in both register families, and the condition is not
+waivable by declaring different acts), and its own positive assertion step:
+the log must carry the `factory-identity register read:` NOTE, a LITERAL active
+row count, and a disjointness note ending `0 shared`, and must carry no
+`factory-identity-*` finding code.
+
+A REFUSAL AT READ TIME IS NOT IN FORCE AND IS NOT CLAIMED. The pinned reader
+indexes every wallet and grant record in a scanned tree into one context, so an
+origin wallet in the sibling tree is still resolvable BY IT as a review row's
+`wallet_ref`. Scoping that reader is an openXwallet dependency
+(`add-cpc-clearing-boundary` tasks 5.1/5.2, OQ3); until it lands, the
+disjointness rule is the whole of the enforcement.
 
 **The FILE was renamed; the TOKEN was not.** Ruleset 21538893 pins the check
 `wallet-validation`, which is a JOB ID and not a filename, so the new workflow
@@ -673,6 +727,22 @@ Active changes:
   dispositions.yaml` disposition rows that would have belted a different order —
   tracked as `opensoft/xFactory#201` — were CLOSED AS UNNECESSARY once the intended
   order held.
+  **REALIZATION COMPLETE AT THIS PR.** The sibling register family
+  `governance/factory-identity/` — register, wallet, grant and custody
+  attestation for the first originating repository `opensoft/codexFactory` —
+  plus the disjointness validator `scripts/validate-factory-identity.py`, the
+  operator mint program `scripts/mint-factory-origin-key.py`, their 80 tests,
+  its wiring into the REQUIRED `wallet-validation` check with a positive log
+  conjunction, and the mint runbook
+  `docs/factory-origin-key-mint-runbook.md`. **The operator minted the
+  codexFactory origin key at 2026-09-03T19:34:59Z** via
+  `scripts/mint-factory-origin-key.py`: the private half exists only as the
+  `FACTORY_ORIGIN_SIGNING_KEY` secret in codexFactory's `worker-credentials`
+  environment, the register at `governance/factory-identity/` is filled with
+  the derived public values, and the mint record is recorded in
+  codexFactory's `hermes/domain/factory-identity/records/`. The realization
+  for `opensoft/codexFactory` is therefore COMPLETE at this PR, and further
+  factories are added by the same runbook.
 - [add-requirement-ref-resolution-integrity](openspec/changes/add-requirement-ref-resolution-integrity/proposal.md)
   — authored 2026-08-31, **RATIFIED 2026-09-01 BY DIRECT RULING**
   (`Status: ratified`; record `review/ratification-2026-09-01.md`) — Brett Heap
@@ -1512,13 +1582,65 @@ Active changes:
   changes. Archives only when hermes-install re-pins and admits
   `hermes_client_overlay` to its `PARITY_KINDS` sweep.
 - [create-medxpractice-overlay-boundary](openspec/changes/create-medxpractice-overlay-boundary/proposal.md)
-  — MedxPractice owns the private practice-operations composition boundary and
-  pins the independent public openPractice application at an immutable commit.
+  — **RATIFIED 2026-09-03** (Brett Heap, in-session: *"ratify both, 1 and 1"*;
+  record at `review/ratification-2026-09-03.md`). MedxPractice owns the PRIVATE
+  practice-operations composition boundary over a PUBLIC upstream — the
+  visibility asymmetry is the boundary's reason for existing — and pins
+  `opensoft/openPractice` at `9526bd9e` twice, nested gitlink and
+  `contracts/openpractice-pin.yaml` (`kind: medxpractice_openpractice_pin`), in
+  ONE commit. `opensoft/MedxPractice` EXISTS (private, published 2026-08-23) and
+  the aggregation resolves it at `git@github.com:opensoft/MedxPractice.git`,
+  gitlink `d8d73195`; the relative `../MedxPractice` form it first landed with
+  was normalized at `opensoft/xFactory` `386e7ee2` alongside its MedxChart
+  sibling. **The spec delta was NARROWED at ratification** under decision 2
+  option 1 to what is MedxPractice-specific — the pin's identity, the
+  aggregation's single route to openPractice, and this descendant's placement
+  CITED rather than restated — because the three requirements as authored
+  restated promoted `domain-descendant-boundary` in differing words, which the
+  Explicit delta rule calls a defect. It was narrowed AGAIN in the pre-capture
+  fix round: the placement requirement no longer states the path, remote or
+  gitlink in its body (they are evidence in its scenarios), the relocation
+  requirement keeps only the half a remote reading can settle with the
+  workspace-root layout recorded as a local convention in `design.md`, and the
+  pin manifest's shape is stated as the NESTED file the descendant actually
+  carries. **This change carries NO `## MODIFIED Requirements`
+  block**: the placement amendment is the sibling
+  `create-medxchart-overlay-boundary`'s, which names `xFactories/MedxPractice`
+  among its realized placements, so one requirement has one writer. **It
+  RATIFIES AND MERGES SECOND**, after that sibling, and archives after it too.
+  MedxPractice is a REPORTED EMPTY BOUNDARY under the lazy-creation rule (five
+  tracked entries, all composition metadata, zero openPractice profile
+  artifacts) and is **not** precedent for creating more. **ARCHIVE IS GATED** on
+  `tasks.md` § 5: the descendant pin validator, its required `pin-validation`
+  check and its ruleset in `opensoft/MedxPractice` — which today has zero
+  workflows and no repository-level ruleset at all — on the LedgerxWallet
+  pattern, the ruleset half being an operator act. That group also ANSWERS the
+  sibling's open 5.5: MedxPractice takes the same validator shape, one answer
+  for one pin shape.
 - [create-medxchart-overlay-boundary](openspec/changes/create-medxchart-overlay-boundary/proposal.md)
-  — local topology realization completed 2026-08-23: MedxChart now owns the
-  Medx composition boundary, pins openChart at an immutable commit, and the
-  xFactory aggregate no longer tracks openChart directly. The intended
-  `opensoft/MedxChart` remote still requires a separate publication act.
+  — **RATIFIED 2026-09-03** (Brett Heap, in-session: *"ratify both, 1 and 1"*;
+  record at `review/ratification-2026-09-03.md`). MedxChart owns the Medx
+  composition boundary, pins openChart at `d2376a31` twice — nested gitlink and
+  `contracts/openchart-pin.yaml` — and the xFactory aggregate no longer tracks
+  openChart directly. `opensoft/MedxChart` EXISTS (private, published
+  2026-08-23) and the aggregation resolves it at the absolute
+  `git@github.com:opensoft/MedxChart.git` URL, the relative `../MedxChart` form
+  this packet first chose having been reversed at `opensoft/xFactory`
+  `386e7ee2` after it killed every nightly from 2026-08-24; `design.md`
+  Decision 2 records the reversal rather than erasing it. **This change owns the
+  `domain-descendant-boundary` placement delta** — the explicit amendment that
+  promoted requirement asked for by name, ratifying the aggregation's
+  `xFactories/` placement and naming BOTH `MedxChart` and `MedxPractice` as its
+  realized placements; the sibling `create-medxpractice-overlay-boundary` carries
+  none of its own, and its ratification packet is to cite this delta — an
+  obligation stated in the future tense because no sibling pull request has
+  merged and that packet carries no reference to it yet. MedxChart is a REPORTED
+  EMPTY BOUNDARY under the
+  lazy-creation rule (composition metadata only, zero openChart profile
+  artifacts) and is **not** precedent for creating more. **ARCHIVE IS GATED** on
+  `tasks.md` § 5: the descendant pin validator, its required `pin-validation`
+  check and its ruleset in `opensoft/MedxChart`, on the LedgerxWallet pattern —
+  the ruleset half being an operator act.
 - [add-nightly-dashboard-refresh](openspec/changes/add-nightly-dashboard-refresh/proposal.md)
   — authored 2026-08-22, **RATIFIED 2026-08-25** against its realized system
   (Brett, in-session: "ratify add-nightly-dashboard-refresh against its
