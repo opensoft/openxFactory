@@ -173,16 +173,18 @@
 - [x] 5.7 **DONE 2026-09-03 — OPENED AS PR #615, NOT YET MERGED.** The archive
       act (§5.6) ran uncommitted, on disk, in an isolated clone after the
       authoring session was killed twice by provider errors; lane
-      `openxfactory-f2` finished it, took TWO catch-up merges of `origin/main`
-      first — `declare-spent-bundle-state`'s own archive (PR #611, `7af2725c`)
-      and five further commits (`#603 #599 #601 #614 #602`, tip `1c3e744f`) —
-      re-measured every gate in this section and in the README entry against
-      the fully merged base rather than the stale `6da1e1f5`, and opened
-      **PR #615** to carry the moved files, the promoted spec, and the
-      `sequenced_after` pin correction (`tests/sequenced_after/test_sweep.py`)
-      to `main`. This lane does not merge; PR #615 is open, awaiting review
-      and Brett's or a reviewer's merge. **NOT YET TRUE, AND NAMED SO IT
-      STAYS FALSE UNTIL IT ISN'T**: `main` does not yet carry this archive.
-      A follow-up line — squash SHA and merge date — gets added here once
-      PR #615 actually merges; until then this task records only that the
-      PR exists and is open, not that it landed.
+      `openxfactory-f2` finished it, took THREE catch-up merges of
+      `origin/main` while doing so — `declare-spent-bundle-state`'s own
+      archive (PR #611, `7af2725c`); five further commits (`#603 #599 #601
+      #614 #602`, tip `1c3e744f`); and one more (`#604`, `2b0615da`) after PR
+      #615 was already open — re-measured every gate in this section and in
+      the README entry against each merged base in turn rather than the stale
+      `6da1e1f5`, and opened **PR #615** to carry the moved files, the
+      promoted spec, and the `sequenced_after` pin correction
+      (`tests/sequenced_after/test_sweep.py`) to `main`. This lane does not
+      merge; PR #615 is open, awaiting review and Brett's or a reviewer's
+      merge. **NOT YET TRUE, AND NAMED SO IT STAYS FALSE UNTIL IT ISN'T**:
+      `main` does not yet carry this archive. A follow-up line — squash SHA
+      and merge date — gets added here once PR #615 actually merges; until
+      then this task records only that the PR exists and is open, not that
+      it landed.
