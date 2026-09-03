@@ -203,7 +203,9 @@ directory; it holds no material.
   is exactly the defect this entry exists to prevent.
 - [ ] 5.3 `[#511]` **THE CUT — NOT THIS CHANGE.** The ruling excludes it in
   terms. Whoever cuts owes, in one act: the number (allocated by merge order —
-  `contract-v3.1` is being spent by PR #616 as this is written), a
+  `contract-v3.1` was being spent by PR #616 when this was written and has since
+  been CUT by it at `19d00872`, so the next additive minor re-reads as
+  `contract-v3.2` — and is still not written down, for the same reason), a
   version-headed `contracts/CHANGELOG.md` entry, the digest inventory under
   `contracts/releases/`, and the annotated tag. **THE CHANGELOG ENTRY IS
   PRESCRIBED SO THE CUT INVENTS NOTHING**: class ADDITIVE (minor); the entry
@@ -370,6 +372,72 @@ set with `==`, and this packet added two subjects it had not been told about.
 Discharged by § 4.4a exactly as that gate's failure message prescribes — the
 subjects NAMED, in the same commit, with the reason. No test was added, removed,
 renamed or weakened, and no assertion was loosened.
+
+### 8.4 The corpus-sweep pins — MY OWN CI FAILURE, and its repair
+
+**CI ON `f4a8fa87` REPORTED SEVEN FAILURES. SIX WERE INHERITED (#620). THE
+SEVENTH WAS THIS PACKET'S OWN**, and it is recorded as such rather than folded
+into the inherited count:
+`tests/sequenced_after/test_sweep.py::test_the_live_sweep_reproduces_the_AUTHORING_measurement`.
+
+**WHY IT FIRED.** That test pins the live corpus sweep against a moving ledger.
+This packet adds an ACTIVE change carrying TWO `## MODIFIED Requirements` blocks,
+so it joins the co-modified population and the pins move. The failure is the
+gate working; the repair is to move the pins WITH A DATED NOTE naming the cause,
+in the same commit, which is that file's own stated discipline.
+
+**MEASURED ON BOTH TREES, and the branch was REBASED onto current `main` first
+because `main` had moved under it** — PR #616 merged the `contract-v3.1` cut,
+archiving `add-project-repo-schema` and itself moving `active_co_modified`
+21 -> 20. Measuring against the stale base would have produced pins that were
+wrong the moment they landed.
+
+| reading | `main` `19d00872` | branch `4dc5a0f9` | move |
+| --- | --- | --- | --- |
+| `change_ids` | 158 (32 active + 126 archived) | 159 (33 + 126) | **+1** |
+| `co_modified` | 109 | **110** | **+1** |
+| `sole_modifiers` | 49 | 49 | — |
+| `active_co_modified` | 20 | **21** | **+1** |
+| `active_sole` | 12 | 12 | — |
+
+**THE MECHANISM IS THE INTERESTING PART, AND IT IS THE OPPOSITE OF THE OBVIOUS
+PREDICTION.** The expected shape for a MODIFIED block over a requirement whose
+only earlier writer was archived and SOLE is a rise of TWO with `sole_modifiers`
+falling by one — the newcomer entering, the earlier writer flipping out of sole.
+**That is not what happened, and the difference was measured rather than
+reasoned about after the fact.** Both keys this packet writes had exactly one
+earlier writer, the archived `add-binding-consumer-identity` — but that change
+was **ALREADY co-modified** before this packet existed, through a THIRD key it
+shares with `add-notebook-hosting-credential-custody`: `credential-contracts`'
+*"Each consuming system reaches a shared operated identity through its own
+binding"*. It was never IN the sole set, so it had nothing to leave. On `main`
+it writes four requirement keys of which ONE is shared; on this branch the same
+four of which THREE are shared, and its membership is unchanged at both
+readings.
+
+**So the distinguishing question is not how many keys the newcomer shares but
+whether the earlier writer was already co-modified on some other key** — and
+that is written into the pin's own message, because the next author to hit this
+failure will reach for the rise-of-two shape first.
+
+- [x] 8.4a `[both]` Pins moved with dated notes naming this packet as the cause
+  and the mechanism: `co_modified` 109 -> 110, `active_co_modified` 20 -> 21,
+  `change_ids - 1` 157 -> 158. **EXECUTED.**
+- [x] 8.4b `[both]` The two pins that did NOT move — `sole_modifiers - 1` at 48
+  and `active_sole - 1` at 11 — carry a HOLD note each, saying why the hold is
+  its cause rather than an oversight. **EXECUTED.** A pin that silently holds
+  through a move that usually shifts it is indistinguishable from a pin nobody
+  re-derived.
+- [x] 8.4c `[both]` `python3 -m pytest tests/sequenced_after -q` — **118
+  passed**. Gates re-run on the rebased tree: `openspec --all --strict` 87
+  passed, validator self-test unchanged, manifest digests 163/163,
+  `tests/credential_contracts tests/manifest_digests` **247 passed**.
+- [ ] 8.4d `[both]` **RE-MEASURE OWED IF A SIBLING LANDS FIRST.** PR #617 (the
+  owner-layer packet) moves these same pins and is expected to merge ahead of
+  this one. These readings are `main` `19d00872` + this packet ALONE; when #617
+  lands, this branch must be rebased and the pins re-derived, because two
+  packets moving one pin do not compose by addition — each is measured against
+  the tree it actually lands on. Left UNTICKED deliberately.
 
 ## 8.3 The bench round
 

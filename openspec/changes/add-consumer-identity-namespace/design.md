@@ -223,9 +223,12 @@ cross-repository consumer reads to learn what it is pinning.
 
 **THE CUT IS NOT PART OF THIS CHANGE**, by the ruling's own words, and the
 version-headed `contracts/CHANGELOG.md` entry goes with it rather than here.
-That is this repository's ritual and not a deferral of convenience: PR #616 is
-the `contract-v3.1` cut and writes the CHANGELOG, the manifest,
-`contracts/releases/contract-v3.1.digests.yaml` and the policy doc together. A
+That is this repository's ritual and not a deferral of convenience, and this
+packet watched the ritual run under it: PR #616 was the `contract-v3.1` cut and
+wrote the CHANGELOG, the manifest,
+`contracts/releases/contract-v3.1.digests.yaml` and the policy doc together —
+it MERGED at `19d00872` while this packet was in review, which is precisely why
+no number was written here. A
 version heading written here with no tag and no inventory would be a HALF CUT,
 and it would spend a number another packet is holding. § 5 of `tasks.md`
 prescribes the entry verbatim so the cut has nothing to invent.

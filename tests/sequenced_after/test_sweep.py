@@ -622,7 +622,34 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       that resolves this conflict — which is this test's own protocol.
     """
     sweep = sa.corpus_sweep(ROOT)
-    assert sweep.co_modified == 109, (
+    assert sweep.co_modified == 110, (
+        "110 since add-consumer-identity-namespace was AUTHORED 2026-09-03 "
+        "(PR #622, openxFactory issues #511 and #553): it carries TWO "
+        "`## MODIFIED Requirements` blocks over credential-contracts' 'A "
+        "credential binding declares the consuming system that holds it and "
+        "the identity it fetches with' and 'Two bindings on one secret are "
+        "refused unless every pair declares distinct consumers, acknowledges "
+        "the sharing, and names a requirement bound to the binding', so it "
+        "joined the co-modified population. THE RISE IS ONE AND "
+        "`sole_modifiers` HOLDS AT 49 — and the reason is worth stating "
+        "because the obvious prediction is the other one. Both those keys had "
+        "exactly ONE earlier writer, the ARCHIVED add-binding-consumer-identity "
+        "that ADDED them, and a lone earlier writer normally FLIPS out of the "
+        "sole set when a second change joins its key, which is the rise-of-two "
+        "shape #560 produced. It does not happen here: "
+        "add-binding-consumer-identity was ALREADY co-modified before this "
+        "packet existed, through a THIRD key it shares with "
+        "add-notebook-hosting-credential-custody — credential-contracts' 'Each "
+        "consuming system reaches a shared operated identity through its own "
+        "binding' — so it was never IN the sole set and had nothing to leave. "
+        "MEASURED, NOT INFERRED: on main at 19d00872 that change writes four "
+        "requirement keys of which ONE is shared; on this branch it writes the "
+        "same four of which THREE are shared, and its co-modified membership "
+        "is unchanged at both readings. A rise of one with the sole set held "
+        "is therefore its own cause, distinct from the rise-of-two shape, and "
+        "the distinguishing question is not how many keys the newcomer shares "
+        "but whether the earlier writer was ALREADY co-modified on some other "
+        "key. It read "
         "109 since create-medxchart-overlay-boundary was RATIFIED 2026-09-03 "
         "and gained a `## MODIFIED Requirements` block over "
         "domain-descendant-boundary's 'A descendant is placed at a ratified "
@@ -666,7 +693,15 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "archive moves `active_co_modified`, never the corpus-wide "
         "`co_modified`). ANY later change carrying a MODIFIED block raises it "
         "again, which is one of the two EXPECTED causes of this failure")
-    assert sweep.active_co_modified == 20, (
+    assert sweep.active_co_modified == 21, (
+        "21 since add-consumer-identity-namespace was AUTHORED 2026-09-03 "
+        "(PR #622). It is an ACTIVE change and it is co-modified, so it enters "
+        "both populations at once and this pin rises with `co_modified` — the "
+        "AUTHORING cause, not the ratifying one and not the archiving one. "
+        "`active_sole` does NOT move with it, for the reason spelled out at "
+        "the `co_modified` pin above: the earlier writer of both its keys was "
+        "already co-modified through a third key, so no change left the sole "
+        "set in either the corpus-wide or the active reading. It read "
         "20 ON THE MERGED TREE 2026-09-03, which is NEITHER branch's number: "
         "two moves off the same 20-baseline land in the same commit and "
         "CANCEL. create-medxchart-overlay-boundary's RATIFICATION (#608) "
@@ -713,7 +748,10 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # This change is itself a sole modifier at requirement granularity — which is
     # exactly why it declaring a parent anyway is the doctrine applied to its
     # author: declaring must never be worth less than omitting.
-    assert sweep.change_ids - 1 == 157, (
+    assert sweep.change_ids - 1 == 158, (
+        "158 since add-consumer-identity-namespace was authored 2026-09-03 "
+        "(PR #622) — one more ACTIVE change in the corpus, the population "
+        "count moving for the plainest of the reasons. It read "
         "the `- 1` subtracts THIS change and nothing else, so the reading is "
         "the corpus without it: 152 at authoring, 153 when "
         "add-clearing-dispatch-boundary landed 2026-09-01, 154 when "
@@ -750,6 +788,17 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # change leaving sole. The `- 1` still subtracts only
     # add-sequenced-after-substrate (unaffected, still sole), so the reading
     # falls with `sole_modifiers` to 48.
+    #
+    # HELD AT 48 THROUGH add-consumer-identity-namespace's AUTHORING 2026-09-03
+    # (PR #622), and the hold is asserted on its cause rather than left to look
+    # like an oversight. That packet carries TWO `## MODIFIED Requirements`
+    # blocks and DID raise `co_modified`, which usually drags this pin with it
+    # — but only when the newcomer's earlier co-writer was itself SOLE until
+    # then. Here the earlier writer of both keys, the archived
+    # add-binding-consumer-identity, was ALREADY co-modified via a third key
+    # shared with add-notebook-hosting-credential-custody, so it was never in
+    # the sole set and nothing left it. The packet itself never enters the sole
+    # set either, being co-modified from the moment it lands.
     assert sweep.sole_modifiers - 1 == 48
     # STILL INTACT ON ITS MERITS, not by a cancelling pair of errors — checked,
     # because #563's archive landing between the authoring measurement and this
@@ -788,6 +837,13 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # together, as they always do when the change that flips is itself
     # ACTIVE. The `- 1` still subtracts add-sequenced-after-substrate alone,
     # so the reading falls to 11.
+    #
+    # HELD AT 11 THROUGH add-consumer-identity-namespace's AUTHORING 2026-09-03
+    # (PR #622), for exactly the reason `sole_modifiers` held: the new ACTIVE
+    # change is co-modified on arrival and never joins this population, and no
+    # existing member left it, the earlier writer of both its keys having been
+    # co-modified already. An ACTIVE co-modified arrival moves
+    # `active_co_modified` alone — which is the one pin above that did move.
     assert sweep.active_sole - 1 == 11
     assert sweep.prose_headers == 3 and sweep.prose_headers_archived == 3
     assert sweep.declaring == 1
