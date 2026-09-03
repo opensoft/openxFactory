@@ -2044,33 +2044,48 @@ Archived changes:
   capability, created 0 → **4 requirements / 10 scenarios**, and the promoted
   body is byte-identical to the archived delta (compared as bytes, not read).
   Its `## Purpose` is written from the proposal, **not** left as the archiver's
-  `TBD - created by archiving` line. **THIS BRANCH TOOK A CATCH-UP MERGE
-  FIRST**: `declare-spent-bundle-state`'s own archive (the entry immediately
-  above, PR #611, squash landed on `main` as `7af2725c`) merged ahead of this
-  one, so every gate below is measured against `7af2725c` and not the stale
-  `6da1e1f5` the authoring session last touched. Gates, measured either side of
-  this archive's own act: `openspec validate --all --strict` **86 → 86 passed,
-  0 failed** — the count does not move because promoting a NEW capability
-  trades one active change for one spec (33 active + 53 specs → 32 active + 54
-  specs), which is the one arithmetic an archive of a new-capability packet
-  predicts and a `-1` would have contradicted; `pytest tests/doc-health`
-  **1500 passed** either side; `pytest tests/test_standards_body_registry.py`
-  **17 passed**; `scripts/validate-omnigent-contracts.py` all checks passed;
-  full `doc-health.py --single-repo .` **6 critical, 6 error, 29 warning, 13
-  info** either side (`declare-spent-bundle-state`'s own archive is what moved
-  info 14 → 13, before this act touched anything), and `--family
+  `TBD - created by archiving` line. **THIS BRANCH TOOK TWO CATCH-UP MERGES**:
+  `declare-spent-bundle-state`'s own archive (the entry immediately above, PR
+  #611, squash landed on `main` as `7af2725c`) merged ahead of this one, and
+  five more commits landed before this PR could open (`#603`, `#599`, `#601`,
+  `#614`, `#602`, squash tip `1c3e744f`) — none touching this packet's files,
+  its README entry, `tests/sequenced_after/test_sweep.py`, or
+  `openspec/specs/standards-body-registry/`. Every gate below is measured
+  against `1c3e744f` and not the stale `6da1e1f5` the authoring session last
+  touched. Gates, measured either side of this archive's own act:
+  `openspec validate --all --strict` **86 → 86 passed, 0 failed** — the count
+  does not move because promoting a NEW capability trades one active change
+  for one spec (33 active + 53 specs → 32 active + 54 specs), which is the
+  one arithmetic an archive of a new-capability packet predicts and a `-1`
+  would have contradicted; `pytest tests/doc-health` **1500 passed** either
+  side (one foreground run hit a single transient failure in
+  `test_this_repository_can_consult_the_retention_namespace`, a remote-ref
+  network read; it passed alone and a full clean rerun read 1500/1500, so it
+  is recorded as a network flake and not a regression); `pytest
+  tests/test_standards_body_registry.py` **17 passed**;
+  `scripts/validate-omnigent-contracts.py` all checks passed; full
+  `doc-health.py --single-repo .` **6 critical, 6 error, 29 warning, 14 info**
+  either side, measured back-to-back on `1c3e744f` and on the merged tree with
+  this archive applied, 0 new regressions on both runs — UNCHANGED by this
+  act. (An earlier reading taken between the two catch-up merges read 13
+  info, one lower, because `contracts/manifest.yaml` was not yet readable at
+  the `main` published tip and the `release-tag-publication` family skipped
+  rather than reported its pre-existing `contract-v2.6` SPENT-declaration
+  info; the second catch-up made that read possible and the finding is
+  pre-existing corpus content, not something this packet introduces.) `--family
   promotion-fidelity`, `duplicate-packet` and `status-validity` **no findings**
-  either side — the three families an archive can red on. One thing moved that
-  is bookkeeping and not realization: archiving an **ACTIVE SOLE modifier**
-  lowers the `sequenced_after` live pin `active_sole - 1` **12 → 11** and
-  moves NOTHING else — `co_modified` 108, `active_co_modified` 20 (already
-  moved 21 → 20 by the sibling `declare-spent-bundle-state` archive this
-  branch merged, not by this act), `sole_modifiers - 1` 49 and `change_ids - 1`
-  157 all hold, the last two because they count BOTH corpora and an archive
-  moves a change between them rather than out of them. THE OPPOSITE HALF of
-  that same sibling archive's move, and the exact mirror of #571's
-  2026-09-02 archive: one moves `active_co_modified` alone, this one moves
-  `active_sole` alone. Measured on both trees, moved in the same commit, with
+  either side — the three families an archive can red on. One
+  thing moved that is bookkeeping and not realization: archiving an **ACTIVE
+  SOLE modifier** lowers the `sequenced_after` live pin `active_sole - 1`
+  **12 → 11** and moves NOTHING else — `co_modified` 108, `active_co_modified`
+  20 (already moved 21 → 20 by the sibling `declare-spent-bundle-state`
+  archive this branch merged, not by this act), `sole_modifiers - 1` 49 and
+  `change_ids - 1` 157 all hold, the last two because they count BOTH corpora
+  and an archive moves a change between them rather than out of them. THE
+  OPPOSITE HALF of that same sibling archive's move, and the exact mirror of
+  #571's 2026-09-02 archive: one moves `active_co_modified` alone, this one
+  moves `active_sole` alone. Measured on both trees, moved in the same commit,
+  with
   a dated MOVEMENT LOG entry, which is that pin's own protocol.
   **RESCUED, NOT RE-AUTHORED, AND THE RESCUE IS PART OF THE RECORD**: the
   authoring session of 2026-09-01 ended without pushing, so the packet and its
