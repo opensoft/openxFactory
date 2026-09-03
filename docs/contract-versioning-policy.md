@@ -481,12 +481,15 @@ retroactively invalidate an old pin.
   the deprecating minor named above first. If that minor has not been cut when
   contract-v4.0 is reached, this entry is RESTATED AGAIN rather than the removal
   taken unphased.
-- **The undeclared `consumer:` block on a credential binding — and SEVEN acts
-  that land together with it (`add-binding-consumer-identity`).** Each entry of
+- **The undeclared `consumer:` block on a credential binding — and EIGHT acts
+  that land together with it (`add-binding-consumer-identity`, extended by
+  `add-consumer-identity-namespace`).** Each entry of
   `credential_bindings` in `xfactory_credential_binding_template` MAY declare a
   `consumer:` block naming the consuming system that holds the binding
   (`holder_ref`) and the identity that system authenticates to the secret store
-  with (`fetch_identity`), optionally a qualified `requirement_ref`
+  with (`fetch_identity`), optionally the issuing directory, account or tenant
+  WITHIN the provider that minted that identity (`identity_namespace`),
+  optionally a qualified `requirement_ref`
   (`requirement_id` + `requirements_document_ref`), and the const-true
   `shared_credential_acknowledged` and `instantiation_stub` tokens. **The block
   is DECLARED at contract-v2.4 and CONSTRAINED at contract-v4.0** — the target
@@ -504,8 +507,8 @@ retroactively invalidate an old pin.
   section's own `:250-254` precondition was met and the requiredness becomes
   unauditable.
 
-  **RECONCILED, NOT RESTATED: A NINTH ACT LANDS AT contract-v3.0 AND IT IS NOT
-  ONE OF THE SEVEN ABOVE.** `add-requirement-ref-resolution-integrity` declares
+  **RECONCILED, NOT RESTATED: A FURTHER ACT LANDS AT THE SAME MAJOR AND IT IS
+  NOT ONE OF THE EIGHT ABOVE.** `add-requirement-ref-resolution-integrity` declares
   that a `requirement_ref` resolving to zero requirements, or to more than one
   requirement of the document it names, is REFUSED at contract-v3.0 — a
   RESOLUTION fault rather than a SHAPE fault, carried by its own code family and
@@ -514,8 +517,9 @@ retroactively invalidate an old pin.
   asserting completeness that is not complete is worse than one asserting
   nothing: a reader at the major uses it to demonstrate the deprecation
   precondition was met, and cannot tell an act that served its window from one
-  that never had an entry. The claim now reads as scoped to the SEVEN acts of
-  the consumer block, with the ninth named here and declared in full below.
+  that never had an entry. The claim now reads as scoped to the EIGHT SHAPE
+  acts of the consumer block, with the further act named here and declared in
+  full below.
   The two entries share ONE deprecation window and ONE major, so a consumer
   still upgrades once.
 
@@ -529,6 +533,35 @@ retroactively invalidate an old pin.
   | the `credential_bindings` MAP KEY carries the identifier grammar | `consumer-binding-key-grammar` |
   | `access_mode` on `xfactory_credential_requirements` is closed to `{dispatch_only, contents_write, workload_identity, delegated_api}` | `consumer-access-mode-vocabulary` |
   | `requirements_document_ref` is repository-relative, non-escaping, non-foreign and YAML-suffixed | `consumer-requirement-ref-grammar` |
+  | `identity_namespace` carries the same identifier pattern, and is a DECLARED member the block's closure does not refuse | `consumer-identity-namespace-grammar` |
+
+  **THE NINTH ROW'S WINDOW OPENS AT ITS OWN MINOR AND NOT AT `contract-v2.4`,
+  and the difference is the whole of what a deprecation window is.**
+  `identity_namespace` did not exist before `add-consumer-identity-namespace`,
+  so no release could have warned about a grammar on it and none did. Its window
+  opens at the additive minor that DECLARES the member, and § Change Classes,
+  *Breaking (major)* requires at least one FULL minor of warnings BEFORE the
+  major that refuses — so if that minor turns out to be the last before
+  `contract-v4.0`, this row waits for the one after rather than riding a window
+  it did not serve. An entry warned and refused at the same bundle serves no
+  window at all. Every other row above keeps `contract-v2.4` as its warned-since
+  release; this one carries its own, and the two share the major without sharing
+  the window.
+
+  **IT IS A NINTH `consumer-*` CODE RATHER THAN A SECOND FAMILY — the opposite
+  call from the entry below, made on the same rule.** The eight codes above are
+  enumerated against refusals OF SHAPE, and an `identity_namespace` outside the
+  identifier pattern IS one: a value that does not match a pattern, inside the
+  declared member set, on the block. It carries its own code rather than joining
+  `consumer-member-grammar` because its CONSEQUENCE differs — an unreadable
+  namespace is SKIPPED by the shared-authority comparison, which then falls back
+  to the bare fetch identity, so a reader told only that a member failed a
+  grammar would repair a spelling while believing a scoping they declared is in
+  force. Migration: none is owed by a record that declares no namespace, the
+  member being optional at both releases; a record that declares one spells it
+  in the identifier grammar, and declares it on BOTH bindings wherever two
+  bindings name one fetch identity in two directories — a namespace on one side
+  only falls back to the bare identity and still reports.
 
   Migration: declare `consumer: {holder_ref: …, fetch_identity: …}` on each
   binding; a record written before any install exists declares
@@ -563,7 +596,9 @@ retroactively invalidate an old pin.
   `contract-v3.0`, WITH THE REASON.** `contract-v3.0` was CUT on 2026-09-02 —
   declared, not yet published, this section's own distinction, and the target
   arrives at the DECLARATION because that is when the removal would have had to
-  be in the bytes — and **not one of the eight acts above landed**: `scripts/validate-credential-contracts.py`
+  be in the bytes — and **not one of the eight acts above landed** (the eight
+  the table carried at that cut; a ninth was added afterwards by
+  `add-consumer-identity-namespace` and carries a window of its own): `scripts/validate-credential-contracts.py`
   still emits all eight codes as WARNINGS, measured at that cut rather than
   assumed, and the schema still imposes no type, no member grammar, no
   requiredness and no closure on the block. **THE REASON IS THAT NOTHING

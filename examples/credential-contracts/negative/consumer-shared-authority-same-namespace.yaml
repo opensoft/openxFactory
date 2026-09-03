@@ -1,0 +1,32 @@
+# NEGATIVE (expect: shared-authority-identity). The CONTROL for the positive
+# beside it: identical in every byte that matters except that BOTH bindings
+# declare THE SAME `identity_namespace`.
+#
+# Same directory, same principal name, two different consuming systems — that is
+# the authority collapse the finding has always named, and declaring a namespace
+# does not excuse it. The member SCOPES the comparison; it does not lift it.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+credential_bindings:
+  first_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-shared
+    secret_ref: example-first-sync-secret
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:first-sync-lane
+      fetch_identity: example-runtime-identity
+      identity_namespace: example-directory-tenant-a
+  second_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-shared
+    secret_ref: example-second-sync-secret
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:second-sync-lane
+      fetch_identity: example-runtime-identity
+      identity_namespace: example-directory-tenant-a
