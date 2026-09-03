@@ -336,3 +336,26 @@ commit's own message and in the pull request body instead of by rewriting it.
 The measured figures at the fix commit are `--all --strict 86/86` and doc-health
 `6 critical, 6 error, 29 warning, 14 info`, 0 new regressions, with zero findings
 naming this change.
+
+**AND THE FIX COMMIT'S OWN MESSAGE CARRIES ONE WRONG STATEMENT, CORRECTED HERE
+BY THE SAME MECHANISM.** `998a31b8`'s closing "STANDING RACE" paragraph names
+openxFactory **#599** as a pull request carrying a `## MODIFIED Requirements`
+block that would move the live corpus pin ahead of this branch. **That is
+false, and it was written without being measured.** #599 changes exactly one
+file:
+
+```console
+$ gh api repos/opensoft/openxFactory/pulls/599/files --jq '.[] | "\(.status) \(.filename) +\(.additions) -\(.deletions)"'
+modified openspec/changes/add-credential-escrow-checkout/tasks.md +25 -2
+```
+
+A `tasks.md` edit moves no reading of the sweep. **The race is real but it is
+not #599's**, and it is wider than one pull request: any open change that ADDS a
+packet or a spec delta moves `change_ids` / `active`, and any that adds or drops
+a `## MODIFIED Requirements` block moves the co-modified and sole sets. Measured
+against the open queue on 2026-09-03, seven pull requests touch a
+`proposal.md` or a `specs/**/spec.md` under `openspec/changes/` — **#609** (this
+change's own MedxPractice sibling), #595, #594, #593, #548, #491 and #447 — and
+whichever of them lands first re-breaks this branch's pin. Nothing is done about
+that here; the merge order is the convener's, and the remedy is the same rebase
+this branch has already taken once.
