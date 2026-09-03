@@ -4,10 +4,11 @@
 
 Two texts in this repository say something that is not true, and neither
 defect is a design problem. One is a SEVERITY that promoted canon states as
-`warning` while the shipped validator has reported `error` for fourteen months
-of commits; the other is a PRESENT TENSE describing three bundles that were
-tagged nine days ago. Both were filed rather than fixed — issues #561 and #339
-— because a promoted specification is amended only through a ratified OpenSpec
+`warning` while the shipped validator has reported `error` since 2026-07-03 —
+two months, and six days LONGER than the requirement that contradicts it has
+existed; the other is a PRESENT TENSE describing three bundles that were tagged
+nine days ago. Both were filed rather than fixed — issues #561 and #339 —
+because a promoted specification is amended only through a ratified OpenSpec
 change, and neither defect was large enough to carry one alone. Brett Heap's
 2026-09-03 ruling put them in one packet.
 
