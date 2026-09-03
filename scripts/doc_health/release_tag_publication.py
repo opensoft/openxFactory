@@ -347,8 +347,21 @@ _FENCE_CLOSE = re.compile(r"^ {0,3}(`{3,}|~{3,})[ \t]*$")
 # own in the same silent direction: a line of prose read as HTML content would
 # swallow a real `## Notes` boundary and leave a declaration below it holding
 # an entry it is not inside. `<not a tag` opens nothing.
+# `[ \t\v\f]` IS COMMONMARK'S WHITESPACE CLASS, and the omission of VT and FF
+# was reachable only after round 4 stopped splitting lines on them (Codex,
+# round 7): `<pre<VT>x>` is a kind-1 opener CommonMark recognizes and this
+# pattern did not, so the fence-shaped line inside the block opened a fictitious
+# fence and a declaration below was ACCEPTED. Measured for both characters.
+#
+# U+00A0 IS DELIBERATELY NOT HERE, and that half of the finding is REFUSED with
+# a measurement: CommonMark's "whitespace character" is space, tab, newline, VT,
+# FF or CR, and U+00A0 is none of them. `<pre<U+00A0>x>` is therefore NOT a
+# kind-1 opener, and a reader that treated it as one would be MORE opaque than
+# any renderer — the under-closing direction this whole guard exists to close.
+# Measured: the reader's current answer for that line is already the
+# CommonMark-correct one.
 _HTML_TYPE1_OPEN = re.compile(
-    r"^ {0,3}<(pre|script|style|textarea)([ \t>]|$)", re.I)
+    r"^ {0,3}<(pre|script|style|textarea)([ \t\v\f>]|$)", re.I)
 _HTML_TYPE6_TAGS = (
     "address|article|aside|base|basefont|blockquote|body|caption|center|col"
     "|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure"
@@ -364,8 +377,13 @@ _HTML_OPENERS = (
     # AFTER kind 5, because `<![CDATA[` also matches kind 4's shape and the two
     # have different closers — ordering is the whole difference between ending
     # at `]]>` and ending at the first `>`.
-    ("html4", re.compile(r"^ {0,3}<![A-Za-z]")),
-    ("html6", re.compile(rf"^ {{0,3}}</?({_HTML_TYPE6_TAGS})([ \t]|/?>|$)",
+    # UPPERCASE, because the document is rendered by GitHub and GFM's spec
+    # (CommonMark 0.29) says kind 4 is `<!` followed by an UPPERCASE ASCII
+    # letter — CommonMark 0.30 later relaxed it to any letter (Codex, round 7).
+    # The narrower class is also the safe one: accepting `<!doctype` would make
+    # this reader MORE opaque than the renderer, which swallows boundaries.
+    ("html4", re.compile(r"^ {0,3}<![A-Z]")),
+    ("html6", re.compile(rf"^ {{0,3}}</?({_HTML_TYPE6_TAGS})([ \t\v\f]|/?>|$)",
                          re.I)),
 )
 # KIND 1 CLOSES ON ITS OWN TAG AND NOT ON ANY OF THE FOUR — found by Codex AND
@@ -385,11 +403,12 @@ _HTML_CLOSERS = {
     "html5": re.compile(r"\]\]>"),
 }
 _HTML_TAGNAME = r"[A-Za-z][A-Za-z0-9-]*"
-_HTML_ATTR = (r"(?:[ \t]+[A-Za-z_:][A-Za-z0-9_.:-]*"
-              r"(?:[ \t]*=[ \t]*(?:[^\s\"'=<>`]+|'[^']*'|\"[^\"]*\"))?)")
+_HTML_ATTR = (r"(?:[ \t\v\f]+[A-Za-z_:][A-Za-z0-9_.:-]*"
+              r"(?:[ \t\v\f]*=[ \t\v\f]*"
+              r"(?:[^\s\"'=<>`]+|'[^']*'|\"[^\"]*\"))?)")
 _HTML_TYPE7 = re.compile(
-    rf"^ {{0,3}}(?:<{_HTML_TAGNAME}{_HTML_ATTR}*[ \t]*/?>"
-    rf"|</{_HTML_TAGNAME}[ \t]*>)[ \t]*$")
+    rf"^ {{0,3}}(?:<{_HTML_TAGNAME}{_HTML_ATTR}*[ \t\v\f]*/?>"
+    rf"|</{_HTML_TAGNAME}[ \t\v\f]*>)[ \t\v\f]*$")
 
 # A THEMATIC BREAK IS NOT PARAGRAPH CONTENT, so a run of `=` or `-` below one is
 # a second thematic break and NOT a Setext underline (Codex P2, round 1). This

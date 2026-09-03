@@ -1046,6 +1046,73 @@ def test_an_unclosed_type_one_block_is_opaque_to_the_end_and_that_is_safe():
     assert rtp.parse_spent_declarations(doc) == []
 
 
+# CommonMark's WHITESPACE class — space, tab, VT, FF (newline and CR cannot
+# occur inside a line). NOT Python's `\s`, which also admits U+00A0 and the
+# Unicode spaces; naming them here keeps the two apart where it matters.
+COMMONMARK_SPACE = (("space", " "), ("tab", "\t"), ("VT", "\v"), ("FF", "\f"))
+
+
+@pytest.mark.parametrize("name,space", COMMONMARK_SPACE,
+                         ids=[row[0] for row in COMMONMARK_SPACE])
+def test_a_type_one_opener_admits_every_commonmark_space(name, space):
+    """CODEX, ROUND 7 ON PR #589 — and VT and FF became reachable only when
+    ROUND 4 stopped splitting lines on them, so this is round 4's own tail.
+
+    `<pre<VT>x>` is a kind-1 opener CommonMark recognizes and `[ \t>]` did not,
+    so the fence-shaped line inside the block opened a fictitious fence and the
+    declaration below it was ACCEPTED.
+    """
+    doc = "\n".join(["## contract-v3.0 — a cut", "",
+                     "<pre" + space + "x>", "```bad", "</pre>", "",
+                     "## Notes", "", "```", _spent_line(), "```", ""])
+    assert rtp.parse_spent_declarations(doc) == [], (
+        f"a {name} after the tag name was not read as CommonMark whitespace")
+
+
+def test_a_unicode_space_after_a_type_one_tag_opens_no_block():
+    """THE HALF OF THAT FINDING THAT IS REFUSED, WITH ITS MEASUREMENT.
+
+    CommonMark's "whitespace character" is space, tab, newline, VT, FF or CR —
+    U+00A0 is none of them, so `<pre<U+00A0>x>` is NOT a kind-1 opener and the
+    lines below it are ordinary prose. A reader that treated it as one would be
+    MORE OPAQUE THAN ANY RENDERER, which is the under-closing direction this
+    whole guard exists to close.
+
+    The declaration below therefore IS read, and the entry it is contained by
+    is the one CommonMark gives it: the `## Notes` inside the real fenced block
+    is code, so the v3.0 entry is still open.
+    """
+    doc = "\n".join(["## contract-v3.0 — a cut", "",
+                     "<pre" + NBSP + "x>", "```bad", "</pre>", "",
+                     "## Notes", "", "```", _spent_line(), "```", ""])
+    read = rtp.parse_spent_declarations(doc)
+    assert len(read) == 1 and read[0].entry == "contract-v3.0"
+
+
+def test_a_kind_four_declaration_needs_an_uppercase_letter():
+    """CODEX, ROUND 7 — and the spec version is the whole of it. GFM
+    (CommonMark 0.29, which is what renders this document on GitHub) says kind
+    4 is `<!` followed by an UPPERCASE ASCII letter; CommonMark 0.30 later
+    relaxed it to any letter. Accepting `<!doctype` made this reader MORE
+    opaque than the renderer, so a real `## Notes` was swallowed and the
+    declaration below kept an entry it is not inside.
+    """
+    lower = "\n".join(["## contract-v3.0 — a cut", "", "<!doctype html", "",
+                       "## Notes", "", "x>", "", _spent_line()])
+    read = rtp.parse_spent_declarations(lower)
+    assert len(read) == 1 and read[0].entry is None, (
+        "a lowercase declaration opened a block GFM does not open, and the "
+        "`## Notes` boundary below it was swallowed")
+
+    # THE CONTROL FOR THE HOLE THIS FIX COULD OPEN: uppercase must STILL open,
+    # or the narrowing has gone one step too far and kind 4 stops existing.
+    upper = "\n".join(["## contract-v3.0 — a cut", "", "<!DOCTYPE html", "",
+                       "## Notes", "", "x>", "", _spent_line()])
+    read = rtp.parse_spent_declarations(upper)
+    assert len(read) == 1 and read[0].entry == "contract-v3.0", (
+        "an uppercase declaration must still open a kind-4 block")
+
+
 def test_this_repositorys_live_declaration_survives_every_boundary_rule():
     """THE LIVE READ, AND IT IS THE POINT OF THE HARDENING RATHER THAN A
     FORMALITY: a boundary rule tightened past this document would refuse the
