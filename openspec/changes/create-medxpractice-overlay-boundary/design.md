@@ -34,6 +34,19 @@ preserve.
 2. **Use the current upstream checkout revision as the initial pin.** This
    preserves the user's current openPractice state and avoids an implicit
    upgrade during the boundary move.
+   - *2026-09-03 — the pin has since fallen behind, BY DESIGN, and re-pinning
+     is a deliberate act.* `opensoft/openPractice`'s `main` reads
+     `0ec9fca72ecf493e2520e676387f0c3f327cc6e6` and the pin reads
+     `9526bd9ef27bb6b017c2357ebaf1a24cfe570f0d` — TWO commits behind
+     (`0205901b` "Document reimbursement retention control", then the `#1` merge
+     `0ec9fca7`). That distance is what an immutable pin IS, not drift to be
+     chased: an upstream commit does not reach this composition until a change
+     moves the gitlink and `contracts/openpractice-pin.yaml` together, under
+     `domain-descendant-boundary`'s same-commit rule. **NOTED, NOT TASKED —
+     there is no re-pin runbook in this repository today**, and writing one is
+     neither this packet's work nor a condition of its archive; the note exists
+     so a later reader does not read the distance as neglect and does not
+     invent a procedure for closing it.
 3. **Make MedxPractice an xFactory Medx satellite.** The aggregate will track
    `xFactories/MedxPractice`, and MedxFactory documentation will consume that
    sibling composition boundary. A direct public `openPractice` aggregate pin
@@ -47,11 +60,45 @@ preserve.
 - [Risk] The upstream revision may be unavailable to a fresh clone if the
   public remote does not retain it. → Verify the revision is reachable before
   publishing the MedxPractice and aggregate pins.
+  **DISCHARGED 2026-09-03 — re-verified, not merely asserted.**
+  `gh api repos/opensoft/openPractice/commits/9526bd9e…` resolves on the PUBLIC
+  remote and returns "Initialize spec-driven openPractice repository",
+  2026-08-02T20:34:55Z. Recorded with its output in
+  `review/verification-2026-09-03.md` § 4.
 - [Risk] Existing shared worktrees may still contain historical openPractice
   paths. → Leave active worktrees untouched and report them separately.
 - [Risk] Relative aggregate submodule URLs can resolve differently in local
   configuration. → Sync local submodule configuration and verify the published
   remote URLs after updating `.gitmodules`.
+  **THIS RISK MATERIALIZED AND WAS REVERSED; recorded 2026-09-03.** The entry
+  landed at `3a365206` as `url = ../MedxPractice`. A relative submodule URL
+  resolves against whatever URL cloned the SUPERPROJECT, and on the nightly
+  runner the superproject is cloned over HTTPS, so it became a plain `https://`
+  URL the workflow's `git@`-only token rewrite never touches — every nightly
+  from 2026-08-24 died at the clone of these two submodules until
+  `opensoft/xFactory` `386e7ee2` (2026-08-25T19:13:51Z) normalized BOTH Medx
+  entries to `git@github.com:opensoft/…`. The live entry is
+  `git@github.com:opensoft/MedxPractice.git`, and that absolute form is what
+  `specs/medxpractice-overlay-boundary/spec.md`'s placement requirement obliges.
+  The sibling packet, which made the same choice explicitly as its Decision 2,
+  carries the full reversal record at
+  `openspec/changes/create-medxchart-overlay-boundary/design.md` § Decision 2;
+  it is cited here rather than restated.
+
+## Known limitations (recorded 2026-09-03, not tasked)
+
+- **MedxPractice's own `.gitmodules` names the PUBLIC upstream over SSH.** Its
+  single entry reads `url = git@github.com:opensoft/openPractice.git`, so an
+  anonymous `git clone --recursive` of MedxPractice cannot initialize the
+  nested `openPractice/` checkout even though that upstream is public and would
+  clone over HTTPS without credentials. The cost is real but small —
+  MedxPractice is itself PRIVATE, so any clone of it is already an
+  authenticated one — and the form matches every sibling submodule entry in
+  the aggregation, which is what makes one convention rather than two. **This
+  is reported as a known limitation and NOT changed by this ratification**: the
+  fix would be a commit in `opensoft/MedxPractice`, a repository this packet
+  does not edit from here, and it belongs with the follow-on that will next
+  touch that tree (`tasks.md` § 5).
 
 ## Migration Plan
 

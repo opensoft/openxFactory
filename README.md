@@ -1522,8 +1522,35 @@ Active changes:
   changes. Archives only when hermes-install re-pins and admits
   `hermes_client_overlay` to its `PARITY_KINDS` sweep.
 - [create-medxpractice-overlay-boundary](openspec/changes/create-medxpractice-overlay-boundary/proposal.md)
-  — MedxPractice owns the private practice-operations composition boundary and
-  pins the independent public openPractice application at an immutable commit.
+  — **RATIFIED 2026-09-03** (Brett Heap, in-session: *"ratify both, 1 and 1"*;
+  record at `review/ratification-2026-09-03.md`). MedxPractice owns the PRIVATE
+  practice-operations composition boundary over a PUBLIC upstream — the
+  visibility asymmetry is the boundary's reason for existing — and pins
+  `opensoft/openPractice` at `9526bd9e` twice, nested gitlink and
+  `contracts/openpractice-pin.yaml` (`kind: medxpractice_openpractice_pin`), in
+  ONE commit. `opensoft/MedxPractice` EXISTS (private, published 2026-08-23) and
+  the aggregation resolves it at `git@github.com:opensoft/MedxPractice.git`,
+  gitlink `d8d73195`; the relative `../MedxPractice` form it first landed with
+  was normalized at `opensoft/xFactory` `386e7ee2` alongside its MedxChart
+  sibling. **The spec delta was NARROWED at ratification** under decision 2
+  option 1 to what is MedxPractice-specific — the pin's identity, the relocation
+  of the standalone openPractice checkout, and the `xFactories/` placement CITED
+  rather than restated — because the three requirements as authored restated
+  promoted `domain-descendant-boundary` in differing words, which the Explicit
+  delta rule calls a defect. **This change carries NO `## MODIFIED Requirements`
+  block**: the placement amendment is the sibling
+  `create-medxchart-overlay-boundary`'s, which names `xFactories/MedxPractice`
+  among its realized placements, so one requirement has one writer. **It
+  RATIFIES AND MERGES SECOND**, after that sibling, and archives after it too.
+  MedxPractice is a REPORTED EMPTY BOUNDARY under the lazy-creation rule (five
+  tracked entries, all composition metadata, zero openPractice profile
+  artifacts) and is **not** precedent for creating more. **ARCHIVE IS GATED** on
+  `tasks.md` § 5: the descendant pin validator, its required `pin-validation`
+  check and its ruleset in `opensoft/MedxPractice` — which today has zero
+  workflows and no repository-level ruleset at all — on the LedgerxWallet
+  pattern, the ruleset half being an operator act. That group also ANSWERS the
+  sibling's open 5.5: MedxPractice takes the same validator shape, one answer
+  for one pin shape.
 - [create-medxchart-overlay-boundary](openspec/changes/create-medxchart-overlay-boundary/proposal.md)
   — **RATIFIED 2026-09-03** (Brett Heap, in-session: *"ratify both, 1 and 1"*;
   record at `review/ratification-2026-09-03.md`). MedxChart owns the Medx
