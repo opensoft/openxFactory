@@ -1161,6 +1161,24 @@ def test_a_WELL_FORMED_entry_is_NOT_quoted_for_show(tmp_path):
     assert "declares: [add-root, openxFactory:add-root]" in text, text
 
 
+def test_a_SEEDED_FROM_carrying_YAML_metacharacters_still_reads_back(tmp_path):
+    # `--seeded-from` is caller-supplied and, unlike `moved_by`/`moved_on`, is
+    # NOT pattern-validated. Hand-quoted, a value carrying a quote or a
+    # backslash produced a header the round-trip then refused — a refusal caused
+    # by the renderer rather than by the input. One quoting strategy for every
+    # scalar in the file, so there is one thing to keep right.
+    _change(tmp_path, "add-a")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#1", "--moved-on", "2026-09-03",
+         "--seeded-from", 'he said "hi" \\back'],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    ledger = sa.load_ledger(sa.ledger_path(tmp_path))
+    assert ledger.seeded_from == 'he said "hi" \\back'
+    assert sa.ledger_problems(sa.classify_corpus(tmp_path), ledger) == []
+
+
 def test_the_RENDERER_REFUSES_output_that_does_not_READ_BACK(tmp_path, monkeypatch):
     # The guard itself, driven by restoring the unquoted renderer: the seeder
     # must never report "wrote" for a file it cannot read.

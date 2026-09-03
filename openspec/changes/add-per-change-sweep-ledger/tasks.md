@@ -184,6 +184,20 @@ measurement is carried per subject, never as a shared total"
   `test_a_FLAG_OUTSIDE_ITS_MODE_is_REFUSED_not_ignored`. **Codex ABSENT for a
   third request.**
 
+- [x] 6.5 **BOT ROUND 6 (Copilot, 22:17:16Z), finding TAKEN.** `seeded_from` was
+  interpolated into the header with HAND-ROLLED double quotes while
+  `_render_entry` already had a safe strategy for exactly this. It is
+  caller-supplied and — unlike `moved_by`/`moved_on` — NOT pattern-validated, so
+  a value carrying a quote, a backslash or a newline produced a header the new
+  round-trip then refused: a refusal caused by the RENDERER rather than by the
+  input. Every scalar the renderer writes now goes through `json.dumps` (a JSON
+  string is a valid YAML double-quoted scalar), including the pattern-validated
+  pair — "safe because something upstream checked" is the reasoning that made
+  `declares` unsafe, and one quoting strategy is easier to keep right than
+  three. **The output is byte-identical for every valid value**: re-seeding the
+  live ledger after the change rewrites it with no diff. Fixture:
+  `test_a_SEEDED_FROM_carrying_YAML_metacharacters_still_reads_back`.
+
 ## Group 6b — Gates
 
 - [x] 6b.1 `OPENSPEC_TELEMETRY=0 openspec validate add-per-change-sweep-ledger

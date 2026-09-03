@@ -1337,8 +1337,13 @@ def _render_row(body: dict[str, object], moved_by: str, moved_on: str) -> str:
         else:
             rendered = str(value)
         parts.append(f"{key}: {rendered}")
-    parts.append(f'moved_by: "{moved_by}"')
-    parts.append(f'moved_on: "{moved_on}"')
+    # QUOTED THE SAME WAY AS EVERY OTHER SCALAR IN THIS FILE. These two are
+    # pattern-validated before they arrive, so hand-quoting them was safe --
+    # but "safe because something upstream checked" is the reasoning that made
+    # `declares` unsafe, and one quoting strategy is easier to keep right than
+    # three. The output is byte-identical for every valid value.
+    parts.append("moved_by: " + json.dumps(moved_by))
+    parts.append("moved_on: " + json.dumps(moved_on))
     return "{" + ", ".join(parts) + "}"
 
 
@@ -1472,7 +1477,12 @@ def render_ledger(
     lines = [LEDGER_HEADER.format(
         schema_version=LEDGER_SCHEMA_VERSION,
         kind=LEDGER_KIND,
-        seeded_from=f'"{seeded_from}"' if seeded_from else "~",
+        # NOT hand-quoted: `--seeded-from` is caller-supplied and, unlike the
+        # provenance pair, is NOT pattern-validated, so a value carrying a
+        # quote, a backslash or a newline would have produced a header the
+        # round-trip below then refused -- a refusal caused by the renderer
+        # rather than by the input.
+        seeded_from=json.dumps(seeded_from) if seeded_from else "~",
     )]
     moved = set(moved_rows(readings, previous))
     for change_id, reading in sorted(readings.items()):
