@@ -836,7 +836,7 @@ def test_the_three_line_endings_commonmark_does_recognise_still_work(name,
 
 # --------------------------------------- RAW HTML: NOT PARSED, REFUSED
 #
-# THE INVERSION, RULED BY BRETT HEAP 2026-09-02 ON A MEASURED TAIL. Three
+# THE INVERSION, RULED BY BRETT HEAP 2026-09-03 ON A MEASURED TAIL. Three
 # review rounds tried to model CommonMark's raw HTML blocks so a fence-shaped
 # line inside one could not put the reader out of phase, and each fix produced
 # the next finding — the single-line block, the mismatched kind-1 closer, the

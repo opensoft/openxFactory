@@ -329,7 +329,7 @@ _FENCE_CLOSE = re.compile(r"^ {0,3}(`{3,}|~{3,})[ \t]*$")
 
 # --- RAW HTML: NOT PARSED, REFUSED ------------------------------------------
 #
-# RULED BY BRETT HEAP, 2026-09-02, ON A MEASURED TAIL. A ```-shaped line inside
+# RULED BY BRETT HEAP, 2026-09-03, ON A MEASURED TAIL. A ```-shaped line inside
 # a raw HTML block is HTML CONTENT and not a fence delimiter, so a reader that
 # calls it one runs a fence OUT OF PHASE with the document: real boundaries are
 # swallowed as code and a declaration inside the next real fence is read under
@@ -1140,9 +1140,9 @@ def check_repo(repo: str, repo_path: Path, git,
             return []
         return Skip(FAMILY, f"{repo}: {CHANGELOG} could not be read at the "
                             f"published tip {tip[:9]}, so a SPENT declaration "
-                            f"could not be looked for for "
-                            f"{', '.join(in_scope)} — which is not the same "
-                            f"fact as there being none")
+                            f"for {', '.join(in_scope)} could not be looked "
+                            f"for — which is not the same fact as there being "
+                            f"none")
     read = read_changelog(changelog)
     findings, candidates = _refusal_findings(repo, read.declarations, cut,
                                              declared)
