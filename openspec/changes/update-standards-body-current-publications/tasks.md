@@ -37,6 +37,24 @@
       defect in the caller. Four new tests, one asserting that the permissive
       loader is GREEN on the same bytes, which is the whole point.
 
+- [x] 3.6 **DONE 2026-09-03 — the checker under-enforced its own requirement,
+      and the new loader could crash on the shape it exists to refuse.** Two
+      findings, Copilot review round 3, both taken. (a)
+      `CURRENT_PUBLICATION_FIELDS` omitted **`steward`** and **`names`**, two of
+      the seven things the requirement names, so a body could claim verification
+      while saying nothing about who stewards it or what KIND of term it names —
+      and `names` is the registry's own load-bearing field, the one its header
+      says exists because "a crosswalk that maps a worker class to a PROCESS is
+      making a different claim than one mapping it to a ROLE". Added; all three
+      verified bodies already carry both, so nothing reddens. (b) the duplicate
+      scan called `set.add` on a YAML **structural key** (`? [a, b]`, constructed
+      as an unhashable `list`), raising a bare `TypeError` out of the scan —
+      the wrong exception type, past callers that catch `DuplicateRegistryKey`,
+      and before any duplicate could be seen. Keys are now compared through a
+      hashable token. A single structural key is still refused, by PyYAML's own
+      `ConstructorError`, exactly as `yaml.safe_load` refuses it; a REPEATED one
+      is now caught as the duplicate it is.
+
 ## 4. Consumer handoff
 
 - [x] 4.1 **DONE 2026-09-01 —** published `handoff/opsx-overlay-current-standards.md` naming `itil5`, SFIA 9's

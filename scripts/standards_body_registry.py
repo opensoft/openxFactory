@@ -51,22 +51,48 @@ class _NoDuplicatesLoader(yaml.SafeLoader):
     """
 
 
+def _comparison_token(key):
+    """A hashable stand-in for any YAML key, scalar or not.
+
+    YAML permits a sequence or a mapping as a key (`? [a, b]`), and PyYAML
+    constructs those as `list`/`dict` — unhashable, so a bare `set` cannot hold
+    them. An earlier draft guarded only the membership test and still called
+    `set.add`, which raised a bare `TypeError` OUT OF THE DUPLICATE SCAN
+    (Copilot, PR #593 round 3). Callers catch `DuplicateRegistryKey`; a
+    `TypeError` from inside the scan is an unhandled crash wearing the wrong
+    exception type, and it fired BEFORE the scan could notice a duplicate.
+
+    WHAT ACTUALLY HAPPENS TO AN UNHASHABLE KEY, stated exactly, because the
+    scan is not the last word: PyYAML's own `construct_mapping` — called below,
+    after this scan completes — refuses it with `ConstructorError: found
+    unhashable key`. That is `yaml.safe_load`'s documented behaviour and this
+    loader does not change it. So the fix removes OUR crash and leaves the
+    refusal where it already was, one layer down.
+
+    What the token adds beyond not crashing: a REPEATED structural key is now
+    caught as the DUPLICATE it is, by this scan, before PyYAML gets to call it
+    merely unhashable — the more specific of the two true statements.
+    """
+    try:
+        hash(key)
+    except TypeError:
+        return ("\x00unhashable", repr(key))
+    return key
+
+
 def _refuse_duplicate_keys(loader, node, deep=False):
     seen: set = set()
     for key_node, _value_node in node.value:
         key = loader.construct_object(key_node, deep=deep)
-        try:
-            duplicate = key in seen
-        except TypeError:  # pragma: no cover - an unhashable key
-            duplicate = False
-        if duplicate:
+        token = _comparison_token(key)
+        if token in seen:
             mark = key_node.start_mark
             raise DuplicateRegistryKey(
                 f"duplicate key {key!r} at line {mark.line + 1}, column "
                 f"{mark.column + 1} — the later value would silently replace "
                 "the earlier one"
             )
-        seen.add(key)
+        seen.add(token)
     return yaml.SafeLoader.construct_mapping(loader, node, deep=deep)
 
 
@@ -96,7 +122,20 @@ CURRENT_PUBLICATION_IDS = frozenset({"itil5", "sfia", "apqc_pcf"})
 #: date; a body declaring none asserts nothing.
 VERIFICATION_CLAIM_FIELD = "verified_on"
 
+#: THE WHOLE RECORD THE REQUIREMENT NAMES, and it names seven things: "a stable
+#: body id, steward, term kind, current version, primary source URL,
+#: verification date, and confidence". `id` is checked separately above (a body
+#: without one cannot be reported against by id at all); the other six are here.
+#: `steward` and `names` were MISSING from this tuple until 2026-09-03 — found by
+#: Copilot on PR #593 — which let a body claim verification while saying nothing
+#: about WHO stewards it or WHAT KIND of term it names. `names` is the registry's
+#: own load-bearing field, the one its header says exists because "a crosswalk
+#: that maps a worker class to a PROCESS is making a different claim than one
+#: mapping it to a ROLE", so a verified record omitting it is precisely the
+#: conflation the registry was built to prevent.
 CURRENT_PUBLICATION_FIELDS = (
+    "steward",
+    "names",
     "current_version",
     "source_url",
     VERIFICATION_CLAIM_FIELD,

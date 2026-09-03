@@ -120,9 +120,13 @@ class TestVerificationClaimScope:
                          "verified_on": "2026-09-03"}]}
         )
 
-        assert any("newcomer.current_version" in e for e in errors)
-        assert any("newcomer.source_url" in e for e in errors)
-        assert any("newcomer.confidence" in e for e in errors)
+        # All six the requirement names beside `id` — `steward` and `names` were
+        # missing from the enforced set until 2026-09-03, so a body could claim
+        # verification while saying nothing about who stewards it or what kind
+        # of term it names, which is the conflation `names` exists to prevent.
+        for field in ("steward", "names", "current_version", "source_url",
+                      "confidence"):
+            assert any(f"newcomer.{field}" in e for e in errors), field
 
     def test_a_body_CLAIMING_NOTHING_is_not_reported_against(self) -> None:
         # The 29 legacy entries' shape: current, sourced, but never re-read
@@ -139,11 +143,27 @@ class TestVerificationClaimScope:
         # out of scope — repairing the finding by withdrawing the assertion.
         errors = registry_errors(
             {"bodies": [{"id": "sfia", "status": "current",
+                         "steward": "SFIA Foundation", "names": "skills",
                          "source_url": "https://example.invalid",
                          "current_version": "SFIA 9", "confidence": "high"}]}
         )
 
         assert any("sfia.verified_on" in e for e in errors)
+
+    def test_a_verified_body_omitting_its_TERM_KIND_is_rejected(self) -> None:
+        # `names` is the registry's load-bearing field — its header says the
+        # bodies "do NOT all name the same kind of thing" and that conflating a
+        # PROCESS with a ROLE "is how a crosswalk quietly overstates what a
+        # worker is". A verified record without it is that conflation, waiting.
+        errors = registry_errors(
+            {"bodies": [{"id": "newcomer", "status": "current",
+                         "steward": "Somebody", "current_version": "v1",
+                         "source_url": "https://example.invalid",
+                         "verified_on": "2026-09-03", "confidence": "high"}]}
+        )
+
+        assert [e for e in errors if "newcomer.names" in e]
+        assert not [e for e in errors if "newcomer.steward" in e]
 
 
 class TestRegistryLoader:
@@ -187,6 +207,40 @@ class TestRegistryLoader:
 
         with pytest.raises(DuplicateRegistryKey):
             load_registry(path)
+
+    def test_an_UNHASHABLE_key_neither_crashes_nor_escapes_the_check(
+        self, tmp_path: Path
+    ) -> None:
+        """The duplicate scan must not raise `TypeError` on a structural key.
+
+        YAML permits a sequence as a key and PyYAML constructs it as a `list`,
+        which a bare `set` cannot hold. An earlier draft guarded the membership
+        test and still called `set.add`, so the SCAN raised a bare `TypeError` —
+        the wrong exception type, escaping past callers that catch
+        `DuplicateRegistryKey`, and firing before any duplicate could be seen.
+
+        A single structural key is still REFUSED, by PyYAML's own
+        `construct_mapping` with `ConstructorError: found unhashable key`. That
+        is `yaml.safe_load`'s behaviour and this loader does not change it — the
+        assertion below pins the two readers AGREEING, which is what makes this
+        a fix to our scan rather than a change of policy.
+        """
+        single = tmp_path / "structural-key.yaml"
+        single.write_text("? [a, b]\n: value\n", encoding="utf-8")
+
+        with pytest.raises(yaml.YAMLError):  # never TypeError, from our scan
+            load_registry(single)
+        with pytest.raises(yaml.YAMLError):  # and `safe_load` says the same
+            yaml.safe_load(single.read_text(encoding="utf-8"))
+
+        # REPEATED, and this is what the token buys: the duplicate scan runs
+        # first, so the more specific of the two true statements is the one the
+        # caller gets.
+        repeated = tmp_path / "repeated-structural-key.yaml"
+        repeated.write_text("? [a, b]\n: first\n? [a, b]\n: second\n",
+                            encoding="utf-8")
+        with pytest.raises(DuplicateRegistryKey):
+            load_registry(repeated)
 
     def test_a_registry_with_no_duplicate_loads_unchanged(
         self, tmp_path: Path
