@@ -1,8 +1,8 @@
 # The Project Repository Schema
 
-Status: draft
+Status: ratified
 Kind: standard
-Proposed by: add-project-repo-schema
+Ratified by: add-project-repo-schema
 
 GitHub has no folder that groups repositories, so a project spanning several of
 them is held together by convention or by nothing. This document is openxFactory's
@@ -12,10 +12,14 @@ most of all — what it does not mean. The MECHANICS are not here. They live in
 commit and digest at [`contracts/openreposhape-pin.yaml`](../contracts/openreposhape-pin.yaml),
 verified by [`scripts/validate-openreposhape-pin.py`](../scripts/validate-openreposhape-pin.py).
 
-> `Status: draft` until `add-project-repo-schema` is ratified. **Ratification is
-> the convener's.** A project MAY elect the shape now, provided it records the
-> reference its election followed — see § A project may start before this is
-> ratified.
+> **RATIFIED 2026-09-02 by Brett Heap, the convener** — the act is recorded in
+> [`add-project-repo-schema`](../openspec/changes/add-project-repo-schema/proposal.md)
+> and its `review/ratification-2026-09-02.md`. `Status: standard` is NOT claimed
+> here and is not owed: that status requires a PROMOTED spec, and this change
+> stays active until its realization evidence completes. A project that elected
+> the shape BEFORE this date recorded the staged fragment's path as its
+> reference; one electing it now records this document — see § A project may
+> start before this is ratified.
 
 ## The one sentence that governs everything else
 
