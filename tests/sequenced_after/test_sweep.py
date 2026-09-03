@@ -380,6 +380,79 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       `python3 scripts/validate-sequenced-after.py . --sweep`:
       `33 active + 124 archived` = 157 change ids, `108` co-modified, `49`
       sole modifiers, `21 / 12` active co-modified/sole.
+    - SIBLING READING, taken from the SAME merge-base as the entry above
+      (`origin/main` at `c0270d28`) and therefore NOT a step after it:
+      `change_ids - 1` reads 156, `sole_modifiers - 1` reads 49 and
+      `active_sole - 1` reads 12 — each one up from the reading the
+      `add-cpc-clearing-boundary` entry left, and `co_modified` and
+      `active_co_modified` hold at 107 and 20. They
+      moved on 2026-09-03 when `update-standards-body-current-publications` was
+      ADOPTED as an ACTIVE change (PR #593, the rescue of work stranded
+      uncommitted in a shared checkout, openxFactory issue #591). ITS DELTA IS
+      `## ADDED Requirements` ONLY, over a NEW capability `standards-body-registry`
+      whose four requirement titles exist nowhere else in the corpus, so it is a
+      SOLE modifier and never a co-modifier — the exact shape
+      `add-clearing-dispatch-boundary`'s own landing had, and the exact OPPOSITE
+      of `declare-spent-bundle-state`'s and `add-cpc-clearing-boundary`'s, which
+      carried MODIFIED blocks and moved the two co-modified readings instead. A
+      packet moving BOTH would still be a defect in the sweep rather than a
+      corpus event.
+      THE MOVE IS ONE STEP AND NOT TWO, which is the part specific to a rescue:
+      the snapshot placed the packet under `openspec/changes/archive/2026-09-01-...`,
+      where it ALREADY counted as one archived change id and one sole modifier,
+      so `git mv`-ing it to the active corpus moves the ACTIVE/ARCHIVED SPLIT
+      and `active_sole` alone — while `change_ids` and `sole_modifiers` were
+      raised by the snapshot's own landing rather than by the move.
+      THIS ENTRY WAS RE-DERIVED ONCE, and the first reading is left here as the
+      record of why: it was authored against the `main` of 2026-09-03 00:0xZ and
+      read `155 / 50 / 13` with `co_modified` 105 and `active_co_modified` 18.
+      PR #560 (`add-cpc-clearing-boundary`) then merged and this branch took the
+      catch-up merge, which moves FOUR of the five pins under it — the entry
+      above says how — so every number was measured again on the merged tree
+      rather than adjusted by arithmetic. MEASURED ON BOTH SIDES: `origin/main`
+      at `c0270d28` reads `32 active + 124 archived` = 156, `107`, `49`,
+      `20 / 12`; this branch after the merge reads `33 active + 124 archived`
+      = 157, `107`, `50`, `20 / 13`, via
+      `python3 scripts/validate-sequenced-after.py . --sweep` on each tree. The
+      pin moves in the SAME COMMIT as the corpus, which is this test's own
+      protocol, and that PR discloses that it touches this file for that reason
+      and for no other: corpus BOOKKEEPING, not realization. `declaring` holds
+      at 1 — the packet declares no `sequenced_after:` field, the field being
+      carried by an ACTIVE, UNPROMOTED change.
+    - MERGING THE TWO SIBLING ENTRIES ABOVE COMPOUNDS EXACTLY ONE PIN, and the
+      reason is the boolean-membership rule both of them already invoke:
+      the two packets move DISJOINT sets. `add-project-repo-schema` carries a
+      MODIFIED block, so it moved the two CO-modified readings alone
+      (`co_modified` 107 → 108, `active_co_modified` 20 → 21) and left the sole
+      readings where they were; `update-standards-body-current-publications` is
+      ADDED-only over a NEW capability, so it moved the two SOLE readings alone
+      (`sole_modifiers - 1` 48 → 49, `active_sole - 1` 11 → 12) and left the
+      co-modified readings where they were. Only `change_ids` is moved by BOTH —
+      each is one more ACTIVE change — so it alone compounds: `change_ids - 1`
+      reads 156 on either branch taken singly and 157 on the merge. NO PIN HERE
+      IS THE NET OF TWO OPPOSED MOVES, which is what makes this merge different
+      from the 2026-09-02 `active_co_modified` reconciliation four entries above,
+      where an archive and an authoring cancelled on one pin; here nothing
+      cancels and only the population grows twice.
+      MEASURED ON ALL THREE TREES rather than inferred from the arithmetic, via
+      `python3 scripts/validate-sequenced-after.py . --sweep`: `origin/main` at
+      `ee294f9f` reads `33 active + 124 archived` = 157 change ids, `108`
+      co-modified, `49` sole modifiers, `21 / 12` active co-modified/sole; this
+      branch at `1d9ae04c` reads `33 active + 124 archived` = 157, `107`, `50`,
+      `20 / 13`; the merge of the two reads `34 active + 124 archived` = 158,
+      `108`, `50`, `21 / 13`. AND MEASURED BY EXCLUSION, which is the step that
+      rules out a THIRD change having moved in the same window: dropping
+      `add-project-repo-schema` from the merged corpus reproduces this branch's
+      own reading EXACTLY (157, 107, 50, 20 / 13), and dropping
+      `update-standards-body-current-publications` reproduces `main`'s EXACTLY
+      (157, 108, 49, 21 / 12) — so every count above is the two named packets'
+      contribution and no other's. `archived` holds at 124, prose headers hold
+      at 3 (3 archived), and `declaring`/`root_claims` hold at 1/0, none of
+      which either packet touches. The pin moves in the SAME COMMIT as the
+      corpus — here the merge commit itself, PR #593's catch-up with `main` of
+      2026-09-03, taken to re-fire the `pull_request` checks GitHub had skipped
+      while the test-merge commit could not be built — which is this test's own
+      protocol.
     """
     sweep = sa.corpus_sweep(ROOT)
     assert sweep.co_modified == 108, (
@@ -440,19 +513,25 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # This change is itself a sole modifier at requirement granularity — which is
     # exactly why it declaring a parent anyway is the doctrine applied to its
     # author: declaring must never be worth less than omitting.
-    assert sweep.change_ids - 1 == 156, (
+    assert sweep.change_ids - 1 == 157, (
         "the `- 1` subtracts THIS change and nothing else, so the reading is "
         "the corpus without it: 152 at authoring, 153 when "
         "add-clearing-dispatch-boundary landed 2026-09-01, 154 when "
         "declare-spent-bundle-state was authored 2026-09-02, 155 when "
         "add-cpc-clearing-boundary (PR #560) merged 2026-09-02, 156 when "
-        "add-project-repo-schema was authored 2026-09-02")
+        "add-project-repo-schema was authored 2026-09-02, 157 when "
+        "update-standards-body-current-publications was adopted 2026-09-03")
     # MOVED 2026-09-02: `sole_modifiers` fell 50 → 49 for the same reason
     # `active_sole` falls below — add-clearing-dispatch-boundary left the sole
     # set when add-cpc-clearing-boundary (PR #560) began sharing three
-    # requirement keys with it. The `- 1` still subtracts only
-    # add-sequenced-after-substrate (unaffected, still sole).
-    assert sweep.sole_modifiers - 1 == 48
+    # requirement keys with it. MOVED AGAIN 2026-09-03: it rose 49 -> 50 when
+    # update-standards-body-current-publications was adopted (PR #593), an
+    # ADDED-only packet over a new capability with novel requirement titles and
+    # therefore a SOLE modifier — the opposite direction and the opposite cause,
+    # which is why the two are recorded separately rather than netted. The `- 1`
+    # still subtracts only add-sequenced-after-substrate (unaffected, still
+    # sole).
+    assert sweep.sole_modifiers - 1 == 49
     # STILL INTACT ON ITS MERITS, not by a cancelling pair of errors — checked,
     # because #563's archive landing between the authoring measurement and this
     # reading makes the coincidence worth ruling out explicitly. That archive
@@ -471,7 +550,15 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # is the actual cause. The `- 1` still subtracts only
     # add-sequenced-after-substrate (unaffected, still sole), so the reading
     # falls with `active_sole` to 11.
-    assert sweep.active_sole - 1 == 11
+    #
+    # AND MOVED BACK 2026-09-03: `active_sole` rose 12 -> 13 when
+    # update-standards-body-current-publications was adopted as an ACTIVE change
+    # (PR #593). An ADDED-only delta over a new capability with novel
+    # requirement titles is an ACTIVE SOLE modifier, so it enters exactly the
+    # population #560 had just removed one from. The two moves are unrelated and
+    # cancel only numerically; the `- 1` still subtracts
+    # add-sequenced-after-substrate alone.
+    assert sweep.active_sole - 1 == 12
     assert sweep.prose_headers == 3 and sweep.prose_headers_archived == 3
     assert sweep.declaring == 1
     assert sweep.declaring_ids == ("add-sequenced-after-substrate",)
