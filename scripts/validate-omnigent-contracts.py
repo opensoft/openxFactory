@@ -156,7 +156,9 @@ def standards_body_ids() -> frozenset[str]:
     return frozenset(
         body["id"]
         for body in (doc.get("bodies") or [])
-        if isinstance(body, dict) and body.get("id")
+        if isinstance(body, dict)
+        and isinstance(body.get("id"), str)
+        and body["id"].strip()
     )
 
 

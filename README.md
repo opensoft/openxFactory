@@ -435,10 +435,12 @@ Active changes:
   session ended without pushing, so the packet and its code existed on no branch
   and not on `main` (openxFactory issue **#591**); PR **#593** snapshot `d1799988`
   carries it byte-identical, and the same 2026-09-03 in-session word both ruled
-  it adopted and owned by lane `openxfactory-f2` and ratified it — **REALIZATION
-  IS MERGED-PLUS-GREEN ON `main`**; the archive is owed under the
-  release-realization gate (`docs/release-realization-flow.md` § The Archive
-  Gate).
+  it adopted and owned by lane `openxfactory-f2` and ratified it; **realization
+  lands with this PR** — the archive gate is **merged-plus-green on `main`**
+  (`pytest tests/test_standards_body_registry.py`, `validate-omnigent-contracts.py`,
+  `openspec validate --all --strict`), measured after landing, never assumed,
+  per the release-realization gate (`docs/release-realization-flow.md` § The
+  Archive Gate).
   Adds a distinct **`itil5`** body for ITIL Version 5 while preserving `itil4`
   for historical consumers — *no silent rename* — records **SFIA 9** as current
   beside the steward's restrictive licence statement and Brett's product-config
