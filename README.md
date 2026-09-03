@@ -1403,13 +1403,65 @@ Active changes:
   changes. Archives only when hermes-install re-pins and admits
   `hermes_client_overlay` to its `PARITY_KINDS` sweep.
 - [create-medxpractice-overlay-boundary](openspec/changes/create-medxpractice-overlay-boundary/proposal.md)
-  — MedxPractice owns the private practice-operations composition boundary and
-  pins the independent public openPractice application at an immutable commit.
+  — **RATIFIED 2026-09-03** (Brett Heap, in-session: *"ratify both, 1 and 1"*;
+  record at `review/ratification-2026-09-03.md`). MedxPractice owns the PRIVATE
+  practice-operations composition boundary over a PUBLIC upstream — the
+  visibility asymmetry is the boundary's reason for existing — and pins
+  `opensoft/openPractice` at `9526bd9e` twice, nested gitlink and
+  `contracts/openpractice-pin.yaml` (`kind: medxpractice_openpractice_pin`), in
+  ONE commit. `opensoft/MedxPractice` EXISTS (private, published 2026-08-23) and
+  the aggregation resolves it at `git@github.com:opensoft/MedxPractice.git`,
+  gitlink `d8d73195`; the relative `../MedxPractice` form it first landed with
+  was normalized at `opensoft/xFactory` `386e7ee2` alongside its MedxChart
+  sibling. **The spec delta was NARROWED at ratification** under decision 2
+  option 1 to what is MedxPractice-specific — the pin's identity, the
+  aggregation's single route to openPractice, and this descendant's placement
+  CITED rather than restated — because the three requirements as authored
+  restated promoted `domain-descendant-boundary` in differing words, which the
+  Explicit delta rule calls a defect. It was narrowed AGAIN in the pre-capture
+  fix round: the placement requirement no longer states the path, remote or
+  gitlink in its body (they are evidence in its scenarios), the relocation
+  requirement keeps only the half a remote reading can settle with the
+  workspace-root layout recorded as a local convention in `design.md`, and the
+  pin manifest's shape is stated as the NESTED file the descendant actually
+  carries. **This change carries NO `## MODIFIED Requirements`
+  block**: the placement amendment is the sibling
+  `create-medxchart-overlay-boundary`'s, which names `xFactories/MedxPractice`
+  among its realized placements, so one requirement has one writer. **It
+  RATIFIES AND MERGES SECOND**, after that sibling, and archives after it too.
+  MedxPractice is a REPORTED EMPTY BOUNDARY under the lazy-creation rule (five
+  tracked entries, all composition metadata, zero openPractice profile
+  artifacts) and is **not** precedent for creating more. **ARCHIVE IS GATED** on
+  `tasks.md` § 5: the descendant pin validator, its required `pin-validation`
+  check and its ruleset in `opensoft/MedxPractice` — which today has zero
+  workflows and no repository-level ruleset at all — on the LedgerxWallet
+  pattern, the ruleset half being an operator act. That group also ANSWERS the
+  sibling's open 5.5: MedxPractice takes the same validator shape, one answer
+  for one pin shape.
 - [create-medxchart-overlay-boundary](openspec/changes/create-medxchart-overlay-boundary/proposal.md)
-  — local topology realization completed 2026-08-23: MedxChart now owns the
-  Medx composition boundary, pins openChart at an immutable commit, and the
-  xFactory aggregate no longer tracks openChart directly. The intended
-  `opensoft/MedxChart` remote still requires a separate publication act.
+  — **RATIFIED 2026-09-03** (Brett Heap, in-session: *"ratify both, 1 and 1"*;
+  record at `review/ratification-2026-09-03.md`). MedxChart owns the Medx
+  composition boundary, pins openChart at `d2376a31` twice — nested gitlink and
+  `contracts/openchart-pin.yaml` — and the xFactory aggregate no longer tracks
+  openChart directly. `opensoft/MedxChart` EXISTS (private, published
+  2026-08-23) and the aggregation resolves it at the absolute
+  `git@github.com:opensoft/MedxChart.git` URL, the relative `../MedxChart` form
+  this packet first chose having been reversed at `opensoft/xFactory`
+  `386e7ee2` after it killed every nightly from 2026-08-24; `design.md`
+  Decision 2 records the reversal rather than erasing it. **This change owns the
+  `domain-descendant-boundary` placement delta** — the explicit amendment that
+  promoted requirement asked for by name, ratifying the aggregation's
+  `xFactories/` placement and naming BOTH `MedxChart` and `MedxPractice` as its
+  realized placements; the sibling `create-medxpractice-overlay-boundary` carries
+  none of its own, and its ratification packet is to cite this delta — an
+  obligation stated in the future tense because no sibling pull request has
+  merged and that packet carries no reference to it yet. MedxChart is a REPORTED
+  EMPTY BOUNDARY under the
+  lazy-creation rule (composition metadata only, zero openChart profile
+  artifacts) and is **not** precedent for creating more. **ARCHIVE IS GATED** on
+  `tasks.md` § 5: the descendant pin validator, its required `pin-validation`
+  check and its ruleset in `opensoft/MedxChart`, on the LedgerxWallet pattern —
+  the ruleset half being an operator act.
 - [add-nightly-dashboard-refresh](openspec/changes/add-nightly-dashboard-refresh/proposal.md)
   — authored 2026-08-22, **RATIFIED 2026-08-25** against its realized system
   (Brett, in-session: "ratify add-nightly-dashboard-refresh against its
@@ -1972,11 +2024,20 @@ Archived changes:
   change moves `active_co_modified` alone, exactly the shape #563's, #571's and
   `declare-spent-bundle-state`'s own archives moved, and the corpus-wide
   `co_modified`, `sole_modifiers` and `active_sole` readings are untouched.
-  **NOTE FOR THE NEXT REBASE**: this pull request was authored against
-  `origin/main` at `7af2725c` while PRs #608 and #609 were landing separately;
-  both this block and the sequenced-after pin are the expected conflict
-  points, and both must be re-measured against `main`'s post-#608/#609 state
-  before merge rather than resolved by taking either side blind.
+  **THAT NOTE IS NOW DISCHARGED.** This pull request was authored against
+  `origin/main` at `7af2725c` while PRs #608 and #609 were landing separately,
+  and both named conflict points were re-measured on the merge of `main` at
+  `0bf37d14` rather than resolved by taking either side blind: this block and
+  main's two RATIFIED active entries were kept BOTH, and the sweep pin was
+  re-derived on the MERGED tree, where `active_co_modified` reads **20** —
+  neither branch's number, because #608's ratification raised it 20 -> 21 and
+  this archive lowered it 21 -> 20, two moves off the same baseline cancelling
+  in one commit. Every other sweep reading holds at main's post-#608/#609
+  value, `main` at `0bf37d14` being the by-exclusion control: 158 change ids,
+  `co_modified` 109, `sole_modifiers` 49, `active_sole` 12, with `active`
+  33 -> 32 and `archived` 125 -> 126 the archive's only other trace. No
+  `contract-v3.1` INVENTORY MEMBER moved on `main` across that window, so the
+  digests stand as cut.
 - [declare-spent-bundle-state](openspec/changes/archive/2026-09-03-declare-spent-bundle-state/proposal.md)
   — **ARCHIVED 2026-09-03 on merged-and-green realization evidence.** Ratified
   2026-09-02 by direct ruling over two flagged decisions (OD-3: a correctly
