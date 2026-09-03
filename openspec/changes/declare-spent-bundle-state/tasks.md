@@ -79,6 +79,20 @@ no reader is a sentence in a changelog.
       successor not later (OD-9), element missing, duplicate declaration, wrong
       containing entry, or naming the currently declared bundle → `error`; a
       declaration whose SUBJECT was never cut → `warning` on the changelog.
+      - **2026-09-02 (lane openxfactory-1d): the CONTAINING-ENTRY half of this
+        box is HARDENED by PR #589**, on top of the realization that landed as
+        PR #587 (`3fa222f3`). Ten escapes measured against `main`'s reader
+        before the fix, seven of them letting a declaration be ACCEPTED from
+        outside its superseding bundle's entry: a non-release `##` heading, an
+        incomplete version token (`## contract-v3.0.1`), a level-one heading, a
+        heading inside a code fence, an indented ATX heading, Setext headings,
+        and an empty ATX heading — plus a below-floor repository with no
+        changelog being skipped entirely, a batch-read skip naming one of two
+        members it read, and a spurious orphan warning on a below-floor
+        subject. The rule now passes through one structural-boundary function
+        and is pinned as one table; fenced blocks are declared OPAQUE. NOTHING
+        IN THIS BOX IS RE-TICKED BY THAT PR — the ladder is #587's, and this
+        line records what was hardened over it.
 - [x] 2.4 The emits land on `contracts/releases/<bundle>.digests.yaml` rather
       than `MANIFEST` (OD-5 as amended), with the spent `info` carrying
       `resolution="contested"`; the one orphan-subject `warning` lands on

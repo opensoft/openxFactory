@@ -131,7 +131,9 @@ Core domain-neutral docs:
   at [`contracts/openreposhape-pin.yaml`](contracts/openreposhape-pin.yaml),
   verified by
   [`scripts/validate-openreposhape-pin.py`](scripts/validate-openreposhape-pin.py).
-  `Status: draft` until `add-project-repo-schema` is ratified)
+  `Status: ratified` + `Ratified by: add-project-repo-schema` since
+  2026-09-02; NOT `standard`, which needs a promoted spec, and nothing
+  promotes until that change archives)
 - [Document Lifecycle](docs/document-lifecycle.md)
 - [Release Realization Flow](docs/release-realization-flow.md)
 - [The `scope_globs` Scope Surface Is a Never-Clearable Trust-Root Floor](docs/scope-globs-trust-root-floor.md)
@@ -426,11 +428,77 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [update-standards-body-current-publications](openspec/changes/update-standards-body-current-publications/proposal.md)
+  — authored 2026-09-01, **RATIFIED 2026-09-03 by Brett Heap, in-session**
+  (verbatim "merge 210 and ratify and merge 593"), with **D1–D4 ADOPTED AS
+  WRITTEN**. **RESCUED, NOT RE-AUTHORED**: the authoring
+  session ended without pushing, so the packet and its code existed on no branch
+  and not on `main` (openxFactory issue **#591**); PR **#593** snapshot `d1799988`
+  carries it byte-identical, and the same 2026-09-03 in-session word both ruled
+  it adopted and owned by lane `openxfactory-f2` and ratified it; **realization
+  lands with this PR** — the archive gate is **merged-plus-green on `main`**
+  (`pytest tests/test_standards_body_registry.py`, `validate-omnigent-contracts.py`,
+  `openspec validate --all --strict`), measured after landing, never assumed,
+  per the release-realization gate (`docs/release-realization-flow.md` § The
+  Archive Gate).
+  Adds a distinct **`itil5`** body for ITIL Version 5 while preserving `itil4`
+  for historical consumers — *no silent rename* — records **SFIA 9** as current
+  beside the steward's restrictive licence statement and Brett's product-config
+  permission as an **explicit `status: unverified` operator override** carrying
+  approver, date, rationale and the conflicting source (a validator refuses an
+  override missing any of them, so the decision is preserved without being
+  laundered into a licence conclusion), and re-verifies **APQC PCF 8.0** with its
+  IT-process crosswalk scope and mandatory attribution. Crosswalks stay
+  **descriptive**: no practice text, skill definition or process hierarchy is
+  copied, and no mapping confers archetype, permission, credential tier or
+  terminal-action authority. **THE SNAPSHOT WAS IN THREE UNLAWFUL SHAPES AND
+  EACH WAS REPAIRED**: it sat under `openspec/changes/archive/2026-09-01-…`
+  though it had never landed and, carrying a code surface, could not archive
+  under `docs/release-realization-flow.md` § The Archive Gate — moved to the
+  ACTIVE corpus; it had **PRE-PROMOTED** its delta into
+  `openspec/specs/standards-body-registry/spec.md`, a verbatim duplicate under
+  the archiver's `TBD - created by archiving` purpose line — **REMOVED**,
+  promotion being the archive step's act; and it declared `target_release: none`
+  while shipping a module, a validator line and tests, `none` being reserved for
+  `code_surface: none` — corrected to **`implemented`**, with the front matter
+  fenced so a machine reads it at all and an `ad_hoc` **origin declaration**
+  added (there is no staged topic; searched). **THE RELEASE-INVENTORY QUESTION
+  IS ANSWERED BY MEASUREMENT, NOT BY PREFERENCE**:
+  `contracts/policies/standards-bodies.yaml` is a member of NEITHER
+  `contracts/manifest.yaml` NOR
+  `contracts/releases/contract-v3.0.digests.yaml` (283 entries, zero under
+  `contracts/policies/`), so the policy edit raises **no**
+  `release-inventory-drift` finding, needs no editorial allowance, and **rides
+  this PR rather than the next cut**. One thing moved that is bookkeeping and
+  not realization: adopting an ADDED-only packet over a NEW capability with
+  novel requirement titles makes it an **ACTIVE SOLE modifier**, so the
+  `sequenced_after` live pin moves `sole_modifiers - 1` 48 → 49 and
+  `active_sole - 1` 11 → 12, and moves the two co-modified readings NOT AT ALL.
+  `change_ids - 1` reads **157** on the merged tree rather than the 156 this
+  packet alone would leave, because `add-project-repo-schema` landed on `main`
+  in the same window and is one more ACTIVE change too — and, carrying a
+  MODIFIED block where this packet carries none, it is that other packet and not
+  this one that moves `co_modified` and `active_co_modified` to 108 and 21. The
+  two sets of moves are DISJOINT except on the population count, so nothing here
+  is a net of opposed moves. Measured on all three trees and confirmed BY
+  EXCLUSION (dropping either packet from the merged corpus reproduces the other
+  branch's own reading exactly), moved in the same commit, with a dated MOVEMENT
+  LOG entry, which is that pin's own protocol.
 - [add-project-repo-schema](openspec/changes/add-project-repo-schema/proposal.md)
   — proposed 2026-09-02 as the FULL promotion of the `project-repo-schema` staged
   topic, on Brett Heap's in-session instruction *"start the
   add-project-repo-schema exit change"* — **admission into the proposal queue,
-  NOT a ratification; `Status: draft` and ratification is the convener's.**
+  NOT a ratification.** **`Status: ratified`** (2026-09-02, Brett Heap the
+  convener, in the working session, verbatim *"ratify it"*, read on the packet as
+  it landed on `main` at squash `642ac147` (#605) with five checks green; record
+  `openspec/changes/add-project-repo-schema/review/ratification-2026-09-02.md`).
+  **RATIFIED AND STILL ACTIVE**: `code_surface` is non-empty and
+  `target_release` names the next additive contract bundle after `contract-v3.0`,
+  so under `release-realization`'s realization archive gate it archives only when
+  that bundle is cut (`tasks.md` 9.3, UNTICKED and this packet's own act),
+  with 9.2 and 9.4 as the remaining archive preflight. `docs/project-repo-schema.md`
+  moved to `Status: ratified` + `Ratified by: add-project-repo-schema` at the same
+  act; `Status: standard` is not claimed and is not owed until promotion.
   **THE FORCING FINDING IS A GAP THE FAMILY ALREADY RULED ON AND NEVER WROTE
   DOWN.** `add-wallet-carried-review-authority` (ratified 2026-08-23) RECOMMENDS
   a SPEC/CODE/ASSEMBLY shape at `proposal.md:600-617`, rules who elects it (a

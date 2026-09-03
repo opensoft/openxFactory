@@ -196,6 +196,34 @@ currently declares — and it is not read backwards onto the five bundles the
 versioning policy records under § *Untagged Bundles After Enforcement Began*, all
 of which were publishable and were published.
 
+**What "inside the entry" means, since containment is the guard the state leans
+on hardest.** An entry runs from its `## <bundle>` heading to the next
+STRUCTURAL BOUNDARY, and every boundary closes it while only a `##` heading
+whose first token is a COMPLETE bundle name opens one — so a declaration under a
+non-release section, under a level-one heading, under an empty or Setext
+heading, or under `## contract-v3.0.1` sits inside NO entry and is REFUSED
+rather than inheriting the previous release's authority. Level THREE and deeper
+do not close (this repository's own reserved line lives inside a
+``### `contract-v2.6` disposition`` subsection of the `contract-v3.0` entry),
+and up to three leading spaces are a heading while four is an indented code
+block. **Fenced blocks are opaque** — to headings and to the reserved opener
+alike — so the form may be DOCUMENTED inside a fence without being PERFORMED,
+which is fail-closed in both directions: an example cannot spend a bundle, and a
+declaration hidden in a fence does not count, leaving the superseded `error`
+standing. Over-closing is the safe error and under-closing is not, which is what
+picks each of these readings.
+
+**Raw HTML is not read at all — it is REFUSED, and a fence is the only opaque
+region.** The family reads `contracts/CHANGELOG.md` as CommonMark PROSE and
+models no HTML block, so a raw-HTML block opener outside a fence (any of
+CommonMark's seven start conditions, at up to three leading spaces) produces one
+`contested` `error` naming the line, and NO SPENT declaration below that line is
+read — declarations above it stand, and any bundle a declaration below it would
+have quieted goes on being reported. A construct this reader cannot parse must
+never be able to quiet a finding, whatever a renderer makes of the lines below
+it; the repair is to remove the HTML or to move the declaration above it. An
+opener shown as an EXAMPLE inside a fence is not an opener.
+
 ## Finding Severities
 
 | Severity | Meaning | Examples |
