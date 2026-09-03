@@ -67,6 +67,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import unicodedata
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -1017,6 +1018,39 @@ STRAY_TEMP_TITLE_RE = re.compile(r"^xf-sync-[A-Za-z0-9_]+\.md$")
 RENAME_READY_TIMEOUT_S = 180
 RENAME_POLL_INTERVAL_S = 3
 
+#: How long to wait after a rename VERIFIES before re-reading it, to prove the
+#: steady state rather than a moment (issue #462).
+#:
+#: The number comes from the live evidence, not from taste. On 2026-08-28 two
+#: applies each had their rename poll pass on ATTEMPT 1 — id + title read back
+#: correctly — and the title later regressed to the temp filename, consistent
+#: with the provider re-stamping the title when ingestion of a 279KB body
+#: completes. In the same incident a rename issued against a FULLY INGESTED
+#: stray took immediately and was still in place 2+ minutes later. So the window
+#: that matters is the tail of ingestion, seconds-to-a-minute after the write is
+#: accepted, and it is bounded above by "renames on settled sources stick".
+#: 45s sits in the middle of that band: long enough that a re-stamp arriving on
+#: ingestion completion has landed before we look, short enough that it costs
+#: three quarters of a minute ONCE PER OVERSIZED DOCUMENT (a single document in
+#: the current corpus) rather than per source. It is a module constant so a test
+#: can patch it and so the number can be re-tuned from evidence, not by editing
+#: control flow.
+RENAME_SETTLE_DELAY_S = 45
+
+#: Byte-length window inside which a temp-titled stray is a CANDIDATE for the
+#: normalized-digest adoption fallback (issue #462).
+#:
+#: The provider does not return large bodies verbatim: all four strays of the
+#: 279,235-byte `ideation-dashboard` spec came back as 281,645 bytes — +2,410,
+#: a provider-side transformation the strict digest can never match. 4,096 bytes
+#: contains that case with room for the same class of transformation to grow a
+#: little, and is still only ~4% of the SMALLEST document that can reach this
+#: path at all (`MAX_TEXT_ARG_BYTES` = 100,000) and ~1.5% of the 279KB one that
+#: motivated it — a NARROW filter, not a catch-all. It is only ever a candidate
+#: filter: length alone never adopts anything. A candidate is adopted solely on
+#: a normalized-digest match, and only when exactly one candidate matches.
+ADOPTION_LENGTH_TOLERANCE_BYTES = 4_096
+
 
 def _content_digest(raw: str) -> str:
     """The ONE way this module compares source content.
@@ -1038,11 +1072,130 @@ def _content_digest(raw: str) -> str:
     return hashlib.sha256(source_content_text(str(raw)).encode()).hexdigest()[:16]
 
 
+def _normalized_digest(raw: str) -> str:
+    """A digest under the transformations a provider may DEFENSIBLY apply.
+
+    Used ONLY by the bounded adoption fallback, and only after the strict
+    `_content_digest` gate has failed. The strict digest stays the first gate
+    precisely because it cannot be argued with; this one is deliberately weaker
+    and therefore deliberately fenced (a byte-length tolerance plus a uniqueness
+    requirement — see `_adopt_matching_stray`).
+
+    The normalizations, each named so the weakening is auditable:
+
+      1. JSON unwrap — `source_content_text`, the same first step as
+         `_content_digest`, so a wrapped response is not a false mismatch.
+      2. Unicode NFC — a store that normalizes composition returns the same
+         text in a different encoding of the same characters.
+      3. Line endings — CRLF and lone CR fold to LF.
+      4. Trailing whitespace PER LINE is stripped.
+      5. Trailing newlines at the end of the document are stripped.
+
+    Nothing here is a guess about intent: each is a transformation that changes
+    bytes while preserving the document, and each is applied to BOTH sides.
+
+    WHAT IT IS NOT. It is not a characterization of the +2,410-byte
+    transformation observed on 2026-08-28 — every rule above can only SHRINK a
+    body, so none of them explains growth. That is the honest limit of this
+    function, and it is why the fallback's failure mode is a LOUD STOP rather
+    than a fresh upload: when normalization does not close the gap, the run says
+    so and names the hand repair instead of minting another duplicate.
+    """
+    body = source_content_text(str(raw))
+    body = unicodedata.normalize("NFC", body)
+    body = body.replace("\r\n", "\n").replace("\r", "\n")
+    body = "\n".join(line.rstrip() for line in body.split("\n"))
+    return hashlib.sha256(body.rstrip("\n").encode()).hexdigest()[:16]
+
+
 def _source_rows(handle: str) -> list[dict]:
     rows = nlm("source", "list", handle, "--json")
     if isinstance(rows, dict):
         rows = rows.get("sources") or []
     return [r for r in (rows or []) if isinstance(r, dict)]
+
+
+def _title_holds(handle: str, source_id: str, title: str) -> bool:
+    """Does THIS source id bear THIS title in a fresh listing?
+
+    The pair is the assertion, not the title alone: asking "does any source
+    carry this title?" returns success when a PRE-EXISTING source already wears
+    it while the one just uploaded sits un-renamed — a fail-open inside the
+    verifier written to close a fail-open (Copilot, PR #438).
+
+    Propagates a `RuntimeError` from an unreadable listing rather than reporting
+    False: "the answer is no" and "I could not look" are different facts and
+    each caller here treats them differently.
+    """
+    return any(str(r.get("id") or "") == source_id
+               and str(r.get("title") or "") == title
+               for r in _source_rows(handle))
+
+
+def _observed_title(handle: str, source_id: str) -> str:
+    """The title `source_id` currently wears, or `''` if it is not listed."""
+    try:
+        for row in _source_rows(handle):
+            if str(row.get("id") or "") == source_id:
+                return str(row.get("title") or "")
+    except RuntimeError:
+        return ""
+    return ""
+
+
+def _verify_rename_settled(handle: str, source_id: str, title: str) -> None:
+    """Re-read a VERIFIED rename after a settle delay; raise if it regressed.
+
+    Issue #462's second hole. A rename's read-back proves a moment. On
+    2026-08-28 two applies each passed the poll on attempt 1 — id + title read
+    back correctly — the manifest was written, the run exited 0, and the title
+    later regressed to the temp filename, consistent with the provider
+    re-stamping the title when ingestion of a 279KB body completes. The source
+    stranded exactly as it had before the #438 fix, with no line in the
+    transcript to say so.
+
+    ONE re-rename is attempted on a regression before raising, because it is
+    cheap (a single write against a source we have already identified) and by
+    then ingestion has had `RENAME_SETTLE_DELAY_S` longer to finish — which is
+    the state in which the live hand repair took immediately and held. It is one
+    retry, never a loop: a provider that re-stamps twice is a fact for an
+    operator to see, not one to spin on.
+
+    An unreadable listing counts as NOT VERIFIED here (`_observed_title` returns
+    `''`), which is the safe direction: this function exists because a title
+    that looks right can be wrong, so "I could not look" must not read as "it
+    held". The cost of a false alarm is a loud message naming a hand check; the
+    cost of a false all-clear is another stranded source and another duplicate
+    on the next run.
+    """
+    time.sleep(RENAME_SETTLE_DELAY_S)
+    observed = _observed_title(handle, source_id)
+    if observed == title:
+        print(f"    settle re-verify: title held ({RENAME_SETTLE_DELAY_S}s)")
+        return
+    print(f"    settle re-verify: title REGRESSED to {observed or '(unlisted)'!r} "
+          f"after {RENAME_SETTLE_DELAY_S}s — re-renaming once")
+    try:
+        nlm("source", "rename", source_id, title, "--notebook", handle,
+            parse=False)
+    except RuntimeError as exc:
+        print(f"    re-rename errored: {str(exc)[:160]}")
+    time.sleep(RENAME_SETTLE_DELAY_S)
+    settled = _observed_title(handle, source_id)
+    if settled == title:
+        print(f"    settle re-verify: title held after one re-rename "
+              f"({RENAME_SETTLE_DELAY_S}s)")
+        return
+    raise RuntimeError(
+        f"oversized source {title!r} ({source_id}) was renamed and verified, "
+        f"then REGRESSED to {settled or '(unlisted)'!r} within "
+        f"{RENAME_SETTLE_DELAY_S}s — twice, the second time after a re-rename "
+        f"(issue #462: the provider appears to re-stamp the title when "
+        f"ingestion of a large body completes). It is live under its temp "
+        f"filename. Wait until the source is fully ingested, then rename it by "
+        f"hand with `nlm source rename {source_id} {title!r} --notebook "
+        f"{handle}`, verify the title is STILL present a minute later, and "
+        f"re-plan — do NOT re-run the sync to fix it")
 
 
 def _rename_source_when_ready(handle: str, source_id: str, title: str) -> None:
@@ -1062,6 +1215,14 @@ def _rename_source_when_ready(handle: str, source_id: str, title: str) -> None:
     Raises on timeout rather than returning quietly: a silent failure here is
     what produced the stranded source and, worse, what let a re-run add a second
     one instead of repairing the first.
+
+    AND THE READ-BACK PROVES A MOMENT, NOT A STEADY STATE — which is issue #462's
+    second half. On 2026-08-28 both applies' polls passed on attempt 1 and the
+    title later regressed to the temp filename, so the run exited 0 over a
+    stranded source all over again. After the poll confirms, the title is
+    therefore RE-READ after `RENAME_SETTLE_DELAY_S` (`_verify_rename_settled`),
+    one re-rename is attempted if it regressed, and a regression that survives
+    that retry raises here — the same loud path as a rename that never took.
     """
     # BOUNDED BY ATTEMPTS AS WELL AS WALL TIME. A caller that patches
     # `time.sleep` to a no-op (every test in this suite does) would otherwise
@@ -1078,21 +1239,20 @@ def _rename_source_when_ready(handle: str, source_id: str, title: str) -> None:
                 parse=False)
         except RuntimeError as exc:                       # noqa: PERF203
             last = str(exc)[:200]
-        # The read-back IS the check — AND IT KEYS ON THE SOURCE ID, not the
-        # title alone. Asking "does any source carry this title?" returns
-        # success when a PRE-EXISTING source already wears it while the one just
-        # uploaded sits un-renamed: a fail-open inside the verifier written to
-        # close a fail-open (Copilot, PR #438). The pair is what is being
-        # asserted — THIS source now bears THIS title.
+        # The read-back IS the check, and it asserts the PAIR (see
+        # `_title_holds`): THIS source now bears THIS title.
+        confirmed = False
         try:
-            if any(str(r.get("id") or "") == source_id
-                   and str(r.get("title") or "") == title
-                   for r in _source_rows(handle)):
-                if attempts > 1:
-                    print(f"    rename settled after {attempts} attempts")
-                return
+            confirmed = _title_holds(handle, source_id, title)
         except RuntimeError as exc:
             last = f"source list unreadable: {str(exc)[:160]}"
+        if confirmed:
+            # OUTSIDE the try above deliberately: `_verify_rename_settled`
+            # raises RuntimeError on a regression, and catching it here would
+            # feed the loud path straight back into the poll loop.
+            print(f"    renamed on attempt {attempts}")
+            _verify_rename_settled(handle, source_id, title)
+            return
         if attempts >= max_attempts or time.monotonic() >= deadline:
             raise RuntimeError(
                 f"oversized source {title!r} uploaded as {source_id} but the "
@@ -1104,6 +1264,48 @@ def _rename_source_when_ready(handle: str, source_id: str, title: str) -> None:
         time.sleep(RENAME_POLL_INTERVAL_S)
 
 
+@dataclass(frozen=True)
+class _Stray:
+    """One temp-titled source, with its body fetched ONCE.
+
+    `raw` is the CLI's response UNCHANGED — every digest in this module unwraps
+    for itself, and pre-unwrapping here would silently double-unwrap a body that
+    is itself JSON. `length` is the byte length of the UNWRAPPED body, because
+    that is the document's size and the JSON envelope is not part of it.
+    """
+    source_id: str
+    title: str
+    raw: str
+    length: int
+
+
+def _stray_uploads(handle: str) -> list[_Stray]:
+    """Every `xf-sync-*.md` stray in the book, body fetched once each.
+
+    One fetch per stray serves both adoption gates — a stray whose content
+    cannot be read is dropped, exactly as before, because a body we cannot read
+    can match nothing.
+    """
+    try:
+        rows = _source_rows(handle)
+    except RuntimeError:
+        return []
+    strays: list[_Stray] = []
+    for row in rows:
+        row_title = str(row.get("title") or "")
+        source_id = row.get("id")
+        if not source_id or not STRAY_TEMP_TITLE_RE.match(row_title):
+            continue
+        try:
+            raw = str(nlm("source", "content", source_id, parse=False) or "")
+        except RuntimeError:
+            continue
+        body = source_content_text(raw)
+        strays.append(_Stray(str(source_id), row_title, raw,
+                             len(body.encode("utf-8", "replace"))))
+    return strays
+
+
 def _adopt_matching_stray(handle: str, text: str, title: str) -> bool:
     """Rename an already-uploaded stray into place instead of adding a duplicate.
 
@@ -1112,38 +1314,90 @@ def _adopt_matching_stray(handle: str, text: str, title: str) -> bool:
     (proven live 2026-08-27: canon reached 120 sources with two `xf-sync-*.md`
     entries for one document). The failure compounded instead of healing.
 
-    A stray is adopted only when its CONTENT MATCHES the document being added,
-    on the same digest the manifest uses. If the provider does not return the
-    body verbatim the digests differ, no stray is adopted, and the caller falls
-    through to a normal add — the pre-existing behaviour. So the check can only
-    repair or do nothing; it can never adopt the wrong source.
+    THE STRICT DIGEST IS STILL THE FIRST GATE. A stray whose content matches the
+    document on the manifest's own digest is adopted, full stop — no tolerance,
+    no normalization, nothing to argue with.
+
+    THEN A BOUNDED FALLBACK, for the class that gate can never match (issue
+    #462). The provider does not return large bodies verbatim: all four strays of
+    the 279,235-byte `ideation-dashboard` spec came back as 281,645 bytes, so the
+    strict digest differed every time and the "safe" fall-through to a normal add
+    minted a fresh duplicate on every run. For that class the fallback considers
+    ONLY strays whose body length is within `ADOPTION_LENGTH_TOLERANCE_BYTES` of
+    the projected body, compares `_normalized_digest` on both sides, and adopts
+    when EXACTLY ONE candidate matches. Length never adopts anything by itself,
+    and a title pattern never adopts anything at all — `STRAY_TEMP_TITLE_RE` only
+    decides what is a candidate to compare.
+
+    AND WHEN THE FALLBACK CANNOT DECIDE, THE RUN STOPS — it does not upload.
+    A within-tolerance stray that does not match, or more than one match, is the
+    exact state in which uploading again is the compounding path the issue
+    describes (two applies took canon from 3 strays to 4, silently, exit 0). So
+    this raises, naming every candidate with its byte length, the projected byte
+    length, and the hand adoption. The run's other books still complete: `main`
+    contains a book's failure and exits nonzero at the end.
+
+    With NO within-tolerance stray there is nothing to compound and nothing to
+    decide, so the caller falls through to a normal add — the pre-existing
+    behaviour, unchanged.
     """
-    want = _content_digest(text)
-    try:
-        rows = _source_rows(handle)
-    except RuntimeError:
+    strays = _stray_uploads(handle)
+    if not strays:
         return False
-    for row in rows:
-        row_title = str(row.get("title") or "")
-        source_id = row.get("id")
-        if not source_id or not STRAY_TEMP_TITLE_RE.match(row_title):
-            continue
-        try:
-            body = nlm("source", "content", source_id, parse=False) or ""
-        except RuntimeError:
-            continue
-        if _content_digest(body) != want:
-            continue
-        print(f"    adopting stray {row_title} as {title!r} "
-              f"(a previous run's rename did not take)")
-        _rename_source_when_ready(handle, source_id, title)
+
+    want = _content_digest(text)
+    for stray in strays:
+        if _content_digest(stray.raw) == want:
+            print(f"    adopted stray {stray.source_id} by strict digest "
+                  f"({stray.title} -> {title!r}; a previous run's rename did "
+                  f"not take)")
+            _rename_source_when_ready(handle, stray.source_id, title)
+            return True
+
+    want_len = len(text.encode("utf-8", "replace"))
+    near = [s for s in strays
+            if abs(s.length - want_len) <= ADOPTION_LENGTH_TOLERANCE_BYTES]
+    if not near:
+        return False
+    want_norm = _normalized_digest(text)
+    matched = [s for s in near if _normalized_digest(s.raw) == want_norm]
+    if len(matched) == 1:
+        stray = matched[0]
+        print(f"    adopted stray {stray.source_id} by normalized digest "
+              f"({stray.title} -> {title!r}; provider body {stray.length}B vs "
+              f"projected {want_len}B)")
+        _rename_source_when_ready(handle, stray.source_id, title)
         return True
-    return False
+
+    listed = "; ".join(f"{s.source_id} ({s.title}, {s.length}B)" for s in near)
+    raise RuntimeError(
+        f"oversized source {title!r}: REFUSING to upload another copy. The "
+        f"projected body is {want_len}B and this book already holds "
+        f"{len(near)} temp-titled stray(s) within "
+        f"{ADOPTION_LENGTH_TOLERANCE_BYTES}B of it: {listed}. Adoption needs "
+        f"exactly ONE of them to match on the provider-normalized digest and "
+        f"{len(matched)} did, so adopting would be a guess and adding would "
+        f"mint yet another duplicate (issue #462: two applies took xf-canon "
+        f"from three strays to four, silently). Adopt by hand instead: rename "
+        f"ONE fully-ingested stray to the contract title with `nlm source "
+        f"rename <stray-id> {title!r} --notebook {handle}`, wait, verify the "
+        f"title is STILL present, then re-plan — and delete the remaining "
+        f"duplicates once you have confirmed what they are. Do NOT re-run "
+        f"--apply to repair this: each run mints another stray")
 
 
 def add_text_source(handle: str, text: str, title: str) -> None:
     """Add one text source, riding a temp file + rename when the content is
-    too large for a single argv string (see MAX_TEXT_ARG_BYTES)."""
+    too large for a single argv string (see MAX_TEXT_ARG_BYTES).
+
+    THE OVERSIZED PATH NARRATES ITSELF, even when it succeeds (issue #462): the
+    upload's source id, the attempt the rename took on, the settle re-verify, and
+    any adoption each print a sub-line. Both stray-minting applies on 2026-08-28
+    were indistinguishable in the transcript from clean ones — a bare `ADD` line
+    and nothing else — which is how they went unnoticed until parity read the
+    document MISSING. Two lines of output are the difference between a run whose
+    outcome is visible and one whose outcome has to be reconstructed afterwards.
+    """
     if len(text.encode("utf-8", "replace")) <= MAX_TEXT_ARG_BYTES:
         _add_with_one_retry("source", "add", handle, "--text", text,
                             "--title", title)
@@ -1162,6 +1416,8 @@ def add_text_source(handle: str, text: str, title: str) -> None:
             raise RuntimeError(
                 f"oversized source {title!r} uploaded but the CLI echoed no "
                 f"source id to rename — rename it to the contract title by hand")
+        print(f"    uploaded as {m.group(1)} "
+              f"({len(text.encode('utf-8', 'replace'))}B, as a temp file)")
         _rename_source_when_ready(handle, m.group(1), title)
     finally:
         os.unlink(tmp)
