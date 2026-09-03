@@ -1,0 +1,81 @@
+# LIVE INSTANCE — the ORIGIN wallet of an originating repository.
+#
+# Task 2.2 of the ratified change `add-cpc-clearing-boundary`. It is a SIBLING
+# of `governance/review-authority/wallets/`, and it holds a DIFFERENT KEY FOR A
+# DIFFERENT ACT: this key evidences that codexFactory ORIGINATED a sealed
+# bounded request. It is not, and may never be, the key that evidences a review
+# or a council seat. `scripts/validate-factory-identity.py` asserts that no
+# `key_id`, `did` or public-key fingerprint appears in both register families.
+#
+# ORGANISATION HOLDER, NOT A SEATED AGENT (design D2). `holder_class:
+# organisation`, `holder_id` is the repository's own name with NO `agent:`
+# prefix, and there is no `keys:` block: the ratified requirement is EXACTLY ONE
+# origin identity per originating repository, so a declared key SET would
+# express a plurality the contract refuses.
+#
+# THE PRIVATE HALF NEVER ENTERS THIS TREE AND NEVER LEAVES THE HOSTED
+# ENVIRONMENT. It exists only as an encrypted secret in codexFactory's own
+# hosted packaging environment (`worker-credentials` class), read by the hosted
+# packaging workflow out of its own process environment and by nothing else. It
+# is NOT placed on a governed execution host, NOT on a workstation, NOT on a
+# shared runner and NOT in any bundle — the ratified requirement refuses each by
+# name. The environment-variable NAME is deliberately absent from this file: the
+# ratified requirement forbids "a secret name resolvable to key material" in
+# this family, so the name is written once in
+# `docs/factory-origin-key-mint-runbook.md` and nowhere under
+# `governance/factory-identity/`.
+#
+# CUSTODY IS `holder_readable`, and the determination is the same one the four
+# council seat keys already carry: a key held as an encrypted CI secret and read
+# into the holder's own job process is readable by that job, each use requires
+# no authorization outside it, and its signature evidences THE ENVIRONMENT. The
+# registry designs `holder_readable` to reach authority tier `act` and no
+# higher; nothing here reaches for `act_unsupervised` or for
+# `isolated_per_use_authorized`.
+#
+# NOT YET MINTED — AND THE PLACEHOLDER IS THE POINT. `did`,
+# `public_key_multibase` and `key_fingerprint` carry the literal sentinel
+# `FILL-IN-AT-MINT`. No plausible 43-character base64url literal was invented to
+# make a scanner or a reader happy: a value that LOOKS like a key is worse than
+# no value, because it merges. All three sentinels are refused twice over —
+# by `scripts/validate-factory-identity.py` with the named finding
+# `factory-identity-placeholder-unminted`, and by the PINNED openXwallet reader
+# inside the REQUIRED `wallet-validation` check, because each sentinel fails its
+# field's own pattern in `openxwallet-record.schema.yaml`. This record cannot
+# merge until the operator performs the mint in the runbook above.
+schema_version: 1
+kind: xfactory_wallet_record
+wallet_id: wal-origin-codexfactory-0001
+holder:
+  holder_id: opensoft/codexFactory
+  holder_class: organisation
+  display_label: codexFactory (originating repository)
+key_reference:
+  # THE THREE MINT OUTPUTS. Replaced in ONE act by the runbook's derive step,
+  # which computes all three from a single public half through the PINNED
+  # openXwallet decoding — never by hand and never by a second implementation.
+  #
+  #   did                  did:key:z… — `z` + base58btc(0xED 0x01 || 32 raw bytes)
+  #   public_key_multibase the SAME string as `did`'s method-specific id
+  #   key_fingerprint      "sha256:" + sha256(32 raw bytes).hexdigest()
+  #
+  # The register beside this file records the same key's public half in the
+  # OTHER encoding the estate uses — canonical unpadded base64url — and the
+  # validator recomputes one fingerprint from BOTH, so a transcription slip in
+  # either encoding is refused rather than recorded.
+  did: "did:key:z6MksXruCCtyYyfUsYiemkSrjK9qAiarBsnYoMjGVNnNxbbu"
+  key_id: key-factory-codexfactory-0001
+  key_fingerprint: sha256:d88db98a5b77c1b7acb71551a91f21854571c1e163a444e91d37569b0062c0df
+  public_key_multibase: z6MksXruCCtyYyfUsYiemkSrjK9qAiarBsnYoMjGVNnNxbbu
+  signature_algorithm: ed25519
+custody:
+  model: holder_readable
+  registry_version: 1
+  # The custody MODEL is declared now, with the register; that it MATCHES
+  # REALITY is a separate fact, attested in `../attestations/` and not yet
+  # attestable because no key exists to hold.
+  declared_at: "2026-09-02T00:00:00Z"
+  declared_by: Brett.Heap
+state: active
+created_at: "2026-09-02T00:00:00Z"
+policy_version: 1

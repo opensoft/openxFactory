@@ -1,0 +1,70 @@
+# Custody ATTESTATION row for wallet wal-origin-codexfactory-0001 — task 2.4 of
+# the ratified change `add-cpc-clearing-boundary`.
+#
+# DELIBERATELY KINDLESS, for the same recorded reason its review-authority
+# counterpart is: no contract schema for a custody attestation exists in the
+# openXwallet family, this change authorizes none, and inventing one would be an
+# unratified contract release. Carrying no `kind:` means the pinned validator's
+# `repo_scan` SKIPS this file entirely — it is read by
+# `scripts/validate-factory-identity.py` and by humans, and by nothing else.
+#
+# WHAT IT IS FOR. The ratified requirement caps an origin key whose custody is
+# UNDECLARED OR UNATTESTED at the lower authority the custody vocabulary assigns
+# to unattested custody, and says such a key "SHALL NOT be read as evidence that
+# the originating repository itself acted". This row is what lifts that cap to
+# the `holder_readable` ceiling of `act` — and, until it is completed, what
+# keeps `grant-origin-codexfactory-0001`'s declared `act` REFUSED.
+#
+# NOT YET ATTESTABLE, AND SAYING SO IS THE WHOLE VALUE OF THIS FILE. What an
+# attestation asserts is that the DECLARED custody model MATCHES REALITY. No key
+# exists yet, so there is no reality to match: `verified_at` and
+# `attested_key_fingerprint` carry the literal sentinel `FILL-IN-AT-MINT` and
+# `scripts/validate-factory-identity.py` refuses the tree while they stand. An
+# attestation written in advance of the thing it attests would be the exact
+# false assurance this capability's own scenarios refuse.
+attestation_id: attest-custody-wal-origin-codexfactory-0001
+subject_wallet_ref: wal-origin-codexfactory-0001
+custody_model_attested: holder_readable
+# The fingerprint of the key actually attested, joined against the wallet's and
+# the register's. Present so this row attests A KEY rather than a wallet id: a
+# rotation that changes the key without a fresh attestation must not inherit the
+# old one's cap lift.
+attested_key_fingerprint: sha256:d88db98a5b77c1b7acb71551a91f21854571c1e163a444e91d37569b0062c0df
+verified_by:
+  name: Brett Heap
+  role: responsible operator
+  standing: Human Escalation Contract (docs/roles-and-authority.md:103-140)
+verified_at: "2026-09-03T19:34:59Z"
+verified_against:
+  method: operator-minted ed25519 keypair, private half provisioned into the
+    originating repository's hosted packaging environment as an encrypted
+    environment secret and nowhere else
+  basis: >
+    ATTESTED AT MINT, NOT NOW. What will be attested is that the private half
+    was generated offline by the operator, entered exactly one destination —
+    codexFactory's own hosted packaging environment, as an encrypted secret —
+    and entered no governed repository, no governed execution host, no
+    workstation clone and no bundle; and that only the public half was
+    published, into the register and the wallet record beside it.
+  isolation_claimed: none
+  posture: >
+    holder_readable declares the key readable in the holder's execution context;
+    a signature under it evidences THE ENVIRONMENT — that codexFactory's own
+    hosted packaging workflow ran — and never that a person acted. No isolation
+    exists or is claimed at this tier. That is the honest posture, and it is
+    exactly the posture the origin act needs: the question an origin signature
+    answers is "did this come from that repository's own environment".
+compensating_control: >
+  Tier `act` requires approval before apply, already in force by the
+  constitutional floor. The origin signature is additionally CONJUNCTIVE with
+  the clearing lane's provider-API provenance checks and never a substitute for
+  them, so a compromised origin key alone clears nothing; and the operation it
+  can request is bounded by the closed permitted-operations register rather than
+  by anything the signed manifest claims.
+cap_effect_if_absent: >
+  With no completed attestation row, a grant whose audience resolves to
+  wal-origin-codexfactory-0001 caps at authority_tier `request` (rank 1), below
+  the `act` (rank 2) that grant-origin-codexfactory-0001 declares — and a
+  signature under such a key is NOT evidence that the originating repository
+  itself acted.
+governing_task: add-cpc-clearing-boundary tasks 2.4

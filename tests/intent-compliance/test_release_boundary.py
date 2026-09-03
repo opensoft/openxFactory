@@ -47,6 +47,13 @@ class ReleaseState(StrEnum):
     intent-compliance member, so the membership this file asserts is again
     UNCHANGED. A major is not by itself a reason to expect movement here, and
     "unchanged" still has to be said by hand rather than inferred.
+    Advanced again at the ``contract-v3.1`` cut (add-project-repo-schema:
+    the project-register election and its ``openRepoShape`` consumption
+    pin) on the same reading: the ONE registered row that cut moves is
+    ``scripts/validate-ideation-dashboard-contracts.py``, and it touches NO
+    intent-compliance member, so the membership this file asserts is again
+    UNCHANGED. Said by hand, like every advance above it, because
+    "unchanged" is the one thing the library cannot tell from "unnoticed".
     ``contract-v2.6`` stays named above although it was never published: its
     number is spent, and a value this enum has been told how to classify costs
     nothing to keep while removing it would make a historical manifest
@@ -59,6 +66,7 @@ class ReleaseState(StrEnum):
     FEATURE_SUCCESSOR_2 = "contract-v2.5"
     FEATURE_SUCCESSOR_3 = "contract-v2.6"
     FEATURE_SUCCESSOR_4 = "contract-v3.0"
+    FEATURE_SUCCESSOR_5 = "contract-v3.1"
 
 
 def _release_state() -> ReleaseState:
@@ -147,6 +155,7 @@ def test_release_membership_when_registration_changes_then_transition_is_atomic(
             | ReleaseState.FEATURE_SUCCESSOR_2
             | ReleaseState.FEATURE_SUCCESSOR_3
             | ReleaseState.FEATURE_SUCCESSOR_4
+            | ReleaseState.FEATURE_SUCCESSOR_5
         ):
             assert feature_members | {"scripts/__init__.py"} <= members
         case unreachable:
@@ -180,6 +189,7 @@ def test_release_inventory_when_registration_changes_then_schema_pins_are_atomic
             | ReleaseState.FEATURE_SUCCESSOR_2
             | ReleaseState.FEATURE_SUCCESSOR_3
             | ReleaseState.FEATURE_SUCCESSOR_4
+            | ReleaseState.FEATURE_SUCCESSOR_5
         ):
             for path in schema_paths:
                 assert entries[path]["schema_id"].startswith("intent-compliance-")
