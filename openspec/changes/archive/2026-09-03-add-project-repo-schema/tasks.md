@@ -253,17 +253,54 @@ the archive gate, and each names its owner where 9.3 names this packet.
       spelling being the legal one for a proposal (there is no approving change
       other than itself to name). That record also carries the archive decision
       and the evidence table it rests on.
-- [ ] **9.2** STILL OPEN — archive preflight. Before archive, re-verify the pin against openRepoShape at the
-      recorded commit and re-run the four validator lines in slices 4 and 5, so
-      the archive gate promotes deltas over a tree that still holds.
-- [ ] **9.3** STILL OPEN, AND IT IS THE ARCHIVE BLOCKER — this packet's own act,
-      not a successor's. Cut the next additive contract bundle carrying
-      `scripts/validate-ideation-dashboard-contracts.py`'s new bytes — manifest
-      row, `contracts/CHANGELOG.md` entry, release digest inventory and the
-      annotated tag, allocated by merge order at realization. Until it is cut,
-      `release-inventory-drift` reporting that validator is the EXPECTED
-      between-cuts state; NEVER hand-edit the inventory or
-      `contract_bundle_version` to silence it.
-- [ ] **9.4** STILL OPEN — archive preflight. Package `supporting-docs/` into the deterministic bundle with its
-      readable manifest (`proposal-support.py package`), per
-      `release-realization`'s proposal-support archive gate.
+- [x] **9.2** **DONE 2026-09-03**, in the cutting session's own pull request.
+      Re-verified `contracts/openreposhape-pin.yaml` against the real
+      `opensoft/openRepoShape` bytes at `deacbdcce4f52af427bcb4edd075fcc992e3dabe`
+      via `python3 scripts/validate-openreposhape-pin.py --from-gh` →
+      `OK openreposhape-pin verified … 16 digest(s) recomputed, 18 member(s)
+      present, 34 file(s) declared with none undeclared`, exit 0. Re-ran the
+      four validator lines slices 4 and 5 recorded: `python3 -m pytest
+      tests/openreposhape_pin/ -q` → `21 passed`; `python3 -m pytest
+      tests/ideation_dashboard/ tests/openreposhape_pin/ -q` → `95 passed`;
+      `python3 scripts/validate-ideation-dashboard-contracts.py` →
+      `0 error(s), 0 warning(s)`. The tree still holds.
+- [x] **9.3** **DONE, AS `contract-v3.1`** — cut in the cutting session's own
+      pull request, from a clean worktree at `origin/main`. Fresh-counted per
+      the versioning policy's realization order:
+      `contracts/manifest.yaml:3` declared `contract-v3.0`; `contracts/releases/`
+      held inventories through `contract-v3.0.digests.yaml`; the annotated tag
+      `contract-v3.0` is published; `grep -rl project-repo-schema
+      contracts/releases/contract-v3.0.digests.yaml` finds nothing, so v3.0
+      covers none of this family. Next additive number: **`contract-v3.1`**,
+      taken here. Landed atomically in the cut commit:
+      `contracts/manifest.yaml` (`contract_bundle_version` `contract-v3.0` →
+      `contract-v3.1`), `contracts/CHANGELOG.md` (the `contract-v3.1` entry,
+      ADDITIVE, with the nothing-narrows measurement), `contracts/README.md`
+      (the `project-register.schema.yaml` row's editorial description), and
+      `contracts/releases/contract-v3.1.digests.yaml` (built LAST, via
+      `python3 scripts/validate-contract-release.py build --tag contract-v3.1
+      --output contracts/releases/contract-v3.1.digests.yaml`, 283 entries in,
+      283 out — the count is unchanged because no member enters or leaves the
+      closed release surface, only two members' bytes move:
+      `scripts/validate-ideation-dashboard-contracts.py`, this packet's own
+      registered row, and `docs/contract-versioning-policy.md`, re-baselined
+      here for an UNRELATED drift, PR #577's `contract-v2.6` Instance Six
+      recording). **NOT HERE, and deliberately: the `contract-v3.1` TAG.**
+      Policy step 5 publishes the annotated tag against the commit that
+      actually LANDS on `main`, so until this branch merges there is nothing
+      honest to name; the post-merge commands are recorded in the pull
+      request body. Realization evidence — the `MedxSoft/MedxScribe` TEMPORARY
+      pilot of 2026-09-02, and the real adoptions `MedxSoft/MedxEHR`
+      (converted in place, root `f1e07bd`) and `MedxSoft/MedxGlass`
+      (scaffolded as a declared `openGlass` descendant, root `a0e1897`), both
+      bootstrap-verified against `opensoft/openRepoShape@51836ba`
+      (`update-shape`, `v0.3`) — is carried into the archived packet at
+      archive time, per the release-realization archive gate.
+- [x] **9.4** **DONE 2026-09-03.** `python3 scripts/proposal-support.py .
+      package add-project-repo-schema --date 2026-09-03 --apply` converted
+      `supporting-docs/` into `supporting-docs.tar.gz` +
+      `supporting-docs.manifest.yaml` with a verified deterministic bundle
+      (`proposal-support.py . verify add-project-repo-schema` → "proposal
+      support verification ok" both before and after), satisfying
+      `release-realization`'s proposal-support archive gate ahead of
+      `openspec archive`.
