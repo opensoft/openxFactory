@@ -995,44 +995,45 @@ def test_an_html_block_that_closes_on_its_opening_line_swallows_nothing(
         f"the `## Notes` boundary")
 
 
-def test_a_type_one_html_block_ends_only_on_its_own_closing_tag():
-    """CODEX AND COPILOT, INDEPENDENTLY, ROUND 6 — the other hole round 5
-    opened. A shared closer let `</script>` end a `<pre>` block, and the lines
-    after the mismatch stopped being opaque while CommonMark still reads them as
-    `<pre>` content."""
-    # a mismatched closer must NOT end the block: the fence-shaped line after
-    # it is still content, so the reader never goes out of phase
-    mismatched = "\n".join(["## contract-v3.0 — a cut", "",
-                            "<pre>", "</script>", "```bad", "",
-                            "## Notes", "", "```", _spent_line(), "```", ""])
-    assert rtp.parse_spent_declarations(mismatched) == []
+def test_a_type_one_html_block_ends_on_ANY_of_the_four_end_tags():
+    """THE SPEC SAYS SO IN WORDS, AND ROUND 6 SHIPPED THE OPPOSITE.
 
-    # and the boundary after the mismatch is CONTENT, so a declaration below
-    # the real `</pre>` is still inside the entry — over-closing here would
-    # refuse a correctly contained declaration
-    still_content = "\n".join(["## contract-v3.0 — a cut", "",
-                               "<pre>", "</script>", "## Notes", "",
-                               "</pre>", "", _spent_line()])
-    read = rtp.parse_spent_declarations(still_content)
-    assert len(read) == 1 and read[0].entry == "contract-v3.0"
+    CommonMark's end condition for an HTML block of kind 1 is *"line contains
+    an end tag `</script>`, `</pre>`, `</style>`, or `</textarea>`
+    (case-insensitive; IT NEED NOT MATCH THE START TAG)"*.
 
-    # THE CONTROL FOR THE HOLE THIS FIX COULD OPEN: the MATCHING closer must
-    # still close, or a `<pre>` block would swallow the rest of the document.
-    matching = "\n".join(["## contract-v3.0 — a cut", "",
-                          "<pre>", "x", "</pre>", "",
-                          "## Notes", "", _spent_line()])
-    read = rtp.parse_spent_declarations(matching)
-    assert len(read) == 1 and read[0].entry is None
+    Codex and Copilot INDEPENDENTLY asked for a matching closer in round 6, and
+    their agreement was taken as corroboration. Both were wrong, and the fix
+    they asked for INTRODUCED the escape class it claimed to close: requiring
+    `</pre>` made this reader more opaque than CommonMark, so the `## Notes`
+    below was swallowed and the declaration was ACCEPTED under an entry it is
+    not inside. Measured against a reference CommonMark implementation, which
+    ends the block exactly where the spec says.
+    """
+    doc = "\n".join(["## contract-v2.6 — an earlier cut", "",
+                     "## contract-v3.0 — a cut", "",
+                     "<pre>", "</script>", "## Notes", "</pre>", "",
+                     _spent_line()])
+    read = rtp.parse_spent_declarations(doc)
+    assert len(read) == 1 and read[0].entry is None, (
+        "the block did not end at `</script>`, so the `## Notes` heading was "
+        "swallowed and the declaration kept an entry it is not inside")
 
-    # and each of the four tags closes on its own and on no other
-    for tag in ("pre", "script", "style", "textarea"):
-        other = "script" if tag != "script" else "pre"
-        doc = "\n".join(["## contract-v3.0 — a cut", "",
-                         f"<{tag}>", f"</{other}>", "## Notes", "",
-                         f"</{tag}>", "", _spent_line()])
-        read = rtp.parse_spent_declarations(doc)
-        assert len(read) == 1 and read[0].entry == "contract-v3.0", (
-            f"</{other}> ended a <{tag}> block")
+    # each of the four ends a block opened by any of them
+    for opener in ("pre", "script", "style", "textarea"):
+        for closer in ("pre", "script", "style", "textarea"):
+            doc = "\n".join(["## contract-v3.0 — a cut", "",
+                             f"<{opener}>", f"</{closer}>", "## Notes", "",
+                             _spent_line()])
+            read = rtp.parse_spent_declarations(doc)
+            assert len(read) == 1 and read[0].entry is None, (
+                f"</{closer}> did not end a <{opener}> block")
+
+    # AND THE CONTROL, so this is not satisfied by the block never opening:
+    # with no end tag at all the block runs on and the heading IS swallowed.
+    doc = "\n".join(["## contract-v3.0 — a cut", "",
+                     "<pre>", "## Notes", "", _spent_line()])
+    assert rtp.parse_spent_declarations(doc) == []
 
 
 def test_an_unclosed_type_one_block_is_opaque_to_the_end_and_that_is_safe():

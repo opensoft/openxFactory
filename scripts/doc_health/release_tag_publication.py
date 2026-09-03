@@ -386,17 +386,28 @@ _HTML_OPENERS = (
     ("html6", re.compile(rf"^ {{0,3}}</?({_HTML_TYPE6_TAGS})([ \t\v\f]|/?>|$)",
                          re.I)),
 )
-# KIND 1 CLOSES ON ITS OWN TAG AND NOT ON ANY OF THE FOUR — found by Codex AND
-# by Copilot independently in round 6, on the round-5 fix. A shared
-# `</(pre|script|style|textarea)>` let `</script>` end a `<pre>` block, and the
-# lines after the mismatch stopped being opaque while CommonMark still reads
-# them as `<pre>` content: a fence-shaped line there put the reader back out of
-# phase and a declaration was ACCEPTED under the earlier entry. The state
-# therefore CARRIES the tag that opened the block.
-_HTML_TYPE1_CLOSERS = {
-    tag: re.compile(rf"</{tag}>", re.I)
-    for tag in ("pre", "script", "style", "textarea")}
+# KIND 1 ENDS ON ANY OF THE FOUR END TAGS, AND THE SPEC SAYS SO IN WORDS:
+# "line contains an end tag </script>, </pre>, </style>, or </textarea>
+# (case-insensitive; IT NEED NOT MATCH THE START TAG)".
+#
+# ROUND 6 GOT THIS WRONG IN BOTH DIRECTIONS AT ONCE, AND IT IS THE MOST
+# INSTRUCTIVE FAILURE ON THIS BRANCH. Codex and Copilot INDEPENDENTLY asked for
+# a matching closer, twenty-five minutes apart, and their agreement was taken as
+# corroboration — two reviewers converging on a precise mechanism. Both were
+# wrong on the specification, and the fix they asked for INTRODUCED the very
+# escape class it claimed to close: requiring `</pre>` to end a `<pre>` block
+# made this reader MORE OPAQUE than CommonMark, so a real `## Notes` heading
+# after a `</script>` was swallowed and a declaration below it was ACCEPTED
+# under an entry it is not inside. Measured against a reference CommonMark
+# implementation, which ends the block exactly where the spec says.
+#
+# WHAT IT COST TO FIND: nothing a bot round produced. Both bots had reviewed the
+# fix and neither retracted it; it surfaced only when the reader's boundary
+# decisions were run as a DIFFERENTIAL against a reference parser over every
+# construct this branch had touched. Bot agreement is not evidence about a
+# specification — a differential is.
 _HTML_CLOSERS = {
+    "html1": re.compile(r"</(pre|script|style|textarea)>", re.I),
     "html2": re.compile(r"-->"),
     "html3": re.compile(r"\?>"),
     "html4": re.compile(r">"),
@@ -571,8 +582,6 @@ def _html_closed(kind: str, tag: str, line: str) -> bool:
     declaration kept the earlier entry and was ACCEPTED. Reproduced for all five
     of comment, declaration, processing instruction, CDATA and `<pre>`.
     """
-    if kind == "html1":
-        return _HTML_TYPE1_CLOSERS[tag].search(line) is not None
     end = _HTML_CLOSERS.get(kind)
     if end is not None:
         return end.search(line) is not None

@@ -414,3 +414,87 @@ standing discipline:
 
 Counts after round 6: family file **117 passed**, `tests/doc-health`
 **1482 passed, 0 failed**.
+
+## § K — the DIFFERENTIAL, and the escape that a bot round PUT THERE
+
+After round 8 the reader's boundary decisions were run as a **differential
+against a reference CommonMark implementation** (markdown-it-py 3.0.0), over
+**31 constructs — every shape this branch has touched**. The question asked of
+both, per document: *is this line a heading?* — which is exactly the question
+containment turns on.
+
+markdown-it-py is a **measuring instrument in a scratch probe only**. It is not
+imported by `doc_health`, which is stdlib-only, it is not added to any test, and
+it is not a dependency of this repository.
+
+### The instrument had to be fixed before it could be trusted
+
+The first harness searched for the literal text `## Notes` and split documents
+with Python's `splitlines()`. It reported **six** disagreements, of which
+**five were its own**: `splitlines()` broke on U+2028 and shifted the line
+index, and `.strip().startswith("## Notes")` missed `##\tNotes` and `# Notes`.
+Worse, two probe files had been written with LITERAL U+00A0 and U+2028 that
+were **normalised to plain spaces on write** — so those rows tested nothing
+they claimed to. That is the round-3 lesson (`NBSP` named rather than typed)
+arriving a second time, in the probes rather than the tests. The corrected
+harness is index-based and uses escapes.
+
+**A measuring instrument that can report a disagreement it invented is worth
+less than none**, and the correction is recorded rather than quietly applied.
+
+### What the corrected differential found: 31 constructs, 3 disagreements
+
+| disagreement | verdict |
+|---|---|
+| `### subsection` does not close an entry | **DELIBERATE and load-bearing.** This repository's live declaration sits inside a ``### `contract-v2.6` disposition`` subsection of the `contract-v3.0` entry; a rule that closed on `###` would refuse the declaration that makes `main` green. Documented at `_ATX_BOUNDARY` since round 0. |
+| `<pre<U+00A0>x>` opens a block for markdown-it but not here | **NOT A DEFECT, and the two reference implementations disagree with each other.** markdown-it uses `\s`, which admits U+00A0; CommonMark's *whitespace character* is space, tab, newline, VT, FF or CR, and cmark-gfm — **which is what renders this document on GitHub** — follows the letter. This reader agrees with the spec and with the renderer, and the direction is OVER-closing (a false refusal), not an accept. It is the same call as round 7's refused half, now with a sharper measurement. |
+| **`</script>` does not end a `<pre>` block** | **A REAL ESCAPE, LIVE IN THE PUSHED HEAD, AND A BOT ROUND PUT IT THERE.** |
+
+### The third one, in full, because it is the finding above every other finding
+
+CommonMark's end condition for a kind-1 HTML block reads, in words:
+
+> *line contains an end tag `</script>`, `</pre>`, `</style>`, or `</textarea>`
+> (case-insensitive; **it need not match the start tag**).*
+
+**Round 6 shipped the opposite.** Codex and Copilot INDEPENDENTLY asked for a
+matching closer, twenty-five minutes apart, and § J recorded their agreement as
+*"a much stronger signal than either alone"*. **Both were wrong on the
+specification, and the fix they asked for INTRODUCED the very escape class it
+claimed to close**: requiring `</pre>` made this reader MORE OPAQUE than
+CommonMark, so a real `## Notes` heading after a `</script>` was swallowed and
+the declaration below it was **ACCEPTED** under an entry it is not inside.
+
+Measured at the pushed head `9a6902ad`:
+
+```text
+## contract-v2.6 — an earlier cut
+
+## contract-v3.0 — a cut
+
+<pre>
+</script>          <- CommonMark ENDS the block here
+## Notes           <- ...so this really is a heading
+</pre>
+
+**SPENT BUNDLE:** `contract-v2.6` — SUPERSEDED BY `contract-v3.0` — …
+```
+
+`entry='contract-v3.0'` — **ACCEPTED**. After the revert: `entry=None`,
+refused, and the superseded `error` stands.
+
+**What it cost to find: nothing a bot round produced.** Both bots had reviewed
+that fix on two later heads and neither retracted it. It surfaced only under the
+differential. **Bot agreement is not evidence about a specification.** The
+matching-closer rule is reverted, the test that asserted it is replaced by one
+that asserts the spec's rule over all sixteen opener/closer pairs, and the
+control that the block still runs on when there is no end tag at all ships with
+it.
+
+**This is the decision point for variant B, and it is a stronger argument than
+the tail's length was.** The case against hand-modelling CommonMark here is no
+longer *"the edge cases keep coming"* — it is that **a round of this tail
+introduced a containment escape that two independent reviewers endorsed**, and
+that only an oracle outside the review loop caught it. Variant B needs no such
+oracle: it recognizes a raw-HTML opener and refuses, so a construct the reader
+cannot parse can never quiet a finding, whatever a renderer makes of it.
