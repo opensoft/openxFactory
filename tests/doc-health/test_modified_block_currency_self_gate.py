@@ -610,6 +610,50 @@ _LEDGER_SUBJECTS = {
     # block is promoted.
     ("add-chain-attestation", "signed-execution-chain",
      "A gate validates the short chain as a hash-linked chain"),
+    # ADDED AND REMOVED ON 2026-09-03 IN ONE PULL REQUEST BY
+    # `amend-owner-layer-severity` — TWO ROWS, one per MODIFIED block, from the
+    # doc-only packet carrying openxFactory issues #561 and #339 on Brett
+    # Heap's ruling of that day ("implement your recommendations on all
+    # these", recorded verbatim on both issues). THE PAIR IS RECORDED RATHER
+    # THAN LEFT OUT ALTOGETHER, which is the point of writing a retirement down:
+    # `code_surface: none` makes that packet's archive gate LANDING rather than
+    # merged-plus-green, so it was AUTHORED and ARCHIVED in the same commit and
+    # this ledger moved twice before anything was pushed. A reader who sees
+    # only the net — no rows — cannot tell a packet that archived from one that
+    # was never written, and the two are the opposite of each other.
+    #
+    # WHAT THE TWO ROWS SAID. The first was a RULED SEVERITY CHANGE and the
+    # narrowest one a three-unit requirement can carry: promoted canon said an
+    # unresolvable `owner_layer` "SHALL be reported as a validator warning"
+    # while `scripts/validate-domain-factory.py` had reported it with
+    # `rpt.error` since `493fb33d` (2026-07-03), six days BEFORE the
+    # requirement was promoted at `a1a2802b`; the ruling brought CANON to the
+    # code, so the block said `error` in the body clause and `an error` in the
+    # scenario's THEN bullet — the 2 of 3 units the arm reported, the third
+    # (the scenario's WHEN bullet) byte-identical. The second was a DATED
+    # ILLUSTRATION and no rule change at all: canon's
+    # tag-is-not-the-reference-point paragraph named `contract-v1.33`,
+    # `contract-v1.35` and `contract-v1.39` as bundles that "are recorded in
+    # the changelog and the manifest with no published tag", all three
+    # retro-published 2026-08-25 by PR #333, so the ONE of 23 units the arm
+    # reported was exactly that paragraph, past-tensed with the
+    # retro-publication dated — the treatment #333 itself gave the identical
+    # claim in `scripts/doc_health/release_inventory.py`'s docstring.
+    #
+    # BOTH HALVES OF THE STATED CONDITION WERE VERIFIED BEFORE THE ROWS WERE
+    # DELETED, not after. The packet archived to
+    # `openspec/changes/archive/2026-09-03-amend-owner-layer-severity/`, and
+    # BOTH blocks WERE promoted: canon's "Owner layer constraint" is now
+    # byte-identical to the delta body under
+    # `sha256:035fb89633140423f2da21ee0985fb0773dcc958444838e43fb1ccd8bc4ed439`
+    # and canon's "The declared bundle describes the release surface" under
+    # `sha256:6e102b2e079fe247c5184d826f4e634256a88ecf4a0f9c97c36c878d02a1d19a`,
+    # so the three units the two findings named as uncarried are carried by
+    # construction rather than by argument. The family reads no archived path
+    # by construction, so no finding can name either path this packet ever had
+    # — measured, not assumed: a `--family modified-block-currency` run over
+    # this tree after the act returns ZERO lines mentioning the change id, at
+    # any path.
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -968,7 +1012,11 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "together; 7 since add-notebook-projection-identity archived on "
         "2026-08-31 and its block promoted byte-identical; 8 since "
         "add-chain-attestation's proposal merged 2026-09-01 via #510's "
-        "landing, its MODIFIED block resolving canon)",
+        "landing, its MODIFIED block resolving canon; 10 while "
+        "amend-owner-layer-severity stood active on 2026-09-03 with TWO "
+        "MODIFIED blocks, one per issue it carries, and 8 again within the "
+        "same pull request when that doc-only packet archived and both blocks "
+        "promoted)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")

@@ -203,9 +203,11 @@ directory; it holds no material.
   is exactly the defect this entry exists to prevent.
 - [ ] 5.3 `[#511]` **THE CUT — NOT THIS CHANGE.** The ruling excludes it in
   terms. Whoever cuts owes, in one act: the number (allocated by merge order —
-  `contract-v3.1` was being spent by PR #616 when this was written and has since
-  been CUT by it at `19d00872`, so the next additive minor re-reads as
-  `contract-v3.2` — and is still not written down, for the same reason), a
+  `contract-v3.1` was being spent by PR #616 when this was written, was CUT by
+  it, and was then found DEFECTIVE and SUPERSEDED by `contract-v3.2` (PR #624);
+  the newest tag now reads `contract-v3.2` and the next additive minor is
+  `contract-v3.3` — still not written down, for the same reason, now twice
+  demonstrated), a
   version-headed `contracts/CHANGELOG.md` entry, the digest inventory under
   `contracts/releases/`, and the annotated tag. **THE CHANGELOG ENTRY IS
   PRESCRIBED SO THE CUT INVENTS NOTHING**: class ADDITIVE (minor); the entry
@@ -441,12 +443,50 @@ failure will reach for the rise-of-two shape first.
   passed**. Gates re-run on the rebased tree: `openspec --all --strict` 87
   passed, validator self-test unchanged, manifest digests 163/163,
   `tests/credential_contracts tests/manifest_digests` **247 passed**.
-- [ ] 8.4d `[both]` **RE-MEASURE OWED IF A SIBLING LANDS FIRST.** PR #617 (the
-  owner-layer packet) moves these same pins and is expected to merge ahead of
-  this one. These readings are `main` `19d00872` + this packet ALONE; when #617
-  lands, this branch must be rebased and the pins re-derived, because two
-  packets moving one pin do not compose by addition — each is measured against
-  the tree it actually lands on. Left UNTICKED deliberately.
+- [x] 8.4d `[both]` **RE-MEASURE OWED IF A SIBLING LANDS FIRST — DISCHARGED
+  2026-09-03.** PR **#617** (`amend-owner-layer-severity`) MERGED as `6a39d2ab`,
+  and Brett's word was *"then rebase #622"*. Done as a catch-up MERGE of
+  `origin/main` (force-push stays refused on this branch), with **every pin
+  RE-MEASURED on the merged tree and on the new `origin/main`, never by
+  arithmetic**:
+
+  | reading | `origin/main` `6a39d2ab` | MERGED tree | move this packet contributes |
+  | --- | --- | --- | --- |
+  | `change_ids` | 159 (31 active + 128 archived) | **160** (32 + 128) | **+1** |
+  | `co_modified` | 111 | **112** | **+1** |
+  | `sole_modifiers` | 48 | 48 | — |
+  | `active_co_modified` | 20 | **21** | **+1** |
+  | `active_sole` | 11 | 11 | — |
+
+  Pins now read `co_modified` **112**, `active_co_modified` **21**,
+  `change_ids - 1` **159**, `sole_modifiers - 1` **47**, `active_sole - 1`
+  **10**.
+
+  **THE TWO PACKETS' MOVES ARE DISJOINT, AND THAT IS MEASURED RATHER THAN
+  ASSUMED.** #617 writes `workflow-gate-contract` and
+  `release-surface-integrity`; this packet writes `credential-contracts`. They
+  share no requirement key and no capability, so neither changes the other's
+  membership — which is WHY the readings happen to compose here. **It is not a
+  rule that they compose**, and the merged numbers were taken from the merged
+  tree rather than added. The conflict in
+  `tests/sequenced_after/test_sweep.py` was resolved by keeping BOTH branches'
+  MOVEMENT LOG entries VERBATIM and adding a merge entry above them, which is
+  that file's own protocol.
+
+  **`sole_modifiers` and `active_sole` carry #617's move and not this
+  packet's**, and the merge note says why: #617 FLIPPED an archived sole
+  modifier (`promote-workflow-gate-contract`) into the co-modified set, while
+  this packet flipped nobody — the earlier writer of both its keys was already
+  co-modified through a third key. A rise in `co_modified` drags the sole set
+  only when the newcomer's earlier co-writer was itself SOLE until then.
+- [x] 8.4e `[both]` **CANON RE-VERIFIED AFTER THE MERGE, BY SHA AND NOT BY
+  ASSERTION.** `openspec/specs/credential-contracts/spec.md` is blob
+  `a688a463f1dc2d26ffab8661efafd176138c7974` on BOTH `origin/main` `6a39d2ab`
+  and this branch — #617 promoted `workflow-gate-contract` and
+  `release-surface-integrity` and touched this capability not at all, so both
+  MODIFIED blocks still stand over canon as canon now states it. All 24 canon
+  scenario titles across the two requirements are still carried by the delta,
+  checked programmatically after the merge rather than trusted from before it.
 
 ## 8.3 The bench round
 

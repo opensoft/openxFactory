@@ -1,8 +1,7 @@
-# release-surface-integrity Specification
+# release-surface-integrity — amend-owner-layer-severity deltas
 
-## Purpose
-TBD - created by archiving change add-release-inventory-drift-check. Update Purpose after archive.
-## Requirements
+## MODIFIED Requirements
+
 ### Requirement: The declared bundle describes the release surface
 The contract bundle a repository DECLARES at a commit SHALL describe that
 commit's release surface. Concretely: for every member of the declared
@@ -61,4 +60,3 @@ reference, and it is present whenever the bundle is declared.
 #### Scenario: The declared bundle was never tagged
 - **WHEN** the declared bundle has no published annotated tag
 - **THEN** the obligation is still evaluable, because the reference is the inventory file recorded at the commit rather than a tag
-

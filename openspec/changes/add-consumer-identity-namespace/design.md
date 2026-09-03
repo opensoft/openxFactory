@@ -227,8 +227,10 @@ That is this repository's ritual and not a deferral of convenience, and this
 packet watched the ritual run under it: PR #616 was the `contract-v3.1` cut and
 wrote the CHANGELOG, the manifest,
 `contracts/releases/contract-v3.1.digests.yaml` and the policy doc together —
-it MERGED at `19d00872` while this packet was in review, which is precisely why
-no number was written here. A
+it MERGED while this packet was in review, and its `contract-v3.1` was then
+found DEFECTIVE and SUPERSEDED by `contract-v3.2` (PR #624) before this packet
+landed — two bundle moves under one unchanged packet, which is precisely why no
+number was written here. A
 version heading written here with no tag and no inventory would be a HALF CUT,
 and it would spend a number another packet is holding. § 5 of `tasks.md`
 prescribes the entry verbatim so the cut has nothing to invent.
