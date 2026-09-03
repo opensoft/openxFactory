@@ -1108,6 +1108,25 @@ def test_the_SEEDER_REPAIRS_a_ledger_too_malformed_to_READ(tmp_path):
                               sa.load_ledger(path)) == []
 
 
+def test_the_SEEDER_REFUSES_a_bad_provenance_WITHOUT_a_traceback(tmp_path):
+    # A stack trace tells an author where the library gave up, not what to type
+    # instead — and this command is the thing they run when something is wrong.
+    _change(tmp_path, "add-a")
+    for flags, expected in (
+        (["--moved-by", "620"], "--moved-by must be a pull request reference"),
+        (["--moved-by", "#620", "--moved-on", "soon"],
+         "--moved-on must be an ISO date"),
+        (["--moved-by", "#620", "--moved-on", "2026-13-45"],
+         "--moved-on must be an ISO date"),
+    ):
+        result = subprocess.run(
+            [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+             *flags], capture_output=True, text=True)
+        assert result.returncode != 0, flags
+        assert "Traceback" not in result.stderr, result.stderr
+        assert expected in result.stderr, result.stderr
+
+
 def test_the_SEED_LEDGER_help_does_not_call_moved_by_OPTIONAL():
     # The usage text and the refusal must agree: `--moved-by` is required with
     # `--seed-ledger`, and help that brackets it teaches the opposite.

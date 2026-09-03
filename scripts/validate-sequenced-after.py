@@ -187,7 +187,23 @@ def _ledger_diff(repo_root: Path, repository: str) -> int:
 
 def _seed_ledger(repo_root: Path, repository: str, moved_by: str,
                  moved_on: str | None, seeded_from: str | None) -> int:
-    """Rewrite the ledger from the live corpus, preserving unmoved provenance."""
+    """Rewrite the ledger from the live corpus, preserving unmoved provenance.
+
+    EVERY refusal below the CLI arrives as a MESSAGE AND AN EXIT CODE, never as
+    a traceback: a stack trace tells an author where the library gave up and
+    not what they should type instead, and this command's whole purpose is to
+    be the thing an author runs when something is wrong with the ledger.
+    """
+    try:
+        return _seed_ledger_inner(repo_root, repository, moved_by, moved_on,
+                                  seeded_from)
+    except sa.SequencedAfterError as exc:
+        print(f"--seed-ledger refused: {exc}", file=sys.stderr)
+        return 2
+
+
+def _seed_ledger_inner(repo_root: Path, repository: str, moved_by: str,
+                       moved_on: str | None, seeded_from: str | None) -> int:
     readings = sa.classify_corpus(repo_root, declaring_repository=repository)
     path = sa.ledger_path(repo_root)
     previous = None
@@ -270,8 +286,17 @@ def main(argv: list[str] | None = None) -> int:
         return _ledger_diff(Path(args.repo_root), args.repository)
 
     if args.seed_ledger:
+        # ARGUMENT SHAPE IS ARGPARSE'S TO REFUSE, at the boundary and in its own
+        # voice, rather than a library exception surfacing as a stack trace six
+        # frames down.
         if not args.moved_by:
             parser.error("--seed-ledger requires --moved-by '#<PR>'")
+        if not sa.MOVED_BY.match(args.moved_by):
+            parser.error(f"--moved-by must be a pull request reference like "
+                         f"'#620', not {args.moved_by!r}")
+        if args.moved_on is not None and not sa.is_moved_on(args.moved_on):
+            parser.error(f"--moved-on must be an ISO date (YYYY-MM-DD), not "
+                         f"{args.moved_on!r}")
         return _seed_ledger(Path(args.repo_root), args.repository,
                             args.moved_by, args.moved_on, args.seeded_from)
 

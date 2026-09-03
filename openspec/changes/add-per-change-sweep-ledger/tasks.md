@@ -126,6 +126,19 @@ measurement is carried per subject, never as a shared total"
   `test_the_SEED_LEDGER_help_does_not_call_moved_by_OPTIONAL`. **Codex ABSENT
   again**: a second usage-limit refusal on the same request.
 
+- [x] 6.2 **BOT ROUND 3 (Copilot), finding TAKEN ON ITS REAL CAUSE.** The
+  finding named an uncaught `SequencedAfterError` from `--seed-ledger` on an
+  unreadable existing ledger — that path was already repaired in round 2 and is
+  clean (measured: it exits 0 with the stderr notice). But the SYMPTOM was real
+  on two paths the finding did not name and this packet had not checked: a
+  `--moved-by` or `--moved-on` the row grammar refuses reached
+  `render_ledger`'s own validation and surfaced as a TRACEBACK. Argument shape
+  is now refused by argparse at the boundary in its own voice, and
+  `_seed_ledger` catches `SequencedAfterError` as a backstop, returning 2 with a
+  message. Fixture:
+  `test_the_SEEDER_REFUSES_a_bad_provenance_WITHOUT_a_traceback` asserts three
+  bad inputs refuse with no `Traceback` in stderr.
+
 ## Group 6b — Gates
 
 - [x] 6b.1 `OPENSPEC_TELEMETRY=0 openspec validate add-per-change-sweep-ledger
