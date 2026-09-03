@@ -1310,6 +1310,70 @@ def test_an_UNKNOWN_row_key_is_a_finding(tmp_path):
     assert any("unknown key 'guess'" in p for p in problems)
 
 
+def test_a_NON_STRING_row_key_is_REFUSED_never_COERCED(tmp_path):
+    # `str()` on the key would collapse two keys YAML holds APART: `123`
+    # resolves to an int and `"123"` to a string, so the strict loader's
+    # duplicate refusal — which compares keys as YAML typed them — never fires
+    # and the SECOND row silently overwrites the first. That is the exact
+    # last-duplicate-wins defect this loader exists to refuse, one level down,
+    # on the file that IS the pin.
+    _change(tmp_path, "add-a")
+    header = ("schema_version: 1\nkind: sequenced_after_corpus_ledger\n"
+              "seeded_from: ~\n\nrows:\n")
+    body = ("{state: active, class: sole, declares: absent, prose: false, "
+            'moved_by: "#1", moved_on: "2026-09-03"}')
+    path = sa.ledger_path(tmp_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(f'{header}  123: {body}\n  "123": {body}\n',
+                    encoding="utf-8")
+    try:
+        sa.load_ledger(path)
+    except sa.SequencedAfterError as exc:
+        assert "row key 123" in str(exc) and "not a string" in str(exc), str(exc)
+    else:  # pragma: no cover - the refusal is the assertion
+        raise AssertionError("an int row key must be refused, never coerced")
+
+    # ...and it refuses ALONE, not only when a quoted twin is present: the
+    # danger is the coercion, and a lone unquoted id is the same coercion
+    # waiting for a twin.
+    path.write_text(f"{header}  123: {body}\n", encoding="utf-8")
+    try:
+        sa.load_ledger(path)
+    except sa.SequencedAfterError as exc:
+        assert "not a string" in str(exc), str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("a lone int row key must be refused too")
+
+    # THE CLI REPORTS IT AS UNREADABLE (exit 2), NOT AS STALE (exit 1): the two
+    # want different repairs — a stale ledger is fixed by moving a row, an
+    # unreadable one by fixing the file.
+    path.write_text(f'{header}  123: {body}\n  "123": {body}\n',
+                    encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--ledger-diff"],
+        capture_output=True, text=True)
+    assert result.returncode == 2, (result.returncode, result.stdout)
+    assert "CANNOT BE READ" in result.stdout, result.stdout
+
+
+def test_a_PLAIN_STRING_row_key_still_loads(tmp_path):
+    # The positive control the refusal above needs: nothing legitimate is lost,
+    # quoted or unquoted, because a change id is a string by the grammar.
+    _change(tmp_path, "add-a")
+    header = ("schema_version: 1\nkind: sequenced_after_corpus_ledger\n"
+              "seeded_from: ~\n\nrows:\n")
+    body = ("{state: active, class: sole, declares: absent, prose: false, "
+            'moved_by: "#1", moved_on: "2026-09-03"}')
+    path = sa.ledger_path(tmp_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    for spelling in ("add-a", '"add-a"'):
+        path.write_text(f"{header}  {spelling}: {body}\n", encoding="utf-8")
+        ledger = sa.load_ledger(path)
+        assert list(ledger.rows) == ["add-a"], spelling
+        assert ledger.order == ("add-a",), spelling
+        assert sa.ledger_problems(sa.classify_corpus(tmp_path), ledger) == []
+
+
 def test_a_row_TOO_MALFORMED_TO_READ_is_REFUSED_and_never_defaulted(tmp_path):
     # A defaulted row is an INVENTED reading, and the ledger is what every later
     # author reads. Each unreadable field refuses under its own message.

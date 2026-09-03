@@ -48,7 +48,10 @@ Usage:
         stale, missing or extra ROW BY NAME. Exit 1 when the ledger disagrees
         with the corpus — unlike `--sweep`, this IS a gate, because a ledger
         that no longer describes the corpus is a stale pin rather than a
-        measurement.
+        measurement. Exit 2 when the ledger cannot be READ AT ALL, which is a
+        different fact from a stale one: a stale ledger is repaired by moving a
+        row, an unreadable one by fixing the file, and reporting them under one
+        code would send an author to the wrong repair.
 
     --seed-ledger --moved-by '#PR' [--moved-on YYYY-MM-DD] [--seeded-from SHA]
         REWRITE the ledger from the live corpus, stamping `moved_by`/`moved_on`
@@ -165,7 +168,16 @@ def _ledger_diff(repo_root: Path, repository: str) -> int:
         try:
             ledger = sa.load_ledger(path)
         except sa.SequencedAfterError as exc:
-            problems.append(str(exc))
+            # UNREADABLE IS NOT STALE. Exit 2 rather than 1, because the two
+            # want different repairs: a stale ledger is fixed by re-seeding a
+            # row, an unreadable one by fixing the file it could not parse.
+            print(measured.render())
+            print()
+            print(f"per-change sweep ledger CANNOT BE READ:\n  - {exc}")
+            print("Fix the file, or rewrite it with: python3 "
+                  "scripts/validate-sequenced-after.py . --seed-ledger "
+                  "--moved-by '#<PR>'")
+            return 2
     if ledger is not None:
         problems.extend(sa.ledger_problems(readings, ledger))
         try:

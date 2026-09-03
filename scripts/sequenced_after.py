@@ -1151,15 +1151,39 @@ def load_ledger(source: str | bytes | Path) -> Ledger:
             "malformed ledger: the `rows:` mapping is missing")
     rows: dict[str, dict[str, object]] = {}
     for change_id, row in raw_rows.items():
+        # A NON-STRING KEY IS REFUSED, NOT COERCED. `str()` on the key would
+        # collapse two keys YAML holds APART: `123` resolves to an int and
+        # `"123"` to a string, so the strict loader's duplicate refusal — which
+        # compares keys as YAML typed them — never fires, and the second row
+        # then silently overwrites the first. That is the exact
+        # last-duplicate-wins defect this loader exists to refuse, reproduced
+        # one level down, on the file that IS the pin. A change id is a string
+        # by the reference grammar, so nothing legitimate is lost.
+        if not isinstance(change_id, str):
+            raise SequencedAfterError(
+                f"malformed ledger: the row key {change_id!r} is "
+                f"{type(change_id).__name__}, not a string; quote it — an "
+                "unquoted all-digit or boolean-looking change id is a "
+                "different key to YAML than its quoted form, and coercing the "
+                "two together would hide a duplicate row")
         if not isinstance(row, dict):
             raise SequencedAfterError(
                 f"malformed ledger: the row for {change_id!r} is not a mapping")
-        rows[str(change_id)] = row
+        rows[change_id] = row
+    order = tuple(raw_rows)
+    # THE STRUCTURAL BACKSTOP. The two refusals above should make this
+    # unreachable; it is asserted anyway because it is the property every later
+    # check depends on — `ledger_problems` compares SETS of ids and would read a
+    # collapsed pair as one row that simply agrees.
+    if len(rows) != len(order):
+        raise SequencedAfterError(
+            f"malformed ledger: {len(order)} row keys collapsed to "
+            f"{len(rows)} rows; two keys name the same change")
     return Ledger(
         schema_version=document.get("schema_version"),
         kind=document.get("kind"),
         seeded_from=document.get("seeded_from"),
-        order=tuple(str(key) for key in raw_rows),
+        order=order,
         rows=rows,
     )
 

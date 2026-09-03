@@ -231,6 +231,30 @@ measurement is carried per subject, never as a shared total"
   compliant — it builds its paths from `tmp_path` at runtime, which is the
   "runtime resolution" the principle names.
 
+- [x] 6.9 **BOT ROUND 11 (Copilot, 2026-09-03T23:16:41Z), finding TAKEN on the
+  coordinator's word, and it is THIS PACKET'S OWN DEFECT rather than an
+  inherited one.** `load_ledger` coerced row keys with `str(...)`. The strict
+  loader refuses duplicate keys AS YAML TYPED THEM, so `123:` (an int) and
+  `"123":` (a string) both survive as distinct keys — and `str()` then collapsed
+  them, the SECOND row silently overwriting the first. That is the exact
+  last-duplicate-wins defect the loader exists to refuse, reproduced one level
+  down, on the file that IS the pin. VERIFIED BEFORE FIXING rather than accepted
+  from the report: the pair loaded with `rows` of length 1 and `order` of length
+  2, keeping `archived`/`#2` and losing the first row entirely.
+  A non-string key is now REFUSED under a named `SequencedAfterError` that says
+  to quote it, `len(rows) == len(order)` is asserted as the structural backstop
+  every later check depends on, and the CLI reports an unreadable ledger with
+  EXIT 2 rather than the stale-pin exit 1 — the two want different repairs, a
+  stale ledger being fixed by moving a row and an unreadable one by fixing the
+  file. Fixtures: `test_a_NON_STRING_row_key_is_REFUSED_never_COERCED` (the
+  int/string pair, a LONE int key, and the CLI's exit 2) and
+  `test_a_PLAIN_STRING_row_key_still_loads` (the positive control, quoted and
+  unquoted). NOT REACHABLE IN TODAY'S CORPUS — all 160 change ids begin with a
+  letter — so this closed a hole in a stated guarantee rather than a live bug.
+- [x] 6.10 **ROUNDS 10 and 12: ZERO findings.** Both say only that the change
+  warrants final human review before approval, which describes ratification
+  rather than naming a defect.
+
 ## Group 6b — Gates
 
 - [x] 6b.1 `OPENSPEC_TELEMETRY=0 openspec validate add-per-change-sweep-ledger
