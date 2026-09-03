@@ -23,14 +23,14 @@ that.
       is spent, and `docs/contract-versioning-policy.md` forbids reserving one
       before merge order is known.
 - [x] **1.2** Author `design.md` — thirteen decisions, each with its alternatives
-      REJECTED and named, drawn from the fragment's Q1–Q12; the five convener
+      REJECTED and named, drawn from the fragment's Q1–Q12; the convener's
       rulings recorded as rulings with dates rather than re-argued; the two
       defects the pilot found and how the standard now handles them; and two open
       items (OI-1 topic administration, OI-2 whether the `schema` value set is
       ever closed) recorded rather than discovered later.
 - [x] **1.3** Author the ADDED delta
       `specs/project-repo-schema/spec.md` — eleven requirements, each with SHALL
-      on the first body line and each carrying at least two scenarios (31 in
+      on the first body line and each carrying at least two scenarios (28 in
       total).
 - [x] **1.4** Author the MODIFIED delta `specs/ideation-dashboard/spec.md` over
       the promoted "Project grouping hierarchy" requirement, carrying canon's
@@ -74,7 +74,7 @@ that.
       framing the convener ruled on 2026-09-02 is carried in the documents that
       speak in this change's voice instead: `proposal.md` § Realization evidence,
       `design.md` § D12, `docs/project-repo-schema.md` § The pilot on record, and
-      this file's slice 5. Left unticked because it is a recorded NON-act, not a
+      this file's slice 6. Left unticked because it is a recorded NON-act, not a
       completed one.
 
 ## Slice 3 — the doctrine document
