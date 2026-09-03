@@ -229,8 +229,13 @@
       this packet's archive lower `active_sole` from 13 by ONE EACH and
       COMPOUND rather than cancel, so `active_sole - 1` falls 11 → 10, with
       the by-exclusion control recorded in that test's MOVEMENT LOG.
-      **STILL NOT MERGED, and still named so it stays false until it isn't**:
-      `main` does not carry this archive. The squash SHA is deliberately NOT
-      written here and is NOT invented — it is filled in at landing by the
-      merge-provenance comment, by whoever merges, from the merge GitHub
-      actually performs.
+      **AS OF THIS NOTE'S WRITING — 2026-09-03, branch head `0d17d1be` — THIS
+      PACKET HAD NOT MERGED**, and that claim is ANCHORED TO THAT INSTANT
+      rather than written in the present tense, so it stays TRUE after the
+      merge instead of going stale: at that head, `main` did not carry this
+      archive. The squash SHA is deliberately NOT written here and NOT
+      invented — it is filled in at landing by the merge-provenance comment,
+      by whoever merges, from the merge GitHub actually performs. A reader
+      wanting the LANDED state should read that comment and the packet's merge
+      provenance, never this line, which speaks only for the moment it was
+      written.
