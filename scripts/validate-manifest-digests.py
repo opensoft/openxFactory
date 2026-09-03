@@ -10,7 +10,9 @@ file at `path`, and fails closed on any mismatch or missing file. Entries
 without a sha256 field (directory registrations, content-addressed-by-commit
 families) are out of scope by design.
 
-Run: python3 scripts/validate-manifest-digests.py
+Run: python3 scripts/validate-manifest-digests.py (also exercised by
+tests/manifest_digests/test_manifest_digest_sweep.py on every required-suite
+pass, issue #512 second half).
 Exit codes: 0 all digests verify, 1 mismatches, 2 harness error.
 """
 from __future__ import annotations
