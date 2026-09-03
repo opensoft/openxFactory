@@ -788,7 +788,7 @@ SPLITLINES_ONLY = (
 
 @pytest.mark.parametrize("name,separator", SPLITLINES_ONLY,
                          ids=[row[0] for row in SPLITLINES_ONLY])
-def test_only_commonmarks_line_endings_break_a_line(name, separator):
+def test_only_commonmark_line_endings_break_a_line(name, separator):
     """CODEX P1, ROUND 4 ON PR #589 — round 1's class one layer down, in the
     LINE SPLITTER rather than in the opener pattern.
 
