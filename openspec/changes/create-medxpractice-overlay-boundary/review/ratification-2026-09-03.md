@@ -96,6 +96,17 @@ from here, because the sibling's delta has one writer and this is not it; it is
 named so a reader who meets both files on `main` after both merge knows the
 sentence is dated to its own branch rather than wrong about this one.
 
+**RE-DERIVED AFTER MERGING `main` AT `0f1edc0e` (the sibling #608 landed at
+15:11:52Z, after #611/#614/#602/#604): strict total 86/86 → 86/86; sweep
+`157 / 109 / 48 / 22 / 11` → `158 / 109 / 49 / 21 / 12`, identical to `main`'s
+own pin because this packet carries no `## MODIFIED Requirements` block;
+nothing else in either record changed; no capture happened before the merge —
+capture is the merge of #609.** This branch was retargeted from the sibling's
+branch to `main` and `git merge origin/main` was taken directly (merge commit
+`de975f81`) rather than a further catch-up merge of the sibling; the full
+re-derivation, including the `README.md` resolution proof, is
+`verification-2026-09-03.md` § 10.
+
 ---
 
 ## 1. The ruling, and what "1 and 1" meant
@@ -438,6 +449,10 @@ gitlink `d8d73195609df3b567643a7bf1252eac352d9996` among its realized
 placements, and this packet cites it by path. **Archive order follows merge
 order: MedxChart archives first**, and each archives only when its own § 5
 follow-on produces green realization evidence.
+
+**This is now FACT, not plan: #608 merged 2026-09-03T15:11:52Z, merge commit
+`0f1edc0e`, and this pull request was retargeted to `main` and merged with it
+after that landing.**
 
 **Lane claim.** This pull request is authored and carried by lane
 `openxfactory-max001` (max-001, session `5e783e4d`) **through merge**. The lane

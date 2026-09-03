@@ -16,6 +16,12 @@ falls: § 2's parenthetical about the sibling's item count, and § 4, § 5 and �
 console blocks, which showed filtered or composite output as though it were raw
 and now show the filter that was actually run.
 
+**Re-measured A SECOND TIME, 2026-09-03, after `create-medxchart-overlay-boundary`
+(#608) merged to `main` at `0f1edc0e` and this branch was retargeted and
+actually merged with `main` rather than with the sibling's own branch.** § 6's
+console block is restated on that merged tree; § 10 carries the full
+re-derivation and what did and did not move.
+
 **Why this file exists.** `tasks.md` 4.1 and 4.2 are ticked and no report was
 ever written for either. The checkboxes are NOT unticked — the checks were run
 in session on 2026-08-23 and unticking would assert they were not. What is done
@@ -224,18 +230,21 @@ rather than assumed:
 $ python3 scripts/validate-sequenced-after.py . --sweep
 sequenced_after corpus sweep
 ----------------------------
-change ids (33 active + 124 archived): 157
+change ids (33 active + 125 archived): 158
 co-modified at requirement granularity (each would owe a declaration): 109
-sole modifiers (each would declare `sequenced_after: []`): 48
-ACTIVE changes: co-modified / sole: 22 / 11
+sole modifiers (each would declare `sequenced_after: []`): 49
+ACTIVE changes: co-modified / sole: 21 / 12
 declaring `sequenced_after:`: 1 (add-sequenced-after-substrate)
 declaring an explicit `[]` root claim: 0
 prose `Sequenced-after:` headers: 3 (3 archived)
 DEEPEST DECLARED CHAIN RESOLVED: 1 hop(s), from add-sequenced-after-substrate
 ```
 
-Identical, reading for reading, to the same command on the branch base before
-this commit's edits. The reason is structural rather than lucky: this packet's
+**This is the merged-tree reading, after `main` at `0f1edc0e` (§ 10); the
+reading on this branch's own pre-merge head was `157 / 109 / 48 / 22 / 11`
+(33 active + 124 archived).** Identical, reading for reading, to the same
+command on the branch base before this commit's edits, at whichever of the two
+trees it is read. The reason is structural rather than lucky: this packet's
 delta is ADDED-only both before and after the narrowing, and its capability
 `medxpractice-overlay-boundary` has exactly one writer in the whole corpus — so
 the change was a SOLE modifier before today and is a SOLE modifier after, and
@@ -244,7 +253,8 @@ renaming its requirement titles cannot make it share a key with anything.
 commit**, and the contrast with the sibling is the point: adding a
 `## MODIFIED Requirements` block moved four readings there
 (`co_modified` 108 → 109, `active_co_modified` 21 → 22, `sole_modifiers` 49 → 48,
-`active_sole` 12 → 11); narrowing an ADDED-only delta moves none here.
+`active_sole` 12 → 11); narrowing an ADDED-only delta moves none here — on
+either tree.
 
 ## 7. Host-absolute paths, and the descendant's whole tracked tree
 
@@ -328,3 +338,26 @@ requirement — retitled **"The aggregation reaches openPractice only through
 MedxPractice"** — keeps only the remotely checkable half, which § 5 confirms:
 the entry is `xFactories/MedxPractice` at its `git@github.com:opensoft/` remote,
 and `grep -c 'openPractice'` over the aggregation's `.gitmodules` returns `0`.
+
+## 10. Re-derived after merging `main` at `0f1edc0e`
+
+**RE-DERIVED AFTER MERGING `main` AT `0f1edc0e` (the sibling #608 landed at
+15:11:52Z, after #611/#614/#602/#604): strict total 86/86 → 86/86 (unchanged —
+#608's own merge added no item this total was not already counting, and this
+packet adds none); sweep `157 / 109 / 48 / 22 / 11` → `158 / 109 / 49 / 21 / 12`
+(change ids / co-modified / sole modifiers / active co-modified / active
+sole), identical to `main`'s own pin because this packet carries no `##
+MODIFIED Requirements` block. Nothing else in either record changed; no
+capture happened before the merge — capture is the merge of #609.**
+
+This branch was RETARGETED from
+`change/ratify-create-medxchart-overlay-boundary` to `main` after #608 merged,
+and `git merge origin/main` (merge commit `de975f81`, parents `4fee15ce` and
+`0f1edc0e`) landed with no conflict in this file, `ratification-2026-09-03.md`,
+or `tests/sequenced_after/test_sweep.py` — the only conflict the operation
+anticipated was `README.md`'s "OpenSpec Records" block, and git resolved it
+without markers because the two branches' additions sat in non-overlapping
+hunks: `main` already carried the sibling's RATIFIED row from #608 and this
+branch added only its own MedxPractice row beside it. `git diff origin/main --
+README.md` after the merge is confined to that one row. `python3 -m pytest
+tests/sequenced_after -q` reads 118 passed against the merged-tree pin.
