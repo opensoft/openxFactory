@@ -457,6 +457,86 @@ Active changes:
   and `active_co_modified` hold at 105 and 18 — measured on both trees, moved in
   the same commit, with a dated MOVEMENT LOG entry, which is that pin's own
   protocol.
+- [add-cpc-clearing-boundary](openspec/changes/add-cpc-clearing-boundary/proposal.md)
+  — authored 2026-09-01, RE-SCOPED the same day after adversarial review,
+  **`Status: ratified`** (2026-09-02, Brett Heap, in-session, on the recorded
+  word *"Ratify + merge openxFactory #560"*; ratified head `33fa2b54`; record
+  `openspec/changes/add-cpc-clearing-boundary/review/ratification-2026-09-02.md`).
+  THIS IS
+  AN EXTENSION DELTA, NOT A SECOND CLEARING CONTRACT: `add-clearing-dispatch-boundary`
+  (PR #555) was RATIFIED 2026-09-01 on the recorded word *"merge #192 and ratify
+  #555"*, promotes `clearing-dispatch-boundary` with TEN requirements from the same
+  operator ruling, and its realization is live on xFactory main. An earlier draft of
+  this packet re-authored roughly seven of those requirements in divergent vocabulary
+  without citing the basis; that draft is withdrawn, and the `.openspec.yaml` records
+  the corrected duplicate check — run against ACTIVE CHANGES and recent
+  RATIFICATIONS, not the promoted index alone, which is why the overlap was missed.
+  What remains is the ruling's SAME-DAY EXTENSION on codexFactory issue #156, which
+  the basis does not reach. MODIFIES THREE of the basis's ten requirements, each carried
+  VERBATIM with additions marked in place and every original scenario retained — 177
+  basis units, none lost — and each carrying its OWN `Modified over` marker IN ITS
+  REQUIREMENT BODY, which is where `govern-sibling-added-modified-deltas` requires the
+  marker of a MODIFIED requirement defined only by an active sibling's addition (per
+  requirement, never per section: a section-level paragraph leaves every requirement in
+  the block declaring nothing). The third widens the basis's periodic single-door
+  attestation by ONE FIELD — a dispatch record with no workspace-disposal evidence is
+  reported an UNATTESTED DISPOSAL — declared as a MODIFIED block rather than left as an
+  implicit extension reaching into a ratified requirement from outside it, and changing
+  nothing the attestation authorizes. The other two: field (10)
+  ceases to be a free disjunction for an originating repository that holds a
+  REGISTERED ORIGIN IDENTITY — the signature branch becomes required and must cover
+  all ten declared fields including the per-file hashes, with NO eleventh field and no
+  second digest, envelope, or handling-classification vocabulary, the signature being
+  computed with the one construction `signed-execution-chain` already puts in force;
+  and origin-signature verification becomes a THIRD verification class, conjunctive
+  with the provider resolution (a verifying signature over contradicted provenance
+  refuses; confirmed provenance with no verifying signature refuses) and reported as
+  its own dispatch-record outcome rather than folded into the provider-verified set,
+  while the POLICY-CHECKED fields — class constraints, worker profile, permitted
+  lanes, output schema — are RESOLVED FROM the closed permitted-operations register
+  rather than read from the bundle, the bundle's copies being claims compared against
+  it and the register governing on disagreement. ADDS three requirements the basis has
+  no counterpart to: SIGN-ON-RETURN (the host returns unsigned results, no attestation
+  private key reaches a governed host, and verification strictly precedes signing so
+  the hosted signer cannot become an oracle) and WORKSPACE DISPOSAL EVIDENCE as a
+  field of the dispatch record the basis already requires and already attests; and the
+  INBOUND RE-SEAL the basis states only outbound — returned output is re-served to the
+  originator from the clearing side's own sealed object, the originator never fetching
+  the execution host's run artifact nor holding a credential into the estate, stated
+  rather than left to the symmetry codexFactory PR #165 currently assumes. Field (10)'s
+  digest rule NAMES TWO CONSTRUCTIONS so neither reads as a new one: the manifest takes
+  canonical `xfc-jcs-sha256-1`, which first needs a TRANCHE-3 widening of that
+  construction's CLOSED `digest_subject` enumeration to admit a manifest subject (a
+  widening of SUBJECTS, never a second construction) and is reported UNREALIZABLE until
+  it lands, while per-file content hashes are plain algorithm-tagged SHA-256 over BYTES.
+  ADDS
+  the capability `factory-origin-identity` (six requirements): one Ed25519 origin
+  identity per originating repository in a NEW `governance/factory-identity/` register
+  that is a SIBLING of the review-authority intake register rather than an extension
+  (design D1, confirmed by the operator 2026-09-01), declaring `holder_class:
+  organisation` and explicitly NOT inheriting the seat-council spelling or per-seat
+  key-block shape a factory holder would fail; public key references only;
+  hosted-environment custody with the unattested cap; and two deliberately honest
+  limits — act distinctness ships as a CHECKED DISJOINTNESS RULE over the two
+  register families (no shared `key_id`, `did`, or fingerprint), with the read-time
+  refusal declared NOT YET IN FORCE because the pinned openXwallet reader still indexes
+  every wallet record in the tree into one context, and the register declares its OWN
+  staleness bound and ceiling with at-clearing revocation declared UNREALIZABLE until a
+  projection path exists, each carrying a scenario that REFUSES the premature claim.
+  The register is a permanently human-only surface floored BY NAME, and because
+  codexFactory's floor file is compared as an EXACT SET it must be updated in the same
+  governed act. OQ2 is RESOLVED to REFERENCE — the basis forbids a second envelope
+  vocabulary, so no manifest schema is added and no contract bundle is cut. OQ1 (the
+  register's projection path, four shapes sketched) and OQ3 (who scopes the review
+  reader) remain open, alongside the tranche-3 `digest_subject` widening the origin
+  signature needs before it is realizable. Archive is ORDERED AFTER the basis archives,
+  and **#555 MERGED FIRST**, 2026-09-02T09:16Z (`ab0bb2dd`) — the merge-order control
+  held, so the three contested `modified-block-currency` warnings this packet's
+  MODIFIED blocks raised while the basis was unmerged are gone (0 warnings at the
+  caught-up head `33fa2b54`; `--all --strict` 85/85). The three `health/
+  dispositions.yaml` disposition rows that would have belted a different order —
+  tracked as `opensoft/xFactory#201` — were CLOSED AS UNNECESSARY once the intended
+  order held.
 - [declare-spent-bundle-state](openspec/changes/declare-spent-bundle-state/proposal.md)
   — authored 2026-09-02, **RATIFIED 2026-09-02 BY DIRECT RULING**
   (`Status: ratified`; record `review/ratification-2026-09-02.md`) — Brett Heap
