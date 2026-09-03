@@ -351,10 +351,43 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       branch's own catch-up merge with `main` (commit `f7865ffc`):
       `32 active + 124 archived` = 156 change ids, `107` co-modified, `49`
       sole modifiers, `20 / 12` active co-modified/sole.
+    - `co_modified` reads 108, `active_co_modified` reads 21, `sole_modifiers`
+      falls to 48 and `active_sole` to 11 — moved 2026-09-03 by the
+      RATIFICATION of `create-medxchart-overlay-boundary`, which added a
+      `## MODIFIED Requirements` block over `domain-descendant-boundary`'s
+      requirement 'A descendant is placed at a ratified placement'. THE SHAPE
+      DIFFERS FROM #560's ABOVE AND THE DIFFERENCE IS THE WHOLE POINT: that PR
+      moved `co_modified` by TWO because the requirements it modified were
+      owned by another ACTIVE change, which flipped out of `sole` alongside it.
+      Here the requirement's other writer is the ARCHIVED
+      `2026-08-28-split-openxwallet-repo` that promoted it, and no ACTIVE
+      change writes that title, so exactly ONE change moves: this packet leaves
+      the sole set (its pre-existing `medxchart-overlay-boundary` titles being
+      NOVEL, which is what made it sole) and enters the co-modified one.
+      `change_ids` and `active` DO NOT MOVE — the change already existed as an
+      active change and this is a ratification, not an authoring — which is a
+      third distinct cause of this failure and must not be read as either of
+      the two the assertion messages name. MEASURED BY EXCLUSION, not inferred:
+      removing only `specs/domain-descendant-boundary/` from that packet and
+      re-running the sweep reproduces the entry above EXACTLY (156 change ids,
+      `107` co-modified, `49` sole modifiers, `20 / 12` active
+      co-modified/sole), so this one delta file is the whole of the difference.
+      Via `python3 scripts/validate-sequenced-after.py . --sweep`:
+      `32 active + 124 archived` = 156 change ids, `108` co-modified, `48`
+      sole modifiers, `21 / 11` active co-modified/sole.
     """
     sweep = sa.corpus_sweep(ROOT)
-    assert sweep.co_modified == 107, (
-        "107 since add-cpc-clearing-boundary (PR #560, 2026-09-02) carries "
+    assert sweep.co_modified == 108, (
+        "108 since create-medxchart-overlay-boundary was RATIFIED 2026-09-03 "
+        "and carries a `## MODIFIED Requirements` block over "
+        "domain-descendant-boundary's 'A descendant is placed at a ratified "
+        "placement' — it joins the co-modified population and leaves the sole "
+        "one, a ONE-count move because no OTHER ACTIVE change writes that "
+        "title (its other writer is the archived split-openxwallet-repo). "
+        "NOTE the third expected cause of this failure, distinct from the two "
+        "named below: RATIFYING an existing active change moves this pin "
+        "without moving `change_ids` or `active` at all. "
+        "It read 107 since add-cpc-clearing-boundary (PR #560, 2026-09-02) carries "
         "three `## MODIFIED Requirements` blocks over "
         "clearing-dispatch-boundary — all three tracing to the single "
         "earlier active change add-clearing-dispatch-boundary, previously "
@@ -373,8 +406,13 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "archive moves `active_co_modified`, never the corpus-wide "
         "`co_modified`). ANY later change carrying a MODIFIED block raises it "
         "again, which is one of the two EXPECTED causes of this failure")
-    assert sweep.active_co_modified == 20, (
-        "20 since add-cpc-clearing-boundary (PR #560, 2026-09-02) is itself "
+    assert sweep.active_co_modified == 21, (
+        "21 since create-medxchart-overlay-boundary's ratification 2026-09-03 "
+        "made an ALREADY-ACTIVE change a co-modifier: it gained a "
+        "`## MODIFIED Requirements` block over domain-descendant-boundary. "
+        "It rises by ONE and not two, no other ACTIVE change writing that "
+        "requirement's title. "
+        "It read 20 since add-cpc-clearing-boundary (PR #560, 2026-09-02) is itself "
         "an ACTIVE co-modifier entering the active corpus, AND flips "
         "add-clearing-dispatch-boundary — also ACTIVE — from sole to "
         "co-modified by sharing three requirement keys with it: two ACTIVE "
@@ -408,7 +446,14 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # set when add-cpc-clearing-boundary (PR #560) began sharing three
     # requirement keys with it. The `- 1` still subtracts only
     # add-sequenced-after-substrate (unaffected, still sole).
-    assert sweep.sole_modifiers - 1 == 48
+    #
+    # MOVED AGAIN 2026-09-03: `sole_modifiers` fell 49 → 48 when
+    # create-medxchart-overlay-boundary's ratification added a MODIFIED block
+    # and took that packet out of the sole set. It was sole until then on its
+    # NOVEL medxchart-overlay-boundary titles. The `- 1` still subtracts only
+    # add-sequenced-after-substrate (unaffected, still sole), so the reading
+    # falls with `sole_modifiers` to 47.
+    assert sweep.sole_modifiers - 1 == 47
     # STILL INTACT ON ITS MERITS, not by a cancelling pair of errors — checked,
     # because #563's archive landing between the authoring measurement and this
     # reading makes the coincidence worth ruling out explicitly. That archive
@@ -427,7 +472,14 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # is the actual cause. The `- 1` still subtracts only
     # add-sequenced-after-substrate (unaffected, still sole), so the reading
     # falls with `active_sole` to 11.
-    assert sweep.active_sole - 1 == 11
+    #
+    # MOVED AGAIN 2026-09-03: `active_sole` fell 12 → 11 alongside
+    # `sole_modifiers` above — create-medxchart-overlay-boundary is an ACTIVE
+    # change and its ratification moved it out of the sole set, so this pin and
+    # the corpus-wide one move together, unlike #563's archive which moved
+    # neither. The `- 1` still subtracts only add-sequenced-after-substrate, so
+    # the reading falls to 10.
+    assert sweep.active_sole - 1 == 10
     assert sweep.prose_headers == 3 and sweep.prose_headers_archived == 3
     assert sweep.declaring == 1
     assert sweep.declaring_ids == ("add-sequenced-after-substrate",)
