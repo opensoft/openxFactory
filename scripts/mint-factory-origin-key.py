@@ -1279,9 +1279,23 @@ def run_mint(args, runner) -> int:
     print("MINT")
     seed = secrets.token_bytes(32)
     try:
-        from cryptography.hazmat.primitives import serialization
-        from cryptography.hazmat.primitives.asymmetric.ed25519 import (
-            Ed25519PrivateKey)
+        try:
+            from cryptography.hazmat.primitives import serialization
+            from cryptography.hazmat.primitives.asymmetric.ed25519 import (
+                Ed25519PrivateKey)
+        except ImportError as exc:
+            # Pinned (with hashes) in requirements/hermes-runtime-contracts.lock
+            # alongside this suite's other test dependencies — an operator
+            # running outside that hash-pinned install is the only way to land
+            # here, and the fix is one command, not a second key derivation.
+            raise Refusal(
+                "cryptography-not-installed",
+                "the `cryptography` package is not importable "
+                f"({exc}); this program derives the Ed25519 key through it "
+                "and will not fall back to arithmetic of its own — run "
+                "`pip install cryptography` (pinned in "
+                "requirements/hermes-runtime-contracts.lock) and try "
+                "again") from exc
         public_raw = Ed25519PrivateKey.from_private_bytes(seed).public_key(
         ).public_bytes(encoding=serialization.Encoding.Raw,
                        format=serialization.PublicFormat.Raw)

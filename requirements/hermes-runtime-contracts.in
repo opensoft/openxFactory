@@ -8,3 +8,13 @@ referencing==0.37.0
 # validate-worker-enrollment.py).
 rfc3339-validator==0.1.4
 pytest==9.1.1
+# `scripts/mint-factory-origin-key.py` derives the Ed25519 public half from a
+# freshly generated 32-byte seed — real key GENERATION over secret material,
+# not the public-input-only verification `scripts/signed_execution_chain/
+# ed25519.py` deliberately hand-rolls to avoid this dependency. Generation is
+# the opposite tradeoff: a from-scratch implementation is the riskier choice
+# here (clamping, RNG handling, no side-channel review), so the mint uses the
+# audited library instead. Pinned to the same version already vetted and
+# hash-pinned in installs/hermes-install/uv.lock (cryptography==50.0.0), so
+# this repository does not carry a second, independently-drifting pin of it.
+cryptography==50.0.0
