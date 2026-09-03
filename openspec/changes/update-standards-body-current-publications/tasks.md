@@ -75,6 +75,20 @@
       the same refusal printed eighteen times and 77 KB of YAML was re-parsed
       for each.
 
+- [x] 3.8 **DONE 2026-09-03 — a registry that does not PARSE is a validator
+      finding, never a traceback.** Copilot review round 5: both call sites
+      caught `DuplicateRegistryKey` alone, and that class is a `ValueError`
+      while a syntax error or an unhashable key arrives as `yaml.YAMLError`, so
+      neither `except` covered the other. Both arms added. THE TWO SITES ARE NOT
+      THE SAME CASE, and the disposition says so rather than levelling them:
+      in `standards_body_ids()` the crash PREDATES this change — `yaml.safe_load`
+      raised identically there on `main` — so the arm makes the "degrades to a
+      no-op" its docstring already promised actually true; in `main()` the read
+      is NEW, so without the arm this change would have introduced a traceback
+      where the validator used to report findings. Probed with a real syntax
+      error and a real unhashable key injected into the registry: exit 1, **no
+      traceback**, `FAIL standards-body registry does not parse: ...` both times.
+
 ## 4. Consumer handoff
 
 - [x] 4.1 **DONE 2026-09-01 —** published `handoff/opsx-overlay-current-standards.md` naming `itil5`, SFIA 9's

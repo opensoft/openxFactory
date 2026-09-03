@@ -260,6 +260,28 @@ class TestRegistryLoader:
         with pytest.raises(DuplicateRegistryKey):
             load_registry(repeated)
 
+    def test_a_MALFORMED_registry_raises_YAMLError_and_not_something_else(
+        self, tmp_path: Path
+    ) -> None:
+        """The exception class both call sites depend on.
+
+        `scripts/validate-omnigent-contracts.py` degrades to an empty set and a
+        named failure rather than a traceback, and it does that by catching
+        `DuplicateRegistryKey` AND `yaml.YAMLError`. `DuplicateRegistryKey` is a
+        `ValueError`, so neither `except` covers the other — which is why the
+        class of everything ELSE that can go wrong is pinned here rather than
+        assumed.
+        """
+        broken = tmp_path / "broken.yaml"
+        broken.write_text("bodies:\n  - id: sfia\n   bad: indent\n",
+                          encoding="utf-8")
+
+        with pytest.raises(yaml.YAMLError):
+            load_registry(broken)
+        assert not isinstance(
+            pytest.raises(yaml.YAMLError, load_registry, broken).value,
+            DuplicateRegistryKey), "a parse error is not a duplicate-key finding"
+
     def test_a_registry_with_no_duplicate_loads_unchanged(
         self, tmp_path: Path
     ) -> None:

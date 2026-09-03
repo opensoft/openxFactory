@@ -142,6 +142,16 @@ def standards_body_ids() -> frozenset[str]:
     except DuplicateRegistryKey as exc:
         fail(f"standards-body registry: {exc}")
         return frozenset()
+    except yaml.YAMLError as exc:
+        # A registry that does not PARSE is a validator failure, never a
+        # traceback: `load_registry` raises `YAMLError` for a syntax error and
+        # for the `ConstructorError` an unhashable key produces, and
+        # `DuplicateRegistryKey` is a `ValueError`, so neither `except` covers
+        # the other. `yaml.safe_load` behaved this way here before the loader
+        # swap too — this arm makes the "degrades to a no-op" the docstring
+        # already promised actually true, rather than repairing a regression.
+        fail(f"standards-body registry does not parse: {exc}")
+        return frozenset()
     return frozenset(
         body["id"]
         for body in (doc.get("bodies") or [])
@@ -471,6 +481,13 @@ def main() -> int:
             # to check: report it as the one finding it is rather than letting
             # the traceback stand in for a validator failure.
             fail(f"standards-body registry: {exc}")
+        except yaml.YAMLError as exc:
+            # Same reasoning, one class wider: a registry that does not parse
+            # at all. THIS arm is new behaviour rather than preserved — `main()`
+            # did not read the registry before this change, so without it the
+            # change would have introduced a traceback where the validator used
+            # to report findings.
+            fail(f"standards-body registry does not parse: {exc}")
         else:
             for violation in registry_findings:
                 fail(f"standards-body registry: {violation}")
