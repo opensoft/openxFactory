@@ -13,8 +13,22 @@ placement** (`:76-85`). Restating promoted policy in differing words is a defect
 under `document-lifecycle`'s **Explicit delta rule**
 (`openspec/specs/document-lifecycle/spec.md:149-161`), not a strengthening of
 it, so what survives here is only what is MedxPractice-SPECIFIC: the identity of
-this pin, the relocation this change performed, and this descendant's placement
-CITED from its one writer.
+this pin, the aggregation's single route to openPractice that the relocation left
+behind, and this descendant's placement CITED from its one writer.
+
+**NARROWED AGAIN 2026-09-03, in this packet's pre-capture fix round, on the
+adversarial review of pull request #609.** Two of the three surviving
+requirements were still saying more than they could carry. Requirement 2 obliged
+where a developer's standalone `openPractice` checkout sits on a local
+filesystem, which no remote and no CI can settle; it now obliges only the half
+that IS checkable — the aggregation's single route — and the workspace-root
+sentence is recorded as a local convention at `design.md` Decision 4. Requirement
+3 asserted the placement path, the absolute remote and the gitlink in its BODY,
+which is the very restatement its own third scenario swears it does not make; the
+body now names none of them and defers to the cited delta, and the three concrete
+values live in its scenarios as EVIDENCE. Requirement 1's manifest field list,
+which read as though all eight fields were top-level, is corrected to the nested
+shape the live file carries.
 
 **What this change RELIES ON WITHOUT MODIFYING**, named rather than repeated —
 ALL FIVE promoted `domain-descendant-boundary` requirements, each of which
@@ -39,12 +53,19 @@ that cites that delta.
 
 `MedxPractice` SHALL pin `opensoft/openPractice` at revision
 `9526bd9ef27bb6b017c2357ebaf1a24cfe570f0d` and SHALL declare that revision in
-`contracts/openpractice-pin.yaml` carrying `schema_version: 1`,
-`kind: medxpractice_openpractice_pin`, `repository: opensoft/openPractice`,
+`contracts/openpractice-pin.yaml`, which carries top-level `schema_version: 1`
+and `kind: medxpractice_openpractice_pin`, and under `pin:` the fields
+`repository: opensoft/openPractice`,
 `remote: git@github.com:opensoft/openPractice.git`,
+`revision: 9526bd9ef27bb6b017c2357ebaf1a24cfe570f0d`,
 `submodule_path: openPractice`, `source_path: .` and
-`relationship: pinned_upstream_composition`. The two repositories' VISIBILITIES
-DIFFER AND THAT ASYMMETRY IS THE BOUNDARY'S REASON FOR EXISTING:
+`relationship: pinned_upstream_composition`. **The manifest is NESTED, not
+flat**: only the two declaration fields sit at the top level and the six pin
+fields sit under `pin:`, which is the shape the scenario below reads as
+`pin.revision`.
+
+The two repositories' VISIBILITIES DIFFER AND THAT ASYMMETRY IS THE BOUNDARY'S
+REASON FOR EXISTING:
 `opensoft/openPractice` is PUBLIC and `opensoft/MedxPractice` is PRIVATE, so the
 branded Medx composition can be held closed over an upstream that stays open,
 without forking it. This requirement states the IDENTITY of one pin and says
@@ -75,48 +96,58 @@ relies on and does not restate.
 - **AND** moving it is a deliberate re-pin performed under the cited promoted
   same-commit rule, never a consequence of the upstream having moved
 
-### Requirement: The standalone openPractice checkout lives outside the aggregation workspace
+### Requirement: The aggregation reaches openPractice only through MedxPractice
 
-The canonical standalone `openPractice` checkout SHALL live at the projects
-workspace root rather than inside the xFactory aggregation workspace, with its
-own Git history, origin and tracked content unchanged by the relocation, and the
-aggregation SHALL reach openPractice ONLY through `MedxPractice`'s nested
-gitlink rather than through a second checkout of its own. This is the act of
-this change that NO promoted requirement covers:
-`domain-descendant-boundary` governs where a DESCENDANT is placed and how it
-pins its product, and says nothing about where the PRODUCT's own standalone
-checkout lives.
+The xFactory aggregation SHALL reach `openPractice` ONLY through
+`MedxPractice`'s nested gitlink, and no direct `xFactories/openPractice`
+aggregate entry SHALL exist. This is the act of this change that NO promoted
+requirement covers: `domain-descendant-boundary` governs where a DESCENDANT is
+placed and how it pins its product, and says nothing about how the aggregation
+reaches the PRODUCT itself.
 
-#### Scenario: The relocated upstream is inspected
-
-- **WHEN** `openPractice` is opened from its workspace-root location
-- **THEN** its origin is `opensoft/openPractice` and its history and tracked
-  content are unchanged by the move
-- **AND** it remains independently usable without any Medx checkout
+**The relocation's OTHER half is deliberately not obliged here.** As authored
+this requirement also swore that the canonical standalone `openPractice`
+checkout lives at the projects workspace root rather than inside the aggregation
+workspace. Where a checkout sits on a developer's local filesystem is
+unverifiable by any remote or by CI — `review/verification-2026-09-03.md` § 9
+says so in as many words, and the act's own success criterion is that it leaves
+no trace in Git — so obliging it would be a SHALL no reader can settle. It is
+recorded instead as a LOCAL CONVENTION at `design.md` Decision 4. What survives
+here is the half a remote reading DOES settle, and § 5 of that verification
+record settles it.
 
 #### Scenario: The aggregation is asked for openPractice
 
-- **WHEN** the xFactory aggregation resolves the practice-operations upstream
-- **THEN** it reaches it through `xFactories/MedxPractice`'s nested
-  `openPractice` gitlink
-- **AND** no direct `xFactories/openPractice` aggregate entry exists
+- **WHEN** the aggregation's `.gitmodules` and `xFactories/` tree are read on
+  `opensoft/xFactory`'s `main`
+- **THEN** the practice-operations upstream is reached through
+  `xFactories/MedxPractice`'s nested `openPractice` gitlink
+- **AND** neither carries an `xFactories/openPractice` entry
 
-### Requirement: MedxPractice is aggregated at the cited xFactories placement
+#### Scenario: The public upstream is still independently addressable
 
-The xFactory aggregation SHALL carry `MedxPractice` at
-`xFactories/MedxPractice`, with the ABSOLUTE
-`git@github.com:opensoft/MedxPractice.git` remote its sibling submodules use and
-the gitlink `d8d73195609df3b567643a7bf1252eac352d9996`, and MedxFactory SHALL
-name MedxPractice as the practice-operations composition with `openPractice` as
-its pinned public upstream. **THE PLACEMENT IS NOT RATIFIED HERE AND IS NOT
-RESTATED HERE.** The `xFactories/` placement is governed by the promoted
+- **WHEN** `opensoft/openPractice` is read on its own remote
+- **THEN** it is PUBLIC, its history and tracked content are unchanged by the
+  relocation, and it is usable without any Medx checkout
+- **AND** the aggregation holds no second copy of it
+
+### Requirement: MedxPractice is aggregated at the cited placement and named by MedxFactory
+
+The xFactory aggregation SHALL carry `MedxPractice` at the placement the cited
+delta ratifies, at the gitlink and remote form that delta records, and
+MedxFactory SHALL name MedxPractice as the practice-operations composition with
+`openPractice` as its pinned public upstream. **THE PLACEMENT IS NOT RATIFIED
+HERE AND IT IS NOT RESTATED HERE.** It is governed by the promoted
 **A descendant is placed at a ratified placement**
 (`openspec/specs/domain-descendant-boundary/spec.md:76-85`) as amended by the
 explicit delta the sibling change carries at
 `openspec/changes/create-medxchart-overlay-boundary/specs/domain-descendant-boundary/spec.md`,
-which ratifies that placement on the 2026-09-03 ruling and names
-`xFactories/MedxPractice` at this exact gitlink among its two realized
-placements. This change CITES that delta and carries none of its own.
+which ratifies that placement on the 2026-09-03 ruling and names this descendant
+among its two realized placements, at the remote form and the gitlink that delta
+records. This change CITES that delta and carries none of its own. **The
+concrete values — the path, the absolute remote and the gitlink — appear in this
+requirement's scenarios ONLY, as EVIDENCE that the cited rule holds of this
+descendant today, never as a second statement of the rule itself.**
 
 #### Scenario: The aggregate submodule manifest is inspected
 
@@ -125,7 +156,8 @@ placements. This change CITES that delta and carries none of its own.
 - **THEN** the practice-operations entry is `xFactories/MedxPractice` at
   `git@github.com:opensoft/MedxPractice.git`, containing neither a relative path
   nor a host-absolute local path
-- **AND** the recorded gitlink equals `opensoft/MedxPractice`'s own `main`
+- **AND** the recorded gitlink is `d8d73195609df3b567643a7bf1252eac352d9996`,
+  equal to `opensoft/MedxPractice`'s own `main`
 
 #### Scenario: A reader asks what ratifies this placement
 

@@ -13,7 +13,88 @@ NARROWED at this ratification, and NO `## MODIFIED Requirements` block) — with
 `openspec validate --strict` and `--all --strict` green and the verification run
 captured beside this file at `verification-2026-09-03.md`.
 
-This is a CAPTURED record. It is written once and never edited.
+This is a CAPTURED record. **Capture is the MERGE of the pull request that
+establishes it, not the first push**, and nothing is merged yet — so the
+paragraph below is a correction made BEFORE capture, not an edit of a captured
+record. After merge this record is written once and never edited.
+
+**Corrected pre-capture, 2026-09-03, on the adversarial review of openxFactory
+pull request #609.** The review found the packet sound and well-evidenced and
+raised one P1 and several P2/P3 defects. They are fixed on this branch, before
+capture, and they are listed here by the review's own numbering so that a later
+reader can see WHAT changed between first push (`df8bd27a`) and the head this
+record is captured at, rather than having to diff for it:
+
+- **P1-1** — `specs/medxpractice-overlay-boundary/spec.md` Requirement 3
+  restated, in its BODY, the placement path, the absolute remote and the gitlink
+  that the sibling's MODIFIED delta already states normatively, while its own
+  third scenario swore that "this change states no second version of that rule".
+  The body now obliges only "the placement the cited delta ratifies, at the
+  gitlink and remote form that delta records"; the three concrete values live in
+  that requirement's scenarios as EVIDENCE. The scenario is now true.
+- **P2-2** — the same file's Requirement 2 obliged where a developer's
+  standalone `openPractice` checkout sits on a LOCAL FILESYSTEM, which no remote
+  and no CI can settle and which this packet's own verification record § 9 says
+  is not reproducible. It now obliges only the checkable half — the aggregation
+  reaches `openPractice` ONLY through `MedxPractice`'s nested gitlink and no
+  direct `xFactories/openPractice` entry exists — and its title, "The
+  aggregation reaches openPractice only through MedxPractice", says so. The
+  workspace-root sentence moved to `design.md` Decision 4 as a recorded LOCAL
+  CONVENTION, and both scenarios were rewritten to the checkable form.
+- **P2-3** — Requirement 1 listed the pin manifest's eight fields as though all
+  were top-level. The live `contracts/openpractice-pin.yaml` in
+  `opensoft/MedxPractice` at `d8d73195` NESTS six of them under `pin:`, which is
+  why the scenario beneath already read `pin.revision`. The requirement now
+  states the nested shape, and `tasks.md` 5.1's validator wording was corrected
+  to match — a validator written to the flat shape would pass a file that does
+  not exist.
+- **P2-4** — § 3, P1-2 said "four" promoted requirements were relied on. It is
+  FIVE, as the spec delta's head, `proposal.md` and § 4 of this record all say.
+- **P2-5** — the answer this packet records to the sibling's open `tasks.md` 5.5
+  did not say what it could not do. Both here and at `tasks.md` § 5 it now adds:
+  this paragraph is the answer; the sibling's 5.5 checkbox cannot be ticked from
+  this pull request and is left for the sibling's own pass to tick with a
+  pointer here.
+- **P2-6** — `tasks.md` 6.2 called an out-of-order merge "a broken reference,
+  not a wrong rule". That understated it, and the note is corrected: merging
+  this packet before the sibling would leave promoted
+  `domain-descendant-boundary:80-85` still reading "still `Status: draft`" while
+  this packet's ratified spec asserts the placement ratified — a ratified change
+  CONTRADICTING promoted canon, which is the Explicit delta rule's own defect,
+  repaired only by merging the sibling. The corrected note also states plainly
+  that **nothing in the repository gates the order** — no `sequenced_after:` is
+  owed, because the two packets co-modify nothing — so the order is protected by
+  this prose, the pull request body and the coordinator, and by nothing else.
+- **P3-7** — § 3, P1-2 cited `proposal.md:30-32` for a comment that exists only
+  in the file AS AUTHORED. The comment is now quoted and the head line range for
+  the correction is given instead.
+- **P3-8** — three console blocks in `verification-2026-09-03.md` (§ 4's compare
+  reading, § 5's `.gitmodules` reading, § 6's sweep) printed filtered or
+  composite output as though it were raw. They now show the filter actually run
+  or carry an excerpt marker, matching § 2's `…` convention.
+- **P3-9** — the pull request body reported "13 info" from
+  `scripts/doc-health.py`. The measured figure is **14**, on this tree and on the
+  base branch alike. The body is corrected.
+- **P3-10** — § 2's `ideation/staging/INDEX.md` quote range was `:2400-2405`; the
+  quoted sentence spans `:2399-2403`.
+- **P3-11** — Requirement 3's title named only the aggregation half of what its
+  body obliges. It now reads "MedxPractice is aggregated at the cited placement
+  and named by MedxFactory".
+
+**Two consequences of the base branch moving, recorded rather than glossed.**
+The sibling's own fix round landed while this one was in flight, so
+`origin/change/ratify-create-medxchart-overlay-boundary` advanced from
+`c39d29bc` to `4cb31b17` and was MERGED into this branch (no conflict) before
+these fixes were written, so that the citations here are read against the
+sibling's current delta. First: the sibling's ratification record now states
+`86/86` where it once stated 85, which makes this packet's
+`verification-2026-09-03.md` § 2 parenthetical about that number stale — it is
+corrected there. Second: that delta's own head says the citation from this
+packet "does not yet exist … that packet carries zero references to this file",
+a sentence written against the SIBLING's head and true there. It is not edited
+from here, because the sibling's delta has one writer and this is not it; it is
+named so a reader who meets both files on `main` after both merge knows the
+sentence is dated to its own branch rather than wrong about this one.
 
 ---
 
@@ -77,7 +158,7 @@ rest.
 
 **And one recorded conflict IS discharged by this act, in full.**
 `split-openxwallet-repo`'s staged record carries, under "Conflicts recorded, not
-resolved", this line at `ideation/staging/INDEX.md:2400-2405`: *"TWO of the
+resolved", this line at `ideation/staging/INDEX.md:2399-2403`: *"TWO of the
 three descendant precedents are NOT ratified in this repo — checked 2026-08-26,
 `create-medxchart-overlay-boundary` and `create-medxpractice-overlay-boundary`
 both stand `Status: draft`, leaving DTN-022's openAvatar ruling as the single
@@ -127,23 +208,29 @@ the file and line where the fix landed.
   it. **FIXED — the delta is narrowed, not deleted.** Three requirements
   survive, each keeping what only this packet can say:
   **MedxPractice pins openPractice at one named revision**
-  (`specs/medxpractice-overlay-boundary/spec.md:38`) — the IDENTITY of the pin
+  (`specs/medxpractice-overlay-boundary/spec.md:52`) — the IDENTITY of the pin
   (`opensoft/openPractice` at `9526bd9ef27bb6b017c2357ebaf1a24cfe570f0d`,
   `contracts/openpractice-pin.yaml`, `kind: medxpractice_openpractice_pin`,
   `relationship: pinned_upstream_composition`) plus the PRIVATE-over-PUBLIC
   visibility asymmetry that is the boundary's reason for existing;
-  **The standalone openPractice checkout lives outside the aggregation
-  workspace** (`:78`) — the relocation, which NO promoted requirement covers;
-  and **MedxPractice is aggregated at the cited xFactories placement** (`:104`)
-  — the placement facts (`git@github.com:opensoft/MedxPractice.git`, gitlink
-  `d8d73195…`) with the RULE cited rather than restated. The file's head
-  (`:1-34`) records the narrowing, maps each retired requirement to the promoted
-  one it restated, and names the four promoted requirements this change RELIES
-  ON WITHOUT MODIFYING; `proposal.md:64-79` says the same in the packet's own
+  **The aggregation reaches openPractice only through MedxPractice** (`:99`) —
+  the single route the relocation left behind, which NO promoted requirement
+  covers; and **MedxPractice is aggregated at the cited placement and named by
+  MedxFactory** (`:134`) — the aggregation's carrying of this descendant and
+  MedxFactory's naming of it, with the placement RULE cited rather than
+  restated and the concrete values held in the scenarios as evidence. (Those
+  last two titles and bodies were narrowed FURTHER in the pre-capture fix round
+  — see the "Corrected pre-capture" paragraph at the head of this record.) The
+  file's head (`:1-48`) records the narrowing, maps each retired requirement to
+  the promoted one it restated, and names ALL FIVE promoted requirements this
+  change RELIES ON WITHOUT MODIFYING; `proposal.md:64-79` says the same in the packet's own
   Capabilities section, which is where the Explicit delta rule's reader will
   look.
-  **`proposal.md:30-32`'s "No existing openxFactory capability requirements
-  change" is CORRECTED rather than deleted** (`proposal.md:48-63`): the
+  **The Modified Capabilities section AS AUTHORED — a bare
+  `<!-- No existing openxFactory capability requirements change. -->` — is
+  CORRECTED rather than deleted** (the correction is `proposal.md:48-63` at this
+  head; the comment it replaced survives only in the pre-ratification file, so it
+  is quoted here rather than cited by a line range that no longer holds it): the
   placement requirement DOES change, that modification is carried by
   `create-medxchart-overlay-boundary` at
   `openspec/changes/create-medxchart-overlay-boundary/specs/domain-descendant-boundary/spec.md`,
@@ -168,7 +255,9 @@ the file and line where the fix landed.
   answer recorded here is YES — the two descendants carry the identical two-pin
   shape and differ only in the product name and the four literal values that
   follow from it, so one validator shape covers one pin shape. The question is
-  answered in the packet that owns the repository it is about.
+  answered in the packet that owns the repository it is about. **This paragraph
+  is the answer; the sibling's 5.5 checkbox cannot be ticked from this pull
+  request and is left for the sibling's own pass to tick with a pointer here.**
 
 ### P2 — substantive
 
@@ -313,7 +402,9 @@ on merged code plus green realization evidence, never on landing.
 citation line, the Capabilities section rewritten so the narrowing and the
 citation are stated where a reader looks, the Impact bullets measured);
 `design.md` (the re-pin note, the reachability risk discharged, the relative-URL
-risk recorded as materialized-and-reversed, and a Known limitations section);
+risk recorded as materialized-and-reversed, a Known limitations section, and —
+added in the pre-capture fix round — the workspace-root layout recorded at
+Decision 4 as a LOCAL CONVENTION rather than obliged as an uncheckable SHALL);
 `specs/medxpractice-overlay-boundary/spec.md` (NARROWED — three requirements
 kept, each rewritten to what only this packet can say, with the retired
 restatements mapped to the promoted requirements they restated); `tasks.md`

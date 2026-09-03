@@ -7,6 +7,15 @@ Captured: 2026-09-03, in the ratification lane `openxfactory-max001`
 `change/ratify-create-medxpractice-overlay-boundary`, which is stacked on
 `change/ratify-create-medxchart-overlay-boundary` (openxFactory PR #608).
 
+**Re-measured 2026-09-03 in this packet's pre-capture fix round, on a tree that
+had moved.** The sibling's own fix round landed while this one was in flight, so
+its branch advanced `c39d29bc` → `4cb31b17` and was merged into this one (no
+conflict) before these corrections were written. Everything below is stated
+against THAT tree. What the merge changed for this record is named where it
+falls: § 2's parenthetical about the sibling's item count, and § 4, § 5 and § 6's
+console blocks, which showed filtered or composite output as though it were raw
+and now show the filter that was actually run.
+
 **Why this file exists.** `tasks.md` 4.1 and 4.2 are ticked and no report was
 ever written for either. The checkboxes are NOT unticked — the checks were run
 in session on 2026-08-23 and unticking would assert they were not. What is done
@@ -48,9 +57,12 @@ specification in the repository, this change included. **The same command on the
 sibling branch this one is stacked on returns 86 as well**, checked in a
 detached worktree at `origin/change/ratify-create-medxchart-overlay-boundary`,
 so this ratification adds no item and removes none; it narrows one that was
-already counted. (The sibling's own record states 85, a reading taken earlier in
-that branch's life; the current reading on BOTH branches is 86, and it is stated
-here as measured rather than reconciled to the earlier number.)
+already counted. (As first written this paragraph added that "the sibling's own
+record states 85, a reading taken earlier in that branch's life". **That is no
+longer so, and the sentence is corrected pre-capture rather than left standing**:
+the sibling's own fix round re-derived its record on its rebased tree and now
+states 86/86 as well. Both branches read 86, both records say 86, and there is
+nothing left to reconcile.)
 
 ## 3. The pin agreement, read from an INDEPENDENT clone
 
@@ -119,6 +131,9 @@ $ git ls-remote https://github.com/opensoft/openPractice.git HEAD refs/heads/mai
 
 $ gh api repos/opensoft/openPractice/compare/9526bd9e…...main --jq '{status,ahead_by,behind_by}'
 {"ahead_by":2,"behind_by":0,"status":"ahead"}
+
+$ gh api repos/opensoft/openPractice/compare/9526bd9e…...main \
+    --jq '.commits[] | "\(.sha[0:8]) \(.commit.message | split("\n")[0])"'
 0205901b Document reimbursement retention control
 0ec9fca7 Merge pull request #1 from opensoft/docs/add-reimbursement-retention-control
 ```
@@ -136,12 +151,19 @@ Read through the API rather than from the local superproject checkout:
 
 ```console
 $ gh api repos/opensoft/xFactory/contents/.gitmodules --jq .content | base64 -d
+…    # excerpt: 20 submodule stanzas in the file; the two Medx ones are adjacent
 [submodule "xFactories/MedxChart"]
 	path = xFactories/MedxChart
 	url = git@github.com:opensoft/MedxChart.git
 [submodule "xFactories/MedxPractice"]
 	path = xFactories/MedxPractice
 	url = git@github.com:opensoft/MedxPractice.git
+…
+
+# and the same file asked directly whether openPractice is entered at all:
+$ gh api repos/opensoft/xFactory/contents/.gitmodules --jq .content | base64 -d \
+    | grep -c 'openPractice'
+0
 
 $ gh api repos/opensoft/xFactory/contents/xFactories --jq '.[] | select(.name=="MedxPractice") | "\(.name) \(.type) \(.sha)"'
 MedxPractice file d8d73195609df3b567643a7bf1252eac352d9996
@@ -200,6 +222,8 @@ rather than assumed:
 
 ```console
 $ python3 scripts/validate-sequenced-after.py . --sweep
+sequenced_after corpus sweep
+----------------------------
 change ids (33 active + 124 archived): 157
 co-modified at requirement granularity (each would owe a declaration): 109
 sole modifiers (each would declare `sequenced_after: []`): 48

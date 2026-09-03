@@ -100,16 +100,23 @@ gitlink plus a `contracts/<product>-pin.yaml` with `schema_version: 1`, a
 from it, so one validator shape covers one pin shape and a second shape would be
 two answers to one question. The DOING of it for MedxPractice is 5.1–5.4 below;
 the sibling's 5.5 is discharged by this paragraph and needs no second decision.
+**This paragraph is the answer; the sibling's 5.5 checkbox cannot be ticked from
+this pull request and is left for the sibling's own pass to tick with a pointer
+here.**
 
 - [ ] 5.1 Author `tests/validate_pin.py` in `opensoft/MedxPractice`,
       fail-closed, REFUSING (never warning, never defaulting) when: the nested
       `openPractice` gitlink and `contracts/openpractice-pin.yaml`'s
       `pin.revision` name different commits; either is absent or unparseable;
-      the pin manifest's `schema_version`/`kind` are not `1` /
-      `medxpractice_openpractice_pin`; or the CHECKED-OUT `openPractice/`
-      revision differs from the recorded one or is dirty — the fourth check
-      being the one that catches a fork executing at another commit while all
-      three declarations agree.
+      the manifest's TOP-LEVEL `schema_version`/`kind` are not `1` /
+      `medxpractice_openpractice_pin`, or its `pin:` MAPPING is absent or is
+      missing any of `repository`, `remote`, `revision`, `submodule_path`,
+      `source_path` and `relationship: pinned_upstream_composition` — the
+      manifest is NESTED, two declaration fields above and six pin fields under
+      `pin:`, and a validator that reads them flat passes a file that does not
+      exist; or the CHECKED-OUT `openPractice/` revision differs from the
+      recorded one or is dirty — that last check being the one that catches a
+      fork executing at another commit while all three declarations agree.
 - [ ] 5.2 Add `.github/workflows/pin-validation.yml` in
       `opensoft/MedxPractice` running 5.1 on pull request and on push to
       `main`, with the check named `pin-validation` to match the LedgerxWallet
@@ -158,8 +165,30 @@ the sibling's 5.5 is discharged by this paragraph and needs no second decision.
       reason is not courtesy but ownership: the sibling carries the
       `domain-descendant-boundary` placement delta and this packet carries none,
       so the amendment must be on the base branch before the packet that cites
-      it can be read against it. If the two ever merge out of order the citation
-      in `specs/medxpractice-overlay-boundary/spec.md` points at a path that is
-      not yet on `main` — which is a broken reference, not a wrong rule, and is
-      repaired by merging the sibling rather than by writing a second delta
-      here.
+      it can be read against it.
+      - *2026-09-03 — what an out-of-order merge would ACTUALLY cost, corrected
+        pre-capture.* This note first said the cost was "a broken reference, not
+        a wrong rule". **That understated it.** This pull request is STACKED on
+        the sibling's; it is retargeted to `main` when the sibling merges, and a
+        merge in the other order — this one onto `main` while the sibling's
+        delta is still unmerged — would leave promoted
+        `domain-descendant-boundary` (`openspec/specs/domain-descendant-boundary/spec.md:80-85`)
+        still reading **"REALIZED BUT NOT YET RATIFIED … whose establishing act
+        `create-medxchart-overlay-boundary` is still `Status: draft`"** at the
+        same moment this packet's ratified
+        `specs/medxpractice-overlay-boundary/spec.md` asserts that the placement
+        IS ratified and that its ratifying delta exists. That is not a dangling
+        path; it is **a ratified change contradicting promoted canon**, which is
+        the `document-lifecycle` Explicit delta rule's own defect, and the only
+        repair is merging the sibling — writing a second delta here would create
+        the two-writers problem the whole arrangement exists to avoid.
+      - **NOTHING IN THE REPOSITORY GATES THE ORDER.** No `sequenced_after:`
+        declaration is owed and none is present, because the substrate keys on
+        CO-MODIFICATION at requirement granularity and these two packets
+        co-modify nothing: this one is ADDED-only on a capability it alone
+        writes, and the sibling owns the `domain-descendant-boundary` block
+        outright. `scripts/validate-sequenced-after.py` therefore has no hook to
+        catch a wrong order, and no check anywhere else does either. **The order
+        is protected only by this prose, by the pull request body, and by the
+        coordinator who merges** — which is worth saying plainly rather than
+        leaving a reader to assume a machine is watching.

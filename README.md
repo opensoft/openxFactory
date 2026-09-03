@@ -1533,11 +1533,17 @@ Active changes:
   gitlink `d8d73195`; the relative `../MedxPractice` form it first landed with
   was normalized at `opensoft/xFactory` `386e7ee2` alongside its MedxChart
   sibling. **The spec delta was NARROWED at ratification** under decision 2
-  option 1 to what is MedxPractice-specific — the pin's identity, the relocation
-  of the standalone openPractice checkout, and the `xFactories/` placement CITED
-  rather than restated — because the three requirements as authored restated
-  promoted `domain-descendant-boundary` in differing words, which the Explicit
-  delta rule calls a defect. **This change carries NO `## MODIFIED Requirements`
+  option 1 to what is MedxPractice-specific — the pin's identity, the
+  aggregation's single route to openPractice, and this descendant's placement
+  CITED rather than restated — because the three requirements as authored
+  restated promoted `domain-descendant-boundary` in differing words, which the
+  Explicit delta rule calls a defect. It was narrowed AGAIN in the pre-capture
+  fix round: the placement requirement no longer states the path, remote or
+  gitlink in its body (they are evidence in its scenarios), the relocation
+  requirement keeps only the half a remote reading can settle with the
+  workspace-root layout recorded as a local convention in `design.md`, and the
+  pin manifest's shape is stated as the NESTED file the descendant actually
+  carries. **This change carries NO `## MODIFIED Requirements`
   block**: the placement amendment is the sibling
   `create-medxchart-overlay-boundary`'s, which names `xFactories/MedxPractice`
   among its realized placements, so one requirement has one writer. **It

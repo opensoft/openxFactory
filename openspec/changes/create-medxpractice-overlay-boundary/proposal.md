@@ -34,13 +34,19 @@ keeping the upstream repository independently usable and replaceable.
 - `medxpractice-overlay-boundary`: Govern the private MedxPractice composition
   boundary and its immutable openPractice upstream pin. **NARROWED 2026-09-03**
   under decision 2 option 1 to what is MedxPractice-SPECIFIC — the identity of
-  this pin, the relocation of the standalone `openPractice` checkout, and this
-  descendant's `xFactories/` placement CITED rather than restated. The three
-  requirements as authored restated promoted `domain-descendant-boundary` in
-  differing words, which the Explicit delta rule
-  (`openspec/specs/document-lifecycle/spec.md:149-161`) calls a defect; the
-  narrowing and the mapping of each old requirement to the promoted one it
-  restated are stated at the head of
+  this pin, the aggregation's single route to `openPractice` that the relocation
+  left behind, and this descendant's placement CITED rather than restated. The
+  three requirements as authored restated promoted `domain-descendant-boundary`
+  in differing words, which the Explicit delta rule
+  (`openspec/specs/document-lifecycle/spec.md:149-161`) calls a defect. It was
+  narrowed AGAIN in the pre-capture fix round on pull request #609: the
+  placement requirement states none of the path, remote or gitlink in its body
+  (they are evidence in its scenarios), the relocation requirement keeps only
+  the half a remote reading can settle with the workspace-root layout recorded
+  as a local convention at `design.md` Decision 4, and the pin manifest is
+  described in the NESTED shape the descendant actually carries. The narrowing,
+  both rounds of it, and the mapping of each old requirement to the promoted one
+  it restated are stated at the head of
   `specs/medxpractice-overlay-boundary/spec.md`.
 
 ### Modified Capabilities

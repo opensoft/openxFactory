@@ -54,6 +54,23 @@ preserve.
 4. **Keep the public repository independent.** The standalone checkout moves to
    the shared projects area with its `.git` history intact. The private repo
    owns only composition and future branded overlay material.
+   - *2026-09-03 — the workspace-root layout is recorded HERE as a LOCAL
+     CONVENTION, and is deliberately not a requirement.* The canonical
+     standalone `openPractice` checkout lives at the projects workspace root
+     (beside the xFactory aggregation, not inside it), with its own Git history,
+     origin and tracked content unchanged by the relocation. As authored,
+     `specs/medxpractice-overlay-boundary/spec.md`'s second requirement swore
+     this as a SHALL. It was moved here in this packet's pre-capture fix round
+     because **no remote and no CI can settle it**: it is a statement about a
+     developer's local filesystem, and the relocation's own success criterion is
+     that it leaves no trace in Git — `review/verification-2026-09-03.md` § 9
+     says exactly that, and a SHALL nothing can check is a rule that cannot be
+     enforced or falsified. What the spec delta keeps is the half a remote
+     reading DOES settle: the aggregation reaches `openPractice` only through
+     `MedxPractice`'s nested gitlink and carries no direct
+     `xFactories/openPractice` entry, confirmed at § 5 of that record. Anyone
+     re-laying-out a workstation should follow this convention; nothing refuses
+     a tree that does not.
 
 ## Risks / Trade-offs
 
