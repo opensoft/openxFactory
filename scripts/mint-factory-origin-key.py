@@ -31,13 +31,15 @@ WHAT THIS PROGRAM WILL NOT DO, and why each refusal is here.
     one key are two keys to anything comparing strings.
 
 (2) IT NEVER LETS THE PRIVATE HALF BE OBSERVABLE. The 32-byte seed is generated
-    in this process, handed to `gh secret set --body -` on the child's STDIN,
-    and then overwritten and deleted. It is never an argv element (argv is
-    world-readable in /proc), never an environment variable (inherited by every
-    descendant, and printed by any `env` in a shell hook), never a temporary
-    file (survives a crash, lands in a backup), and never printed or logged.
-    The command log this program keeps records argv and the LENGTH of anything
-    written to a child's stdin, never its bytes.
+    in this process, handed to `gh secret set` on the child's STDIN — with NO
+    `--body` flag, which is what makes gh read stdin at all (see
+    `store_private_half`) — and then overwritten and deleted. It is never an
+    argv element (argv is world-readable in /proc), never an environment
+    variable (inherited by every descendant, and printed by any `env` in a
+    shell hook), never a temporary file (survives a crash, lands in a backup),
+    and never printed or logged. The command log this program keeps records
+    argv and the LENGTH of anything written to a child's stdin, never its
+    bytes.
 
 (3) IT REFUSES TO RE-MINT. The ratified requirement admits EXACTLY ONE origin
     identity per originating repository. Two independent preflight checks stand
@@ -627,18 +629,33 @@ def preflight(runner, validator, args, openx_root: Path,
 # --------------------------------------------------------------- the mint
 
 def store_private_half(runner, seed_hex: str) -> str:
-    """`gh secret set … --body -`, reading the seed from THIS PROCESS'S stdin
-    pipe, and the RFC3339 instant it succeeded at.
+    """`gh secret set`, reading the seed from THIS PROCESS'S stdin pipe, and the
+    RFC3339 instant it succeeded at.
 
-    `--body -` rather than `--body <value>` is the whole point: a value passed
-    as an argument is in the child's argv, which is world-readable in
+    STDIN RATHER THAN AN ARGUMENT is the whole point: a value passed as
+    `--body <value>` sits in the child's argv, which is world-readable in
     `/proc/<pid>/cmdline` for the life of the call and lands in the shell
-    history of anyone who reconstructs the command. No trailing newline is
-    written, so nothing depends on whether `gh` trims one.
+    history of anyone who reconstructs the command.
+
+    THERE IS NO `--body -`, AND WRITING ONE WOULD STORE THE STRING "-". `gh
+    secret set --help` (2.86.0): "-b, --body string   The value for the secret
+    (READS FROM STANDARD INPUT IF NOT SPECIFIED)". The flag takes no magic
+    dash — `--body -` is a body whose value is one hyphen, and `gh` would exit
+    0 having stored a one-character secret while this program reported a
+    successful mint. The stdin path is reached by OMITTING the flag, which is
+    also what `gh`'s own documented example does (`gh secret set MYSECRET <
+    myfile.txt`). Nothing prompts, because stdin is a pipe.
+
+    No trailing newline is written, so nothing depends on `gh`'s trimming.
+
+    THEN IT CONFIRMS THE STORE LANDED. A secret's value cannot be read back, so
+    the check is that the name now EXISTS where it did not before preflight —
+    which is the strongest available evidence that the exchange did something,
+    and it catches a `gh` that exits 0 having stored nothing.
     """
     code, out = runner.run(
         ["gh", "secret", "set", SECRET_NAME, "--env", ENVIRONMENT,
-         "--repo", TARGET_REPO, "--body", "-"],
+         "--repo", TARGET_REPO],
         stdin=seed_hex.encode("ascii"))
     if code != 0:
         raise Refusal(
@@ -647,7 +664,19 @@ def store_private_half(runner, seed_hex: str) -> str:
             f"NOTHING WAS WRITTEN to the register. The seed generated for this "
             f"run reached no destination and is being discarded; re-run to mint "
             f"a fresh one. Do NOT hand-copy a seed from anywhere.")
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    instant = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    code, out = runner.run(
+        ["gh", "secret", "list", "--env", ENVIRONMENT, "--repo", TARGET_REPO])
+    stored = {line.split()[0] for line in out.splitlines() if line.split()}
+    if code != 0 or SECRET_NAME not in stored:
+        raise Refusal(
+            "secret-set-unconfirmed",
+            f"`gh secret set` exited 0 but {SECRET_NAME} does not appear in "
+            f"{TARGET_REPO} environment {ENVIRONMENT} (list exit {code}): "
+            f"{out.strip()}\nNOTHING WAS WRITTEN to the register. Do not "
+            f"proceed: a register naming a public half whose private half "
+            f"reached no destination is a published identity nobody holds.")
+    return instant
 
 
 def fill_register(plan: Plan, values: dict[str, str], instant: str, *,
@@ -823,9 +852,9 @@ shared runner, not in any bundle, not in a vault.
 left the minting process.** The mint was performed by
 `openxFactory scripts/mint-factory-origin-key.py`, which generates the seed with
 `secrets.token_bytes(32)` in its own process, writes it to
-`gh secret set --body -` on the child's STDIN — never as an argv element, never
-as an environment variable, never as a temporary file — and then overwrites and
-deletes the variable. Its command log records argv and the LENGTH of anything
+`gh secret set` on the child's STDIN — never as an argv element, never as an
+environment variable, never as a temporary file — confirms the name now exists
+in that environment, and then overwrites and deletes the variable. Its command log records argv and the LENGTH of anything
 written to a child's stdin, never the bytes. The seed was never printed.
 
 **The encoding is 64 lowercase hex characters of the raw seed**, matching the
@@ -1042,7 +1071,8 @@ def print_plan(plan: Plan, *, dry_run: bool) -> None:
     print(f"  {verb} generate a 32-byte Ed25519 seed with "
           f"`secrets.token_bytes(32)`")
     print(f"  {verb} store it as {SECRET_NAME} in "
-          f"{TARGET_REPO} / {ENVIRONMENT} via `gh secret set --body -` on stdin")
+          f"{TARGET_REPO} / {ENVIRONMENT} via `gh secret set` on stdin, then "
+          f"confirm the name appears")
     print(f"  {verb} fill {EXPECTED_SENTINEL_TOTAL} "
           f"sentinel(s): {len(WALLET_FIELDS)} in {WALLET_REL}, "
           f"{len(ATTESTATION_FIELDS)} in {ATTESTATION_REL}")
@@ -1108,11 +1138,13 @@ MINT
   second implementation of base58btc or of the fingerprint spelling
 
 CUSTODY, minimal exposure
-  writes the seed to `gh secret set --body -` on the child's STDIN — never
-  argv, never a temp file, never an environment variable — records the RFC3339
-  provisioning instant, then overwrites and deletes the variable. The seed is
-  never printed, logged or written to disk. If the store fails, the program
-  aborts BEFORE any register edit
+  writes the seed to `gh secret set` on the child's STDIN — never argv, never
+  a temp file, never an environment variable; the stdin path is reached by
+  OMITTING `--body`, because that flag takes no magic dash and `--body -`
+  would store the string "-" — then CONFIRMS the name now exists, records the
+  RFC3339 provisioning instant, and overwrites and deletes the variable. The
+  seed is never printed, logged or written to disk. If the store fails or
+  cannot be confirmed, the program aborts BEFORE any register edit
 
 FILL
   replaces the five sentinels with the derived public values and the

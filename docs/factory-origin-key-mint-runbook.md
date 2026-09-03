@@ -111,7 +111,7 @@ unreachable.
 | --- | --- |
 | **Preflight** | `gh auth status`; the `worker-credentials` environment of `opensoft/codexFactory` resolves; the PINNED openXwallet decoders are importable; BOTH worktrees are clean and on their expected branches; all five `FILL-IN-AT-MINT` sentinels are still present (3 in the wallet, 2 in the attestation — the DISTRIBUTION, not only the total); `FACTORY_ORIGIN_SIGNING_KEY` does NOT already exist; today's mint record does not exist; the grant and its backing row already agree. Every check is read-only, so a refusal here spends nothing. |
 | **Mint** | generates the 32-byte seed with `secrets.token_bytes(32)`, derives the public half, and obtains `did` / `key_fingerprint` / `public_key_multibase` by CALLING `scripts/validate-factory-identity.py`'s own `derive` entry point IN-PROCESS. It implements no encoding of its own — see below. |
-| **Custody** | writes the 64-hex seed to `gh secret set … --body -` on the child's STDIN, records the RFC3339 instant, then overwrites and deletes the variable. If the store fails it aborts BEFORE any register edit. |
+| **Custody** | writes the 64-hex seed to `gh secret set` on the child's STDIN, CONFIRMS the name now appears in the environment, records the RFC3339 instant, then overwrites and deletes the variable. If the store fails or cannot be confirmed it aborts BEFORE any register edit. |
 | **Fill** | replaces the five sentinels, and re-stamps the expiries if the mint happens after the drafted `issued_at`. |
 | **Verify** | runs all four gates below against the filled tree BEFORE either commit. |
 | **Record and land** | writes the mint record from the template below into the codexFactory worktree, commits both worktrees with explicit pathspecs, pushes both, and moves both pull requests out of draft. |
@@ -146,7 +146,20 @@ set`'s standard input. It is never an argv element (argv is world-readable in
 descendant, printed by any `env`), never a temporary file (survives a crash,
 lands in a backup), and never printed or logged. The program's own command log
 records argv and the LENGTH of anything written to a child's stdin, never its
-bytes. **The encoding is 64 lowercase hex characters of the raw seed**, matching
+bytes.
+
+**THERE IS NO `--body -`, AND THE MANUAL APPENDIX MUST NOT WRITE ONE EITHER.**
+`gh secret set --help` (2.86.0): *"-b, --body string   The value for the secret
+(reads from standard input if not specified)"*. The flag takes no magic dash, so
+`--body -` is a body whose value is one hyphen — `gh` exits 0 having stored the
+one-character secret `-`, and every signature made under the key that was never
+stored fails later, somewhere else, for a reason nobody connects back to here.
+The stdin path is reached by OMITTING the flag, which is also `gh`'s own
+documented example (`gh secret set MYSECRET < myfile.txt`). Because a secret's
+value can never be read back, the program's only available confirmation is that
+the NAME appears where preflight proved it did not — it makes that check, and
+refuses `secret-set-unconfirmed` rather than filling a register whose private
+half reached no destination. **The encoding is 64 lowercase hex characters of the raw seed**, matching
 the council seat keys minted 2026-08-28: the loader accepts hex OR unpadded
 base64url of 32 bytes, and hex was chosen because its LENGTH ALONE
 disambiguates it — the property that makes a mis-set secret fail by name rather

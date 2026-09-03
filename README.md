@@ -135,7 +135,9 @@ Core domain-neutral docs:
   read-only preflight checks, derives the three public values by CALLING
   `validate-factory-identity.py`'s own `derive` in-process rather than
   implementing an encoding of its own, writes the 32-byte seed to
-  `gh secret set --body -` on stdin and nowhere else, fills all five sentinels
+  `gh secret set` on stdin and nowhere else (`--body` OMITTED, because that
+  flag takes no magic dash and `--body -` would store the string `-`), fills
+  all five sentinels
   as ONE act, re-stamps the expiry pair character-for-character, runs all four
   gates before either commit, writes the mint record into the originating
   repository, readies both draft pull requests — and does NOT merge, because

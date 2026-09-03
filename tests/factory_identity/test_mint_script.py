@@ -107,14 +107,20 @@ class FakeRunner:
 
     def __init__(self, *, auth_ok: bool = True, env_ok: bool = True,
                  secrets: tuple[str, ...] = (), secret_set_rc: int = 0,
+                 secret_set_silently_stores_nothing: bool = False,
                  branches: dict[str, str] | None = None,
                  dirty: dict[str, str] | None = None,
                  pr_numbers: dict[str, str] = None,
                  verify_rc: int = 0, disjointness: str = "0 shared") -> None:
         self.auth_ok = auth_ok
         self.env_ok = env_ok
-        self.secrets = secrets
+        # A LIST, because a successful `secret set` adds to it. The program
+        # confirms the name appears after storing, and a store that changed
+        # nothing must be able to fail that confirmation.
+        self.secrets = list(secrets)
         self.secret_set_rc = secret_set_rc
+        self.secret_set_silently_stores_nothing = \
+            secret_set_silently_stores_nothing
         self.branches = branches or {}
         self.dirty = dirty or {}
         self.pr_numbers = pr_numbers or {}
@@ -169,7 +175,13 @@ class FakeRunner:
             return 0, "".join(f"{name}\t2026-08-28T07:43:12Z\n"
                               for name in self.secrets)
         if args[1:3] == ("secret", "set"):
+            assert "--body" not in args, (
+                "`--body` takes no magic dash: `--body -` stores the string "
+                "'-'. The seed must arrive on stdin with the flag OMITTED")
             self.secret_stdin = stdin
+            if self.secret_set_rc == 0 \
+                    and not self.secret_set_silently_stores_nothing:
+                self.secrets.append(args[3])
             return (self.secret_set_rc,
                     "" if self.secret_set_rc == 0 else "HTTP 403")
         if args[1:3] == ("pr", "list"):
@@ -338,8 +350,10 @@ def test_help_documents_the_whole_ceremony() -> None:
             "mint-sentinels",
             "secret-absent",
             "CUSTODY",
-            "--body -",
-            "never a temp file",
+            "on the child's STDIN",
+            "OMITTING `--body`",
+            'would store the string "-"',
+            "never an environment variable",
             "character-for-character",
             "VERIFY",
             "0 shared",
@@ -588,7 +602,12 @@ def test_the_whole_mint(mint, tree, capsys) -> None:
     assert len(set_calls) == 1
     assert set_calls[0] == ("gh", "secret", "set", mint.SECRET_NAME,
                             "--env", mint.ENVIRONMENT,
-                            "--repo", mint.TARGET_REPO, "--body", "-")
+                            "--repo", mint.TARGET_REPO), (
+        "the invocation changed. THERE MUST BE NO `--body` FLAG: `gh secret "
+        "set --help` says the body 'reads from standard input if not "
+        "specified', the flag takes no magic dash, and `--body -` would exit 0 "
+        "having stored the one-character secret '-' while this program reported "
+        "a successful mint")
 
     # -- and nowhere else: not in an argv, not on stdout, not on disk
     for args in runner.argvs():
@@ -668,6 +687,26 @@ def test_a_failed_secret_set_aborts_before_any_register_edit(
              if path.is_file()}
     assert after == before, "the register was edited after custody failed"
     assert not runner.spoke("git", "commit")
+
+
+def test_a_store_that_exits_zero_but_stored_nothing_refuses(
+        mint, tree, capsys) -> None:
+    """A secret's value cannot be read back, so the only available confirmation
+    is that the NAME now exists where preflight proved it did not. A register
+    naming a public half whose private half reached no destination is a
+    published identity nobody holds."""
+    openx, codex = tree
+    before = {path: path.read_bytes()
+              for path in sorted((openx / FAMILY_REL).rglob("*"))
+              if path.is_file()}
+    runner = runner_for(mint, openx, codex,
+                        secret_set_silently_stores_nothing=True)
+    assert invoke(mint, openx, codex, runner) == 1
+    assert "refused [secret-set-unconfirmed]" in capsys.readouterr().err
+    after = {path: path.read_bytes()
+             for path in sorted((openx / FAMILY_REL).rglob("*"))
+             if path.is_file()}
+    assert after == before, "the register was edited on an unconfirmed store"
 
 
 def test_a_failing_gate_leaves_the_tree_modified_and_uncommitted(
