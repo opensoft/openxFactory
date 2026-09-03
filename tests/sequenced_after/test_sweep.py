@@ -547,10 +547,118 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       moves in the SAME COMMIT as the corpus, which is this test's own
       protocol, and the archive PR discloses that it touches this file for
       that reason and for no other: corpus BOOKKEEPING, not realization.
+    - RE-DERIVED A THIRD TIME 2026-09-03, on the merge of `main` at `2b0615da`
+      (after #611 archived `declare-spent-bundle-state`, then #614, #602,
+      #604) into the `create-medxchart-overlay-boundary` RATIFICATION branch,
+      and this is the entry that stands: `co_modified` reads 109,
+      `active_co_modified` reads 21, `sole_modifiers` falls to 49 (`- 1`: 48)
+      and `active_sole` to 12 (`- 1`: 11), while `change_ids` HOLDS at 158
+      (`- 1`: 157).
+      MAIN'S PIN IS ALREADY FULLY ACCOUNTED FOR BY THE ENTRY DIRECTLY ABOVE,
+      which is #611's own archive of `declare-spent-bundle-state` and left
+      `main` reading `33 active + 125 archived` = 158 change ids, `108`
+      co-modified, `50` sole modifiers, `20 / 13` active co-modified/sole —
+      the baseline this entry starts from. Three more commits landed on
+      `main` in the same window this branch's catch-up merge crosses — #614
+      (pins one `--as-of` clock across the self-gate's own two report
+      renderings), #602 (a workspace-record re-pointer) and #604 (an
+      oversized-upload rename guard) — and NONE moves this pin: a claim
+      MEASURED, not assumed, via `git diff --stat 6da1e1f5..2b0615da --
+      openspec/changes/`, which is empty over that range once #611's own
+      `declare-spent-bundle-state` move is set aside.
+      THIS BRANCH'S OWN CONTRIBUTION IS UNCHANGED IN SHAPE A THIRD TIME, only
+      restated from main's newer baseline: its `## MODIFIED Requirements`
+      block over `domain-descendant-boundary`'s 'A descendant is placed at a
+      ratified placement' adds +1 `co_modified` and +1 `active_co_modified`
+      and takes -1 `sole_modifiers` and -1 `active_sole` RELATIVE TO MAIN'S
+      PIN, and moves `change_ids` and `active` not at all — the same THIRD
+      CAUSE the first entry named (RATIFYING an already-active change moves
+      four membership readings and no population count), read against a
+      baseline that has now moved twice under it without the shape itself
+      ever changing.
+      MEASURED BY EXCLUSION ON THE MERGED TREE, not inferred and not carried
+      over from either earlier measurement:
+      `python3 scripts/validate-sequenced-after.py . --sweep` on the merged
+      tree reads `33 active + 125 archived` = 158 change ids, `109`
+      co-modified, `49` sole modifiers, `21 / 12` active co-modified/sole; the
+      SAME sweep on the merged tree with only
+      `openspec/changes/create-medxchart-overlay-boundary/specs/domain-descendant-boundary/`
+      moved aside reads `33 active + 125 archived` = 158, `108`, `50`,
+      `20 / 13` — MAIN'S PIN EXACTLY — and that reading is independently
+      confirmed by running the same sweep on `origin/main` at `2b0615da`
+      itself, which prints the same 158, `108`, `50`, `20 / 13`. So that one
+      delta directory is the whole of the difference between the two trees a
+      third time and no fourth change moved in the window. `archived` holds
+      at 125 (unmoved by this ratification: #611's archive of
+      `declare-spent-bundle-state` already set it there and this packet
+      archives nothing), prose headers hold at 3 (3 archived), and
+      `declaring`/`root_claims` hold at 1/0, none of which this ratification
+      touches. The pin moves in the SAME COMMIT as the corpus — here the
+      merge commit itself — which is this test's own protocol.
+    - `active_sole - 1` READS 10 ON THIS MERGE, and the two entries directly
+      above are BOTH kept because both are right about their own act and
+      neither is right about the total. RE-MEASURED 2026-09-03 by lane
+      `openxfactory-f2` on the merge of `main` at `ea117d4e` into this archive
+      branch — a catch-up merge taken to advance
+      `contracts/review-lane-pin.yaml` onto codexFactory's regenerated
+      54-spec floor (codexFactory PR #184, merge `8cb17373`), without which
+      this branch's own promoted spec is off the floor and the REQUIRED
+      `pytest-suite` is red.
+      THE TWO MOVES ABOVE NEITHER CANCEL NOR COINCIDE — THEY COMPOUND. Each
+      lowers `active_sole` 13 -> 12, and each removes a DIFFERENT change from
+      the same population: `main`'s is `create-medxchart-overlay-boundary`'s
+      RATIFICATION leaving the SOLE set (it gained a `## MODIFIED
+      Requirements` block, so `sole_modifiers` fell with it), while this
+      branch's is `update-standards-body-current-publications`' ARCHIVE
+      leaving the ACTIVE corpus (it was always sole, so `sole_modifiers`
+      holds). Two different subjects, one population, so on the merge of the
+      two the reading falls 13 -> 11 and the `- 1` — still subtracting
+      `add-sequenced-after-substrate` alone, an ACTIVE change, still sole, and
+      untouched by either act — falls to 10. A cancelling pair would have held
+      the pin; a coinciding pair would have moved it once. This is neither,
+      which is exactly why the arithmetic had to be re-measured rather than
+      carried over from either side.
+      MEASURED ON BOTH TREES rather than adjusted by arithmetic, via
+      `python3 scripts/validate-sequenced-after.py . --sweep`: `origin/main` at
+      `ea117d4e` reads `33 active + 125 archived` = 158 change ids, `109`
+      co-modified, `49` sole modifiers, `21 / 12` active co-modified/sole; this
+      merge reads `32 active + 126 archived` = 158, `109`, `49`, `21 / 11`.
+      AND MEASURED BY EXCLUSION, which is the step that rules out a third
+      change having moved in the window this catch-up crosses: undoing ONLY
+      the archive on the merged tree — moving the packet back out of
+      `openspec/changes/archive/` — reproduces `main`'s reading EXACTLY
+      (`33 active + 125 archived` = 158, `109`, `49`, `21 / 12`), so that one
+      directory move is the whole of the difference between the two trees and
+      no other change's contribution is hiding inside these counts.
+      EXACTLY ONE PIN MOVES: `active_sole` 12 -> 11. `co_modified` holds at
+      109 and `active_co_modified` at 21 (this packet was never in either
+      population, and `main`'s ratification had already set both);
+      `sole_modifiers` holds at 49 and `change_ids` at 158, both counting BOTH
+      corpora, an archive moving a change between them rather than out of
+      them; `archived` rises 125 -> 126; prose headers hold at 3 (3 archived);
+      `declaring`/`root_claims` hold at 1/0, the archived packet declaring no
+      `sequenced_after:` field and carrying no prose `Sequenced-after:`
+      header. The pin moves in the SAME COMMIT as the corpus — here the merge
+      commit that resolves this conflict — which is this test's own protocol.
     """
     sweep = sa.corpus_sweep(ROOT)
-    assert sweep.co_modified == 108, (
-        "108 since add-project-repo-schema was authored 2026-09-02: it "
+    assert sweep.co_modified == 109, (
+        "109 since create-medxchart-overlay-boundary was RATIFIED 2026-09-03 "
+        "and gained a `## MODIFIED Requirements` block over "
+        "domain-descendant-boundary's 'A descendant is placed at a ratified "
+        "placement'. THE THIRD EXPECTED CAUSE OF THIS FAILURE, distinct from "
+        "the authoring cause and the archiving cause named below: RATIFYING "
+        "an already-active change moves this pin while `change_ids` and "
+        "`active` do not move at all. The rise is ONE and `sole_modifiers` "
+        "FALLS with it — the same change enters co-modified and leaves sole, "
+        "its only earlier co-writer being the archived split-openxwallet-repo "
+        "that promoted the requirement. THE 108 IT ROSE FROM IS MAIN'S OWN, "
+        "measured on the merged tree at 2b0615da: declare-spent-bundle-state's "
+        "ARCHIVE (#611) does not move this reading — archiving a co-modified "
+        "active change moves `active_co_modified` alone, never the "
+        "corpus-wide `co_modified` — nor do #614, #602 or #604, none of which "
+        "touch `openspec/changes/**/specs/**`, so the rise to 109 is this "
+        "ratification's alone. It read 108 since add-project-repo-schema was authored 2026-09-02: it "
         "carries a `## MODIFIED Requirements` block over "
         "ideation-dashboard's \"Project grouping hierarchy\", so it joined the "
         "co-modified population — and it raised this count by exactly ONE, "
@@ -578,8 +686,15 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "archive moves `active_co_modified`, never the corpus-wide "
         "`co_modified`). ANY later change carrying a MODIFIED block raises it "
         "again, which is one of the two EXPECTED causes of this failure")
-    assert sweep.active_co_modified == 20, (
-        "20 since declare-spent-bundle-state was ARCHIVED 2026-09-03: "
+    assert sweep.active_co_modified == 21, (
+        "21 since create-medxchart-overlay-boundary was RATIFIED 2026-09-03, "
+        "making an ALREADY-ACTIVE change a co-modifier, with `active_sole` "
+        "falling 13 -> 12 in the same move because it is the same change "
+        "leaving the sole set. THE 20 IT ROSE FROM IS MAIN'S OWN, measured on "
+        "the merged tree at 2b0615da: declare-spent-bundle-state's ARCHIVE "
+        "(#611) is the very move that set this reading at 20, and #614/#602/"
+        "#604 touch nothing under `openspec/changes/`, so the rise to 21 is "
+        "this ratification's alone. It read 20 since declare-spent-bundle-state was ARCHIVED 2026-09-03: "
         "archiving a co-modified ACTIVE change lowers this count while "
         "leaving the corpus-wide `co_modified` untouched, the same shape "
         "#563's and #571's archives moved. It read 21 "
@@ -620,7 +735,12 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "declare-spent-bundle-state was authored 2026-09-02, 155 when "
         "add-cpc-clearing-boundary (PR #560) merged 2026-09-02, 156 when "
         "add-project-repo-schema was authored 2026-09-02, 157 when "
-        "update-standards-body-current-publications was adopted 2026-09-03")
+        "update-standards-body-current-publications was adopted 2026-09-03 "
+        "-- and HELD at 157 through declare-spent-bundle-state's ARCHIVE "
+        "2026-09-03 (#611, moves a change between buckets, not the total) "
+        "and through create-medxchart-overlay-boundary's RATIFICATION "
+        "2026-09-03, which moves four membership readings and no population "
+        "count at all")
     # MOVED 2026-09-02: `sole_modifiers` fell 50 → 49 for the same reason
     # `active_sole` falls below — add-clearing-dispatch-boundary left the sole
     # set when add-cpc-clearing-boundary (PR #560) began sharing three
@@ -628,10 +748,24 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # update-standards-body-current-publications was adopted (PR #593), an
     # ADDED-only packet over a new capability with novel requirement titles and
     # therefore a SOLE modifier — the opposite direction and the opposite cause,
-    # which is why the two are recorded separately rather than netted. The `- 1`
-    # still subtracts only add-sequenced-after-substrate (unaffected, still
-    # sole).
-    assert sweep.sole_modifiers - 1 == 49
+    # which is why the two are recorded separately rather than netted. HELD at
+    # 50 through declare-spent-bundle-state's ARCHIVE 2026-09-03 (#611): that
+    # change was always a co-modifier and never a sole one, so removing it
+    # from the active corpus touches `active_co_modified` alone.
+    #
+    # AND MOVED AGAIN 2026-09-03, on the merge of `main` at `2b0615da` (after
+    # #611's archive of declare-spent-bundle-state, and after #614/#602/#604,
+    # none of which touch `openspec/changes/**/specs/**`) into the
+    # create-medxchart-overlay-boundary RATIFICATION branch: `sole_modifiers`
+    # fell 50 -> 49 when that ratification added a `## MODIFIED Requirements`
+    # block and took the packet OUT of the sole set — it was sole until then
+    # on its NOVEL medxchart-overlay-boundary titles. UNLIKE
+    # add-project-repo-schema's authoring, which held this pin, this move DOES
+    # touch the sole set, because the change entering co-modified is the same
+    # change leaving sole. The `- 1` still subtracts only
+    # add-sequenced-after-substrate (unaffected, still sole), so the reading
+    # falls with `sole_modifiers` to 48.
+    assert sweep.sole_modifiers - 1 == 48
     # STILL INTACT ON ITS MERITS, not by a cancelling pair of errors — checked,
     # because #563's archive landing between the authoring measurement and this
     # reading makes the coincidence worth ruling out explicitly. That archive
@@ -657,20 +791,40 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # requirement titles is an ACTIVE SOLE modifier, so it enters exactly the
     # population #560 had just removed one from. The two moves are unrelated and
     # cancel only numerically; the `- 1` still subtracts
-    # add-sequenced-after-substrate alone.
+    # add-sequenced-after-substrate alone. HELD at 13 through
+    # declare-spent-bundle-state's ARCHIVE 2026-09-03 (#611): that change was
+    # always a co-modifier and never a sole one, so an archive of it never
+    # touches the sole set.
     #
-    # AND MOVED AGAIN 2026-09-03, THE SAME DAY AND BY THE SAME PACKET'S OTHER
-    # HALF: `active_sole` fell 13 -> 12 when
-    # update-standards-body-current-publications was ARCHIVED on merged-and-
-    # green realization evidence (PR #593's squash `3c237cd0`, `pytest-suite`
-    # run 33717394896). Archiving a SOLE active removes it from `active_sole`
-    # while leaving `sole_modifiers` and `change_ids` untouched — both count
-    # BOTH corpora — and leaving the two co-modified readings untouched too,
-    # this packet having never been in that population. It is the exact mirror
-    # of #571's 2026-09-02 archive, which moved `active_co_modified` alone.
-    # The `- 1` still subtracts add-sequenced-after-substrate alone, so the
-    # reading falls to 11 — which is the authoring measurement.
-    assert sweep.active_sole - 1 == 11
+    # THEN TWO INDEPENDENT MOVES LANDED ON THIS ONE PIN, AND BOTH STAND:
+    #
+    #   (a) `main`, 2026-09-03: `active_sole` fell 13 -> 12 on the merge of
+    #       `main` at `2b0615da` into the create-medxchart-overlay-boundary
+    #       RATIFICATION branch, ALONGSIDE `sole_modifiers` above — that
+    #       packet is ACTIVE and its ratification moved it out of the sole
+    #       set, so the two pins move together, as they always do when the
+    #       change that flips is itself ACTIVE.
+    #
+    #   (b) THIS BRANCH, 2026-09-03, THE SAME DAY AND BY THE SAME PACKET'S
+    #       OTHER HALF: `active_sole` fell 13 -> 12 when
+    #       update-standards-body-current-publications was ARCHIVED on
+    #       merged-and-green realization evidence (PR #593's squash
+    #       `3c237cd0`, `pytest-suite` run 33717394896). Archiving a SOLE
+    #       active removes it from `active_sole` while leaving
+    #       `sole_modifiers` and `change_ids` untouched — both count BOTH
+    #       corpora — and leaving the two co-modified readings untouched too,
+    #       this packet having never been in that population. It is the exact
+    #       mirror of #571's 2026-09-02 archive, which moved
+    #       `active_co_modified` alone.
+    #
+    # THEY COMPOUND rather than cancel or coincide — DIFFERENT subjects, ONE
+    # population — so on the merge of the two `active_sole` reads 11 and this
+    # `- 1` reading falls to 10. Each half read 11 against its own baseline
+    # and each was right about its own act; the total is neither of theirs,
+    # which is why it was RE-MEASURED on the merged tree rather than carried
+    # over from either side. That measurement, its by-exclusion control, and
+    # the pins that HELD are in the MOVEMENT LOG's last entry above.
+    assert sweep.active_sole - 1 == 10
     assert sweep.prose_headers == 3 and sweep.prose_headers_archived == 3
     assert sweep.declaring == 1
     assert sweep.declaring_ids == ("add-sequenced-after-substrate",)
