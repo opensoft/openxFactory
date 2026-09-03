@@ -593,6 +593,28 @@ def test_write_origin_block_writes_both_pairs_when_both_are_given(tmp_path):
     assert str(origin["approved_on"]) == "2026-09-03"
 
 
+@pytest.mark.parametrize("half", ["proposed_by", "proposed_on",
+                                  "approved_by", "approved_on"])
+def test_write_origin_block_refuses_a_half_given_pair(tmp_path, half):
+    """FOUND BY COPILOT ON PR #619, AND IT WAS A SILENT DROP. The writer wrote
+    only pairs it found COMPLETE, so a caller handing it a full approval pair
+    and a lone `proposed_by` got a block with the stray field discarded and no
+    word said — a record that looks complete, produced by the writer whose own
+    gate reports a half-declared pair as a defect. Refused now, in both
+    directions and at either field of either pair."""
+    origin = {"kind": "ad_hoc", "id": "repo:adhoc:2026-09-03-half",
+              "reason": "one pair complete, the other half-given"}
+    complete = ("proposed", "approved")[half.startswith("proposed")]
+    origin[f"{complete}_by"] = "Someone"
+    origin[f"{complete}_on"] = "2026-09-03"
+    origin[half] = "a lone half"
+    d = _change(tmp_path, f"add-write-half-{half}", None)
+    with pytest.raises(support.SupportError) as raised:
+        support.write_origin_block(d, origin, "2026-09-03")
+    assert half in str(raised.value)
+    assert not (d / ".openspec.yaml").is_file()
+
+
 def test_write_origin_block_refuses_an_ad_hoc_origin_with_neither_pair(
         tmp_path):
     d = _change(tmp_path, "add-write-neither", None)

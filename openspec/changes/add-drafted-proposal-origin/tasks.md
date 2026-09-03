@@ -100,6 +100,18 @@ merge it follows exists.
       `_PAIRING_SUBJECTS` stays EMPTY — both blocks resolve against promoted
       canon rather than an active sibling's addition. No other assertion,
       count or fixture in the suite moved.
+- [x] 2.10 **THE BOT ROUND, PR #619.** Codex refused the review with its usage
+      limit ("You have reached your Codex usage limits for code reviews"),
+      recorded verbatim in the PR; Sourcery is an upsell stub on a private
+      repository. **Copilot found one real defect and it was a SILENT DROP**:
+      `write_origin_block` wrote only pairs it found COMPLETE, so a caller
+      handing it a full approval pair and a lone `proposed_by` got a block
+      with the stray field discarded and nothing said — a record that looks
+      complete, produced by the writer whose own gate reports a half-declared
+      pair as a defect. It now REFUSES a half-given pair, naming what was
+      given and what is missing, and four parametrized tests pin it at either
+      field of either pair. No spec text moved: the delta already said a pair
+      is declared in full or not at all, and the writer was not saying it.
 
 ## 3. Evidence measured before the packet went up
 

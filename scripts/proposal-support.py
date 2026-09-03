@@ -447,7 +447,21 @@ def write_origin_block(directory: Path, origin: dict,
         # trace of the interval.
         wrote = False
         for pair in (APPROVAL_FIELDS, DRAFTING_FIELDS):
-            if all(str(origin.get(field) or "").strip() for field in pair):
+            given = [f for f in pair if str(origin.get(f) or "").strip()]
+            if given and len(given) != len(pair):
+                # A HALF-GIVEN PAIR IS REFUSED, NEVER DROPPED. Writing the
+                # block without it would discard the caller's intent in
+                # silence and leave a record that looks complete — while the
+                # gate and the nightly family both report a half-declared pair
+                # as a defect, so the writer would be producing a shape its
+                # own checkers reject. Caught by Copilot on PR #619.
+                missing = [f for f in pair if f not in given]
+                raise SupportError(
+                    f"{directory.name}: ad-hoc origin gives "
+                    f"{', '.join('`' + f + '`' for f in given)} without "
+                    f"{', '.join('`' + f + '`' for f in missing)} — a "
+                    "provenance pair is declared in full or not at all")
+            if given:
                 for field in pair:
                     body.append(f"  {field}: {origin[field]}")
                 wrote = True
