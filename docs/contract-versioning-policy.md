@@ -358,6 +358,76 @@ This subsection exists because the disposition would otherwise live only in a
 change packet, which archives out of the path of anyone running `verify-tag`
 and landing on the rule above (PR #319 review).
 
+### The SPENT State — a Cut Number That Can Never Be Published
+
+A bundle that was CUT and can NEVER be published is **SPENT**. It is a THIRD
+state beside the two this policy otherwise knows, and the requirement that
+checks it names the gap in those terms: *"Between published and owes a tag sits
+a number that was cut, was never publishable, and never will be."* The remedy is
+the one this section prescribes for a defective release, applied one step
+earlier in the lifecycle — the content is carried forward under a superseding
+number and the spent number is retired rather than repaired — and the sentence
+governing the retirement is the same one: *"its version number is never
+reused."* `contract-v2.6` is the estate's first instance and its record is
+§ *`contract-v2.6` — Instance Six* above. **That section records the
+supersession; this one DEFINES the state**, and neither restates the other.
+
+**THE STATE IS ENTERED ONLY BY AN EXPLICIT DECLARATION, AND NEVER BY ANY
+ABSENCE.** Silence is not a declaration, age is not a declaration, and a bundle
+nobody got round to tagging is not spent — it owes a tag, and is reported as
+owing one. The requirement states the fail-closed character without
+qualification: *"A bundle MUST NOT become spent by being old, by being ignored,
+by being inconvenient, or by any absence whatsoever."* An untagged superseded
+bundle that no declaration names is reported exactly as it is today.
+
+**THE DECLARATION LIVES IN `contracts/CHANGELOG.md`, INSIDE THE SUPERSEDING
+BUNDLE'S OWN ENTRY, IN ONE RESERVED SINGLE-LINE FORM.** It is written into the
+human disposition subsection the superseding cut writes anyway, so there is one
+record and one place it can be read from. The form, whole, shown as a code block
+so that no delimiter of the surrounding prose can be misread as part of it:
+
+    **SPENT BUNDLE:** `<bundle>` — SUPERSEDED BY `<superseding bundle>` — CAUSE: <text> — RULED BY <author>, <YYYY-MM-DD> — MEASUREMENT: <citation>
+
+Four elements are owed and each is checked for presence: the superseding bundle,
+the cause, the ruling that disposed it — its author and its date — and the
+measurement of record the cause cites. The opener is RESERVED, in the
+requirement's own words: *"no other text in `contracts/CHANGELOG.md` may begin a
+line with it, and a line beginning with it that does not complete the form is a
+malformed declaration rather than prose to be ignored."* **AND A BUNDLE CANNOT
+DECLARE ITSELF SPENT.** The declaring act is the LATER CUT that allocates the
+replacement, so a declaration is accepted only inside the changelog entry of the
+bundle it names as the superseding one — *"a bundle that could declare itself
+spent could decline to be published"*, which is the state this rule refuses.
+
+**THE SUPERSEDING BUNDLE MUST BE CUT, MUST BE PUBLISHED, AND MUST BE STRICTLY
+LATER.** Cut and published, because *"the only way to retire a number is to
+publish its replacement's tag"* — the obligation MOVES onto the successor rather
+than being discharged by the declaration. Strictly later, because a guard
+satisfied by an already-published EARLIER bundle would have been walked around
+backwards rather than met: the superseding bundle's `(major, minor)` SHALL be
+STRICTLY GREATER than the spent bundle's.
+
+**WHAT THE REPORT SHOWS, AT THREE SEVERITIES AND NOT TWO.** The
+`release-tag-publication` doc-health family reports an ACCEPTED declaration at
+`info`, on the spent bundle's own `contracts/releases/<bundle>.digests.yaml` —
+recorded rather than silent, because a reader who finds a release inventory with
+no matching tag is owed the answer where they are looking. A PROVISIONAL
+declaration — well formed in every element, its later successor CUT but NOT YET
+PUBLISHED — is reported at `warning`, and is ONE finding rather than two, the
+successor being graded on its own account. A REFUSED declaration is an `error`,
+and the superseded-and-never-published `error` stands beside it, *"so that a bad
+declaration removes nothing"*. The checking rule itself belongs to doc-health,
+at `openspec/specs/doc-health/spec.md` § *Release-tag publication* and in
+`docs/doc-health.md`; what belongs here is the obligation that family checks.
+
+**AND WHAT IS OWED AFTERWARDS IS NOTHING.** The spent number is never reused.
+`contracts/manifest.yaml`, the spent bundle's release inventory and its own
+changelog entry are left EXACTLY AS WRITTEN — *"never edit the manifest, the
+changelog or the inventory to match the absence"* — and the `info` is permanent.
+It MUST NOT be read as the tag obligation having been MET: *"It was not met; it
+was EXTINGUISHED, by an owner act, at the cost of a version number, and the
+record says which."*
+
 ## Supported-Domain Regression Denominator
 
 Publication is gated on a versioned regression inventory, never on an
