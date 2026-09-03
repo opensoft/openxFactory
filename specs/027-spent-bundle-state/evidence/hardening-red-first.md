@@ -620,3 +620,39 @@ for the same −7. The total sits above § J's 1482 because `main` has advanced
 under this branch and its own suite grew, not because this PR added seven: on
 `origin/main` at `642ac147` the same two commands read **1411** and **46**, and
 1411 − 46 + 120 = 1485 exactly.
+
+## § M — bot round 11: the blank-line test was still Python's
+
+**Copilot, on the ruling's head `218b63a7`, and it is ROUND 3'S LESSON ARRIVING
+IN A PREDICATE RATHER THAN IN A PATTERN.** Round 3 replaced `\s` with
+CommonMark's own class in the ATX and fence patterns; `_paragraph_line`'s
+blankness test was still `not line.strip()`, and `str.strip()` strips every
+Unicode space.
+
+CommonMark's blank line is *"a line containing no characters, or a line
+containing only spaces (U+0020) or tabs (U+0009)"*. A line holding only U+00A0
+is therefore **paragraph content**, the run of `=` below it is a Setext
+underline, and that heading CLOSES the entry.
+
+| # | escape (source) | on head `218b63a7` | after | test |
+|---|---|---|---|---|
+| R11-1 | a line of Unicode space read as BLANK, so `after_paragraph` went false and the `===` below it stopped being a Setext underline (Copilot) | `entry='contract-v3.0'` — **ACCEPTED**, for U+00A0, U+2028, VT and FF, and for each of them INSIDE a paragraph as well as alone | `entry=None` for all eight | `test_a_line_of_unicode_space_is_paragraph_content_not_a_blank_line`, parametrized over the four |
+
+**It is an UNDER-CLOSING escape**, which is the direction this whole guard
+exists to close, and it survived ten rounds because it hid in the one predicate
+nobody had re-read after round 3 — the pattern audit found the patterns.
+
+**And the fix ships with the control for the hole IT could open**, per the
+standing discipline: a blankness test narrowed past CommonMark would make an
+indented empty line paragraph content, so a `===` below one would close an entry
+CommonMark keeps open — a FALSE REFUSAL of a correctly contained declaration.
+`strip(" \t")` is exactly CommonMark's class and nothing narrower, pinned by
+`test_a_line_of_spaces_or_tabs_is_still_a_blank_line` over empty, spaces, tabs
+and a mixture.
+
+**Note the asymmetry with `_lines`, which is not an inconsistency**: VT and FF
+are not line endings (§ H, round 4) and they are not blank-line characters
+either — so a VT-only line is ONE line, and it is a PARAGRAPH.
+
+Counts after round 11: family file **128 passed** (120 → 128), `tests/doc-health`
+**1493 passed, 0 failed**.

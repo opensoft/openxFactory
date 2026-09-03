@@ -234,7 +234,7 @@ python3 -m pytest tests/doc-health/test_release_tag_publication.py -q
 python3 -m pytest tests/doc-health -q
 ```
 
-Expected on this branch: **120 passed** and **1485 passed**, zero failures in
-both. There is no declared red here — `main` at `642ac147` reads **46** and
-**1411**, also with zero failures, because the declaration landed with PR #587,
-and 1411 − 46 + 120 = 1485. Anything failing is a real defect.
+Expected on this branch: **128 passed** and **1493 passed**, zero failures in
+both. There is no declared red here — `main` reads **46** and **1411**, also with
+zero failures, because the declaration landed with PR #587, and
+1411 − 46 + 128 = 1493. Anything failing is a real defect.

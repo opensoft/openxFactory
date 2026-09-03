@@ -834,6 +834,78 @@ def test_the_three_line_endings_commonmark_does_recognise_still_work(name,
         f"the fence rule does not hold in a {name} document")
 
 
+# ------------------- COMMONMARK'S BLANK LINE, WHICH IS SPACES AND TABS ONLY
+#
+# ROUND 3'S LESSON ARRIVING IN THE BLANK-LINE TEST RATHER THAN IN A PATTERN —
+# Copilot, round 11 on PR #589. `str.strip()` is Python's and strips every
+# Unicode space; CommonMark's blank line is *"a line containing no characters,
+# or a line containing only spaces (U+0020) or tabs (U+0009)"*. Escapes rather
+# than literals, for the reason `NBSP` and `SPLITLINES_ONLY` give.
+
+NOT_BLANK_TO_COMMONMARK = (
+    ("U+00A0 NO-BREAK SPACE", NBSP),
+    ("U+2028 LINE SEPARATOR", "\u2028"),
+    ("VT", "\v"),
+    ("FF", "\f"),
+)
+
+
+@pytest.mark.parametrize("name,char", NOT_BLANK_TO_COMMONMARK,
+                         ids=[row[0] for row in NOT_BLANK_TO_COMMONMARK])
+def test_a_line_of_unicode_space_is_paragraph_content_not_a_blank_line(name,
+                                                                      char):
+    """AN UNDER-CLOSING ESCAPE, WHICH IS THE DIRECTION THIS GUARD EXISTS TO
+    CLOSE — and it lived in the one predicate that was still Python's.
+
+    A line holding only U+00A0 is PARAGRAPH CONTENT to CommonMark, so the run of
+    `=` below it is a Setext underline and a real heading that CLOSES the entry.
+    Read as blank by `str.strip()`, it made `after_paragraph` false, the `===`
+    stopped being an underline, the entry never closed, and the declaration
+    below was **ACCEPTED** under an entry CommonMark places it outside of.
+    Measured for every character in this table.
+    """
+    doc = "\n".join(["## contract-v3.0 — a cut", "", char, "===", "",
+                      _spent_line()])
+    read = rtp.parse_spent_declarations(doc)
+    assert len(read) == 1 and read[0].entry is None, (
+        f"a line of {name} was read as blank, so the Setext heading below it "
+        f"stopped closing the entry")
+
+    # AND THE SAME CHARACTER INSIDE A PARAGRAPH, because the escape does not
+    # need the line to be alone: a paragraph continued by such a line is still
+    # a paragraph, and the `===` still underlines it.
+    inside = "\n".join(["## contract-v3.0 — a cut", "", "Notes", char, "===",
+                         "", _spent_line()])
+    read = rtp.parse_spent_declarations(inside)
+    assert len(read) == 1 and read[0].entry is None, (
+        f"a paragraph continued by a line of {name} stopped being a paragraph")
+
+
+BLANK_TO_COMMONMARK = (
+    ("an empty line", ""),
+    ("spaces", "   "),
+    ("tabs", "\t\t"),
+    ("spaces and tabs", "  \t "),
+)
+
+
+@pytest.mark.parametrize("name,line", BLANK_TO_COMMONMARK,
+                         ids=[row[0] for row in BLANK_TO_COMMONMARK])
+def test_a_line_of_spaces_or_tabs_is_still_a_blank_line(name, line):
+    """THE CONTROL FOR THE HOLE THIS FIX COULD OPEN, and it is a real one: a
+    blankness test narrowed too far would make every indented empty line
+    paragraph content, so a `===` below one would become a Setext heading and
+    CLOSE an entry CommonMark keeps open — a FALSE REFUSAL of a correctly
+    contained declaration. `strip(" \t")` is exactly CommonMark's class and
+    nothing narrower."""
+    doc = "\n".join(["## contract-v3.0 — a cut", "", line, "===", "",
+                      _spent_line()])
+    read = rtp.parse_spent_declarations(doc)
+    assert len(read) == 1 and read[0].entry == "contract-v3.0", (
+        f"{name} stopped being a blank line, so the `===` below it closed an "
+        f"entry CommonMark leaves open")
+
+
 # --------------------------------------- RAW HTML: NOT PARSED, REFUSED
 #
 # THE INVERSION, RULED BY BRETT HEAP 2026-09-03 ON A MEASURED TAIL. Three

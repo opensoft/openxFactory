@@ -568,6 +568,32 @@ def _fence_state(line: str, fence: str | None) -> str | None:
     return fence
 
 
+def _blank(line: str) -> bool:
+    r"""Whether `line` is a COMMONMARK BLANK LINE — spaces and tabs, nothing else.
+
+    *"A line containing no characters, or a line containing only spaces (U+0020)
+    or tabs (U+0009), is called a blank line."* `str.strip()` is PYTHON's and
+    strips every Unicode space, which is **round 3's lesson arriving in the
+    BLANK-LINE TEST rather than in a pattern** (Copilot, round 11 on PR #589):
+    `\s` is a Python fact, not CommonMark's, and the two differ exactly where a
+    document can be made to hide something.
+
+    MEASURED, and it was an UNDER-CLOSING escape — the direction this whole
+    guard exists to close. A line holding only U+00A0 (or U+2028, or VT, or FF)
+    is PARAGRAPH CONTENT to CommonMark, so a run of `=` below it is a Setext
+    underline and a real heading that CLOSES the entry. Read as blank, it made
+    `after_paragraph` false, the `===` stopped being an underline, the entry
+    never closed, and the declaration below it was **ACCEPTED** under an entry
+    CommonMark places it outside of. Reproduced for U+00A0, U+2028, VT and FF,
+    and for the same character INSIDE a paragraph rather than alone.
+
+    Note the ASYMMETRY with `_lines`, which is not an inconsistency: VT and FF
+    are not LINE ENDINGS (round 4) and they are not BLANK-LINE characters
+    either, so a VT-only line is one line, and it is a paragraph.
+    """
+    return not line.strip(" \t")
+
+
 def _paragraph_line(line: str, closes: bool, opaque: bool) -> bool:
     """Whether `line` IS PARAGRAPH CONTENT — the only thing a Setext underline
     may underline, and therefore the only state under which a run of `=` or `-`
@@ -600,7 +626,7 @@ def _paragraph_line(line: str, closes: bool, opaque: bool) -> bool:
     about the finding this family exists to raise. Full CommonMark block parsing
     is the honest fix and is out of this guard's scope.
     """
-    if opaque or closes or not line.strip():
+    if opaque or closes or _blank(line):
         return False
     return not (_ATX_ANY.match(line) or _THEMATIC_BREAK.match(line))
 
