@@ -1261,6 +1261,29 @@ def test_the_CLI_MODES_are_MUTUALLY_EXCLUSIVE(tmp_path):
         assert "not allowed with argument" in result.stderr, flags
 
 
+def test_the_ARCHIVE_GATE_resolves_a_relative_dir_against_REPO_ROOT(tmp_path):
+    # Every other mode resolves against `repo_root`; this one resolved against
+    # the CWD, so the same relative CHANGE_DIR could name a DIFFERENT
+    # repository's change of the same name — and a gate that checks the wrong
+    # directory and PASSES is the failure a gate can least afford.
+    elsewhere = tmp_path / "elsewhere"
+    _change(elsewhere, "add-a")
+    decoy = tmp_path / "decoy"
+    _change(decoy, "add-a")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(elsewhere), "--archive-gate",
+         "openspec/changes/add-a", "--ratified-ref", "HEAD"],
+        capture_output=True, text=True, cwd=str(decoy))
+    combined = result.stdout + result.stderr
+    # It reaches the RETENTION gate on the named repo rather than failing to
+    # find the directory: the git call is what refuses next, and it names the
+    # tree it was pointed at.
+    assert "elsewhere" in combined or "does not exist" not in combined, combined
+    assert "decoy" not in combined, (
+        "a relative CHANGE_DIR must not resolve into the current directory's "
+        "repository: " + combined)
+
+
 def test_a_FLAG_OUTSIDE_ITS_MODE_is_REFUSED_not_ignored(tmp_path):
     # The same doctrine the mutually exclusive modes rest on: accepting
     # `--ledger-diff --moved-by garbage` and exiting 0 tells a caller their flag

@@ -307,7 +307,19 @@ def main(argv: list[str] | None = None) -> int:
     if args.archive_gate:
         if not args.ratified_ref:
             parser.error("--archive-gate requires --ratified-ref")
-        return _archive_gate(Path(args.archive_gate), args.ratified_ref)
+        # A RELATIVE CHANGE_DIR RESOLVES AGAINST `repo_root`, like every other
+        # mode's paths, not against the current directory. Absolute paths are
+        # unaffected, and so is the ordinary `--archive-gate openspec/changes/x`
+        # run from the repo root, `repo_root` defaulting to `.`. What changes is
+        # `validate-sequenced-after.py /elsewhere --archive-gate
+        # openspec/changes/x`, which resolved against the CWD: at best it failed
+        # to find the directory, and at worst it found a DIFFERENT repository's
+        # change of the same name and gated THAT — the failure mode a gate can
+        # least afford, because it passes.
+        change_dir = Path(args.archive_gate)
+        if not change_dir.is_absolute():
+            change_dir = Path(args.repo_root) / change_dir
+        return _archive_gate(change_dir, args.ratified_ref)
 
     if args.ledger_diff:
         return _ledger_diff(Path(args.repo_root), args.repository)

@@ -198,6 +198,21 @@ measurement is carried per subject, never as a shared total"
   live ledger after the change rewrites it with no diff. Fixture:
   `test_a_SEEDED_FROM_carrying_YAML_metacharacters_still_reads_back`.
 
+- [x] 6.6 **BOT ROUND 7 (Copilot, 22:21:27Z), finding TAKEN — and it is
+  PRE-EXISTING ON `main`, not introduced here.** `--archive-gate` resolved its
+  `CHANGE_DIR` against the CURRENT DIRECTORY while every other mode resolves
+  against the `repo_root` positional; `git show origin/main` confirms the same
+  line, byte-identical, so this packet inherited it rather than caused it. Taken
+  anyway, because the failure mode belongs to a GATE: run as
+  `validate-sequenced-after.py /elsewhere --archive-gate openspec/changes/x`, it
+  did not merely fail to find the directory — it could find a DIFFERENT
+  repository's change of the same name and gate THAT, which passes. A relative
+  `CHANGE_DIR` now resolves against `repo_root`; absolute paths are unaffected
+  (every existing caller passes one) and so is the ordinary run from the repo
+  root, `repo_root` defaulting to `.`. Fixture:
+  `test_the_ARCHIVE_GATE_resolves_a_relative_dir_against_REPO_ROOT` puts a decoy
+  change of the same id in the CWD and asserts the gate does not reach it.
+
 ## Group 6b — Gates
 
 - [x] 6b.1 `OPENSPEC_TELEMETRY=0 openspec validate add-per-change-sweep-ledger
