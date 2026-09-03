@@ -41,6 +41,19 @@ Usage:
         "measured, not assumed" obligation discharge over time instead of ageing
         into a stale sentence. Exit 0 — a measurement is not a gate.
 
+    --ledger-diff
+        THE PER-CHANGE SWEEP LEDGER, checked against the live corpus. Prints the
+        ledger-derived totals beside the measured ones and then every stale,
+        missing or extra ROW BY NAME. Exit 1 when the ledger disagrees with the
+        corpus — unlike `--sweep`, this IS a gate, because a ledger that no
+        longer describes the corpus is a stale pin rather than a measurement.
+
+    --seed-ledger [--moved-by '#PR'] [--moved-on YYYY-MM-DD] [--seeded-from SHA]
+        REWRITE the ledger from the live corpus, stamping `moved_by`/`moved_on`
+        on the rows that actually moved and PRESERVING the provenance of every
+        row that did not. This is how an author moves a row: run it, then read
+        the diff as the list of rows the change moved.
+
     --repository NAME
         The declaring repository token, which decides which qualified entries
         normalize to the bare form (default: openxFactory).
@@ -48,6 +61,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import datetime
 import sys
 from pathlib import Path
 
@@ -112,6 +126,70 @@ def _archive_gate(change_dir: Path, ratified_ref: str) -> int:
     return 0
 
 
+def _ledger_diff(repo_root: Path, repository: str) -> int:
+    """Report the ledger against the live corpus. Exit 1 when it is stale.
+
+    Prints the LEDGER-DERIVED reading where the ledger can be read, and the
+    MEASURED one otherwise, so the re-runnable report survives a stale file.
+    """
+    readings = sa.classify_corpus(repo_root, declaring_repository=repository)
+    measured = sa.corpus_sweep(repo_root, declaring_repository=repository)
+    problems: list[str] = []
+    path = sa.ledger_path(repo_root)
+    ledger = None
+    if not path.is_file():
+        problems.append(f"malformed ledger: {path} does not exist")
+    else:
+        try:
+            ledger = sa.load_ledger(path)
+        except sa.SequencedAfterError as exc:
+            problems.append(str(exc))
+    if ledger is not None:
+        problems.extend(sa.ledger_problems(readings, ledger))
+        try:
+            derived = sa.sweep_from_readings(sa.readings_from_ledger(ledger))
+        except sa.SequencedAfterError as exc:
+            problems.append(str(exc))
+            derived = None
+    else:
+        derived = None
+    if derived is not None:
+        print(derived.render())
+        problems.extend(sa.sweep_mismatches(derived, measured))
+    else:
+        print(measured.render())
+    print()
+    if problems:
+        print(f"per-change sweep ledger STALE ({len(problems)} finding(s)):")
+        for problem in problems:
+            print(f"  - {problem}")
+        print("Re-seed with: python3 scripts/validate-sequenced-after.py . "
+              "--seed-ledger --moved-by '#<PR>'")
+        return 1
+    print(f"per-change sweep ledger consistent with the corpus "
+          f"({len(readings)} rows).")
+    return 0
+
+
+def _seed_ledger(repo_root: Path, repository: str, moved_by: str,
+                 moved_on: str | None, seeded_from: str | None) -> int:
+    """Rewrite the ledger from the live corpus, preserving unmoved provenance."""
+    readings = sa.classify_corpus(repo_root, declaring_repository=repository)
+    path = sa.ledger_path(repo_root)
+    previous = sa.load_ledger(path) if path.is_file() else None
+    text = sa.render_ledger(
+        readings, moved_by=moved_by,
+        moved_on=moved_on or datetime.date.today().isoformat(),
+        previous=previous, seeded_from=seeded_from)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+    stamped = sum(1 for row in sa.load_ledger(path).rows.values()
+                  if row.get("moved_by") == moved_by)
+    print(f"wrote {path} ({len(readings)} rows, {stamped} carrying "
+          f"{moved_by}).")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("repo_root", nargs="?", default=".",
@@ -125,6 +203,22 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--sweep", action="store_true",
                         help="print the re-runnable corpus sweep (a measurement, "
                              "not a gate) and exit 0")
+    parser.add_argument("--ledger-diff", action="store_true",
+                        help="check the per-change sweep ledger against the "
+                             "live corpus, naming every stale row; exit 1 when "
+                             "it is stale")
+    parser.add_argument("--seed-ledger", action="store_true",
+                        help="rewrite the per-change sweep ledger from the live "
+                             "corpus, preserving the provenance of unmoved rows")
+    parser.add_argument("--moved-by", metavar="#PR",
+                        help="the pull request stamped on the rows this "
+                             "re-seed moves (with --seed-ledger)")
+    parser.add_argument("--moved-on", metavar="YYYY-MM-DD",
+                        help="the date stamped on the rows this re-seed moves "
+                             "(default: today)")
+    parser.add_argument("--seeded-from", metavar="SHA",
+                        help="record the commit the ledger was first seeded "
+                             "from; omitted, the existing value is preserved")
     parser.add_argument("--repository", default=sa.DECLARING_REPOSITORY,
                         help="declaring repository token (default: "
                              f"{sa.DECLARING_REPOSITORY})")
@@ -134,6 +228,15 @@ def main(argv: list[str] | None = None) -> int:
         if not args.ratified_ref:
             parser.error("--archive-gate requires --ratified-ref")
         return _archive_gate(Path(args.archive_gate), args.ratified_ref)
+
+    if args.ledger_diff:
+        return _ledger_diff(Path(args.repo_root), args.repository)
+
+    if args.seed_ledger:
+        if not args.moved_by:
+            parser.error("--seed-ledger requires --moved-by '#<PR>'")
+        return _seed_ledger(Path(args.repo_root), args.repository,
+                            args.moved_by, args.moved_on, args.seeded_from)
 
     if args.sweep:
         print(sa.corpus_sweep(Path(args.repo_root),

@@ -1,0 +1,50 @@
+schema: spec-driven
+created: 2026-09-03
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-03-add-per-change-sweep-ledger
+  reason: >-
+    A MEASURED PROCESS COST ON A RATIFIED REALIZATION, filed as openxFactory
+    issue #618 with the evidence in it rather than argued from impression. The
+    corpus-sweep pin that discharges `add-sequenced-after-substrate`'s
+    "…bound SHALL be measured" requirement is asserted as five corpus-wide
+    TOTALS in one test, and every pull request that authors, adopts, ratifies
+    or archives a change moves at least one of them — so two pull requests in
+    flight edit the same assertion lines and the loser owes a
+    merge-from-main, a re-derived pin, a MOVEMENT LOG entry and re-derived
+    record files, one CI window per round. RECORDED, NOT ASSUMED: PR #608
+    needed three merge-from-main rounds on 2026-09-03; #616 went CONFLICTING
+    the moment #608 and #609 landed; thirteen commits moved the pin between
+    2026-08-20 and 2026-09-03; and the MOVEMENT LOG itself carries several
+    entries that exist only to reconcile two branches' readings of one corpus,
+    one of which had to REPLACE an earlier entry whose arithmetic went stale
+    between authoring and merge.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and `INDEX.md` read on 2026-09-03: no
+    topic carries the corpus sweep, its pin, test-fixture ledgers, or
+    change-dir merge contention. `kind: staged` would claim a staging source
+    that does not resolve. The organized source is the issue and the ruling on
+    it — the same shape `add-sequenced-after-substrate` itself filed under.
+  approved_by: >-
+    Brett Heap (openxFactory convener) — in session on 2026-09-03, lane
+    `openxfactory-max001`, verbatim: "do 1 and 3, keep the log in one place",
+    given on issue #618 where item 3 is this packet's object and item 1 is a
+    lane-collision-protocol amendment outside this repository. THIS IS AN
+    ADMISSION INTO THE PROPOSAL QUEUE AND NOT A RATIFICATION OF CONTENT: it
+    supplies the origin and approval pair the proposal-origin contract
+    requires and nothing more. The packet remains `Status: draft`, carries no
+    ratification citation, and owes none — the promoted lifecycle rule
+    requires one only for `Status: ratified`.
+    THREE THINGS THE RULING DID SETTLE, and they are carried as LOCKED
+    constraints rather than as decisions this packet takes: the pin becomes a
+    per-change ledger keyed by change id; the totals are DERIVED from the rows
+    and asserted against the live sweep; and the MOVEMENT LOG stays ONE
+    hand-written ledger in ONE place — not scattered, not generated. Every
+    other decision (D1 … D9 in `design.md`) was the authoring session's,
+    including the reading that this delta is honestly ALL-ADDED rather than a
+    `## MODIFIED` restatement of the substrate's requirement, which is the one
+    most worth a convener's veto.
+  approved_on: 2026-09-03
+related:
+  - openxFactory:change:add-sequenced-after-substrate   # RATIFIED 2026-09-01, ACTIVE. THIS CHANGE'S DECLARED PARENT (`sequenced_after: [add-sequenced-after-substrate]`). Its "Chain-walk policy belongs to the consumer, and its bound SHALL be measured" requirement is the obligation the sweep discharges; its tasks 5.4/5.5 chose the scalar pin this change replaces. The requirement's TEXT is untouched — see design.md D1
+  - openxFactory:change:add-structured-scope-substrate  # The other half of the same realization-axis front-matter block, and the parent's own parent — the second hop of the chain this change's declaration makes two hops deep

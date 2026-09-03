@@ -149,6 +149,20 @@ Re-run this reading with
 measurement, not a currency obligation: the numbers move as the corpus grows, and
 the sweep — not this paragraph — is the authority.
 
+**Where the PER-CHANGE reading lives.** The table below is the whole-corpus
+reading at one date. What the sweep reads about EACH change — its corpus, its
+co-modified/sole class, its declaration, its resolved chain depth and its legacy
+prose header — is carried one row per change id in
+`tests/sequenced_after/corpus-ledger.yaml`, and every total the sweep reports is
+DERIVED from those rows rather than pinned as a literal
+(`add-per-change-sweep-ledger`, proposed 2026-09-03 on openxFactory issue #618,
+`Status: draft`). `--ledger-diff` checks the rows against the live corpus and
+names any that are stale; `--seed-ledger --moved-by '#<PR>'` rewrites them,
+stamping only the rows that actually moved. **A verification or record file
+cites its own change's row and the ledger's consistency with the corpus at a
+named commit — never a corpus-wide total**, a total being a number that moves
+whenever anybody else lands.
+
 | measure | reading |
 | --- | --- |
 | change ids (31 active + 122 archived) | **153 change ids** |

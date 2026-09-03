@@ -482,6 +482,52 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-per-change-sweep-ledger](openspec/changes/add-per-change-sweep-ledger/proposal.md)
+  — proposed 2026-09-03, `Status: draft`, on Brett Heap's in-session ruling of
+  the same day (lane `openxfactory-max001`, verbatim *"do 1 and 3, keep the log
+  in one place"*) given on openxFactory issue **#618** — **admission into the
+  proposal queue, NOT a ratification.**
+  **THE CORPUS-SWEEP PIN NOW MOVES PER ROW, NEVER PER TOTAL.** The measurement
+  that discharges `add-sequenced-after-substrate`'s *"…bound SHALL be measured"*
+  requirement is unchanged; what changes is how it is pinned. Five corpus-wide
+  totals asserted as literals in `tests/sequenced_after/test_sweep.py` are
+  replaced by `tests/sequenced_after/corpus-ledger.yaml` — **one row per change
+  id** over the active and archived corpora both, sorted, one line each, carrying
+  that change's `state`, `class`, `declares`, `depth` and `prose` plus the pull
+  request that last moved it — from which **every one of the sweep's fifteen
+  fields is DERIVED**. A pull request now edits ITS OWN ROW, and a partner's row
+  when its own `## MODIFIED Requirements` block flips that partner from sole to
+  co-modifier; two disjoint changes insert two non-adjacent lines and merge
+  clean. **WHY: a total is a shared mutable every change-dir PR writes to.**
+  Authoring, adopting, ratifying or archiving a change each move at least one,
+  so two PRs that look disjoint collide and the loser owes a merge-from-main, a
+  re-derived pin, a log entry and re-derived record files — one CI window per
+  round. Recorded, not argued: PR #608 took three such rounds on 2026-09-03,
+  #616 went CONFLICTING the moment #608/#609 landed, and thirteen commits moved
+  the pin between 2026-08-20 and 2026-09-03. **THE DERIVATION IS DELIBERATELY
+  INDEPENDENT of `corpus_sweep`**, which is not refactored, so
+  `sweep_from_readings(classify_corpus(root)) == corpus_sweep(root)` is a
+  field-by-field cross-check rather than a tautology. **THE DELTA IS ALL-ADDED
+  and that is a reading, not a preference**: the measured-bound requirement's
+  text binds *measured, recorded, re-runnable* and never the pin MECHANISM, so a
+  `## MODIFIED` block would restate it unchanged (`design.md` D1). It declares
+  `sequenced_after: [add-sequenced-after-substrate]` anyway — the packet is a
+  SOLE modifier and owes no declaration, but the relation is real and *declaring
+  must never be worth less than omitting*; that takes the deepest declared chain
+  from 1 hop to 2. **`Status: record` FILES NOW CITE THEIR OWN ROW** and
+  "ledger ⇔ corpus consistent at `<sha>`", never a total, so a merge from main
+  no longer forces record re-derivation; records already written are historical
+  and are not rewritten. **THE MOVEMENT LOG STAYS ONE HAND-WRITTEN LEDGER IN ONE
+  PLACE** — the convener's constraint — retained verbatim in `test_sweep.py`,
+  with a new rule: an entry is owed only where a move is NOT explained by the row
+  diff (a counting-method change, a partner's flip, a non-per-change reading, a
+  re-seeding). `validate-sequenced-after.py` gains `--ledger-diff` (report and
+  gate) and `--seed-ledger --moved-by '#PR'` (rewrite, stamping only the rows
+  that actually moved); `--sweep`'s output is byte-unchanged. **RESIDUAL, and
+  left to the landing window** (issue #618's item 1): this README block itself,
+  and the rare narrative append. Option 2 of that issue — a GitHub merge queue —
+  was assessed and rejected on its own: it serializes merges and does not resolve
+  a textual conflict.
 - [update-standards-body-current-publications](openspec/changes/update-standards-body-current-publications/proposal.md)
   — authored 2026-09-01, **RATIFIED 2026-09-03 by Brett Heap, in-session**
   (verbatim "merge 210 and ratify and merge 593"), with **D1–D4 ADOPTED AS
