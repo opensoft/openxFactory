@@ -38,10 +38,15 @@ Two layers run:
    also draws the completeness findings its own incompleteness earns; that is the
    rules working, and the expected code is what the self-test pins.
 2. Optional real artifacts under REPO_PATH: every `*.y*ml` whose top-level `kind`
-   is one of the four family kinds is validated, and the whole set is walked as
-   chains. Other kinds are skipped and counted; the packaged `examples/` tree is
-   excluded, because the negatives there are deliberately invalid and layer 1
-   already asserts exactly how. ZERO REAL ARTIFACTS IS THE EXPECTED STATE UNTIL
+   is one of the ELEVEN family kinds — or one of the THREE CONSUMED
+   `add-trust-anchor` kinds a tier-2 issuance composes, which the sweep collects
+   into the scope exactly as the packaged corpora load them — is validated, and
+   the whole set is walked as chains. Other kinds are skipped and counted. BOTH
+   families' packaged `examples/` trees are excluded, this one's and
+   trust-anchor's, because the negatives there are deliberately invalid and each
+   family's layer 1 already asserts exactly how; the SAME BYTES at a live path
+   are adjudicated, which is the difference the exclusion draws.
+   ZERO REAL ARTIFACTS IS THE EXPECTED STATE UNTIL
    THE FIRST RATIFICATION IS INCEPTED UNDER THIS CAPABILITY — inception is a
    human act with a wallet-held key, and this realization mints no chain.
 
@@ -1766,21 +1771,195 @@ def self_test(f: Findings, registry: Registry, docs: dict[str, dict],
 SKIP_DIR_NAMES = {".git", "node_modules", "__pycache__", ".venv"}
 
 
+#: The families whose PACKAGED corpus the sweep excludes: this one's own, and the
+#: CONSUMED trust-anchor family's, whose records the sweep now collects.
+PACKAGED_CORPUS_FAMILIES = ("signed-execution-chain", "trust-anchor")
+
+
+#: The component sequence a family's PACKAGED corpus actually occupies. Matched
+#: at ANY PREFIX WITHIN THE SCANNED TREE, and never above it — see below.
+PACKAGED_EXAMPLES_SHAPE = ("contracts", "{family}", "examples")
+
+
+def under_packaged_examples(path: Path, family: str, root: Path) -> bool:
+    """True when `path` lies under a family's PACKAGED `examples/` tree — the
+    THREE-COMPONENT SEQUENCE `contracts/<family>/examples`, adjacent and in that
+    order, at ANY PREFIX INSIDE `root`.
+
+    IT IS NOT ANCHORED TO THE TOP OF THE SCANNED TREE. A domain repo that vendors
+    openxFactory scans a COPY, so requiring `contracts/<family>/examples` to be
+    the tree's FIRST three components would re-adjudicate every vendored negative
+    as a live record — the reason the exclusion was written over path components
+    at all. Prefix-independence WITHIN the tree keeps
+    `vendor/openxFactory/contracts/trust-anchor/examples/negative/x.yaml`
+    excluded.
+
+    AND IT IS SEARCHED RELATIVE TO `root`, WHICH IS WHAT KEEPS THE ENVIRONMENT
+    FROM DISABLING A REQUIRED GATE. `main()` resolves the scan path, so the
+    components ABOVE the tree are wherever a runner happened to put the
+    checkout, and matching them made the whole sweep skippable by the
+    CHECKOUT'S OWN LOCATION: a tree at
+    `<checkout>/contracts/signed-execution-chain/examples/domain-repo` gave every file
+    in it the excluded sequence by inheritance, and the gate reported
+    `0 artifact(s) checked, 0 skipped` over a live malformed record — measured,
+    for both family names, before this was repaired. That is the placement
+    evasion one level up from the one below, and worse, because it takes out the
+    ENTIRE checkout rather than one file and needs no fabricated path inside the
+    repository at all. Found by Codex on #566.
+
+    AND IT IS NOT A BARE MEMBERSHIP TEST, which is what made the REQUIRED GATE
+    EVADABLE BY PLACEMENT. Asking only whether `examples` and the family name
+    appeared ANYWHERE in a path dropped a malformed chain record parked at
+    `governance/trust-anchor/live/examples/invalid.yaml` — measured at
+    `0 artifact(s) checked, 0 skipped`, no refusal, for a record this reader
+    owns. Requiring mere ADJACENCY of `<family>/examples` was the first repair
+    and was ALSO insufficient: `governance/signed-execution-chain/examples/x.yaml`
+    still matched. The predicate now names the sequence the packaged corpus
+    actually occupies, `contracts/` included. Found by Codex on #566 and then
+    narrowed again by Copilot on the repair itself, against the exclusion this
+    change added AND the one it copied.
+
+    WHAT REMAINS, STATED RATHER THAN IMPLIED: any component-shaped exclusion is
+    evadable by FABRICATING the shape INSIDE THE SCANNED TREE — a record at
+    `governance/contracts/signed-execution-chain/examples/x.yaml` is still
+    skipped. That path is no longer innocuous-looking, though: it requires a
+    SECOND `contracts/` tree in the repository, which is the packaged-corpus
+    shape itself and not a plausible home for a live record. Closing it
+    completely means identifying a vendored corpus POSITIVELY rather than by
+    shape — the nearest marker being a `manifest.yaml` beside the `contracts/`
+    component — which trades a path rule for a filesystem assumption about how
+    consumers carve the bundle, and is a bigger change than this fix carries.
+
+    A SINGLE EXPLICITLY NAMED FILE IS THEREFORE NEVER EXCLUDED, and that is the
+    right reading rather than a side effect: `root` is the tree the operator
+    pointed the reader at, and for a named file that tree is its own directory,
+    so no sequence survives the relativization. Naming
+    `contracts/trust-anchor/examples/negative/x.yaml` outright is a request to
+    READ it, and the refusal it then draws is a TRUE statement about those bytes
+    — layer 1's self-test already asserts the same fixture invalid for the same
+    reason. What the exclusion exists to stop is a SWEEP silently adjudicating
+    another layer's fixtures, and a sweep still cannot.
+    """
+    try:
+        parts = path.relative_to(root).parts
+    except ValueError:
+        # Not under the scanned tree at all. `rglob` cannot produce this and a
+        # named file's own parent cannot either; fail CLOSED to adjudication
+        # rather than excluding a path whose relation to the tree is unknown.
+        return False
+    shape = tuple(part.format(family=family) for part in PACKAGED_EXAMPLES_SHAPE)
+    width = len(shape)
+    return any(parts[index:index + width] == shape
+               for index in range(len(parts) - width + 1))
+
+
+#: The identifier each consumed record is RESOLVED THROUGH. `add-trust-anchor`
+#: owns these fields; they are named here only to detect an ambiguous set, never
+#: to restate the vocabulary.
+CONSUMED_ID_FIELD = {
+    "xfactory_certificate_record": "certificate_id",
+    "xfactory_certificate_issuance_evidence": "issuance_evidence_id",
+    "xfactory_trust_anchor": "anchor_id",
+}
+
+
+def consumed_identifiers_are_ambiguous(
+        f: Findings, records: list[tuple[str, dict]]) -> bool:
+    """AN AMBIGUOUS CONSUMED SET IS REFUSED, NEVER RESOLVED BY FILE ORDER.
+
+    The consumed records are resolved THROUGH THEIR IDENTIFIERS, and the view
+    that resolves them keeps the last document it saw. In a curated corpus that
+    is harmless; over an ARBITRARY CHECKOUT it means two certificates, issuance
+    evidences or anchors sharing an id let lexicographic file order decide which
+    fingerprint, which issuance act or which anchor a tier-2 signature verifies
+    against — the substitution `add-trust-anchor`'s own reader refuses as
+    `record-id-duplicate` on every copy, and the same substitution this reader
+    already refuses one vocabulary over, where a key id two wallets claim
+    differently is AMBIGUOUS rather than last-seen.
+
+    IT IS CHECKED AT LAYER 2'S ENTRY POINT — over the whole-tree sweep and over
+    an explicitly named single file alike, since `repo_scan()` serves both and a
+    single file can carry a whole multi-document stream — rather than in the
+    shared scope builder. Layer 2 is where an UNCURATED set can arise; the
+    packaged corpora are adjudicated by layer 1, which would report a duplicate
+    there as the corpus defect it would be.
+
+    IT IS NAMED FOR WHAT IT RETURNS — True when the set IS ambiguous — because
+    the caller must then NOT WALK, and a helper whose name and whose boolean
+    disagree is a fail-closed condition somebody later "simplifies" the wrong
+    way. Found by Copilot on #566. The refusal it records is the docstring's
+    business; the boolean is the call site's.
+    Refusing the duplicate and walking on anyway would leave every rule below
+    resolving through the very identifiers just declared ambiguous, so the
+    secondary findings would themselves depend on file order — the defect
+    reported and then committed one line later. An ambiguous scope is
+    UNEVALUABLE, and this family refuses what it cannot evaluate rather than
+    reporting a reading of it. Found by Copilot on #566, in the review body
+    rather than on a thread.
+    """
+    found = False
+    seen: dict[tuple[str, str], list[str]] = {}
+    for label, doc in records:
+        kind = doc.get("kind") if isinstance(doc, dict) else None
+        field = CONSUMED_ID_FIELD.get(kind) if isinstance(kind, str) else None
+        if field is None:
+            continue
+        identifier = doc.get(field)
+        if isinstance(identifier, str) and identifier:
+            seen.setdefault((kind, identifier), []).append(label)
+    for (kind, identifier), labels in sorted(seen.items()):
+        if len(labels) > 1:
+            found = True
+            f.error("consumed-record-id-duplicate",
+                    f"{', '.join(labels)}: {len(labels)} {kind} records in the "
+                    f"scanned tree declare identity {identifier!r}. Resolution "
+                    f"through an id is last-write-wins, so a duplicate could swap "
+                    f"the certificate a fingerprint is compared against, the "
+                    f"issuance act a composition is discharged by, or the anchor a "
+                    f"certificate hangs from — refused on EVERY copy rather than "
+                    f"resolved by file order, because an ambiguous identity is not "
+                    f"a resolved one. THE CHAIN WALK OVER THIS SCOPE IS NOT RUN: "
+                    f"every rule below resolves through these identifiers, so a "
+                    f"finding produced under an ambiguous set would itself depend "
+                    f"on file order. Resolve the duplicate and re-run to see the "
+                    f"rest")
+    return found
+
+
 def repo_scan(f: Findings, target: Path, registry: Registry, docs: dict[str, dict],
               carried: dict[str, dict]) -> None:
     sweep = target.is_dir()
+    # THE TREE THE OPERATOR POINTED AT, which is what the packaged-corpus
+    # exclusion is searched relative to. For a named file that tree is its own
+    # directory. Components ABOVE it are the environment's — `main()` resolves
+    # the path — and letting them match let a checkout's own location switch the
+    # whole sweep off.
+    scan_root = target if sweep else target.parent
     files = sorted(list(target.rglob("*.yaml")) + list(target.rglob("*.yml"))) \
         if sweep else [target]
     records: list[tuple[str, dict]] = []
     checked = skipped = 0
     for path in files:
-        if set(path.parts) & SKIP_DIR_NAMES:
+        # SAME PLACEMENT EVASION AS `under_packaged_examples()`, one check
+        # earlier: matched over the ABSOLUTE path, a `.venv/`, `node_modules/`,
+        # `.git/` or `__pycache__/` ANCESTOR of the checkout — wherever a runner
+        # happened to put it — gave every file the excluded name by inheritance
+        # and switched the whole sweep off. Relativized to `scan_root`, failing
+        # CLOSED (never skipping) when a path is not under the tree at all.
+        # Found by Copilot on #566.
+        try:
+            rel_parts = path.relative_to(scan_root).parts
+        except ValueError:
+            rel_parts = ()
+        if set(rel_parts) & SKIP_DIR_NAMES:
             continue
-        # Exclude ANY packaged corpus, not only this checkout's: a domain repo
-        # that vendors openxFactory scans a COPY, and matching this checkout's
-        # absolute paths would re-adjudicate every vendored negative as a live
-        # record.
-        if "examples" in path.parts and "signed-execution-chain" in path.parts:
+        # Exclude ANY packaged corpus — this family's own and the CONSUMED
+        # trust-anchor family's, whose examples/ carries deliberately-invalid
+        # negatives that ITS reader adjudicates. Sweeping either here as live
+        # records would re-adjudicate fixtures another layer already asserts
+        # exactly how.
+        if any(under_packaged_examples(path, family, scan_root)
+               for family in PACKAGED_CORPUS_FAMILIES):
             continue
         try:
             documents = load_records(path)
@@ -1795,17 +1974,59 @@ def repo_scan(f: Findings, target: Path, registry: Registry, docs: dict[str, dic
             continue
         name = str(path.relative_to(target) if sweep else path)
         for index, doc in enumerate(documents):
-            if not isinstance(doc, dict) or doc.get("kind") not in KIND_TO_SCHEMA:
+            # THE CONSUMED trust-anchor KINDS ARE COLLECTED TOO — found by the
+            # 5.8 canary build, which is what a canary is for. A tier-2
+            # identity's issuance COMPOSES the certificate record and the
+            # issuance evidence, and a scan that dropped every kind outside the
+            # family's own would refuse EVERY real chain as a forged identity:
+            # the records that discharge the composition could never reach the
+            # scope that resolves them. They are collected into scope exactly as
+            # the packaged corpora already load them, and validated against the
+            # same carried canonical schemas.
+            # THE `kind` IS TYPE-GUARDED BEFORE IT IS LOOKED UP, because a sweep
+            # reads ARBITRARY YAML and `{"a": 1} in some_dict` raises rather than
+            # returning False. A document writing `kind: [a, b]` crashed the whole
+            # scan and discarded every other file's findings — a required gate
+            # felled by one unrelated file. Every key in both maps is a string, so
+            # a non-string kind is a skip by construction.
+            kind = doc.get("kind") if isinstance(doc, dict) else None
+            if not isinstance(kind, str) or (
+                    kind not in KIND_TO_SCHEMA
+                    and kind not in CONSUMED_KIND_TO_SCHEMA):
                 skipped += 1
                 continue
             checked += 1
             records.append(
                 (name if len(documents) == 1 else f"{name}#{index}", doc))
-    if records:
+    # FAIL CLOSED ON AN AMBIGUOUS SCOPE, never walk it. The refusal above is not
+    # a warning to be walked past: every rule the walk applies resolves through
+    # the identifiers it just declared ambiguous.
+    ambiguous = consumed_identifiers_are_ambiguous(f, records)
+    if records and not ambiguous:
         validate_scope(f, records, registry, docs, carried)
-    f.note(f"repo scan ({target}): {checked} artifact(s) checked, {skipped} skipped "
-           f"(not a signed-execution-chain kind); packaged examples/ excluded "
-           f"(layer 1 owns them). ZERO real artifacts is the expected state until "
+    # AN UNADJUDICATED SCOPE IS NOT REPORTED AS "CHECKED". Under ambiguity the
+    # walk above does not run, so the documents were COLLECTED and nothing was
+    # applied to them; a note saying N were checked would invite a reader to take
+    # the absence of further findings for a clean reading of them, which is the
+    # vacuous pass this family refuses. ZERO were checked, and the count that was
+    # collected is still reported so the operator can see the scope's size.
+    # Found by Copilot on #566. The gate's own anti-vacuity grep still matches —
+    # it asks for `N artifact(s) checked` and gets a truthful zero — and the run
+    # is red regardless, on the duplicate refusal recorded above.
+    scope_note = f"{checked} artifact(s) checked"
+    if ambiguous:
+        scope_note = (
+            f"0 artifact(s) checked ({checked} collected and then NOT "
+            f"ADJUDICATED: the consumed identifier set is AMBIGUOUS, refused "
+            f"above, and THE CHAIN WALK OVER THIS SCOPE WAS NOT RUN, so no rule "
+            f"was applied to any of them and the absence of further findings "
+            f"below is UNEVALUABLE rather than clean)")
+    f.note(f"repo scan ({target}): {scope_note}, {skipped} skipped "
+           f"(no kind this reader adjudicates — neither one of this family's own "
+           f"nor one of the CONSUMED trust-anchor kinds a tier-2 issuance composes); "
+           f"BOTH families' packaged examples/ excluded, this one's and "
+           f"trust-anchor's (each family's layer 1 owns its own). ZERO real "
+           f"artifacts is the expected state until "
            f"the first ratification is incepted under this capability — inception "
            f"is a human act with a wallet-held key, and this realization mints no "
            f"chain")

@@ -369,7 +369,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: opensoft/codexFactory
-          ref: "8cb173738ebecd773eadd1b77b11d29029b37382"
+          ref: "605d48acd129d25e5dd5dac48201f53c11de08ae"
           path: .merge-master-core
           persist-credentials: false
           token: ${{ steps.app-token.outputs.token || github.token }}
