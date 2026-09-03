@@ -203,19 +203,90 @@ class FakeRunner:
 
 # --------------------------------------------------------------- the fixtures
 
+#: The fixture's UNMINTED baseline, restored over whatever the shipped tree
+#: happens to carry. Drafted on 2026-09-02 in openxFactory PR #610, and every
+#: test that drives the program passes `--today 2026-09-03`, so the re-stamp
+#: branch is exercised deterministically.
+DRAFTED_ISSUED_AT = "2026-09-02T00:00:00Z"
+DRAFTED_EXPIRES_AT = "2026-12-01T00:00:00Z"
+
+SENTINEL = "FILL-IN-AT-MINT"
+
+VALUE_LINE_RE = r"^(?P<indent>[ \t]*){field}:[ \t]+\S.*$"
+
+
+def _set_value(path: Path, field: str, value: str) -> None:
+    """Rewrite the ONE `<field>: …` VALUE line in `path`, or fail loudly.
+
+    Line-anchored on leading whitespace, so a comment mentioning the field
+    (these files are mostly comment by line count, and the comments are the
+    governed record of why each field is shaped as it is) cannot match: a
+    comment line starts with `#`, which is not whitespace.
+    """
+    pattern = re.compile(VALUE_LINE_RE.format(field=re.escape(field)),
+                         re.MULTILINE)
+    text = path.read_text(encoding="utf-8")
+    matches = list(pattern.finditer(text))
+    assert len(matches) == 1, (
+        f"{path.name}: expected exactly one `{field}:` value line, found "
+        f"{len(matches)}")
+    match = matches[0]
+    path.write_text(
+        text[:match.start()] + f"{match.group('indent')}{field}: {value}"
+        + text[match.end():], encoding="utf-8")
+
+
+def unmint(root: Path) -> None:
+    """Restore the fixture's family to the UNMINTED, freshly-drafted state.
+
+    WHY THIS EXISTS, and it is the reason this suite is not the thing that
+    blocks the operator's mint. The fixture COPIES the shipped family, so it
+    inherits whatever state that family is in — and the moment the operator
+    performs the mint, the shipped family has no sentinels and a re-stamped
+    expiry pair. Every preflight and fill test here would then be asserting
+    against an already-minted tree and would fail, in the same commit that
+    filled the register. That is exactly the defect
+    `test_validator.py::test_the_shipped_tree_is_adjudicated_as_it_stands`
+    was repaired for, and it was MEASURED here too: with the real family
+    filled by the program on the real tree, the three non-pytest gates were
+    clean and ten tests in this module failed.
+
+    So the five sentinels go back and the two expiries are re-drafted. What is
+    still REAL is everything the tests actually exercise: the file shapes, the
+    comment bodies the targeted fill must not disturb, the field names, the
+    wallet/grant/row joins, and the reader that judges them.
+    """
+    wallet = root / FAMILY_REL / "wallets" / "wal-origin-codexfactory-0001.yaml"
+    attestation = (root / FAMILY_REL / "attestations"
+                   / "custody-attest-wal-origin-codexfactory-0001.yaml")
+    grant = (root / FAMILY_REL / "grants"
+             / "grant-origin-codexfactory-0001.yaml")
+    register = root / FAMILY_REL / "register.yaml"
+    for field in ("did", "key_fingerprint", "public_key_multibase"):
+        _set_value(wallet, field, SENTINEL)
+    for field in ("attested_key_fingerprint", "verified_at"):
+        _set_value(attestation, field, SENTINEL)
+    _set_value(grant, "issued_at", f'"{DRAFTED_ISSUED_AT}"')
+    _set_value(grant, "expires_at", f'"{DRAFTED_EXPIRES_AT}"')
+    _set_value(register, "expires_at", f'"{DRAFTED_EXPIRES_AT}"')
+
+
 def build_openx(tmp_path: Path) -> Path:
     """An openxFactory-shaped tree carrying the REAL family, reader and pin.
 
     The shipped register family is COPIED rather than synthesized, so the
     sentinel accounting, the expiry pair and the wallet/grant/row joins these
-    tests exercise are the ones the operator's mint will actually meet. The
-    `openXwallet` gitlink is symlinked: the reader must import the PINNED
-    decoders or refuse, and a copy of them would be a second pin.
+    tests exercise are the ones the operator's mint will actually meet — then
+    normalized back to the UNMINTED state by `unmint`, so this suite keeps
+    working on the day the operator mints. The `openXwallet` gitlink is
+    symlinked: the reader must import the PINNED decoders or refuse, and a copy
+    of them would be a second pin.
     """
     root = tmp_path / "openxFactory"
     (root / "scripts").mkdir(parents=True)
     shutil.copy2(VALIDATOR, root / "scripts" / VALIDATOR.name)
     shutil.copytree(REPO_ROOT / FAMILY_REL, root / FAMILY_REL)
+    unmint(root)
     (root / REVIEW_REL).mkdir(parents=True)
     (root / REVIEW_REL / "register.yaml").write_text(
         yaml.safe_dump({"register_version": 1,
