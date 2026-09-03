@@ -118,6 +118,20 @@ Core domain-neutral docs:
   [`rulings-2026-08-29.md`](openspec/changes/add-wallet-carried-review-authority/rulings-2026-08-29.md)
   R8/R9; `Status: draft`, because neither ruling is enforced until the change
   carrying R6–R12 is ratified and task 7.6 stays OPEN by its own text)
+- [The Project Repository Schema](docs/project-repo-schema.md)
+  (the ELECTIVE three-repository shape — `<Project>` assembly root,
+  `<Project>-spec`, `<Project>-code` — and the doctrine that electing it
+  confers NOTHING: the assembly leg as the per-project root, the four naming
+  families with a descendant form read as a CLAIM needing a declared
+  `open<Product>` pin, the double pin and its lockstep invariant, the
+  assembly-root manifest as the SOURCE a register row derives from, the
+  schema-neutral bootstrap and its `authority is not wallet-carried in this
+  org` degrade line, and overlays that attach to a shape rather than the
+  reverse. The MECHANICS are pinned, not authored here: `opensoft/openRepoShape`
+  at [`contracts/openreposhape-pin.yaml`](contracts/openreposhape-pin.yaml),
+  verified by
+  [`scripts/validate-openreposhape-pin.py`](scripts/validate-openreposhape-pin.py).
+  `Status: draft` until `add-project-repo-schema` is ratified)
 - [Document Lifecycle](docs/document-lifecycle.md)
 - [Release Realization Flow](docs/release-realization-flow.md)
 - [The `scope_globs` Scope Surface Is a Never-Clearable Trust-Root Floor](docs/scope-globs-trust-root-floor.md)
@@ -412,6 +426,83 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-project-repo-schema](openspec/changes/add-project-repo-schema/proposal.md)
+  — proposed 2026-09-02 as the FULL promotion of the `project-repo-schema` staged
+  topic, on Brett Heap's in-session instruction *"start the
+  add-project-repo-schema exit change"* — **admission into the proposal queue,
+  NOT a ratification; `Status: draft` and ratification is the convener's.**
+  **THE FORCING FINDING IS A GAP THE FAMILY ALREADY RULED ON AND NEVER WROTE
+  DOWN.** `add-wallet-carried-review-authority` (ratified 2026-08-23) RECOMMENDS
+  a SPEC/CODE/ASSEMBLY shape at `proposal.md:600-617`, rules who elects it (a
+  `PA` decision, `CA`-constrained and `PM`-sequenced) and rules that *"Electing
+  the schema changes no gate, no floor, no grant, and no clearance
+  eligibility"* — and then stops: that change's own `specs/` deltas are exactly
+  two, no `project-repo-schema` capability exists under `openspec/specs/`, and
+  greps for the recommendation resolve only to that one proposal plus its
+  `tasks.md:811-814`. A `PA` who says yes has nothing to say yes to, so the
+  delta is ADDED and not MODIFIED. **ADDS `project-repo-schema`, ELEVEN
+  requirements**, each carrying the doctrine rather than qualifying it: the
+  shape is ELECTIVE and CONFERS NOTHING and a one-repository project is reviewed
+  identically; the ASSEMBLY leg IS the per-project ROOT an engineer clones
+  (Brett Heap, 2026-09-02, *"yes, assembly is per project"*) and MAY pin shared
+  review-team code as an OVERLAY; `<Project>` / `<Project>-spec` /
+  `<Project>-code`, one CamelCase token, suffixes lowercase and hyphenated, the
+  topic `xf-project-<id>` on every leg; the four naming families governed as
+  DATA in the pinned standard, with a `<Domainx><Product>` form read as a CLAIM
+  that needs a DECLARED `open<Product>` pin (Brett Heap, 2026-09-02,
+  *"Descendant only if it pins open<Product>"*; the declared role wins otherwise
+  and the manifest records `also_matches`, and the check stays OFFLINE); each leg
+  pinned TWICE with the gitlink, the pin file and every workflow `@<sha>` moving
+  in ONE commit — the aggregation's own measured defect (seven pin-syncs from
+  2026-08-25, `validate` red on every PR for a day, xFactory #146) written down
+  as machinery; the assembly root's manifest as the SOURCE with a register row
+  DERIVED from it, which is the only construction under which an org with no
+  register is conformant; ONE bootstrap command after
+  `git clone --recurse-submodules`, SCHEMA-NEUTRAL and DEGRADING — the exact line
+  `authority is not wallet-carried in this org` where no wallet register is
+  found, never a failure; review lanes and wallet-carried authority as OPT-IN
+  OVERLAYS that attach to a shape and never the reverse; the standard living in
+  the PUBLIC Apache-2.0 `opensoft/openRepoShape` (both ruled 2026-09-02),
+  consumed by FORK and pinned by openxFactory under `neutral-product-pin`; the
+  four-way ownership split, which **NARROWS the ratified prose *"codexFactory may
+  recommend — and scaffold"* in exactly one respect — where the mechanics LIVE**
+  — codexFactory keeping the recommending role and its engineering overlay in
+  full; and the pre-ratification election rule under which a project records the
+  reference it followed. **MODIFIES `ideation-dashboard`** — the register gains
+  an optional per-project `schema`, an optional `reference` and an optional
+  `repository_roles` list of `spec|code|assembly`, all additive, `repositories`
+  unchanged as the single membership answer, and the existing confers-nothing
+  posture governing the new fields unchanged. **`neutral-product-pin`,
+  `domain-descendant-boundary`, `repo-boundary-governance` and
+  `shared-contract-ownership` were read requirement by requirement and NONE is
+  modified**, the reading recorded in `design.md` § D9. FOUR artifacts LAND WITH
+  THE PROPOSAL and are the only ticked tasks: `docs/project-repo-schema.md`;
+  `contracts/openreposhape-pin.yaml` at openRepoShape
+  `deacbdcce4f52af427bcb4edd075fcc992e3dabe` with SIXTEEN per-file digests
+  computed from the real bytes and EIGHTEEN `pinned_by_commit_only:` members, so
+  all 34 files are declared and none is an undeclared consumption;
+  `scripts/validate-openreposhape-pin.py` (standard-library only, five ordered
+  checks including a SURFACE-COMPLETENESS check the sibling wallet verifier has
+  no counterpart to, six refusal codes, one fixed remediation trailer) with
+  `.github/workflows/openreposhape-pin-gate.yml`, green against the real bytes
+  through both resolvers; and the register schema delta with its four cross-field
+  validator rules and 34 tests. `code_surface: openxFactory`,
+  `target_release:` the next additive contract bundle after `contract-v3.0`,
+  UNNUMBERED because `docs/contract-versioning-policy.md` forbids reserving a
+  minor before merge order is known. ONE registered artifact moves —
+  `scripts/validate-ideation-dashboard-contracts.py`, row 1417 of the v3.0
+  digest inventory — and only by GAINING rules over new OPTIONAL fields, so the
+  class is additive; the schema and the pin are not registered rows and spend
+  nothing. Until the cut, `release-inventory-drift` reporting that validator is
+  the expected between-cuts state, never to be silenced by editing the
+  inventory. Realization evidence is the
+  `MedxSoft/MedxScribe` run of 2026-09-02 against `deacbdc`, and **that pilot is
+  TEMPORARY and not a real project** (Brett Heap, 2026-09-02) — scaffolded only
+  to test openRepoShape end to end and deletable once the standard is ratified;
+  the evidence is the RECORDED RUN, which survives the pilot's deletion. Every
+  authority question is DEFERRED by name to the sibling staged topic
+  `wallet-carried-work-authority`; this packet declares no grant, no clearance
+  and no gate standing, and the layout confers nothing.
 - [add-cpc-clearing-boundary](openspec/changes/add-cpc-clearing-boundary/proposal.md)
   — authored 2026-09-01, RE-SCOPED the same day after adversarial review,
   **`Status: ratified`** (2026-09-02, Brett Heap, in-session, on the recorded
