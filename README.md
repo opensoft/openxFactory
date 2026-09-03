@@ -2084,7 +2084,7 @@ Archived changes:
   release surface* justified its tag-free reference point with three bundles
   that "are recorded in the changelog and the manifest with no published tag" —
   `contract-v1.33`, `contract-v1.35` and `contract-v1.39`, all three
-  retro-tagged 2026-08-25 by PR #333, so the present tense had been false for
+  retro-published 2026-08-25 by PR #333, so the present tense had been false for
   nine days. The paragraph is past-tensed with the retro-publication dated and
   attributed, the treatment **PR #333 itself gave the identical claim** in
   `scripts/doc_health/release_inventory.py`'s docstring. The rule it justifies

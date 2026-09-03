@@ -5,7 +5,7 @@
 - [x] 1.1 Read both issues in full, including every comment, before authoring:
       #561 (the canon/validator severity divergence, commissioned by
       `retire-hermes-flat-keys-and-openworkflow-tokens` tasks § 6.1) and #339
-      (the three retro-tagged bundles left in the present tense). The ruling
+      (the three retro-published bundles left in the present tense). The ruling
       is recorded VERBATIM as the latest comment on each
 - [x] 1.2 Confirm the divergence at the tree rather than from the issue text:
       canon says "SHALL be reported as a validator warning"

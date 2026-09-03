@@ -106,7 +106,7 @@ release surface"* argues its reference point in one paragraph: a published
 annotated tag is NOT the reference, deliberately, because a declared bundle
 need not have one — and it names three bundles that had none.
 
-All three were retro-tagged on 2026-08-25 by PR #333, so the paragraph's
+All three were retro-published on 2026-08-25 by PR #333, so the paragraph's
 present tense became false the same day. **The normative content is
 unaffected.** The general fact the rule stands on — a declared bundle need not
 carry a tag, so the inventory FILE at the commit is the reference — is still

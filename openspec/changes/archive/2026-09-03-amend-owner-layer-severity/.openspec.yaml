@@ -17,7 +17,7 @@ origin:
     Issue #339: `release-surface-integrity`'s requirement "The declared bundle
     describes the release surface" illustrates its tag-free reference point
     with three bundles "recorded in the changelog and the manifest with no
-    published tag" — all three retro-tagged on 2026-08-25 by PR #333, so the
+    published tag" — all three retro-published on 2026-08-25 by PR #333, so the
     present tense is false. Editing a promoted specification requires a
     ratified OpenSpec change; neither defect is large enough to carry one
     alone; the ruling below put them in one.

@@ -834,7 +834,13 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # author: declaring must never be worth less than omitting.
     assert sweep.change_ids - 1 == 158, (
         "158 since amend-owner-layer-severity was authored 2026-09-03, one "
-        "more ACTIVE change in the corpus. Before that: "
+        "more change id in the CORPUS — and it stays 158 through that same "
+        "commit's ARCHIVE of it, because this pin counts the population and "
+        "not the active corpus: the packet moved from active to archived "
+        "(34+125 -> 33+126, and 32+127 after the merge with main) and a "
+        "bucket move cannot change a total. Do NOT read this row as an "
+        "active-count claim; `active_co_modified` and `active_sole` are the "
+        "readings that saw the archive. Before that: "
         "the `- 1` subtracts THIS change and nothing else, so the reading is "
         "the corpus without it: 152 at authoring, 153 when "
         "add-clearing-dispatch-boundary landed 2026-09-01, 154 when "

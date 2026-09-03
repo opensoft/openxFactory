@@ -592,7 +592,7 @@ _LEDGER_SUBJECTS = {
     # tag-is-not-the-reference-point paragraph named `contract-v1.33`,
     # `contract-v1.35` and `contract-v1.39` as bundles that "are recorded in
     # the changelog and the manifest with no published tag", all three
-    # retro-tagged 2026-08-25 by PR #333, so the ONE of 23 units the arm
+    # retro-published 2026-08-25 by PR #333, so the ONE of 23 units the arm
     # reported was exactly that paragraph, past-tensed with the
     # retro-publication dated — the treatment #333 itself gave the identical
     # claim in `scripts/doc_health/release_inventory.py`'s docstring.

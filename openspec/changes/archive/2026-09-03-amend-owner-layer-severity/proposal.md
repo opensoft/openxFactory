@@ -4,7 +4,7 @@ target_release: promotion-only — the corrected text reaching canon IS the rele
 Status: ratified
 Ratified: 2026-09-03 by Brett Heap (repository owner) — in-session, verbatim: "implement your recommendations on all these", given over the lane's written recommendations for issues #561 and #339 among others, and recorded VERBATIM as the latest comment on both issues. Record: `review/ratification-2026-09-03.md`.
 Proposed: 2026-09-03
-Origin: openxFactory issue #561 (the canon/validator severity divergence, commissioned by `retire-hermes-flat-keys-and-openworkflow-tokens` tasks § 6.1) and openxFactory issue #339 (three retro-tagged bundles left standing in the present tense), the second folded into this packet by the same ruling.
+Origin: openxFactory issue #561 (the canon/validator severity divergence, commissioned by `retire-hermes-flat-keys-and-openworkflow-tokens` tasks § 6.1) and openxFactory issue #339 (three retro-published bundles left standing in the present tense), the second folded into this packet by the same ruling.
 ---
 
 # Proposal: amend-owner-layer-severity
@@ -53,7 +53,7 @@ whichever change next opened a delta against `release-surface-integrity`. That
 capability's requirement *"The declared bundle describes the release surface"*
 justifies its tag-free reference point with a live example — `contract-v1.33`,
 `contract-v1.35` and `contract-v1.39` *"are recorded in the changelog and the
-manifest with no published tag"* — and all three were retro-tagged on
+manifest with no published tag"* — and all three were retro-published on
 2026-08-25 by PR #333. The present tense has been false since. **The rule the
 sentence illustrates is untouched and still exactly right**: a declared bundle
 need not have a tag, so the inventory FILE at the commit is the reference. Only
@@ -71,7 +71,7 @@ The same treatment is applied here.
   entire diff against canon** — proven by word-diff in `tasks.md` § 2, not
   asserted. The canonical role list, the `stack.yaml` layer-id clause and the
   scenario's `**WHEN**` bullet are restated byte-for-byte.
-- **`release-surface-integrity` — the retro-tagged bundles are past-tensed and
+- **`release-surface-integrity` — the retro-published bundles are past-tensed and
   DATED.** One paragraph of the requirement body: the three bundles "were each
   recorded in the changelog and the manifest with no published tag for weeks —
   the state this rule was written against — so a rule anchored on a tag would
