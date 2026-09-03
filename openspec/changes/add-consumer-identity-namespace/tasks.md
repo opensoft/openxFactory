@@ -386,11 +386,20 @@ so it joins the co-modified population and the pins move. The failure is the
 gate working; the repair is to move the pins WITH A DATED NOTE naming the cause,
 in the same commit, which is that file's own stated discipline.
 
-**MEASURED ON BOTH TREES, and the branch was REBASED onto current `main` first
+**MEASURED ON BOTH TREES, and the branch was CAUGHT UP to current `main` first
 because `main` had moved under it** — PR #616 merged the `contract-v3.1` cut,
 archiving `add-project-repo-schema` and itself moving `active_co_modified`
 21 -> 20. Measuring against the stale base would have produced pins that were
 wrong the moment they landed.
+
+**THE CATCH-UP IS A MERGE AND NOT A REBASE, and the reason is recorded rather
+than left to look like a style choice.** The rebase was performed first, and its
+push was REFUSED by repository rule — *"Cannot force-push to this branch"*. The
+earlier heads are published and already reviewed, so rewriting them is both
+forbidden and wrong; the branch was reset back to the published `f4a8fa87` and
+took an ordinary catch-up MERGE of `origin/main` instead. **The sweep was
+re-measured on the MERGED tree rather than carried over from the rebased one**,
+and returns identically: 159 / 110 / 49 / 21 / 12.
 
 | reading | `main` `19d00872` | branch `4dc5a0f9` | move |
 | --- | --- | --- | --- |
