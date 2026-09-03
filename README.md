@@ -128,7 +128,21 @@ Core domain-neutral docs:
   ONLY governed document that names the secret, because the ratified
   requirement forbids "a secret name resolvable to key material" anywhere in
   `governance/factory-identity/` and the reader refuses one. Realizes
-  `add-cpc-clearing-boundary` tasks 2.1-2.4)
+  `add-cpc-clearing-boundary` tasks 2.1-2.4.
+  **The ceremony is EXECUTED by
+  [`scripts/mint-factory-origin-key.py`](scripts/mint-factory-origin-key.py)** —
+  one operator command (`--dry-run` first) that fails closed on eight
+  read-only preflight checks, derives the three public values by CALLING
+  `validate-factory-identity.py`'s own `derive` in-process rather than
+  implementing an encoding of its own, writes the 32-byte seed to
+  `gh secret set --body -` on stdin and nowhere else, fills all five sentinels
+  as ONE act, re-stamps the expiry pair character-for-character, runs all four
+  gates before either commit, writes the mint record into the originating
+  repository, readies both draft pull requests — and does NOT merge, because
+  `governance/factory-identity/` is a permanently human-only surface. A second
+  run refuses at `secret-already-exists` or `register-already-minted`. The
+  runbook's manual checklist is retained as its appendix for the day the
+  program cannot run)
 - [The Project Repository Schema](docs/project-repo-schema.md)
   (the ELECTIVE three-repository shape — `<Project>` assembly root,
   `<Project>-spec`, `<Project>-code` — and the doctrine that electing it
@@ -635,7 +649,8 @@ Active changes:
   YET.** The sibling register family `governance/factory-identity/` — register,
   wallet, grant and custody attestation for the first originating repository
   `opensoft/codexFactory` — plus the disjointness validator
-  `scripts/validate-factory-identity.py`, its 44 tests, its wiring into the
+  `scripts/validate-factory-identity.py`, the operator mint program
+  `scripts/mint-factory-origin-key.py`, their 77 tests, its wiring into the
   REQUIRED `wallet-validation` check with a positive log conjunction, and the
   mint runbook `docs/factory-origin-key-mint-runbook.md`. **The operator has not
   minted the per-factory Ed25519 origin key**, so the three public values are the

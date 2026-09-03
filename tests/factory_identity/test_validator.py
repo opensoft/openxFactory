@@ -2,12 +2,26 @@
 
 WHAT IS PROVEN HERE, AND WHY EACH HALF IS SEPARATE.
 
-THE SHIPPED TREE IS ADJUDICATED AS IT STANDS. `test_the_shipped_tree_refuses_
-until_the_key_is_minted` runs the reader against the REAL repository root and
-asserts the exact refusal set: the register is unminted, so it MUST NOT merge,
-and the proof of that is a red run rather than a comment saying so. When the
-operator performs the mint, this test is the thing that goes green — and the
-`FILL-IN-AT-MINT` count it pins is the thing that has to move deliberately.
+THE SHIPPED TREE IS ADJUDICATED IN WHICHEVER STATE IT IS IN, and the two states
+are the reason this file reads the tree before it asserts anything about it.
+`test_the_shipped_tree_is_adjudicated_as_it_stands` runs the reader against the
+REAL repository root and requires the tree to be in exactly one of two
+conditions:
+
+  * UNMINTED — all five `FILL-IN-AT-MINT` sentinels standing, the reader
+    refusing with exactly five `factory-identity-placeholder-unminted`
+    findings. The register MUST NOT merge in this condition, and the proof of
+    that is a red reader rather than a comment saying so.
+  * MINTED — no sentinel anywhere, the reader clean.
+
+ANYTHING BETWEEN THEM FAILS, which is the property a fixed `returncode == 1`
+could not express. That earlier spelling asserted the UNMINTED condition
+unconditionally, so the operator's mint — the act the whole family exists to
+make possible — would have turned the REQUIRED `pytest-suite` red in the same
+commit that filled the register, and the runbook's step 5 ("all four must be
+clean") could never have been satisfied. The `FILL-IN-AT-MINT` count is still
+pinned LITERALLY in the unminted branch, so a sixth sentinel appearing or one
+going missing before the mint is still a deliberate edit here.
 
 THE RULES ARE ADJUDICATED AGAINST SYNTHETIC TREES. Every refusal gets its own
 built tree, because a rule proven only against the shipped artifact is a rule
@@ -177,36 +191,106 @@ def build_tree(tmp_path: Path, *, holder: str = "opensoft/codexFactory",
 
 # --------------------------------------------------------------- the shipped tree
 
-def test_the_shipped_tree_refuses_until_the_key_is_minted() -> None:
-    """The register CANNOT MERGE holding a placeholder. That is the point."""
+def shipped_sentinel_lines() -> list[str]:
+    """Every sentinel VALUE line in the shipped family, by file and line.
+
+    The rule is the reader's own: a sentinel inside a COMMENT is prose and not a
+    value, so the register's own explanation of why the placeholders exist does
+    not count itself as one.
+    """
+    out: list[str] = []
+    for path in sorted(FAMILY.rglob("*")):
+        if not path.is_file():
+            continue
+        lines = path.read_text(encoding="utf-8",
+                               errors="replace").splitlines()
+        for number, line in enumerate(lines, 1):
+            if SENTINEL in line and not line.lstrip().startswith("#"):
+                out.append(f"{path.relative_to(REPO_ROOT)}:{number}")
+    return out
+
+
+def test_the_shipped_tree_is_adjudicated_as_it_stands() -> None:
+    """UNMINTED and refusing, or MINTED and clean. Nothing in between.
+
+    A HALF-COMPLETED MINT IS THE FAILURE THIS ASSERTS. It is the one condition
+    neither branch admits, and it is the realistic one: the runbook used to
+    have an operator paste five values into two files by hand, and four of five
+    is a register that names a key reference nobody can resolve. `scripts/
+    mint-factory-origin-key.py` exists so the five writes are one act, and this
+    test is what makes the half state loud if anything else ever performs them.
+    """
+    standing = shipped_sentinel_lines()
     result = run(".")
-    assert result.returncode == 1, (
-        f"the shipped tree must REFUSE while the origin key is unminted; got "
-        f"exit {result.returncode}:\n{result.stdout}")
-    assert "factory-identity-placeholder-unminted" in codes(result.stdout)
-    minted = [line for line in result.stdout.splitlines()
-              if "factory-identity-placeholder-unminted" in line]
-    assert len(minted) == SHIPPED_SENTINEL_VALUES, (
-        f"the shipped tree carries {len(minted)} mint sentinels, not "
-        f"{SHIPPED_SENTINEL_VALUES}. The count is pinned literally so a value "
-        f"appearing or going missing is a deliberate edit here beside the "
-        f"register edit, never a silent pass")
+    findings = [line for line in result.stdout.splitlines()
+                if "factory-identity-placeholder-unminted" in line]
+    if standing:
+        assert len(standing) == SHIPPED_SENTINEL_VALUES, (
+            f"the shipped tree carries {len(standing)} mint sentinels, not "
+            f"{SHIPPED_SENTINEL_VALUES}: {standing}. The count is pinned "
+            f"literally so a value appearing or going missing is a deliberate "
+            f"edit here beside the register edit, never a silent pass — and a "
+            f"count BETWEEN 0 and {SHIPPED_SENTINEL_VALUES} is a "
+            f"HALF-COMPLETED MINT, which is the one state the register family "
+            f"cannot hold")
+        assert result.returncode == 1, (
+            f"the shipped tree must REFUSE while the origin key is unminted; "
+            f"got exit {result.returncode}:\n{result.stdout}")
+        assert "factory-identity-placeholder-unminted" in codes(result.stdout)
+        assert len(findings) == SHIPPED_SENTINEL_VALUES
+    else:
+        assert result.returncode == 0, (
+            f"the origin key is MINTED (no sentinel stands) but the reader "
+            f"still refuses this tree; got exit {result.returncode}:\n"
+            f"{result.stdout}")
+        assert not findings
 
 
 def test_no_plausible_key_literal_was_invented() -> None:
     """A value that LOOKS like a key is worse than no value, because it merges.
 
-    Every value the mint produces is the sentinel and nothing else: no
-    43-character base64url literal, no `did:key:z…` and no `sha256:` hex digest
-    sits anywhere under the family while it is unminted.
+    BEFORE THE MINT, every value the mint produces is the sentinel and nothing
+    else: no 43-character base64url literal, no `did:key:z…` and no `sha256:`
+    hex digest sits anywhere under the family.
+
+    AFTER THE MINT the assertion INVERTS rather than lapsing, because "no key
+    literal" is trivially true of a tree that also lost its register. The
+    family then carries EXACTLY ONE distinct `did:key` literal and EXACTLY ONE
+    distinct fingerprint, the fingerprint appearing twice — once in the
+    wallet's `key_fingerprint` and once as the attestation's
+    `attested_key_fingerprint`, which is the join that makes the attestation
+    attest A KEY rather than a wallet id. That the values RECOMPUTE from the
+    public half beside them is the reader's own check, not this one's.
     """
     import re
+    did_re = re.compile(r"did:key:z[1-9A-HJ-NP-Za-km-z]{40,}")
+    fingerprint_re = re.compile(r"sha256:[0-9a-f]{64}")
+    if shipped_sentinel_lines():
+        for path in sorted(FAMILY.rglob("*.yaml")):
+            text = path.read_text(encoding="utf-8")
+            assert not did_re.search(text), (
+                f"{path} carries a did:key literal before the mint")
+            assert not fingerprint_re.search(text), (
+                f"{path} carries a fingerprint literal before the mint")
+        return
+    dids: list[str] = []
+    fingerprints: list[str] = []
     for path in sorted(FAMILY.rglob("*.yaml")):
         text = path.read_text(encoding="utf-8")
-        assert not re.search(r"did:key:z[1-9A-HJ-NP-Za-km-z]{40,}", text), (
-            f"{path} carries a did:key literal before the mint")
-        assert not re.search(r"sha256:[0-9a-f]{64}", text), (
-            f"{path} carries a fingerprint literal before the mint")
+        dids += did_re.findall(text)
+        fingerprints += fingerprint_re.findall(text)
+    assert len(set(dids)) == 1, (
+        f"the minted family carries {len(set(dids))} distinct did:key "
+        f"literals; ONE origin identity per originating repository is ratified")
+    assert len(set(fingerprints)) == 1, (
+        f"the minted family carries {len(set(fingerprints))} distinct "
+        f"fingerprints: {sorted(set(fingerprints))}")
+    assert len(fingerprints) == 2, (
+        f"the minted family records the fingerprint {len(fingerprints)} "
+        f"time(s), not twice. The wallet declares it and the custody "
+        f"attestation joins against it; a missing join is an attestation that "
+        f"attests a wallet id rather than a key, and a rotation would inherit "
+        f"its cap lift")
 
 
 def test_the_shipped_tree_is_disjoint_from_review_authority() -> None:
