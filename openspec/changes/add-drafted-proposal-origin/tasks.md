@@ -207,4 +207,8 @@ FIXED.**
 | `python3 -m pytest tests/doc-health/test_proposal_origin.py -q` | **58 passed, 0 failed** (40 before this change) |
 | `python3 scripts/doc-health.py --single-repo .` on `origin/main` (`2b0615da`, clean worktree) | **6 critical, 6 error, 29 warning, 14 info**; `proposal-origin`: no findings |
 | the same run on this branch | **6 critical, 6 error, 29 warning, 16 info**; `proposal-origin`: no findings |
+| RE-MEASURED after merging `origin/main` — baseline `995c0ad5` in a clean worktree | **6 critical, 8 error, 29 warning, 14 info** (main's own error band moved 6 → 8 between the two baselines, by main's landings and not by this branch) |
+| the same run on the merged branch | **6 critical, 8 error, 29 warning, 16 info** — **+2 `info` and nothing else, against a second and newer baseline** |
+| CI on the merged head `b74c8466` | all five required checks **pass**: `pytest-suite` (20m53s), `signed-execution-chain-gate`, `wallet-validation`, `openreposhape-pin`, `merge-master-approval` |
+| `python3 -m pytest tests/ -q -m "not postgres"` locally | 95 failures, **all environmental and none this packet's**: the scratch worktree has no initialized `openXwallet` submodule, so the trust-anchor, wallet-pin and chain suites refuse — the SAME tests fail identically on the untouched `origin/main` worktree beside it, and CI, which initializes submodules, passes them |
 | the two reports diffed | **+2 `info` and nothing else** — both this packet's own MODIFIED blocks in `modified-block-currency`'s carriage ledger, the editorial arm every reworded active MODIFIED block in this corpus produces one of (8 in the baseline, from six other active changes). Zero new `critical`, `error` or `warning`. |
