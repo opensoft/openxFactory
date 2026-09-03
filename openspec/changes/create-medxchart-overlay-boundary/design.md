@@ -58,8 +58,10 @@ superproject is cloned over HTTPS, so `../MedxChart` resolved to a plain
 — and every nightly from 2026-08-24 died at the clone of these two submodules.
 
 **What stands.** `opensoft/xFactory` `386e7ee2` (2026-08-25T19:13:51Z),
-verbatim: *"A relative submodule URL resolves to whatever cloned the
-superproject / MedxChart and MedxPractice entered .gitmodules as ../Medx* — on
+verbatim — the ` / ` below is the SUBJECT/BODY break of the commit message and
+is not part of it, `[subject] / [body]`: *"A relative submodule URL resolves to
+whatever cloned the superproject / MedxChart and MedxPractice entered
+.gitmodules as ../Medx* — on
 the nightly runner the superproject is HTTPS, so they resolved to plain https://
 URLs the workflow's git@-only token rewrite never touches, and every nightly
 since 2026-08-24 died at their clone. Normalize both to the git@github.com: form

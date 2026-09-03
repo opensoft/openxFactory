@@ -3,7 +3,14 @@
 Status: record
 Kind: report
 Captured: 2026-09-03, in the ratification lane `openxfactory-max001`
-(session `5e783e4d`), on branch `ratify/create-medxchart-overlay-boundary`.
+(session `5e783e4d`), on branch `change/ratify-create-medxchart-overlay-boundary`
+(openxFactory PR #608). Every number below was RE-DERIVED ON THE REBASED TREE at
+`c39d29bc7b8e1b5309efb577facd396a76361df8` and CORRECTED PRE-CAPTURE in the fix
+commit that carries this line — the second commit on this branch, subject
+"Ratification of create-medxchart-overlay-boundary: the records re-derived
+pre-capture (86/86) …". A commit cannot write its own hash into its own tree, so
+the fix commit is named by its subject and its position on the branch rather
+than by a hash; § 9 lists what it corrected and why.
 
 **Why this file exists.** `tasks.md` 4.3 says "Run targeted YAML/Markdown/Git
 consistency checks and report any pre-existing dirty work left untouched" and is
@@ -14,7 +21,9 @@ now, with its command and its output, so the reader gets a report rather than a
 claim; and the one half that cannot be reproduced is named as unreproducible
 rather than described from memory.
 
-This is a CAPTURED record. It is written once and never edited.
+**This record is CAPTURED AT MERGE, not at first push.** It was RE-DERIVED ON
+THE REBASED TREE before capture, and § 9 lists what changed and why. After the
+merge that captures it, it is written once and never edited.
 
 ---
 
@@ -37,11 +46,15 @@ $ OPENSPEC_TELEMETRY=0 openspec validate --all --strict
 …
 ✓ spec/workstation-intake
 ✓ spec/xfactory-semantic-kernel
-Totals: 85 passed, 0 failed (85 items)
+Totals: 86 passed, 0 failed (86 items)
 ```
 
-Eighty-five items, zero failures — every active change and every promoted
-specification in the repository, this change included.
+Eighty-six items, zero failures — every active change and every promoted
+specification in the repository, this change included. **The total is 86 and not
+the 85 first written here**: `add-project-repo-schema` (PR #605) landed on `main`
+at `642ac147` while this branch was open and promoted one more item into the
+count. This branch was rebased onto it; the total was re-derived on the rebased
+tree and corrected before capture (§ 9).
 
 ## 3. The pin agreement, read from an INDEPENDENT clone
 
@@ -77,10 +90,14 @@ the tree rather than preferring either") has no implementation here yet.
 
 ## 4. The aggregation entry and gitlink, read from GitHub `main`
 
-Read through the API rather than from the local superproject checkout:
+Read through the API rather than from the local superproject checkout. The
+first command is GREPPED to the two Medx entries and says so in the command
+itself: the aggregation carries thirteen submodules, and a block showing two
+under a command that prints thirteen would be an elision the reader could not
+see.
 
 ```console
-$ gh api repos/opensoft/xFactory/contents/.gitmodules --jq .content | base64 -d
+$ gh api repos/opensoft/xFactory/contents/.gitmodules --jq .content | base64 -d | grep -A2 'submodule "xFactories/Medx\(Chart\|Practice\)"'
 [submodule "xFactories/MedxChart"]
 	path = xFactories/MedxChart
 	url = git@github.com:opensoft/MedxChart.git
@@ -121,10 +138,12 @@ MedxChart", 2026-08-23T20:14:55Z). `0c6ea39` (2026-08-26) moved
 ## 5. Host-absolute paths, and the descendant's whole tracked tree
 
 ```console
-$ git grep -n '/home/' -- openspec/changes/create-medxchart-overlay-boundary
-(no matches)
+$ git grep -n '/home/' -- openspec/changes/create-medxchart-overlay-boundary ':!*/review/*'
+$ echo $?
+1
 $ git -C mcverify grep -n '/home/'
-(no matches)
+$ echo $?
+1
 $ git -C mcverify ls-files
 .gitmodules
 AGENTS.md
@@ -135,8 +154,19 @@ openspec/changes/archive/.gitkeep
 openspec/specs/.gitkeep
 ```
 
-No host-absolute path in the change packet or in the descendant. And the
-file list is the evidence for `tasks.md` 6.1: **seven tracked entries, all
+**`review/` IS EXCLUDED FROM THE FIRST SWEEP, and the exclusion is the finding
+rather than a convenience.** Without it the sweep matches THIS RECORD'S OWN
+quoted command lines — the pattern `/home/` is printed in the commands above —
+so once this record exists the unexcluded form can never return nothing, and the
+`(no matches)` this section printed as first written was falsified by the very
+file it was written into. Copilot's round-1 review named exactly that, and it is
+taken. `git grep` prints nothing and exits `1` where there is no match, so the
+exit status is shown rather than a prose rendering: on a page, "no output" and
+"never run" look alike.
+
+No host-absolute path in the GOVERNED artifacts — `proposal.md`, `design.md`,
+`tasks.md`, `.openspec.yaml` and the two spec deltas — and none in the
+descendant. And the file list is the evidence for `tasks.md` 6.1: **seven tracked entries, all
 composition metadata, ZERO openChart profile artifacts.** `opensoft/MedxPractice`
 at `d8d73195` reads the same way — `.gitmodules`, `AGENTS.md`, `README.md`,
 `contracts/openpractice-pin.yaml` (`kind: medxpractice_openpractice_pin`,
@@ -180,19 +210,39 @@ from memory.
 What CAN be checked about it is the file list of each landing commit, and it is
 reported here as measured rather than as clean:
 
-```console
-$ git show --stat bed2a69            # the aggregation
- .gitmodules | 6 +++---   CLAUDE.md | 3 ++-   README.md | 8 +++++++-
- openxFactory | 2 +-      project-register.yaml | 4 +++-
- xFactories/MedxChart | 1 +   xFactories/MedxFactory | 2 +-   xFactories/openChart | 1 -
- 8 files changed, 18 insertions(+), 9 deletions(-)
+Both commits belong to OTHER repositories — `opensoft/xFactory` and
+`opensoft/MedxChart` — so neither is reachable from this checkout by a bare
+`git show`. They are read through the GitHub API instead, as §§ 3 and 4 are, and
+the output is pasted one file to a line exactly as the command emits it:
 
-$ git -C xFactories/MedxChart log --stat --format='%h %s'
+```console
+$ gh api repos/opensoft/xFactory/commits/bed2a69 --jq '"\(.sha[0:7]) \(.commit.message | split("\n")[0])"'
+bed2a69 Replace openChart aggregate with MedxChart
+$ gh api repos/opensoft/xFactory/commits/bed2a69 --jq '.files[] | "\(.status)\t\(.filename)\t+\(.additions) -\(.deletions)"'
+modified	.gitmodules	+3 -3
+modified	CLAUDE.md	+2 -1
+modified	README.md	+7 -1
+modified	openxFactory	+1 -1
+modified	project-register.yaml	+3 -1
+added	xFactories/MedxChart	+1 -0
+modified	xFactories/MedxFactory	+1 -1
+removed	xFactories/openChart	+0 -1
+$ gh api repos/opensoft/xFactory/commits/bed2a69 --jq '"\(.files|length) files changed, \(.stats.additions) insertions(+), \(.stats.deletions) deletions(-)"'
+8 files changed, 18 insertions(+), 9 deletions(-)
+
+$ gh api repos/opensoft/MedxChart/commits --jq '.[] | "\(.sha[0:7]) \(.commit.message | split("\n")[0])"'
 68d2f1f Keep MedxChart bootstrap paths portable
- AGENTS.md | 6 +++---   openspec/changes/archive/.gitkeep | 0
 4b0b6da Create MedxChart pinned openChart composition
- .gitmodules | 3 +++   AGENTS.md | 30 +++   README.md | 37 +++
- contracts/openchart-pin.yaml | 10 +++   openChart | 1 +   openspec/specs/.gitkeep | 0
+$ gh api repos/opensoft/MedxChart/commits/68d2f1f5db932cb5099ceac75dab66316ef22579 --jq '.files[] | "\(.status)\t\(.filename)\t+\(.additions) -\(.deletions)"'
+modified	AGENTS.md	+3 -3
+added	openspec/changes/archive/.gitkeep	+0 -0
+$ gh api repos/opensoft/MedxChart/commits/4b0b6da97642625c77e8cb0003ecf706b7dddfd2 --jq '.files[] | "\(.status)\t\(.filename)\t+\(.additions) -\(.deletions)"'
+added	.gitmodules	+3 -0
+added	AGENTS.md	+30 -0
+added	README.md	+37 -0
+added	contracts/openchart-pin.yaml	+10 -0
+added	openChart	+1 -0
+added	openspec/specs/.gitkeep	+0 -0
 ```
 
 Six of `bed2a69`'s eight paths are this packet's own — the `.gitmodules` swap,
@@ -211,3 +261,78 @@ the nested `openChart` gitlink **in the same commit**, which is exactly the
 `domain-descendant-boundary` states. The boundary was built to the rule before
 the rule was written (2026-08-23 against a 2026-08-28 ratification); § 5's
 follow-on is what will keep it there without a human re-reading two files.
+
+## 9. This record's own capture, and what was corrected before it
+
+**CAPTURE IS MERGE.** `record-immutability` forbids editing a `Status: record`
+document after capture, and capture is the merge of the pull request that
+establishes it. **Nothing is merged yet**, so editing these two records on the
+branch is lawful — and saying plainly what was edited, and why, is the price of
+doing it.
+
+**The rebase reset record-immutability's baseline.** The first push was branch
+`ratify/create-medxchart-overlay-boundary` (PR #607, head `edae4c66`).
+`add-project-repo-schema` (PR #605) landed on `main` at `642ac147` minutes later
+and moved the SAME live corpus pin, so #607 went conflicting; the repository
+forbids force-pushing, so the work was rebased onto `642ac147` and re-pushed as
+`change/ratify-create-medxchart-overlay-boundary` (PR #608, head `c39d29bc`).
+Because the record had never been merged, it had never been captured, and the
+rebase gave it a fresh baseline. The honest statement is therefore **not** that
+the record was captured exactly once with the numbers it was measured at — it is
+that **the record was RE-DERIVED PRE-CAPTURE.** What the rebase moved:
+
+```console
+$ git diff edae4c66 c39d29bc --numstat -- openspec/changes/create-medxchart-overlay-boundary/review/
+15	7	openspec/changes/create-medxchart-overlay-boundary/review/ratification-2026-09-03.md
+```
+
+Twenty-two changed lines, all in `ratification-2026-09-03.md` § 6 and all of them
+the corpus-pin readings following the rebase: `co_modified` 107 → 108 became
+108 → 109, `active_co_modified` 20 → 21 became 21 → 22, the measured-by-exclusion
+baseline 156 / 107 / 49 / 20 / 12 became 157 / 108 / 49 / 21 / 12, and a paragraph
+was added saying the readings are stated against `main` at `642ac147`.
+**`verification-2026-09-03.md` did not move in that commit, and that is the
+defect this section records** — its `--all --strict` total SHOULD have moved with
+the rebase and did not.
+
+**Corrected in the fix commit that carries this section, before capture:**
+
+1. **§ 2's total, `85 passed / 85 items` → `86 passed / 86 items`**, and the same
+   figure in `ratification-2026-09-03.md`'s "Ratified baseline" line
+   (`85/85` → `86/86`). `add-project-repo-schema` promoted one more item into the
+   count while this branch was open.
+2. **The `Captured:` header**, which still named the pre-rebase branch.
+3. **§ 5's host-absolute-path sweep**, which printed `(no matches)` for a command
+   this very file falsifies — re-run with `review/` excluded, and the exclusion
+   explained rather than hidden.
+4. **§ 8's two console blocks**, which were reformatted several files to a line
+   and run without naming the repository they belong to (`git show --stat
+   bed2a69` and `git -C xFactories/MedxChart log` both address the AGGREGATION,
+   not this checkout) — re-read through the GitHub API, verbatim and runnable
+   from any checkout, and every command in this record was executed from the
+   page and its output compared before capture. **§ 4's `.gitmodules` read** was
+   corrected in the same pass for the same reason: it printed two submodule
+   entries under a command that returns thirteen, so the command now carries the
+   `grep` that makes the two the whole of its output.
+5. **Outside this file**, at their own sites: `tasks.md` 1.1's note, which
+   contradicted § 8 above (Copilot round 1, finding 2 — taken); the
+   sibling-citation tense in FOUR places, moved from the present indicative to
+   the future obligation because at this head no sibling pull request has merged
+   and that packet carries no reference to this delta; the `STANDING` clause and
+   the archive→ratification trigger in the `domain-descendant-boundary` delta;
+   the self-referential "the draft establishing act archives" scenario, reworded
+   to a live obligation that names `tasks.md` § 5's evidence; `tasks.md` § 6.1,
+   a NEW checkbox authored already ticked and now a plain report carrying no box;
+   and the subject/body break in `design.md`'s quote of `386e7ee2`, marked as
+   `[subject] / [body]` rather than left reading as one sentence. Line-number
+   pointers inside `ratification-2026-09-03.md` were re-derived to match.
+
+**THE COMMIT MESSAGE OF `c39d29bc` IS SUPERSEDED BY THE MESSAGE OF THE FIX
+COMMIT.** It carries the pre-rebase validation block — `--all --strict 85/85`
+and doc-health `6 critical, 5 error, 29 warning, 13 info` — and both are stale.
+It cannot be amended: force-pushing is forbidden here, so the earlier message
+stands in history unedited, and the measured figures are stated in the fix
+commit's own message and in the pull request body instead of by rewriting it.
+The measured figures at the fix commit are `--all --strict 86/86` and doc-health
+`6 critical, 6 error, 29 warning, 14 info`, 0 new regressions, with zero findings
+naming this change.
