@@ -907,7 +907,19 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       `declaring`/`root_claims` hold at 1/0.
     """
     sweep = sa.corpus_sweep(ROOT)
-    assert sweep.co_modified == 111, (
+    assert sweep.co_modified == 112, (
+        "112 ON THE MERGED TREE 2026-09-03: TWO INDEPENDENT AUTHORINGS, "
+        "EACH RAISING THIS PIN, MEASURED TOGETHER RATHER THAN ADDED. "
+        "`main` reached 111 by amend-owner-layer-severity (#617); this "
+        "branch reached 110 by add-consumer-identity-namespace (#622); the "
+        "merge carries BOTH. The two packets share no requirement key and "
+        "no capability — #617 writes workflow-gate-contract and "
+        "release-surface-integrity, #622 writes credential-contracts — so "
+        "neither changes the other's membership and the moves are "
+        "DISJOINT. That is why the readings compose here; it is NOT a rule "
+        "that they compose, and the number below was RE-MEASURED on the "
+        "merged tree rather than obtained by arithmetic. Each branch's own "
+        "entry is kept verbatim below, newest first. "
         "111 since amend-owner-layer-severity was AUTHORED 2026-09-03 with TWO "
         "`## MODIFIED Requirements` blocks — over workflow-gate-contract's "
         "'Owner layer constraint' and release-surface-integrity's 'The declared "
@@ -919,6 +931,34 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "was already co-modified and did not flip. A rise of two always comes "
         "with the sole set falling, and it did (49 -> 48). It read 109 "
         "since create-medxchart-overlay-boundary was RATIFIED 2026-09-03 "
+        "110 since add-consumer-identity-namespace was AUTHORED 2026-09-03 "
+        "(PR #622, openxFactory issues #511 and #553): it carries TWO "
+        "`## MODIFIED Requirements` blocks over credential-contracts' 'A "
+        "credential binding declares the consuming system that holds it and "
+        "the identity it fetches with' and 'Two bindings on one secret are "
+        "refused unless every pair declares distinct consumers, acknowledges "
+        "the sharing, and names a requirement bound to the binding', so it "
+        "joined the co-modified population. THE RISE IS ONE AND "
+        "`sole_modifiers` HOLDS AT 49 — and the reason is worth stating "
+        "because the obvious prediction is the other one. Both those keys had "
+        "exactly ONE earlier writer, the ARCHIVED add-binding-consumer-identity "
+        "that ADDED them, and a lone earlier writer normally FLIPS out of the "
+        "sole set when a second change joins its key, which is the rise-of-two "
+        "shape #560 produced. It does not happen here: "
+        "add-binding-consumer-identity was ALREADY co-modified before this "
+        "packet existed, through a THIRD key it shares with "
+        "add-notebook-hosting-credential-custody — credential-contracts' 'Each "
+        "consuming system reaches a shared operated identity through its own "
+        "binding' — so it was never IN the sole set and had nothing to leave. "
+        "MEASURED, NOT INFERRED: on main at 19d00872 that change writes four "
+        "requirement keys of which ONE is shared; on this branch it writes the "
+        "same four of which THREE are shared, and its co-modified membership "
+        "is unchanged at both readings. A rise of one with the sole set held "
+        "is therefore its own cause, distinct from the rise-of-two shape, and "
+        "the distinguishing question is not how many keys the newcomer shares "
+        "but whether the earlier writer was ALREADY co-modified on some other "
+        "key. It read "
+        "109 since create-medxchart-overlay-boundary was RATIFIED 2026-09-03 "
         "and gained a `## MODIFIED Requirements` block over "
         "domain-descendant-boundary's 'A descendant is placed at a ratified "
         "placement'. THE THIRD EXPECTED CAUSE OF THIS FAILURE, distinct from "
@@ -961,7 +1001,15 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "archive moves `active_co_modified`, never the corpus-wide "
         "`co_modified`). ANY later change carrying a MODIFIED block raises it "
         "again, which is one of the two EXPECTED causes of this failure")
-    assert sweep.active_co_modified == 20, (
+    assert sweep.active_co_modified == 21, (
+        "21 ON THE MERGED TREE 2026-09-03. #617 lands this pin back at "
+        "20 — its authoring raised it and its own archive, in the same "
+        "commit, lowered it — so the ONLY surviving move is this branch's: "
+        "add-consumer-identity-namespace is an ACTIVE co-modifier that does "
+        "NOT archive with its landing (it carries a code surface, so its "
+        "archive gate is merged-plus-green and still ahead). One active "
+        "co-modified arrival, one step. RE-MEASURED on the merged tree. "
+        "Both branches' entries follow, newest first. "
         "20 ON THE MERGED TREE 2026-09-03 — NEITHER BRANCH'S NUMBER, AND THE "
         "SECOND TIME IN ONE DAY THIS PIN IS A NET OF OPPOSED MOVES RATHER "
         "THAN A STEP. FOUR moves off the same 20-baseline land in this merge "
@@ -977,6 +1025,25 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "touches the corpus-wide `co_modified`, which an archive never "
         "un-shares. #609 moves it not at all (no `## MODIFIED Requirements` "
         "block; still a sole modifier). "
+        "21 since add-consumer-identity-namespace was AUTHORED 2026-09-03 "
+        "(PR #622). It is an ACTIVE change and it is co-modified, so it enters "
+        "both populations at once and this pin rises with `co_modified` — the "
+        "AUTHORING cause, not the ratifying one and not the archiving one. "
+        "`active_sole` does NOT move with it, for the reason spelled out at "
+        "the `co_modified` pin above: the earlier writer of both its keys was "
+        "already co-modified through a third key, so no change left the sole "
+        "set in either the corpus-wide or the active reading. It read "
+        "20 ON THE MERGED TREE 2026-09-03, which is NEITHER branch's number: "
+        "two moves off the same 20-baseline land in the same commit and "
+        "CANCEL. create-medxchart-overlay-boundary's RATIFICATION (#608) "
+        "raised it 20 -> 21, making an ALREADY-ACTIVE change a co-modifier "
+        "with `active_sole` falling 13 -> 12 in the same move; then "
+        "add-project-repo-schema's ARCHIVE, on its own `tasks.md` 9.3 cut of "
+        "`contract-v3.1`, lowered it 21 -> 20, an archive of a co-modified "
+        "ACTIVE change lowering this count while leaving the corpus-wide "
+        "`co_modified` untouched at 109 — the same shape #563's, #571's and "
+        "declare-spent-bundle-state's own archives moved. #609 moves it not at "
+        "all (no `## MODIFIED Requirements` block; still a sole modifier). "
         "RE-DERIVE ON THE MERGED TREE, never by taking one side. It read 20 "
         "since declare-spent-bundle-state was ARCHIVED 2026-09-03: "
         "archiving a co-modified ACTIVE change lowers this count while "
@@ -1012,7 +1079,12 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # This change is itself a sole modifier at requirement granularity — which is
     # exactly why it declaring a parent anyway is the doctrine applied to its
     # author: declaring must never be worth less than omitting.
-    assert sweep.change_ids - 1 == 158, (
+    assert sweep.change_ids - 1 == 159, (
+        "159 ON THE MERGED TREE 2026-09-03 — both packets are in the "
+        "corpus and each is one change id. #617 archives itself in its own "
+        "landing commit, which moves buckets and not the total, so its "
+        "contribution to THIS pin survives its archive; #622 is active and "
+        "unarchived. RE-MEASURED, not added. "
         "158 since amend-owner-layer-severity was authored 2026-09-03, one "
         "more change id in the CORPUS — and it stays 158 through that same "
         "commit's ARCHIVE of it, because this pin counts the population and "
@@ -1021,6 +1093,9 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "bucket move cannot change a total. Do NOT read this row as an "
         "active-count claim; `active_co_modified` and `active_sole` are the "
         "readings that saw the archive. Before that: "
+        "158 since add-consumer-identity-namespace was authored 2026-09-03 "
+        "(PR #622) — one more ACTIVE change in the corpus, the population "
+        "count moving for the plainest of the reasons. It read "
         "the `- 1` subtracts THIS change and nothing else, so the reading is "
         "the corpus without it: 152 at authoring, 153 when "
         "add-clearing-dispatch-boundary landed 2026-09-01, 154 when "
@@ -1058,6 +1133,15 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # add-sequenced-after-substrate (unaffected, still sole), so the reading
     # falls with `sole_modifiers` to 48.
     #
+    # ON THE MERGED TREE 2026-09-03 this pin carries #617's move and NOT
+    # this branch's, and the two notes below say why in their own words.
+    # #617 FLIPPED an archived sole modifier (promote-workflow-gate-contract)
+    # into the co-modified set, so the sole set fell. #622 flipped nobody:
+    # the earlier writer of both its keys was ALREADY co-modified through a
+    # third key. A rise in `co_modified` drags this pin only when the
+    # newcomer's earlier co-writer was itself SOLE until then — which is the
+    # whole distinction, and it is why one authoring moved this and the other
+    # did not. RE-MEASURED on the merged tree.
     # AND MOVED AGAIN 2026-09-03: `sole_modifiers` fell 49 -> 48 when
     # amend-owner-layer-severity was AUTHORED and its `## MODIFIED
     # Requirements` block over workflow-gate-contract's 'Owner layer
@@ -1067,6 +1151,16 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # FLIPPED change alone. The `- 1` still subtracts only
     # add-sequenced-after-substrate (unaffected, still sole), so the reading
     # falls with `sole_modifiers` to 47.
+    # HELD AT 48 THROUGH add-consumer-identity-namespace's AUTHORING 2026-09-03
+    # (PR #622), and the hold is asserted on its cause rather than left to look
+    # like an oversight. That packet carries TWO `## MODIFIED Requirements`
+    # blocks and DID raise `co_modified`, which usually drags this pin with it
+    # — but only when the newcomer's earlier co-writer was itself SOLE until
+    # then. Here the earlier writer of both keys, the archived
+    # add-binding-consumer-identity, was ALREADY co-modified via a third key
+    # shared with add-notebook-hosting-credential-custody, so it was never in
+    # the sole set and nothing left it. The packet itself never enters the sole
+    # set either, being co-modified from the moment it lands.
     assert sweep.sole_modifiers - 1 == 47
     # STILL INTACT ON ITS MERITS, not by a cancelling pair of errors — checked,
     # because #563's archive landing between the authoring measurement and this
@@ -1135,6 +1229,13 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # ACTIVE. The `- 1` still subtracts add-sequenced-after-substrate alone,
     # so the reading falls to 11.
     #
+    # HELD ON THE MERGED TREE 2026-09-03 THROUGH BOTH PACKETS, which is the
+    # one reading neither branch moves. #617 held it (the change it flipped
+    # out of `sole` is ARCHIVED, so no ACTIVE sole modifier moved) and #622
+    # held it (it flipped nobody at all). Two authorings, four other pins
+    # moved between them, and this one unmoved — asserted rather than
+    # assumed, because a pin that holds through a busy merge is exactly the
+    # pin nobody re-derives. RE-MEASURED on the merged tree.
     # AND HELD 2026-09-03 THROUGH BOTH HALVES OF amend-owner-layer-severity —
     # its AUTHORING and, in the same commit, its ARCHIVE — so the two moves
     # above are the whole of this reading and this packet contributes nothing
@@ -1146,6 +1247,12 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # and never a sole one, which is #563's and #571's shape and touches this
     # pin not at all. Same reading as the add-project-repo-schema entry, and
     # the OPPOSITE of #560's, where the flipped change was itself active.
+    # HELD AT 11 THROUGH add-consumer-identity-namespace's AUTHORING 2026-09-03
+    # (PR #622), for exactly the reason `sole_modifiers` held: the new ACTIVE
+    # change is co-modified on arrival and never joins this population, and no
+    # existing member left it, the earlier writer of both its keys having been
+    # co-modified already. An ACTIVE co-modified arrival moves
+    # `active_co_modified` alone — which is the one pin above that did move.
     assert sweep.active_sole - 1 == 10
     assert sweep.prose_headers == 3 and sweep.prose_headers_archived == 3
     assert sweep.declaring == 1
