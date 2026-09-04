@@ -299,11 +299,15 @@ def test_the_LIVE_corpus_and_the_LEDGER_agree_row_by_row():
           + 127 archived` = 158, `109`, `49`, `20 / 11`, 1 declaration, 3 prose
           headers (3 archived), deepest chain 1 hop.
         * `origin/main` at `6a39d2ab` (#617 ratified and archived
-          `amend-owner-layer-severity`): `31 active + 128 archived` = 159,
-          `111`, `48`, `20 / 11`, 1 declaration, 3 prose headers (3 archived),
+          `amend-owner-layer-severity`; superseded): `31 active + 128 archived`
+          = 159, `111`, `48`, `20 / 11`, 1 declaration, 3 prose headers (3
+          archived), deepest chain 1 hop.
+        * `origin/main` at `95c2cf6a` (#622 authored
+          `add-consumer-identity-namespace`): `32 active + 128 archived` = 160,
+          `112`, `48`, `21 / 11`, 1 declaration, 3 prose headers (3 archived),
           deepest chain 1 hop.
-        * THIS BRANCH, merged with `6a39d2ab`: `32 active + 128 archived` =
-          160, `111`, `49`, `20 / 12`, 2 declarations, 3 prose headers (3
+        * THIS BRANCH, merged with `95c2cf6a`: `33 active + 128 archived` =
+          161, `112`, `49`, `21 / 12`, 2 declarations, 3 prose headers (3
           archived), deepest chain 2 hops.
 
       THE DIFFERENCE IS THIS PACKET AND NOTHING ELSE — one more ACTIVE SOLE

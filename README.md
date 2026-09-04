@@ -534,6 +534,65 @@ Active changes:
   and the rare narrative append. Option 2 of that issue — a GitHub merge queue —
   was assessed and rejected on its own: it serializes merges and does not resolve
   a textual conflict.
+- [add-consumer-identity-namespace](openspec/changes/add-consumer-identity-namespace/proposal.md)
+  — authored 2026-09-03, **RATIFIED 2026-09-03 by Brett Heap, in session**
+  (verbatim "implement your recommendations on all these", over written
+  recommendations for five queued items). **IT CARRIES TWO RULINGS OF THAT ONE
+  WORD, openxFactory #511 AND #553, IN ONE `## MODIFIED Requirements` BLOCK** —
+  because a MODIFIED block replaces a requirement WHOLESALE and both rulings
+  write the same one (*"Two bindings on one secret are refused unless every pair
+  declares distinct consumers…"*), so two live blocks could not both survive: the
+  second to archive would silently revert the first. The lane holding #553 stood
+  down before authoring and its branch is deleted; issue #553 records this packet
+  as its vehicle. **#511** declares `consumer.identity_namespace` — the issuing
+  directory, account or tenant WITHIN the provider — as an ADDITIVE OPTIONAL
+  member, and rescopes `shared-authority-identity` from a BARE STRING to the PAIR
+  `(identity_namespace, fetch_identity)`. The finding fired on two tenants of one
+  provider whose principals share a name, and **the only escape was to rename a
+  fetch identity in the record while the principal kept its real name in the
+  provider** — a refusal whose only escape is a lie. THE FALLBACK REPORTS RATHER
+  THAN CLEARS: where either side declares no namespace, or one outside the
+  identifier grammar, the comparison returns to the bare identity, because an
+  estate able to silence a real shared authority by OMITTING a member on one side
+  would hold a rule it can turn off without writing anything false. ONE predicate
+  serves both the named finding and the lift's THIRD condition — canon states the
+  comparison once, and the first draft that rescoped only the finding was caught
+  by execution, refusing a two-tenant pair under `shared-secret-identity` and
+  sending a reader to split a secret instead of reading a namespace. The member
+  lands under the block's declared-at-the-minor / constrained-at-the-major
+  phasing as the **NINTH `consumer-*` shape code**,
+  `consumer-identity-namespace-grammar` — its own code rather than a widening of
+  `consumer-member-grammar`, because an unreadable namespace ALSO un-scopes the
+  comparison — **and its deprecation window opens at ITS OWN minor, not at
+  `contract-v2.4`**, a row that borrowed a window it never served being the exact
+  defect that policy entry exists to prevent. **#553** amends the promoted
+  scenario *"The requirement reference resolves to more than one record"* to the
+  PER-DOCUMENT scope `resolve_requirement` actually enforces, and rescopes the
+  six-conditions sentence with it — **exactly two edits**, no code, no status, no
+  severity; the resolver, its `ambiguous` verdict and
+  `add-requirement-ref-resolution-integrity` § 3.4's freeze are CITED AND NOT
+  EDITED, and that packet's § 9.4 obligation is discharged by the AMEND branch it
+  names. Ids stay namespaced by their document; repository-wide uniqueness is not
+  a rule. **PROPOSAL AND REALIZATION LAND IN ONE PR** — schema member, shared
+  predicate, ninth code, five packaged fixtures in BOTH directions (the CLEARING
+  one first, a corpus holding only the reporting direction being unable to tell a
+  working check from one that fires on everything), nineteen tests, the
+  `contracts/manifest.yaml` digest recomputed from the bytes, and the policy
+  entry — **and NO CUT**, which is the ruling's own exclusion: no tag, no digest
+  inventory, no version-headed CHANGELOG entry, that entry prescribed verbatim in
+  `tasks.md` § 5.3 so the cut invents nothing. NOTHING NARROWS EXCEPT ONE NAMED
+  SCREEN — `baked-secret` over the third free string, under
+  `add-binding-consumer-identity` § 2.6's own precedent — the comparison change
+  being a SUBTRACTION that can only make a reported pair go silent. Carriage
+  measured: titles byte-identical, 12 scenarios in and 16 out on the block
+  requirement, 12 in and 15 out on the lift requirement, **zero units lost**. No
+  `Modified over` marker is owed and that was CHECKED against
+  `govern-sibling-added-modified-deltas`: both requirements are PROMOTED canon.
+  Two `release-inventory-drift` findings are raised and are the CUT's to
+  discharge — the family's own remedy line forbids hand-editing an inventory to
+  make the comparison pass. **NO COUNCIL SAT AND NONE WAS PRESCRIBED**, and the
+  ratification record says in terms that the ruling reached the SUBSTANCE and is
+  not a read of this text.
 - [add-cpc-clearing-boundary](openspec/changes/add-cpc-clearing-boundary/proposal.md)
   — authored 2026-09-01, RE-SCOPED the same day after adversarial review,
   **`Status: ratified`** (2026-09-02, Brett Heap, in-session, on the recorded
