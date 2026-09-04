@@ -3220,9 +3220,11 @@ contracts:
   # session's act, unwritten at this commit.
   #
   # NO BUNDLE NUMBER IS RESERVED BY THIS REGISTRATION. `contract_bundle_version`
-  # at the head of this file still reads `contract-v3.2` and is NOT moved here;
-  # the next additive number is fresh-counted at the tip the cut is taken from,
-  # per `docs/contract-versioning-policy.md` § Bundle Realization Order, because
+  # at the head of this file is NOT moved here (it read `contract-v3.2` when
+  # these rows were written; a cut, and only a cut, advances it, and the
+  # first cut after #629 is the bundle that ships these rows); the next
+  # additive number is fresh-counted at the tip the cut is taken from, per
+  # `docs/contract-versioning-policy.md` § Bundle Realization Order, because
   # a proposed change MUST NOT reserve a minor number before merge order is
   # known. This is the one deliberate divergence from #556's row text, which
   # named its forthcoming number; the two moved tranche-one/two rows above,

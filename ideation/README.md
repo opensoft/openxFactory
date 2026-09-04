@@ -337,10 +337,12 @@ Active proposals promoted from staging:
   `ideation-dashboard` (the register gains an optional per-project `schema`
   and `reference` and an optional `repository_roles` list — all additive, all
   conferring nothing). FOUR of its artifacts land with the proposal:
-  `docs/project-repo-schema.md`, `contracts/openreposhape-pin.yaml` at
-  openRepoShape `deacbdc` with sixteen per-file digests and eighteen
-  path-only members, `scripts/validate-openreposhape-pin.py` with its gate
-  workflow, and the register schema delta with its validator rules and tests.
+  `docs/project-repo-schema.md`, `contracts/openreposhape-pin.yaml` (at
+  openRepoShape `deacbdc` when it landed — sixteen per-file digests and
+  eighteen path-only members; advanced 2026-09-04 by #650 to `122d729b`, 27
+  digested / 33 path-only / 60 files), `scripts/validate-openreposhape-pin.py`
+  with its gate workflow, and the register schema delta with its validator
+  rules and tests.
   Owns the former staged fragment under `supporting-docs/`. **`Status: ratified`**
   — 2026-09-02, Brett Heap the convener, in the working session, verbatim
   *"ratify it"*, on the packet as landed at squash `642ac147` (#605); record
