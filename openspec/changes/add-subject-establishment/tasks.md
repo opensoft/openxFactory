@@ -127,15 +127,25 @@ path this change writes.
       Enumerated rather than inferred — `pin_class.verify()` was run and the
       single new site is this packet's manifest, joining the EXISTING
       `proposal-support-manifest` member class, which is why the member-count
-      assertion beside it is unchanged at 23.
-      **THE COUNT MOVED TWICE ON 2026-08-28 AND THE MERGE KEPT BOTH STEPS.**
-      The sibling `add-worker-enrollment-broker` promotion took it 66 → 67 for
-      exactly the same reason and landed on `origin/main` first, so merging it
-      in conflicted on this one line. Resolved ADDITIVELY rather than by
-      overwrite: both comments survive, attributed to their own packets, and the
-      assertion reads **68** — re-enumerated with `pin_class.verify()` on the
-      merged commit rather than arithmetic, since `pc.verify` reads the
-      COMMITTED tree and would have answered 67 before the merge commit existed.
+      assertion beside it does not move.
+      **THE COUNT HAS MOVED FOUR TIMES AND EVERY MERGE KEPT EVERY STEP.**
+      This line conflicts on every catch-up merge, by design, and has been
+      resolved ADDITIVELY every time rather than by overwrite — each step keeps
+      its own comment, attributed to the packet that took it:
+      66 → 67 the sibling `add-worker-enrollment-broker` promotion (2026-08-28,
+      landed on `origin/main` first); 67 → 68 THIS packet (2026-08-28);
+      then `main` moved twice more under the branch — 68 → 69 by
+      `add-project-repo-schema`'s promotion manifest and 69 → 70 by
+      `contracts/openreposhape-pin.yaml`'s `commit`, which is ALSO the one step
+      that took the member count off 23 by declaring the new
+      `openreposhape-pin-product-commit` member.
+      **AS OF THE 2026-09-03 MERGE THE ASSERTION READS 70 SITES / 24 MEMBERS**,
+      this packet's manifest being one of the seventy and its member one that
+      already existed. RE-ENUMERATED with `pin_class.verify()` on the merged
+      commit rather than by arithmetic at every step, since `pc.verify` reads the
+      COMMITTED tree and answers the pre-merge number until the merge commit
+      exists — which is why a promotion's own pre-commit run passes and CI is
+      where the count lands.
 
 ## Verification
 

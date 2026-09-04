@@ -906,8 +906,11 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     network. What it does assert is the separation the design turns on — the
     commit path and the classification path never see the same site."""
     report = pc.verify(REPO_ROOT, allow_remote=False)
-    # 68, not the 66 this census landed with, and the two steps are kept apart
-    # because they were taken by different packets on the same day.
+    # 70, not the 66 this census landed with, and every step is kept apart
+    # because each was taken by a different packet: two on 2026-08-28 and two
+    # more that arrived from `main` in the 2026-09-03 merge. Read the four
+    # paragraphs below in order; the assertion at the end of them is the only
+    # number this test enforces.
     #
     # 66 -> 67, `add-worker-enrollment-broker`: a `proposal-support.py transition`
     # writes a `supporting-docs/manifest.yaml` carrying a `source_revision`, and
