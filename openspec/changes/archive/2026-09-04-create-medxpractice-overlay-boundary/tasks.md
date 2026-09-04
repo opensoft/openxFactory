@@ -104,7 +104,7 @@ the sibling's 5.5 is discharged by this paragraph and needs no second decision.
 this pull request and is left for the sibling's own pass to tick with a pointer
 here.**
 
-- [ ] 5.1 Author `tests/validate_pin.py` in `opensoft/MedxPractice`,
+- [x] 5.1 Author `tests/validate_pin.py` in `opensoft/MedxPractice`,
       fail-closed, REFUSING (never warning, never defaulting) when: the nested
       `openPractice` gitlink and `contracts/openpractice-pin.yaml`'s
       `pin.revision` name different commits; either is absent or unparseable;
@@ -117,11 +117,34 @@ here.**
       exist; or the CHECKED-OUT `openPractice/` revision differs from the
       recorded one or is dirty — that last check being the one that catches a
       fork executing at another commit while all three declarations agree.
-- [ ] 5.2 Add `.github/workflows/pin-validation.yml` in
+  - *2026-09-04 — DONE, on Brett Heap's word "do the pin validators".*
+    `opensoft/MedxPractice` **PR #1**, merged
+    **`f7fd8364e033df4a6c5b0f84080b7bde5d156fb4`** (2026-09-04T13:05:10Z) on his
+    later word *"merge both when aligned and green"*, adds
+    `tests/validate_pin.py` (384 lines) refusing on **all four conditions above**
+    with seven named tokens — `pin-gitlink-disagrees`/`pin-gitlink-absent`,
+    `pin-manifest-absent`/`pin-manifest-unreadable`,
+    `pin-manifest-shape`/`pin-revision-invalid`, `pin-checkout-drift` — and the
+    NESTED-manifest reading this task insisted on: top-level
+    `schema_version`/`kind` (`1`/`medxpractice_openpractice_pin`) AND every one
+    of the six fields under `pin:`. `tests/test_validate_pin.py` (213 lines)
+    carries **seven** self-tests. **"One validator shape for one pin shape" was
+    MEASURED, not repeated**: normalizing the MedxChart sibling's validator
+    through the product vocabulary and diffing leaves THREE lines, all the
+    uppercase banner string; the same over the self-tests leaves ONE. Evidence:
+    `review/realization-evidence-2026-09-04.md` §§ 2, 2.1.
+- [x] 5.2 Add `.github/workflows/pin-validation.yml` in
       `opensoft/MedxPractice` running 5.1 on pull request and on push to
       `main`, with the check named `pin-validation` to match the LedgerxWallet
       precedent and the MedxChart sibling.
-- [ ] 5.3 **[OPERATOR]** Create the branch-protection ruleset on
+  - *2026-09-04 — DONE.* `.github/workflows/pin-validation.yml` (72 lines) in
+    the same landing: `name: pin-validation`, on `pull_request` against `main`
+    **and** `push` to `main`, job carrying no display name so the context
+    surfaces as exactly `pin-validation`, and no `paths:` filter so a required
+    context can never fail to report. Two lines shorter than MedxChart's only
+    because that copy carries a note discharging ITS 5.5, which has no analogue
+    here. Evidence: `review/realization-evidence-2026-09-04.md` § 3.
+- [x] 5.3 **[OPERATOR]** Create the branch-protection ruleset on
       `opensoft/MedxPractice`'s default branch (`main`) making `pin-validation`
       a REQUIRED status check, on the shape of ruleset `21701436`. This half is
       Brett's console act; no agent performs it, and an agent-reported "ruleset
@@ -129,16 +152,76 @@ here.**
       rulesets already on this repository are ORGANIZATION-sourced and neither
       requires a status check, so this is a repository-level addition and not
       an edit of either.
-- [ ] 5.4 Record the ruleset id and one green required run in this change's
+  - *2026-09-04 — DONE BY THE OPERATOR, AND READ BACK RATHER THAN REPORTED.*
+    **Ruleset `22273105`, "MedxPractice pin-gate"** — Brett's console act,
+    performed 2026-09-04, verified via
+    `gh api repos/opensoft/MedxPractice/rulesets/22273105`: **Repository**-sourced
+    (so this task's own note holds — a repository-level ADDITION, not an edit of
+    either organization ruleset), `target: branch`, `enforcement: active`,
+    `~DEFAULT_BRANCH`, required status check `pin-validation`, `strict` false,
+    created 2026-09-04T13:23:13Z. **The id guessed in session before the act
+    (`21987655`) was wrong; the API is authoritative.** Both halves of the gap
+    this group measured on 2026-09-03 — zero workflows, no repository-level
+    ruleset — are now closed. OBSERVED DEVIATION from precedent `21701436`, in
+    two directions (two extra rules `deletion`/`non_fast_forward`; one extra
+    bypass actor `RepositoryRole: always`), recorded and NOT repaired, because
+    editing an operator's ruleset is the act this task reserves. The MedxChart
+    sibling's `22272824` carries the identical deviation, so it is one operator
+    pattern applied twice:
+    `review/realization-evidence-2026-09-04.md` § 4.1.
+- [x] 5.4 Record the ruleset id and one green required run in this change's
       `review/` directory as realization evidence, then and only then open the
       archive gate.
-- [ ] 5.5 While that tree is open, close the known limitation `design.md`
+  - *2026-09-04 — DONE; this task is the archive gate and it is now OPEN.*
+    The record is **`review/realization-evidence-2026-09-04.md`**
+    (`Status: record`, `Kind: report`), carrying the ruleset id, its API reading,
+    and **one green run UNDER the ruleset**: run **`33876124444`**, head
+    `f7fd8364`, **`run_attempt: 2`**, started 2026-09-04T13:25:37Z and completed
+    **`success`** at 13:25:59Z. The first attempt (created 13:05:15Z) PREDATES
+    the ruleset created at 13:23:13Z and is therefore green under no required
+    regime; **the re-run is the evidence, and the two are distinguished by
+    `run_attempt` because they share one run id**.
+- [x] 5.5 While that tree is open, close the known limitation `design.md`
       records: MedxPractice's own `.gitmodules` names the PUBLIC
       `opensoft/openPractice` over `git@`, so an anonymous recursive clone
       cannot initialize the nested checkout. **This is a `[ ]` because it is a
       commit in another repository, not because it gates anything** — it does
       NOT gate the archive, which 5.4 alone opens, and it is carried here only
       so the next act on that tree does not have to rediscover it.
+
+  - *2026-09-04 — RECORDED SPENT, NOT DONE, ON THE OWNER'S RULING.* Brett Heap,
+    in session 2026-09-04, verbatim: **"option 1, land it when green"** — put to
+    him as three dispositions for this box after `proposal-support.py archive`
+    refused on it (`change has incomplete tasks`, exit 1, its gate being
+    unconditional on WHICH box). The disposition he chose, in full:
+    - **THE PRECONDITION CLOSED AND CANNOT REOPEN.** This task's own scope is
+      *"while that tree is open"*. That window shut when `opensoft/MedxPractice`
+      PR #1 merged **`f7fd8364`** (2026-09-04T13:05:10Z) without the change. The
+      task is therefore not merely undone; it is UNPERFORMABLE AS WRITTEN, and
+      recording it as spent is what is true rather than a rounding-up.
+    - **THE `git@` FORM STANDS, ON THE RATIFIED CHOICE.** `design.md` declined
+      this fix deliberately and on a stated ground — the `git@` entry "matches
+      every sibling submodule entry in the aggregation, which is what makes one
+      convention rather than two", the cost being "real but small" because
+      MedxPractice is itself PRIVATE, so every clone of it is already
+      authenticated. That reasoning is part of what was ratified on 2026-09-03
+      and the ruling upholds it.
+    - **THE WORKFLOW'S REWRITE IS THE CI ACCOMMODATION, NOT A DISCHARGE.**
+      `pin-validation.yml` sets `url."https://github.com/".insteadOf
+      "git@github.com:"` before initializing the submodule, and its own header
+      names that as the workaround for "the open item blocking a truly anonymous
+      clone that `create-medxpractice-overlay-boundary` tasks.md 5.5 already
+      names". An anonymous `git clone --recursive` by a human still cannot
+      initialize `openPractice/`; that limitation stands, reported.
+    - **IF EVER REVISITED IT IS A MedxPractice CHANGE OF ITS OWN**, not this
+      packet's — which is what this task said from the first ("a commit in
+      another repository") and what `design.md` said too ("a repository this
+      packet does not edit from here").
+    **NOTHING WAS BUILT TO SATISFY THIS BOX AND NOTHING IS CLAIMED.** The tick
+    records an owner's disposition of an obligation, not a completed act, and it
+    says so here so no later reader mistakes the one for the other. Evidence and
+    the read-back of `.gitmodules` at the merge commit:
+    `review/realization-evidence-2026-09-04.md` § 6.
 
 ## 6. Standing of the boundary itself — reported, not precedent
 
@@ -192,3 +275,43 @@ here.**
         is protected only by this prose, by the pull request body, and by the
         coordinator who merges** — which is worth saying plainly rather than
         leaving a reader to assume a machine is watching.
+
+## 7. The archive act
+
+- [x] 7.1 **THE LANDING ACT.** This change is archived by **openxFactory PR
+      #660**, branch `change/archive-create-medxpractice-overlay-boundary`, cut
+      from `main` at `bc1bd4ee` — the merge of PR #654, which archived the
+      sibling and put the placement amendment into canon. On Brett Heap's word
+      of 2026-09-04: *"land it and do medxpractice"*. The move ran through
+      **`python3 scripts/proposal-support.py . archive
+      create-medxpractice-overlay-boundary --date 2026-09-04 --yes`** — the
+      sanctioned wrapper, never bare `openspec archive`. **THAT WRAPPER REFUSED
+      FIRST** (exit 1, *"change has incomplete tasks"*, its gate unconditional
+      on which box) while § 5.5 was open; the refusal was reported to the
+      convener rather than routed around, and § 5.5's tick records the owner's
+      disposition. `.openspec.yaml` is UNTOUCHED and proven so by digest —
+      sha256 `c151811b…` on both this tree and the ratified ref `0bf37d14` — as
+      `release-realization`'s origin-retention rule requires; the
+      parent-declaration retention gate (`--archive-gate` against `0bf37d14`)
+      passes, confirming this change's ABSENCE of a `sequenced_after`
+      declaration is unchanged.
+- [x] 7.2 **THE LEDGER MOVE, CONFIRMED RATHER THAN PREDICTED.** Exactly one
+      `tests/sequenced_after/corpus-ledger.yaml` row moved —
+      `create-medxpractice-overlay-boundary`, `state: active` → `archived` —
+      with `class` held at **`sole`** (this packet carries NO
+      `## MODIFIED Requirements` block and never did, so it was and remains a
+      sole modifier), `declares: absent` unchanged, and **no partner flipped**.
+      **NO MOVEMENT LOG entry is owed**: the row diff explains the whole move.
+      Contrast the sibling, whose row is `co-modifier` because it carried the
+      placement delta — the two rows differ in exactly the way the packets do.
+- [x] 7.3 **THE ORDER § 6.2 DEMANDED WAS KEPT, AND THIS IS THE PROOF.** § 6.2
+      says this packet archives after its sibling because it CITES the placement
+      amendment and "the amendment must be on the base branch before the packet
+      that cites it can be read against it". It was: PR #654 merged `bc1bd4ee`
+      at 2026-09-04T14:59:12Z, promoting the amendment into
+      `openspec/specs/domain-descendant-boundary/spec.md`; this branch is cut
+      from that commit, and R3's primary citation resolves against it at line
+      76. **The out-of-order cost § 6.2 named — "a ratified change contradicting
+      promoted canon" — was therefore never paid.** Nothing in the repository
+      enforced the order; it was protected by that prose, the pull request
+      bodies, and the coordinator who merged.
