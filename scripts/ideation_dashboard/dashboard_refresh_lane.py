@@ -1717,10 +1717,16 @@ def run_refresh_lane(
 # --------------------------------------------------------------------------
 
 def main(argv: list[str] | None = None) -> None:
-    """CLI entry. Void by contract, like the snapshot lane's: every path —
-    including a total failure, reported as SKIPPED — falls through and the
-    process exits 0, so the deterministic doc-health results and the delivered
-    report are never affected."""
+    """CLI entry. Void by contract, like the snapshot lane's, but only for a
+    VALID phase: every path through the lane's own logic for `decide`, `pin`,
+    `report` or `record-pr` — including a total failure, reported as SKIPPED —
+    falls through and the process exits 0, so the deterministic doc-health
+    results and the delivered report are never affected. A phase argparse
+    itself refuses — an unknown value, including the retired `build` — is a
+    USAGE error: argparse prints the fixed choice set and exits non-zero
+    (`SystemExit(2)`) before any lane logic runs. That exit code is
+    deliberately outside this contract; a workflow still spelling `--phase
+    build` should fail loudly, not be swallowed into a silent no-op."""
     ap = argparse.ArgumentParser(
         prog="dashboard-refresh-nightly", description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
