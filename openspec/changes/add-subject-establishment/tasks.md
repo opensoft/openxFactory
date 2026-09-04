@@ -4,14 +4,21 @@ Governance-level and dependency-ordered. **This change is not implemented
 here**: § Admission and § Implementation are done at authoring, and everything
 after them belongs to a later ruling round, to the named successor, and to
 consuming repositories. Every fact quoted below was measured on 2026-08-28 in a
-fresh worktree off `origin/main` at `3cebf83e` and re-measured after
-`origin/main` was merged in at `571e64d5`; a task citing a line number owes a
-re-read at realization rather than a copy of the number. **One number moved at
-that merge and is corrected rather than left standing**: the declared contract
-bundle went `contract-v2.0` → `contract-v2.1` under this branch, so
-`proposal.md`'s `target_release` parse was rerun against
-`contracts/releases/contract-v2.1.digests.yaml` — 192 entries, none of them a
-path this change writes.
+fresh worktree off `origin/main` at `3cebf83e` and re-measured after each of
+the three merges of `origin/main` since — `571e64d5` (2026-08-28), `95c2cf6a`
+and `56e12278` (both 2026-09-04); a task citing a line number owes a re-read at
+realization rather than a copy of the number. **THE CONTRACT BUNDLE MOVES UNDER
+THIS PACKET FASTER THAN ANY PROSE CAN NAME IT, WHICH IS ITSELF THE ARGUMENT FOR
+`target_release: none`**: it was `contract-v2.0` at authoring, `contract-v2.1`
+at the first merge, and **`contract-v3.2` as declared today**
+(`contracts/manifest.yaml:3`) — four minors and a major. `proposal.md`'s
+`target_release` parse has been rerun at each step and the CURRENT reading is
+against `contracts/releases/contract-v3.2.digests.yaml`: **283 entries, none of
+them a path this change writes**, with `contract-v3.1` and `contract-v3.0`
+walked as well and reading the same. The superseded `contract-v2.1` measurement
+(192 entries, same verdict) is retained in `proposal.md`'s front matter for
+history and is deliberately not repeated here. The value stays `none`; it has
+been re-measured, never retargeted.
 
 ## Admission
 
