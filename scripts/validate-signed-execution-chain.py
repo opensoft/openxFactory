@@ -104,6 +104,18 @@ which is tranche two. It verifies `ed25519` and refuses `ecdsa-p256` and
 `ecdsa-secp256k1` as UNEVALUABLE rather than accepting a signature it did not
 check.
 
+AND IT NOW KNOWS TWELVE LEAF TYPES IT DOES NOT PRODUCE. `add-chain-anchoring`
+tasks.md 5.3 settles its leaf kinds in THIS grammar rather than a second one, so
+the shipped `leaf_type` enumeration carries TWENTY-THREE members — tranche one's
+four, tranche two's seven and tranche three's twelve — and this reader carries all
+twenty-three: a reader whose leaf-type set is stale reads a lawful leaf as a
+stranger and skips its commitment in silence. KNOWING A LEAF TYPE IS NOT
+OPERATING ONE: no anchor is minted here, no witness is configured, and the twelve
+have no packaged positive example in this family because the family that produces
+them owns their corpus. What this reader does with one is check that its
+`payload_digest` names `anchor_event` and RECOMPUTES over the block the leaf
+carries, exactly as it does for a gate verdict.
+
 Exit codes: 0 ok, 1 findings, 2 harness error.
 """
 from __future__ import annotations
@@ -265,15 +277,43 @@ HUMAN_HOLDER_CLASSES = frozenset({"person", "practitioner"})
 # shipped enumeration are refused as unevaluable rather than accepted unchecked.
 VERIFIABLE_ALGORITHM = "ed25519"
 
-LEAF_TYPES = ("wallet_presented_ratification", "chain_inception",
-              "traveling_contract_issued", "gate_verdict",
-              # Tranche two: one leaf type per record kind it defines, written
-              # into the SAME log — the walk is over the records the log holds
-              # in the order it holds them.
-              "setup_attestation", "commitment_extension",
-              "signed_chain_binding", "runner_attestation",
-              "pr_open_decision", "closure_record",
-              "remediation_declaration")
+# TRANCHE ONE'S FOUR ACTS. Together with tranche two's seven below, these ELEVEN
+# are the acts this capability governs, and every one of the eleven has a
+# packaged example — because an act whose leaf shape nobody has ever produced is
+# a shape nobody has ever checked. The twelve after them are another
+# capability's.
+TRANCHE_ONE_LEAF_TYPES = ("wallet_presented_ratification", "chain_inception",
+                          "traveling_contract_issued", "gate_verdict")
+
+# TRANCHE TWO'S SEVEN (`add-chain-attestation`): one leaf type per record kind it
+# defines, written into the SAME log — the walk is over the records the log holds
+# in the order it holds them.
+TRANCHE_TWO_LEAF_TYPES = ("setup_attestation", "commitment_extension",
+                          "signed_chain_binding", "runner_attestation",
+                          "pr_open_decision", "closure_record",
+                          "remediation_declaration")
+
+# THE TWELVE `add-chain-anchoring` SETTLED IN THIS GRAMMAR (tasks.md 5.3), in
+# that task's order. They are leaf types of THIS log and this reader must know
+# them — a reader whose leaf-type set is stale reads a lawful leaf as a stranger —
+# but they are NOT acts of this capability: nothing here mints an anchor, and
+# their positive examples belong to the chain-anchoring family that produces
+# them. That is why the corpus-coverage obligation below is over THE ELEVEN THIS
+# CAPABILITY GOVERNS — tranche one's four and tranche two's seven — and not over
+# all twenty-three.
+ANCHORING_LEAF_TYPES = (
+    "anchor_pending_entry", "horizon_breach", "terminal_witness_failure",
+    "anchor_completion", "item_anchor_refusal", "correction_anchored_forward",
+    "verification", "verification_failure", "permitted_access", "refused_access",
+    "linkage_derivation_issuance", "linkage_derivation_use")
+
+# The whole closed set the shipped `leaf_type` enumeration declares, IN THE
+# SHAPE'S OWN ORDER. Pinned against the schema by
+# `tests/signed_execution_chain/test_chain_reader.py`, so the shape and the
+# reader cannot drift apart in either direction — and the order is part of that
+# pin, because the test compares the two as lists.
+LEAF_TYPES = (TRANCHE_ONE_LEAF_TYPES + TRANCHE_TWO_LEAF_TYPES
+              + ANCHORING_LEAF_TYPES)
 
 CHECK_NAMES = (
     "ratification_signature_verifies",
@@ -634,6 +674,13 @@ def check_leaf_payload_digest(f: Findings, label: str, doc: dict,
         "chain_inception": "signed_ratification",
         "traveling_contract_issued": "traveling_contract",
         "gate_verdict": "gate_verdict",
+        # THE TWELVE ANCHORING LEAVES COMMIT TO THEIR OWN EVENT BLOCK
+        # (`add-chain-anchoring` tasks.md 5.3). Mapped here rather than left out:
+        # an unmapped leaf type falls through the `expected is None` return below
+        # and its commitment is SILENTLY SKIPPED, which reads as a checked leaf
+        # and is not one — the exact defect class this function was written after.
+        **{leaf_type_name: "anchor_event"
+           for leaf_type_name in ANCHORING_LEAF_TYPES},
     }.get(leaf_type)
     if expected is None or subject is None:
         return
@@ -648,6 +695,17 @@ def check_leaf_payload_digest(f: Findings, label: str, doc: dict,
         verdict = doc.get("verdict")
         if verdict is not None:
             recompute(f, label, "verdict", verdict, digest_value(payload),
+                      "payload_digest")
+        return
+    if leaf_type in ANCHORING_LEAF_TYPES:
+        # THE SAME MOVE AS THE VERDICT ABOVE, over the block this leaf records.
+        # Checking only that the SUBJECT is named `anchor_event` and never
+        # comparing the VALUE would be a check of exactly the shape round one's
+        # findings had: it reads as though the leaf's commitment were verified
+        # while nothing is compared. The block is in hand, so it is recomputed.
+        event = doc.get("anchor_event")
+        if event is not None:
+            recompute(f, label, "anchor event", event, digest_value(payload),
                       "payload_digest")
         return
     if leaf_type == "traveling_contract_issued":

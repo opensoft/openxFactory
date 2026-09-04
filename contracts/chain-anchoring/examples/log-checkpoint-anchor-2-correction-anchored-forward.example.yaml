@@ -1,0 +1,26 @@
+# THE CORRECTION, ANCHORED FORWARD: anchored material was later found wrong,
+# the correction was recorded as a leaf — referenced here by identifier only,
+# since leaf shapes belong to tranche one's grammar and this family defines
+# none — and the checkpoint covering it is anchored through the same ruled
+# configuration as everything else. A retraction is a NEW LEAF AND A NEW
+# ANCHOR, never an erasure: no claim is made that the earlier anchored value
+# can be withdrawn, because it cannot. The only erasure property anywhere in
+# this family is the commitment record's salt destruction, a property of the
+# commitment and not of the anchor.
+schema_version: 1
+kind: xfactory_chain_anchoring_log_checkpoint_anchor
+anchor_id: lca-example-0002
+checkpoint_ref: leaf-example-checkpoint-head-0652
+checkpoint_digest:
+  construction: xfc-jcs-sha256-1
+  subject: log_checkpoint
+  value: sha256:e303b6591b58e41ac2a104bf1e533368c5165c682bcda98dd035f177961b3585
+tree_size: 652
+receipt_ref: rcp-example-0004
+validation_disclaimer: Inclusion in an anchored checkpoint witnesses that the log
+  said something at a time. It is NEVER validation of any leaf inside it.
+presented_as_validation: false
+previous_checkpoint_anchor_ref: lca-example-0001
+covers_refused_leaves: true
+anchored_at_tree_size_leaf_ref: leaf-example-correction-anchored-forward-0652
+record_version: 1

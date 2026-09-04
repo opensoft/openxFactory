@@ -1,0 +1,17 @@
+# expected_failure: commitment_construction_absent
+# expected_failure_detail: no declared construction
+# An opaque value with nothing declared beside it: a salted keyed commitment
+# and a plain digest of the same material are indistinguishable by inspection,
+# so the construction is declared or the value is refused.
+schema_version: 1
+kind: xfactory_chain_anchoring_anchor_bound_commitment
+commitment_id: cac-negative-0037
+commitment_value: sha256:afbe55555270609848a7ce737fc4fb056ee8d35e8ff36bea65c4831f65287745
+plane: record
+receipt_ref: rcp-example-0003
+named_gate_ref: gate-example-merge-0001
+record_version: 1
+commitment_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_bound_commitment
+  value: sha256:6afaf66e2d0a2015df9f05243f1dbc78a7dbd10dd66141ff302758e7571e5803

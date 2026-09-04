@@ -1,0 +1,45 @@
+# expected_failure: receipt_entry_incomplete_for_pending_witness
+# expected_failure_detail: still in flight
+# The state record says the durability witness is still in flight — and the
+# referenced receipt already carries a per-chain entry for it. A receipt entry
+# exists only once that chain's four elements are captured whole; a witness in
+# flight is a pending proof held in the anchor-state record, and the later
+# upgrade APPENDS a whole entry. A receipt written ahead of its evidence is
+# state smuggled into proof material.
+schema_version: 1
+kind: xfactory_chain_anchoring_anchor_state
+state_id: as-negative-0013
+item_ref: item-example-0001-log-checkpoint-640
+state: anchor_pending
+per_witness:
+- witness_id: w-example-op-0001
+  role: operational
+  chain_id: chain-example-operational
+  status: landed
+  completion_horizon_seconds: 14400
+  horizon_base:
+    kind: chain_derived
+    chain_id: chain-example-operational
+    value: '2026-08-30T10:05:00Z'
+  inclusion_proof_captured_at_anchor_time: true
+- witness_id: w-example-dur-0001
+  role: durability
+  chain_id: chain-example-durability
+  status: in_flight
+  completion_horizon_seconds: 86400
+  horizon_base:
+    kind: chain_derived
+    chain_id: chain-example-operational
+    value: '2026-08-30T10:05:00Z'
+transitions:
+- transition: pending_entry
+  leaf_ref: leaf-example-anchor-pending-entry-0641
+  occurred_at: '2026-08-30T10:01:00Z'
+receipt_ref: rcp-example-0001
+configured_witness_count: 2
+recorded_at: '2026-08-30T12:30:00Z'
+record_version: 1
+notes: 'the ordinary aggregation window: every unmet witness is still WITHIN its
+  declared horizon, so the item is anchor_pending and REMAINS anchor_pending — ''fewer
+  witnesses than configured'' is not sufficient for anchor_incomplete, or every
+  sound item would be in both states at once'

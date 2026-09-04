@@ -1,0 +1,28 @@
+# expected_failure: linkage_derivation_not_expiring_or_revocable
+# expected_failure_detail: no expires_at
+# An authorization that never ends: a derivation must expire AND be revocable
+# at a named surface, so an authorization that ends actually ends. Refused by
+# name beside the shape's own required-property error, because the refusal says
+# what an unbounded authorization IS rather than which property was absent.
+schema_version: 1
+kind: xfactory_chain_anchoring_linkage_derivation_issuance
+derivation_id: ld-negative-0061
+issuing_plane: identity
+consent_checkpoint_ref: ccc-example-0001
+consent_checkpoint_anchored: true
+per_analysis_parameter: scope-dbab84cafba2012926848f0fe78ea3b02764650c
+analysis_ref: ana-negative-0061
+revocation_surface_ref: rvs-example-identity-plane-0001
+issuance_leaf_ref: leaf-example-derivation-issued-0700
+issued_at: '2026-08-30T13:00:00Z'
+correlating_planes:
+- record
+- demographic
+record_version: 1
+notes: 'every adjective is load-bearing: issued by the identity plane, under an
+  anchored consent checkpoint, per-analysis and never stable, expiring and revocable,
+  usable only within the one analysis it names, written as a leaf at issuance'
+derivation_digest:
+  construction: xfc-jcs-sha256-1
+  subject: linkage_derivation
+  value: sha256:483e1bbb7bd47f0e637d09042153198612f7cdec3c88166061e43e677f08bba8

@@ -228,6 +228,129 @@ this release is NOT pushed from the realization branch. After this cut lands on
 <landed sha>` is re-run at the landed commit, and only then is the annotated tag
 published there and verified from an independently refreshed checkout.
 
+### Also realized in this cut: `add-consumer-identity-namespace` (#622)
+
+**THE BYTES WERE ALREADY IN THIS RELEASE'S TREE AND THIS ENTRY DID NOT NAME
+THEM.** `add-consumer-identity-namespace` — ratified 2026-09-03 by Brett Heap,
+the convener, verbatim *"implement your recommendations on all these"* — merged
+as PR **#622**, squash `95c2cf6ae530e6cd0570dd766dd98269d06a75fa`, BEFORE this
+cut's branch point, so its schema, validator and documentation bytes ship inside
+`contract-v3.3`. Its ruling **excluded the cut in terms**, leaving the changelog
+entry to whoever cut next; two lanes then measured the same free number at the
+same hour and **`contract-v3.3` is #628's by merge order**, which is what
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+§ *Version Identity* means by allocating late. **This block is folded into the
+already-allocated entry BEFORE the annotated tag is published** — § *Bundle
+Realization Order* step 4, the step that treats a promoted commit as a new
+candidate every gate reruns against — rather than spending `contract-v3.4` on a
+release whose bytes are already here, and the sections above it are untouched.
+
+`add-consumer-identity-namespace`'s `tasks.md` § 5.3 prescribes what a changelog
+entry realizing it must say, so that no cutting session invents it. **VERBATIM,
+as that task states it:**
+
+> **THE CHANGELOG ENTRY IS PRESCRIBED SO THE CUT INVENTS NOTHING**: class
+> ADDITIVE (minor); the entry states that `consumer.identity_namespace` is
+> declared and unconstrained at this release; that the shared-authority
+> comparison reads the PAIR where both sides declare a grammatical namespace and
+> the BARE identity everywhere else, so absence and malformedness REPORT rather
+> than clear; that one predicate serves both the named finding and the lift's
+> third condition; that the block's SHAPE codes go from EIGHT to NINE with
+> `consumer-identity-namespace-grammar`, whose deprecation window OPENS AT THIS
+> RELEASE rather than at `contract-v2.4`; that the one narrowing is
+> `baked-secret` over the third free string, under § 2.6's precedent; and that
+> nothing else narrows — the member being optional, the schema constraining
+> nothing about the block, and the comparison only ceasing to refuse.
+
+Discharged clause by clause, and **the class this packet contributes is ADDITIVE
+(minor)**, which is the class this release already carries:
+
+* **`consumer.identity_namespace` is DECLARED AND UNCONSTRAINED at this
+  release.** It joins the `consumer:` block's DESCRIBED member set in
+  [`contracts/schemas/xfactory-credential-contracts.schema.yaml`](schemas/xfactory-credential-contracts.schema.yaml)
+  exactly as every other member of that block stands at this minor: no `type`,
+  no `pattern`, no `required:`, no `additionalProperties: false`. The
+  constraining acts are queued at the major and are NOT taken here.
+* **The shared-authority comparison reads the PAIR where both sides declare a
+  grammatical namespace, and the BARE identity everywhere else, so absence and
+  malformedness REPORT rather than clear.** `shared-authority-identity` compares
+  `(identity_namespace, fetch_identity)` only when BOTH bindings declare a
+  namespace matching the identifier grammar; in every other case — neither
+  declares one, one declares one, a declared value is ungrammatical, a declared
+  value is null — the comparison falls back to the bare fetch identity and
+  behaves exactly as the shipped validator behaves. An estate able to silence a
+  real shared authority by OMITTING a member on one side would hold a rule it
+  could switch off without writing anything false; this release does not give it
+  one.
+* **ONE predicate serves BOTH the named finding and the lift's third
+  condition.** `_same_fetch_authority` in
+  `scripts/validate-credential-contracts.py` is called from both places the
+  promoted text states the comparison, because two implementations of one
+  sentence drift.
+* **The `consumer:` block's SHAPE codes go from EIGHT to NINE**, the ninth being
+  `consumer-identity-namespace-grammar`, a WARNING over a declared value outside
+  the identifier grammar. **Its deprecation window OPENS AT THIS RELEASE rather
+  than at `contract-v2.4`** — stated in
+  [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+  § *Deprecations Currently In Force*'s ninth row and in a paragraph of its own
+  there, because a row that borrowed a window it never served is exactly the
+  defect that entry exists to prevent.
+* **THE ONE NARROWING IS `baked-secret` OVER THE THIRD FREE STRING**, taken
+  deliberately under `add-binding-consumer-identity` § 2.6's own precedent: that
+  task extended this error-level screen to the two free-string members it
+  declared, in the release that declared them, on the ground that a new
+  free-string sink on the record kind whose invariant is *"never bake a secret"*
+  is a gap rather than a permission.
+* **NOTHING ELSE NARROWS.** The member is optional; the schema constrains
+  nothing about the block; and the comparison only ceases to refuse — it can
+  make a pair that is reported today go silent, and only when both sides declare
+  a grammatical namespace and the two differ. `identity_namespace` joining
+  `CONSUMER_MEMBERS` likewise only REMOVES a warning: a block carrying that key
+  draws `consumer-block-unknown-member` today and stops. No consumer pinned at
+  `contract-v3.2` is made non-conformant by this packet's bytes.
+
+**What #622 moved over the registered release surface**, measured by
+intersecting `git diff --name-only contract-v3.2 95c2cf6a` with the 283
+registered members of
+[`contract-v3.2.digests.yaml`](releases/contract-v3.2.digests.yaml) —
+**exactly two**, both #622's alone:
+
+* [`contracts/manifest.yaml`](manifest.yaml) — the `credential-contracts` row's
+  `sha256` recomputed from the schema bytes on disk (`d0e936fc7377…` →
+  `b8aa4c77e937…`) and its `consumption_rule` extended with the member and the
+  comparison. FORCED rather than chosen: `test_manifest_row_digest.py` reds at
+  the commit on any schema move that leaves the row behind, so a consumer never
+  verifies a digest for bytes nobody shipped.
+* [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+  — a `NORMATIVE_DOCS` release member: § *Deprecations Currently In Force* gains
+  the ninth table row, the member in the entry's own enumeration, the act count
+  SEVEN → EIGHT, the reconciliation paragraph's corrected ordinal, and the new
+  paragraph opening the ninth row's window at its own minor.
+
+**#622's schema and validator are NOT registered inventory rows** — measured,
+zero occurrences of either path in
+[`contract-v3.2.digests.yaml`](releases/contract-v3.2.digests.yaml).
+`contracts/schemas/xfactory-credential-contracts.schema.yaml` is pinned instead
+by its `contracts/manifest.yaml` row's `sha256`, which IS registered and moved
+with it; `scripts/validate-credential-contracts.py` is not one of the four
+`NAMED_VALIDATORS`; the five packaged fixtures under
+`examples/credential-contracts/` and the two governance documents
+[`docs/credential-access-model.md`](../docs/credential-access-model.md) and
+[`docs/domain-factory-starter-pack.md`](../docs/domain-factory-starter-pack.md)
+are likewise unregistered. **This fold changes no inventory membership**: the
+inventory is rebuilt at the amended tree by the repository's own builder, and
+the only digest that moves is this file's own.
+
+**Migration guidance for this packet's half of the release.** A consumer
+re-pinning to `contract-v3.3` owes no shape work for it: the member is optional
+and unconstrained, and a binding that declares nothing is accepted exactly as
+before. An estate that DOES declare `consumer.identity_namespace` should declare
+it on BOTH sides of any pair it expects the comparison to distinguish — one-sided
+and ungrammatical declarations fall back to the bare fetch identity and keep
+reporting, which is the designed behaviour and not a defect to work around.
+`consumer-identity-namespace-grammar` is a WARNING and reddens nothing at this
+release. The one new refusal is `baked-secret` over `identity_namespace`.
+
 ## contract-v3.2 — 2026-09-03 (additive; the SUPERSEDING release for defective `contract-v3.1`, whose published inventory records two stale digests)
 
 **THIS CUT EXISTS TO CORRECT A DEFECTIVE PUBLISHED RELEASE AND DOES NOTHING

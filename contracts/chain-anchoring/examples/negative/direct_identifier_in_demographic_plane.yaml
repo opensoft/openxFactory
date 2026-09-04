@@ -1,0 +1,73 @@
+# expected_failure: direct_identifier_in_demographic_plane
+# expected_failure_detail: demographic plane declares a direct
+# A direct person-resolving identifier declared in an analyzed plane: the
+# separation's whole claim is that no direct identifier is exposed because
+# there is NONE TO EXPOSE — the linkage that resolves a person exists only
+# inside the governed identity plane. The refusal is structural, resting on the
+# declared resolution rather than on apparent content, which is what lets a
+# neutral validator make it at all.
+schema_version: 1
+kind: xfactory_chain_anchoring_plane_separation_declaration
+declaration_id: psd-negative-0055
+planes:
+- record
+- demographic
+- identity
+per_plane_keys:
+- plane: record
+  key_custody:
+    reference_id: key-example-record-plane
+    resolves_into: governed_layer
+    plane: record
+- plane: demographic
+  key_custody:
+    reference_id: key-example-demographic-plane
+    resolves_into: governed_layer
+    plane: demographic
+- plane: identity
+  key_custody:
+    reference_id: key-example-identity-plane
+    resolves_into: governed_layer
+    plane: identity
+per_plane_salts:
+- plane: record
+  salt_custody:
+    reference_id: salt-example-record-0001
+    resolves_into: governed_layer
+    plane: record
+- plane: demographic
+  salt_custody:
+    reference_id: salt-example-demographic-0001
+    resolves_into: governed_layer
+    plane: demographic
+- plane: identity
+  salt_custody:
+    reference_id: salt-example-identity-0001
+    resolves_into: governed_layer
+    plane: identity
+identifier_policy:
+- plane: record
+  direct_identifier_present: false
+  resolution_statement: no member of the record plane resolves a person; there is
+    nothing to expose
+- plane: demographic
+  direct_identifier_present: true
+  resolution_statement: a person-resolving identifier was carried into this plane
+- plane: identity
+  direct_identifier_present: true
+  resolution_statement: 'the one place linkage lives: governed, permissioned, and
+    never read by an analysis'
+cross_plane_correlation:
+  mechanism: authorized_scoped_derivation
+  derivation_issuer_plane: identity
+  statement: 'the lane still needs a join, so the join is defined: an authorized,
+    scoped, per-analysis, expiring, revocable derivation issued by the identity
+    plane — a shared stable key and a shared record digest are the same key wearing
+    a different name, and both are refused'
+anchored_commitment_usable_as_join_key: false
+identity_plane_read_by_analysis: false
+deidentification_claimed_from_separation: false
+record_version: 1
+notes: 'the segregation is only structural if the keys are: one commitment key per
+  plane, each under that plane''s own salt, every custody reference resolving into
+  the governed layer'
