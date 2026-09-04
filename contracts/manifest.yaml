@@ -3140,7 +3140,7 @@ contracts:
     source_path: openxFactory/contracts/clearing/permitted-operations.registry.yaml
     type: registry
     schema_version: 1
-    sha256: d5ae8ad5146faf2591c1303bfbee5d8778fb868b9dc0509b6e3d99846268a6fd
+    sha256: 406d79bc360093b50903b000c7b42916f6f625c060a88d46f3c93239aeb5e76b
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-

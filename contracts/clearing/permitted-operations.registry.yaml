@@ -12,7 +12,10 @@
 # (PR #645, merged `3cf917b7`; ratified 2026-09-04 by Brett Heap, record
 # `openspec/changes/admit-deliberation-clearing-operation/review/ratification-2026-09-04.md`),
 # same capability, requirement "deliberation is register entry number two and
-# returns evidence only"; tasks.md 2.1, registered at contract-v3.4.
+# returns evidence only"; tasks.md 2.1. THAT REGISTRATION RESERVES NO BUNDLE
+# NUMBER — the row in contracts/manifest.yaml records the CHANGE that registered
+# it and leaves the minor to the cutting session, because a change must not
+# reserve one before merge order is known.
 # `registry_version` ADVANCED 1 -> 2 IN THE SAME ACT: the instance's identity is
 # a `const` but its version is not, and a governed change to a closed set that
 # left the version at 1 would make two different registers indistinguishable by
