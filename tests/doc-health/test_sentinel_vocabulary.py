@@ -958,7 +958,7 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     # `openspec/changes/archive/*/supporting-docs/*manifest.yaml` alongside the
     # active form, so the site is the SAME site under a new path and the census
     # holds at 70 / 24. A path in a comment going stale while the assertion
-    # stayed true is exactly the case a reader would otherwise mis-diagnose as an
+    # stayed true is exactly the case a reader would otherwise misdiagnose as an
     # unrecorded step, so the path is corrected rather than left to be found.
     # RE-ENUMERATED WITH `pin_class.verify()` ON THE COMMITTED TREE after the
     # move (`pass`, member `proposal-support-manifest`), never by arithmetic.

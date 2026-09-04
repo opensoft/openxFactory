@@ -217,7 +217,8 @@ been re-measured, never retargeted.
 **ARCHIVED 2026-09-04 VIA THE RECORDED ESCAPE, AND THE SEVEN BOXES BELOW ARE WHY.**
 `python3 scripts/proposal-support.py . archive add-subject-establishment` was
 tried FIRST and REFUSED — exit 1, `"change has incomplete tasks"`. Its gate is
-`re.search(r"^- \[ \]", tasks.md)`, **unconditional on WHICH box**, and every
+`tasks.is_file() and re.search(r"^- \[ \]", tasks.read_text(), re.M)`
+(`scripts/proposal-support.py:1079-1081`) — **unconditional on WHICH box**, and every
 open box in this packet is in this section: O.1 … O.7 record OWED SUCCESSOR AND
 CROSS-REPOSITORY WORK — the named successor `add-subject-establishment-contracts`
 (OD-1, accepted as proposed on 2026-09-04), OQ1's measurement pass travelling
@@ -230,8 +231,8 @@ cannot tell "open by omission" from "open by design" apart. Both gate sections
 above — § Verification and § Archive gate, G.1's merge-plus-green PLUS the
 ruling round — are TRUE and ticked.
 `OPENSPEC_TELEMETRY=0 openspec archive add-subject-establishment --yes` was run
-instead, reporting `Task status: 22/29 tasks`, `Warning: 7 incomplete task(s)
-found. Continuing due to --yes flag.` It created
+instead, reporting `Task status: 22/29 tasks` and
+`Warning: 7 incomplete task(s) found. Continuing due to --yes flag.` It created
 `openspec/specs/subject-establishment/spec.md` (`+ 11 added`, `~ 0`, `- 0`) and
 moved the packet to
 `openspec/changes/archive/2026-09-04-add-subject-establishment/`.
