@@ -16,6 +16,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[2]
 MODULE = ROOT / "scripts" / "sequenced_after.py"
 VALIDATOR = ROOT / "scripts" / "validate-sequenced-after.py"
@@ -195,6 +197,118 @@ def test_the_archive_gate_CLI_requires_a_ratified_ref(tmp_path):
     )
     assert result.returncode != 0
     assert "--ratified-ref" in result.stderr
+
+
+# --- the archive gate ACROSS THE ARCHIVE RENAME (issue #633) -----------------
+#
+# `--ratified-ref` names a commit BEFORE the archive rename, so the ratified-
+# side `proposal.md` sits at the change's ACTIVE path there even when
+# CHANGE_DIR — the gate's other argument — now names the ARCHIVED path. The
+# gate must locate the ratified-side proposal BY CHANGE ID against the ref's
+# own tree, never by reusing CHANGE_DIR's current path, or it asks git for an
+# object that never existed at that ref and dies with a traceback instead of
+# a finding.
+
+
+def _archive_move(repo: Path, change: Path, dated_name: str) -> Path:
+    """Move `change` into `openspec/changes/archive/<dated_name>/` and commit
+    the rename as a SEPARATE commit, so the ratified ref and the current
+    (post-rename) commit are two distinct snapshots — the shape the real
+    archival workflow produces."""
+    archive = repo / "openspec" / "changes" / "archive" / dated_name
+    archive.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["git", "-C", str(repo), "mv", str(change), str(archive)],
+                   check=True)
+    subprocess.run(["git", "-C", str(repo), "commit", "-q", "-m", "archive"],
+                   check=True, env={**os.environ, **_ENV})
+    return archive
+
+
+def test_the_archive_gate_PASSES_across_the_archive_rename(tmp_path):
+    # (a) ratified at ref R with a declaration, then renamed into
+    # archive/<date>-<id>/ in a LATER commit: the gate, given the ARCHIVED
+    # directory and --ratified-ref R, still finds the ratified-side proposal
+    # (at its ACTIVE path in R's tree) and passes.
+    change = _init_change(tmp_path, "[add-parent]")
+    ratified_ref = subprocess.run(
+        ["git", "-C", str(tmp_path), "rev-parse", "HEAD"],
+        capture_output=True, text=True, check=True).stdout.strip()
+    archive = _archive_move(tmp_path, change, "2026-09-01-add-example")
+    assert sa.retention_at_archive(archive, ratified_ref) is None
+
+    # And the CLI reports the same pass, not a traceback.
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), "--archive-gate", str(archive),
+         "--ratified-ref", ratified_ref],
+        capture_output=True, text=True,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "Traceback" not in result.stderr, result.stderr
+    assert "passed" in result.stdout, result.stdout
+
+
+def test_the_archive_gate_FAILS_across_the_archive_rename_on_a_real_mutation(tmp_path):
+    # (b) same shape, but the ARCHIVED proposal's declaration was altered
+    # (here: dropped) after the rename: the gate still runs the comparison —
+    # it does not merely stop crashing — and reports the existing retention
+    # finding.
+    change = _init_change(tmp_path, "[add-parent]")
+    ratified_ref = subprocess.run(
+        ["git", "-C", str(tmp_path), "rev-parse", "HEAD"],
+        capture_output=True, text=True, check=True).stdout.strip()
+    archive = _archive_move(tmp_path, change, "2026-09-01-add-example")
+    (archive / "proposal.md").write_text(_front(None), encoding="utf-8")
+    problem = sa.retention_at_archive(archive, ratified_ref)
+    assert problem is not None
+    assert "contested" in problem
+
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), "--archive-gate", str(archive),
+         "--ratified-ref", ratified_ref],
+        capture_output=True, text=True,
+    )
+    assert result.returncode != 0
+    assert "Traceback" not in result.stderr, result.stderr
+    assert "PARENT-DECLARATION-RETENTION" in result.stdout
+
+
+def test_the_archive_gate_CLI_reports_a_ref_with_NO_PROPOSAL_as_a_finding_not_a_traceback(tmp_path):
+    # (c) the id has no proposal.md at the ratified ref at all (e.g. a wrong
+    # or mismatched --ratified-ref): a NAMED finding and exit 2, never a
+    # traceback.
+    repo = tmp_path
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    other = repo / "openspec" / "changes" / "add-other"
+    other.mkdir(parents=True)
+    (other / "proposal.md").write_text(_front(None), encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
+    subprocess.run(["git", "-C", str(repo), "commit", "-q", "-m", "ratified-other"],
+                   check=True, env={**os.environ, **_ENV})
+    ratified_ref = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"],
+        capture_output=True, text=True, check=True).stdout.strip()
+    # "add-example" never existed at ratified_ref — created only afterward.
+    change = repo / "openspec" / "changes" / "add-example"
+    change.mkdir(parents=True)
+    (change / "proposal.md").write_text(_front(None), encoding="utf-8")
+
+    with pytest.raises(sa.SequencedAfterError) as excinfo:
+        sa.retention_at_archive(change, ratified_ref)
+    assert "add-example" in str(excinfo.value)
+    assert ratified_ref in str(excinfo.value)
+    assert "openspec/changes/add-example/proposal.md" in str(excinfo.value)
+    assert "openspec/changes/archive" in str(excinfo.value)
+
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), "--archive-gate", str(change),
+         "--ratified-ref", ratified_ref],
+        capture_output=True, text=True,
+    )
+    assert result.returncode == 2, (result.returncode, result.stdout, result.stderr)
+    assert "Traceback" not in result.stdout, result.stdout
+    assert "Traceback" not in result.stderr, result.stderr
+    assert "add-example" in result.stdout, result.stdout
+    assert "CANNOT RUN" in result.stdout, result.stdout
 
 
 # --- ARCHIVAL DOES NOT REWRITE DECLARATIONS (task 5.2) ----------------------
