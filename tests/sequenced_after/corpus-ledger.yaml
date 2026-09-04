@@ -123,6 +123,7 @@ rows:
   add-ontology-stewardship-hardening: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-ontology-term-lifecycle-enforcement: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-opendox-project-header: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-openspec-cli-pin: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#667", moved_on: "2026-09-04"}
   add-openxwallet: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-pattern-ledger: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-per-change-sweep-ledger: {state: archived, class: sole, declares: [add-sequenced-after-substrate], depth: 2, prose: false, moved_by: "#632", moved_on: "2026-09-04"}
