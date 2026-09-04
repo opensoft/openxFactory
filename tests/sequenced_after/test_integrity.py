@@ -311,6 +311,25 @@ def test_the_archive_gate_CLI_reports_a_ref_with_NO_PROPOSAL_as_a_finding_not_a_
     assert "CANNOT RUN" in result.stdout, result.stdout
 
 
+def test_the_archive_gate_resolves_a_ratified_ref_that_is_ITSELF_ALREADY_ARCHIVED(tmp_path):
+    # Distinct from the fixtures above, which all have `ratified_ref` predate
+    # the rename (so the ACTIVE-path lookup resolves it): here `ratified_ref`
+    # is the archival commit itself, so the active path never existed there
+    # and `proposal_path_at_ref` MUST resolve it via the archived-directory
+    # enumeration (`_archive_dir_names_at_ref`) rather than the active-path
+    # shortcut — the branch a reviewer flagged as possibly under-tested.
+    change = _init_change(tmp_path, "[add-parent]")
+    archive = _archive_move(tmp_path, change, "2026-09-01-add-example")
+    ratified_ref = subprocess.run(
+        ["git", "-C", str(tmp_path), "rev-parse", "HEAD"],
+        capture_output=True, text=True, check=True).stdout.strip()
+    # Sanity: the active path is genuinely gone at this ref, so a pass here
+    # can only come from the archived-directory branch.
+    assert not sa._blob_exists_at_ref(
+        tmp_path, ratified_ref, "openspec/changes/add-example/proposal.md")
+    assert sa.retention_at_archive(archive, ratified_ref) is None
+
+
 # --- ARCHIVAL DOES NOT REWRITE DECLARATIONS (task 5.2) ----------------------
 
 
