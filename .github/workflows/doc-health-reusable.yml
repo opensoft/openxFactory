@@ -3072,13 +3072,99 @@ jobs:
             --decision-out dfr-decision.json
           BUILD="$(python3 -c 'import json;print(str(json.load(open("dfr-decision.json"))["build"]).lower())' 2>/dev/null || echo false)"
           echo "build=${BUILD}" >> "$GITHUB_OUTPUT"
+      - name: Ideation-dashboard image refresh — seal the bounded source artifact
+        id: dfr-seal
+        # THE PARENT SEALS, because the child may not read the repository at
+        # all: the re-ratified requirement prohibits a Git repository
+        # credential, deploy key, credential helper or repository network
+        # access on the worker, so the source has to cross as ONE bounded
+        # artifact this credentialed job produces. THIS JOB ALREADY HAS
+        # EVERYTHING IT NEEDS — the openxFactory submodule is initialised with
+        # full history for the decision above, and the App token already reads
+        # Omnigent-Install — so the seal is a `git archive` of a revision in
+        # hand plus one contents read of the single-file recipe. Nothing is
+        # materialized by a worker-side read anywhere in this stage.
+        #
+        # The SEAL path set is deliberately WIDER than the decision's baked set
+        # by exactly one file (the top-level snapshot validator the child's
+        # `--strict` has to be able to RUN), and the decision's set must NOT
+        # follow it or every recorded pin would read as a scope change and
+        # rebuild once for nothing. Both halves live in the module, beside the
+        # reason.
+        if: steps.dfr-readiness.outputs.ready == 'true' && steps.dfr-decide.outputs.build == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          CORRELATION_ID: ${{ steps.dfr-readiness.outputs.correlation_id }}
+        run: |
+          python3 openxFactory/scripts/dashboard-refresh-nightly.py \
+            --repo-root . --phase seal \
+            --corpus-checkout openxFactory \
+            --decision-in dfr-decision.json \
+            --seal-out dfr-seal \
+            --seal-result-out dfr-seal-result.json \
+            --correlation-id "$CORRELATION_ID"
+          SEALED="$(python3 -c 'import json;print(str(json.load(open("dfr-seal-result.json"))["sealed"]).lower())' 2>/dev/null || echo false)"
+          echo "sealed=${SEALED}" >> "$GITHUB_OUTPUT"
+      - name: Upload the sealed dashboard-image source artifact
+        # The sibling pattern this lane copies rather than invents:
+        # `semantic-sweep-bundle` and `document-catalog-bundle` above are
+        # uploaded here and downloaded cross-run by the child with
+        # `github-token` + `repository` + `run-id`.
+        #
+        # `include-hidden-files: true` because v4 DROPS dotfiles by default and
+        # the manifest's `files` index — the authority on what the download must
+        # contain — would then promise paths the child cannot find.
+        # `if-no-files-found: error` because an empty upload would leave the
+        # child failing on an absent manifest instead of here, where the reason
+        # is legible. Retention is ONE DAY: the child consumes it inside this
+        # same nightly, and a private corpus should not sit in artifact storage
+        # for ninety.
+        id: dfr-upload
+        # `continue-on-error` so a storage hiccup records a skip instead of
+        # failing the nightly — which is why the DISPATCH is gated on this
+        # step's `outcome` and not merely on `sealed`: with continue-on-error
+        # the `conclusion` is always success, and a child dispatched against an
+        # artifact that never uploaded would fail on the download with nothing
+        # here saying why.
+        if: steps.dfr-seal.outputs.sealed == 'true'
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-image-source-${{ steps.dfr-readiness.outputs.correlation_id }}
+          path: dfr-seal
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+      - name: Ideation-dashboard image refresh — record skip (source not sealed)
+        # A refused seal is a RECORDED outcome, not a failure: nothing is
+        # dispatched, the nightly continues, and the next run catches up in one
+        # hop — the same bounded cost the readiness skip carries.
+        if: steps.dfr-readiness.outputs.ready == 'true' && steps.dfr-decide.outputs.build == 'true' && (steps.dfr-seal.outputs.sealed != 'true' || steps.dfr-upload.outcome != 'success')
+        continue-on-error: true
+        env:
+          SEALED: ${{ steps.dfr-seal.outputs.sealed }}
+        run: |
+          if [ "$SEALED" = "true" ]; then
+            REASON="the sealed source artifact could not be uploaded"
+          else
+            REASON="$(python3 -c 'import json;print(json.load(open("dfr-seal-result.json")).get("reason") or "unknown")' 2>/dev/null || echo unknown)"
+          fi
+          python3 openxFactory/scripts/dashboard-refresh-nightly.py \
+            --repo-root . --phase decide \
+            --skip-reason "source not sealed: ${REASON}"
       - name: Dispatch artifact-only dashboard-image child
         id: dfr-dispatch
         # Cloned from "Dispatch artifact-only readiness child". The child lives
         # in the AGGREGATION (do not look for it in openxFactory), dispatched
-        # only when the worker is ready AND the inputs moved. It holds no
-        # repository credential; its ONLY result is the digest.
-        if: steps.dfr-readiness.outputs.ready == 'true' && steps.dfr-decide.outputs.build == 'true'
+        # only when the worker is ready AND the inputs moved AND the parent
+        # sealed the source the child will consume. It holds no repository
+        # credential; its ONLY result is the digest. The artifact's name is
+        # `dashboard-image-source-<correlation_id>` and the child already
+        # receives that correlation id, so no new dispatch input is passed
+        # here — which is what lets this stage land before the child's own
+        # intake change without breaking the live dispatch.
+        if: steps.dfr-readiness.outputs.ready == 'true' && steps.dfr-decide.outputs.build == 'true' && steps.dfr-seal.outputs.sealed == 'true' && steps.dfr-upload.outcome == 'success'
         env:
           GH_TOKEN: ${{ github.token }}
           CORRELATION_ID: ${{ steps.dfr-readiness.outputs.correlation_id }}

@@ -72,15 +72,26 @@ FAILURE SEMANTICS, as the snapshot lane's: every error path is a recorded
 outcome and exit 0. The lane never fails the nightly, and its own status write
 failing must never take the run down either.
 
+THE PARENT SEALS, THE CHILD CONSUMES (`--phase seal`). Because the worker may
+hold no Git credential at all, the source cannot cross by a worker-side read;
+it crosses as ONE bounded artifact this module materializes on the credentialed
+parent, from the corpus checkout the decision already used, with a manifest
+carrying the source head, that commit's own committer date, both path-scoped
+input revisions, a per-file sha256 index and one digest over the whole sealed
+tree. Sealing is MATERIALIZATION, not building: `git archive` of a revision the
+parent already has, plus one contents read of the single-file recipe. See the
+seal section for why the seal path set is deliberately WIDER than the baked
+path set and why the decision's set must not follow it.
+
 WHAT THIS MODULE DELIBERATELY DOES NOT DO. It opens no pull request and pushes
 no branch. It RENDERS the pin (the rewritten overlay text plus a PR body) and
 the workflow step does the force-free branch delivery with the App token, the
-same division the report step uses. AND IT DOES NOT BUILD: it clones no
-repository, runs no container build and no registry login, and offers no CLI
-phase that would. The recipe lives in exactly ONE place — the worker child's
-own workflow — and the requirement this lane is ratified under prohibits the
-worker from holding a Git credential at all, so a second module-side
-realization of the recipe would contradict the contract even while
+same division the report step uses. AND IT DOES NOT BUILD: it runs no container
+build and no registry login, materializes no repository by a worker-side read,
+and offers no CLI phase that would. The recipe lives in exactly ONE place — the
+worker child's own workflow — and the requirement this lane is ratified under
+prohibits the worker from holding a Git credential at all, so a second
+module-side realization of the recipe would contradict the contract even while
 unreachable. The decision core is a pure function over three inputs and needs
 neither git nor a container runtime to be tested; the build callable is
 INJECTED (`run_refresh_lane(build=...)`) and in production is only ever the
@@ -91,11 +102,13 @@ from __future__ import annotations
 
 import argparse
 import base64
+import hashlib
 import json
 import os
 import re
 import subprocess
 import sys
+import tarfile
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -818,6 +831,468 @@ class BuildResult:
 
 
 # --------------------------------------------------------------------------
+# THE PARENT SEAL. The credentialed hosted parent materializes the source the
+# credential-free child consumes, as ONE bounded artifact (re-realization S2;
+# spec "The credentialed hosted parent SHALL then materialize fresh
+# openxFactory `main` ... into a bounded sealed source artifact carrying the
+# source HEAD, source committer timestamp, and both path-scoped input
+# revisions").
+#
+# WHY THE PARENT AND NOT THE CHILD. The child holds no Git credential — the
+# requirement prohibits one outright — so it cannot read a private repository
+# at all. The parent already holds an installation token and already has the
+# corpus submodule initialised with full history for the decision, so the
+# materialization costs one `git archive` of a revision it has in hand: no
+# second checkout, no working-tree mutation, and nothing cloned.
+#
+# THE SEAL SET IS NOT THE DECISION SET, and the difference is load-bearing.
+# `snapshot.find_validator` walks UP from the tree being scanned for
+# `openxFactory/scripts/validate-ideation-dashboard-contracts.py`; that file is
+# a TOP-LEVEL `scripts/*.py`, so `CORPUS_BAKED_PATHS` — which names
+# `scripts/doc_health` and `scripts/ideation_dashboard` but not their parent —
+# does not carry it. A cone-mode sparse checkout dragged it in as a side
+# effect; a `git archive` over a path list does not, and a seal without it
+# fails `--strict` with "validator unavailable" rather than with a finding.
+# So the SEAL set is `CORPUS_BAKED_PATHS ∪ {the validator}` while the DECISION
+# set stays exactly `CORPUS_BAKED_PATHS`: widening the decision scope would
+# make `_same_scope` fire `REASON_SCOPE_CHANGED` against every recorded pin and
+# force one rebuild for nothing. The asymmetry is deliberate — the validator's
+# own revision is sealed but not baked, because the image does not COPY it.
+#
+# THE REVISION IS PROVEN, NOT ASSERTED. `git archive`'s tar output carries the
+# commit it was made from in a global extended pax header (`comment=<sha>`),
+# written by git itself, and the seal refuses unless that header equals the
+# `source_head` the manifest records. That keeps the one-revision property a
+# MEASUREMENT on the parent side: after the change the child's own
+# `source_revision == HEAD` check reads two fields of one manifest and is
+# tautological on its own, so the parent has to hold the end that still touches
+# a real repository.
+# --------------------------------------------------------------------------
+
+SEAL_MANIFEST_NAME = "manifest.json"
+SEAL_MANIFEST_KIND = "ideation-dashboard-sealed-source-manifest"
+SEAL_SCHEMA_VERSION = "1.0.0"
+SEAL_ARTIFACT_PREFIX = "dashboard-image-source-"
+SEAL_DIGEST_ALGORITHM = "sha256"
+
+# The seal's own layout, which the child's generate/build steps address by
+# these exact names.
+SEAL_CORPUS_RELPATH = "openxFactory"
+SEAL_RECIPE_RELPATH = "recipe/Dockerfile"
+
+# Where the recipe is READ from (Omnigent-Install), as against where it LANDS
+# in the seal. The directory holds exactly one file, so this is a contents-API
+# read at the pinned recipe revision — never a checkout of that repository.
+RECIPE_DOCKERFILE_PATH = "containers/ideation-dashboard/Dockerfile"
+
+# The one path the seal adds to the baked set. See the section note above.
+VALIDATOR_SEAL_PATH = "scripts/validate-ideation-dashboard-contracts.py"
+CORPUS_SEAL_PATHS: tuple[str, ...] = tuple(sorted({*CORPUS_BAKED_PATHS,
+                                                   VALIDATOR_SEAL_PATH}))
+
+# The manifest field whose value the child passes to `generate --generated-at`.
+# NOT a wall clock: `generation.generated_at` is defined as the source
+# revision's committer date (cli.py `--generated-at`, generator
+# `_generation_stamp`), and the snapshot render is canonical precisely because
+# nothing in it reads the clock. `sealed_at` is the parent's wall clock and is
+# diagnostic only — naming the right field here in the artifact itself is
+# cheaper than a comment nobody reads at 03:00.
+SEAL_GENERATED_AT_FIELD = "source_committed_at"
+
+# The digest the child recomputes. Spelled out IN the manifest so the rule
+# travels with the artifact rather than living only in whichever workflow
+# happens to read it. The two-space separator makes each line a `sha256sum`
+# line, so the per-file index is checkable with `sha256sum -c` unchanged.
+TREE_DIGEST_SPEC = (
+    "sha256 of the concatenation of one line per sealed file, each line "
+    "'<sha256-hex><two spaces><posix-relative-path><LF>', ordered by the UTF-8 "
+    "bytes of the relative path, over every regular file under the seal root "
+    f"EXCEPT {SEAL_MANIFEST_NAME} itself"
+)
+
+_FULL_REVISION_RE = re.compile(r"^[0-9a-f]{40}$")
+# Actions artifact names refuse the path and quoting characters; a correlation
+# id that cannot be an artifact name must be refused HERE, where the reason is
+# legible, rather than by an upload step's own error three minutes later.
+_CORRELATION_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$")
+
+
+class SealRefused(Exception):
+    """The parent will not seal. Every refusal is a REFUSAL and not a partial
+    artifact: the child must never be able to download a seal whose manifest
+    the parent could not stand behind, so the phase writes no manifest at all
+    and the dispatch is gated on the result it wrote instead."""
+
+
+def seal_artifact_name(correlation_id: str) -> str:
+    """`dashboard-image-source-<correlation_id>` — the name the child names in
+    its cross-run download. One prefix, one id, no run-scoped decoration: the
+    child already carries the run id separately."""
+    value = (correlation_id or "").strip()
+    if not _CORRELATION_RE.match(value):
+        raise SealRefused(
+            f"correlation id {correlation_id!r} cannot name an Actions "
+            "artifact (letters, digits, '.', '_' and '-' only, 1-120 chars)")
+    return f"{SEAL_ARTIFACT_PREFIX}{value}"
+
+
+def file_sha256(path) -> str:
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for chunk in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def seal_file_index(seal_dir) -> dict[str, str]:
+    """Every regular file under the seal, by POSIX relative path, to its
+    sha256. The manifest itself is excluded — it carries this index and cannot
+    hash itself — and a non-regular entry is a refusal rather than a skip:
+    `upload-artifact@v4` neither preserves symlinks nor restores execute bits,
+    so an index that silently omitted one would promise something the download
+    cannot deliver."""
+    root = Path(seal_dir)
+    index: dict[str, str] = {}
+    for path in sorted(root.rglob("*")):
+        if path.is_dir() and not path.is_symlink():
+            continue
+        relpath = path.relative_to(root).as_posix()
+        if relpath == SEAL_MANIFEST_NAME:
+            continue
+        if path.is_symlink() or not path.is_file():
+            raise SealRefused(f"the seal holds a non-regular entry: {relpath}")
+        index[relpath] = file_sha256(path)
+    return index
+
+
+def tree_digest(index: dict[str, str]) -> str:
+    """One digest over the whole sealed tree — see `TREE_DIGEST_SPEC`, which is
+    written into the manifest so the child implements the rule the artifact
+    states rather than the rule it inferred."""
+    lines = "".join(
+        f"{index[path]}  {path}\n"
+        for path in sorted(index, key=lambda value: value.encode("utf-8")))
+    return hashlib.sha256(lines.encode("utf-8")).hexdigest()
+
+
+def git_commit_datetime(repo_dir, revision: str, *,
+                        runner=subprocess_runner) -> str | None:
+    """`git show -s --format=%cI <rev>` — the committer date, RFC 3339, of the
+    revision the seal was made at. This is the value the child hands to
+    `generate --generated-at`, and it is a property of the COMMIT, so a seal
+    made twice from one revision names one stamp."""
+    # Byte-for-byte the call `generator.RealGitDates.commit_date` makes,
+    # `--` end-of-options marker included, so the stamp the child receives
+    # through `--generated-at` is the SAME STRING the pre-seal child derived
+    # inside its own checkout — the change moves where the value comes from,
+    # never what it says, and the snapshot stays byte-identical across it.
+    result = runner(["git", "-C", str(repo_dir), "show", "-s",
+                     "--format=%cI", revision, "--"])
+    if not result.ok:
+        return None
+    value = result.stdout.strip().splitlines()
+    return value[0].strip() if value and value[0].strip() else None
+
+
+def git_archive_revision(archive_path) -> str | None:
+    """The revision GIT ITSELF recorded in the archive: the global extended pax
+    header `comment`, which `git archive` writes whenever the tree-ish it was
+    given resolves to a commit. Reading it back is what makes the parent-side
+    revision check a measurement of the produced bytes rather than a restated
+    variable."""
+    try:
+        with tarfile.open(archive_path, "r:") as archive:
+            value = (archive.pax_headers or {}).get("comment")
+    except (OSError, tarfile.TarError):
+        return None
+    value = (value or "").strip().lower()
+    return value or None
+
+
+def _extract_seal_archive(archive_path, dest) -> int:
+    """Extract the archive under `dest`. Refuses any entry that is not a plain
+    file or a directory BEFORE extracting anything, and extracts under the
+    `data` filter where the interpreter has one, so nothing can be written
+    outside `dest`."""
+    dest = Path(dest)
+    dest.mkdir(parents=True, exist_ok=True)
+    try:
+        with tarfile.open(archive_path, "r:") as archive:
+            members = archive.getmembers()
+            for member in members:
+                if not (member.isfile() or member.isdir()):
+                    raise SealRefused(
+                        "the source archive holds a non-regular entry: "
+                        f"{member.name}")
+            try:
+                archive.extractall(dest, filter="data")
+            except TypeError:      # an interpreter without extraction filters
+                archive.extractall(dest)
+            return sum(1 for member in members if member.isfile())
+    except tarfile.TarError as exc:
+        raise SealRefused(f"the source archive could not be read: {exc}") from exc
+    except OSError as exc:
+        raise SealRefused(f"the source archive could not be extracted: {exc}") from exc
+
+
+def _decision_field(decision: dict, key: str) -> str:
+    value = str((decision or {}).get(key) or "").strip().lower()
+    if not _FULL_REVISION_RE.match(value):
+        raise SealRefused(
+            f"the parent decision carries no usable {key} ({value or 'absent'!r})")
+    return value
+
+
+def seal_source(
+    *,
+    corpus_checkout,
+    seal_dir,
+    correlation_id: str,
+    decision: dict,
+    corpus_repo: str = DEFAULT_CORPUS_REPO,
+    corpus_ref: str = DEFAULT_CORPUS_REF,
+    recipe_repo: str = DEFAULT_RECIPE_REPO,
+    recipe_path: str = RECIPE_DOCKERFILE_PATH,
+    seal_paths: tuple[str, ...] = CORPUS_SEAL_PATHS,
+    corpus_baked_paths: tuple[str, ...] = CORPUS_BAKED_PATHS,
+    parent_repository: str | None = None,
+    parent_run_id: str | None = None,
+    runner=subprocess_runner,
+    read_recipe=None,
+) -> dict:
+    """Materialize the bounded source artifact and return its manifest.
+
+    Order matters and is the order of the refusals: a decision that did not ask
+    for a build seals nothing; a revision that cannot be resolved seals
+    nothing; an archive whose own recorded commit is not `source_head` seals
+    nothing; a recipe that cannot be read seals nothing. Only a seal that
+    passed all four gets a `manifest.json`, and the manifest's presence is
+    therefore the artifact's own statement that the parent stands behind it.
+
+    Raises `SealRefused` — never returns a partial seal."""
+    decision = decision or {}
+    if decision.get("build") is not True:
+        raise SealRefused(
+            "the parent decision did not ask for a build "
+            f"(build={decision.get('build')!r}, outcome="
+            f"{decision.get('outcome')!r}) — there is nothing to seal")
+    corpus_revision = _decision_field(decision, "corpus_revision")
+    recipe_revision = _decision_field(decision, "recipe_revision")
+    artifact_name = seal_artifact_name(correlation_id)
+
+    source_head = git_head_revision(corpus_checkout, ref=corpus_ref,
+                                    runner=runner)
+    source_head = (source_head or "").strip().lower()
+    if not _FULL_REVISION_RE.match(source_head):
+        raise SealRefused(
+            f"could not resolve {corpus_ref} in {corpus_checkout} to a commit")
+    source_committed_at = git_commit_datetime(corpus_checkout, source_head,
+                                              runner=runner)
+    if not source_committed_at:
+        raise SealRefused(
+            f"could not read the committer date of {_short(source_head)}")
+
+    seal_root = Path(seal_dir)
+    seal_root.mkdir(parents=True, exist_ok=True)
+    archive_path = seal_root.parent / f".{seal_root.name}-source.tar"
+    result = runner(["git", "-C", str(corpus_checkout), "archive",
+                     "--format=tar", f"--output={archive_path}", source_head,
+                     "--", *seal_paths])
+    if not result.ok:
+        raise SealRefused(
+            f"git archive failed at {_short(source_head)}: "
+            f"{result.stderr.strip()[:200]}")
+
+    # THE PARENT-SIDE ONE-REVISION ASSERTION (design open question 1). The
+    # archive names its own commit; if that is not the head we recorded, the
+    # two would disagree in a manifest nobody could later disprove.
+    recorded = git_archive_revision(archive_path)
+    if recorded != source_head:
+        archive_path.unlink(missing_ok=True)
+        raise SealRefused(
+            "the source archive's own recorded revision "
+            f"({recorded or 'absent'}) is not the sealed source_head "
+            f"({source_head})")
+
+    corpus_root = seal_root / SEAL_CORPUS_RELPATH
+    try:
+        _extract_seal_archive(archive_path, corpus_root)
+    finally:
+        archive_path.unlink(missing_ok=True)
+    if not any((corpus_root / path.split("/", 1)[0]).exists()
+               for path in seal_paths):
+        raise SealRefused(
+            "the sealed corpus is empty — none of the seal paths materialized")
+    validator = corpus_root / VALIDATOR_SEAL_PATH
+    if not validator.is_file():
+        # The #179 trap, refused at the seal rather than at `--strict` three
+        # steps later: without this file the child's validation cannot RUN, and
+        # a validation that could not run is a strict failure with no finding
+        # to read.
+        raise SealRefused(
+            f"the seal is missing {VALIDATOR_SEAL_PATH} — the child's "
+            "validator would be unreachable and --strict would fail with no "
+            "finding to read")
+
+    def _read_recipe_from_the_contents_api() -> str | None:
+        # The recipe directory holds exactly ONE file, so this is a contents
+        # read at the pinned recipe revision — the same `gh api` path
+        # `read_current_inputs` already uses for the overlay. The served
+        # plane's repository is never checked out.
+        return gh_read_file(recipe_repo, recipe_path, ref=recipe_revision,
+                            runner=runner)
+
+    recipe_text = (read_recipe or _read_recipe_from_the_contents_api)()
+    if not recipe_text or not recipe_text.strip():
+        raise SealRefused(
+            f"could not read {recipe_path} from {recipe_repo} at "
+            f"{_short(recipe_revision)}")
+    recipe_file = seal_root / SEAL_RECIPE_RELPATH
+    recipe_file.parent.mkdir(parents=True, exist_ok=True)
+    recipe_file.write_text(recipe_text, encoding="utf-8")
+
+    index = seal_file_index(seal_root)
+    total_bytes = sum((seal_root / relpath).stat().st_size for relpath in index)
+    manifest = {
+        "schema_version": SEAL_SCHEMA_VERSION,
+        "kind": SEAL_MANIFEST_KIND,
+        "artifact_name": artifact_name,
+        "correlation_id": correlation_id,
+        "parent_repository": parent_repository,
+        "parent_run_id": parent_run_id,
+        "sealed_at": _now_iso(),
+        "source_repo": corpus_repo,
+        "source_ref": corpus_ref,
+        "source_head": source_head,
+        "source_committed_at": source_committed_at,
+        "generated_at_field": SEAL_GENERATED_AT_FIELD,
+        "corpus_relpath": SEAL_CORPUS_RELPATH,
+        "corpus_revision": corpus_revision,
+        "corpus_baked_paths": list(corpus_baked_paths),
+        "seal_paths": list(seal_paths),
+        "recipe_repo": recipe_repo,
+        "recipe_revision": recipe_revision,
+        "recipe_path": recipe_path,
+        "recipe_relpath": SEAL_RECIPE_RELPATH,
+        "decision": {
+            "outcome": decision.get("outcome"),
+            "reason": decision.get("reason"),
+            "corpus_revision": corpus_revision,
+            "recipe_revision": recipe_revision,
+        },
+        "digest_algorithm": SEAL_DIGEST_ALGORITHM,
+        "tree_digest_spec": TREE_DIGEST_SPEC,
+        "tree_digest": tree_digest(index),
+        "file_count": len(index),
+        "total_bytes": total_bytes,
+        "files": index,
+    }
+    (seal_root / SEAL_MANIFEST_NAME).write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return manifest
+
+
+def read_seal_manifest(seal_dir) -> dict | None:
+    try:
+        payload = json.loads(
+            (Path(seal_dir) / SEAL_MANIFEST_NAME).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def verify_seal(seal_dir, *, correlation_id: str | None = None,
+                corpus_revision: str | None = None,
+                recipe_revision: str | None = None) -> list[str]:
+    """The REFERENCE implementation of the child's intake check: manifest
+    present and well-formed, every indexed path present with the recorded
+    sha256, the tree digest recomputing, and the recorded revisions matching
+    the parent decision the child was dispatched with.
+
+    Returns the problems, empty when the seal verifies. It is a list rather
+    than an exception because the child must report ALL of what is wrong before
+    it fails — a seal that is missing four files and disagrees about the
+    revision is one diagnosis, not four runs.
+
+    NOTE FOR THE CHILD (S3). This function lives INSIDE the corpus the seal
+    carries, so calling it from the seal is the artifact vouching for itself.
+    The child implements the same check in its own workflow, from its own
+    checkout; this is the shape it implements and the unit-tested definition of
+    the digest rule."""
+    problems: list[str] = []
+    manifest = read_seal_manifest(seal_dir)
+    if manifest is None:
+        return [f"{SEAL_MANIFEST_NAME} is absent or is not readable JSON"]
+    if manifest.get("kind") != SEAL_MANIFEST_KIND:
+        problems.append(f"manifest kind is {manifest.get('kind')!r}, "
+                        f"expected {SEAL_MANIFEST_KIND!r}")
+    if str(manifest.get("schema_version") or "").split(".", 1)[0] != \
+            SEAL_SCHEMA_VERSION.split(".", 1)[0]:
+        problems.append(
+            f"manifest schema_version {manifest.get('schema_version')!r} is "
+            f"not readable by this reader ({SEAL_SCHEMA_VERSION})")
+    files = manifest.get("files")
+    if not isinstance(files, dict) or not files:
+        return problems + ["manifest carries no files index"]
+    root = Path(seal_dir)
+    recomputed: dict[str, str] = {}
+    for relpath in sorted(files):
+        path = root / relpath
+        if not path.is_file():
+            problems.append(f"a required path is absent: {relpath}")
+            continue
+        actual = file_sha256(path)
+        recomputed[relpath] = actual
+        if actual != files[relpath]:
+            problems.append(f"sha256 mismatch: {relpath}")
+    if len(recomputed) == len(files) and not problems:
+        digest = tree_digest(recomputed)
+        if digest != manifest.get("tree_digest"):
+            problems.append(
+                f"tree_digest mismatch: recomputed {digest}, manifest records "
+                f"{manifest.get('tree_digest')}")
+    for label, expected, key in (("correlation id", correlation_id, "correlation_id"),
+                                 ("corpus revision", corpus_revision, "corpus_revision"),
+                                 ("recipe revision", recipe_revision, "recipe_revision")):
+        if expected and str(manifest.get(key) or "").lower() != str(expected).lower():
+            problems.append(
+                f"{label} mismatch: manifest records "
+                f"{manifest.get(key)!r}, the dispatch carried {expected!r}")
+    if SEAL_CORPUS_RELPATH + "/" + VALIDATOR_SEAL_PATH not in files:
+        problems.append(
+            f"the seal does not carry {SEAL_CORPUS_RELPATH}/{VALIDATOR_SEAL_PATH} "
+            "— strict validation could not run")
+    if manifest.get("recipe_relpath") not in files:
+        problems.append("the seal does not carry the build recipe")
+    return problems
+
+
+def seal_result_payload(*, sealed: bool, reason: str | None,
+                        manifest: dict | None,
+                        artifact_name: str | None = None) -> dict:
+    """What the workflow gates the dispatch on. Deliberately small: sealed or
+    not, why not, and the four values the dispatch and the child's own check
+    need."""
+    manifest = manifest or {}
+    return {
+        "kind": "ideation-dashboard-seal-result",
+        "sealed": bool(sealed),
+        "reason": reason,
+        "artifact_name": manifest.get("artifact_name") or artifact_name,
+        "correlation_id": manifest.get("correlation_id"),
+        "source_head": manifest.get("source_head"),
+        "source_committed_at": manifest.get("source_committed_at"),
+        "corpus_revision": manifest.get("corpus_revision"),
+        "recipe_revision": manifest.get("recipe_revision"),
+        "tree_digest": manifest.get("tree_digest"),
+        "file_count": manifest.get("file_count"),
+        "total_bytes": manifest.get("total_bytes"),
+        "generated_at": _now_iso(),
+        "run_id": _run_id(),
+    }
+
+
+# --------------------------------------------------------------------------
 # The status artifact + the pin proposal the workflow delivers.
 # --------------------------------------------------------------------------
 
@@ -1227,9 +1702,10 @@ def run_refresh_lane(
 
 
 # --------------------------------------------------------------------------
-# CLI. The PARENT's phases only — decide, pin, report, record-pr. The build
-# belongs to the worker child and lives in the child's own workflow; no phase
-# here clones a repository, builds an image or pushes one.
+# CLI. The PARENT's phases only — decide, seal, pin, report, record-pr. The
+# build belongs to the worker child and lives in the child's own workflow; no
+# phase here builds an image or pushes one, and the only source materialization
+# is the parent's own `git archive` of a revision it already holds.
 # --------------------------------------------------------------------------
 
 def main(argv: list[str] | None = None) -> None:
@@ -1243,10 +1719,16 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--repo-root", required=True,
                     help="the aggregation checkout root (where health/ lives)")
     ap.add_argument("--phase",
-                    choices=("decide", "pin", "report", "record-pr"),
+                    choices=("decide", "seal", "pin", "report", "record-pr"),
                     default="decide",
                     help="decide: the input-revision check only (the parent's "
                          "pre-dispatch gate). "
+                         "seal: materialize the bounded source artifact the "
+                         "credential-free child consumes — the decide phase's "
+                         "own decision (--decision-in) at one revision, plus "
+                         "the pinned recipe, plus a manifest — into "
+                         "--seal-out, and write the dispatch gate to "
+                         "--seal-result-out. "
                          "pin: render the pin proposal from the worker child's "
                          "returned digest (--digest-in) — this module writes "
                          "files and never pushes a branch. "
@@ -1257,9 +1739,9 @@ def main(argv: list[str] | None = None) -> None:
                          "the status artifact the pin phase just wrote, once the "
                          "workflow's cross-repo branch delivery knows it "
                          "(--pull-request); best-effort, never fails the run. "
-                         "There is deliberately NO build phase: the fresh "
-                         "materialization, the build and the push belong to "
-                         "the worker child, and this module clones nothing.")
+                         "There is deliberately NO build phase: the build "
+                         "and the push belong to the worker child, and the "
+                         "only materialization here is the parent's seal.")
     ap.add_argument("--out-dir", default=DEFAULT_OUT_DIR)
     ap.add_argument("--image", default=DEFAULT_IMAGE)
     ap.add_argument("--corpus-checkout", default="openxFactory",
@@ -1275,6 +1757,30 @@ def main(argv: list[str] | None = None) -> None:
                          "the branch delivery, this module never pushes")
     ap.add_argument("--decision-out", default=None,
                     help="write the decision as JSON for the workflow to gate on")
+    ap.add_argument("--decision-in", default=None,
+                    help="the decide phase's own --decision-out file "
+                         "(--phase seal): the seal records the revisions the "
+                         "decision was made on, so the child can refuse a "
+                         "seal that does not match its dispatch")
+    ap.add_argument("--seal-out", default=None,
+                    help="directory to materialize the bounded source "
+                         "artifact into (--phase seal); the workflow uploads "
+                         "it, this module never dispatches")
+    ap.add_argument("--seal-result-out", default=None,
+                    help="write the seal result as JSON (--phase seal): the "
+                         "dispatch gate, plus the values the child's own "
+                         "intake check compares against")
+    ap.add_argument("--correlation-id", default=None,
+                    help="the readiness correlation id (--phase seal); the "
+                         "artifact is named "
+                         f"{SEAL_ARTIFACT_PREFIX}<correlation-id>")
+    ap.add_argument("--recipe-path", default=RECIPE_DOCKERFILE_PATH,
+                    help="the recipe file to seal, read from --recipe-repo at "
+                         "the decision's recipe revision (--phase seal)")
+    ap.add_argument("--parent-repository", default=None,
+                    help="the parent run's repository, recorded in the "
+                         "manifest so the child's cross-run download has the "
+                         "provenance it names (--phase seal)")
     ap.add_argument("--digest-in", default=None,
                     help="the worker child's returned digest record "
                          "(--phase pin): digest, tag, source_revision, "
@@ -1309,6 +1815,64 @@ def main(argv: list[str] | None = None) -> None:
             print(f"::warning::{LANE}: pin pull request "
                   f"{args.stuck_pull_request} is still open — the refresh chain "
                   "is parked")
+        return
+
+    if args.phase == "seal":
+        # THE PARENT SEAL. Never raises out of here: like every other path in
+        # this lane a refusal is a RECORDED outcome and exit 0, and the
+        # workflow gates the dispatch on `sealed` rather than on this
+        # process's status. A refused seal costs one cycle of served-plane
+        # freshness — the same bounded cost the readiness skip costs — and the
+        # next run catches up in one hop.
+        try:
+            decision = json.loads(
+                Path(args.decision_in).read_text(encoding="utf-8"))
+        except (OSError, TypeError, json.JSONDecodeError) as exc:
+            decision, load_error = {}, f"{type(exc).__name__}: {exc}"
+        else:
+            load_error = None
+        manifest: dict | None = None
+        if load_error is not None:
+            reason = (f"no usable parent decision ({args.decision_in!r}): "
+                      f"{load_error}")
+        elif not args.seal_out:
+            reason = "no --seal-out directory was given"
+        else:
+            try:
+                manifest = seal_source(
+                    corpus_checkout=repo_root / args.corpus_checkout,
+                    seal_dir=Path(args.seal_out),
+                    correlation_id=args.correlation_id or "",
+                    decision=decision,
+                    corpus_repo=args.corpus_repo, corpus_ref=args.corpus_ref,
+                    recipe_repo=args.recipe_repo,
+                    recipe_path=args.recipe_path,
+                    parent_repository=(args.parent_repository
+                                       or os.environ.get("GITHUB_REPOSITORY")),
+                    parent_run_id=_run_id())
+                reason = None
+            except SealRefused as exc:
+                reason = str(exc)
+            except Exception as exc:  # noqa: BLE001 — a seal never fails the run
+                reason = f"{type(exc).__name__}: {exc}"
+        payload = seal_result_payload(sealed=manifest is not None, reason=reason,
+                                      manifest=manifest)
+        if args.seal_result_out:
+            try:
+                Path(args.seal_result_out).write_text(
+                    json.dumps(payload, indent=2, sort_keys=True) + "\n",
+                    encoding="utf-8")
+            except OSError as exc:
+                print(f"  ::warning::could not write the seal result: {exc}")
+        if manifest is not None:
+            print(f"::notice::{LANE}: SEALED {manifest['artifact_name']} — "
+                  f"source_head={_short(manifest['source_head'])}, "
+                  f"{manifest['file_count']} files, "
+                  f"{manifest['total_bytes']} bytes, "
+                  f"tree_digest={manifest['tree_digest'][:12]}")
+        else:
+            print(f"::warning::{LANE}: NOT SEALED — {reason}; nothing "
+                  "dispatched, next run catches up in one hop")
         return
 
     if args.phase == "record-pr":
