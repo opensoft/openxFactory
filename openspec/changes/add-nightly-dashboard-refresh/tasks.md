@@ -588,8 +588,10 @@ name is real, merged, and is the sha named:**
 | 8.1 | the README "OpenSpec Records" entry | present on `main`, `README.md`, naming the ratification and the open archive gate |
 | 8.3 | strict validation clean | re-run at this branch's head; output in the adopting PR |
 
-**NOT VERIFIED — host- and org-admin facts outside this identity's reach, and
-outside this repository.** Recorded as unconfirmed rather than doubted: the
+**NOT RE-VERIFIED BY THE ADOPTING LANE — host- and org-admin facts that cannot
+be checked from outside the host, and outside this repository; the ticks above
+stand on the originating lane's own evidence and are not withdrawn.** Recorded
+as unconfirmed rather than doubted: the
 `XFACTORY_APP` installation `145372182` being organization-wide with
 `contents: write` + `pull_requests: write` (1.3); the runner label
 `dashboard-image` on runner id 23 and runner group id 5's allowed-workflow
