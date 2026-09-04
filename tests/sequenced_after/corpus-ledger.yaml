@@ -153,6 +153,7 @@ rows:
   add-staging-workbench: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-standing-policy-compliance-contract: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-structured-scope-substrate: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-subject-establishment: {state: active, class: sole, declares: absent, prose: false, moved_by: "#491", moved_on: "2026-09-04"}
   add-subject-overlay-contract: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-substantive-review-lane: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-trust-anchor: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}

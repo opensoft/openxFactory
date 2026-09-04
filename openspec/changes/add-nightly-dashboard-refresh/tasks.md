@@ -20,7 +20,7 @@ what the served overlay renders beyond the one digest line.
 
 ## 1. Preflight — prove every assumption before writing the lane (read-only)
 
-- [ ] 1.1 Confirm openxFactory `main` passes snapshot generation under
+- [x] 1.1 Confirm openxFactory `main` passes snapshot generation under
       `--strict` TODAY: `PYTHONPATH=scripts python3 -m
       ideation_dashboard.cli generate --repo-root . --repository openxFactory
       --strict --output <tmp>/openxFactory-snapshot.json` from a fresh `main`
@@ -28,6 +28,12 @@ what the served overlay renders beyond the one digest line.
       warning, the lane can never publish — fix that FIRST, because the lane's
       gate is not negotiable and a permanently-failing gate is a silent
       no-refresh.
+      > DONE 2026-08-31 against fresh `main` `3a6a16e9`: the first literal
+      > fresh-checkout attempt correctly exposed that the child had made the
+      > reviewed validator unreachable (`validator-unavailable`, exit 1).
+      > Aggregation PR #179 fixed the checkout shape and merged as
+      > `de9a1d99`; rerunning the exact sparse/blobless child shape then reported
+      > `validate-ideation-dashboard-contracts: 0 error(s), 0 warning(s)`.
 - [ ] 1.2 Verify the `XFACTORY_APP` installation on
       `opensoft/Omnigent-Install` with a REAL authenticated call (mint a token
       with that repository in scope and attempt a read plus a dry write path),
@@ -40,17 +46,28 @@ what the served overlay renders beyond the one digest line.
       > GATE OPEN (human/infra). Until the `XFACTORY_APP` installation includes
       > Omnigent-Install, the delivery step's `repos/<recipe>` probe 403s and the
       > pin PR parks fail-soft — the stage is code-complete behind this gate.
-- [ ] 1.3 If 1.2 shows the installation cannot be extended, record the
+- [x] 1.3 **N/A — the contingency this task guards against is foreclosed,
+      and 1.2 stays OPEN on its own separate ground.** 1.2 owes a CALL-TIME
+      write proof and is deferred to §7.1; that is not the question this
+      task turns on. This one asks whether the installation CANNOT be
+      extended, and it demonstrably can be — it is already organization-wide
+      (`repository_selection: all`), so Omnigent-Install is in scope without
+      any extension act. Nothing here asserts 1.2's proof has been taken.
+      If 1.2 shows the installation cannot be extended, record the
       contingency ruling and mint a dedicated refresh-lane App instead. Only
       the `expected_author` value in §6.2's envelope entry changes; nothing
       else in this change depends on which App it is.
+      > NOT INVOKED. The existing `openxfactory` App installation 145372182 is
+      > organization-wide (`repository_selection: all`) with `contents: write`
+      > and `pull_requests: write`; Omnigent-Install is in scope. Task 1.2's
+      > call-time write proof remains part of the first real delivery in 7.1.
 - [ ] 1.4 Confirm the worker host's build substrate: `cpc-omni01` docker-ce
       daemon reachable from the runner's service account, disk headroom for an
       ~8 MB context plus the image layers, and the runner
       `xfactory-artifact-cpc-omni01` online in group
       `xfactory-artifact-workers` with its `host-artifact-cpc-omni01` dispatch
       label.
-- [ ] 1.5 Read the currently pinned `ideation-dashboard` digest AND its
+- [x] 1.5 Read the currently pinned `ideation-dashboard` digest AND its
       provenance comment from
       `deploy/kubernetes/overlays/aks-qa/kustomization.yaml` at
       Omnigent-Install `main`. This is the shape the lane's diff must reproduce,
@@ -58,9 +75,18 @@ what the served overlay renders beyond the one digest line.
       the bootstrap pin's comment is human PROSE carrying no machine-readable
       key/value provenance — so the first lane run is a bootstrap build by
       construction (§4.3), not a bug.
-- [ ] 1.6 Confirm the receiving repository's required checks and its default
+      > DONE, re-read live 2026-08-31. The current pin is
+      > `sha256:ff3c65b55e713ba7f7165aa5f3b2285bcdc8d75e8cb06ee6277b0bc205d13cda`
+      > and now carries `xf-refresh-provenance: v1` machine provenance from the
+      > 2026-08-27 manual `gate-trust-r1` build. This is no longer a bootstrap
+      > pin: current corpus baked inputs have moved, so the first live lane run
+      > is still a real build by the ordinary changed-input predicate.
+- [x] 1.6 Confirm the receiving repository's required checks and its default
       branch protection, so §6's envelope entry can be written against real
       check names rather than guessed ones.
+      > DONE, live GitHub evidence 2026-08-31: default branch `main`; active
+      > ruleset 21294850 requires `Digest-only pin scope`; recent
+      > `merge-master-approval` check-suite runs are green.
 
 ## 2. The push credential — the one genuinely new grant (OMNIGENT-INSTALL)
 
@@ -69,12 +95,15 @@ only, and that schema block is `additionalProperties: false` with
 `required: [registry, token_vaultref]`, so a push credential CANNOT be added as
 an extra field — it needs a schema delta.
 
-- [ ] 2.1 (HUMAN GATE) Rule the credential's shape (design Open Question 1):
+- [x] 2.1 (HUMAN GATE) Rule the credential's shape (design Open Question 1):
       a second scoped ACR token escrowed in Key Vault, mirroring `acr_pull`'s
       v1 pattern, or the device-cert Entra credential that block's comment
       calls v2. Recommendation on record: mirror `acr_pull` for v1 and let the
       v2 migration move both together.
-- [ ] 2.2 (OMNIGENT-INSTALL) Land the `schemas/worker-host-manifest.schema.yaml`
+      > DONE in the ratified realization: v1 is the second scoped ACR token,
+      > escrowed by Key Vault reference and limited to push+pull on repository
+      > `ideation-dashboard` only.
+- [x] 2.2 (OMNIGENT-INSTALL) Land the `schemas/worker-host-manifest.schema.yaml`
       delta for the ruled shape, and the `cpc-omni01` manifest entry using it.
       The credential MUST be push-scoped to the single `ideation-dashboard`
       image repository — not registry-wide — and declared as a `vaultref`, the
@@ -83,6 +112,11 @@ an extra field — it needs a schema delta.
       > `cpc-omni01` manifest entry are Omnigent-Install's to land; the
       > openxFactory stage assumes the host holds the push credential and never
       > reads it. This gate also blocks the §4.2 worker-profile registration.
+      > DONE in Omnigent-Install PR #129 (`509b7d65`) for the governed
+      > `cpc-omni01` manifest/schema shape. The rider activation being exercised
+      > now is not yet host-app-converged; its equivalent scoped token is
+      > escrowed as `cpc-brett01-acr-push-token`, and 2.3 stays open until that
+      > credential is materialized and proved on the actual host.
 - [ ] 2.3 Reconcile the credential onto the host through the Worker Host App and
       verify a push by hand from the host. The worker AGENT must never fetch or
       read it: it is host substrate, reconciled onto the host, and that is the
@@ -100,16 +134,36 @@ an extra field — it needs a schema delta.
       <ctx>`; date-stamped tag; push; capture digest. Record the digest, the
       `source_revision`, and the corpus revision, and assert they are the same
       commit.
-- [ ] 3.2 Keep the context minimal: copy only what the Dockerfile copies. Its
+      > AMENDED 2026-09-01, RE-RATIFIED 2026-09-04. The task body above is
+      > retained as ratified 2026-08-25. Under Brett's host ruling the proof to
+      > perform is: the credentialed parent materializes a fresh, bounded
+      > openxFactory `main` + recipe source artifact; the worker downloads and
+      > verifies it; scratch context `<ctx>`; `--strict` generation from the
+      > SEALED CORPUS TREE into
+      > `<ctx>/health/ideation-dashboard/openxFactory-snapshot.json`; then build,
+      > tag, push and capture as above. The three recorded facts and the
+      > same-commit assertion are unchanged, and the assertion is the point of
+      > the task either way. STILL OPEN — this has not been run.
+- [x] 3.2 Keep the context minimal: copy only what the Dockerfile copies. Its
       own comment accounts the governed corpus roots at ~8 MB and deliberately
       omits `experiments/` (169 MB); a whole-checkout context would ship that
       to the daemon for nothing.
-- [ ] 3.3 Read the Dockerfile from Omnigent-Install `main`, not from the
+      > DONE in aggregation `.github/workflows/dashboard-image-worker.yml`:
+      > sparse/blobless checkout over `CORPUS_PATHS`, then an assembled context
+      > containing only the Dockerfile COPY roots and generated snapshot.
+      > AMENDED 2026-09-01: the credentialed parent now owns the sparse fresh
+      > checkouts and seals only those roots plus manifest + recipe into the
+      > source artifact; the worker assembles the same minimal Docker context
+      > without repository access.
+- [x] 3.3 Read the Dockerfile from Omnigent-Install `main`, not from the
       aggregation's submodule pin — the same staleness reason as the corpus —
       and record its revision as a provenance input, because a Dockerfile
       change alters the image with no corpus change and would otherwise be
       invisible in a digest-only diff.
-- [ ] 3.4 Add the artifact-only child workflow `dashboard-image-worker.yml`,
+      > DONE: the child clones Omnigent-Install `main`, sparse-checks out
+      > `containers/ideation-dashboard`, and the parent records the path-scoped
+      > recipe revision in the proposal provenance.
+- [x] 3.4 Add the artifact-only child workflow `dashboard-image-worker.yml`,
       modelled on `doc-health-analysis-worker.yml`:
       `runs-on: {group: xfactory-artifact-workers, labels: <dispatch_label>}`,
       the parent-run/correlation/source-revision verification before it acts on
@@ -126,11 +180,62 @@ an extra field — it needs a schema delta.
       > the child itself, running `dashboard-refresh-nightly.py --phase build`
       > (fresh checkout → `--strict` generate → docker build → ACR push), is the
       > aggregation's to author and is NOT created in this repo.
-- [ ] 3.5 Confirm the child joins the existing `xfactory-artifact-worker`
+      > DONE: aggregation PR #141 (`c1bba45d`) landed the active child workflow
+      > (id 341027124); PR #179 (`de9a1d99`) corrected its canonical
+      > aggregation checkout shape so strict validation can actually run.
+      > AMENDED 2026-09-01 by Brett's credential-free runner ruling: the child
+      > downloads the parent run's sealed source artifact (the same pattern as
+      > its sibling workers), validates its manifest, then runs strict
+      > generation/build/push. It performs no repository clone or fetch.
+- [x] 3.5 Confirm the child joins the existing `xfactory-artifact-worker`
       concurrency group so the singleton host is never double-booked by the
       nightly, the review lane and this lane at once.
       > CROSS-REPO (AGGREGATION). The concurrency group is declared on the
       > aggregation's nightly caller and the child workflow, alongside 3.4.
+      > DONE: the child uses the shared `xfactory-artifact-worker` concurrency
+      > group with `cancel-in-progress: false`, and runner group id 5 now allows
+      > this child workflow explicitly.
+- [x] 3.6 (ADDED 2026-09-04 BY THE AMENDMENT, openxFactory) Expose the
+      generation timestamp anchor on the `generate` CLI, because the sealed
+      source artifact is not a git checkout and the amended lane cannot derive
+      it. MEASURED, not assumed: `ideation_dashboard.cli generate` accepts
+      `--repo-root`, `--repository`, `--source-revision`, `--project-register`,
+      `--possibles`, `--strict`, `--no-validate` and nothing else
+      (`scripts/ideation_dashboard/cli.py`, `_add_generate_args`), so the
+      `--generated-at <manifest source committer timestamp>` that `design.md`
+      Decision 3's amended step 3 and the amended spec delta's "using the
+      manifest-pinned source revision and timestamp" both call for DOES NOT
+      EXIST. The Python entry point `generate_snapshot` already takes
+      `generated_at`; `_generation_stamp` in
+      `scripts/ideation_dashboard/generator.py` otherwise derives it by
+      running `git show -s --format=%cI`
+      inside the scanned tree, and `RealGitDates` degrades "to None … outside a
+      git checkout" — which is exactly what the child now has. So without this
+      task the amended lane publishes a snapshot with NO `generated_at`, and
+      the served plane's freshness header loses its stamp. This is realization
+      work the amendment creates; the amendment was RE-RATIFIED 2026-09-04 by
+      Brett Heap (see `proposal.md` § AMENDED AFTER RATIFICATION), so this
+      task is now REQUIRED realization work on this change's code surface —
+      it is not yet done (still unticked above — SUPERSEDED 2026-09-04 by the
+      DONE note below, which is where this task's state is now recorded), and
+      it remains NOT part of what makes the archive gate close (§4.8).
+      > DONE 2026-09-04, openxFactory PR #642. `ideation_dashboard.cli`
+      > `generate` and `generate-and-open` now accept `--generated-at
+      > <RFC 3339>` beside `--source-revision`: the value is validated at the
+      > CLI boundary (`generator.is_rfc3339_datetime`, the shape the snapshot
+      > schema's `generation.generated_at` declares), passed to
+      > `generate_snapshot(generated_at=...)`, recorded VERBATIM, and it
+      > overrides the git derivation. A malformed value is REFUSED
+      > (`cli.GeneratedAtRefused` — stderr, exit 1, no snapshot written)
+      > rather than degraded to an absent stamp, which is the defect this task
+      > names. Absence changes nothing: the `git show -s --format=%cI`
+      > derivation still runs and an unresolvable stamp is still omitted.
+      > Pinned by `tests/ideation-dashboard/test_generated_at_anchor.py` (16
+      > cases: the amended recipe's own argv parses, verbatim, override,
+      > absence, seven malformed spellings refused with no file left behind,
+      > and the pinned value passing a real `--strict` validation run). The
+      > task remains NOT part of what closes the archive gate (§4.8) — that
+      > is unchanged.
 
 ## 4. The nightly stage (openxFactory)
 
@@ -358,7 +463,7 @@ an extra field — it needs a schema delta.
 This is the companion's task 7, unblocked by rulings (a) and (b). Ordered after
 §4 so the identity the grant names is real.
 
-- [ ] 6.1 Implement the repository-side shape check as a REQUIRED status check
+- [x] 6.1 Implement the repository-side shape check as a REQUIRED status check
       over the ACTUAL diff: exactly one file
       (`deploy/kubernetes/overlays/aks-qa/kustomization.yaml`), every changed
       line a `digest:` value or a comment inside the `images:` block, no image
@@ -369,7 +474,10 @@ This is the companion's task 7, unblocked by rulings (a) and (b). Ordered after
       > GATE OPEN (OMNIGENT-INSTALL). The line-level shape check is the receiving
       > repository's to author; the openxFactory lane's job is only to PRODUCE a
       > conforming diff (rewrite_pin, envelope-guarded delivery), never certify it.
-- [ ] 6.2 Install the merge-master App on Omnigent-Install, add the
+      > DONE in Omnigent-Install PR #153 (`da0bdeba`). The base-branch
+      > `dox-pin-shape-check.yml` adjudicates the actual PR diff; active ruleset
+      > 21294850 requires its `Digest-only pin scope` context on `main`.
+- [x] 6.2 Install the merge-master App on Omnigent-Install, add the
       `merge-master-approval` workflow and an envelope INSTANCE with ONE
       candidate class: `target_repos: [opensoft/Omnigent-Install]`,
       `expected_author` = the §1.2/§1.3 App's bot login,
@@ -382,19 +490,31 @@ This is the companion's task 7, unblocked by rulings (a) and (b). Ordered after
       > + required-check config land on Omnigent-Install; the openxFactory stage
       > already delivers on the exact `bot/dox-dashboard-pin` head the envelope
       > names. `expected_author` follows the §1.2/§1.3 App-identity ruling.
-- [ ] 6.3 Keep the base-branch security properties intact: the envelope config
+      > DONE in Omnigent-Install PR #146 (`575bc26f`). The live candidate names
+      > `openxfactory[bot]`, fixed head `bot/dox-dashboard-pin`, base `main`, the
+      > one overlay path, all-checks-green, and excludes only its own
+      > `merge-master-approval` check. Org-level `MERGE_MASTER_APP_ID` and
+      > `MERGE_MASTER_APP_KEY` are selected for Omnigent-Install.
+- [x] 6.3 Keep the base-branch security properties intact: the envelope config
       AND the workflow definition are read from the BASE branch, no PR-head
       content is checked out or executed, the approving identity is distinct
       from the authoring identity, and the envelope file's own path sits outside
       every `path_allowlist` so a PR editing the rules can never be
       autonomously approved. Pin the shared decision core by SHA, as the
       aggregation does, rather than tracking a moving branch.
-- [ ] 6.4 (HUMAN GATE) Choose the approval trigger (design Open Question 2):
+      > DONE: the live workflow is `pull_request_target`/`check_suite` plus
+      > explicit `workflow_dispatch`, reads workflow + envelope from the base,
+      > executes no PR-head content, and pins the codexFactory decision core.
+- [x] 6.4 (HUMAN GATE) Choose the approval trigger (design Open Question 2):
       in-repo `workflow_run` on the shape check's completion — recommended,
       base-branch semantics preserved, no extra App permission — or the
       cross-repo `gh workflow run` chain, which needs `actions: write` on the
       App's installation here. Either way the trigger is NON-FATAL: a failed
       trigger parks the PR for the human gate and never fails the nightly.
+      > RESOLVED AS REALIZED: the App-authored PR raises
+      > `pull_request_target`; completed check suites re-trigger evaluation, and
+      > `workflow_dispatch` remains the fail-soft explicit backstop. Recent live
+      > `check_suite` evaluations are green.
 - [ ] 6.5 Verify the parked path and the revocation path: a wider diff from the
       SAME identity is refused by 6.1 and waits for human review; deleting the
       candidate entry (or unsetting the approver binding) returns every PR
@@ -433,15 +553,24 @@ This is the companion's task 7, unblocked by rulings (a) and (b). Ordered after
 
 ## 8. Docs and close
 
-- [ ] 8.1 Add this change to the openxFactory README "OpenSpec Records" block,
+- [x] 8.1 Add this change to the openxFactory README "OpenSpec Records" block,
       in that list's existing format.
-- [ ] 8.2 Record the conformance gap explicitly where the served plane is
+      > DONE at `README.md`'s active-change record, including ratification,
+      > merged realization, open archive gate, authority split, staleness
+      > model, and the runtime-fetch conformance gap.
+- [x] 8.2 Record the conformance gap explicitly where the served plane is
       documented: the hosted image today passes only `--snapshot` and
       `--checkout-root` and performs no runtime fetch, so its baked artifacts
       ARE its data and this lane's cadence IS its data cadence. Name the rebake
       bound as the mitigation, and do NOT present it as the intended design.
-- [ ] 8.3 Confirm `OPENSPEC_TELEMETRY=0 openspec validate
+      > DONE in the active README record and the change's modified
+      > `ideation-dashboard` requirement: the current hosted plane has no
+      > runtime fetch, baked artifacts are its data, the rebake cadence is only
+      > a mitigation, and runtime fetch remains the intended contract.
+- [x] 8.3 Confirm `OPENSPEC_TELEMETRY=0 openspec validate
       add-nightly-dashboard-refresh --strict` and `--all --strict` are clean.
+      > DONE 2026-08-31: change strict validation passed; repository-wide strict
+      > validation passed 76/76 artifacts with 0 failures.
 - [ ] 8.4 Notify the companion `add-dox-gitops-reconciliation` that legs 1–2 are
       live and its Open Questions are closed: the mechanism is Merge Master
       extended with a second candidate class (ruling a), the lane identity is
@@ -451,3 +580,53 @@ This is the companion's task 7, unblocked by rulings (a) and (b). Ordered after
 - [ ] 8.5 Archive per the `target_release` gate: `implementation_pending`, and
       the evidence is §7's real cycle in BOTH directions. A lane proven only by
       a dry run does not close this change.
+
+## 9. Adoption record — the 2026-09-01 amendment's gate pass (lane `openxfactory-f2`)
+
+**RECORD, 2026-09-04.** The seventeen `[x]` flips in §§1, 2, 3, 6 and 8 above,
+and their completion prose, were authored 2026-09-01 by the lane
+`openxfactory-nightly` and stranded uncommitted in the shared aggregation
+checkout at `6612d323`. They were rescued byte-identical as PR #595 (issue
+#591) and adopted on Brett's word 2026-09-04, verbatim: "go on 595". This
+repository's own rule is that a cross-repository claim is verified at the gate
+rather than read out of a handoff, so the adopting lane re-verified every claim
+those flips make that is checkable from outside the host. **Not one flip was
+altered**; this section records what was and was not confirmed.
+
+**VERIFIED against the provider API, 2026-09-04 — every merge sha the flips
+name is real, merged, and is the sha named:**
+
+| task | claim | verified |
+| --- | --- | --- |
+| 2.2 | Omnigent-Install PR #129 `509b7d65` | MERGED 2026-08-22, `509b7d6541967f44a1fc96f0b7dd047820f5f7ed` |
+| 3.4 | aggregation PR #141 `c1bba45d` | MERGED 2026-08-24, `c1bba45de43586cdd84df8465433b8b3d7bc518a` |
+| 3.4 | aggregation PR #179 `de9a1d99` | MERGED 2026-08-31, `de9a1d99d4c7bb5d85f37a66e6b93834df1e7421` |
+| 6.1 | Omnigent-Install PR #153 `da0bdeba` | MERGED 2026-08-24, `da0bdeba2292a6127a45ecacbf15aacdfd4f3453` |
+| 6.2 | Omnigent-Install PR #146 `575bc26f` | MERGED 2026-08-24, `575bc26f43174e444467c185976ea4181888fa30` |
+| 8.1 | the README "OpenSpec Records" entry | present on `main`, `README.md`, naming the ratification and the open archive gate |
+| 8.3 | strict validation clean | re-run at this branch's head; output in the adopting PR |
+
+**NOT RE-VERIFIED BY THE ADOPTING LANE — host- and org-admin facts that cannot
+be checked from outside the host, and outside this repository; the ticks above
+stand on the originating lane's own evidence and are not withdrawn.** Recorded
+as unconfirmed rather than doubted: the
+`XFACTORY_APP` installation `145372182` being organization-wide with
+`contents: write` + `pull_requests: write` (1.3); the runner label
+`dashboard-image` on runner id 23 and runner group id 5's allowed-workflow
+entry (3.5); active ruleset `21294850` on Omnigent-Install `main` (1.6); the
+current overlay pin digest and its `xf-refresh-provenance: v1` comment (1.5);
+and the escrowed `cpc-brett01-acr-push-token` (2.2's rider note). Every one of
+these is re-checked in §7's real cycle, which is the evidence gate that
+actually closes this change — so none of them is load-bearing for the flip
+being honest, and none is taken on trust by anything that has landed.
+
+**§4.8 AND THE ARCHIVE GATE ARE UNMOVED.** No task in §7 was flipped by the
+amendment, `target_release` stays `implementation_pending`, and the lane has
+still never run. Whatever is ruled on the amendment, the archive gate stays
+open.
+
+**2026-09-04 — RULED (Brett Heap, verbatim "delete the debug tool"):
+`playwright-smoke-debug.py` deleted in PR #595; its ~15 lines of DOM capture
+are recoverable from the rescue commit 2ffe1807 if ever needed.
+Re-ratification of the amended delta recorded in proposal.md § AMENDED AFTER
+RATIFICATION.**

@@ -57,6 +57,7 @@ from __future__ import annotations
 import re
 import subprocess
 from collections import defaultdict
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -85,6 +86,34 @@ _ARCHIVE_DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})-(.+)")
 # The only revision shape `RealGitDates.commit_date` accepts: a (possibly
 # abbreviated) hex commit sha — the documented `source_revision` anchor form.
 _REVISION_RE = re.compile(r"[0-9a-fA-F]{4,64}")
+# The shape a SUPPLIED `generated_at` must have — the same containment as
+# `_REVISION_RE` above, for the other generation anchor, and the same shape the
+# snapshot schema declares for `generation.generated_at` (`format: date-time`,
+# `contracts/schemas/ideation-dashboard-snapshot.schema.yaml`): a full date, an
+# explicit time, and an explicit offset. `datetime.fromisoformat` alone is not
+# the check — it admits date-only and offset-less spellings the schema's
+# delegated format checker rejects.
+_RFC3339_DATETIME_RE = re.compile(
+    r"^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])"
+    r"[Tt]([01]\d|2[0-3]):[0-5]\d:[0-5]\d(\.\d+)?"
+    r"([Zz]|[+-]([01]\d|2[0-3]):[0-5]\d)$")
+
+
+def is_rfc3339_datetime(value: object) -> bool:
+    """True when `value` is an RFC 3339 date-time.
+
+    Shape AND instant: the pattern admits `2026-02-30T00:00:00Z`, which is not a
+    day, so the parse is run too. Exposed (not private) because the anchor it
+    guards enters from OUTSIDE this module — `cli.py`'s `--generated-at` — and
+    the containment belongs beside the stamp it feeds, exactly as
+    `RealGitDates.commit_date` contains `--source-revision`."""
+    if not isinstance(value, str) or not _RFC3339_DATETIME_RE.match(value):
+        return False
+    try:
+        datetime.fromisoformat(value.replace("Z", "+00:00").replace("z", "+00:00"))
+    except ValueError:
+        return False
+    return True
 
 
 # --------------------------- injectable git abstraction ---------------------------
@@ -726,8 +755,16 @@ def _generation_stamp(
     git: Any, repo_root: Path, source_revision: str | None,
     generated_at: str | None, generator_version: str,
 ) -> dict[str, Any]:
-    """The generation stamp (no wall clock): `generated_at`, when not passed,
-    derives from the revision's commit date and is omitted when unresolvable."""
+    """The generation stamp (no wall clock): a SUPPLIED `generated_at` is
+    recorded verbatim and overrides everything; when not passed it derives from
+    the revision's commit date and is omitted when unresolvable.
+
+    The supplied path is the one the sealed-artifact lane takes
+    (`add-nightly-dashboard-refresh` task 3.6, `cli.py --generated-at`): a
+    sealed source artifact is not a git checkout, so `git.commit_date` there
+    degrades to None and the derivation below can never fire. Verbatim is the
+    contract — the value is an anchor copied from a manifest, and normalising it
+    would make the snapshot disagree with the manifest it was pinned from."""
     if source_revision is None:
         source_revision = git.head_sha(repo_root) or "unknown"
     if generated_at is None and source_revision not in (None, "unknown"):

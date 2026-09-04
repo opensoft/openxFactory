@@ -1,0 +1,112 @@
+schema: spec-driven
+created: 2026-08-28
+origin:
+  kind: staged
+  id: openxFactory:staging:subject-establishment
+  path: ideation/staging/subject-establishment
+  reason: >-
+    The FULL promotion of the staged topic, taking the topic's OWN DECLARED
+    EXIT PATH. `kind: staged` is the honest spelling here and is taken
+    deliberately rather than by default: the topic's Exit path names exactly
+    this change — "a neutral OpenSpec proposal in openxFactory carrying: the
+    two artifact kinds (neutral subject design, platform realization) …, the
+    provenance-graded fact set, the reference-archetype lifecycle, the
+    conformance-tiering dial expressed via existing capabilities where
+    possible, the apply-and-verify-by-read-back obligation, and the audit-lift
+    mirror" — so the staging record, not an ad-hoc commission, is what this
+    packet realizes. The sibling packet filed the same day took `ad_hoc`
+    precisely because its topic's Exit named ONE change and Brett's ruling
+    SPLIT it into two; nothing of that kind happened here.
+    BOTH OF THE TOPIC'S DECLARED EXIT GATES ARE CLEAR, VERIFIED RATHER THAN
+    ASSUMED. Gate 1, "LedgerxFactory's `company-provisioning` reaching
+    proposal (first instantiation, in flight)": CLEARED 2026-08-04, three
+    packets archived that day and read read-only from the LedgerxFactory
+    checkout on 2026-08-28 —
+    `openspec/changes/archive/2026-08-04-add-ledgerx-company-provisioning-and-setup-audit`,
+    `openspec/changes/archive/2026-08-04-add-ledgerx-msbc-company-realization`,
+    and
+    `openspec/changes/archive/2026-08-04-modify-ledgerx-ap-intake-for-onboarding-readiness`.
+    The gate asked for a proposal; it got three archives. Gate 2, "a second
+    domain naming its instance (open question 4)": CLEARED 2026-07-28 by
+    Brett's decision of codexFactory new-project, recorded in the topic's own
+    open question 4 and in the register's DTN-017 section.
+    THE INSTRUCTION THAT TRIGGERED THE EXIT, and the two voices kept apart.
+    The orchestrating session ran a triage survey over the fourteen staging
+    topics `doc-health`'s `staged-candidate-aging` family was warning on,
+    grouped them, and RECOMMENDED for Group 4 that `subject-establishment` and
+    `client-credential-escrow-registry` both be progressed to proposals. Brett
+    RULED, verbatim: "Progress both". The RECOMMENDATION is the orchestrating
+    session's wording and is quoted here as a recommendation; the SELECTION is
+    Brett's and is the act that raised the exit, on the
+    instruction-as-origin-act shape that `govern-derived-pin-reachability`,
+    `supersede-lost-pin-baseline` and `fix-release-reachability-race` set.
+    Attributing the survey's phrasing to Brett would credit an authoring
+    session's words to the approver, so the two are never merged into one
+    quotation.
+    THE FINDING THAT DECIDES THIS PACKET'S SHAPE, and that the FIRST
+    instantiation structurally could not produce. The second consumer's
+    mapping showed that for codexFactory the DESIGNING domain and the APPLYING
+    administrator are DIFFERENT FACTORIES — GitHub administration is
+    OpsxFactory's `github-administration-workflow` capability, not
+    codexFactory's — where LedgerxFactory designs and applies inside its own
+    estate and would therefore have produced a contract with one actor
+    implicitly assumed everywhere. The realization artifact is consequently
+    HANDOFF-SHAPED, and the seam it rides is the RATIFIED
+    `deployment-handoff-boundary` rather than a new mechanism: its "handoff
+    crosses as a client infrastructure request" requirement
+    (`openspec/specs/deployment-handoff-boundary/spec.md:35-49`) states in as
+    many words that "a new record kind SHALL NOT be introduced for this
+    purpose", which forbids the obvious design and is why requirement 7
+    defines no design-handoff record.
+    Authored in openxFactory because the capability is domain-neutral by
+    construction and because the three capabilities it consumes —
+    `deployment-handoff-boundary`, `roles-authority-model` and
+    `governed-derived-model` — are all openxFactory's.
+  approved_by: >-
+    Brett — one selection on 2026-08-28 over the orchestrating session's triage
+    survey of the ageing staging topics, verbatim: "Progress both", taking the
+    survey's Group-4 recommendation that this topic and the escrow topic both
+    be progressed.
+    THE CITATION COVERS THE DECISION TO FILE AND NOTHING ELSE. It is an
+    admission of the topic into the proposal queue on its own declared exit
+    path. It is NOT a ratification of this packet's requirement text, of the
+    capability's NAME, of the decision to carry NO schema surface, of the
+    layer-ownership-without-storage boundary, or of any other decision in
+    `proposal.md` § Orchestrator decisions — all six of those were taken by the
+    authoring session and ARE FLAGGED THERE FOR VETO, as are the six open
+    questions, each of which carries a recommendation and no decision.
+    THE VETO WINDOW WAS OPEN AS OF 2026-08-28. Unlike the sibling packet filed
+    the same day, no second act had closed it at authoring: no orchestrator
+    decision was ruled and no open question answered. All twelve came back to
+    Brett.
+    THE VETO WINDOW CLOSED, AND THE PACKET IS NOW RATIFIED — BY A SEPARATE AND
+    LATER ACT, 2026-09-04, Brett Heap (repository owner), in session, recorded
+    on PR #491, verbatim: "accept all, recommendations stand". Record at
+    `review/ratification-2026-09-04.md`; `proposal.md` carries `Status:
+    ratified` with its `Ratified:` line extended to cite both acts. All six
+    orchestrator decisions — OD-1 (no schema surface; named successor
+    `add-subject-establishment-contracts`), OD-2 (one capability, two
+    authority classes), OD-3 (the capability name), OD-4 (the cross-factory
+    handoff consumed from `deployment-handoff-boundary` with no MODIFIED
+    block), OD-5 (layer ownership stated, storage not) and OD-6 (the stricter
+    merge-plus-green-plus-ruling-round archive gate) — were ACCEPTED AS
+    PROPOSED. OD-1 was accepted WITH the PR #479 counter-precedent disclosed
+    to the owner and not followed: the identical no-schema-surface call was
+    VETOED in the sibling `add-credential-escrow-checkout` on the same
+    2026-08-28, and the owner accepted OD-1 here anyway. All six open
+    questions — OQ1 (system-of-record vocabulary), OQ2 (the conformance dial),
+    OQ3 (the read-back conformance verdict), OQ4 (a factory's own store as
+    system of record), OQ5 (the consent instrument, left to DTN-016) and OQ6
+    (OpsxFactory as a named third consumer) — were RULED as their stated
+    recommendations, unamended. THIS FIELD STILL RECORDS AUTHORIZATION TO
+    FILE; the ratification is the later act named above and is not this
+    field's. Ratification authorizes promotion of the spec delta and performs
+    no further realization: no schema, no validator and no domain-repository
+    edit lands in the ratifying commit, and the named successor
+    `add-subject-establishment-contracts` remains exactly that.
+  approved_on: 2026-08-28
+related:
+  - openxFactory:change:add-subject-establishment-contracts  # the named successor (OD-1, if it stands): the two artifact kinds' schemas, the validator, packaged fixtures, and OQ1's system-of-record measurement pass — to be authored against a domain instantiation rather than ahead of one
+  - openxFactory:change:add-deployment-handoff-boundary      # ratified 2026-07-29, archived 2026-07-30; requirement 7 CONSUMES its managed-subject test, its client-infrastructure-request crossing and its correlation stamp, and adds no mechanism (OD-4)
+  - openxFactory:change:split-roles-authority                # promoted the escalation ladder and the low-risk enforcement envelope that requirement 6 applies rather than restates
+  - openxFactory:change:add-credential-escrow-checkout       # the sibling raised by the SAME "Progress both" ruling; its OD-2 is the live counter-precedent OD-1 argues against, having been vetoed on 2026-08-28
