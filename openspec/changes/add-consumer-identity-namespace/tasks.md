@@ -257,7 +257,9 @@ directory; it holds no material.
   MOVING**: while `main` was itself drifting the policy doc, this branch's edit
   to it added no finding; #624's cut rebaselined the inventory and made `main`
   clean, so the same unchanged edit now raises a NEW ERROR against the branch.
-  Recorded in § 8.1, and still not hand-fixed. **UNTICKED RATHER THAN TICKED WITH AN EXCUSE.** The
+  Recorded in § 8.1, and never hand-fixed. **WHILE THIS PACKET WAS OPEN THE BOX WAS
+  LEFT UNTICKED RATHER THAN TICKED WITH AN EXCUSE** — it is ticked now only
+  because a CUT discharged it, which is the paragraph below. The
   family's own remedy line is *"cut a release through the bundle realization
   order; never hand-edit an inventory or `contract_bundle_version` to make this
   comparison pass"*, and `add-binding-consumer-identity` § 6.3 took exactly these
@@ -336,8 +338,10 @@ directory; it holds no material.
 - [x] 7.5 doc-health, branch against a same-clock `origin/main` baseline from an
   IDENTICALLY-NAMED checkout (the finding identity is `(family, repo, path)` and
   the repo is the basename, so a differently-named baseline manufactures
-  phantoms). **EXECUTED AND NOT ZERO AT THE CURRENT BASELINE — UNTICKED
-  DELIBERATELY.** One new ERROR, `release-inventory-drift` on
+  phantoms). **EXECUTED, AND AT THE BASELINE READ WHILE THIS PACKET WAS OPEN IT
+  WAS NOT ZERO, SO THE BOX WAS LEFT UNTICKED DELIBERATELY** — that reading, and
+  the state it describes, are recorded here as they stood; what discharged them
+  is the paragraph below. One new ERROR, `release-inventory-drift` on
   `docs/contract-versioning-policy.md` against the `contract-v3.2` inventory
   #624 cut, plus three INFO. It is § 5.3's to discharge and § 5.4's to refuse to
   hand-edit; figures, both-directions set difference and the reason the answer
@@ -436,8 +440,8 @@ so this packet's edit to it added nothing. **PR #624 then cut `contract-v3.2`**
 the inventory and made `main` clean on that file. This packet's edit to
 § Deprecations Currently In Force now reintroduces the drift on its own.
 
-**THE BOX STAYS UNTICKED RATHER THAN TICKED WITH AN EXCUSE, and it is NOT
-hand-fixed.** The family's own remedy line is *"cut a release through the bundle
+**AT THIS READING THE BOX STAYED UNTICKED RATHER THAN TICKED WITH AN
+EXCUSE, and it was NOT hand-fixed.** The family's own remedy line is *"cut a release through the bundle
 realization order; never hand-edit an inventory or `contract_bundle_version` to
 make this comparison pass"*, and the finding's class is `auto-fixable` only in
 the sense that a CUT fixes it. Editing the inventory to green this comparison is
