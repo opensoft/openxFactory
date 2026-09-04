@@ -44,7 +44,7 @@ implemented/promoted, `adopted` = adopted.
 | DTN-014 | Governed derived model (non-authoritative models and scenarios, tiered conformance) | `promote` | P2 | `implemented` | `governed-derived-model` capability: conformance schema, invariant vocabulary, `validate-derived-models.py` |
 | DTN-015 | Learned handling rule / correction-promotion loop | `promote` | P2 | `seed` | handling-rule invariant vocabulary + correction→promotion lifecycle (governed-derived-model profile) |
 | DTN-016 | Consent instrument (the rung-1↔rung-2 authority root as a schema'd object) | `promote` | P1 | `adopted` | `xfactory_consent_instrument` schema + vocabulary; mapping to memory-gateway consent-profile |
-| DTN-017 | Subject establishment (facts → neutral best-practice design → platform realization → verified apply; plus the audit-lift mirror) | `promote` | P1 | `staged` | neutral subject-design + platform-realization artifact kinds, provenance-graded fact set, reference-archetype lifecycle, conformance-tiering dial, verify-by-read-back obligation |
+| DTN-017 | Subject establishment (facts → neutral best-practice design → platform realization → verified apply; plus the audit-lift mirror) | `promote` | P1 | `openspec` | neutral subject-design + platform-realization artifact kinds, provenance-graded fact set, reference-archetype lifecycle, conformance-tiering dial, verify-by-read-back obligation |
 | DTN-018 | Domain-repo conformance-gate check pack | `promote` | P1 | `adopted` | neutral inventory/parity/pin checks run from the pinned openxFactory checkout |
 | DTN-019 | Proposal-support lifecycle tool | `promote` | P1 | `adopted` | `scripts/proposal-support.py` beside its in-repo doc-health consumer (family 5) |
 | DTN-020 | Change-ratification workflow contract | `promote` | P2 | `seed` | neutral reference ratification workflow (pre-implementation governance sidecar) |
@@ -535,6 +535,23 @@ Domain-local exclusions: the CONTENT of any design or archetype (chart
 of accounts, care-plan template, branch-protection baseline), which
 external systems are supported and their mapping tables, and the expert
 seat that reviews a deviating design.
+
+FILED 2026-08-28 as
+[add-subject-establishment](../openspec/changes/add-subject-establishment/proposal.md),
+on Brett's ruling "Progress both" — the FULL promotion of the staged
+topic, taking its own declared exit path now that both of its gates are
+clear (LedgerxFactory's first instantiation archived 2026-08-04; the
+codexFactory second consumer decided 2026-07-28). Status accordingly
+moves `staged` → `openspec`. Eleven ADDED requirements, 37 scenarios, on
+a NEW neutral `subject-establishment` capability. Two things a later
+reader should know without opening the packet: the cross-factory apply
+seam is CONSUMED from the ratified `deployment-handoff-boundary` and
+introduces no record kind of its own, because that capability's
+"handoff crosses as a client infrastructure request" requirement forbids
+one by name; and the two artifact kinds' SCHEMAS are deliberately NOT in
+this packet, named instead as the successor
+`add-subject-establishment-contracts` and flagged for veto as OD-1. The
+row moves to `implemented` only when that change archives.
 
 ### DTN-018: Domain-repo conformance-gate check pack
 
