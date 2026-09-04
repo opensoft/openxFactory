@@ -1,0 +1,142 @@
+schema: spec-driven
+created: 2026-09-04
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-04-admit-deliberation-clearing-operation
+  reason: >-
+    THE GOVERNED CONTRACT CHANGE THE RATIFIED BASIS DEMANDS BY NAME. The
+    capability `clearing-dispatch-boundary` — promoted by the ACTIVE change
+    `add-clearing-dispatch-boundary` (ratified 2026-09-01 by Brett Heap on the
+    recorded word "merge #192 and ratify #555", merged as PR #555 squash
+    `ab0bb2dd`, realized in `contracts/clearing/` by PR #628 `0d5e1ba9`, NOT YET
+    ARCHIVED) — carries the requirement "The permitted-operations register is
+    closed", whose ratified sentence is: "ADDING AN OPERATION SHALL BE A GOVERNED
+    CONTRACT CHANGE with a spec delta and a reviewer, and SHALL NOT be a workflow
+    edit". This packet IS that change for the operation `deliberation`, and there
+    is no other lawful shape for it.
+    THE OBJECT IS NAMED BY THE CONSUMER, NOT INVENTED HERE. codexFactory PR #165
+    (`adopt-bundle-shaped-deliberation`, head
+    `b9714e2183d2e26a0f8023e47e3d00d8afc4245a`) carries it as tasks.md 1.6, a
+    DEPENDENCY task, on design D13's finding: "Under #555 the permitted-operations
+    register is CLOSED and its only member at landing is `readiness-diagnostic`.
+    There is therefore no legal home for a deliberation host job today, and adding
+    one by editing the clearing workflow is explicitly non-conformant." D13 names
+    the entry's facts and closes with: "That entry, not this change, is what makes
+    leg 3 lawful, and it is a named task." This packet declares those facts and
+    nothing beyond them.
+    THE DUPLICATE CHECK WAS RUN AGAINST FOUR SURFACES AND ITS RESULT IS RECORDED
+    HERE RATHER THAN ASSERTED IN PROSE ELSEWHERE, because the estate's hard lesson
+    (recorded in `add-cpc-clearing-boundary`'s own origin reason) is that checking
+    the PROMOTED specs alone misses a basis that exists only as an active change's
+    ADDED block. Run 2026-09-04T04:40Z and re-run 2026-09-04T05:05Z at
+    `origin/main` `9ef151ad`:
+    (1) ACTIVE changes — `ls openspec/changes/` returns 34 directories and NONE is
+    `admit-deliberation-clearing-operation`; grepping the whole active corpus for
+    `deliberation` returns only `add-substantive-review-lane` (council seat
+    deliberation, a review-lane subject), `add-wallet-carried-review-authority`
+    (seat convening), the two chain packets' convening records,
+    `qualify-avatar-live-voice` (an unrelated authoring memo), and the three
+    clearing packets' own citations of codexFactory #165 as a LATER change. No
+    active change admits an operation to the register or otherwise moves its
+    member set.
+    (2) OPEN PULL REQUESTS — `gh pr list -R opensoft/openxFactory --state open`
+    returns eleven (#644, #643, #642, #641, #640, #639, #638, #594, #548, #518,
+    #176). #594 mentions the word incidentally in a rescue snapshot of
+    `worker-fleet-health-monitoring`; none of the eleven touches
+    `contracts/clearing/` or the register.
+    (3) REMOTE BRANCHES — `git ls-remote --heads origin` carries no `delib*`,
+    `*permitted*` or `admit-deliberation*` head. `change/admit-install-repos` is
+    the aggregation-membership packet and is unrelated;
+    `change/add-cpc-clearing-boundary` and `028-clearing-contracts` are the basis
+    family's own already-merged branches.
+    (4) SAME-DAY MERGES TO `main` — the twelve commits since 2026-09-03 include
+    #628 (`0d5e1ba9`), which REALIZED the register instance with exactly one
+    member and states in the instance's own header comment that "`deliberation` IS
+    NOT HERE ON PURPOSE … It is a LATER GOVERNED CHANGE". Nothing merged that day
+    admits it.
+    RE-CHECKED at `origin/main` `963c5b77` after merging the day's two further
+    fix packets (#640, #638): both are doc-health and archive-gate repairs, add
+    and archive no change directory, and touch no clearing artifact. The result is
+    unchanged.
+    RE-CHECKED A THIRD TIME at review round 1, at `origin/main` `73b1b3c1`, whose
+    only merge is a doc-health self-gate test file: unchanged. That reading is
+    recorded in design D11 rather than restated here.
+    RE-CHECKED A FOURTH TIME at review round 2, at `origin/main` `342bee51`, after
+    the round-2 catch-up merge, and this run is recorded HERE because the surface
+    counts moved under it. (1) ACTIVE changes: 34, of which 33 are main's and one
+    is this packet — main's #644 ARCHIVED `add-drafted-proposal-origin`, which is
+    the first change directory to move since this branch was cut; no active change
+    admits an operation to the register. (2) OPEN PULL REQUESTS: nine besides this
+    one (#648, #647, #646, #643, #641, #594, #548, #518, #176). #644, #642, #640,
+    #639 and #638 merged in the interval and #646/#647/#648 opened in it; EVERY
+    one of the nine was checked FILE BY FILE (`gh pr view --json files`) against
+    `contracts/clearing/`, `scripts/validate-clearing-dispatch.py`,
+    `tests/clearing/`, `.github/workflows/clearing-dispatch-gate.yml` and
+    `openspec/changes/add-clearing-dispatch-boundary/`, and NONE touches any of
+    them. (3) REMOTE BRANCHES: still no `delib*` or `*permitted*` head; the only
+    `admit-` heads are this branch and the unrelated `change/admit-install-repos`.
+    (4) MERGES TO `main`: the five above, none touching a clearing artifact.
+    CONCLUSION: no sibling, no successor, no duplicate. This packet is the first
+    and only change on the object.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, checked rather than assumed. No
+    topic under `ideation/staging/` carries this subject: `INDEX.md` and the topic
+    directories were read and the nearest neighbours are governance-review and
+    wallet topics, none of which reaches a permitted-operations register. The
+    organized source is a ratified requirement that names its own successor plus a
+    consumer packet's dependency task and two dated operator rulings, which is the
+    shape `ad_hoc` exists for.
+  approved_on: 2026-09-04
+  approved_by: >-
+    Brett Heap (openxFactory operator authority). TWO DATED ACTS, and neither is
+    ratification of this packet's content.
+    (a) The clearing-boundary ruling of 2026-09-01, recorded in the operator
+    workspace as `cpc-clearing-boundary-ruling-2026-09-01.md` and on
+    `opensoft/codexFactory` issue #156 — the ruling whose main body is
+    `add-clearing-dispatch-boundary` and whose extension is
+    `add-cpc-clearing-boundary`. It is the ruling that made the register closed
+    and made admission a governed change; codexFactory #165 encodes its
+    deliberation half.
+    (b) The ruling of 2026-09-04, in-session, verbatim "Ruling OQ1: new neutral
+    deliberation-return schema", recorded as a Lane Collision Protocol Rule 2
+    ruling comment on codexFactory PR #165
+    (https://github.com/opensoft/codexFactory/pull/165#issuecomment-5535775096),
+    naming its target as lane `hermes-wallet-exercise`'s claim
+    (https://github.com/opensoft/codexFactory/pull/165#issuecomment-5535747335)
+    on the `deliberation` register member. It settles this packet's OQ1 and is
+    authorization to author this packet.
+    THIS FIELD RECORDS AUTHORIZATION TO AUTHOR AND THE RULED INPUTS, NOT
+    RATIFICATION OF CONTENT, AND MUST NOT BE READ AS ONE. Ratification is the
+    separate, later act recorded below and at
+    `review/ratification-2026-09-04.md`.
+    EVERY DECISION BEYOND THOSE TWO ACTS WAS THE AUTHORING SESSION'S and is
+    flagged for veto in `design.md`: D2 (one requirement, not a family), D3
+    (artifact lane only), D5 (`worker_profile: council-deliberation-worker`), D6
+    (`token_scopes: [actions:read]` and its spelling), D7 (`data_handling:
+    internal-governance` and its attribution, corrected at review round 1), D8
+    (the fixtures re-point to `coding`), D9 (FIVE frozen copies move together,
+    not two), D10 (the forward retirement obligation on the xFactory realization,
+    and the reading of the basis's dormant-second-door scenario that permits
+    admitting the entry ahead of it), and D13 (the THREE refusal grounds and the
+    return record kind, named in ratified text at review round 1 so realization
+    cannot widen a closed enumeration on its own authority).
+    TWO OF THOSE WERE PUT AS EXPLICIT QUESTIONS rather than only flagged, each
+    with both readings and the cost of each, under a `THE QUESTION, PUT FOR
+    RULING` heading added at review round 2: D10 (does the basis's
+    dormant-second-door scenario reach this admission, or only the act that
+    declares the host job?) and D13 (three refusal grounds now, or two?). BOTH
+    WERE RULED A on 2026-09-04 — the packet's own reading in each case — so
+    NOTHING IN THE PACKET MOVED, and no other flagged decision was vetoed.
+    Review records: `review/adversarial-round-1-2026-09-04.md`,
+    `review/adversarial-round-2-2026-09-04.md`.
+    THE PACKET IS NOW RATIFIED. Phase 1 task 1.1, RATIFICATION, is DONE: Brett
+    Heap ratified in-session 2026-09-04 at 12:37Z on the recorded word "D10 A,
+    D13 A, ratify #645" (ratified head
+    `22afb198049652ab30afd74eee62ce3c308da930`; the word recorded on
+    `opensoft/openxFactory` PR #645, comment `5540528358`, naming lane
+    `hermes-wallet-exercise`; record `review/ratification-2026-09-04.md`),
+    `Status: ratified` now stands, and NO register entry, schema, enumeration
+    member, fixture or manifest row is created by this change — those are the
+    realization named in `tasks.md` Phases 2-4, authorized but not performed
+    here. MERGE IS A SEPARATE WORD AND WAS NOT GIVEN. Its archive is ORDERED
+    AFTER `add-clearing-dispatch-boundary` archives AND after this packet's own
+    realization evidence is green.

@@ -482,65 +482,81 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-consumer-identity-namespace](openspec/changes/add-consumer-identity-namespace/proposal.md)
-  — authored 2026-09-03, **RATIFIED 2026-09-03 by Brett Heap, in session**
-  (verbatim "implement your recommendations on all these", over written
-  recommendations for five queued items). **IT CARRIES TWO RULINGS OF THAT ONE
-  WORD, openxFactory #511 AND #553, IN ONE `## MODIFIED Requirements` BLOCK** —
-  because a MODIFIED block replaces a requirement WHOLESALE and both rulings
-  write the same one (*"Two bindings on one secret are refused unless every pair
-  declares distinct consumers…"*), so two live blocks could not both survive: the
-  second to archive would silently revert the first. The lane holding #553 stood
-  down before authoring and its branch is deleted; issue #553 records this packet
-  as its vehicle. **#511** declares `consumer.identity_namespace` — the issuing
-  directory, account or tenant WITHIN the provider — as an ADDITIVE OPTIONAL
-  member, and rescopes `shared-authority-identity` from a BARE STRING to the PAIR
-  `(identity_namespace, fetch_identity)`. The finding fired on two tenants of one
-  provider whose principals share a name, and **the only escape was to rename a
-  fetch identity in the record while the principal kept its real name in the
-  provider** — a refusal whose only escape is a lie. THE FALLBACK REPORTS RATHER
-  THAN CLEARS: where either side declares no namespace, or one outside the
-  identifier grammar, the comparison returns to the bare identity, because an
-  estate able to silence a real shared authority by OMITTING a member on one side
-  would hold a rule it can turn off without writing anything false. ONE predicate
-  serves both the named finding and the lift's THIRD condition — canon states the
-  comparison once, and the first draft that rescoped only the finding was caught
-  by execution, refusing a two-tenant pair under `shared-secret-identity` and
-  sending a reader to split a secret instead of reading a namespace. The member
-  lands under the block's declared-at-the-minor / constrained-at-the-major
-  phasing as the **NINTH `consumer-*` shape code**,
-  `consumer-identity-namespace-grammar` — its own code rather than a widening of
-  `consumer-member-grammar`, because an unreadable namespace ALSO un-scopes the
-  comparison — **and its deprecation window opens at ITS OWN minor, not at
-  `contract-v2.4`**, a row that borrowed a window it never served being the exact
-  defect that policy entry exists to prevent. **#553** amends the promoted
-  scenario *"The requirement reference resolves to more than one record"* to the
-  PER-DOCUMENT scope `resolve_requirement` actually enforces, and rescopes the
-  six-conditions sentence with it — **exactly two edits**, no code, no status, no
-  severity; the resolver, its `ambiguous` verdict and
-  `add-requirement-ref-resolution-integrity` § 3.4's freeze are CITED AND NOT
-  EDITED, and that packet's § 9.4 obligation is discharged by the AMEND branch it
-  names. Ids stay namespaced by their document; repository-wide uniqueness is not
-  a rule. **PROPOSAL AND REALIZATION LAND IN ONE PR** — schema member, shared
-  predicate, ninth code, five packaged fixtures in BOTH directions (the CLEARING
-  one first, a corpus holding only the reporting direction being unable to tell a
-  working check from one that fires on everything), nineteen tests, the
-  `contracts/manifest.yaml` digest recomputed from the bytes, and the policy
-  entry — **and NO CUT**, which is the ruling's own exclusion: no tag, no digest
-  inventory, no version-headed CHANGELOG entry, that entry prescribed verbatim in
-  `tasks.md` § 5.3 so the cut invents nothing. NOTHING NARROWS EXCEPT ONE NAMED
-  SCREEN — `baked-secret` over the third free string, under
-  `add-binding-consumer-identity` § 2.6's own precedent — the comparison change
-  being a SUBTRACTION that can only make a reported pair go silent. Carriage
-  measured: titles byte-identical, 12 scenarios in and 16 out on the block
-  requirement, 12 in and 15 out on the lift requirement, **zero units lost**. No
-  `Modified over` marker is owed and that was CHECKED against
-  `govern-sibling-added-modified-deltas`: both requirements are PROMOTED canon.
-  Two `release-inventory-drift` findings are raised and are the CUT's to
-  discharge — the family's own remedy line forbids hand-editing an inventory to
-  make the comparison pass. **NO COUNCIL SAT AND NONE WAS PRESCRIBED**, and the
-  ratification record says in terms that the ruling reached the SUBSTANCE and is
-  not a read of this text.
+- [admit-deliberation-clearing-operation](openspec/changes/admit-deliberation-clearing-operation/proposal.md)
+  — authored 2026-09-04, **`Status: ratified`** (2026-09-04, Brett Heap,
+  in-session at 12:37Z, on the recorded word *"D10 A, D13 A, ratify #645"*;
+  ratified head `22afb198`; record
+  `openspec/changes/admit-deliberation-clearing-operation/review/ratification-2026-09-04.md`).
+  **Not merged — merge is a separate word.**
+  **THE GOVERNED CONTRACT CHANGE THE CLOSED REGISTER ASKS FOR BY NAME.**
+  `add-clearing-dispatch-boundary`'s requirement *"The permitted-operations
+  register is closed"* says admission "SHALL BE A GOVERNED CONTRACT CHANGE with a
+  spec delta and a reviewer, and SHALL NOT be a workflow edit"; the realized
+  register instance says `deliberation` "IS NOT HERE ON PURPOSE … a LATER GOVERNED
+  CHANGE", and uses the name as the fixture proving the refusal fires. This packet
+  is that change: **ONE requirement ADDED** to `clearing-dispatch-boundary` —
+  *"deliberation is register entry number two and returns evidence only"* —
+  written over the basis's RATIFIED (2026-09-01) and REALIZED (#628, `0d5e1ba9`)
+  but UNARCHIVED addition, the pairing declared in prose because
+  `govern-sibling-added-modified-deltas`' reserved marker is a MODIFIED-block form
+  and this is an ADDED one (the sibling `add-cpc-clearing-boundary` ships exactly
+  that reading: markers on its three MODIFIED requirements, none on its ADDED
+  block). Filed as codexFactory PR #165 tasks.md **1.6** / design **D13** — *"leg 3
+  has no legal home until this lands"*. The entry: **ARTIFACT LANE ONLY**
+  (`xfactory-artifact-workers` / `host-rider-cpc-brett01` /
+  `xfactory-artifact-cpc-brett01`; a coding-lane request is refused
+  `clearing-lane-not-permitted`); `checks_out_code`/`writes`/`may_reference_secrets`
+  all **false**; `token_scopes: [actions:read]` — EXACTLY the clearing side's own
+  scoped read-only admission credential, spelled in the vocabulary
+  `credential-contracts` already carries, with entry one's empty list NOT widened
+  (the basis says a bundle-carrying operation carries the admission credential
+  "under its OWN entry's constraints"); `worker_profile:
+  council-deliberation-worker`; `data_handling: internal-governance` — the
+  STRICTER class the register instance's comment promised a bundle-carrying
+  operation would declare, the `data_handling` FIELD borrowing its vocabulary
+  from `document-cataloging` as the register's own schema says while the CLASS
+  NAME is the `Handling:` header value the estate's governance corpus already
+  travels under; and `repository_affecting_output: **false**` — the
+  return is EVIDENCE, the verdict is computed by the runtime, and **NO SEAT KEY IS
+  EVER ON THE HOST** (sign-on-return, #165 D6). `output_schema_ref` is a **NEW
+  NEUTRAL** `contracts/clearing/deliberation-return.schema.yaml`, **ruled by Brett
+  Heap 2026-09-04** (*"Ruling OQ1: new neutral deliberation-return schema"*) over
+  the rejected alternative of pointing at a codexFactory-owned path, which would
+  make the producer the author of the shape its own return is checked against.
+  Three findings the packet records rather than papers over: the member set is
+  frozen in **FIVE** places, not two — the validator's `RATIFIED_OPERATIONS`, the
+  independent copy in `tests/clearing/test_register_closure.py`, the instance,
+  `.github/workflows/clearing-dispatch-gate.yml`'s literal
+  `(1 registered operation)` grep, and the test in
+  `tests/clearing/test_clearing_gate_wiring.py` that pins that same literal from a
+  second file; the `VERDICT_WORDS` scan is dispatched by
+  `kind == xfactory_clearing_operation_report`, so it does **not** reach a return
+  of a new kind until realization routes it there, which is why the new record's
+  kind **`xfactory_clearing_deliberation_return`** is ratified text and not a
+  realization choice; and the dispatch record's refusal grounds are a CLOSED
+  enumeration of two, so this change — being the governed change — names the
+  **three** it admits (`lane_not_permitted`, `output_schema_failure`,
+  `origin_scoped_credential`), the three of the record's nine awaited grounds
+  that this entry's landing makes emittable, rather than leaving a realizer to
+  widen a closed set on their own authority. The two `deliberation` negative
+  fixtures re-point to **`coding`**, the next real unratified operation (basis
+  design D11), so the closure refusal keeps a live probe. **NO CONTRACT BYTE MOVES
+  IN THE PROPOSAL PR** — ratification authorizes realization, it does not perform
+  it. `target_release:` is the next ADDITIVE minor, allocated at realization by
+  merge order (the policy forbids reserving one). Archives AFTER
+  `add-clearing-dispatch-boundary`, on merged-plus-green realization evidence.
+  Two adversarial review rounds are recorded in the packet
+  (`review/adversarial-round-1-2026-09-04.md`, `-round-2-`), and **TWO QUESTIONS
+  WERE PUT FOR THE RATIFIER** with both readings and the cost of each, under a
+  `THE QUESTION, PUT FOR RULING` heading in `design.md`: **D10** — does the
+  basis's dormant-second-door scenario reach THIS admission, or only the act that
+  declares the host job (refusing the packet's reading is coherent only if the two
+  land as ONE act, #165 D13 making the alternative circular)? — and **D13** —
+  three refusal grounds now, or two? **BOTH WERE RULED A** on 2026-09-04, the
+  packet's reading in each case: the register entry with no host job is not a
+  second door and the retirement binds FORWARD onto the act that declares the
+  host job, and EXACTLY THREE record grounds are admitted. Nothing in the packet
+  moved. Lane `hermes-wallet-exercise`.
 - [add-cpc-clearing-boundary](openspec/changes/add-cpc-clearing-boundary/proposal.md)
   — authored 2026-09-01, RE-SCOPED the same day after adversarial review,
   **`Status: ratified`** (2026-09-02, Brett Heap, in-session, on the recorded
@@ -1543,30 +1559,6 @@ Active changes:
   pattern, the ruleset half being an operator act. That group also ANSWERS the
   sibling's open 5.5: MedxPractice takes the same validator shape, one answer
   for one pin shape.
-- [create-medxchart-overlay-boundary](openspec/changes/create-medxchart-overlay-boundary/proposal.md)
-  — **RATIFIED 2026-09-03** (Brett Heap, in-session: *"ratify both, 1 and 1"*;
-  record at `review/ratification-2026-09-03.md`). MedxChart owns the Medx
-  composition boundary, pins openChart at `d2376a31` twice — nested gitlink and
-  `contracts/openchart-pin.yaml` — and the xFactory aggregate no longer tracks
-  openChart directly. `opensoft/MedxChart` EXISTS (private, published
-  2026-08-23) and the aggregation resolves it at the absolute
-  `git@github.com:opensoft/MedxChart.git` URL, the relative `../MedxChart` form
-  this packet first chose having been reversed at `opensoft/xFactory`
-  `386e7ee2` after it killed every nightly from 2026-08-24; `design.md`
-  Decision 2 records the reversal rather than erasing it. **This change owns the
-  `domain-descendant-boundary` placement delta** — the explicit amendment that
-  promoted requirement asked for by name, ratifying the aggregation's
-  `xFactories/` placement and naming BOTH `MedxChart` and `MedxPractice` as its
-  realized placements; the sibling `create-medxpractice-overlay-boundary` carries
-  none of its own, and its ratification packet is to cite this delta — an
-  obligation stated in the future tense because no sibling pull request has
-  merged and that packet carries no reference to it yet. MedxChart is a REPORTED
-  EMPTY BOUNDARY under the
-  lazy-creation rule (composition metadata only, zero openChart profile
-  artifacts) and is **not** precedent for creating more. **ARCHIVE IS GATED** on
-  `tasks.md` § 5: the descendant pin validator, its required `pin-validation`
-  check and its ruleset in `opensoft/MedxChart`, on the LedgerxWallet pattern —
-  the ruleset half being an operator act.
 - [add-nightly-dashboard-refresh](openspec/changes/add-nightly-dashboard-refresh/proposal.md)
   — authored 2026-08-22, **RATIFIED 2026-08-25** against its realized system
   (Brett, in-session: "ratify add-nightly-dashboard-refresh against its
@@ -2102,6 +2094,140 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [create-medxchart-overlay-boundary](openspec/changes/archive/2026-09-04-create-medxchart-overlay-boundary/proposal.md)
+  — **ARCHIVED 2026-09-04 on the realization gate its own § 5 commissioned, and
+  the gate is the point: this packet spent a month as an ASSERTED boundary and
+  archives as an ENFORCED one.** Proposed 2026-08-23; **ADMITTED** 2026-08-25
+  (PR #345, `f90f3a08`) on *"admit the two medx boundary packets"* — origin
+  metadata only, explicitly NOT a ratification; **RATIFIED 2026-09-03** by Brett
+  Heap in session, verbatim *"ratify both, 1 and 1"* (PR #608, `0f1edc0e`;
+  records `review/ratification-2026-09-03.md` and
+  `review/verification-2026-09-03.md`, archived with the packet). **ARCHIVED on
+  his word of 2026-09-04**, verbatim *"rulesets created … do 5.4 and archive
+  both"*, after *"do the pin validators"* and *"merge both when aligned and
+  green"*.
+  **REALIZED by `opensoft/MedxChart` PR #1**, merge **`8bc39a8c`**
+  (2026-09-04T13:05:59Z): `tests/validate_pin.py` (four fail-closed refusal
+  categories, one per condition § 5.1 names), `tests/test_validate_pin.py`
+  (SEVEN self-tests), `.github/workflows/pin-validation.yml` (`pull_request` +
+  `push` to `main`, no job display name so the context surfaces as exactly
+  `pin-validation`, no `paths:` filter), `.gitignore` and a README Validation
+  section. **GATED by ruleset `22272824`** "MedxChart pin-gate"
+  (Repository-sourced, `~DEFAULT_BRANCH`, `pin-validation` REQUIRED, `strict`
+  false), Brett's console act at 2026-09-04T13:17:59Z — **the ids guessed in
+  session before the act were wrong and the API is authoritative**. **GREEN
+  UNDER THE RULESET**: run **`33876197016`**, head `8bc39a8c`, **`run_attempt:
+  2`**, `success` at 13:25:47Z; the first attempt (13:06:02Z) PREDATES the
+  ruleset and is green under no required regime, so it is the RE-RUN that is the
+  evidence. Recorded at `review/realization-evidence-2026-09-04.md`, which also
+  carries an **OBSERVED DEVIATION from the LedgerxWallet precedent `21701436`,
+  reported and deliberately NOT repaired**: MedxChart's ruleset adds `deletion`
+  and `non_fast_forward` rules (strictly more protective) AND one more bypass
+  actor, `RepositoryRole` id 5 `always` (one more class of actor who can escape
+  the required check) — editing an operator's ruleset is the act § 5.3 reserves
+  to the console, so an accurate reading is what the record owes.
+  **WHAT IT LEAVES IN CANON.** ONE requirement AMENDED in
+  `openspec/specs/domain-descendant-boundary/spec.md` — *"A descendant is placed
+  at a ratified placement"*, whose `xFactories/` half moves from **REALIZED BUT
+  NOT YET RATIFIED** to **RATIFIED 2026-09-03**, naming BOTH realized placements
+  (`xFactories/MedxChart` `68d2f1f5`, `xFactories/MedxPractice` `d8d73195`) at
+  their absolute `git@github.com:opensoft/` remotes, and saying in its own text
+  that ratifying a PLACEMENT ratifies no CREATION. This is the explicit delta
+  the promoted requirement asked for **by name**, written at ratification rather
+  than derived at archive by re-reading, with four superseded units declared
+  under a `Removed from canon by` marker rather than deleted silently. And THREE
+  requirements promoted into a NEW capability
+  `openspec/specs/medxchart-overlay-boundary/spec.md` (specs 56 → 57): MedxChart
+  pins openChart at one named revision twice (`d2376a31`), the aggregation
+  reaches openChart ONLY through MedxChart at the ABSOLUTE remote form (the
+  relative `../MedxChart` form this packet first chose is recorded as REVERSED
+  at `opensoft/xFactory` `386e7ee2` after it killed every nightly from
+  2026-08-24 — `design.md` Decision 2 keeps the rejected argument rather than
+  erasing it), and openChart is relocated to the workspace root as an
+  independent upstream.
+  **MedxChart REMAINS A REPORTED EMPTY BOUNDARY and a validator does not change
+  that** — composition metadata plus, now, its own gate; zero openChart profile
+  artifacts — so it is **not** precedent for creating another descendant. **THE
+  ARCHIVE MOVED EXACTLY ONE LEDGER ROW** (`state: active` → `archived`, `class`
+  held at `co-modifier`, no partner flipped), so no MOVEMENT LOG entry was owed.
+  **THE SIBLING `create-medxpractice-overlay-boundary` ARCHIVES SECOND**, from
+  the `main` this act makes, because its R3 cites this delta and the amendment
+  must be in canon before the packet citing it archives against it.
+- [add-consumer-identity-namespace](openspec/changes/archive/2026-09-04-add-consumer-identity-namespace/proposal.md)
+  — **ARCHIVED 2026-09-04 on merged-and-green realization evidence read off
+  `main`**, on Brett Heap's word of that day (*"do the two archive acts"*).
+  Authored and **RATIFIED 2026-09-03** by Brett Heap in session, verbatim
+  *"implement your recommendations on all these"* — a single word over written
+  recommendations for five queued items, of which **TWO** land here
+  (openxFactory **#511** and **#553**); record
+  `review/ratification-2026-09-03.md`, archived with the packet, which quotes
+  each ruling under its own heading so neither rides on the other's authority.
+  **REALIZED IN ONE PR WITH ITS PROPOSAL** — PR **#622**, squash **`95c2cf6a`**
+  (2026-09-04T00:38:55Z) — carrying the schema member, the shared predicate, the
+  ninth deprecation code, five packaged fixtures, twenty tests, the recomputed
+  `contracts/manifest.yaml` row and the two documentation surfaces in one
+  landing; **GREEN AT `main`**'s own `pytest-suite` **`92e662cf`**, run
+  **33835343327**, `success` — the gate asks whether the realization is green
+  WHERE IT LANDED, so it is `main`'s run that satisfies it and not the pull
+  request's. **AND ITS `target_release` RESOLVED, WHICH IS THE HALF THE PACKET
+  DELIBERATELY REFUSED TO WRITE DOWN**: the proposal declined to name a number
+  because a number written in advance is a number the next packet to cut must
+  renumber — and it was right twice over, `contract-v3.1` being spent by #616
+  and then found defective and superseded by #624's `contract-v3.2` while this
+  packet sat open. The number was finally allocated by SOMEONE ELSE'S merge
+  order: **PR #628** cut `contract-v3.3` from a tree that already carried this
+  packet's bytes, and **PR #636** (squash **`16b85614`**) amended that same
+  UNTAGGED release with the entry `tasks.md` § 5.3 prescribes verbatim rather
+  than spending a second number on bytes already published in-tree. The
+  annotated tag **`contract-v3.3`** now dereferences to `16b85614` and
+  `verify-tag` passed on the amended tree.
+  **WHAT IT LEAVES IN CANON**: TWO requirements of `credential-contracts`
+  promoted **byte-identically** — *"A credential binding declares the consuming
+  system that holds it and the identity it fetches with"* (12 scenarios in, **16
+  out**) and *"Two bindings on one secret are refused unless every pair declares
+  distinct consumers, acknowledges the sharing, and names a requirement bound to
+  the binding"* (12 in, **15 out**), **zero units lost on either**, verified by
+  `sha256` after the act rather than asserted.
+  **#511 — A FETCH IDENTITY IS A NAME, AND A NAME IS UNIQUE ONLY INSIDE THE
+  DIRECTORY THAT ISSUED IT.** `consumer.identity_namespace` is declared as an
+  ADDITIVE OPTIONAL member naming the issuing directory, account or tenant
+  WITHIN the provider, and `shared-authority-identity` is rescoped from a BARE
+  STRING to the PAIR `(identity_namespace, fetch_identity)`. The finding fired
+  on two tenants of one provider whose principals share a name, and the only
+  escape was to rename a fetch identity in the record while the principal kept
+  its real name in the provider — **a refusal whose only escape is a lie**. THE
+  FALLBACK REPORTS RATHER THAN CLEARS, which is a security property and not a
+  default: an estate able to silence a real shared authority by OMITTING a
+  member on one side would hold a rule it can turn off without writing anything
+  false, and an ungrammatical namespace behaves exactly like an absent one for
+  the same reason. ONE predicate serves both the named finding and the lift's
+  THIRD condition, because canon states the comparison once — the first draft
+  that rescoped only the finding was caught BY EXECUTION, refusing a two-tenant
+  pair under `shared-secret-identity` and sending a reader to split a secret
+  instead of reading a namespace.
+  **#553 — TWO EDITS AND NO MORE.** The promoted scenario *"The requirement
+  reference resolves to more than one record"* is amended to the PER-DOCUMENT
+  scope `resolve_requirement` actually enforces, and the six-conditions
+  sentence's *"in the repository under validation"* is rescoped with it. No
+  code, no status, no severity: the resolver, its `ambiguous` verdict and
+  `add-requirement-ref-resolution-integrity` § 3.4's freeze are CITED AND NOT
+  EDITED, and that packet's § 9.4 obligation is discharged by the AMEND branch
+  § 9.4 itself names. Repository-wide uniqueness of a requirement id is still
+  not a rule.
+  **THE FOLD IS WHY ONE PACKET CARRIES TWO RULINGS**: a `## MODIFIED
+  Requirements` block replaces a requirement WHOLESALE and #553's target sits
+  INSIDE the requirement #511 must modify, so two live blocks could not both
+  survive — the second to archive would silently revert the first, and neither
+  packet's review would have shown it.
+  **THE ARCHIVE ACT RETIRED THE TWO CARRIAGE-LEDGER SUBJECTS § 4.4a OPENED**,
+  on the condition those rows were written with, both halves verified before the
+  rows were deleted: the packet archived and both blocks promoted
+  byte-identical, so the nine units the two INFO findings named as uncarried are
+  carried by construction rather than by argument. **ONE BOX IS TICKED BY
+  ROUTING RATHER THAN BY A FIX AND SAYS SO** — § 2.8's `MAJOR_RELEASE` drift,
+  which this packet observed, did not cause and deliberately did not repair, is
+  now openxFactory **#634**, filed 2026-09-04 and citing that row and OQ-3 as
+  its provenance.
 - [add-subject-establishment](openspec/changes/archive/2026-09-04-add-subject-establishment/proposal.md)
   — **ARCHIVED 2026-09-04 on the gate its own OD-6 made STRICTER than
   `code_surface: none` required: merge PLUS green PLUS the ruling round.** All
