@@ -1146,6 +1146,38 @@ Active changes:
   `docs/sequenced-after-trust-root-floor.md`, `tests/sequenced_after/`); the
   codexFactory verifier that CONSUMES the field is downstream and NOT this
   change's surface.
+- [add-subject-establishment](openspec/changes/add-subject-establishment/proposal.md)
+  — filed 2026-08-28 on Brett's ruling "Progress both" as the FULL promotion of
+  the `subject-establishment` staged topic, taking that topic's OWN declared
+  exit path with both of its gates cleared: the LedgerxFactory first
+  instantiation archived three packets on 2026-08-04, and codexFactory
+  new-project was decided as the second consumer on 2026-07-28. ADDS the NEW
+  neutral `subject-establishment` capability — eleven requirements, 37
+  scenarios, ADDED-only, no promoted requirement anywhere moves a word.
+  **The generalization**: every domain runs the same start-of-life motion for a
+  new subject and four of the five have not built it yet, so the packet fixes
+  the ordered pipeline and its TWO ARTIFACT KINDS — the neutral subject design
+  (semantic roles, no vendor object) and the platform realization (exactly one
+  system of record, every element traced) — because that SPLIT is what buys
+  portability, expert reviewability and second-platform-as-a-mapping, and a
+  collapsed artifact silently loses all three. **The finding the second
+  consumer produced and the first structurally could not**: for codexFactory
+  the DESIGNING domain and the APPLYING administrator are different factories
+  (GitHub administration is OpsxFactory's), so the realization is
+  handoff-shaped — and the crossing is CONSUMED from the ratified
+  `deployment-handoff-boundary` rather than invented, because that capability's
+  own text says "a new record kind SHALL NOT be introduced for this purpose",
+  which forbids the obvious design. Conformance tiering is likewise
+  `roles-authority-model`'s route/park/interrupt ladder applied, not a second
+  mechanism. **What is deliberately absent**: the two artifact kinds' schemas
+  and their validator, named as the successor
+  `add-subject-establishment-contracts` and flagged for veto as OD-1 — against
+  a live counter-precedent, the identical call having been VETOED in
+  `add-credential-escrow-checkout` the same day. `code_surface: none` and
+  `target_release: none`, but the change does NOT archive on landing: six
+  orchestrator decisions are flagged for veto, six open questions carry
+  recommendations and no decisions, and the archive gate is merge plus green
+  PLUS that ruling round (OD-6). Registers DTN-017 `staged` → `openspec`.
 - [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
   — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
   survey of the fourteen staging topics `doc-health`'s
