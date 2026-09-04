@@ -50,7 +50,7 @@ per_chain_anchors:
       - blockhash:b3e7cd6679d7db010eb0e172dc3ce4357e0b36f80c5d30fec5123e8ec45c3894
       - blockhash:ccec2236160570ce81647b443a4beb141ce9d14278c759f0b47fe64dfde47234
   commitment_derivation:
-    source_aggregation_root: &id001
+    source_aggregation_root:
       construction: xfc-jcs-sha256-1
       subject: anchored_commitment
       value: sha256:feb37002e69ac27ad4c06a7c6f8e0c7baec928ca2de7501da0db67dc4be90a97
@@ -86,7 +86,10 @@ per_chain_anchors:
       - dagblock:68dca30e529cbcf96619022fc07a48c3df55598fa1b46a770e2a20ae0a8a4e22
       - dagblock:321365f0afd6956efd5ff34f4523bc4a7e2a32b152ca07fd3acd515111c3247e
   commitment_derivation:
-    source_aggregation_root: *id001
+    source_aggregation_root:
+      construction: xfc-jcs-sha256-1
+      subject: anchored_commitment
+      value: sha256:feb37002e69ac27ad4c06a7c6f8e0c7baec928ca2de7501da0db67dc4be90a97
     path_present: true
     proof_over: aggregation_root
     path_ref: path-rcp-negative-0007-chain-example-durability

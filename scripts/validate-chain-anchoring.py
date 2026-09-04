@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate the chain-anchoring contract family, and ADJUDICATE ITS RECORDS.
 
-The openxFactory-owned canonical validator for the eleven kinds
+The openxFactory-owned canonical validator for the SEVENTEEN kinds
 `xfactory_chain_anchoring_receipt`, `xfactory_chain_anchoring_anchor_state`,
 `xfactory_chain_anchoring_verification_result`,
 `xfactory_chain_anchoring_anchor_bound_commitment`,
@@ -10,9 +10,18 @@ The openxFactory-owned canonical validator for the eleven kinds
 `xfactory_chain_anchoring_plane_separation_declaration`,
 `xfactory_chain_anchoring_linkage_derivation_issuance`,
 `xfactory_chain_anchoring_linkage_derivation_use`,
-`xfactory_chain_anchoring_analysis_result` and
-`xfactory_chain_anchoring_conformance_declaration`
-(`contracts/chain-anchoring/*.schema.yaml`). Run from the pinned openxFactory
+`xfactory_chain_anchoring_analysis_result`,
+`xfactory_chain_anchoring_conformance_declaration`,
+`xfactory_chain_anchoring_confirmation_profile`,
+`xfactory_chain_anchoring_confirmation_profile_registry`,
+`xfactory_chain_anchoring_daily_merkle_profile`,
+`xfactory_chain_anchoring_durability_eligibility_registry`,
+`xfactory_chain_anchoring_durability_batch_admission` and
+`xfactory_chain_anchoring_durability_batch_manifest`
+(`contracts/chain-anchoring/*.schema.yaml`). The last six were added by
+`amend-chain-anchoring-readiness-and-durability` (requirements 2 and 3, ratified
+2026-09-04), which also REPLACED the per-witness `status` enumeration this file
+reads — see the note under check 15. Run from the pinned openxFactory
 checkout, never copied into a domain repo:
 
     python3 scripts/validate-chain-anchoring.py [REPO_PATH] [--strict]
@@ -43,7 +52,7 @@ Two layers run:
    further findings beyond the one it is named for is the rules working; the
    expected code and detail are what the self-test pins.
 2. Optional real artifacts under REPO_PATH: every `*.y*ml` whose top-level `kind`
-   is one of the eleven family kinds is validated as one scope. Other kinds are
+   is one of the seventeen family kinds is validated as one scope. Other kinds are
    skipped and counted; the packaged `examples/` tree is excluded, because the
    negatives there are deliberately invalid and layer 1 already asserts exactly
    how. ZERO REAL ARTIFACTS IS THE EXPECTED STATE UNTIL AN ANCHORING SUBSYSTEM
@@ -129,8 +138,46 @@ noted, and each traceable to a scenario of the ratified delta:
      `CA-R5-COMMITMENT-PATH` refused the word `satisfied`
      (`structural_residual_declared_satisfied`), and every realization POSTURE
      member adjudicated against its named refusal.
+ 15. THE PER-WITNESS EVIDENCE STATES, WHICH ARE NOW SIX AND NOT THREE. The basis
+     realization's `[in_flight, landed, terminally_failed]` had ONE word for
+     "no submission evidence" and "submission accepted, confirmation condition
+     unmet", so the enumeration is REPLACED: `pending`/`submitted` split
+     `in_flight`, `landed` becomes `confirmed` bound to a named profile's
+     objective condition, and `invalid`/`unevaluable` are added because the
+     amendment's refusal scenario obliges a verifier to report them. `pending`
+     over accepted submission evidence, `confirmed` with no confirmation
+     evidence at all, `confirmed` over a condition that did not pass, a stale
+     confirmed label across a reorganization, an upgrade that erased its own
+     prior transitions, and a long-horizon claim over an unupgraded durability
+     proof are each refused BY NAME.
+ 16. THE CONFIRMATION-PROFILE BINDING, ACROSS THREE RECORDS AT ONCE, because it
+     is one rule about three: the receipt's committed mint-time snapshot, the
+     state row's evidence under it, and the verification result's named profile
+     with its IMMUTABLE as-of token beside CURRENT registry standing. Both
+     overcorrections are refused — a retired or compromised profile minting a
+     new receipt or claim, and current standing rewriting a historical one.
+     Selection is refused where it rolls back past an activation checkpoint,
+     where it applies a mid-window activation to the window already counting,
+     where the digest is substituted under an approved version, and where a
+     configured network has no active entry at all (the amendment's BLOCKED
+     state, measured from the register rather than assumed).
+ 17. THE FIXED-UTC DURABILITY BATCH, RECOMPUTED AND NOT BELIEVED. The released
+     daily-Merkle construction is RESOLVED and every leaf, every membership path
+     and every batch root is recomputed under it — the composition runs under
+     the estate's ONE digest construction, with the domain separators travelling
+     inside the canonical JSON, so no second hashing rule is minted to reach a
+     Merkle tree, and a construction whose declared ordering or shape cannot be
+     reproduced deterministically is refused rather than trusted. Each closed
+     window is RECONCILED against its own window's admissions, so a manifest
+     that lowers its last sequence and count to match a retained prefix is
+     caught even though its three summary numbers and its root are perfectly
+     self-consistent. Continuity resolves to the immediately preceding item's
+     configuration-bound anchored digest; a link over the previous BATCH ROOT is
+     refused because two consecutive empty windows share that root on purpose,
+     and a gap between consecutive windows is refused because a chain of daily
+     items with holes proves nothing about the days in the holes.
 
-FIVE FINDINGS CARRY KEBAB-CASE CODES because the closed enumeration has no member
+EIGHT FINDINGS CARRY KEBAB-CASE CODES because the closed enumeration has no member
 for them and inventing one would be a contract change made by a reader:
 `ordering-only-correspondence` (a null header time under a time-bearing rule, or a
 time under an ordering-only rule — the same defect pointing opposite ways),
@@ -139,7 +186,14 @@ the difference it claims), `checkpoint-anchor-mismatch` (a checkpoint anchor
 committing to a digest its own receipt does not carry), `record-digest-mismatch`
 (a record digest that does not recompute) and `residual-not-declared` (the
 declared-shortfall pattern's own arithmetic: a partial or cannot entry with no
-residual, or a satisfied entry carrying one). Each has a packaged negative, on
+residual, or a satisfied entry carrying one); and, from the amendment,
+`admission-window-acceptance-mismatch` (an acceptance instant outside the window
+the record names, where no source time explains the choice),
+`registry-entry-predecessor-unresolved` (a version chain with a hole in it),
+`merkle-domain-separators-equal` (one separator serving both tree positions,
+which puts a second-preimage substitution inside a path that still walks) and
+`profile-transition-vectors-incomplete` (a profile that has only ever been seen
+to accept). Each has a packaged negative, on
 the same rule as the closed codes — and each negative fixture's FILENAME IS THE
 CODE IT PROVOKES, one file per code, so the tree listing is the index of the
 refusal enumeration and the self-test refuses a misnamed fixture.
@@ -169,6 +223,21 @@ WHAT THIS VALIDATOR DOES NOT DO, stated at its real strength:
     retention, capture-at-anchor-time and the durability calendar are read from
     what a realization DECLARES about itself. A declaration is not an observation.
   * IT MINTS NOTHING. No receipt, no commitment, no leaf, no anchor.
+  * IT CANNOT APPROVE A PROFILE. The amendment obliges the OPERATOR to approve
+    the Kaspa and Bitcoin confirmation profiles and to release the daily-Merkle
+    construction before authoring rests on them. What this realization builds is
+    the VESSEL those approvals are published into and the refusal that fires
+    when a configured network has none; the packaged register carries EXAMPLE
+    entries and no operator's act. `amend-chain-anchoring-readiness-and-durability`
+    tasks 1.3 and 1.4 stay open for that reason, and the packaged declaration
+    reports `operator_approval_outstanding` in the present tense rather than
+    claiming otherwise.
+  * IT CANNOT SEE A SIGNED LOG. The checkpoint reconciliation walks the
+    ADMISSION RECORDS it is given and compares them against the manifest's
+    summaries; it does not read a log, verify a checkpoint signature, or
+    establish that the admissions it was handed are all of them. Where no
+    admission for a window travels with its manifest it says so
+    (`manifest-admissions-not-in-scope`) rather than passing the claim.
 
 THE OPERATOR GATES THAT REMAIN OPEN, named so their absence is decided rather than
 overlooked: the operational witness's ARCHIVAL NODE (tasks 4.5), INCLUSION-PROOF

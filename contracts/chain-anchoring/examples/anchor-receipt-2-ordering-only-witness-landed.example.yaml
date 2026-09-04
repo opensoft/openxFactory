@@ -60,7 +60,7 @@ mint_time_configuration:
       chain_id: chain-example-ordering-only
       profile_id: cp-example-ordering-only
       version: 1
-      canonical_digest: &id001
+      canonical_digest:
         construction: xfc-jcs-sha256-1
         subject: confirmation_profile_terms
         value: sha256:ecf00aa0455846defa6764b77e3835ebc3f86cc056538e9cedfea1ca8d0b37f9
@@ -112,7 +112,10 @@ per_chain_anchors:
   confirmed_under_profile:
     profile_id: cp-example-ordering-only
     version: 1
-    canonical_digest: *id001
+    canonical_digest:
+      construction: xfc-jcs-sha256-1
+      subject: confirmation_profile_terms
+      value: sha256:ecf00aa0455846defa6764b77e3835ebc3f86cc056538e9cedfea1ca8d0b37f9
     as_of_token: confirmed_under_v1_at_cp-log-checkpoint-0610
 declared_header_source:
   source_id: hs-example-public-headers

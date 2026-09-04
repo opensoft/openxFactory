@@ -11,7 +11,7 @@ material_digest:
   construction: xfc-jcs-sha256-1
   subject: anchor_material
   value: sha256:4440b89faeea1d27eb69da07394723a2d8018ae3c294904124502e5f6717cc9e
-anchored_digest: &id001
+anchored_digest:
   construction: xfc-jcs-sha256-1
   subject: anchored_commitment
   value: sha256:7cedc69972c687d0c6636aaefa9fa3845ccb63999e5f57d26e5338288bbb7173
@@ -24,7 +24,7 @@ mint_time_configuration:
       chain_id: chain-example-operational
       profile_id: cp-example-operational
       version: 2
-      canonical_digest: &id002
+      canonical_digest:
         construction: xfc-jcs-sha256-1
         subject: confirmation_profile_terms
         value: sha256:90c3d4f763e5dc6691ba596f91ef00e8aeb7d21b611b9e3df6030f95dffc7207
@@ -75,7 +75,10 @@ per_chain_anchors:
 - chain_id: chain-example-operational
   witness_id: w-example-op-0001
   commitment_derivation:
-    source_aggregation_root: *id001
+    source_aggregation_root:
+      construction: xfc-jcs-sha256-1
+      subject: anchored_commitment
+      value: sha256:7cedc69972c687d0c6636aaefa9fa3845ccb63999e5f57d26e5338288bbb7173
     path_present: true
     proof_over: aggregation_root
     path_ref: path-rcp-example-daily-0003-chain-example-operational
@@ -85,7 +88,10 @@ per_chain_anchors:
   confirmed_under_profile:
     profile_id: cp-example-operational
     version: 2
-    canonical_digest: *id002
+    canonical_digest:
+      construction: xfc-jcs-sha256-1
+      subject: confirmation_profile_terms
+      value: sha256:90c3d4f763e5dc6691ba596f91ef00e8aeb7d21b611b9e3df6030f95dffc7207
     as_of_token: confirmed_under_v2_at_cp-log-checkpoint-0618
   anchor_transaction_bytes: 6a15c8c736c4fd88a557A677166448Ab431e3A64292e8e89f16A8e852A7277542ca26cd95bb75195c87b28AAd52a49bafd2e755add5f72af8c3Ac57d756Aed1f
   inclusion_proof:

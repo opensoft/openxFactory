@@ -29,7 +29,7 @@ obligations:
     model all validator-enforced over this corpus; no receipt has been minted against a real
     chain
   declared_at: '2026-09-01T00:00:00Z'
-  declared_residual: &id001
+  declared_residual:
     statement: no anchoring subsystem runs, so capture-time refusal has executed only over
       packaged fixtures
     closed_by: the anchoring-subsystem realization (tasks 4.5-4.7 operator gates)
@@ -113,33 +113,24 @@ obligations:
     the de-identification member is a hook that names no standard, and both neutrality lists
     below are empty
   declared_at: '2026-09-01T00:00:00Z'
-- entry_id: ce-example-ca-r1
-  satisfaction: partial
-  reason: the chain-agnostic multi-anchor receipt format is defined first, with the four per-chain
-    elements, the committed mint-time configuration block, the closure rule and the timing
-    model all validator-enforced over this corpus; no receipt has been minted against a real
-    chain
-  declared_at: '2026-09-01T00:00:00Z'
-  declared_residual: *id001
-  obligation: CA-R10
-  outcome: satisfied
-  statement: 'the fixed-UTC durability batch is realized as contract shapes: one atomic admission
+- obligation: CA-R10
+  entry_id: ce-example-ca-r10
+  satisfaction: satisfied
+  declared_at: '2026-09-04T00:00:00Z'
+  obligation_statement: fixed UTC durability batches account for every accepted event exactly
+    once
+  reason: 'the fixed-UTC durability batch is realized as contract shapes: one atomic admission
     per event, an append-only eligibility denominator snapshotted at window open, a released
     Merkle construction the reader recomputes under, and a closed daily manifest whose continuity
     link is over the previous item''s configuration-bound anchored digest'
-- entry_id: ce-example-ca-r1
-  satisfaction: partial
-  reason: the chain-agnostic multi-anchor receipt format is defined first, with the four per-chain
-    elements, the committed mint-time configuration block, the closure rule and the timing
-    model all validator-enforced over this corpus; no receipt has been minted against a real
-    chain
-  declared_at: '2026-09-01T00:00:00Z'
-  declared_residual: *id001
-  obligation: CA-R11
-  outcome: satisfied
-  statement: submitted and confirmed are distinct per-witness evidence states bound to an
-    operator-approved, versioned, digest-pinned confirmation profile, with the durability
-    witness's two layers reported separately and no numeric depth invented by this contract
+- obligation: CA-R11
+  entry_id: ce-example-ca-r11
+  satisfaction: satisfied
+  declared_at: '2026-09-04T00:00:00Z'
+  obligation_statement: witness submission and confirmation remain distinct evidence states
+  reason: submitted and confirmed are distinct per-witness evidence states bound to an operator-approved,
+    versioned, digest-pinned confirmation profile, with the durability witness's two layers
+    reported separately and no numeric depth invented by this contract
 realization_posture:
   witness_configuration:
   - witness_id: w-realization-operational

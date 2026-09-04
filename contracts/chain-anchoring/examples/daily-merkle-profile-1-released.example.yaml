@@ -17,7 +17,7 @@ construction:
   ordering: leaf_sequence_ascending
   tree_shape: binary_left_complete
   odd_node_handling: promote_unpaired_node
-  empty_root: &id001
+  empty_root:
     construction: xfc-jcs-sha256-1
     subject: daily_batch_root
     value: sha256:c35fc8b72f989e6106fe6808d62ceece2bbdc436e7dba0184bb35b4bb2ba2ec2
@@ -37,7 +37,10 @@ vectors:
 - vector_id: dmp-vec-empty
   leaf_count: 0
   expectation: accept
-  expected_root: *id001
+  expected_root:
+    construction: xfc-jcs-sha256-1
+    subject: daily_batch_root
+    value: sha256:c35fc8b72f989e6106fe6808d62ceece2bbdc436e7dba0184bb35b4bb2ba2ec2
   statement: the deterministic empty root, which a count-zero window binds
 - vector_id: dmp-vec-odd
   leaf_count: 3
