@@ -7,12 +7,22 @@ owner, in session, ruling item 2 of six — *"2 yes with note"*; record
 after the §7.4 council sitting of 2026-08-30 whose sole disposition of record is
 `review/disposition-2026-08-30.md`)
 Kind: reference
-Repository context: openxFactory owns this neutral contract. It is **NOT YET
-REGISTERED** in `contracts/manifest.yaml` or `contracts/CHANGELOG.md` — that is
-`tasks.md` 4.11, performed by the cutting session at the next additive bundle cut
-rather than by this realization, per
+Repository context: openxFactory owns this neutral contract. It is REALIZED and
+**REGISTERED in `contracts/manifest.yaml`** — all twelve schemas below carry a
+per-file `sha256` — performed at THIS REALIZATION rather than by the cutting
+session, on the repository owner's word of 2026-09-04 (Brett Heap, verbatim:
+*"register now"*) and on the TRANCHE-TWO PRECEDENT, where `add-chain-attestation`
+added its eight rows in its realization (`518c670b`) and left only the number and
+the changelog entry to the cut (`bbbbeda9`). `tasks.md` 4.11 reads *"at the
+additive bundle cut"*; that TIMING is what the owner overruled, and only that.
+**NO BUNDLE NUMBER IS TAKEN OR RESERVED HERE.** `contracts/CHANGELOG.md` — 4.11's
+other named surface — and the `contract_bundle_version` bump remain the cutting
+session's act, per
 [Contract Versioning Policy](../../docs/contract-versioning-policy.md), because a
-proposed change MUST NOT reserve a minor number before merge order is known.
+proposed change MUST NOT reserve a minor number before merge order is known; the
+number is fresh-counted at the tip the cut is taken from. The packaged corpus,
+this README, the reader and its pytest wiring are content-addressed BY COMMIT, on
+tranche one's and tranche two's precedent.
 **AND NO CHECK REQUIRES THESE RECORDS YET.** Until a named reader runs as a
 REQUIRED check on the repository that holds them, everything below confers and
 refuses exactly nothing — the distinction tranche one's own README drew, and

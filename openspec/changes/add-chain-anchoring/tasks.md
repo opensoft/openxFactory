@@ -694,9 +694,55 @@ contract byte.
       `anchor_incomplete` naming that witness, a horizon breach writes its leaf,
       and the durability-calendar recovery UPGRADES THE PENDING DURABILITY PROOF
       and appends its entry rather than re-anchoring.
-- [ ] 4.11 Registration in `contracts/manifest.yaml` and `contracts/CHANGELOG.md`
+- [x] 4.11 Registration in `contracts/manifest.yaml` and `contracts/CHANGELOG.md`
       at the additive bundle cut, with `target_release` confirmed against the
       manifest at that tip.
+
+      **THE TIMING IN THIS BOX'S OWN TEXT WAS OVERRULED BY THE REPOSITORY
+      OWNER.** Brett Heap, 2026-09-04, in session, verbatim: *"merge 629,
+      register now"* — a RULING for lane `openxfactory-1d`'s PR #629 that the
+      registration is performed NOW, at realization, on this pull request. The
+      ground is the TRANCHE-TWO PRECEDENT: `add-chain-attestation` added its
+      eight manifest rows inside its realization (#556, squash `518c670b`) and
+      left only the version bump and the changelog entry to the cut (#565,
+      squash `bbbbeda9`). This box closes over THE REGISTRATION HALF and says
+      so; the cut half is CARRIED to 4.12 rather than claimed here.
+
+      **DONE — TWELVE ROWS in `contracts/manifest.yaml`**, one per schema in
+      `contracts/chain-anchoring/`, in the order the family README's twelve-file
+      table takes them: `chain-anchoring-definitions`, `-anchor-receipt`,
+      `-anchor-state`, `-verification-result`, `-anchor-bound-commitment`,
+      `-log-checkpoint-anchor`, `-consent-checkpoint-commitment`,
+      `-plane-separation-declaration`, `-linkage-derivation-issuance`,
+      `-linkage-derivation-use`, `-analysis-result`,
+      `-conformance-declaration`. Each row id IS the schema's own `contract_id`,
+      on #556's precedent, and each carries a per-file `sha256` over the bytes
+      at this commit. Measured by `python3 scripts/validate-manifest-digests.py`
+      at this head: `OK contracts/manifest.yaml: 175 per-file digest(s) verify`
+      — **163 before, 175 after, the twelve added**. Plus **ONE README
+      paragraph**: the family README's `Repository context:` block, which read
+      **NOT YET REGISTERED** in the present tense and now states the
+      registration, the owner's word, the precedent, and what remains the
+      cutting session's.
+
+      **NO BUNDLE NUMBER IS TAKEN OR RESERVED BY THIS COMMIT.**
+      `contract_bundle_version` still reads `contract-v3.2` and no row names a
+      forthcoming number — the ONE deliberate divergence from #556's row text,
+      taken because `docs/contract-versioning-policy.md` § Bundle Realization
+      Order fresh-counts the number at the tip the cut is taken from and a
+      proposed change MUST NOT reserve a minor number before merge order is
+      known. `contract-v3.3` is unspent at this writing and this commit does not
+      spend it.
+
+- [ ] 4.12 **THE CUT HALF, carried out of 4.11 rather than claimed by it.** The
+      `contracts/CHANGELOG.md` entry, the `contract_bundle_version` bump to the
+      number fresh-counted at the cut's tip, the `contracts/README.md` durable
+      contract-index row (a release-inventory member, so it moves with the
+      inventory the cut rebuilds), the digest inventory rebuilt with
+      `scripts/validate-contract-release.py build`, `target_release` confirmed
+      against the manifest at that tip, and `verify-commit` / `verify-tag` green
+      from an independently refreshed clone. The CUTTING SESSION's act, on
+      #565's precedent, and not this realization's.
 
 ## 5. Settle before schemas are authored
 

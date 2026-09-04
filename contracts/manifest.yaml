@@ -3042,3 +3042,269 @@ contracts:
       Registered at contract-v2.6; consumed through the pinned
       openxFactory checkout with per-file sha256 verified before any copy
       is treated as current.
+  # ---- chain-anchoring tranche three — registration at realization (add-chain-anchoring task 4.11) ----
+  # On-chain anchoring: a head witnessed on a public chain is a head no
+  # custodian can quietly shorten, which is the residual tranche one DECLARED
+  # in its `SEC-R6` entry and could not close. Ratified 2026-08-30 by Brett
+  # Heap, repository owner, in session (record
+  # `openspec/changes/add-chain-anchoring/review/ratification-2026-08-30.md`,
+  # taken after the §7.4 council sitting of the same date).
+  #
+  # WHY THESE ROWS LAND AT REALIZATION RATHER THAN AT THE CUT. tasks.md 4.11
+  # reads "at the additive bundle cut". THE REPOSITORY OWNER OVERRULED THAT
+  # TIMING — Brett Heap, 2026-09-04, verbatim: "register now" — on the
+  # TRANCHE-TWO PRECEDENT, where `add-chain-attestation` added its eight rows
+  # in the realization (#556, squash `518c670b`) and left ONLY the version bump
+  # and the changelog entry to the cut (#565, squash `bbbbeda9`). The same
+  # split applies here: the rows below move with the bytes they describe, and
+  # `contracts/CHANGELOG.md` — 4.11's other named surface — stays the cutting
+  # session's act, unwritten at this commit.
+  #
+  # NO BUNDLE NUMBER IS RESERVED BY THIS REGISTRATION. `contract_bundle_version`
+  # at the head of this file still reads `contract-v3.2` and is NOT moved here;
+  # the next additive number is fresh-counted at the tip the cut is taken from,
+  # per `docs/contract-versioning-policy.md` § Bundle Realization Order, because
+  # a proposed change MUST NOT reserve a minor number before merge order is
+  # known. This is the one deliberate divergence from #556's row text, which
+  # named its forthcoming number; the two moved tranche-one/two rows above,
+  # written earlier on this same branch, already say it this way.
+  #
+  # The TWELVE schemas below carry a per-file `sha256`. The packaged corpus
+  # (`contracts/chain-anchoring/examples/`), this family's README, the canonical
+  # reader `scripts/validate-chain-anchoring.py` and its pytest wiring are
+  # content-addressed BY COMMIT, on tranche one's and tranche two's precedent.
+  #
+  # REGISTRATION IS NOT ENFORCEMENT. The packaged conformance declaration
+  # records `is_required_in_ruleset: false` at this registration, so until a
+  # named reader runs as a REQUIRED check on the repository holding these
+  # records, everything registered below confers and refuses exactly nothing —
+  # tranche one's own distinction, which took it from realization on 2026-08-29
+  # to a required check on 2026-08-31.
+  - id: chain-anchoring-definitions
+    path: contracts/chain-anchoring/anchoring-definitions.schema.yaml
+    source_path: openxFactory/contracts/chain-anchoring/anchoring-definitions.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d8ee9b4f844a60a8ba0b39eab47a8ef328f6bf78f971d4b1c0ba6501d1f45542
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      THE SHARED VOCABULARY of tranche three, declaring NO record kind: the two witness roles, the three plane names, the custody reference, the per-chain accepted-time rule, the integer-second duration, and THE CLOSED REFUSAL ENUMERATION in one place.
+      ONE DEFINITION PER CONCEPT, BY REFERENCE — the discipline tranche two's
+      `attestation-common.schema.yaml` enforces one level up, applied here. A
+      second spelling of any of them is refused, and the refusal enumeration is
+      CLOSED in this file so that no sibling schema can mint a code the
+      canonical reader does not know.
+      Registered at realization by `add-chain-anchoring`; the bundle number is
+      the cutting session's and is not reserved here. Consumed through the
+      pinned openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: chain-anchoring-anchor-receipt
+    path: contracts/chain-anchoring/anchor-receipt.schema.yaml
+    source_path: openxFactory/contracts/chain-anchoring/anchor-receipt.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: f6de7ea2f78955a0b82aeef350c0d13dc76ed06a56b9b5105abcc0ef856bcecd
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The CHAIN-AGNOSTIC MULTI-ANCHOR RECEIPT — the material digest, the anchored digest, the committed MINT-TIME CONFIGURATION BLOCK, the aggregation path, and a per-chain list whose entries carry all FOUR elements whole.
+      THE FORMAT IS DEFINED FIRST AND THE TARGETS GO IN A LIST INSIDE IT, so
+      adding or dropping a chain moves nothing else and no already-captured
+      receipt becomes an object nobody can read. Refused by name: a partial
+      per-chain entry by shape, a transaction deferred to verification time, a
+      missing configured set, a single-chain shape, and any state member —
+      state lives in the state record and never in the receipt.
+      Registered at realization by `add-chain-anchoring`; the bundle number is
+      the cutting session's and is not reserved here. Consumed through the
+      pinned openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: chain-anchoring-anchor-state
+    path: contracts/chain-anchoring/anchor-state.schema.yaml
+    source_path: openxFactory/contracts/chain-anchoring/anchor-state.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 0e89b8b0ddf1a3625f08b456e39428953f1525a09215310d2b4f1ba4f58be609
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      PER-WITNESS STATE for one anchored item: the three disjoint states and the two explicit transitions out of pending.
+      A MISSING WITNESS IS A DECLARED, FAIL-CLOSED STATE AND NEVER SILENTLY
+      FINE. Refused by name: a transition with no leaf, a completeness claim
+      with no captured receipt, and an aggregate `anchored` boolean — the one
+      member that would let a two-witness shortfall read as success.
+      Registered at realization by `add-chain-anchoring`; the bundle number is
+      the cutting session's and is not reserved here. Consumed through the
+      pinned openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: chain-anchoring-verification-result
+    path: contracts/chain-anchoring/verification-result.schema.yaml
+    source_path: openxFactory/contracts/chain-anchoring/verification-result.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 6de11c5a5e3640bd6e28e6df9318a8a3946e42d8485f915c6749640601a42def
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      ONE VERIFICATION'S ANSWER with its MANDATORY VERIFICATION MODE, its horizon base, its witness shortfall and its delay check.
+      THE MODE IS WHAT SAYS WHAT KNOWLEDGE IS BEHIND THE ANSWER, which is why
+      it is required rather than defaulted. Refused by name: a result with no
+      mode, a `receipt_only` result claiming stateful knowledge, a
+      determination made on a minter-claimed base, and a delay check read as
+      compliance.
+      Registered at realization by `add-chain-anchoring`; the bundle number is
+      the cutting session's and is not reserved here. Consumed through the
+      pinned openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: chain-anchoring-anchor-bound-commitment
+    path: contracts/chain-anchoring/anchor-bound-commitment.schema.yaml
+    source_path: openxFactory/contracts/chain-anchoring/anchor-bound-commitment.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 463a6b630f4aea030baeec23c099e28815fc8b11a4a43cad418d0c6e0bd5893b
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      THE ONLY KIND OF VALUE THIS CAPABILITY PUTS ON A CHAIN, with its DECLARED CONSTRUCTION and both custody references.
+      A CHAIN SEES A COMMITMENT AND NEVER A PAYLOAD, and this record carries no
+      free-text member at all — a structural refusal rather than a policed one.
+      Refused by name: a payload by shape, an absent or unkeyed-unsalted
+      construction, a custody reference reachable from the anchor, a missing
+      entropy declaration, and a salt below the declared floor.
+      Registered at realization by `add-chain-anchoring`; the bundle number is
+      the cutting session's and is not reserved here. Consumed through the
+      pinned openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: chain-anchoring-log-checkpoint-anchor
+    path: contracts/chain-anchoring/log-checkpoint-anchor.schema.yaml
+    source_path: openxFactory/contracts/chain-anchoring/log-checkpoint-anchor.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 1c42dfa651ad4eee91e567a4666295da128970885ab131cc67dbc0ef091079d2
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      A CHECKPOINT ANCHOR and its `const` NEVER-READ-AS-VALIDATION DISCLAIMER.
+      ANCHORING A CHECKPOINT PROVES WHEN A HEAD EXISTED AND NOTHING WHATEVER
+      ABOUT WHAT IT CONTAINS, so the disclaimer is a `const` member of the
+      record rather than a note beside it. Refused by name: a record that omits
+      or alters the disclaimer, and a realization presenting checkpoint
+      inclusion as validation.
+      Registered at realization by `add-chain-anchoring`; the bundle number is
+      the cutting session's and is not reserved here. Consumed through the
+      pinned openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: chain-anchoring-consent-checkpoint-commitment
+    path: contracts/chain-anchoring/consent-checkpoint-commitment.schema.yaml
+    source_path: openxFactory/contracts/chain-anchoring/consent-checkpoint-commitment.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: b370473f0ddb4c334d003977c37c9929d6ed36b58b30b84a62b3cf84794827e9
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      A COMMITMENT TO A CONSENT LOG'S CHECKPOINT — the only thing of that log a chain ever sees.
+      THE CONSENT PLANE STAYS WHERE IT CAN BE ERASED, and the chain carries a
+      checkpoint commitment over it and nothing else. Refused by name: a
+      per-subject row, enforcement expressed as on-chain contract code, and
+      revocation presented as recall.
+      Registered at realization by `add-chain-anchoring`; the bundle number is
+      the cutting session's and is not reserved here. Consumed through the
+      pinned openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: chain-anchoring-plane-separation-declaration
+    path: contracts/chain-anchoring/plane-separation-declaration.schema.yaml
+    source_path: openxFactory/contracts/chain-anchoring/plane-separation-declaration.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: ec9aa05ab96bc8da9b31e98138be462dda7063d4c28a7e8eeb6b5df8092d4806
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      PER-PLANE KEYS UNDER PER-PLANE SALTS, the identifier policy, and the declared correlation mechanism.
+      THE SEPARATION IS DECLARED SO IT CAN BE READ AND REFUSED rather than
+      assumed. Refused by name: a key shared across planes, a direct identifier
+      in the record or demographic plane, a shared cross-plane join key, and an
+      anchored commitment used as one — the last being the CORRECTION this
+      packet made to the in-flight source it cites, recorded as a correction
+      rather than folded in silently.
+      Registered at realization by `add-chain-anchoring`; the bundle number is
+      the cutting session's and is not reserved here. Consumed through the
+      pinned openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: chain-anchoring-linkage-derivation-issuance
+    path: contracts/chain-anchoring/linkage-derivation-issuance.schema.yaml
+    source_path: openxFactory/contracts/chain-anchoring/linkage-derivation-issuance.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 0a2e5545f16c2a5d303c033289989746df2c6a4f39220b87fba3789057e4f042
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      THE ONE LAWFUL CROSS-PLANE CORRELATION PATH, at its issuance.
+      MINTED IN THE IDENTITY PLANE, AGAINST AN ANCHORED CONSENT CHECKPOINT, AND
+      BOUNDED IN TIME. Refused by name: a derivation minted outside the
+      identity plane, one without an anchored consent checkpoint, one that
+      neither expires nor is revocable, and a derivation parameter reused
+      across analyses.
+      Registered at realization by `add-chain-anchoring`; the bundle number is
+      the cutting session's and is not reserved here. Consumed through the
+      pinned openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: chain-anchoring-linkage-derivation-use
+    path: contracts/chain-anchoring/linkage-derivation-use.schema.yaml
+    source_path: openxFactory/contracts/chain-anchoring/linkage-derivation-use.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: ad71a7e1d60d487c63841693333750e4a40ce9c5578e60171e4969b20ccf2264
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      ONE USE of an issued derivation, and the CURRENT revocation state it answered to.
+      THE STATE READ AT USE LIVES INSIDE THE RECORD, so a correlation performed
+      against a stale or unreadable state is visible rather than inferred.
+      Refused by name: a correlation performed while that state is revoked or
+      unreadable, and a use naming a different analysis than the one its
+      derivation was issued for.
+      Registered at realization by `add-chain-anchoring`; the bundle number is
+      the cutting session's and is not reserved here. Consumed through the
+      pinned openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: chain-anchoring-analysis-result
+    path: contracts/chain-anchoring/analysis-result.schema.yaml
+    source_path: openxFactory/contracts/chain-anchoring/analysis-result.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 8850fab2c7574ae3844ebeeb3cd7b3f893e7d34d9c1741f14060157995fc85c0
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      THE OUTCOME DISCRIMINATOR, the named omitted correlation with its enumerated ground, and the per-plane results carried distinctly.
+      A SILENTLY PARTIAL RESULT IS THE FAILURE THIS SHAPE EXISTS TO REFUSE — an
+      analysis that dropped a correlation must say which and on what ground.
+      Refused by name: a status outside the enumeration, a free-text ground, a
+      silently partial result, and a de-identified label with no named
+      determination behind it.
+      Registered at realization by `add-chain-anchoring`; the bundle number is
+      the cutting session's and is not reserved here. Consumed through the
+      pinned openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: chain-anchoring-conformance-declaration
+    path: contracts/chain-anchoring/conformance-declaration.schema.yaml
+    source_path: openxFactory/contracts/chain-anchoring/conformance-declaration.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 1c3f0f3aba8f72bc3324b4d39163912cd38ff9b99b5d6874e7b223aa10e5f7d1
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      A realization's obligation-by-obligation declaration over `CA-R1 … CA-R9` on `add-trust-anchor`'s ratified declared-shortfall pattern, plus the POSTURE members a validator adjudicates.
+      THIS IS WHERE A REALIZATION SAYS WHAT IT HAS NOT DONE. Refused by name:
+      an undeclared obligation and a structural residual recorded as satisfied.
+      `is_required_in_ruleset` IS THE MEMBER THAT DECIDES WHETHER THE ELEVEN
+      ROWS ABOVE CONFER ANYTHING, and it reads `false` in the packaged
+      declaration at this registration.
+      Registered at realization by `add-chain-anchoring`; the bundle number is
+      the cutting session's and is not reserved here. Consumed through the
+      pinned openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
