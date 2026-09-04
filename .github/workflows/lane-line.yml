@@ -1,0 +1,30 @@
+name: lane-line
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  lane-line:
+    # Bots are exempt by PR AUTHOR type (`github.event.pull_request.user.type`),
+    # never by body. `gh pr list --json author` renders these as
+    # `app/dependabot`, `app/openxfactory`.
+    if: github.event.pull_request.user.type != 'Bot'
+    runs-on: ubuntu-latest
+    steps:
+      - name: The first non-empty body line names the lane
+        env:
+          # Via env, never inlined into `run:` — a PR body is untrusted input.
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          first="$(printf '%s' "$BODY" | tr -d '\r' | sed -n '/[^[:space:]]/{p;q;}')"
+          if printf '%s' "$first" | grep -Eq '^Lane: [a-z0-9-]+( \(.*\))?$'; then
+            echo "lane-line OK: $first"
+            exit 0
+          fi
+          echo "lane-line: first non-empty body line was: ${first:-<empty>}"
+          echo "::error title=lane-line::PR body must open with 'Lane: <name>' (lane-collision-protocol Rule 5)."
+          exit 1

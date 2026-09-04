@@ -416,17 +416,38 @@ summary and log, not from the individual lane jobs — and §6.3's
 
 Deliberately not started before §2. Nothing here is authored by this packet.
 
-- [ ] 6.1 `contracts/clearing/sealed-bundle-manifest.schema.yaml` — the ten
+**REALIZED 2026-09-03 by the openxFactory Speckit feature
+`specs/028-clearing-contracts`, at `contract-v3.3`.** The ticks below are that
+feature's, recorded here rather than left for a reader to infer from a merge
+list — `release-realization` makes this packet's archive gate merged-plus-green
+realization evidence, and an unticked section is not evidence. The realization
+also carries `add-cpc-clearing-boundary`'s two MODIFIED tightenings, which are
+that packet's requirements written over this one's additions: field (10) becomes
+a REQUIRED origin signature where an origin identity is registered, and the
+policy-checked fields are RESOLVED FROM the register rather than read from the
+bundle. Its task 2.9 — the tranche-3 `digest_subject` widening, named there as
+NOT that change's task and as a blocker on the origin signature — is discharged
+by the same feature.
+
+**WHAT REMAINS AFTER THESE TICKS**, so the section's completeness is not
+overread: §7 (the L5 attestation IMPLEMENTATION) and §8 (the named successors)
+are untouched, the annotated `contract-v3.3` tag is published at the LANDED
+commit per Bundle Realization Order step 5 rather than from the realization
+branch, and §3.7's obligation now falls due — the clearing workflow must validate
+its dispatched operation against the registry INSTANCE and stop relying on its
+own choice list.
+
+- [x] 6.1 **DONE 2026-09-03** — `contracts/clearing/sealed-bundle-manifest.schema.yaml` — the ten
       declared fields, with expiration required, per-file hashes required
       alongside the file list, and the digest construction cited rather than
       redefined.
-- [ ] 6.2 `contracts/clearing/permitted-operations.schema.yaml` plus the
+- [x] 6.2 **DONE 2026-09-03** — `contracts/clearing/permitted-operations.schema.yaml` plus the
       CLOSED registry INSTANCE
       `contracts/clearing/permitted-operations.registry.yaml`, on the
       `openxwallet-custody` schema-plus-instance pair convention. Entry #1 is
       `readiness-diagnostic` with its class constraints and
       `repository_affecting_output: false`.
-- [ ] 6.3 `contracts/clearing/operation-report.schema.yaml` — the
+- [x] 6.3 **DONE 2026-09-03** — `contracts/clearing/operation-report.schema.yaml` — the
       `readiness-diagnostic` report shape, and specifically THE COMPOSED
       REPORT: the artifact the `operation-report` job assembles from the lane
       jobs' forwarded outputs (§5), one report of record per dispatch across
@@ -437,7 +458,7 @@ Deliberately not started before §2. Nothing here is authored by this packet.
       (§3.5), never as observed group membership. It carries probed FACTS and
       deliberately carries no eligibility verdict (design D9); a reviewer
       should refuse a field that turns it into a readiness decision.
-- [ ] 6.4 `contracts/clearing/dispatch-record.schema.yaml` — resolved and
+- [x] 6.4 **DONE 2026-09-03** — `contracts/clearing/dispatch-record.schema.yaml` — resolved and
       claimed values, refusal grounds as a CLOSED NAMED ENUMERATION rather
       than free text, and the chain reference per §2.1 OQ2. **Seed the
       enumeration with exactly the two grounds the realization emits**
@@ -450,19 +471,37 @@ Deliberately not started before §2. Nothing here is authored by this packet.
       a new string in a workflow. Carry the DECLARED-vs-observed distinction
       into the field names so a declared lane cannot be read as an observed
       one.
-- [ ] 6.5 `contracts/clearing/single-door-attestation.schema.yaml` — expected
+- [x] 6.5 **DONE 2026-09-03** — `contracts/clearing/single-door-attestation.schema.yaml` — expected
       versus observed admitted repositories and allowlist entries per group,
       with the divergence direction carried.
-- [ ] 6.6 Packaged POSITIVE examples plus a NEGATIVE fixture per named
+- [x] 6.6 **DONE 2026-09-03, WITH A SCOPE NOTE** — Packaged POSITIVE examples plus a NEGATIVE fixture per named
       refusal: missing field, hash mismatch, expired handle, workflow-path
       contradiction, commit mismatch, unreadable API, unregistered operation,
       lane not permitted for the operation, output failing its declared
       schema, origin-scoped credential on the host, and a bundle offered as
       committed data.
-- [ ] 6.7 Canonical `scripts/validate-clearing-dispatch.py` with the
+
+      **THE FIXTURE SET IS THE REFUSALS THE VALIDATOR IMPLEMENTS, WHICH IS NOT
+      THE WHOLE OF THIS ITEM'S LIST.** 6 positives and 24 negatives ship, one per
+      CLOSED REFUSAL CODE, and the validator refuses a code with no probe. Four
+      refusals this item names have NO fixture because the neutral validator does
+      not perform them and must not pretend to: the WORKFLOW-PATH CONTRADICTION,
+      the COMMIT MISMATCH and the UNREADABLE API are provider-side resolutions
+      that only the clearing implementation can perform — a contract validator
+      asserting a live API answer would be a second implementation of a check the
+      ratified text places on the clearing workflow — and OUTPUT FAILING ITS
+      DECLARED SCHEMA belongs to the hosted finalizer, which this slice
+      deliberately does not ship. The ORIGIN-SCOPED CREDENTIAL and the
+      COMMITTED-DATA OFFER are likewise properties of a dispatch attempt rather
+      than of a record: neither is expressible as an invalid instance of any
+      shape shipped here. What the ledger CAN carry about all six is the refusal
+      GROUND, and §6.4's enumeration is seeded with exactly the two the current
+      realization emits, each further ground landing with the operation that can
+      produce it.
+- [x] 6.7 **DONE 2026-09-03** — Canonical `scripts/validate-clearing-dispatch.py` with the
       cross-shape rules the schemas cannot express, plus `tests/clearing/`
       under pytest on the per-family convention.
-- [ ] 6.8 Register in `contracts/manifest.yaml` and `contracts/CHANGELOG.md`
+- [x] 6.8 **DONE 2026-09-03, TAG PENDING** — Register in `contracts/manifest.yaml` and `contracts/CHANGELOG.md`
       at the next additive bundle cut, the minor allocated AT REALIZATION
       after merge order is known. **Two cuts ahead are already claimed** —
       the in-flight `add-chain-attestation` realization takes the next, and
@@ -471,6 +510,26 @@ Deliberately not started before §2. Nothing here is authored by this packet.
       this packet, and publish the annotated tag at the realized commit in
       the same act (the policy's recurring untagged-bundle gap,
       `opensoft/openxFactory#528`).
+
+      **REGISTERED AT `contract-v3.3`, FRESH-COUNTED at the realization
+      branch's tip exactly as this item requires.** The two cuts this item
+      names as already claimed have resolved: `add-chain-attestation`'s
+      realization landed and was CARRIED at `contract-v3.0` (PR #556, squash
+      `518c670b`), and `add-chain-anchoring`'s has not landed at all, so neither
+      stands ahead of this one. The manifest declared `contract-v3.2`, the
+      release inventories ran through `contract-v3.2`, published tags ran
+      through `contract-v3.2`, and no open pull request was cutting a bundle.
+
+      **THE ANNOTATED TAG IS NOT PUBLISHED IN THE SAME ACT, AND THIS ITEM'S
+      "in the same act" IS THEREFORE NOT SATISFIED AS WRITTEN.** Publishing a
+      tag from a realization branch is precisely what made `contract-v3.1`
+      defective: a squash merge always creates a different commit, and
+      `verify-commit` was not re-run there before the tag was pushed. Bundle
+      Realization Order step 4 lands the reviewed commit and step 5 tags THAT
+      commit; the tag is therefore a follow-on operator act at the landed sha,
+      after `verify-commit` passes there. The gap this item points at
+      (`opensoft/openxFactory#528`) stays open for the interval between landing
+      and tagging, and is named rather than closed by assertion.
 
 ## 7. The single-door attestation realization (L5)
 

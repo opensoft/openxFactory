@@ -199,6 +199,30 @@ $defs:
       - analysis_result
       - verification_result
       - anchor_event
+      # ADDED AT TRANCHE THREE (`add-cpc-clearing-boundary`, realized by the
+      # neutral `contracts/clearing/` family) — ONE SUBJECT, NO SECOND
+      # CONSTRUCTION, which is exactly the movement this file's own header
+      # sanctions. That packet's MODIFIED requirement says it in its own words:
+      # the manifest's digest and the origin signature over it "SHALL use the
+      # estate's canonical JSON construction `xfc-jcs-sha256-1`, which requires
+      # the manifest to be admitted as a SUBJECT of that construction's closed
+      # `digest_subject` enumeration — a tranche widening of SUBJECTS, never a
+      # second construction ... Until that subject exists, this requirement is
+      # UNREALIZABLE as written and SHALL NOT be reported as satisfied." This
+      # member is what makes it realizable.
+      #
+      # * `sealed_bundle_manifest` — the sealed bounded request's manifest, the
+      #   TEN DECLARED FIELDS as one JSON value. The origin signature covers
+      #   this subject and therefore covers all ten fields, the per-file hashes
+      #   included, so no field can be altered after signing without detection.
+      #
+      # WHAT IS DELIBERATELY NOT ADDED HERE. `add-cpc-clearing-boundary`'s own
+      # task 2.9 names a SECOND candidate, the sealed RETURN. No shipped shape
+      # computes a digest over a return today — the return path belongs to the
+      # hosted-finalizer successor — and an admitted subject with no consumer is
+      # a widening nothing exercises. It is added by the tranche that first
+      # produces one, under this same construction.
+      - sealed_bundle_manifest
   digest:
     type: object
     required: [construction, subject, value]

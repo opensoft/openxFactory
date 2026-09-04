@@ -309,7 +309,8 @@ def claim_conftest_slot(namespace: dict) -> dict:
 # test_hermeticity — but a collision with the siblings is no longer its cost.
 # `tests/conftest.py` is the one entry that must NOT claim (LIFO hook order
 # would make its claim the last one to run); see the docstring above.
-CONFTEST_HOOKUPS = ("avatar_runtime/conftest.py", "conftest.py",
+CONFTEST_HOOKUPS = ("avatar_runtime/conftest.py", "clearing/conftest.py",
+                    "conftest.py",
                     "doc-health/conftest.py",
                     "ideation-dashboard/conftest.py")
 
