@@ -219,3 +219,30 @@ open the tag did not, and the gate would have refused it — which is the intend
 behaviour and is asserted on synthetic trees instead, where the refs are under
 the test's control
 (`test_the_window_is_not_a_shield_for_a_release_surface_edit`).
+
+## D8 — The policy-doc edit is made, and the drift it raises is disclosed
+
+`docs/contract-versioning-policy.md` is the document this gate enforces, so the
+gate belongs in its § Bundle Realization Order. It is also a DIGESTED MEMBER of
+the published `contract-v3.4` bundle, and it is not one of the three EDITORIAL
+members (`contracts/CHANGELOG.md`, `contracts/manifest.yaml`,
+`contracts/README.md`) that may legitimately move between cuts. Editing it
+therefore raises one `release-inventory-drift` `error`.
+
+**The edit is made anyway, and the alternatives were both worse.** Hand-editing
+`contracts/releases/contract-v3.4.digests.yaml` to match is forbidden: that
+bundle is published, tagged, and immutable provenance, and the family's own
+action text forbids editing an inventory to match an absence. Deferring the
+sentence to whoever cuts the next bundle would leave the ratified policy silent
+about a gate that enforces it, in the window where a reader most needs to be
+told. **The finding is the designed transient** —
+`release-surface-integrity`'s own scenario says changed members "appear as
+non-editorial drift against that previous bundle's inventory, and the condition
+is detectable at the commit rather than only at tag-verify time" — and the next
+cut clears it by re-digesting the member. The estate does this routinely with
+this very document: `95c2cf6a` (PR #622) and `2898b104` both moved it between
+cuts.
+
+It is recorded here, in `proposal.md` § Impact with the before/after counts, and
+in `tasks.md` § 3.5, so that it is read as a predicted consequence rather than
+discovered as a regression.

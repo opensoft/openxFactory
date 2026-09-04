@@ -75,7 +75,22 @@ ruleset id and one green run.
       wiring.
 - [x] 3.5 `docs/contract-versioning-policy.md` § Bundle Realization Order names
       the gate and the post-merge tag obligation. `Status: ratified` unchanged,
-      the edit minimal.
+      the edit minimal — one paragraph, inserted where the realization order
+      already ends.
+  - *2026-09-04 — DISCLOSED RATHER THAN DISCOVERED.* That document is a DIGESTED
+      MEMBER of the published `contract-v3.4` bundle and is NOT one of the three
+      EDITORIAL members (`contracts/CHANGELOG.md`, `contracts/manifest.yaml`,
+      `contracts/README.md`) allowed to move between cuts, so the edit raises one
+      `release-inventory-drift` `error` — the designed, transient signal that a
+      cut is owed, cleared by the next cut re-digesting the member. Hand-editing
+      `contracts/releases/contract-v3.4.digests.yaml` instead is FORBIDDEN: that
+      bundle is published, tagged and immutable provenance. Precedent for the
+      same document moving between cuts: `95c2cf6a` (PR #622) and `2898b104`.
+- [x] 3.5a `openspec/changes/add-release-tag-gate/.openspec.yaml` carries the
+      `proposal-origin` declaration — `kind: ad_hoc`, id
+      `openxFactory:adhoc:2026-09-04-add-release-tag-gate`, the reason with the
+      measurement in it, and Brett's admitting word with its date. Without it the
+      family reports the packet as carrying no origin declaration.
 - [x] 3.6 README § OpenSpec Records carries this change's row.
 - [ ] 3.7 The corpus-sweep ledger row: run
       `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by
@@ -114,9 +129,13 @@ is `create-medxchart-overlay-boundary` § 5.3/5.4 (`pin-validation`, ruleset
 - [x] 5.2 `python3 -m pytest tests/doc-health tests/sequenced_after -q` green.
 - [x] 5.3 `python3 scripts/validate-sequenced-after.py .` green;
       `--ledger-diff` green after § 3.7.
-- [x] 5.4 `python3 scripts/doc-health.py --single-repo .` at parity with main
-      except this change's own expected effects, counted before and after; the
-      `## MODIFIED` block raises NO `modified-block-currency` finding.
+- [x] 5.4 `python3 scripts/doc-health.py --single-repo .` counted before and
+      after on the same checkout: **6 critical / 4 error / 27 warning / 13 info
+      → 6 critical / 5 error / 27 warning / 13 info.** The one moved finding is
+      the `release-inventory-drift` `error` on `docs/contract-versioning-policy.md`
+      predicted in § 3.5; every other line is byte-identical. The `## MODIFIED`
+      block raises NO `modified-block-currency` finding — a
+      `--family modified-block-currency` run names this change zero times.
 - [x] 5.5 The new workflow's FIRST PROOF is this packet's own pull request: it
       touches no release-surface path, so `release-tag-gate` must report green
       by short-circuit. Record the run.

@@ -1,6 +1,6 @@
 ---
-code_surface: openxFactory — FIVE artifacts, all of them this repository's own tooling, tests and CI, none of them a neutral contract any consumer pins. (1) `scripts/validate-release-tag-gate.py` is NEW: it diffs the tree under judgment against its base, short-circuits when the pull request touches neither `contracts/manifest.yaml` nor `contracts/releases/**`, and otherwise runs the EXISTING `release-tag-publication` family over the merge tree by overriding exactly one seam method (`remote_main_sha`). (2) `.github/workflows/release-tag-gate.yml` is NEW: `on: pull_request` against `main`, no `paths:` filter, job and check name `release-tag-gate`, `fetch-depth: 0`. (3) `tests/doc-health/test_release_tag_publication.py` loses the zero-findings half of one test and KEEPS its positive control, renamed to say what it now asserts. (4) `tests/doc-health/test_release_tag_gate.py` is NEW: sixteen tests over real git fixtures with real origins, one per gate condition plus the workflow's wiring. (5) `docs/contract-versioning-policy.md` gains four sentences inside § Bundle Realization Order naming the gate and the post-merge tag obligation. NOTHING in `scripts/doc_health/` changes — not the family, not a severity, not the threshold, not the enforcement floor, not `Finding`, not the report grammar, not `FAMILIES`, so the family enumeration and its counts do not move. No contract bundle member moves; no release tag is owed by this change.
-target_release: implemented — the openxFactory main line. Realization = the workflow exists and runs on every pull request against `main`; the gate short-circuits green on pull requests that touch no release path and refuses on each condition its tests name; the suite no longer asserts zero findings over this repository. The archive gate is merge-plus-green PLUS the `[OPERATOR]` evidence in tasks § 4: a check that is not REQUIRED enforces nothing, so the ruleset id and one green run are named before this packet archives. No aggregation-repo bundle is cut: nothing here is a member of `contracts/manifest.yaml` or of any `contracts/releases/*.digests.yaml` inventory.
+code_surface: openxFactory — FIVE artifacts, all of them this repository's own tooling, tests and CI, none of them a neutral contract any consumer pins. (1) `scripts/validate-release-tag-gate.py` is NEW: it diffs the tree under judgment against its base, short-circuits when the pull request touches neither `contracts/manifest.yaml` nor `contracts/releases/**`, and otherwise runs the EXISTING `release-tag-publication` family over the merge tree by overriding exactly one seam method (`remote_main_sha`). (2) `.github/workflows/release-tag-gate.yml` is NEW: `on: pull_request` against `main`, no `paths:` filter, job and check name `release-tag-gate`, `fetch-depth: 0`. (3) `tests/doc-health/test_release_tag_publication.py` loses the zero-findings half of one test and KEEPS its positive control, renamed to say what it now asserts. (4) `tests/doc-health/test_release_tag_gate.py` is NEW: sixteen tests over real git fixtures with real origins, one per gate condition plus the workflow's wiring. (5) `docs/contract-versioning-policy.md` gains one paragraph inside § Bundle Realization Order naming the gate and the post-merge tag obligation — that document IS a digested member of the published `contract-v3.4` bundle and is not one of the three EDITORIAL members, so this edit raises the designed `release-inventory-drift` `error` that the next cut clears by re-digesting it (§ Impact carries the measurement and the precedent). NOTHING in `scripts/doc_health/` changes — not the family, not a severity, not the threshold, not the enforcement floor, not `Finding`, not the report grammar, not `FAMILIES`, so the family enumeration and its counts do not move. NO NEW BUNDLE IS CUT and no release tag is owed by this change; the one bundle MEMBER it edits is the policy document named above.
+target_release: implemented — the openxFactory main line. Realization = the workflow exists and runs on every pull request against `main`; the gate short-circuits green on pull requests that touch no release path and refuses on each condition its tests name; the suite no longer asserts zero findings over this repository. The archive gate is merge-plus-green PLUS the `[OPERATOR]` evidence in tasks § 4: a check that is not REQUIRED enforces nothing, so the ruleset id and one green run are named before this packet archives. No aggregation-repo bundle is cut: `contracts/manifest.yaml` is untouched, no inventory is written, and the one digested member this change edits is `docs/contract-versioning-policy.md`, whose drift the next cut re-digests.
 Status: draft
 Proposed: 2026-09-04
 Origin: openxFactory issue **#664**, and Brett Heap's ruling on it the same day, in session, lane `openxfactory-max001`, verbatim: *"do your recommendation"* — given against three presented options and settling option 2. THAT INSTRUCTION ADMITTED THE PACKET TO THE QUEUE AND DID NOT RATIFY ITS CONTENT; ratification is a separate act and has not happened.
@@ -124,10 +124,29 @@ is for.
 signal; a cut merged on administrative bypass without a tag stays visible in the
 doc-health report.
 
-**Doc-health counts: two findings move and no others.** The `## MODIFIED` block
-is a new active-change delta, so `modified-block-currency` reads it. It drops no
-canon unit, so it owes no `Removed from canon by` marker and raises no currency
-finding. § Verification records the before/after run.
+**Doc-health counts: ONE finding moves, it is predicted here rather than
+discovered, and it is a signal rather than a defect.** Measured
+`--single-repo` before and after on the same checkout: **6 critical / 4 error /
+27 warning / 13 info → 6 critical / 5 error / 27 warning / 13 info.** The one
+new `error` is `release-inventory-drift` on
+`docs/contract-versioning-policy.md`: that document is a DIGESTED MEMBER of the
+published `contract-v3.4` bundle and is not one of the three EDITORIAL members
+allowed to move between cuts, so editing it is exactly the non-editorial drift
+that family is built to report — *"detectable at the commit rather than only at
+tag-verify time"*, in `release-surface-integrity`'s own words. **It is the
+designed transient and it clears at the next cut, which re-digests the member.**
+The estate does this routinely: `95c2cf6a` (PR #622) and `2898b104` edited this
+same document between cuts. The alternative — hand-editing
+`contracts/releases/contract-v3.4.digests.yaml` — is forbidden: that bundle is
+published, tagged and immutable provenance.
+
+The `## MODIFIED` block is a new active-change delta, so
+`modified-block-currency` reads it. It drops no canon unit, so it owes no
+`Removed from canon by` marker and raises **no** currency finding — verified by a
+`--family modified-block-currency` run naming this change zero times. The
+`proposal-origin` family's declaration is carried in
+`openspec/changes/add-release-tag-gate/.openspec.yaml` (`kind: ad_hoc`, id
+`openxFactory:adhoc:2026-09-04-add-release-tag-gate`).
 
 **Required-check inventory: one added, by Brett.** Making `release-tag-gate`
 REQUIRED on `main` is a console act, recorded as tasks § 4 with the ruleset id
