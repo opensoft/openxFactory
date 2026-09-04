@@ -31,7 +31,8 @@ notes: 'a receipt-only verification a holder ran on its own machine against a he
   obtained for itself: no verification_leaf_ref, and that absence is the receipt''s self-sufficiency
   working as designed, not non-conformance'
 confirmation_profiles_evaluated_under:
-- chain_id: chain-example-operational
+- witness_id: w-example-op-0001
+  chain_id: chain-example-operational
   profile_id: cp-example-operational
   version: 2
   canonical_digest:
@@ -41,7 +42,8 @@ confirmation_profiles_evaluated_under:
   as_of_token: confirmed_under_v2_at_cp-log-checkpoint-0618
   current_standing: profile_active
   new_claim_admitted: true
-- chain_id: chain-example-durability
+- witness_id: w-example-dur-0001
+  chain_id: chain-example-durability
   profile_id: cp-example-durability
   version: 1
   canonical_digest:

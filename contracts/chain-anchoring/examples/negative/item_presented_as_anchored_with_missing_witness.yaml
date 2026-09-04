@@ -32,7 +32,8 @@ notes: 'the SAME item as the stateful result beside it, verified receipt-only: s
   cannot prove a delay breach. The mode member is what lets a caller tell the two answers
   apart'
 confirmation_profiles_evaluated_under:
-- chain_id: chain-example-operational
+- witness_id: w-example-op-0001
+  chain_id: chain-example-operational
   profile_id: cp-example-operational
   version: 2
   canonical_digest:
@@ -42,7 +43,8 @@ confirmation_profiles_evaluated_under:
   as_of_token: confirmed_under_v2_at_cp-log-checkpoint-0618
   current_standing: profile_active
   new_claim_admitted: true
-- chain_id: chain-example-durability
+- witness_id: w-example-dur-0001
+  chain_id: chain-example-durability
   profile_id: cp-example-durability
   version: 1
   canonical_digest:

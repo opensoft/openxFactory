@@ -3301,7 +3301,7 @@ contracts:
     source_path: openxFactory/contracts/chain-anchoring/verification-result.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 86e9cf7a5496705e46ce0d5f8ea3fcd7d2ae0beb8cf7128d58d8b2cca8821439
+    sha256: d8380dcdf81463fbe95eb82c313265bdc34c04e6e4190c0081afe3e94e207165
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-

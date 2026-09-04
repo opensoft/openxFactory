@@ -885,7 +885,9 @@ def test_a_profile_is_retired_or_compromised_after_historical_confirmation(
         "subject_ref": "dbm-example-0001",
         "verification_mode": "receipt_only",
         "status": "anchor_complete",
+        "receipt_ref": "rcp-example-daily-0001",
         "confirmation_profiles_evaluated_under": [{
+            "witness_id": "w-example-dur-0001",
             "chain_id": DUR,
             "profile_id": entry["profile_id"],
             "version": entry["version"],
@@ -910,6 +912,17 @@ def test_a_profile_is_retired_or_compromised_after_historical_confirmation(
     findings = _validate(scope + [("scenario/claim", claimed)], registry_and_docs)
     assert "confirmation_profile_retired_or_compromised_mints_receipt" in \
         _codes(findings)
+    # AND THE ROW IS KEYED BY WITNESS, NOT BY CHAIN (Copilot round 1). The
+    # committed set carries no uniqueness constraint on `chain_id`, so a row
+    # naming a witness the referenced receipt does not configure names a rule
+    # nobody applied — and it is refused rather than resolved by guessing.
+    stranger = copy.deepcopy(result)
+    stranger["result_id"] = "vr-scenario-retired-0003"
+    stranger["confirmation_profiles_evaluated_under"][0]["witness_id"] = \
+        "w-example-not-configured-0001"
+    findings = _validate(scope + [("scenario/stranger", stranger)],
+                         registry_and_docs)
+    assert "witness_confirmed_without_named_profile" in _codes(findings)
 
 
 def test_a_durability_proof_is_submitted_but_not_upgraded(base_records,
@@ -994,6 +1007,33 @@ def test_pending_evidence_is_offered_as_confirmed(base_records,
         "verification_mode": "receipt_only",
         "status": "anchor_complete",
     }
+    # and a row that names a profile the committed block did not snapshot FOR
+    # THAT WITNESS is refused too, which is the other half of "named"
+    registry = _pick(base_records, "registry_id", "cpr-example-0001")
+    older = next(e for e in registry["entries"]
+                 if e["chain_id"] == OP and e["version"] == 1)
+    mismatched = {
+        "schema_version": 1,
+        "kind": "xfactory_chain_anchoring_verification_result",
+        "result_id": "vr-scenario-mismatched-0001",
+        "subject_ref": "dbm-example-0001",
+        "verification_mode": "receipt_only",
+        "status": "anchor_complete",
+        "receipt_ref": "rcp-example-daily-0001",
+        "confirmation_profiles_evaluated_under": [{
+            "witness_id": "w-example-op-0001",
+            "chain_id": OP,
+            "profile_id": older["profile_id"],
+            "version": older["version"],
+            "canonical_digest": older["canonical_digest"],
+            "as_of_token": (f"confirmed_under_v{older['version']}_at_"
+                            f"{older['activation']['checkpoint_ref']}"),
+            "current_standing": "profile_retired",
+        }],
+    }
+    findings = _validate(list(base_records) + [("scenario/mismatched", mismatched)],
+                         registry_and_docs)
+    assert "witness_confirmed_without_named_profile" in _codes(findings)
     findings = _validate(list(base_records) + [("scenario/unnamed", unnamed)],
                          registry_and_docs)
     assert "witness_confirmed_without_named_profile" in _codes(findings)

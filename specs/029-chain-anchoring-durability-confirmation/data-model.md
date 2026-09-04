@@ -14,7 +14,7 @@ Kind: design record
 | `xfactory_chain_anchoring_durability_batch_admission` | `durability-batch-admission.schema.yaml` | — | leaf: `durability_event_leaf` |
 | `xfactory_chain_anchoring_durability_batch_manifest` | `durability-batch-manifest.schema.yaml` | `terms` | `anchor_material` (it IS the anchored material) |
 
-## Fourteen shared definitions, declared once
+## Eighteen shared definitions, declared once
 
 `registry_standing`, `approval_record`, `activation_checkpoint`,
 `effective_window_interval`, `registry_append_only_declaration`,
@@ -23,6 +23,15 @@ Kind: design record
 `merkle_profile_snapshot`, `dedupe_rule`, `late_arrival_rule`,
 `window_close_reason`, `leaf_class`, `daily_genesis_sentinel`,
 `resolving_log_checkpoint`, `batch_membership_path`.
+
+**EIGHTEEN, MEASURED RATHER THAN COUNTED BY HAND** — which is how the four
+feature documents came to say "fourteen" in Copilot round 1 while listing
+eighteen:
+
+```
+$ python3 -c "…set(now['\$defs']) - set(basis['\$defs'])…"
+basis defs: 13   now: 31   ADDED: 18   removed: []
+```
 
 **Why one entry DISCIPLINE and two entry SHAPES.** Both registers bind a
 version, a canonical digest, an approval, a predecessor, an activation
@@ -69,6 +78,21 @@ refusal fires.
   `commitment_derivation.proof_over: raw_daily_batch_root`,
   `pending_durability_proof.prior_transitions_retained: false`,
   `long_horizon_claim_admitted`.
+
+## The verification result's rows are keyed by WITNESS, not by chain
+
+Copilot round 1 found the ambiguity and it was real:
+`configured_witnesses` carries no uniqueness constraint on `chain_id`, and the
+per-chain entry's own `witness_id` exists precisely because a realization may
+configure *"more than one witness against one chain"*. A
+`confirmation_profiles_evaluated_under` row keyed on the chain alone would
+collapse two such witnesses into one row, and a reader could not tell which
+pairing was evaluated. `witness_id` is therefore REQUIRED on the row — the
+shortfall arithmetic is already keyed by it, so this is the family's key and not
+a new one — and the reader COMPARES it rather than trusting it: the named witness
+must be in the referenced receipt's committed configured set, its chain must be
+that witness's chain, the profile named must be the one the committed block
+snapshotted for it, and two rows for one witness are refused.
 
 ## The per-witness state migration
 

@@ -153,7 +153,11 @@ noted, and each traceable to a scenario of the ratified delta:
  16. THE CONFIRMATION-PROFILE BINDING, ACROSS THREE RECORDS AT ONCE, because it
      is one rule about three: the receipt's committed mint-time snapshot, the
      state row's evidence under it, and the verification result's named profile
-     with its IMMUTABLE as-of token beside CURRENT registry standing. Both
+     with its IMMUTABLE as-of token beside CURRENT registry standing. The
+     result's rows are keyed by WITNESS and not by chain, and each is compared
+     against the committed snapshot FOR THAT WITNESS — `configured_witnesses`
+     carries no uniqueness constraint on `chain_id`, so a chain-keyed answer
+     would silently collapse two witnesses on one chain into one row. Both
      overcorrections are refused — a retired or compromised profile minting a
      new receipt or claim, and current standing rewriting a historical one.
      Selection is refused where it rolls back past an activation checkpoint,
@@ -3463,9 +3467,33 @@ def check_confirmation_bindings(f: Findings, scope: Scope,
                         f"result stays independently reportable")
 
     # ---------------- verification results: the profile is named ----------------
+    # THE COMMITTED SNAPSHOT PER WITNESS, indexed once so a result can be
+    # compared against the receipt it names rather than believed. Keyed by
+    # WITNESS and not by chain: `configured_witnesses` carries no uniqueness
+    # constraint on `chain_id`, and the per-chain entry's own `witness_id`
+    # exists because a realization may configure more than one witness against
+    # one chain — so a comparison keyed on the chain would silently collapse
+    # them, which is the ambiguity this index refuses to inherit.
+    snapshot_by_receipt: dict[Any, dict[Any, dict]] = {}
+    chain_by_receipt: dict[Any, dict[Any, Any]] = {}
+    for _, receipt in scope.receipts:
+        by_witness, by_chain = {}, {}
+        for witness in (get(receipt, "mint_time_configuration",
+                            "configured_witnesses") or []):
+            if not isinstance(witness, dict):
+                continue
+            wid = witness.get("witness_id")
+            if isinstance(witness.get("confirmation_profile"), dict):
+                by_witness[wid] = witness["confirmation_profile"]
+            by_chain[wid] = witness.get("chain_id")
+        snapshot_by_receipt[receipt.get("receipt_id")] = by_witness
+        chain_by_receipt[receipt.get("receipt_id")] = by_chain
+
     for label, doc in scope.verifications:
         rows = [row for row in (doc.get("confirmation_profiles_evaluated_under") or [])
                 if isinstance(row, dict)]
+        configured = snapshot_by_receipt.get(doc.get("receipt_ref"))
+        chains = chain_by_receipt.get(doc.get("receipt_ref")) or {}
         if doc.get("status") == "anchor_complete" and not rows:
             f.error("witness_confirmed_without_named_profile",
                     f"{label}: reports `anchor_complete` and names no "
@@ -3473,8 +3501,54 @@ def check_confirmation_bindings(f: Findings, scope: Scope,
                     f"profile under which it was evaluated, because a "
                     f"completeness answer whose confirmation rule is unstated "
                     f"cannot be re-checked by the party it is shown to")
+        seen_witnesses: set[Any] = set()
         for row in rows:
-            where = f"{label}: confirmation_profiles_evaluated_under[{row.get('chain_id')!r}]"
+            where = (f"{label}: confirmation_profiles_evaluated_under"
+                     f"[{row.get('witness_id')!r}]")
+            wid = row.get("witness_id")
+            if wid in seen_witnesses:
+                f.error("witness_confirmed_without_named_profile",
+                        f"{where}: two rows name the same witness — the result "
+                        f"names ONE profile per witness it relied on, and a "
+                        f"second row for one witness is two answers about one "
+                        f"evaluation")
+            seen_witnesses.add(wid)
+
+            # THE NAMED WITNESS IS COMPARED AGAINST THE COMMITTED SET, where the
+            # receipt travels with the result. A row naming a witness the
+            # receipt does not configure, on a chain that is not that witness's,
+            # or under a profile the committed block did not snapshot for it, is
+            # a rule nobody applied.
+            if configured is not None:
+                if wid not in chains:
+                    f.error("witness_confirmed_without_named_profile",
+                            f"{where}: the referenced receipt "
+                            f"{doc.get('receipt_ref')!r} configures no witness "
+                            f"{wid!r} — a result cannot have evaluated a witness "
+                            f"the receipt it names never demanded")
+                elif chains.get(wid) != row.get("chain_id"):
+                    f.error("witness_confirmed_without_named_profile",
+                            f"{where}: this row declares chain "
+                            f"{row.get('chain_id')!r} where the committed block "
+                            f"anchors {wid!r} on {chains.get(wid)!r} — the "
+                            f"witness and the chain are separate facts and a row "
+                            f"that mixes them names no pairing at all")
+                else:
+                    snapshot = configured.get(wid)
+                    if isinstance(snapshot, dict) and (
+                            snapshot.get("profile_id") != row.get("profile_id")
+                            or snapshot.get("version") != row.get("version")
+                            or digest_value(snapshot.get("canonical_digest"))
+                            != digest_value(row.get("canonical_digest"))):
+                        f.error("witness_confirmed_without_named_profile",
+                                f"{where}: names "
+                                f"{row.get('profile_id')!r} v{row.get('version')!r} "
+                                f"where the committed block snapshotted "
+                                f"{snapshot.get('profile_id')!r} "
+                                f"v{snapshot.get('version')!r} for this witness "
+                                f"— the profile a result was reached under is the "
+                                f"one the anchored digest binds, not one chosen "
+                                f"at verification time")
             token = row.get("as_of_token")
             if token and not token.startswith(f"confirmed_under_v{row.get('version')}_at_"):
                 f.error("confirmation_profile_standing_rewrites_historical_receipt",

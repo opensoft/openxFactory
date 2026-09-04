@@ -121,7 +121,7 @@ properties:
         # witnesses at all".
         type: boolean
   confirmation_profiles_evaluated_under:
-    # THE PROFILES THIS ANSWER WAS REACHED UNDER, NAMED — one row per witness
+    # THE PROFILES THIS ANSWER WAS REACHED UNDER, NAMED — one row per WITNESS
     # whose evidence the result relied on
     # (`amend-chain-anchoring-readiness-and-durability`: *"every confirmed
     # receipt entry and verification result SHALL name the profile under which it
@@ -145,10 +145,31 @@ properties:
     minItems: 0
     items:
       type: object
-      required: [chain_id, profile_id, version, canonical_digest, as_of_token,
-                 current_standing]
+      required: [witness_id, chain_id, profile_id, version, canonical_digest,
+                 as_of_token, current_standing]
       additionalProperties: false
       properties:
+        witness_id:
+          # THE WITNESS THIS ROW IS ABOUT, AND THE CHAIN IS NOT ENOUGH TO SAY IT.
+          # `configured_witnesses` carries no uniqueness constraint on
+          # `chain_id`, and the per-chain entry's own `witness_id` exists for
+          # exactly that reason — *"where the realization configures more than
+          # one witness against one chain"*. Keyed on the chain alone, two
+          # witnesses on one chain collapse into one row and a reader cannot
+          # tell WHICH pairing was evaluated; the shortfall arithmetic is
+          # already keyed by `witness_id`, so this is the family's key and not
+          # a new one.
+          #
+          # THE READER COMPARES IT rather than trusting it: where the referenced
+          # receipt travels with the result, the named witness must be in that
+          # receipt's committed configured set, its chain must be that witness's
+          # chain, and the profile named here must be the one the committed
+          # block snapshotted FOR THAT WITNESS. A row that names a witness the
+          # receipt does not configure, or a profile that witness was not
+          # evaluated under, is refused
+          # (`witness_confirmed_without_named_profile`) — it names a rule
+          # nobody applied.
+          $ref: '#/$defs/identifier'
         chain_id: {$ref: '#/$defs/chain_id'}
         profile_id: {$ref: '#/$defs/identifier'}
         version: {type: integer, minimum: 1}

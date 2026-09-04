@@ -194,6 +194,33 @@ only a refusal. The delta names Kaspa and Bitcoin; **this family names no chain*
 so the records carry the `operational` and `durability` ROLES and the tests read
 those.
 
+## Bot rounds
+
+**Round 1 — Copilot 🟡, five inline comments, two distinct findings, both TAKEN:**
+
+1. **The `$defs` count.** Four feature documents said *"fourteen shared
+   definitions"* while listing eighteen. Measured rather than recounted by hand
+   — `set(now) - set(basis)` over `anchoring-definitions.schema.yaml` gives
+   `basis 13 / now 31 / ADDED 18 / removed none` — and the four documents now
+   say eighteen, with the measurement recorded beside the list in
+   `data-model.md` so the next reader does not have to re-derive it.
+2. **The verification result's rows were keyed by CHAIN, not by WITNESS.** A real
+   ambiguity: `configured_witnesses` carries no uniqueness constraint on
+   `chain_id`, and the per-chain entry's own `witness_id` exists precisely
+   because a realization may configure *"more than one witness against one
+   chain"*. Keyed on the chain alone, two such witnesses collapse into one row.
+   `witness_id` is now REQUIRED on the row — the shortfall arithmetic is already
+   keyed by it, so this is the family's key rather than a new one — and the
+   reader **compares it instead of trusting it**: the named witness must be in
+   the referenced receipt's committed configured set, its chain must be that
+   witness's chain, the profile named must be the one the committed block
+   snapshotted FOR THAT WITNESS, and two rows for one witness are refused. Two
+   new probes in the scenario tests hold both halves.
+
+**Codex: NON-REVIEW, recorded.** *"You have reached your Codex usage limits for
+code reviews"* — no findings were produced, and none are claimed.
+**Sourcery: upsell stub**, not a review.
+
 ## Red-first, measured
 
 With the amendment's eight check layers replaced by no-ops:

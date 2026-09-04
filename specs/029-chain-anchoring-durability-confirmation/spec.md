@@ -13,7 +13,7 @@ verbatim *"build the successor realization on 629's schemas"*
 
 ## What this feature is, and what it deliberately is not
 
-**IT IS A CONTRACT REALIZATION.** Six new record shapes, fourteen shared
+**IT IS A CONTRACT REALIZATION.** Six new record shapes, eighteen shared
 definitions, forty-eight further closed refusal codes, one REPLACED closed
 enumeration, a canonical reader that recomputes rather than believes, a packaged
 corpus in which every refusal has been seen to fire, and six manifest rows with

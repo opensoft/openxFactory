@@ -6,7 +6,7 @@ Kind: task list
 ## 1. Shapes
 
 - [x] 1.1 Six new record shapes under `contracts/chain-anchoring/`.
-- [x] 1.2 Fourteen shared `$defs` in `anchoring-definitions.schema.yaml`, one
+- [x] 1.2 Eighteen shared `$defs` in `anchoring-definitions.schema.yaml`, one
       definition per concept, taken by `$ref` everywhere they are used.
 - [x] 1.3 The closed refusal enumeration widened by 48, grouped and commented.
 - [x] 1.4 `witness_evidence_state` REPLACES the per-witness `status`

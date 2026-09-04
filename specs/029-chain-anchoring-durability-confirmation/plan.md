@@ -8,7 +8,7 @@ Kind: implementation plan
 Each step was pushed before the next began, so a termination mid-feature loses a
 step and never the feature.
 
-1. **Shapes.** Six new schemas; fourteen shared `$defs` in
+1. **Shapes.** Six new schemas; eighteen shared `$defs` in
    `anchoring-definitions.schema.yaml`; the refusal enumeration widened by 48;
    the per-witness `status` enumeration REPLACED, with the migration written
    into the `$def` itself; six subjects added to
