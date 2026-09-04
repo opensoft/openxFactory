@@ -162,7 +162,7 @@ identifies — the earliest first-parent commit on published main that declares
 the bundle and at which verify-commit passes — never edit the manifest, the
 changelog or the inventory to match the absence*. The gap it closes reached
 `contract-v1.33`/`v1.35`/`v1.39` in August and recurred on `contract-v2.3`
-and `contract-v2.4`; a human found it both times (issue #528).
+and `contract-v2.4`; a human found it both times (issue #528). Because it reads at the PUBLISHED tip, the family first asks whether that commit is in the local object store and FETCHES exactly it — bounded, at the distance window's depth, and `--depth` only where the clone is already shallow — before it will read a missing `contracts/manifest.yaml` as anything at all: a tip it holds that carries no manifest is answered as *no bundle declared*, and only a tip it could neither find nor fetch keeps the fail-closed *could not be read at the published tip* skip (issue #612, which had nine governed repositories reported in the second sentence's words every nightly while the first was true).
 
 The archived
 [`2026-09-03-declare-spent-bundle-state`](../openspec/changes/archive/2026-09-03-declare-spent-bundle-state/proposal.md)

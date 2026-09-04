@@ -1069,6 +1069,37 @@ def distance_from_tip(git, repo_path: Path, bundle: str, tip: str,
     return earliest_declaring
 
 
+def obtain_commit(git, repo_path: Path, sha: str, depth: int) -> bool:
+    """Whether `sha` is in this clone's object store, FETCHING IT IF IT IS NOT.
+
+    THE READ THIS PRECEDES CANNOT TELL "absent path" FROM "absent commit", so
+    the question is settled here, before the read, rather than guessed after it.
+    `blobs_at` answers per-path None for both, and every guard in this module
+    that turns that None into a skip has to name ONE of them — which is
+    openxFactory #612: on the aggregation nightly, nine repositories that carry
+    no `contracts/manifest.yaml` at all were reported, every night, as commits
+    the checkout had not fetched. The workflow's own "Fetch each governed
+    submodule's live origin/main" step had already put every one of those tips
+    in the store; the family simply could not see that it had.
+
+    THE FETCH IS THE OTHER HALF, and it is what makes the skip a LAST resort
+    instead of the ordinary outcome. A plain clone of a repository does not hold
+    the tip its origin advertises, and this family reads at the PUBLISHED tip by
+    design, so without this one bounded round trip it declines to judge any
+    repository whose `main` has moved since the last fetch. `depth` bounds the
+    history the fetch has to bring for the caller's own walk — the seam applies
+    it only where it is safe (see `RealGit.fetch_commit`).
+
+    Returns the presence fact, never raising: a fetch that fails leaves the
+    caller exactly where it was, holding a False it must report as a skip.
+    """
+    if git.commit_present(repo_path, sha):
+        return True
+    if not git.fetch_commit(repo_path, sha, depth):
+        return False
+    return git.commit_present(repo_path, sha)
+
+
 def _tag_state(git, repo_path: Path, bundle: str):
     """(kind, detail) for one bundle's published tag.
 
@@ -1082,6 +1113,12 @@ def _tag_state(git, repo_path: Path, bundle: str):
         return ("absent", None)
     if objecttype != "tag":
         return ("lightweight", None)
+    # THE SAME OBTAIN AT THE OTHER READ. A tag peels to a commit that is often
+    # OLDER than anything a shallow or freshly-advanced clone holds, and the
+    # guard below turns a missing one into "unlistable", which skips the WHOLE
+    # repository. Depth 1: only the peeled commit's own tree is read here, so
+    # there is no walk to fund.
+    obtain_commit(git, repo_path, peeled, 1)
     target = git.blobs_at(repo_path, peeled, [MANIFEST])
     if target is None or target.get(MANIFEST) is None:
         # Same conflation guarded at the other read: a tag peeling to a commit
@@ -1111,6 +1148,11 @@ def check_repo(repo: str, repo_path: Path, git,
     if tip is None:
         return Skip(FAMILY, f"{repo}: published main could not be resolved, so "
                             f"no landing distance can be counted")
+    # BEFORE THE READ, NOT AFTER IT. The window is the one `distance_from_tip`
+    # walks below, so a clone that has to fetch the tip fetches enough history
+    # to grade it in the same round trip instead of trading one skip for
+    # another.
+    tip_present = obtain_commit(git, repo_path, tip, threshold + 2)
     blobs = git.blobs_at(repo_path, tip, [MANIFEST, CHANGELOG])
     if blobs is None:
         # BOTH MEMBERS OF THE BATCH, NAMED. `blobs_at` collapses to None only
@@ -1123,18 +1165,41 @@ def check_repo(repo: str, repo_path: Path, git,
                             f"for {MANIFEST} or {CHANGELOG} — the whole batch "
                             f"read failed, so NEITHER document was obtained")
     manifest = blobs.get(MANIFEST)
-    if manifest is None:
+    if manifest is None and not tip_present:
         # NOT "no bundle declared". `blobs_at` answers None PER PATH for a blob
-        # it cannot read, and the commonest cause is that the published tip is
-        # not in the local object store — a clone that has not fetched it. This
-        # is the #338 conflation, and this family repeated it once before this
-        # line existed: it reported "no contract bundle declared" against a
-        # repository declaring contract-v2.5, because main had advanced past the
-        # last fetch. Not fetched is not an answer.
+        # it cannot read, and one cause is that the published tip is not in the
+        # local object store — a clone that has not fetched it. This is the #338
+        # conflation, and this family repeated it once before this line existed:
+        # it reported "no contract bundle declared" against a repository
+        # declaring contract-v2.5, because main had advanced past the last
+        # fetch. Not fetched is not an answer.
+        #
+        # THE ARM IS NOW GATED ON THE FACT INSTEAD OF ASSERTING IT. `obtain_commit`
+        # above asked whether the tip is present and fetched it where it was
+        # not, so reaching this line means the commit is GENUINELY unobtainable
+        # — which is the fail-closed case the ratified scenario describes and
+        # the only one that still deserves these words. It is REPORTED, never
+        # silent.
         return Skip(FAMILY, f"{repo}: {MANIFEST} could not be read at the "
                             f"published tip {tip[:9]} — the commit may not be "
                             f"present locally, which is not the same fact as "
-                            f"declaring no bundle")
+                            f"declaring no bundle; a bounded fetch of exactly "
+                            f"that commit was attempted and did not obtain it")
+    if manifest is None:
+        # THE FACT THE ARM ABOVE USED TO SWALLOW, openxFactory #612. The tip IS
+        # in this clone and it carries no manifest, so this is not a read that
+        # failed — it is an ANSWER, and the answer is the one the sibling family
+        # `release-inventory-drift` already gives these same repositories: no
+        # contract bundle is declared. Nine of the ten governed repositories on
+        # the aggregation nightly are in exactly this state (they carry no
+        # `contracts/` bundle surface at all), and every night they were told
+        # their tips were unfetched — sending anyone who read it to look for a
+        # fetch defect that the workflow's own fetch step had already ruled out.
+        # The presence is stated IN THE REASON so the two can never again be
+        # read as each other.
+        return Skip(FAMILY, f"{repo}: the published tip {tip[:9]} IS present in "
+                            f"this clone and carries no {MANIFEST}, so no "
+                            f"contract bundle is declared there")
     declared = parse_bundle(manifest)
     if declared is None:
         return Skip(FAMILY, f"{repo}: no contract bundle declared")

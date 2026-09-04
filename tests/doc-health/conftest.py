@@ -39,7 +39,8 @@ class FakeGit:
                  pins=None, remotes=None, heads=None, first_dates=None,
                  first_stamps=None, refs=None, ref_trees=None,
                  blobs=None, modes=None, git_unavailable=False,
-                 tag_refs=None, first_parents=None):
+                 tag_refs=None, first_parents=None,
+                 present_commits=None, fetchable=None):
         self.last_dates = last_dates or {}
         self.first_dates = first_dates or {}
         # add-promotion-fidelity-check: archive-commit order to SECOND
@@ -78,6 +79,12 @@ class FakeGit:
         self.blobs = blobs or {}
         self.modes = modes or {}
         self.git_unavailable = git_unavailable
+        # openxFactory #612: the local object store, and what `origin` would
+        # serve if asked for it. Sets rather than dicts because the only
+        # question either seam answers is membership.
+        self.present_commits = set(present_commits or ())
+        self.fetchable = set(fetchable or ())
+        self.fetch_calls: list[tuple[str, str, object]] = []
 
     def last_commit_date(self, repo: Path, relpath: str):
         return self.last_dates.get((repo.name, relpath))
@@ -128,6 +135,24 @@ class FakeGit:
 
     def head_sha(self, repo: Path):
         return self.heads.get(repo.name)
+
+    # openxFactory #612: the object-store seam. `blobs_at` above answers a
+    # per-path None for TWO facts — the path is absent at a commit we hold, and
+    # the commit is not here at all — so a caller that has to tell them apart
+    # asks these instead of guessing. The default is the pessimistic one:
+    # NOTHING is present and NOTHING is fetchable, so an existing test that
+    # declares no object store still reaches the fail-closed skip it was
+    # written for. `fetch_calls` records every attempt, which is how a test
+    # proves the fetch was NOT made.
+    def commit_present(self, repo: Path, sha: str) -> bool:
+        return sha in self.present_commits
+
+    def fetch_commit(self, repo: Path, sha: str, depth=None) -> bool:
+        self.fetch_calls.append((repo.name, sha, depth))
+        if sha in self.fetchable:
+            self.present_commits.add(sha)
+            return True
+        return False
 
     # add-release-inventory-drift-check: the release-surface readers.
     #

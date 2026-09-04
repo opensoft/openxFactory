@@ -53,12 +53,15 @@ there is deliberate and bounded — one redundant build, versus a hand-pinned
 plane left permanently unrefreshed.
 
 ONE REVISION, NOT TWO (`verify_one_revision`). The snapshot is generated from
-the SAME fresh checkout whose corpus roots are baked, so the snapshot's
+the SAME materialized corpus whose roots are baked, so the snapshot's
 `generation.source_revision` and the baked `/source` tree are one commit by
-construction rather than by an operator's care. The build asserts that equality
-before the image is built, so the two-revision trap is DETECTABLE rather than
-merely avoidable: an image whose snapshot names revision X over a corpus at
-revision Y publishes a freshness header the viewer cannot satisfy.
+construction rather than by an operator's care. The assertion is made where the
+build is — on the worker child, before the image exists — so the two-revision
+trap is DETECTABLE rather than merely avoidable: an image whose snapshot names
+revision X over a corpus at revision Y publishes a freshness header the viewer
+cannot satisfy. OF THAT RECIPE, THIS MODULE HOLDS ONLY THE PREDICATE
+(`verify_one_revision`) — never the generation, the build or the assertion's
+call site.
 
 `--strict` IS THE PUBLICATION GATE and it precedes the push. Zero errors AND
 zero warnings, and a validator that could not RUN fails too; a non-zero exit
@@ -72,10 +75,16 @@ failing must never take the run down either.
 WHAT THIS MODULE DELIBERATELY DOES NOT DO. It opens no pull request and pushes
 no branch. It RENDERS the pin (the rewritten overlay text plus a PR body) and
 the workflow step does the force-free branch delivery with the App token, the
-same division the report step uses. The build orchestration shells out to
-git/docker/az and is reachable only when the decision says build — the
-decision core is a pure function over three inputs and needs neither git nor
-docker to be tested.
+same division the report step uses. AND IT DOES NOT BUILD: it clones no
+repository, runs no container build and no registry login, and offers no CLI
+phase that would. The recipe lives in exactly ONE place — the worker child's
+own workflow — and the requirement this lane is ratified under prohibits the
+worker from holding a Git credential at all, so a second module-side
+realization of the recipe would contradict the contract even while
+unreachable. The decision core is a pure function over three inputs and needs
+neither git nor a container runtime to be tested; the build callable is
+INJECTED (`run_refresh_lane(build=...)`) and in production is only ever the
+`--phase pin` adapter over the digest record the child returned.
 """
 
 from __future__ import annotations
@@ -85,7 +94,6 @@ import base64
 import json
 import os
 import re
-import shlex
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -130,10 +138,7 @@ DEFAULT_CORPUS_REF = "origin/main"
 DEFAULT_RECIPE_REF = "main"
 DEFAULT_OVERLAY_PATH = "deploy/kubernetes/overlays/aks-qa/kustomization.yaml"
 DEFAULT_IMAGE = "acropensoftxfactoryqa.azurecr.io/ideation-dashboard"
-DEFAULT_REGISTRY = "acropensoftxfactoryqa.azurecr.io"
 DEFAULT_PIN_BRANCH = "bot/dox-dashboard-pin"
-DEFAULT_SNAPSHOT_RELPATH = "health/ideation-dashboard/openxFactory-snapshot.json"
-DEFAULT_REPOSITORY = "openxFactory"
 
 # Outcome classes (spec: "published-and-proposed, no-change, skipped, and
 # strict-validation failure"). `ok` IS the built-and-proposed case and always
@@ -642,6 +647,10 @@ def git_baked_input_revision(repo_dir, paths, *, ref: str = "HEAD",
 
 def git_head_revision(repo_dir, *, ref: str = "HEAD",
                       runner=subprocess_runner) -> str | None:
+    """The HEAD of a checkout the caller ALREADY HAS — a plain `rev-parse`
+    read, never a fetch and never a clone. Kept as part of the module's read
+    layer beside the two baked-input readers: the retired build recipe was one
+    caller, not its reason to exist."""
     result = runner(["git", "-C", str(repo_dir), "rev-parse", ref])
     if not result.ok:
         return None
@@ -761,8 +770,8 @@ def read_current_inputs(
 
 
 # --------------------------------------------------------------------------
-# The build. Reachable ONLY when the decision says build, and only on the
-# worker: it shells out to git, docker and az.
+# The one-revision predicate, and the shape a build's result comes back in.
+# The build itself lives on the worker child, in the child's own workflow.
 # --------------------------------------------------------------------------
 
 class OneRevisionViolation(Exception):
@@ -794,24 +803,10 @@ def verify_one_revision(snapshot_source_revision: str | None,
 
 
 @dataclass
-class BuildPlan:
-    """Everything the worker-side build needs, and nothing it must not have:
-    no repository credential, no kubeconfig, no cluster reference."""
-    context_root: Path
-    dockerfile: Path
-    corpus_url: str
-    corpus_ref: str = "main"
-    corpus_paths: tuple[str, ...] = CORPUS_BAKED_PATHS
-    registry: str = DEFAULT_REGISTRY
-    image: str = DEFAULT_IMAGE
-    tag: str | None = None
-    repository: str = DEFAULT_REPOSITORY
-    snapshot_relpath: str = DEFAULT_SNAPSHOT_RELPATH
-    acr_login: bool = False
-
-
-@dataclass
 class BuildResult:
+    """What a build RETURNS — read back by `--phase pin` from the digest
+    record the worker child produced. This module never creates one from a
+    build of its own, because it performs none."""
     ok: bool
     reason: str | None = None
     strict_failed: bool = False
@@ -820,139 +815,6 @@ class BuildResult:
     source_revision: str | None = None
     corpus_revision: str | None = None
     detail: list[str] = field(default_factory=list)
-
-
-def default_tag(now: datetime | None = None) -> str:
-    stamp = (now or datetime.now(timezone.utc)).strftime("%Y%m%d-%H%M%S")
-    return f"refresh-{stamp}"
-
-
-def build_and_push(plan: BuildPlan, *, runner=subprocess_runner) -> BuildResult:
-    """The fresh-checkout recipe: sparse clone → `--strict` generation from THAT
-    checkout → one-revision assertion → docker build → tag → push → digest.
-
-    Ordering is the contract. `--strict` precedes the push, so a rejected
-    snapshot means no tag, no image, no digest and nothing to propose; the
-    one-revision assertion precedes the build, so a two-revision image cannot
-    be produced at all.
-
-    The clone is SPARSE over exactly the paths the Dockerfile copies: the
-    governed corpus roots are ~8 MB and `experiments/` is 169 MB, so a whole-
-    checkout context would ship 169 MB to the daemon for nothing. Full commit
-    history is kept (blobless) because the baked-input revision is a
-    path-scoped `git log`, which a depth-1 clone cannot answer."""
-    detail: list[str] = []
-
-    def _fail(reason: str, *, strict: bool = False) -> BuildResult:
-        return BuildResult(False, reason, strict_failed=strict, detail=detail[:DETAIL_CAP])
-
-    def _step(argv, *, cwd=None, env=None, label: str) -> CommandResult:
-        result = runner(argv, cwd=cwd, env=env)
-        detail.append(f"$ {' '.join(shlex.quote(str(a)) for a in argv)} -> "
-                      f"{result.returncode}")
-        if not result.ok:
-            for line in (result.stderr or result.stdout or "").splitlines()[:10]:
-                detail.append(f"    {line.rstrip()}")
-        return result
-
-    context = Path(plan.context_root)
-    checkout = context / "openxFactory"
-    snapshot_out = context / plan.snapshot_relpath
-    try:
-        snapshot_out.parent.mkdir(parents=True, exist_ok=True)
-    except OSError as exc:
-        return _fail(f"cannot prepare the build context: {exc}")
-
-    # 1. FRESH checkout of the corpus at its own `main` — never the
-    #    aggregation's submodule pin, which is exactly the staleness this lane
-    #    exists to remove.
-    clone = _step(["git", "clone", "--filter=blob:none", "--no-checkout",
-                   "--branch", plan.corpus_ref, plan.corpus_url, str(checkout)],
-                  label="clone")
-    if not clone.ok:
-        return _fail("fresh corpus checkout failed")
-    for argv in (["git", "-C", str(checkout), "sparse-checkout", "init", "--cone"],
-                 ["git", "-C", str(checkout), "sparse-checkout", "set",
-                  *plan.corpus_paths],
-                 ["git", "-C", str(checkout), "checkout", plan.corpus_ref]):
-        result = _step(argv, label="sparse")
-        if not result.ok:
-            return _fail("fresh corpus checkout failed (sparse)")
-
-    head = git_head_revision(checkout, runner=runner)
-    corpus_revision = git_baked_input_revision(checkout, plan.corpus_paths,
-                                               runner=runner)
-
-    # 2. `--strict` generation FROM THAT CHECKOUT — the publication gate.
-    env = dict(os.environ)
-    env["PYTHONPATH"] = "scripts"
-    generate = _step([sys.executable, "-m", "ideation_dashboard.cli", "generate",
-                      "--repo-root", ".", "--repository", plan.repository,
-                      "--strict", "--output", str(snapshot_out)],
-                     cwd=checkout, env=env, label="generate")
-    if not generate.ok:
-        for line in (generate.stdout or "").splitlines()[-20:]:
-            detail.append(line.rstrip())
-        for line in (generate.stderr or "").splitlines()[-20:]:
-            detail.append(line.rstrip())
-        return _fail("snapshot generation failed under --strict — nothing "
-                     "published (no tag, no push, no digest, no pull request)",
-                     strict=True)
-
-    # 3. ONE REVISION, asserted before the image exists.
-    try:
-        snapshot = json.loads(snapshot_out.read_text(encoding="utf-8"))
-        source_revision = ((snapshot.get("generation") or {})
-                           .get("source_revision"))
-    except (OSError, json.JSONDecodeError, AttributeError) as exc:
-        return _fail(f"cannot read the generated snapshot: {exc}", strict=True)
-    try:
-        verify_one_revision(source_revision, head)
-    except OneRevisionViolation as exc:
-        return _fail(f"one-revision assertion failed: {exc}")
-
-    # 4. docker build from the served plane's own Dockerfile at ITS main.
-    tag = plan.tag or default_tag()
-    reference = f"{plan.image}:{tag}"
-    build = _step(["docker", "build", "-f", str(plan.dockerfile),
-                   "-t", reference, str(context)], label="build")
-    if not build.ok:
-        return _fail("docker build failed")
-
-    # 5. Push, and capture the digest the pin will carry. The registry
-    #    credential is HOST substrate reconciled onto the worker host — never
-    #    fetched or read here, never baked into the image, never logged.
-    if plan.acr_login:
-        registry_name = plan.registry.split(".", 1)[0]
-        login = _step(["az", "acr", "login", "--name", registry_name],
-                      label="acr-login")
-        if not login.ok:
-            return _fail("az acr login failed")
-    push = _step(["docker", "push", reference], label="push")
-    if not push.ok:
-        return _fail("docker push failed")
-    digest = _digest_from_push(push.stdout) or _digest_from_inspect(
-        reference, runner=runner)
-    if not digest:
-        return _fail("the pushed image's digest could not be captured")
-    return BuildResult(True, None, digest=digest, tag=tag,
-                       source_revision=source_revision,
-                       corpus_revision=corpus_revision,
-                       detail=detail[:DETAIL_CAP])
-
-
-def _digest_from_push(stdout: str) -> str | None:
-    match = re.search(r"digest:\s*(sha256:[0-9a-f]{64})", stdout or "")
-    return match.group(1) if match else None
-
-
-def _digest_from_inspect(reference: str, *, runner=subprocess_runner) -> str | None:
-    result = runner(["docker", "image", "inspect", "--format",
-                     "{{index .RepoDigests 0}}", reference])
-    if not result.ok:
-        return None
-    match = re.search(r"(sha256:[0-9a-f]{64})", result.stdout or "")
-    return match.group(1) if match else None
 
 
 # --------------------------------------------------------------------------
@@ -1238,7 +1100,7 @@ def run_refresh_lane(
     inputs: CurrentInputs | None = None,
     read_inputs=None,
     build=None,
-    build_plan: BuildPlan | None = None,
+    build_plan: object | None = None,
     pin_out: Path | str | None = None,
     run_url: str | None = None,
     skip_reason: str | None = None,
@@ -1251,7 +1113,9 @@ def run_refresh_lane(
     by `decision.build`. On a no-change night it is never called, so the tests
     can assert the absence of a checkout, a generation, a build and a push
     rather than merely the absence of a pull request — an outcome-only
-    assertion passes even when the build ran.
+    assertion passes even when the build ran. `build_plan` is an OPAQUE handle
+    handed straight to that callable: this module neither constructs nor
+    interprets one, because it holds no build recipe.
 
     Never raises. `skip_reason` is the readiness verdict handed down by the
     workflow: an unready worker skips before any input is read, and there is
@@ -1363,26 +1227,32 @@ def run_refresh_lane(
 
 
 # --------------------------------------------------------------------------
-# CLI. Two phases, because the decision belongs to the parent (before it
-# dispatches anything) and the build belongs to the worker.
+# CLI. The PARENT's phases only — decide, pin, report, record-pr. The build
+# belongs to the worker child and lives in the child's own workflow; no phase
+# here clones a repository, builds an image or pushes one.
 # --------------------------------------------------------------------------
 
 def main(argv: list[str] | None = None) -> None:
-    """CLI entry. Void by contract, like the snapshot lane's: every path —
-    including a total failure, reported as SKIPPED — falls through and the
-    process exits 0, so the deterministic doc-health results and the delivered
-    report are never affected."""
+    """CLI entry. Void by contract, like the snapshot lane's, but only for a
+    VALID phase: every path through the lane's own logic for `decide`, `pin`,
+    `report` or `record-pr` — including a total failure, reported as SKIPPED —
+    falls through and the process exits 0, so the deterministic doc-health
+    results and the delivered report are never affected. A phase argparse
+    itself refuses — an unknown value, including the retired `build` — is a
+    USAGE error: argparse prints the fixed choice set and exits non-zero
+    (`SystemExit(2)`) before any lane logic runs. That exit code is
+    deliberately outside this contract; a workflow still spelling `--phase
+    build` should fail loudly, not be swallowed into a silent no-op."""
     ap = argparse.ArgumentParser(
         prog="dashboard-refresh-nightly", description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--repo-root", required=True,
                     help="the aggregation checkout root (where health/ lives)")
     ap.add_argument("--phase",
-                    choices=("decide", "build", "pin", "report", "record-pr"),
+                    choices=("decide", "pin", "report", "record-pr"),
                     default="decide",
                     help="decide: the input-revision check only (the parent's "
-                         "pre-dispatch gate). build: the worker's fresh "
-                         "checkout + --strict generation + docker build + push. "
+                         "pre-dispatch gate). "
                          "pin: render the pin proposal from the worker child's "
                          "returned digest (--digest-in) — this module writes "
                          "files and never pushes a branch. "
@@ -1392,25 +1262,19 @@ def main(argv: list[str] | None = None) -> None:
                          "record-pr: patch the pin pull request's reference onto "
                          "the status artifact the pin phase just wrote, once the "
                          "workflow's cross-repo branch delivery knows it "
-                         "(--pull-request); best-effort, never fails the run")
+                         "(--pull-request); best-effort, never fails the run. "
+                         "There is deliberately NO build phase: the fresh "
+                         "materialization, the build and the push belong to "
+                         "the worker child, and this module clones nothing.")
     ap.add_argument("--out-dir", default=DEFAULT_OUT_DIR)
     ap.add_argument("--image", default=DEFAULT_IMAGE)
     ap.add_argument("--corpus-checkout", default="openxFactory",
                     help="local corpus checkout, relative to --repo-root")
     ap.add_argument("--corpus-repo", default=DEFAULT_CORPUS_REPO)
     ap.add_argument("--corpus-ref", default=DEFAULT_CORPUS_REF)
-    ap.add_argument("--corpus-url", default=None,
-                    help="clone URL for the FRESH corpus checkout (build phase)")
     ap.add_argument("--recipe-repo", default=DEFAULT_RECIPE_REPO)
     ap.add_argument("--recipe-ref", default=DEFAULT_RECIPE_REF)
     ap.add_argument("--overlay-path", default=DEFAULT_OVERLAY_PATH)
-    ap.add_argument("--registry", default=DEFAULT_REGISTRY)
-    ap.add_argument("--dockerfile", default=None,
-                    help="the served plane's Dockerfile at ITS main (build phase)")
-    ap.add_argument("--context-root", default=None,
-                    help="scratch build context (build phase)")
-    ap.add_argument("--tag", default=None)
-    ap.add_argument("--acr-login", action="store_true")
     ap.add_argument("--pin-out", default=None,
                     help="directory to render the pin proposal into (the "
                          "rewritten overlay + the PR body); the workflow does "
@@ -1473,7 +1337,6 @@ def main(argv: list[str] | None = None) -> None:
             image=args.image)
 
     build = None
-    plan = None
     if args.phase == "pin":
         # The worker child built and pushed; its ONLY result is the digest.
         # Re-running the decision here is deliberate and cheap: the pin must
@@ -1494,25 +1357,11 @@ def main(argv: list[str] | None = None) -> None:
         def build(plan=None, _result=result):  # noqa: ARG001 — signature parity
             return _result
 
-    if args.phase == "build":
-        if not (args.dockerfile and args.context_root and args.corpus_url):
-            print(f"{LANE}: SKIPPED — the build phase needs --dockerfile, "
-                  "--context-root and --corpus-url")
-            return
-        plan = BuildPlan(
-            context_root=Path(args.context_root), dockerfile=Path(args.dockerfile),
-            corpus_url=args.corpus_url,
-            corpus_ref=args.corpus_ref.split("/", 1)[-1] if "/" in args.corpus_ref
-            else args.corpus_ref,
-            registry=args.registry, image=args.image, tag=args.tag,
-            acr_login=args.acr_login)
-        build = build_and_push
-
     outcome = run_refresh_lane(
         repo_root, out_dir=args.out_dir, image=args.image,
         corpus_repo=args.corpus_repo, recipe_repo=args.recipe_repo,
         overlay_path=args.overlay_path, read_inputs=_read, build=build,
-        build_plan=plan, pin_out=args.pin_out, run_url=args.run_url,
+        pin_out=args.pin_out, run_url=args.run_url,
         skip_reason=args.skip_reason)
 
     print(outcome.annotation())
