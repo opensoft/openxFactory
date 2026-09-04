@@ -756,7 +756,7 @@ PIN_CLASS: tuple[PinMember, ...] = (
              "STANDARD'S commit. It does not resolve in this repository and "
              "must not be reported as an orphan; openRepoShape answers for it, "
              "and locally `scripts/validate-openreposhape-pin.py` recomputes "
-             "the sixteen digested members against the real bytes at that "
+             "the digested members against the real bytes at that "
              "commit, asserts every path-only member is present, and asserts "
              "SURFACE COMPLETENESS — a file at the pinned commit named by "
              "neither list is refused. That verifier is a stronger reachability "
