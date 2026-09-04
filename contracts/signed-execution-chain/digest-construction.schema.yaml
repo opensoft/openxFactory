@@ -146,6 +146,49 @@ description: >-
     gate leaf's. The block, not the leaf: the leaf's own digest is
     `transparency_log_leaf`, and the two are different subjects over different
     bytes.
+
+  AND TAKEN AGAIN, SIX MORE TIMES, BY THE AMENDMENT THAT GAVE `chain-anchoring` A
+  DURABILITY PROFILE (`amend-chain-anchoring-readiness-and-durability`,
+  requirements 2 and 3). Its fixed-UTC batch is a Merkle construction and two
+  append-only registries, so it computes digests over things no prior subject
+  names — and every one of them is `xfc-jcs-sha256-1` under this file, taken by
+  `$ref`, with its subject added below. NOT ONE OF THE SIX IS A SECOND
+  CONSTRUCTION, and none of them re-subjects an existing digest: the daily
+  manifest keeps `anchor_material`, because to the receipt it IS the anchored
+  material, and the configuration-bound value over it keeps
+  `anchored_commitment`.
+
+  * `confirmation_profile_terms` — the TERMS of one confirmation profile as the
+    operator approved them, and the value an append-only registry entry binds as
+    that version's canonical digest. Over the TERMS and never over the whole
+    profile record, so an editorial note beside them cannot silently move the
+    digest a receipt was minted against.
+  * `durability_eligibility_terms` — the TERMS of one eligibility-registry entry:
+    the enumerated neutral event kinds this profile counts. Same shape of
+    reasoning as the confirmation terms, and a DISTINCT subject because the two
+    registries answer different questions and a digest over both would make them
+    indistinguishable to anything that compares them.
+  * `daily_merkle_construction` — the immutable released daily-Merkle
+    construction: canonical leaf encoding, hash algorithm, the two
+    domain-separation strings, ordering, tree shape, odd-node handling, and the
+    deterministic empty root, as one JSON value. Every admission and every
+    manifest binds this digest, which is what makes "the profile was substituted"
+    a checkable claim rather than a worry.
+  * `durability_event_leaf` — ONE accepted event's canonical leaf under that
+    construction. The subject is the LEAF and not the event: what a domain's
+    event is remains the domain's, and this family counts leaves.
+  * `daily_batch_node` — an INTERNAL node of one window's ordered batch tree, the
+    value a membership path carries as a sibling. Distinct from the leaf subject
+    because the construction domain-separates the two, and a path element that
+    could be read as either would defeat that separation at the one place it
+    matters.
+  * `daily_batch_root` — the ROOT of one window's ordered batch tree, including
+    the deterministic empty root a count-zero window emits. Named separately from
+    the internal node it is topologically because the manifest binds the ROOT and
+    a verifier recomputes exactly it, and because two consecutive empty windows
+    share this value on purpose — which is precisely why the manifest's
+    continuity link is over the previous item's `anchored_digest` and never over
+    this.
 type: object
 $defs:
   identifier:
@@ -223,6 +266,21 @@ $defs:
       # a widening nothing exercises. It is added by the tranche that first
       # produces one, under this same construction.
       - sealed_bundle_manifest
+      # ADDED BY `amend-chain-anchoring-readiness-and-durability` (ratified
+      # 2026-09-04, requirements 2 and 3; realized against the schemas
+      # `add-chain-anchoring` landed) — SIX SUBJECTS, NO SECOND CONSTRUCTION,
+      # the movement this file's header sanctions and the third tranche to take
+      # it. The description above says what each is taken over. The amendment's
+      # own text is what forces them: its proof chain names distinct,
+      # "mechanically recomputable" nodes, and a node whose subject this
+      # enumeration refuses is a node no conforming record can carry, which
+      # would leave requirement 2 UNREALIZABLE as written.
+      - confirmation_profile_terms
+      - durability_eligibility_terms
+      - daily_merkle_construction
+      - durability_event_leaf
+      - daily_batch_node
+      - daily_batch_root
   digest:
     type: object
     required: [construction, subject, value]

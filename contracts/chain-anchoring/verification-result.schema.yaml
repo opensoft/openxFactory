@@ -120,6 +120,71 @@ properties:
         # were excluded is how a reader tells "no eligible base" from "no
         # witnesses at all".
         type: boolean
+  confirmation_profiles_evaluated_under:
+    # THE PROFILES THIS ANSWER WAS REACHED UNDER, NAMED — one row per WITNESS
+    # whose evidence the result relied on
+    # (`amend-chain-anchoring-readiness-and-durability`: *"every confirmed
+    # receipt entry and verification result SHALL name the profile under which it
+    # was evaluated"*). A result that reports `anchor_complete` without naming
+    # them is refused (`witness_confirmed_without_named_profile`), because a
+    # completeness answer whose confirmation rule is unstated cannot be re-checked
+    # by the party it is shown to.
+    #
+    # TWO ANSWERS PER ROW, AND KEEPING THEM APART IS THE POINT. `as_of_token` is
+    # the IMMUTABLE evidence the receipt already carries — what was proven, under
+    # which version, at which activation checkpoint — and it does not change when
+    # policy does. `current_standing` is what the registry says TODAY. A
+    # historical receipt that proved confirmation under a since-retired profile
+    # keeps its as-of result AND is reported `profile_retired`; overwriting the
+    # token with the current standing is refused
+    # (`confirmation_profile_standing_rewrites_historical_receipt`), and so is
+    # admitting a NEW long-horizon claim from that profile
+    # (`confirmation_profile_retired_or_compromised_mints_receipt`). Each of
+    # those is the other's overcorrection.
+    type: array
+    minItems: 0
+    items:
+      type: object
+      required: [witness_id, chain_id, profile_id, version, canonical_digest,
+                 as_of_token, current_standing]
+      additionalProperties: false
+      properties:
+        witness_id:
+          # THE WITNESS THIS ROW IS ABOUT, AND THE CHAIN IS NOT ENOUGH TO SAY IT.
+          # `configured_witnesses` carries no uniqueness constraint on
+          # `chain_id`, and the per-chain entry's own `witness_id` exists for
+          # exactly that reason — *"where the realization configures more than
+          # one witness against one chain"*. Keyed on the chain alone, two
+          # witnesses on one chain collapse into one row and a reader cannot
+          # tell WHICH pairing was evaluated; the shortfall arithmetic is
+          # already keyed by `witness_id`, so this is the family's key and not
+          # a new one.
+          #
+          # THE READER COMPARES IT rather than trusting it: where the referenced
+          # receipt travels with the result, the named witness must be in that
+          # receipt's committed configured set, its chain must be that witness's
+          # chain, and the profile named here must be the one the committed
+          # block snapshotted FOR THAT WITNESS. A row that names a witness the
+          # receipt does not configure, or a profile that witness was not
+          # evaluated under, is refused
+          # (`witness_confirmed_without_named_profile`) — it names a rule
+          # nobody applied.
+          $ref: '#/$defs/identifier'
+        chain_id: {$ref: '#/$defs/chain_id'}
+        profile_id: {$ref: '#/$defs/identifier'}
+        version: {type: integer, minimum: 1}
+        canonical_digest:
+          allOf:
+            - {$ref: '#/$defs/digest'}
+            - properties: {subject: {const: confirmation_profile_terms}}
+              required: [subject]
+        as_of_token: {$ref: '#/$defs/profile_as_of_token'}
+        current_standing: {$ref: '#/$defs/profile_standing_report'}
+        new_claim_admitted:
+          # WHETHER THIS VERIFICATION ADMITTED A NEW LONG-HORIZON CLAIM FROM
+          # THIS PROFILE. Writable beside a retired or compromised standing on
+          # purpose: the refusal has to be able to fire on a record that says it.
+          type: boolean
   witness_shortfall:
     # THE SHORTFALL IS ARITHMETIC AND THE ARITHMETIC IS CHECKED. `missing` must
     # be exactly `configured` minus `present`; a record whose three lists do not
@@ -258,8 +323,14 @@ properties:
   record_version: {type: integer, minimum: 1}
   notes: {type: string, maxLength: 1400}
 $defs:
+  profile_as_of_token:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/profile_as_of_token"
+  profile_standing_report:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/profile_standing_report"
   identifier:
     $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"
   chain_id:
     $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/chain_id"
   duration_seconds:

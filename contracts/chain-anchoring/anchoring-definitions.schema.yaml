@@ -30,6 +30,19 @@ description: >-
   values a reader has to reconcile, and a reconciliation is where a direction
   error hides. One unit, one type, no per-record spelling.
 
+  THIS FILE WAS WIDENED ONCE, BY THE AMENDMENT THAT GAVE THIS CAPABILITY A
+  DURABILITY PROFILE (`amend-chain-anchoring-readiness-and-durability`,
+  requirements 2 and 3, ratified 2026-09-04 by Brett Heap, repository owner,
+  in session, verbatim *"ratify 2 and 3"*; record
+  `openspec/changes/amend-chain-anchoring-readiness-and-durability/review/ratification-2026-09-04.md`).
+  IT ADDED DEFINITIONS AND CODES AND REPLACED EXACTLY ONE ENUMERATION — the
+  per-witness evidence state, whose own `$def` below carries the migration —
+  and it declared no second construction, no second registry discipline and no
+  second spelling of a window. The widening is legal as a REPLACEMENT rather
+  than an addition only because this family has never shipped in a tagged
+  bundle; `witness_evidence_state` states that measurement where a consumer
+  reading the enumeration will find it.
+
   THE ENUMERATIONS BELOW CAN SAY THE WRONG THING ON PURPOSE. A restriction this
   capability places on a value a record DECLARES — a custody reference that
   resolves onto a chain, a salt drawn from a non-cryptographic source, a witness
@@ -243,6 +256,384 @@ $defs:
     type: string
     enum: [anchor_refused, capture_irrecoverable, target_withdrawn]
 
+  # ======================================================================
+  # THE DURABILITY PROFILE'S SHARED VOCABULARY
+  # (`amend-chain-anchoring-readiness-and-durability`, requirements 2 and 3,
+  # ratified 2026-09-04). SAME RULE AS EVERYTHING ABOVE: one definition per
+  # concept, declared here and taken by `$ref`, because the amendment's two
+  # requirements share an append-only-registry discipline and a window model,
+  # and two spellings of either is the drift this file exists to prevent.
+  #
+  # THE TWO REGISTRIES SHARE AN ENTRY DISCIPLINE AND NOT AN ENTRY SHAPE. Both
+  # bind a version, a canonical digest, an approval, a predecessor, an
+  # activation checkpoint, a half-open effective interval and a standing — so
+  # those seven are defined ONCE here — but their SUBSTANCE differs (which event
+  # kinds are counted, versus what distinguishes submitted from confirmed), and
+  # a single entry shape over both would make the two registries
+  # indistinguishable to anything that compares them.
+  # ======================================================================
+
+  registry_standing:
+    # THE THREE STANDINGS, CLOSED. `retired` is a version that has been
+    # superseded and whose historical receipts remain valid as-of evidence;
+    # `compromised` is a version whose evidence is no longer trusted going
+    # forward. NEITHER REWRITES A HISTORICAL RECEIPT — that is the whole point
+    # of separating standing from the as-of result — and neither may mint a new
+    # receipt or support a new long-horizon claim
+    # (`confirmation_profile_retired_or_compromised_mints_receipt`).
+    type: string
+    enum: [active, retired, compromised]
+
+  approval_record:
+    # AN OPERATOR APPROVAL, POINTED AT RATHER THAN ASSERTED. The amendment
+    # requires the operator to APPROVE each profile version before any schema or
+    # validator rests on it, so the record names WHO approved, WHEN, and the
+    # record the approval lives in.
+    #
+    # `approved_by` CAN NAME THE REFUSED VALUES ON PURPOSE. Only `operator`
+    # satisfies the requirement; `implementer` and `unattributed` are the two
+    # ways an approval is claimed without being made, and a shape that could not
+    # say them could not carry the negative example that proves
+    # `confirmation_profile_not_operator_approved` fires. The rule is this
+    # file's own, carried unchanged: shapes this family OWNS are made
+    # unrepresentable, restrictions it imposes on a DECLARED value are refused
+    # by name.
+    type: object
+    required: [approval_id, approved_by, approved_on, approval_record_ref]
+    additionalProperties: false
+    properties:
+      approval_id: {$ref: '#/$defs/identifier'}
+      approved_by:
+        type: string
+        enum: [operator, implementer, unattributed]
+      approved_on: {type: string, format: date}
+      approval_record_ref: {$ref: '#/$defs/identifier'}
+      decision_statement: {type: string, maxLength: 600}
+
+  activation_checkpoint:
+    # WHERE IN THE SIGNED LOG A REGISTRY VERSION BECAME EFFECTIVE. A version
+    # activated "on a date" is a version two readers can disagree about; a
+    # version activated at a LOG SEQUENCE inside a named CHECKPOINT is one they
+    # cannot. This is what makes rollback (`eligibility_snapshot_rolled_back`,
+    # `confirmation_profile_snapshot_rolled_back`) a comparison rather than an
+    # argument: the greatest activation checkpoint covering a boundary wins, and
+    # offering an earlier one is refused by name.
+    type: object
+    required: [log_sequence, checkpoint_ref]
+    additionalProperties: false
+    properties:
+      log_sequence: {type: integer, minimum: 0}
+      checkpoint_ref: {$ref: '#/$defs/identifier'}
+      checkpoint_tree_size: {type: integer, minimum: 0}
+      checkpoint_root: {$ref: '#/$defs/digest'}
+
+  effective_window_interval:
+    # HALF-OPEN, IN UTC WINDOW OPENS, AND THE HALF-OPENNESS IS THE POINT. An
+    # interval closed at both ends puts a boundary in two entries at once, which
+    # is exactly the ambiguous denominator
+    # (`eligibility_boundary_selection_ambiguous`) the amendment refuses. An
+    # absent `until_window_open` is an interval still open — the state of the one
+    # active entry — and never an interval with no end.
+    type: object
+    required: [from_window_open]
+    additionalProperties: false
+    properties:
+      from_window_open: {type: string, format: date-time}
+      until_window_open: {type: string, format: date-time}
+
+  registry_append_only_declaration:
+    # APPEND-ONLY IS A PROPERTY OF THE REGISTRY AND IT IS DECLARED HERE. A
+    # registry cannot prove its own history from one snapshot, so it DECLARES
+    # the discipline and names the signature over it; `history_rewritten` is
+    # WRITABLE so `registry_history_rewritten` has a negative example to fire
+    # on, and a registry that says its history was rewritten is refused rather
+    # than believed to have meant something else.
+    type: object
+    required: [append_only, history_rewritten]
+    additionalProperties: false
+    properties:
+      append_only: {type: boolean}
+      history_rewritten: {type: boolean}
+      signature_ref: {$ref: '#/$defs/identifier'}
+
+  witness_evidence_state:
+    # THE PER-WITNESS EVIDENCE STATE, AND IT REPLACES THE THREE-MEMBER
+    # `[in_flight, landed, terminally_failed]` OF THE BASIS REALIZATION.
+    #
+    # WHY THE OLD ENUMERATION COULD NOT BE WIDENED IN PLACE. `in_flight`
+    # CONFLATED two facts the amendment requires be distinct: a witness with NO
+    # accepted submission evidence and a witness whose submission WAS accepted
+    # but whose approved confirmation condition is not yet satisfied. One word
+    # for both is what lets interface acceptance be read as progress toward
+    # confirmation, which is the defect requirement 3 exists to close. So
+    # `in_flight` is RETIRED and split into `pending` and `submitted`, and
+    # `landed` is RENAMED `confirmed` because the amendment binds it to an
+    # approved profile's objective condition rather than to a word.
+    #
+    # THE MIGRATION, STATED SO A CONSUMER CAN PERFORM IT:
+    #   * `in_flight`         -> `pending` where no submission evidence was
+    #                            accepted, `submitted` where it was. THE SPLIT
+    #                            CANNOT BE DONE MECHANICALLY from the old value
+    #                            alone, which is the measure of how much the old
+    #                            value was hiding.
+    #   * `landed`            -> `confirmed`, and only where the row also names
+    #                            the profile it was confirmed under.
+    #   * `terminally_failed` -> CARRIED UNCHANGED, same meaning, same ground set.
+    #   * `invalid`, `unevaluable` -> NEW, and required by requirement 3's own
+    #                            refusal scenario: when confirmation is refused
+    #                            the verifier must report "the actual submitted,
+    #                            pending, invalid, or unevaluable state", and a
+    #                            vocabulary with no word for the last two forces
+    #                            a wrong answer.
+    #
+    # `pending` IS RESERVED, NOT DEFAULT. It means no accepted submission
+    # evidence exists; using it where submission evidence does exist is refused
+    # (`witness_pending_with_submission_evidence`), because a row that
+    # under-reports is as much a wrong answer as one that over-reports.
+    #
+    # THIS ENUMERATION IS SAFE TO REPLACE RATHER THAN WIDEN because
+    # `contracts/chain-anchoring/` has never shipped in a tagged bundle: the
+    # `contract-v3.3` tag predates the basis realization, and
+    # `contracts/releases/contract-v3.3.digests.yaml` carries no row for any
+    # file in this family. A closed enumeration is free to change before
+    # publication and a compatibility break after it, which is why this
+    # amendment's realization is ordered BEFORE the next cut and not after.
+    type: string
+    enum: [pending, submitted, confirmed, invalid, unevaluable, terminally_failed]
+
+  profile_as_of_token:
+    # THE IMMUTABLE AS-OF EVIDENCE A RECEIPT KEEPS FOREVER. The amendment names
+    # its spelling in its own text — *"Prior receipts retain immutable as-of
+    # evidence such as `confirmed_under_<version>_at_<checkpoint>`"* — so the
+    # pattern is pinned rather than left to a realization: a token a reader
+    # cannot parse is a token a reader cannot compare against the registry entry
+    # it claims to name, and the comparison is the whole point.
+    #
+    # IT CARRIES A VERSION AND A CHECKPOINT AND NEVER A STANDING. A standing is a
+    # fact about NOW and belongs to a current verification's report; folding one
+    # into this token is what would let current standing rewrite a historical
+    # receipt (`confirmation_profile_standing_rewrites_historical_receipt`),
+    # which the amendment refuses in both directions.
+    type: string
+    minLength: 20
+    maxLength: 300
+    pattern: '^confirmed_under_v[1-9][0-9]{0,8}_at_[A-Za-z0-9][A-Za-z0-9._:/-]{0,199}$'
+
+  profile_standing_report:
+    # WHAT A CURRENT VERIFICATION REPORTS ABOUT THE PROFILE A HISTORICAL RECEIPT
+    # WAS EVALUATED UNDER. It is a SECOND answer beside the immutable as-of
+    # result and never a replacement for it: a receipt that proved confirmation
+    # under a then-active profile keeps that result forever, and current standing
+    # is reported alongside so a consumer can tell "was confirmed" from "is still
+    # a basis for a new claim".
+    type: string
+    enum:
+      - profile_active
+      - profile_retired
+      - profile_compromised
+      - profile_unknown
+      - profile_digest_mismatch
+
+  confirmation_profile_snapshot:
+    # THE PROFILE ONE WINDOW SNAPSHOTTED FOR ONE WITNESS, AND EVERY MEMBER OF IT
+    # IS A VALUE A RECEIPT-ONLY VERIFICATION READS — which is why this shape
+    # sits INSIDE the receipt's committed mint-time configuration block and is
+    # bound by the anchored digest. A snapshot a holder could edit while every
+    # inclusion proof still validated is not an input to a fail-closed decision.
+    type: object
+    required: [chain_id, profile_id, version, canonical_digest, activation, standing]
+    additionalProperties: false
+    properties:
+      chain_id: {$ref: '#/$defs/chain_id'}
+      profile_id: {$ref: '#/$defs/identifier'}
+      version: {type: integer, minimum: 1}
+      canonical_digest:
+        # THE DIGEST OF THE APPROVED TERMS, AND ITS NAME AVOIDS THE WORD
+        # `content` DELIBERATELY. The amendment calls this the "canonical
+        # content digest"; this family's structural payload sweep refuses ANY
+        # member whose NAME carries a content-bearing token, and that sweep is
+        # blind to what the content is about ON PURPOSE. Earning an exemption
+        # for a legitimately-named digest would weaken a structural refusal to
+        # buy a spelling, so the spelling gives way instead.
+        allOf:
+          - {$ref: '#/$defs/digest'}
+          - properties: {subject: {const: confirmation_profile_terms}}
+            required: [subject]
+      activation: {$ref: '#/$defs/activation_checkpoint'}
+      standing: {$ref: '#/$defs/registry_standing'}
+
+  eligibility_snapshot:
+    # THE ELIGIBILITY ENTRY ONE WINDOW SNAPSHOTTED AT OPEN. Every admission
+    # assigned to that window carries this same version, digest, activation and
+    # standing; an activation that happens mid-window applies to the NEXT window
+    # and changing the current one is refused
+    # (`eligibility_activation_applied_to_open_window`), because the denominator
+    # a window counted against cannot move after the counting started.
+    type: object
+    required: [registry_id, entry_id, version, canonical_digest, activation, standing]
+    additionalProperties: false
+    properties:
+      registry_id: {$ref: '#/$defs/identifier'}
+      entry_id: {$ref: '#/$defs/identifier'}
+      version: {type: integer, minimum: 1}
+      canonical_digest:
+        allOf:
+          - {$ref: '#/$defs/digest'}
+          - properties: {subject: {const: durability_eligibility_terms}}
+            required: [subject]
+      activation: {$ref: '#/$defs/activation_checkpoint'}
+      standing: {$ref: '#/$defs/registry_standing'}
+
+  merkle_profile_snapshot:
+    # THE RELEASED DAILY-MERKLE CONSTRUCTION ONE WINDOW SNAPSHOTTED. Three
+    # members and no more: the construction is IMMUTABLE per version, so an
+    # identifier, a version and the digest of the construction itself are
+    # everything a verifier needs to resolve the exact rules it must recompute
+    # under. An admission or manifest missing any of them, or naming a version
+    # whose resolved bytes do not match the digest, is refused before any
+    # membership or completeness claim is accepted
+    # (`merkle_profile_absent_or_substituted`).
+    type: object
+    required: [profile_id, version, canonical_digest]
+    additionalProperties: false
+    properties:
+      profile_id: {$ref: '#/$defs/identifier'}
+      version: {type: integer, minimum: 1}
+      canonical_digest:
+        allOf:
+          - {$ref: '#/$defs/digest'}
+          - properties: {subject: {const: daily_merkle_construction}}
+            required: [subject]
+
+  dedupe_rule:
+    # THE RULE THE ONE ATOMIC ADMISSION TRANSACTION APPLIES, DECLARED AND
+    # COMMITTED. Two of its members can say the wrong thing so the refusals have
+    # somewhere to fire: a replay rule that assigns a SECOND sequence
+    # (`dedupe_replay_consumed_a_second_sequence`) and a reuse rule that admits
+    # a second leaf for DIFFERENT material
+    # (`dedupe_key_reused_for_different_content`) are the two ways exactly-once
+    # accounting is lost, and both are configuration a realization declares.
+    #
+    # THE KEY STAYS OFF PUBLIC CHAINS, AND ITS CUSTODY SAYS SO. A dedupe key is
+    # owner-local and stable, which makes it a correlation handle if it is ever
+    # reachable from an anchor; the custody reference is the same shape salts and
+    # keys take everywhere in this family, and anything but `governed_layer` is
+    # refused (`dedupe_key_reachable_from_anchor`).
+    type: object
+    required: [rule_id, key_scope, on_identical_replay,
+               on_key_reuse_with_different_material, key_custody]
+    additionalProperties: false
+    properties:
+      rule_id: {$ref: '#/$defs/identifier'}
+      key_scope:
+        type: string
+        enum: [owner_local_stable, global_public, chain_visible]
+      on_identical_replay:
+        type: string
+        enum: [return_existing_leaf, assign_second_sequence]
+      on_key_reuse_with_different_material:
+        type: string
+        enum: [refuse_before_sequence_assignment, admit_second_leaf]
+      key_custody: {$ref: '#/$defs/custody_reference'}
+
+  late_arrival_rule:
+    # WHICH CLOCK SELECTS THE WINDOW, DECLARED RATHER THAN INFERRED — and the
+    # answer is TRUSTED ACCEPTANCE TIME. Owner source time is DESCRIPTIVE ONLY:
+    # a window it could select is a window an owner could reopen by backdating,
+    # and a closed window that can be reopened is not a closed window. Both wrong
+    # answers are writable, which is what gives
+    # `durability_window_selected_from_source_time` and
+    # `source_time_lateness_recorded_on_chain` their negative examples.
+    type: object
+    required: [rule_id, window_selected_from, source_time_lateness_recorded]
+    additionalProperties: false
+    properties:
+      rule_id: {$ref: '#/$defs/identifier'}
+      window_selected_from:
+        type: string
+        enum: [trusted_acceptance_time, owner_source_time]
+      source_time_lateness_recorded:
+        type: string
+        enum: [off_chain, in_daily_manifest, on_chain]
+
+  daily_genesis_sentinel:
+    # THE ONE CONTRACT-DEFINED SENTINEL THE FIRST DAILY MANIFEST BINDS. The
+    # amendment says *"The first manifest SHALL bind one contract-defined genesis
+    # sentinel"*, and "contract-defined" is what makes it a `const`: a sentinel a
+    # realization chose would let a minter start a fresh chain of daily items at
+    # any point and present it as the first one, which is precisely the omission
+    # the continuity link exists to catch. There is exactly one first manifest
+    # per owner log, and a second record binding this value where a predecessor
+    # exists is refused (`daily_continuity_link_unresolved`).
+    type: string
+    const: xfactory-chain-anchoring-daily-genesis-v1
+
+  window_close_reason:
+    # WHY THE WINDOW CLOSED, from a closed set. The ordinary answer is the fixed
+    # boundary; an operator-directed close is the honest name for the other one,
+    # and naming it is what stops a close for any other reason being recorded as
+    # scheduled.
+    type: string
+    enum: [fixed_utc_boundary, operator_directed_close]
+
+  leaf_class:
+    # WHETHER A LEAF IS OWNER EVIDENCE OR ANCHORING CONTROL, and the distinction
+    # is what makes the batch non-recursive. Anchor-state transitions, witness
+    # submissions, confirmations, batch manifests and continuity checkpoints are
+    # CONTROL leaves: they stay covered by the signed log and its checkpoint
+    # anchors, and they are OUTSIDE the event count. Offering one as a
+    # durability-eligible event in the batch it produces is refused
+    # (`anchoring_control_leaf_admitted_as_event`) — and the class is DECLARED on
+    # the admission rather than inferred from a leaf kind, because this family
+    # references leaves by identifier and defines no leaf grammar of its own.
+    type: string
+    enum: [owner_evidence_event, anchoring_control]
+
+  resolving_log_checkpoint:
+    # THE SIGNED CHECKPOINT THAT RESOLVES A CLOSED WINDOW. It is the object that
+    # turns `event count` from a caller-supplied denominator into a derived
+    # summary: a verifier walks every log record through the close watermark
+    # under this checkpoint's tree size and root, reproduces the ordered
+    # admission set, and compares. Without it, first sequence, last sequence and
+    # event count are three numbers that can be self-consistent and still omit a
+    # prefix, a middle record or a suffix.
+    type: object
+    required: [checkpoint_ref, tree_size, checkpoint_root, signature_ref]
+    additionalProperties: false
+    properties:
+      checkpoint_ref: {$ref: '#/$defs/identifier'}
+      tree_size: {type: integer, minimum: 0}
+      checkpoint_root:
+        allOf:
+          - {$ref: '#/$defs/digest'}
+          - properties: {subject: {const: log_checkpoint}}
+            required: [subject]
+      signature_ref: {$ref: '#/$defs/identifier'}
+
+  batch_membership_path:
+    # THE PATH FROM ONE EVENT LEAF TO THE WINDOW'S BATCH ROOT. Same shape and
+    # same reasoning as the receipt's aggregation path: the SIDE is carried
+    # because without it the path is a bag of values and the root is not
+    # recomputable, which makes a proof unfalsifiable rather than strong. An
+    # EMPTY path is lawful for a single-leaf window, where the leaf digest is the
+    # root under the released construction's own declared shape rule.
+    #
+    # NO `subject` const IS PINNED ON A SIBLING. A sibling is a leaf digest at
+    # the bottom level and an internal node above it, and both subjects are
+    # admitted by the one construction's enumeration; pinning one here would
+    # make a lawful path element unrepresentable.
+    type: array
+    minItems: 0
+    items:
+      type: object
+      required: [position, sibling_digest]
+      additionalProperties: false
+      properties:
+        position:
+          type: string
+          enum: [left, right]
+        sibling_digest: {$ref: '#/$defs/digest'}
+
   refusal_code:
     # THE CLOSED REFUSAL ENUMERATION OF THIS CAPABILITY, IN ONE PLACE. Every
     # record kind that reports a refusal takes it from here by `$ref`, so a
@@ -335,3 +726,66 @@ $defs:
       - overlay_relaxes_neutral_refusal
       - structural_residual_declared_satisfied
       - obligation_not_declared
+      # ==================================================================
+      # WIDENED BY `amend-chain-anchoring-readiness-and-durability`
+      # (requirements 2 and 3, ratified 2026-09-04) — FORTY-EIGHT FURTHER
+      # CODES, one closed enumeration, no second place a refusal is named.
+      # Every one of them is red-proven by a single-fault fixture under
+      # `examples/negative/` whose FILENAME is the code, on this family's
+      # own carried rule: a refusal nobody has provoked is a refusal
+      # nobody has tested.
+      # ==================================================================
+      # ---- Fixed UTC windows and the one atomic admission --------------
+      - durability_window_not_fixed_utc_midnight
+      - durability_window_selected_from_source_time
+      - durability_window_reopened_after_close
+      - durability_admission_not_atomic
+      - durability_sequence_inverts_acceptance_partition
+      - durability_event_assigned_to_two_windows
+      - durability_close_watermark_unproven
+      - durability_batch_omits_accepted_event
+      - durability_batch_summary_lowered_below_watermark
+      - durability_event_selectivity_applied
+      - anchoring_control_leaf_admitted_as_event
+      - dedupe_replay_consumed_a_second_sequence
+      - dedupe_key_reused_for_different_content
+      - dedupe_key_reachable_from_anchor
+      - source_time_lateness_recorded_on_chain
+      - empty_window_without_linked_checkpoint
+      - open_window_presented_as_anchored
+      - constituent_event_given_separate_receipt
+      # ---- The eligibility registry and its denominator ----------------
+      - eligibility_boundary_selection_ambiguous
+      - eligibility_activation_applied_to_open_window
+      - eligibility_snapshot_rolled_back
+      - eligibility_terms_substituted_under_version
+      # ---- The released Merkle construction and the continuity link ----
+      - merkle_profile_absent_or_substituted
+      - daily_batch_root_not_reproducible
+      - daily_continuity_link_unresolved
+      - daily_continuity_link_over_batch_root
+      - first_daily_manifest_without_genesis_sentinel
+      # ---- One item, one root, both witnesses --------------------------
+      - daily_item_witness_roots_differ
+      - aggregation_root_not_identity_for_daily_item
+      - witness_commitment_path_absent
+      - durability_witness_proof_over_raw_batch_root
+      - daily_manifest_configuration_substituted
+      # ---- The confirmation-profile registry ---------------------------
+      - confirmation_profile_unresolved
+      - confirmation_profile_not_operator_approved
+      - confirmation_profile_numeric_depth_uncited
+      - confirmation_profile_snapshot_rolled_back
+      - confirmation_profile_activation_applied_to_open_window
+      - confirmation_profile_terms_substituted_under_version
+      - confirmation_profile_retired_or_compromised_mints_receipt
+      - confirmation_profile_standing_rewrites_historical_receipt
+      - registry_history_rewritten
+      # ---- Submitted is not confirmed ----------------------------------
+      - witness_confirmed_without_profile_condition
+      - witness_confirmed_without_named_profile
+      - witness_pending_with_submission_evidence
+      - submission_evidence_offered_as_confirmed
+      - long_horizon_claim_on_unupgraded_durability_proof
+      - reorganized_witness_retains_confirmed_label
+      - state_transition_history_erased_on_upgrade

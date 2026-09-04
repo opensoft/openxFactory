@@ -1,0 +1,74 @@
+# AN EMPTY DAY IS STILL A DAILY ITEM. Count zero, the deterministic empty root the
+# released construction declares, no first or last sequence (a range over an empty
+# set asserts something false), and a continuity link over the PREVIOUS ITEM'S
+# CONFIGURATION-BOUND ANCHORED DIGEST. That link is the whole reason an empty day
+# cannot be dropped: two consecutive empty windows share this batch root on
+# purpose, so a link over the root could not tell a missing intermediate day from a
+# present one.
+schema_version: 1
+kind: xfactory_chain_anchoring_durability_batch_manifest
+manifest_id: dbm-example-0002
+terms:
+  window_open: '2026-08-31T00:00:00Z'
+  window_close: '2026-09-01T00:00:00Z'
+  eligibility_snapshot:
+    registry_id: der-example-0001
+    entry_id: der-entry-0002
+    version: 2
+    canonical_digest:
+      construction: xfc-jcs-sha256-1
+      subject: durability_eligibility_terms
+      value: sha256:a958754817f2860c0e52986dfad5637425657e7e708b4bb1a2c30ab6ca4bcd2a
+    activation:
+      log_sequence: 616
+      checkpoint_ref: cp-log-checkpoint-0616
+    standing: active
+  event_count: 0
+  daily_batch_root:
+    construction: xfc-jcs-sha256-1
+    subject: daily_batch_root
+    value: sha256:c35fc8b72f989e6106fe6808d62ceece2bbdc436e7dba0184bb35b4bb2ba2ec2
+  merkle_profile:
+    profile_id: dmp-example-daily-merkle
+    version: 1
+    canonical_digest:
+      construction: xfc-jcs-sha256-1
+      subject: daily_merkle_construction
+      value: sha256:498aa35ea0a41ba00fe57f0df0f3c0b388ab1514cfe9ee7187b4104cca5adc8a
+  previous_daily_anchored_digest:
+    construction: xfc-jcs-sha256-1
+    subject: anchored_commitment
+    value: sha256:210f4ccf1583607945c38dc09c5106759b7056f3964899be7b440481e4765efc
+  close_sequence_watermark: 646
+  resolving_log_checkpoint:
+    checkpoint_ref: cp-log-checkpoint-0646
+    tree_size: 647
+    checkpoint_root:
+      construction: xfc-jcs-sha256-1
+      subject: log_checkpoint
+      value: sha256:182cb0e234ee750b0cec17f9d4b7cff2467c5f3089e95adc01dad0a7031e04dc
+    signature_ref: sig-log-checkpoint-0646
+  close_reason: fixed_utc_boundary
+  dedupe_rule:
+    rule_id: dedupe-example-owner-local
+    key_scope: owner_local_stable
+    on_identical_replay: return_existing_leaf
+    on_key_reuse_with_different_material: refuse_before_sequence_assignment
+    key_custody:
+      reference_id: custody-example-dedupe-keys
+      resolves_into: governed_layer
+  late_arrival_rule:
+    rule_id: late-example-acceptance-selects
+    window_selected_from: trusted_acceptance_time
+    source_time_lateness_recorded: off_chain
+  selectivity_applied: false
+material_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_material
+  value: sha256:bbe7c25ae8d8a8195f21fc7ae80da21ac6bf9d8e5a913a30062f651a99ad1983
+window_closed: true
+receipt_ref: rcp-example-daily-0002
+continuity_leaf_ref: leaf-dbm-example-0002-continuity
+signature_ref: sig-dbm-example-0002
+recorded_at: '2026-09-01T00:00:00Z'
+record_version: 1

@@ -1,0 +1,77 @@
+# THE DENOMINATOR, VERSIONED AND APPEND-ONLY. Version 1 counted one neutral event
+# kind; version 2 counts two, and it applies from the window that OPENED after its
+# activation checkpoint — never to a window already counting. Both entries exclude
+# `anchoring_control` from the count, which is what permits genuine consecutive
+# empty windows: a window in which nothing but anchoring happened is honestly
+# empty, and a manifest that had to contain its own description would be a regress
+# rather than a fixed point.
+schema_version: 1
+kind: xfactory_chain_anchoring_durability_eligibility_registry
+registry_id: der-example-0001
+append_only:
+  append_only: true
+  history_rewritten: false
+  signature_ref: sig-example-der-0001
+entries:
+- entry_id: der-entry-0001
+  version: 1
+  terms:
+    event_kinds:
+    - kind_id: owner-evidence-record-accepted
+      kind_statement: a neutral owner-evidence record the owner accepted into its signed log
+    excluded_leaf_classes:
+    - anchoring_control
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: durability_eligibility_terms
+    value: sha256:627929a88dc71119696961d0cb961993de9c0d1787256d528efe8c872209e682
+  approval:
+    approval_id: approval-example-0006
+    approved_by: operator
+    approved_on: '2026-08-25'
+    approval_record_ref: record-example-operator-approval-0006
+    decision_statement: approved by the repository operator as the objective condition separating
+      submitted from confirmed on this network, with its transition vectors
+  activation:
+    log_sequence: 605
+    checkpoint_ref: cp-log-checkpoint-0605
+  effective_interval:
+    from_window_open: '2026-08-26T00:00:00Z'
+    until_window_open: '2026-08-30T00:00:00Z'
+  standing: retired
+  superseded_by_entry_id: der-entry-0002
+  entry_statement: the first denominator; retired atomically when its successor activated,
+    so no boundary has two active entries
+- entry_id: der-entry-0002
+  version: 2
+  terms:
+    event_kinds:
+    - kind_id: owner-evidence-record-accepted
+      kind_statement: a neutral owner-evidence record the owner accepted into its signed log
+    - kind_id: owner-evidence-correction-accepted
+      kind_statement: a neutral correction the owner accepted, anchored forward as new material
+        and never as a withdrawal
+    excluded_leaf_classes:
+    - anchoring_control
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: durability_eligibility_terms
+    value: sha256:a958754817f2860c0e52986dfad5637425657e7e708b4bb1a2c30ab6ca4bcd2a
+  approval:
+    approval_id: approval-example-0007
+    approved_by: operator
+    approved_on: '2026-08-29'
+    approval_record_ref: record-example-operator-approval-0007
+    decision_statement: approved by the repository operator as the objective condition separating
+      submitted from confirmed on this network, with its transition vectors
+  predecessor_entry_id: der-entry-0001
+  activation:
+    log_sequence: 616
+    checkpoint_ref: cp-log-checkpoint-0616
+  effective_interval:
+    from_window_open: '2026-08-30T00:00:00Z'
+  standing: active
+  entry_statement: the active denominator, widened by one neutral kind; it applies from the
+    window that OPENED after its activation and never to a window already counting
+recorded_at: '2026-08-30T00:00:00Z'
+record_version: 1

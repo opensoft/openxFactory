@@ -388,8 +388,8 @@ def test_a_satisfied_entry_carrying_a_residual_is_a_contradiction(
     assert reader.lines_for(findings.errors, "residual-not-declared")
 
 
-def test_the_obligation_set_is_the_nine_requirements_of_the_delta():
-    assert reader.OBLIGATIONS == [f"CA-R{n}" for n in range(1, 10)]
+def test_the_obligation_set_is_the_eleven_requirements_of_the_two_deltas():
+    assert reader.OBLIGATIONS == [f"CA-R{n}" for n in range(1, 12)]
     schema = yaml.safe_load(
         (CONTRACT_DIR / "conformance-declaration.schema.yaml").read_text())
     enum = schema["properties"]["obligations"]["items"]["properties"][

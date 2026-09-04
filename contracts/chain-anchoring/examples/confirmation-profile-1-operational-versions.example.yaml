@@ -1,0 +1,140 @@
+# TWO IMMUTABLE VERSIONS OF ONE NETWORK'S PROFILE, AND THE SECOND DID NOT EDIT THE
+# FIRST. Version 1 was approved, activated at log sequence 610, and RETIRED when
+# version 2 activated at 618; both records stand, because a reader that could not
+# see the predecessor could not detect a rollback. Neither names a numeric
+# confirmation depth: what each names is the objective condition and the cited
+# acceptance rule behind it, which is the amendment's own line between an approved
+# answer and an invented one.
+---
+schema_version: 1
+kind: xfactory_chain_anchoring_confirmation_profile
+profile_id: cp-example-operational
+version: 1
+chain_id: chain-example-operational
+witness_role: operational
+terms:
+  submitted_condition:
+    statement: the declared interface accepted the serialized commitment transaction for processing;
+      this is NOT confirmation on this network
+    objective_evidence:
+    - interface_acceptance
+    - transaction_identifier
+  confirmed_condition:
+    statement: the configured chain-acceptance rule passes and all four per-chain receipt
+      elements are captured whole
+    chain_acceptance_rule_citation: the configured operational witness's own documented acceptance
+      rule for its accepting block, cited by the realization in its conformance declaration
+    objective_evidence:
+    - transaction_bytes
+    - inclusion_proof
+    - block_header
+    - chain_acceptance_evidence
+  retained_proof_material:
+  - transaction_bytes
+  - inclusion_proof
+  - block_header
+  - chain_acceptance_evidence
+  reorganization_rule:
+    statement: a reorganized accepting block moves this witness out of confirmed and the move
+      is written as evidence; the prior confirmed label is not retained by assertion
+    on_change: rewrite_state_as_evidence
+    evidence_written: true
+  replacement_rule:
+    statement: a replaced commitment transaction moves this witness out of confirmed and the
+      move is written as evidence
+    on_change: rewrite_state_as_evidence
+    evidence_written: true
+  transition_vectors:
+  - vector_id: cp-example-operational-vec-accept-submitted
+    boundary: pending_to_submitted
+    expectation: accept
+    statement: the declared interface accepted the serialized commitment transaction for processing
+      and nothing more is claimed
+  - vector_id: cp-example-operational-vec-refuse-confirmed
+    boundary: submitted_to_confirmed
+    expectation: refuse
+    statement: interface acceptance alone does not satisfy this profile's confirmation condition
+      and is refused as confirmation
+  - vector_id: cp-example-operational-vec-accept-confirmed
+    boundary: submitted_to_confirmed
+    expectation: accept
+    statement: the configured acceptance rule passed and every named proof element was captured
+      whole
+  - vector_id: cp-example-operational-vec-refuse-stale
+    boundary: confirmed_to_invalid
+    expectation: refuse
+    statement: a reorganized block no longer satisfies this profile and a retained confirmed
+      label is refused
+canonical_digest:
+  construction: xfc-jcs-sha256-1
+  subject: confirmation_profile_terms
+  value: sha256:bc4d33e12f82aa9b3e9cd7c07d15146e0c7b96ad141258af7528e20e76e69328
+released_at: '2026-08-25T00:00:00Z'
+record_version: 1
+---
+schema_version: 1
+kind: xfactory_chain_anchoring_confirmation_profile
+profile_id: cp-example-operational
+version: 2
+chain_id: chain-example-operational
+witness_role: operational
+terms:
+  submitted_condition:
+    statement: the declared interface accepted the serialized commitment transaction for processing;
+      this is NOT confirmation on this network
+    objective_evidence:
+    - interface_acceptance
+    - transaction_identifier
+  confirmed_condition:
+    statement: the configured chain-acceptance rule passes, all four per-chain receipt elements
+      are captured whole, and the accepting block remains accepted under the cited rule at
+      evaluation time
+    chain_acceptance_rule_citation: the same documented acceptance rule, restated by the operator
+      with the reorganization handling made explicit at the transition boundary
+    objective_evidence:
+    - transaction_bytes
+    - inclusion_proof
+    - block_header
+    - chain_acceptance_evidence
+  retained_proof_material:
+  - transaction_bytes
+  - inclusion_proof
+  - block_header
+  - chain_acceptance_evidence
+  reorganization_rule:
+    statement: a reorganized accepting block moves this witness out of confirmed and the move
+      is written as evidence; the prior confirmed label is not retained by assertion
+    on_change: rewrite_state_as_evidence
+    evidence_written: true
+  replacement_rule:
+    statement: a replaced commitment transaction moves this witness out of confirmed and the
+      move is written as evidence
+    on_change: rewrite_state_as_evidence
+    evidence_written: true
+  transition_vectors:
+  - vector_id: cp-example-operational-vec-accept-submitted
+    boundary: pending_to_submitted
+    expectation: accept
+    statement: the declared interface accepted the serialized commitment transaction for processing
+      and nothing more is claimed
+  - vector_id: cp-example-operational-vec-refuse-confirmed
+    boundary: submitted_to_confirmed
+    expectation: refuse
+    statement: interface acceptance alone does not satisfy this profile's confirmation condition
+      and is refused as confirmation
+  - vector_id: cp-example-operational-vec-accept-confirmed
+    boundary: submitted_to_confirmed
+    expectation: accept
+    statement: the configured acceptance rule passed and every named proof element was captured
+      whole
+  - vector_id: cp-example-operational-vec-refuse-stale
+    boundary: confirmed_to_invalid
+    expectation: refuse
+    statement: a reorganized block no longer satisfies this profile and a retained confirmed
+      label is refused
+canonical_digest:
+  construction: xfc-jcs-sha256-1
+  subject: confirmation_profile_terms
+  value: sha256:90c3d4f763e5dc6691ba596f91ef00e8aeb7d21b611b9e3df6030f95dffc7207
+released_at: '2026-08-25T00:00:00Z'
+record_version: 1

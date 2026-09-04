@@ -26,6 +26,6 @@ receipt_ref: rcp-example-0001
 header_source_ref: hs-example-verifier-own-0001
 evaluated_at: '2026-08-31T09:00:00Z'
 record_version: 1
-notes: 'a receipt-only verification a holder ran on its own machine against a header
-  set it obtained for itself: no verification_leaf_ref, and that absence is the
-  receipt''s self-sufficiency working as designed, not non-conformance'
+notes: 'a receipt-only verification a holder ran on its own machine against a header set it
+  obtained for itself: no verification_leaf_ref, and that absence is the receipt''s self-sufficiency
+  working as designed, not non-conformance'

@@ -1,0 +1,64 @@
+# expected_failure: dedupe_key_reused_for_different_content
+# expected_failure_detail: admits a second leaf
+# A KEY REUSED FOR DIFFERENT CONTENT, ADMITTED. Reuse with a different material digest is a DIFFERENT event wearing the same handle, and it is refused BEFORE a sequence is assigned — after assignment the sequence is already spent.
+schema_version: 1
+kind: xfactory_chain_anchoring_durability_batch_admission
+admission_id: dba-negative-668
+admission_kind: new_leaf
+window_open: '2026-09-02T00:00:00Z'
+window_close: '2026-09-03T00:00:00Z'
+leaf_sequence: 668
+leaf_class: owner_evidence_event
+trusted_acceptance_time: '2026-09-02T10:00:00Z'
+material_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_material
+  value: sha256:4902eeca785dd0a5b8286b10d0f2dff3a89f7ce4c9b7d844b968136c6189671a
+event_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: durability_event_leaf
+  value: sha256:b3a1a6ff72355fd3fb7e4b9cb71e940ef0f687fe41d269552b4f75a02815b41f
+dedupe_key_ref: dk-negative-668
+dedupe_rule:
+  rule_id: dedupe-example-owner-local
+  key_scope: owner_local_stable
+  on_identical_replay: return_existing_leaf
+  on_key_reuse_with_different_material: admit_second_leaf
+  key_custody:
+    reference_id: custody-example-dedupe-keys
+    resolves_into: governed_layer
+late_arrival_rule:
+  rule_id: late-example-acceptance-selects
+  window_selected_from: trusted_acceptance_time
+  source_time_lateness_recorded: off_chain
+admission_transaction:
+  transaction_ref: txn-dba-negative-668
+  atomic: true
+  steps:
+  - validate_eligibility
+  - apply_dedupe_rule
+  - record_acceptance_time
+  - select_window_from_acceptance_time
+  - assign_next_leaf_sequence
+eligibility_snapshot:
+  registry_id: der-example-0001
+  entry_id: der-entry-0002
+  version: 2
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: durability_eligibility_terms
+    value: sha256:a958754817f2860c0e52986dfad5637425657e7e708b4bb1a2c30ab6ca4bcd2a
+  activation:
+    log_sequence: 616
+    checkpoint_ref: cp-log-checkpoint-0616
+  standing: active
+merkle_profile:
+  profile_id: dmp-example-daily-merkle
+  version: 1
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: daily_merkle_construction
+    value: sha256:498aa35ea0a41ba00fe57f0df0f3c0b388ab1514cfe9ee7187b4104cca5adc8a
+membership_path: []
+recorded_at: '2026-09-02T10:00:00Z'
+record_version: 1

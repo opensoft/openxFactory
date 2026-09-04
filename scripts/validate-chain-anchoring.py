@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate the chain-anchoring contract family, and ADJUDICATE ITS RECORDS.
 
-The openxFactory-owned canonical validator for the eleven kinds
+The openxFactory-owned canonical validator for the SEVENTEEN kinds
 `xfactory_chain_anchoring_receipt`, `xfactory_chain_anchoring_anchor_state`,
 `xfactory_chain_anchoring_verification_result`,
 `xfactory_chain_anchoring_anchor_bound_commitment`,
@@ -10,9 +10,18 @@ The openxFactory-owned canonical validator for the eleven kinds
 `xfactory_chain_anchoring_plane_separation_declaration`,
 `xfactory_chain_anchoring_linkage_derivation_issuance`,
 `xfactory_chain_anchoring_linkage_derivation_use`,
-`xfactory_chain_anchoring_analysis_result` and
-`xfactory_chain_anchoring_conformance_declaration`
-(`contracts/chain-anchoring/*.schema.yaml`). Run from the pinned openxFactory
+`xfactory_chain_anchoring_analysis_result`,
+`xfactory_chain_anchoring_conformance_declaration`,
+`xfactory_chain_anchoring_confirmation_profile`,
+`xfactory_chain_anchoring_confirmation_profile_registry`,
+`xfactory_chain_anchoring_daily_merkle_profile`,
+`xfactory_chain_anchoring_durability_eligibility_registry`,
+`xfactory_chain_anchoring_durability_batch_admission` and
+`xfactory_chain_anchoring_durability_batch_manifest`
+(`contracts/chain-anchoring/*.schema.yaml`). The last six were added by
+`amend-chain-anchoring-readiness-and-durability` (requirements 2 and 3, ratified
+2026-09-04), which also REPLACED the per-witness `status` enumeration this file
+reads — see the note under check 15. Run from the pinned openxFactory
 checkout, never copied into a domain repo:
 
     python3 scripts/validate-chain-anchoring.py [REPO_PATH] [--strict]
@@ -43,7 +52,7 @@ Two layers run:
    further findings beyond the one it is named for is the rules working; the
    expected code and detail are what the self-test pins.
 2. Optional real artifacts under REPO_PATH: every `*.y*ml` whose top-level `kind`
-   is one of the eleven family kinds is validated as one scope. Other kinds are
+   is one of the seventeen family kinds is validated as one scope. Other kinds are
    skipped and counted; the packaged `examples/` tree is excluded, because the
    negatives there are deliberately invalid and layer 1 already asserts exactly
    how. ZERO REAL ARTIFACTS IS THE EXPECTED STATE UNTIL AN ANCHORING SUBSYSTEM
@@ -124,13 +133,59 @@ noted, and each traceable to a scenario of the ratified delta:
      and used only against a revocation state that could actually be read.
  13. THE CLOSED DISCRIMINATORS — the analysis result's status, its refusal ground,
      and the de-identification hook that is a HOOK AND NEVER A STANDARD.
- 14. THE CONFORMANCE DECLARATION — closed over the capability's nine obligations
+ 14. THE CONFORMANCE DECLARATION — closed over the capability's eleven obligations
      in BOTH directions (`obligation_not_declared`), with the structural residual
      `CA-R5-COMMITMENT-PATH` refused the word `satisfied`
      (`structural_residual_declared_satisfied`), and every realization POSTURE
      member adjudicated against its named refusal.
+ 15. THE PER-WITNESS EVIDENCE STATES, WHICH ARE NOW SIX AND NOT THREE. The basis
+     realization's `[in_flight, landed, terminally_failed]` had ONE word for
+     "no submission evidence" and "submission accepted, confirmation condition
+     unmet", so the enumeration is REPLACED: `pending`/`submitted` split
+     `in_flight`, `landed` becomes `confirmed` bound to a named profile's
+     objective condition, and `invalid`/`unevaluable` are added because the
+     amendment's refusal scenario obliges a verifier to report them. `pending`
+     over accepted submission evidence, `confirmed` with no confirmation
+     evidence at all, `confirmed` over a condition that did not pass, a stale
+     confirmed label across a reorganization, an upgrade that erased its own
+     prior transitions, and a long-horizon claim over an unupgraded durability
+     proof are each refused BY NAME.
+ 16. THE CONFIRMATION-PROFILE BINDING, ACROSS THREE RECORDS AT ONCE, because it
+     is one rule about three: the receipt's committed mint-time snapshot, the
+     state row's evidence under it, and the verification result's named profile
+     with its IMMUTABLE as-of token beside CURRENT registry standing. The
+     result's rows are keyed by WITNESS and not by chain, and each is compared
+     against the committed snapshot FOR THAT WITNESS — `configured_witnesses`
+     carries no uniqueness constraint on `chain_id`, so a chain-keyed answer
+     would silently collapse two witnesses on one chain into one row. THE SAME
+     KEYING HOLDS ON THE RECEIPT SIDE: the committed snapshots are indexed by
+     witness, the chain serves only as a resolution hint where it is
+     unambiguous, and a per-chain entry that names no witness on a chain
+     carrying two of them is refused rather than attributed by array order. Both
+     overcorrections are refused — a retired or compromised profile minting a
+     new receipt or claim, and current standing rewriting a historical one.
+     Selection is refused where it rolls back past an activation checkpoint,
+     where it applies a mid-window activation to the window already counting,
+     where the digest is substituted under an approved version, and where a
+     configured network has no active entry at all (the amendment's BLOCKED
+     state, measured from the register rather than assumed).
+ 17. THE FIXED-UTC DURABILITY BATCH, RECOMPUTED AND NOT BELIEVED. The released
+     daily-Merkle construction is RESOLVED and every leaf, every membership path
+     and every batch root is recomputed under it — the composition runs under
+     the estate's ONE digest construction, with the domain separators travelling
+     inside the canonical JSON, so no second hashing rule is minted to reach a
+     Merkle tree, and a construction whose declared ordering or shape cannot be
+     reproduced deterministically is refused rather than trusted. Each closed
+     window is RECONCILED against its own window's admissions, so a manifest
+     that lowers its last sequence and count to match a retained prefix is
+     caught even though its three summary numbers and its root are perfectly
+     self-consistent. Continuity resolves to the immediately preceding item's
+     configuration-bound anchored digest; a link over the previous BATCH ROOT is
+     refused because two consecutive empty windows share that root on purpose,
+     and a gap between consecutive windows is refused because a chain of daily
+     items with holes proves nothing about the days in the holes.
 
-FIVE FINDINGS CARRY KEBAB-CASE CODES because the closed enumeration has no member
+NINE FINDINGS CARRY KEBAB-CASE CODES because the closed enumeration has no member
 for them and inventing one would be a contract change made by a reader:
 `ordering-only-correspondence` (a null header time under a time-bearing rule, or a
 time under an ordering-only rule — the same defect pointing opposite ways),
@@ -139,7 +194,14 @@ the difference it claims), `checkpoint-anchor-mismatch` (a checkpoint anchor
 committing to a digest its own receipt does not carry), `record-digest-mismatch`
 (a record digest that does not recompute) and `residual-not-declared` (the
 declared-shortfall pattern's own arithmetic: a partial or cannot entry with no
-residual, or a satisfied entry carrying one). Each has a packaged negative, on
+residual, or a satisfied entry carrying one); and, from the amendment,
+`admission-window-acceptance-mismatch` (an acceptance instant outside the window
+the record names, where no source time explains the choice),
+`registry-entry-predecessor-unresolved` (a version chain with a hole in it),
+`merkle-domain-separators-equal` (one separator serving both tree positions,
+which puts a second-preimage substitution inside a path that still walks) and
+`profile-transition-vectors-incomplete` (a profile that has only ever been seen
+to accept). Each has a packaged negative, on
 the same rule as the closed codes — and each negative fixture's FILENAME IS THE
 CODE IT PROVOKES, one file per code, so the tree listing is the index of the
 refusal enumeration and the self-test refuses a misnamed fixture.
@@ -169,6 +231,21 @@ WHAT THIS VALIDATOR DOES NOT DO, stated at its real strength:
     retention, capture-at-anchor-time and the durability calendar are read from
     what a realization DECLARES about itself. A declaration is not an observation.
   * IT MINTS NOTHING. No receipt, no commitment, no leaf, no anchor.
+  * IT CANNOT APPROVE A PROFILE. The amendment obliges the OPERATOR to approve
+    the Kaspa and Bitcoin confirmation profiles and to release the daily-Merkle
+    construction before authoring rests on them. What this realization builds is
+    the VESSEL those approvals are published into and the refusal that fires
+    when a configured network has none; the packaged register carries EXAMPLE
+    entries and no operator's act. `amend-chain-anchoring-readiness-and-durability`
+    tasks 1.3 and 1.4 stay open for that reason, and the packaged declaration
+    reports `operator_approval_outstanding` in the present tense rather than
+    claiming otherwise.
+  * IT CANNOT SEE A SIGNED LOG. The checkpoint reconciliation walks the
+    ADMISSION RECORDS it is given and compares them against the manifest's
+    summaries; it does not read a log, verify a checkpoint signature, or
+    establish that the admissions it was handed are all of them. Where no
+    admission for a window travels with its manifest it says so
+    (`manifest-admissions-not-in-scope`) rather than passing the claim.
 
 THE OPERATOR GATES THAT REMAIN OPEN, named so their absence is decided rather than
 overlooked: the operational witness's ARCHIVAL NODE (tasks 4.5), INCLUSION-PROOF
@@ -233,6 +310,14 @@ SCHEMA_FILENAMES = [
     "linkage-derivation-use.schema.yaml",
     "analysis-result.schema.yaml",
     "conformance-declaration.schema.yaml",
+    # ADDED BY `amend-chain-anchoring-readiness-and-durability` (requirements 2
+    # and 3): the durability profile's six shapes. Eighteen files, one family.
+    "confirmation-profile.schema.yaml",
+    "confirmation-profile-registry.schema.yaml",
+    "daily-merkle-profile.schema.yaml",
+    "durability-eligibility-registry.schema.yaml",
+    "durability-batch-admission.schema.yaml",
+    "durability-batch-manifest.schema.yaml",
 ]
 
 # The sibling schema every file here `$ref`s for `identifier` and `digest`. It is
@@ -258,6 +343,18 @@ KIND_TO_SCHEMA = {
     "xfactory_chain_anchoring_analysis_result": "analysis-result.schema.yaml",
     "xfactory_chain_anchoring_conformance_declaration":
         "conformance-declaration.schema.yaml",
+    "xfactory_chain_anchoring_confirmation_profile":
+        "confirmation-profile.schema.yaml",
+    "xfactory_chain_anchoring_confirmation_profile_registry":
+        "confirmation-profile-registry.schema.yaml",
+    "xfactory_chain_anchoring_daily_merkle_profile":
+        "daily-merkle-profile.schema.yaml",
+    "xfactory_chain_anchoring_durability_eligibility_registry":
+        "durability-eligibility-registry.schema.yaml",
+    "xfactory_chain_anchoring_durability_batch_admission":
+        "durability-batch-admission.schema.yaml",
+    "xfactory_chain_anchoring_durability_batch_manifest":
+        "durability-batch-manifest.schema.yaml",
 }
 
 # THE CLOSED REFUSAL ENUMERATION, held here as the set the packaged corpus must
@@ -345,11 +442,76 @@ REFUSAL_CODES = frozenset({
     "overlay_relaxes_neutral_refusal",
     "structural_residual_declared_satisfied",
     "obligation_not_declared",
+    # ====================================================================
+    # WIDENED BY `amend-chain-anchoring-readiness-and-durability`
+    # (requirements 2 and 3) — the same forty-eight the contract's own
+    # enumeration declares, in the same order. The two sets are compared
+    # set for set at startup, so a code added to one alone is a finding.
+    # ====================================================================
+    # ---- Fixed UTC windows and the one atomic admission --------------------
+    "durability_window_not_fixed_utc_midnight",
+    "durability_window_selected_from_source_time",
+    "durability_window_reopened_after_close",
+    "durability_admission_not_atomic",
+    "durability_sequence_inverts_acceptance_partition",
+    "durability_event_assigned_to_two_windows",
+    "durability_close_watermark_unproven",
+    "durability_batch_omits_accepted_event",
+    "durability_batch_summary_lowered_below_watermark",
+    "durability_event_selectivity_applied",
+    "anchoring_control_leaf_admitted_as_event",
+    "dedupe_replay_consumed_a_second_sequence",
+    "dedupe_key_reused_for_different_content",
+    "dedupe_key_reachable_from_anchor",
+    "source_time_lateness_recorded_on_chain",
+    "empty_window_without_linked_checkpoint",
+    "open_window_presented_as_anchored",
+    "constituent_event_given_separate_receipt",
+    # ---- The eligibility registry and its denominator ----------------------
+    "eligibility_boundary_selection_ambiguous",
+    "eligibility_activation_applied_to_open_window",
+    "eligibility_snapshot_rolled_back",
+    "eligibility_terms_substituted_under_version",
+    # ---- The released Merkle construction and the continuity link ----------
+    "merkle_profile_absent_or_substituted",
+    "daily_batch_root_not_reproducible",
+    "daily_continuity_link_unresolved",
+    "daily_continuity_link_over_batch_root",
+    "first_daily_manifest_without_genesis_sentinel",
+    # ---- One item, one root, both witnesses --------------------------------
+    "daily_item_witness_roots_differ",
+    "aggregation_root_not_identity_for_daily_item",
+    "witness_commitment_path_absent",
+    "durability_witness_proof_over_raw_batch_root",
+    "daily_manifest_configuration_substituted",
+    # ---- The confirmation-profile registry ---------------------------------
+    "confirmation_profile_unresolved",
+    "confirmation_profile_not_operator_approved",
+    "confirmation_profile_numeric_depth_uncited",
+    "confirmation_profile_snapshot_rolled_back",
+    "confirmation_profile_activation_applied_to_open_window",
+    "confirmation_profile_terms_substituted_under_version",
+    "confirmation_profile_retired_or_compromised_mints_receipt",
+    "confirmation_profile_standing_rewrites_historical_receipt",
+    "registry_history_rewritten",
+    # ---- Submitted is not confirmed ----------------------------------------
+    "witness_confirmed_without_profile_condition",
+    "witness_confirmed_without_named_profile",
+    "witness_pending_with_submission_evidence",
+    "submission_evidence_offered_as_confirmed",
+    "long_horizon_claim_on_unupgraded_durability_proof",
+    "reorganized_witness_retains_confirmed_label",
+    "state_transition_history_erased_on_upgrade",
 })
 
-# The capability's nine obligations, in the delta's own order.
+# The capability's ELEVEN obligations, in the deltas' own order: nine from
+# `add-chain-anchoring` and two from
+# `amend-chain-anchoring-readiness-and-durability`, whose own `tasks.md` 3.2
+# counts "all eleven promoted requirements". A declaration enumerating nine
+# after the amendment ratified would be silent on two obligations, which is
+# exactly what `obligation_not_declared` refuses.
 OBLIGATIONS = ["CA-R1", "CA-R2", "CA-R3", "CA-R4", "CA-R5", "CA-R6",
-               "CA-R7", "CA-R8", "CA-R9"]
+               "CA-R7", "CA-R8", "CA-R9", "CA-R10", "CA-R11"]
 
 # THE ONE OBLIGATION WHOSE RESIDUAL IS STRUCTURAL AT THIS REALIZATION. CA-R5 is
 # the step from "the record DECLARES a salted keyed commitment" to "the anchored
@@ -390,6 +552,12 @@ RECEIPT_ONLY_INPUT_NAMES = frozenset({
     "skew_seconds",
     "tolerance_seconds",
     "ordering_only",
+    # THE CONFIRMATION PROFILE IS A RECEIPT-ONLY INPUT AND JOINS THIS SET BY THE
+    # RULE, not by an enumeration chase — which is the rule the block's own
+    # header says a future timing input joins by. What separates submitted from
+    # confirmed is the profile's objective condition, so a verifier reads it,
+    # so it lives inside the committed block and nowhere else.
+    "confirmation_profile",
 })
 
 # THE STATE VOCABULARY THE RECEIPT MAY NOT CARRY. The receipt holds proof material
@@ -397,7 +565,14 @@ RECEIPT_ONLY_INPUT_NAMES = frozenset({
 # record, which is where every surface reads per-witness status.
 ANCHOR_STATE_VOCABULARY = frozenset({
     "anchored", "anchor_status", "pending", "complete", "state", "status",
-    "anchor_state", "witness_status", "landed", "in_flight",
+    "anchor_state", "witness_status",
+    # `landed` and `in_flight` were this list's words for the per-witness
+    # states; `amend-chain-anchoring-readiness-and-durability` replaced that
+    # enumeration, so the vocabulary the RECEIPT may not carry moves with it.
+    # `confirmed_under_profile` and `commitment_derivation` are receipt members
+    # by design and are not caught here, because this sweep is exact-match: it
+    # refuses a member NAMED for a state, never one whose name contains a word.
+    "submitted", "confirmed", "unevaluable",
 })
 
 # THE AGGREGATE BOOLEAN THAT EXISTS NOWHERE IN THIS CAPABILITY. Such a field can
@@ -640,6 +815,12 @@ class Scope:
     uses: list[tuple[str, dict]] = field(default_factory=list)
     analyses: list[tuple[str, dict]] = field(default_factory=list)
     declarations: list[tuple[str, dict]] = field(default_factory=list)
+    profiles: list[tuple[str, dict]] = field(default_factory=list)
+    profile_registries: list[tuple[str, dict]] = field(default_factory=list)
+    merkle_profiles: list[tuple[str, dict]] = field(default_factory=list)
+    eligibility_registries: list[tuple[str, dict]] = field(default_factory=list)
+    admissions: list[tuple[str, dict]] = field(default_factory=list)
+    manifests: list[tuple[str, dict]] = field(default_factory=list)
     facts: dict[Any, ReceiptFacts] = field(default_factory=dict)
 
 
@@ -655,6 +836,13 @@ _KIND_BUCKET = {
     "xfactory_chain_anchoring_linkage_derivation_use": "uses",
     "xfactory_chain_anchoring_analysis_result": "analyses",
     "xfactory_chain_anchoring_conformance_declaration": "declarations",
+    "xfactory_chain_anchoring_confirmation_profile": "profiles",
+    "xfactory_chain_anchoring_confirmation_profile_registry": "profile_registries",
+    "xfactory_chain_anchoring_daily_merkle_profile": "merkle_profiles",
+    "xfactory_chain_anchoring_durability_eligibility_registry":
+        "eligibility_registries",
+    "xfactory_chain_anchoring_durability_batch_admission": "admissions",
+    "xfactory_chain_anchoring_durability_batch_manifest": "manifests",
 }
 
 
@@ -1067,7 +1255,7 @@ def check_anchor_states(f: Findings, scope: Scope) -> None:
         # the anchoring subsystem marks an item complete by no other path.
         if state == "anchor_complete":
             unlanded = [row.get("witness_id") for row in rows
-                        if row.get("status") != "landed"]
+                        if row.get("status") != "confirmed"]
             if not doc.get("receipt_ref"):
                 f.error("anchor_state_complete_without_captured_receipt",
                         f"{label}: state anchor_complete with no captured receipt "
@@ -1077,7 +1265,7 @@ def check_anchor_states(f: Findings, scope: Scope) -> None:
             if unlanded:
                 f.error("anchor_state_complete_without_captured_receipt",
                         f"{label}: state anchor_complete while witness(es) "
-                        f"{unlanded} are not landed — a completeness claim over a "
+                        f"{unlanded} are not confirmed — a completeness claim over a "
                         f"missing witness is the aggregate boolean's defect "
                         f"wearing the state machine's clothes")
 
@@ -1126,16 +1314,17 @@ def check_anchor_states(f: Findings, scope: Scope) -> None:
 
             # A RECEIPT ENTRY FOR A WITNESS STILL IN FLIGHT: the receipt gains an
             # entry when the four elements are captured whole, never before.
-            if row.get("status") == "in_flight" and facts is not None \
+            if row.get("status") in ("pending", "submitted") and facts is not None \
                     and (wid in facts.entry_witnesses
                          or row.get("chain_id") in facts.entry_chains):
                 f.error("receipt_entry_incomplete_for_pending_witness",
-                        f"{where}: this witness is recorded still in flight while "
+                        f"{where}: this witness is recorded {row.get('status')!r} "
+                        f"— no confirmation evidence yet — while "
                         f"the referenced receipt already carries a per-chain "
                         f"entry for it — a receipt entry exists only once the "
-                        f"four elements are captured whole; a witness in flight "
-                        f"is a pending proof held HERE, and the later upgrade "
-                        f"appends a whole entry")
+                        f"four elements are captured whole; a witness that is "
+                        f"pending or merely submitted is a pending proof held "
+                        f"HERE, and the later upgrade appends a whole entry")
 
             # THE OPERATIONAL WITNESS'S CAPTURE CONDITION, per item.
             if row.get("role") == "operational" \
@@ -1904,7 +2093,7 @@ def check_declarations(f: Findings, scope: Scope) -> None:
                 f.error("obligation_not_declared",
                         f"{label}: obligation {obligation} is declared {count} "
                         f"time(s); the declaration is closed over the "
-                        f"capability's nine obligations with exactly one entry "
+                        f"capability's eleven obligations with exactly one entry "
                         f"each — a declaration that can quietly omit an "
                         f"obligation is how a silent gap gets recorded as "
                         f"conformance")
@@ -2109,6 +2298,1382 @@ def check_declarations(f: Findings, scope: Scope) -> None:
                     f"what the digest pin is for")
 
 
+# --------------------------- the durability profile ---------------------------
+
+# THE FIVE THINGS THE ONE ATOMIC ADMISSION TRANSACTION DOES. Enumerated so a
+# realization that performed four of them is refused FOR THE ONE IT SKIPPED,
+# which is a more useful answer than "not atomic".
+ADMISSION_STEPS = (
+    "validate_eligibility",
+    "apply_dedupe_rule",
+    "record_acceptance_time",
+    "select_window_from_acceptance_time",
+    "assign_next_leaf_sequence",
+)
+
+# THE CONTRACT-DEFINED SENTINEL THE FIRST DAILY MANIFEST BINDS. Held here as the
+# set the corpus must match, and compared against the contract's own `const` at
+# startup, for the same reason the refusal enumeration is compared: a sentinel a
+# reader and a contract spell differently is a first manifest neither can agree
+# on.
+DAILY_GENESIS_SENTINEL = "xfactory-chain-anchoring-daily-genesis-v1"
+
+WINDOW_SECONDS = 86400
+
+# THE CONSTRUCTION CHOICES THIS READER CAN MECHANICALLY RECOMPUTE UNDER. The
+# amendment obliges the canonical validator to "resolve the pinned released
+# profile and mechanically recompute every leaf, membership path, and
+# `daily_batch_root`" — so a released profile whose declared ordering or shape
+# this reader cannot reproduce DETERMINISTICALLY is refused rather than accepted
+# on the strength of a root nobody can check. `acceptance_time_ascending` is
+# refused for a stated reason and not for convenience: timestamps tie, a tie has
+# no deterministic tiebreak, and a batch two builders can order differently is a
+# batch whose root proves nothing.
+RECOMPUTABLE_ORDERINGS = frozenset({"leaf_sequence_ascending"})
+RECOMPUTABLE_SHAPES = frozenset({"binary_left_complete"})
+RECOMPUTABLE_ODD_HANDLING = frozenset({"promote_unpaired_node",
+                                       "duplicate_unpaired_node"})
+
+
+def _midnight(value: Any) -> datetime | None:
+    """The instant, only if it is a UTC midnight. The windows of this profile run
+    from `00:00:00Z` inclusive to the next `00:00:00Z` exclusive, and a boundary
+    that is not one of them is refused BY NAME rather than made unrepresentable
+    by a pattern — a regex error saying a string did not match says nothing about
+    which fixed window was meant."""
+    moment = instant(value)
+    if moment is None:
+        return None
+    if (moment.hour, moment.minute, moment.second, moment.microsecond) != (0, 0, 0, 0):
+        return None
+    return moment
+
+
+def _leaf_node(construction: dict, leaf_value: Any) -> str:
+    """One event leaf's tree node, domain-separated. The composition is under the
+    estate's ONE digest construction — the separator travels INSIDE the canonical
+    JSON — so this tranche mints no second hashing rule to reach a Merkle tree."""
+    return canonical.digest({"domain": construction.get("leaf_domain_separator"),
+                             "leaf": leaf_value})
+
+
+def _internal_node(construction: dict, left: str, right: str) -> str:
+    return canonical.digest({"domain": construction.get("node_domain_separator"),
+                             "left": left, "right": right})
+
+
+def _fold(construction: dict, level: list[str]) -> tuple[list[str], bool]:
+    nxt = [_internal_node(construction, level[i], level[i + 1])
+           for i in range(0, len(level) - 1, 2)]
+    promoted = len(level) % 2 == 1
+    if promoted:
+        if construction.get("odd_node_handling") == "duplicate_unpaired_node":
+            nxt.append(_internal_node(construction, level[-1], level[-1]))
+            promoted = False
+        else:
+            nxt.append(level[-1])
+    return nxt, promoted
+
+
+def _batch_root(construction: dict, leaf_values: list[Any]) -> str | None:
+    if not leaf_values:
+        return digest_value(get(construction, "empty_root"))
+    level = [_leaf_node(construction, v) for v in leaf_values]
+    while len(level) > 1:
+        level, _ = _fold(construction, level)
+    return level[0]
+
+
+def _membership_path(construction: dict, leaf_values: list[Any],
+                     index: int) -> list[dict]:
+    level = [_leaf_node(construction, v) for v in leaf_values]
+    idx, path = index, []
+    while len(level) > 1:
+        nxt, promoted = _fold(construction, level)
+        if idx == len(level) - 1 and promoted:
+            idx = len(nxt) - 1
+        else:
+            sibling = idx + 1 if idx % 2 == 0 else idx - 1
+            path.append({"position": "right" if idx % 2 == 0 else "left",
+                         "value": level[sibling]})
+            idx //= 2
+        level = nxt
+    return path
+
+
+@dataclass
+class DurabilityIndex:
+    """What the durability records establish ABOUT EACH OTHER, derived once.
+
+    Every cross-record rule of this profile is a property of a SET and not of a
+    document — a denominator two admissions of one window disagree about, a
+    registry version a snapshot rolled back to, a daily item whose predecessor
+    is missing — so the comparisons are made here, over the whole scope, and
+    never inferred from one record."""
+    profile_terms: dict = field(default_factory=dict)      # (pid, ver) -> digest
+    profile_entries: dict = field(default_factory=dict)    # (chain,pid,ver) -> entry
+    active_profile: dict = field(default_factory=dict)     # chain -> entry
+    registries: list = field(default_factory=list)
+    merkle: dict = field(default_factory=dict)             # (pid, ver) -> record
+    eligibility: dict = field(default_factory=dict)        # (rid, eid) -> entry
+    active_eligibility: dict = field(default_factory=dict)  # rid -> entry
+    admissions_by_window: dict = field(default_factory=dict)
+    manifests: list = field(default_factory=list)
+
+
+def _build_durability_index(scope: Scope) -> DurabilityIndex:
+    idx = DurabilityIndex()
+    for _, doc in scope.profiles:
+        idx.profile_terms[(doc.get("profile_id"), doc.get("version"))] = doc
+    for label, doc in scope.profile_registries:
+        idx.registries.append((label, doc))
+        for entry in (doc.get("entries") or []):
+            if not isinstance(entry, dict):
+                continue
+            key = (entry.get("chain_id"), entry.get("profile_id"),
+                   entry.get("version"))
+            idx.profile_entries[key] = entry
+            if entry.get("standing") == "active":
+                chain = entry.get("chain_id")
+                current = idx.active_profile.get(chain)
+                seq = as_int(get(entry, "activation", "log_sequence")) or 0
+                if current is None \
+                        or seq > (as_int(get(current, "activation",
+                                             "log_sequence")) or 0):
+                    idx.active_profile[chain] = entry
+    for _, doc in scope.merkle_profiles:
+        idx.merkle[(doc.get("profile_id"), doc.get("version"))] = doc
+    for _, doc in scope.eligibility_registries:
+        rid = doc.get("registry_id")
+        for entry in (doc.get("entries") or []):
+            if not isinstance(entry, dict):
+                continue
+            idx.eligibility[(rid, entry.get("entry_id"))] = entry
+            if entry.get("standing") == "active":
+                current = idx.active_eligibility.get(rid)
+                seq = as_int(get(entry, "activation", "log_sequence")) or 0
+                if current is None \
+                        or seq > (as_int(get(current, "activation",
+                                             "log_sequence")) or 0):
+                    idx.active_eligibility[rid] = entry
+    for label, doc in scope.admissions:
+        idx.admissions_by_window.setdefault(doc.get("window_open"), []) \
+            .append((label, doc))
+    idx.manifests = sorted(
+        scope.manifests,
+        key=lambda pair: str(get(pair[1], "terms", "window_open") or ""))
+    return idx
+
+
+def _check_window(f: Findings, label: str, open_value: Any, close_value: Any
+                  ) -> tuple[datetime | None, datetime | None]:
+    opened, closed = _midnight(open_value), _midnight(close_value)
+    if opened is None or closed is None:
+        f.error("durability_window_not_fixed_utc_midnight",
+                f"{label}: window {open_value!r}..{close_value!r} is not a fixed "
+                f"UTC window — the profile divides time into consecutive "
+                f"non-overlapping windows from 00:00:00Z inclusive to the next "
+                f"00:00:00Z exclusive, and a boundary chosen anywhere else is a "
+                f"window an owner can move")
+        return opened, closed
+    if seconds_between(closed, opened) != WINDOW_SECONDS:
+        f.error("durability_window_not_fixed_utc_midnight",
+                f"{label}: window spans "
+                f"{int(seconds_between(closed, opened))}s rather than "
+                f"{WINDOW_SECONDS}s — consecutive fixed windows tile time exactly "
+                f"once, and an interval of any other width either overlaps its "
+                f"neighbour or leaves a gap no manifest accounts for")
+    return opened, closed
+
+
+def _resolve_merkle(f: Findings, label: str, snapshot: Any,
+                    idx: DurabilityIndex) -> dict | None:
+    """The released construction this record binds, resolved and digest-checked."""
+    if not isinstance(snapshot, dict):
+        f.error("merkle_profile_absent_or_substituted",
+                f"{label}: no daily-Merkle profile reference — an admission or "
+                f"manifest that names no construction has made no membership or "
+                f"completeness claim a verifier can recompute")
+        return None
+    key = (snapshot.get("profile_id"), snapshot.get("version"))
+    record = idx.merkle.get(key)
+    if record is None:
+        f.warn("merkle-profile-not-in-scope",
+               f"{label}: daily-Merkle profile {key} is not among the records in "
+               f"scope, so its construction could not be resolved; the digest it "
+               f"binds is checked when the released profile travels with it")
+        return None
+    carried = digest_value(snapshot.get("canonical_digest"))
+    recomputed = canonical.digest(record.get("construction"))
+    if carried != recomputed:
+        f.error("merkle_profile_absent_or_substituted",
+                f"{label}: the bound daily-Merkle digest {carried} does not "
+                f"recompute over the released construction of {key} "
+                f"({recomputed}) — a substituted construction changes every leaf "
+                f"and every path while leaving the root's shape untouched, which "
+                f"is why the digest is checked BEFORE any membership claim")
+        return None
+    return record.get("construction")
+
+
+def _resolve_eligibility(f: Findings, label: str, snapshot: Any,
+                         idx: DurabilityIndex, window_open: datetime | None
+                         ) -> None:
+    if not isinstance(snapshot, dict):
+        return
+    key = (snapshot.get("registry_id"), snapshot.get("entry_id"))
+    entry = idx.eligibility.get(key)
+    if entry is None:
+        f.warn("eligibility-entry-not-in-scope",
+               f"{label}: eligibility entry {key} is not among the records in "
+               f"scope; its digest and standing are checked when the register "
+               f"travels with the records that snapshot it")
+        return
+    if digest_value(snapshot.get("canonical_digest")) \
+            != digest_value(entry.get("canonical_digest")):
+        f.error("eligibility_terms_substituted_under_version",
+                f"{label}: the snapshotted eligibility digest disagrees with the "
+                f"append-only register's entry {key} — supplying different terms "
+                f"under an approved version is how a denominator is changed after "
+                f"the counting started, and it is refused before the batch root "
+                f"can be accepted")
+    if snapshot.get("version") != entry.get("version") \
+            or snapshot.get("standing") != entry.get("standing"):
+        f.error("eligibility_terms_substituted_under_version",
+                f"{label}: the snapshot declares version "
+                f"{snapshot.get('version')!r}/standing "
+                f"{snapshot.get('standing')!r} where the register's entry {key} "
+                f"carries {entry.get('version')!r}/{entry.get('standing')!r} — "
+                f"the register is the authority and a disagreement is refused "
+                f"rather than either preferred")
+    active = idx.active_eligibility.get(snapshot.get("registry_id"))
+    if entry.get("standing") in ("retired", "compromised") and active is not None \
+            and active.get("entry_id") != entry.get("entry_id"):
+        f.error("eligibility_snapshot_rolled_back",
+                f"{label}: the window snapshotted retired eligibility entry "
+                f"{entry.get('entry_id')!r} while {active.get('entry_id')!r} "
+                f"stands active with the greater activation checkpoint — a "
+                f"rollback is exactly how a minter would shrink a denominator "
+                f"after the fact, so window opening is refused as eligibility "
+                f"rollback")
+    if window_open is not None:
+        effective = instant(get(entry, "effective_interval", "from_window_open"))
+        if effective is not None and effective > window_open:
+            f.error("eligibility_activation_applied_to_open_window",
+                    f"{label}: eligibility entry {entry.get('entry_id')!r} takes "
+                    f"effect at the window opening "
+                    f"{effective.isoformat()} but is bound to the window that "
+                    f"opened {window_open.isoformat()} — an activation during an "
+                    f"open window applies to the NEXT window; a denominator that "
+                    f"widens mid-count makes the count meaningless in both "
+                    f"directions")
+        until = instant(get(entry, "effective_interval", "until_window_open"))
+        if until is not None and until <= window_open:
+            f.error("eligibility_snapshot_rolled_back",
+                    f"{label}: eligibility entry {entry.get('entry_id')!r} ceased "
+                    f"to be effective at {until.isoformat()}, before this window "
+                    f"opened at {window_open.isoformat()} — the interval is "
+                    f"half-open, and a boundary outside it is not this entry's to "
+                    f"answer for")
+
+
+def check_confirmation_profiles(f: Findings, scope: Scope) -> None:
+    """THE APPROVED TERMS, RECOMPUTED, AND THE DEPTH THAT MUST BE CITED."""
+    for label, doc in scope.profiles:
+        terms = doc.get("terms")
+        carried = digest_value(doc.get("canonical_digest"))
+        if isinstance(terms, dict) and carried:
+            recomputed = canonical.digest(terms)
+            if carried != recomputed:
+                f.error("confirmation_profile_terms_substituted_under_version",
+                        f"{label}: the profile's own canonical digest {carried} "
+                        f"does not recompute over its `terms` ({recomputed}) — "
+                        f"the digest a registry entry binds is over the TERMS and "
+                        f"over nothing else, so a record whose two halves "
+                        f"disagree is refused before any registry entry is "
+                        f"consulted")
+        confirmed = get(doc, "terms", "confirmed_condition") or {}
+        if confirmed.get("numeric_depth") is not None \
+                and not confirmed.get("numeric_depth_citation"):
+            f.error("confirmation_profile_numeric_depth_uncited",
+                    f"{label}: the confirmation condition names a numeric depth "
+                    f"of {confirmed.get('numeric_depth')!r} with no citation — "
+                    f"*\"This specification MUST NOT invent an unsupported "
+                    f"numeric confirmation depth\"*, and a depth with nothing "
+                    f"cited behind it is a number somebody chose about another "
+                    f"chain's consensus rules")
+        vectors = [v for v in (get(doc, "terms", "transition_vectors") or [])
+                   if isinstance(v, dict)]
+        expectations = {v.get("expectation") for v in vectors}
+        if not {"accept", "refuse"} <= expectations:
+            f.error("profile-transition-vectors-incomplete",
+                    f"{label}: the approved terms carry expectations "
+                    f"{sorted(x for x in expectations if x)} — the amendment "
+                    f"requires POSITIVE AND REFUSAL vectors at the transition "
+                    f"boundaries, and a profile with only one direction has never "
+                    f"been shown to refuse anything")
+
+
+def check_profile_registries(f: Findings, scope: Scope,
+                             idx: DurabilityIndex) -> None:
+    """APPEND-ONLY, AND DETERMINISTIC SELECTION OR NO WINDOW OPENS."""
+    for label, doc in idx.registries:
+        if get(doc, "append_only", "history_rewritten") is True \
+                or get(doc, "append_only", "append_only") is False:
+            f.error("registry_history_rewritten",
+                    f"{label}: the register declares its history rewritten "
+                    f"(append_only="
+                    f"{get(doc, 'append_only', 'append_only')!r}, "
+                    f"history_rewritten="
+                    f"{get(doc, 'append_only', 'history_rewritten')!r}) — a "
+                    f"register whose past can be edited cannot show that a "
+                    f"rollback did not happen, which is the one thing it exists "
+                    f"to show")
+        entries = [e for e in (doc.get("entries") or []) if isinstance(e, dict)]
+        for chain in (doc.get("configured_networks") or []):
+            active = [e for e in entries
+                      if e.get("chain_id") == chain and e.get("standing") == "active"]
+            if not active:
+                f.error("confirmation_profile_unresolved",
+                        f"{label}: configured network {chain!r} has no entry with "
+                        f"standing `active` — with either profile unresolved, "
+                        f"schema and validator authoring stays BLOCKED rather "
+                        f"than leaving finality to an implementer, and this "
+                        f"register is where that is measured rather than assumed")
+                continue
+            if len(active) > 1:
+                overlapping = sorted(e.get("entry_id") for e in active)
+                f.error("confirmation_profile_unresolved",
+                        f"{label}: configured network {chain!r} has "
+                        f"{len(active)} active entries {overlapping} — selection "
+                        f"at window open must be DETERMINISTIC, and a register "
+                        f"that cannot name one version per witness leaves the "
+                        f"window with no answer to give later about what it was "
+                        f"measuring")
+        by_profile: dict[Any, list[dict]] = {}
+        for entry in entries:
+            by_profile.setdefault((entry.get("chain_id"), entry.get("profile_id")),
+                                  []).append(entry)
+        for key, group in by_profile.items():
+            ordered = sorted(group, key=lambda e: as_int(e.get("version")) or 0)
+            for older, newer in zip(ordered, ordered[1:]):
+                if not newer.get("predecessor_entry_id"):
+                    f.error("registry-entry-predecessor-unresolved",
+                            f"{label}: entry {newer.get('entry_id')!r} for {key} "
+                            f"is version {newer.get('version')!r} and names no "
+                            f"predecessor — a version chain with a hole in it "
+                            f"cannot prove a rollback did not happen")
+                if older.get("standing") == "active" \
+                        and newer.get("standing") == "active":
+                    f.error("confirmation_profile_unresolved",
+                            f"{label}: entries {older.get('entry_id')!r} and "
+                            f"{newer.get('entry_id')!r} are both active for "
+                            f"{key} — activating a successor closes its "
+                            f"predecessor's interval in the SAME act, so two "
+                            f"active versions is a register that did not perform "
+                            f"the activation it recorded")
+            for entry in ordered:
+                if entry.get("standing") in ("retired", "compromised") \
+                        and not get(entry, "effective_interval",
+                                    "until_window_open"):
+                    f.warn("registry-retired-interval-open",
+                           f"{label}: entry {entry.get('entry_id')!r} stands "
+                           f"{entry.get('standing')!r} with an open effective "
+                           f"interval; activating a successor closes the "
+                           f"predecessor's interval, and an open one leaves the "
+                           f"boundary readable two ways")
+        for entry in entries:
+            # THE APPROVAL IS A FACT ABOUT THE ENTRY AND NOT ABOUT THE PROFILE.
+            # A profile record says what the rule IS; the register says who
+            # approved it and when it applies, which is why the operator check
+            # lives here. `implementer` and `unattributed` are writable in the
+            # shared `approval_record` precisely so this refusal has a fixture:
+            # an implementer-approved profile is finality left to an implementer
+            # under a different name.
+            if get(entry, "approval", "approved_by") != "operator":
+                f.error("confirmation_profile_not_operator_approved",
+                        f"{label}: entry {entry.get('entry_id')!r} records "
+                        f"approval by "
+                        f"{get(entry, 'approval', 'approved_by')!r} — the "
+                        f"amendment requires the OPERATOR to approve what "
+                        f"distinguishes submitted from confirmed before any "
+                        f"schema or validator rests on it")
+            record = idx.profile_terms.get((entry.get("profile_id"),
+                                            entry.get("version")))
+            if record is None:
+                continue
+            if digest_value(entry.get("canonical_digest")) \
+                    != digest_value(record.get("canonical_digest")):
+                f.error("confirmation_profile_terms_substituted_under_version",
+                        f"{label}: entry {entry.get('entry_id')!r} binds a digest "
+                        f"that is not the released profile's own — the terms were "
+                        f"substituted under an approved id and version, and "
+                        f"verification refuses the receipt rather than evaluating "
+                        f"the substituted rule")
+
+
+def check_merkle_profiles(f: Findings, scope: Scope) -> None:
+    """THE CONSTRUCTION, DIGESTED, SEPARATED, AND RECOMPUTABLE."""
+    for label, doc in scope.merkle_profiles:
+        construction = doc.get("construction")
+        carried = digest_value(doc.get("canonical_digest"))
+        if isinstance(construction, dict) and carried:
+            recomputed = canonical.digest(construction)
+            if carried != recomputed:
+                f.error("merkle_profile_absent_or_substituted",
+                        f"{label}: the released profile's own digest {carried} "
+                        f"does not recompute over its `construction` "
+                        f"({recomputed}) — every admission and manifest binds "
+                        f"this value, so a record whose halves disagree is a "
+                        f"substitution nobody downstream could detect")
+        if isinstance(construction, dict):
+            if construction.get("leaf_domain_separator") \
+                    == construction.get("node_domain_separator"):
+                f.error("merkle-domain-separators-equal",
+                        f"{label}: the leaf and internal-node domain separators "
+                        f"are the same string — without separation a leaf digest "
+                        f"can be presented as an internal node, and a "
+                        f"second-preimage substitution becomes available inside a "
+                        f"valid-looking membership path")
+            if construction.get("ordering") not in RECOMPUTABLE_ORDERINGS \
+                    or construction.get("tree_shape") not in RECOMPUTABLE_SHAPES \
+                    or construction.get("odd_node_handling") \
+                    not in RECOMPUTABLE_ODD_HANDLING:
+                f.error("daily_batch_root_not_reproducible",
+                        f"{label}: the released construction declares ordering "
+                        f"{construction.get('ordering')!r}, shape "
+                        f"{construction.get('tree_shape')!r} and odd-node "
+                        f"handling {construction.get('odd_node_handling')!r}, "
+                        f"which this canonical reader cannot reproduce "
+                        f"deterministically — the amendment obliges the validator "
+                        f"to recompute every leaf, path and root, and a root no "
+                        f"validator can recompute is a number rather than a proof")
+        if get(doc, "approval", "approved_by") != "operator":
+            f.warn("merkle-profile-not-operator-approved",
+                   f"{label}: the released construction records approval by "
+                   f"{get(doc, 'approval', 'approved_by')!r}; the amendment asks "
+                   f"the operator to release it before schema authoring rests on "
+                   f"it")
+
+
+def check_eligibility_registries(f: Findings, scope: Scope,
+                                 idx: DurabilityIndex) -> None:
+    """THE DENOMINATOR, APPEND-ONLY, AND CONTROL LEAVES OUTSIDE THE COUNT."""
+    for label, doc in scope.eligibility_registries:
+        if get(doc, "append_only", "history_rewritten") is True \
+                or get(doc, "append_only", "append_only") is False:
+            f.error("registry_history_rewritten",
+                    f"{label}: the eligibility register declares its history "
+                    f"rewritten — the denominator's whole authority is that it "
+                    f"cannot be edited after the windows that counted against it")
+        entries = [e for e in (doc.get("entries") or []) if isinstance(e, dict)]
+        active = [e for e in entries if e.get("standing") == "active"]
+        if len(active) != 1:
+            f.error("eligibility_boundary_selection_ambiguous",
+                    f"{label}: {len(active)} entries stand active — at each UTC "
+                    f"window open exactly ONE entry with standing `active` whose "
+                    f"effective interval contains the boundary is selected, and "
+                    f"zero or several is refused: no event is admitted under an "
+                    f"ambiguous denominator")
+        for entry in entries:
+            terms = entry.get("terms")
+            carried = digest_value(entry.get("canonical_digest"))
+            if isinstance(terms, dict) and carried:
+                recomputed = canonical.digest(terms)
+                if carried != recomputed:
+                    f.error("eligibility_terms_substituted_under_version",
+                            f"{label}: entry {entry.get('entry_id')!r} binds "
+                            f"{carried} which does not recompute over its own "
+                            f"terms ({recomputed})")
+            excluded = get(entry, "terms", "excluded_leaf_classes") or []
+            if "anchoring_control" not in excluded:
+                f.error("anchoring_control_leaf_admitted_as_event",
+                        f"{label}: entry {entry.get('entry_id')!r} does not "
+                        f"exclude `anchoring_control` from the count — an "
+                        f"eligibility set that counts its own control leaves "
+                        f"produces a batch that must contain the manifest "
+                        f"describing it, which is a regress rather than a fixed "
+                        f"point, and it also makes a genuinely empty window "
+                        f"impossible")
+            if get(entry, "approval", "approved_by") != "operator":
+                f.warn("eligibility-entry-not-operator-approved",
+                       f"{label}: entry {entry.get('entry_id')!r} records "
+                       f"approval by "
+                       f"{get(entry, 'approval', 'approved_by')!r}")
+        by_version = sorted(entries, key=lambda e: as_int(e.get("version")) or 0)
+        for older, newer in zip(by_version, by_version[1:]):
+            if older.get("standing") == "active" and newer.get("standing") == "active":
+                f.error("eligibility_boundary_selection_ambiguous",
+                        f"{label}: entries {older.get('entry_id')!r} and "
+                        f"{newer.get('entry_id')!r} are both active — activating "
+                        f"a successor closes its predecessor's interval and marks "
+                        f"it retired in the same atomic act")
+
+
+def check_admissions(f: Findings, scope: Scope, idx: DurabilityIndex) -> None:
+    """ONE ATOMIC ADMISSION, ONE WINDOW, ONE SEQUENCE, EXACTLY ONCE."""
+    seen_leaf: dict[Any, tuple[str, Any]] = {}
+    dedupe_material: dict[Any, tuple[str, Any]] = {}
+    ordered: list[tuple[str, dict, datetime, int]] = []
+
+    for label, doc in scope.admissions:
+        opened, closed = _check_window(f, label, doc.get("window_open"),
+                                       doc.get("window_close"))
+        accepted = instant(doc.get("trusted_acceptance_time"))
+        source = instant(doc.get("owner_source_time"))
+        rule = doc.get("late_arrival_rule") or {}
+
+        if rule.get("window_selected_from") != "trusted_acceptance_time":
+            f.error("durability_window_selected_from_source_time",
+                    f"{label}: the declared rule selects the window from "
+                    f"{rule.get('window_selected_from')!r} — owner source time is "
+                    f"DESCRIPTIVE ONLY and must not select or reopen a window, "
+                    f"because a window a source time can select is a window an "
+                    f"owner can reopen by backdating")
+        if rule.get("source_time_lateness_recorded") in ("on_chain",
+                                                         "in_daily_manifest"):
+            f.error("source_time_lateness_recorded_on_chain",
+                    f"{label}: source-time lateness is recorded "
+                    f"{rule.get('source_time_lateness_recorded')!r} — the "
+                    f"amendment records lateness OFF CHAIN; a per-event lateness "
+                    f"value that reaches a public chain leaks by metadata what "
+                    f"the payload rules keep off it, and it does so permanently")
+
+        if opened is not None and closed is not None and accepted is not None:
+            if not (opened <= accepted < closed):
+                if source is not None and opened <= source < closed:
+                    f.error("durability_window_selected_from_source_time",
+                            f"{label}: trusted acceptance "
+                            f"{accepted.isoformat()} falls outside the declared "
+                            f"window while the OWNER SOURCE TIME "
+                            f"{source.isoformat()} falls inside it — the window "
+                            f"was selected from the descriptive clock, which is "
+                            f"the one clock that may never select one")
+                else:
+                    f.error("admission-window-acceptance-mismatch",
+                            f"{label}: trusted acceptance "
+                            f"{accepted.isoformat()} does not fall in the "
+                            f"half-open declared window "
+                            f"[{opened.isoformat()}, {closed.isoformat()}) — "
+                            f"acceptance selects the window, so a record whose "
+                            f"two halves disagree names no window at all")
+
+        transaction = doc.get("admission_transaction") or {}
+        steps = set(transaction.get("steps") or [])
+        missing = [step for step in ADMISSION_STEPS if step not in steps]
+        if transaction.get("atomic") is not True or missing:
+            f.error("durability_admission_not_atomic",
+                    f"{label}: the admission declares atomic="
+                    f"{transaction.get('atomic')!r} and omits {missing or 'nothing'} "
+                    f"from the one transaction — validation, the dedupe rule, the "
+                    f"acceptance timestamp, the window selection and the sequence "
+                    f"assignment are ONE transaction, and split into steps that "
+                    f"can each succeed alone every interleaving is a way for an "
+                    f"event to be counted twice or not at all")
+
+        if doc.get("leaf_class") == "anchoring_control":
+            f.error("anchoring_control_leaf_admitted_as_event",
+                    f"{label}: an `anchoring_control` leaf is offered as a "
+                    f"durability-eligible event — a witness submission, a "
+                    f"confirmation, a batch manifest or a continuity checkpoint "
+                    f"stays covered by the signed log and its checkpoint anchors "
+                    f"and is OUTSIDE the event count; admitting one to the batch "
+                    f"it produces is recursive")
+
+        rule_d = doc.get("dedupe_rule") or {}
+        if rule_d.get("on_identical_replay") == "assign_second_sequence":
+            f.error("dedupe_replay_consumed_a_second_sequence",
+                    f"{label}: the declared dedupe rule assigns a SECOND sequence "
+                    f"on identical replay — replay of the same key with the same "
+                    f"material returns the EXISTING leaf and sequence, because an "
+                    f"idempotent producer replaying is normal and a second "
+                    f"sequence for one event is exactly-once accounting lost")
+        if rule_d.get("on_key_reuse_with_different_material") == "admit_second_leaf":
+            f.error("dedupe_key_reused_for_different_content",
+                    f"{label}: the declared dedupe rule admits a second leaf when "
+                    f"a key is reused for DIFFERENT material — reuse with a "
+                    f"different digest is REFUSED before sequence assignment, "
+                    f"because a key replayed over different content is a "
+                    f"different event wearing the same handle")
+        custody = get(rule_d, "key_custody", "resolves_into")
+        if custody is not None and custody != GOVERNED_CUSTODY:
+            f.error("dedupe_key_reachable_from_anchor",
+                    f"{label}: the dedupe key's custody resolves into "
+                    f"{custody!r} — the key is owner-local and STABLE, which "
+                    f"makes it a correlation handle the moment it is reachable "
+                    f"from an anchor; the amendment keeps it off public chains")
+        if rule_d.get("key_scope") in ("global_public", "chain_visible"):
+            f.error("dedupe_key_reachable_from_anchor",
+                    f"{label}: the dedupe key's scope is "
+                    f"{rule_d.get('key_scope')!r} — a globally public or "
+                    f"chain-visible dedupe key is the same reachability by a "
+                    f"different route")
+
+        if doc.get("admission_kind") == "replay_acknowledgement":
+            replayed = as_int(doc.get("replay_of_leaf_sequence"))
+            if replayed is None or replayed != as_int(doc.get("leaf_sequence")):
+                f.error("dedupe_replay_consumed_a_second_sequence",
+                        f"{label}: a replay acknowledgement returns sequence "
+                        f"{doc.get('leaf_sequence')!r} while naming "
+                        f"{doc.get('replay_of_leaf_sequence')!r} as the existing "
+                        f"one — the acknowledgement returns the EXISTING leaf, so "
+                        f"a record where the two differ is the second admission "
+                        f"the dedupe rule was there to prevent")
+        if doc.get("pre_closure_anchor_receipt_ref"):
+            f.error("constituent_event_given_separate_receipt",
+                    f"{label}: the admission carries a pre-closure anchor receipt "
+                    f"{doc.get('pre_closure_anchor_receipt_ref')!r} — the anchored "
+                    f"item is the CLOSED DAILY MANIFEST, constituent events are "
+                    f"membership leaves, and an event with its own receipt is a "
+                    f"second anchored item hiding inside the first")
+
+        construction = _resolve_merkle(f, label, doc.get("merkle_profile"), idx)
+        _resolve_eligibility(f, label, doc.get("eligibility_snapshot"), idx, opened)
+
+        leaf = digest_value(doc.get("event_leaf_digest"))
+        if doc.get("admission_kind") != "replay_acknowledgement" and leaf:
+            prior = seen_leaf.get(leaf)
+            if prior is not None and prior[1] != doc.get("window_open"):
+                f.error("durability_event_assigned_to_two_windows",
+                        f"{label}: event leaf {leaf} was already admitted in "
+                        f"window {prior[1]!r} ({prior[0]}) and is admitted again "
+                        f"in {doc.get('window_open')!r} — every accepted event "
+                        f"appears in EXACTLY ONE window's batch, and an event on "
+                        f"both sides of a boundary is counted twice")
+            elif prior is not None:
+                f.error("durability_event_assigned_to_two_windows",
+                        f"{label}: event leaf {leaf} is admitted twice in window "
+                        f"{doc.get('window_open')!r} (also {prior[0]}) — exactly "
+                        f"once means once")
+            else:
+                seen_leaf[leaf] = (label, doc.get("window_open"))
+
+        key = doc.get("dedupe_key_ref")
+        material = digest_value(doc.get("material_digest"))
+        if key is not None and material is not None:
+            prior = dedupe_material.get(key)
+            if prior is not None and prior[1] != material:
+                f.error("dedupe_key_reused_for_different_content",
+                        f"{label}: dedupe key {key!r} was accepted for material "
+                        f"{prior[1]} ({prior[0]}) and is offered here for "
+                        f"{material} — reuse of an accepted key with different "
+                        f"content is REFUSED before a sequence is assigned, and "
+                        f"this record already holds one")
+            elif prior is None:
+                dedupe_material[key] = (label, material)
+
+        sequence = as_int(doc.get("leaf_sequence"))
+        if accepted is not None and sequence is not None \
+                and doc.get("admission_kind") != "replay_acknowledgement":
+            ordered.append((label, doc, accepted, sequence))
+
+    ordered.sort(key=lambda row: row[2])
+    for (label_a, _, accepted_a, seq_a), (label_b, _, accepted_b, seq_b) \
+            in zip(ordered, ordered[1:]):
+        if accepted_a < accepted_b and seq_a > seq_b:
+            f.error("durability_sequence_inverts_acceptance_partition",
+                    f"{label_b}: sequence {seq_b} was assigned at "
+                    f"{accepted_b.isoformat()} while {label_a} holds the greater "
+                    f"sequence {seq_a} at the EARLIER {accepted_a.isoformat()} — "
+                    f"acceptance time partitions the windows and the sequence "
+                    f"orders events within one, so a sequence that inverts the "
+                    f"partition breaks the completeness walk that relies on it")
+
+
+def check_manifests(f: Findings, scope: Scope, idx: DurabilityIndex) -> None:
+    """THE CLOSED WINDOW'S ACCOUNTING, RECONCILED AGAINST ITS OWN ADMISSIONS."""
+    anchored_by_manifest: dict[Any, Any] = {}
+    for _, receipt in scope.receipts:
+        ref = get(receipt, "daily_item", "manifest_ref")
+        if ref is not None:
+            anchored_by_manifest[ref] = digest_value(receipt.get("anchored_digest"))
+
+    previous: tuple[str, dict] | None = None
+    for label, doc in idx.manifests:
+        terms = doc.get("terms") or {}
+        opened, closed = _check_window(f, label, terms.get("window_open"),
+                                       terms.get("window_close"))
+
+        carried = digest_value(doc.get("material_digest"))
+        if carried and terms:
+            recomputed = canonical.digest(terms)
+            if carried != recomputed:
+                f.error("daily_manifest_configuration_substituted",
+                        f"{label}: the manifest's material digest {carried} does "
+                        f"not recompute over its own canonical terms "
+                        f"({recomputed}) — the receipt anchors THIS list of "
+                        f"fields, and a manifest whose digest stands over "
+                        f"different bytes has substituted the accounting under "
+                        f"the proof")
+
+        if terms.get("selectivity_applied") is True:
+            f.error("durability_event_selectivity_applied",
+                    f"{label}: the manifest declares per-event selectivity — "
+                    f"every durability-eligible event accepted during the window "
+                    f"appears exactly once with NO per-event selectivity, and "
+                    f"selection after acceptance is the discretion this whole "
+                    f"profile exists to remove")
+        if doc.get("reopened_after_close") is True:
+            f.error("durability_window_reopened_after_close",
+                    f"{label}: the manifest records the window reopened after "
+                    f"close — a closed window is not reopened or rewritten, "
+                    f"because a window that can be reopened has no closing time "
+                    f"anybody can rely on")
+        if doc.get("window_closed") is False \
+                and doc.get("presented_as_publicly_anchored") is True:
+            f.error("open_window_presented_as_anchored",
+                    f"{label}: an OPEN window is presented as already publicly "
+                    f"anchored — the open window is evidenced by the signed "
+                    f"owner-local log and by nothing on a chain, and presenting "
+                    f"it otherwise claims a witness that has not seen it")
+
+        watermark = as_int(terms.get("close_sequence_watermark"))
+        tree_size = as_int(get(terms, "resolving_log_checkpoint", "tree_size"))
+        if watermark is None or tree_size is None or tree_size <= watermark:
+            f.error("durability_close_watermark_unproven",
+                    f"{label}: close watermark {watermark!r} is not covered by "
+                    f"the resolving checkpoint's tree size {tree_size!r} — the "
+                    f"SAME atomic close transaction records the watermark AND a "
+                    f"signed checkpoint whose tree covers every leaf through it; "
+                    f"a serialization point nothing witnesses is a serialization "
+                    f"point a minter can move")
+
+        construction = _resolve_merkle(f, label, terms.get("merkle_profile"), idx)
+        _resolve_eligibility(f, label, terms.get("eligibility_snapshot"), idx,
+                             opened)
+
+        admissions = [pair for pair in
+                      idx.admissions_by_window.get(terms.get("window_open"), [])
+                      if pair[1].get("admission_kind") != "replay_acknowledgement"]
+        declared_count = as_int(terms.get("event_count"))
+        if admissions:
+            admissions.sort(key=lambda pair: as_int(pair[1].get("leaf_sequence")) or 0)
+            sequences = [as_int(pair[1].get("leaf_sequence")) for pair in admissions]
+            leaves = [digest_value(pair[1].get("event_leaf_digest"))
+                      for pair in admissions]
+            if declared_count is not None and declared_count != len(admissions):
+                code = ("durability_batch_summary_lowered_below_watermark"
+                        if declared_count < len(admissions)
+                        else "durability_batch_omits_accepted_event")
+                f.error(code,
+                        f"{label}: the manifest declares event_count "
+                        f"{declared_count} where the resolving checkpoint's own "
+                        f"admissions through watermark {watermark!r} number "
+                        f"{len(admissions)} ({sequences}) — first sequence, last "
+                        f"sequence and event count are SUMMARIES of the "
+                        f"checkpoint-derived set and not a denominator this "
+                        f"record chose, and three self-consistent numbers over a "
+                        f"retained prefix are exactly what checkpoint "
+                        f"reconciliation exists to catch")
+            declared_last = as_int(terms.get("last_leaf_sequence"))
+            if declared_last is not None and sequences \
+                    and declared_last < max(s for s in sequences if s is not None):
+                f.error("durability_batch_summary_lowered_below_watermark",
+                        f"{label}: last_leaf_sequence {declared_last} is below "
+                        f"the greatest eligible admission "
+                        f"{max(s for s in sequences if s is not None)} covered by "
+                        f"the close watermark — the omitted suffix is detected by "
+                        f"reconciliation and the batch is REFUSED before witness "
+                        f"verification")
+            declared_first = as_int(terms.get("first_leaf_sequence"))
+            if declared_first is not None and sequences \
+                    and declared_first > min(s for s in sequences if s is not None):
+                f.error("durability_batch_omits_accepted_event",
+                        f"{label}: first_leaf_sequence {declared_first} is above "
+                        f"the earliest eligible admission "
+                        f"{min(s for s in sequences if s is not None)} — an "
+                        f"omitted PREFIX is refused on the same footing as an "
+                        f"omitted suffix")
+            if construction is not None and all(leaves):
+                root = digest_value(terms.get("daily_batch_root"))
+                recomputed = _batch_root(construction, leaves)
+                if root != recomputed:
+                    f.error("daily_batch_root_not_reproducible",
+                            f"{label}: the declared daily_batch_root {root} does "
+                            f"not reproduce from the window's ordered event "
+                            f"leaves under the released construction "
+                            f"({recomputed}) — canonical leaf encoding, domain "
+                            f"separation, ordering, tree shape, odd-node handling "
+                            f"and SHA-256 deterministically reproduce the root or "
+                            f"verification is refused")
+                for index, (adm_label, adm) in enumerate(admissions):
+                    expected = _membership_path(construction, leaves, index)
+                    supplied = [entry for entry in (adm.get("membership_path") or [])
+                                if isinstance(entry, dict)]
+                    if not supplied and len(leaves) > 1:
+                        f.error("durability_batch_omits_accepted_event",
+                                f"{adm_label}: an accepted sequence in a closed "
+                                f"window with no membership path into "
+                                f"{label}'s batch — the batch is refused as "
+                                f"INCOMPLETE even where its root carries valid "
+                                f"witness evidence")
+                        continue
+                    got = [(entry.get("position"),
+                            digest_value(entry.get("sibling_digest")))
+                           for entry in supplied]
+                    want = [(step["position"], step["value"]) for step in expected]
+                    if got != want:
+                        f.error("daily_batch_root_not_reproducible",
+                                f"{adm_label}: the supplied membership path does "
+                                f"not recompute to {label}'s batch root under the "
+                                f"released construction (supplied {got}, "
+                                f"recomputed {want}) — a path a verifier cannot "
+                                f"walk is an unfalsifiable claim rather than a "
+                                f"strong one")
+        elif declared_count == 0 and construction is not None:
+            root = digest_value(terms.get("daily_batch_root"))
+            empty = digest_value(get(construction, "empty_root"))
+            if root != empty:
+                f.error("daily_batch_root_not_reproducible",
+                        f"{label}: a count-zero window binds {root} where the "
+                        f"released construction declares the deterministic empty "
+                        f"root {empty} — an empty tree must have a value both "
+                        f"parties reach, which is why the profile declares one "
+                        f"rather than leaving it to convention")
+        elif declared_count:
+            f.warn("manifest-admissions-not-in-scope",
+                   f"{label}: declares event_count {declared_count} and no "
+                   f"admission for window {terms.get('window_open')!r} travels "
+                   f"with it, so the checkpoint-derived reconciliation could not "
+                   f"be performed; this reader adjudicates the records it is "
+                   f"given and says so rather than passing the claim")
+
+        if terms.get("previous_daily_batch_root") is not None:
+            f.error("daily_continuity_link_over_batch_root",
+                    f"{label}: the continuity link is taken over the previous "
+                    f"window's BATCH ROOT — two consecutive empty windows share "
+                    f"the deterministic empty root on purpose, so a link over the "
+                    f"root cannot tell a missing intermediate day from a present "
+                    f"one; the link is over the previous item's "
+                    f"configuration-bound anchored digest and commits to its "
+                    f"identity, accounting, registry snapshots and configuration")
+        link = digest_value(terms.get("previous_daily_anchored_digest"))
+        sentinel = terms.get("genesis_sentinel")
+        if link is None and sentinel is None:
+            f.error("daily_continuity_link_unresolved",
+                    f"{label}: the manifest binds neither a predecessor's "
+                    f"anchored digest nor the contract-defined genesis sentinel — "
+                    f"a daily item with no continuity link is an item that cannot "
+                    f"show what came before it")
+        if link is not None and sentinel is not None:
+            f.error("daily_continuity_link_unresolved",
+                    f"{label}: the manifest binds BOTH a predecessor's anchored "
+                    f"digest and the genesis sentinel — exactly one is present on "
+                    f"a conforming record, because there is exactly one first "
+                    f"manifest per owner log")
+        if previous is None:
+            if sentinel is None:
+                f.error("first_daily_manifest_without_genesis_sentinel",
+                        f"{label}: the earliest daily manifest in scope binds no "
+                        f"genesis sentinel — the first manifest binds ONE "
+                        f"contract-defined sentinel, because a sentinel a "
+                        f"realization chose would let a minter start a fresh "
+                        f"chain of daily items anywhere and present it as the "
+                        f"first")
+            elif sentinel != DAILY_GENESIS_SENTINEL:
+                f.error("first_daily_manifest_without_genesis_sentinel",
+                        f"{label}: the genesis sentinel is {sentinel!r} and not "
+                        f"the contract-defined {DAILY_GENESIS_SENTINEL!r}")
+        else:
+            prev_label, prev_doc = previous
+            expected = anchored_by_manifest.get(prev_doc.get("manifest_id"))
+            prev_close = instant(get(prev_doc, "terms", "window_close"))
+            if opened is not None and prev_close is not None and opened != prev_close:
+                f.error("empty_window_without_linked_checkpoint",
+                        f"{label}: this window opens {opened.isoformat()} while "
+                        f"{prev_label} closed {prev_close.isoformat()} — the "
+                        f"windows in between emitted no signed, linked count-zero "
+                        f"manifest, and a chain of daily items with holes in it "
+                        f"proves nothing about the days in the holes")
+            if expected is None:
+                f.warn("continuity-predecessor-receipt-not-in-scope",
+                       f"{label}: {prev_label}'s receipt does not travel with "
+                       f"these records, so the continuity link could not be "
+                       f"resolved to a configuration-bound anchored digest")
+            elif link != expected:
+                f.error("daily_continuity_link_unresolved",
+                        f"{label}: the continuity link {link} does not resolve to "
+                        f"the immediately preceding item's anchored digest "
+                        f"{expected} ({prev_label}) — a missing, duplicated, "
+                        f"reordered or substituted daily item breaks the next "
+                        f"manifest's continuity proof, and that is the property "
+                        f"the link is for")
+            if sentinel is not None:
+                f.error("daily_continuity_link_unresolved",
+                        f"{label}: the genesis sentinel is bound on a manifest "
+                        f"that HAS a predecessor ({prev_label}) — a second first "
+                        f"manifest is a fresh chain of daily items presented as "
+                        f"the original")
+        previous = (label, doc)
+
+
+def check_confirmation_bindings(f: Findings, scope: Scope,
+                                idx: DurabilityIndex) -> None:
+    """THE PROFILE BINDING ON RECEIPTS, STATES AND RESULTS.
+
+    Requirement 3 is a rule about THREE records at once — the mint-time
+    configuration block commits the snapshot, the state record reports the
+    evidence state under it, and the verification result names the profile its
+    answer was reached under — so the comparisons live in one place rather than
+    three, and a receipt minted under a dead profile is refused wherever it is
+    read from."""
+    # ---------------- receipts: the committed snapshot ----------------
+    for label, doc in scope.receipts:
+        mtc = doc.get("mint_time_configuration") or {}
+        # KEYED BY WITNESS, NOT BY CHAIN, AND THE DISTINCTION IS LOAD-BEARING.
+        # `configured_witnesses` carries no uniqueness constraint on `chain_id`,
+        # and the per-chain entry's own `witness_id` exists because a
+        # realization may configure more than one witness against one chain — so
+        # a chain-keyed index would let the LAST witness written silently
+        # overwrite the first, and every comparison downstream of it would be
+        # nondeterministic in the order of an array. `witnesses_by_chain` keeps
+        # the chain as a RESOLUTION HINT, usable only where it is unambiguous.
+        snapshots: dict[Any, dict] = {}
+        witnesses_by_chain: dict[Any, list] = {}
+        for witness in (mtc.get("configured_witnesses") or []):
+            if not isinstance(witness, dict):
+                continue
+            witnesses_by_chain.setdefault(witness.get("chain_id"), []) \
+                .append(witness.get("witness_id"))
+            snapshot = witness.get("confirmation_profile")
+            if not isinstance(snapshot, dict):
+                continue
+            chain = snapshot.get("chain_id")
+            snapshots[witness.get("witness_id")] = snapshot
+            if chain != witness.get("chain_id"):
+                f.error("confirmation_profile_terms_substituted_under_version",
+                        f"{label}: configured witness "
+                        f"{witness.get('witness_id')!r} anchors on chain "
+                        f"{witness.get('chain_id')!r} while its committed "
+                        f"confirmation profile names {chain!r} — a snapshot for "
+                        f"another network is a confirmation rule swapped under a "
+                        f"valid-looking proof")
+            if snapshot.get("standing") in ("retired", "compromised"):
+                f.error("confirmation_profile_retired_or_compromised_mints_receipt",
+                        f"{label}: the committed snapshot for {chain!r} stands "
+                        f"{snapshot.get('standing')!r} — a retired or compromised "
+                        f"profile MUST NOT mint a new receipt or support a new "
+                        f"long-horizon claim; its historical receipts keep their "
+                        f"as-of evidence, and that is a different thing from "
+                        f"minting a new one")
+            key = (chain, snapshot.get("profile_id"), snapshot.get("version"))
+            entry = idx.profile_entries.get(key)
+            if entry is None:
+                if idx.profile_entries:
+                    f.warn("confirmation-profile-unregistered",
+                           f"{label}: the committed snapshot {key} matches no "
+                           f"entry in any append-only register in scope, so its "
+                           f"digest and standing could not be compared")
+                continue
+            if digest_value(snapshot.get("canonical_digest")) \
+                    != digest_value(entry.get("canonical_digest")):
+                f.error("confirmation_profile_terms_substituted_under_version",
+                        f"{label}: the committed snapshot's digest disagrees with "
+                        f"register entry {entry.get('entry_id')!r} — verification "
+                        f"REFUSES the receipt and does not evaluate the "
+                        f"substituted confirmation rule")
+            if entry.get("standing") in ("retired", "compromised"):
+                f.error("confirmation_profile_retired_or_compromised_mints_receipt",
+                        f"{label}: register entry {entry.get('entry_id')!r} stands "
+                        f"{entry.get('standing')!r} in the append-only register "
+                        f"while this receipt was minted under it")
+            active = idx.active_profile.get(chain)
+            if active is not None and entry.get("entry_id") != active.get("entry_id") \
+                    and (as_int(get(active, "activation", "log_sequence")) or 0) \
+                    > (as_int(get(entry, "activation", "log_sequence")) or 0):
+                f.error("confirmation_profile_snapshot_rolled_back",
+                        f"{label}: the snapshot selects version "
+                        f"{snapshot.get('version')!r} for {chain!r} while "
+                        f"{active.get('entry_id')!r} (version "
+                        f"{active.get('version')!r}) had already activated at the "
+                        f"greater checkpoint — minting is REFUSED before witness "
+                        f"submission even though the older version was once "
+                        f"approved")
+
+        daily = doc.get("daily_item")
+        roots = {digest_value(get(entry, "commitment_derivation",
+                                  "source_aggregation_root"))
+                 for entry in (doc.get("per_chain_anchors") or [])
+                 if isinstance(entry, dict)}
+        roots.discard(None)
+        if len(roots) > 1:
+            f.error("daily_item_witness_roots_differ",
+                    f"{label}: per-chain entries derive their commitments from "
+                    f"{len(roots)} different aggregation roots {sorted(roots)} — "
+                    f"after closure the SAME aggregation root enters BOTH "
+                    f"configured witnesses; different commitment PATHS are "
+                    f"mandatory where encoding differs and a different SOURCE is "
+                    f"refused, because a split root is two anchored items "
+                    f"presented as one")
+        if isinstance(daily, dict):
+            anchored = digest_value(doc.get("anchored_digest"))
+            if doc.get("aggregation_merkle_path"):
+                f.error("aggregation_root_not_identity_for_daily_item",
+                        f"{label}: a `daily_merkle` item carries a non-empty "
+                        f"aggregation path — for this one-item daily profile the "
+                        f"shared aggregation path is the IDENTITY path, so "
+                        f"aggregation_root == anchored_digest, and a sibling here "
+                        f"means the anchored item is not the one the manifest "
+                        f"closed")
+            for root in roots:
+                if root != anchored:
+                    f.error("aggregation_root_not_identity_for_daily_item",
+                            f"{label}: a per-chain commitment derives from {root} "
+                            f"where the configuration-bound anchored digest is "
+                            f"{anchored} — the daily item's aggregation root IS "
+                            f"its anchored digest, and a commitment over anything "
+                            f"else commits to something this receipt does not "
+                            f"name")
+
+        for index, entry in enumerate(doc.get("per_chain_anchors") or []):
+            if not isinstance(entry, dict):
+                continue
+            where = f"{label}: per_chain_anchors[{index}] ({entry.get('chain_id')!r})"
+            derivation = entry.get("commitment_derivation") or {}
+            if derivation.get("path_present") is False:
+                f.error("witness_commitment_path_absent",
+                        f"{where}: carries transaction and chain inclusion "
+                        f"evidence but no proof that its transaction commitment "
+                        f"derives from the aggregation root this receipt names — "
+                        f"the entry is REFUSED even where the transaction itself "
+                        f"is canonically accepted, because inclusion of a "
+                        f"commitment to something else is not evidence about this "
+                        f"item")
+            if derivation.get("proof_over") == "raw_daily_batch_root":
+                f.error("durability_witness_proof_over_raw_batch_root",
+                        f"{where}: the proof is taken over the RAW daily batch "
+                        f"root rather than the configuration-bound aggregation "
+                        f"root — a proof over the bare root drops the manifest "
+                        f"link, the accounting fields, the registry snapshots and "
+                        f"the whole mint-time configuration from what was "
+                        f"committed, and it is refused by the amendment by name")
+            named = entry.get("confirmed_under_profile") or {}
+            # THE ENTRY'S OWN WITNESS FIRST, and the chain only where the
+            # chain resolves to exactly one configured witness. Where it does
+            # not and the entry names none, the entry cannot be tied to the
+            # profile it was evaluated under, and guessing which of two
+            # witnesses it meant would make the comparison depend on array
+            # order — so it is refused instead.
+            wid = entry.get("witness_id")
+            if wid is None:
+                candidates = witnesses_by_chain.get(entry.get("chain_id")) or []
+                if len(candidates) == 1:
+                    wid = candidates[0]
+                elif len(candidates) > 1:
+                    f.error("witness_confirmed_without_named_profile",
+                            f"{where}: names no witness while the committed "
+                            f"block configures {len(candidates)} witnesses "
+                            f"{candidates} on chain "
+                            f"{entry.get('chain_id')!r} — which witness this "
+                            f"entry discharges cannot be resolved from the "
+                            f"chain, and the profile it was confirmed under is "
+                            f"therefore unattributable")
+                    continue
+            snapshot = snapshots.get(wid)
+            if snapshot is None:
+                continue
+            if named.get("profile_id") != snapshot.get("profile_id") \
+                    or named.get("version") != snapshot.get("version") \
+                    or digest_value(named.get("canonical_digest")) \
+                    != digest_value(snapshot.get("canonical_digest")):
+                f.error("witness_confirmed_without_named_profile",
+                        f"{where}: the entry says it was confirmed under "
+                        f"{named.get('profile_id')!r} v{named.get('version')!r} "
+                        f"while the committed block snapshotted "
+                        f"{snapshot.get('profile_id')!r} "
+                        f"v{snapshot.get('version')!r} — a confirmed entry names "
+                        f"the profile it was ACTUALLY evaluated under, and a name "
+                        f"that disagrees with the committed snapshot names a rule "
+                        f"nobody applied")
+            token = named.get("as_of_token")
+            expected = (f"confirmed_under_v{snapshot.get('version')}_at_"
+                        f"{get(snapshot, 'activation', 'checkpoint_ref')}")
+            if token is not None and token != expected:
+                f.error("confirmation_profile_standing_rewrites_historical_receipt",
+                        f"{where}: the immutable as-of token is {token!r} where "
+                        f"the committed snapshot's version and activation "
+                        f"checkpoint give {expected!r} — the as-of token is what "
+                        f"was proven, under which version, at which checkpoint, "
+                        f"and it does not change when policy does")
+
+    # ---------------- anchor states: submitted is not confirmed ----------------
+    for label, doc in scope.states:
+        rows = [row for row in (doc.get("per_witness") or []) if isinstance(row, dict)]
+        for row in rows:
+            where = f"{label}: per_witness[{row.get('witness_id')!r}]"
+            status = row.get("status")
+            submission = row.get("submission_evidence")
+            confirmation = row.get("confirmation_evidence")
+            stage = row.get("upgrade_stage") or {}
+            snapshot = row.get("confirmation_profile") or {}
+
+            if status == "pending" and isinstance(submission, dict):
+                f.error("witness_pending_with_submission_evidence",
+                        f"{where}: reports `pending` while carrying accepted "
+                        f"submission evidence "
+                        f"{submission.get('evidence_kinds')!r} — `pending` is "
+                        f"RESERVED for a witness with no accepted submission "
+                        f"evidence, and a row that under-reports is as wrong an "
+                        f"answer as one that over-reports")
+            if status == "confirmed" and not isinstance(confirmation, dict):
+                f.error("submission_evidence_offered_as_confirmed",
+                        f"{where}: reports `confirmed` with no confirmation "
+                        f"evidence at all — interface acceptance, a detached "
+                        f"timestamp proof, a transaction identifier and a prior "
+                        f"status label are SUBMISSION evidence, and offering them "
+                        f"as confirmation is the one substitution requirement 3 "
+                        f"exists to refuse")
+            if status == "confirmed" and isinstance(confirmation, dict):
+                if confirmation.get("condition_satisfied") is not True:
+                    f.error("witness_confirmed_without_profile_condition",
+                            f"{where}: reports `confirmed` while its own "
+                            f"confirmation evidence records "
+                            f"condition_satisfied="
+                            f"{confirmation.get('condition_satisfied')!r} — the "
+                            f"witness deterministically remains `submitted` where "
+                            f"the referenced profile's objective condition is not "
+                            f"satisfied, and the validator refuses the confirmed "
+                            f"state")
+                record = idx.profile_terms.get((snapshot.get("profile_id"),
+                                                snapshot.get("version")))
+                required = set(get(record, "terms", "retained_proof_material") or []) \
+                    if record is not None else set()
+                retained = set(confirmation.get("retained_proof_material") or [])
+                if required and not required <= retained:
+                    f.error("witness_confirmed_without_profile_condition",
+                            f"{where}: reports `confirmed` while retaining "
+                            f"{sorted(retained)} where the named profile requires "
+                            f"{sorted(required)} — the retained-proof requirement "
+                            f"is part of the condition, and confirmation over "
+                            f"material nobody kept cannot be re-checked")
+            if row.get("role") == "durability" and status == "confirmed" \
+                    and stage and stage.get("chain_confirmation") != "confirmed":
+                f.error("submission_evidence_offered_as_confirmed",
+                        f"{where}: the row reports `confirmed` while its chain "
+                        f"layer reports {stage.get('chain_confirmation')!r} — an "
+                        f"accepted and retained detached proof is OpenTimestamps "
+                        f"submitted, and confirmation on the underlying chain "
+                        f"requires the upgrade this row says has not happened")
+
+            change = row.get("observation_change")
+            if isinstance(change, dict):
+                if change.get("state_after") == "confirmed":
+                    f.error("reorganized_witness_retains_confirmed_label",
+                            f"{where}: a {change.get('change_kind')!r} is recorded "
+                            f"and the state after it is still `confirmed` — the "
+                            f"profile's declared transition rule determines the "
+                            f"state, the change is written as evidence, and a "
+                            f"stale confirmed label is not retained by assertion")
+                if change.get("evidence_written") is not True:
+                    f.error("reorganized_witness_retains_confirmed_label",
+                            f"{where}: a {change.get('change_kind')!r} is recorded "
+                            f"with evidence_written="
+                            f"{change.get('evidence_written')!r} — a state change "
+                            f"nobody wrote down is a label edit, and the whole "
+                            f"point of the rule is that the change becomes "
+                            f"evidence")
+
+            pending_proof = row.get("pending_durability_proof")
+            if isinstance(pending_proof, dict) \
+                    and pending_proof.get("prior_transitions_retained") is False:
+                f.error("state_transition_history_erased_on_upgrade",
+                        f"{where}: the durability upgrade did not retain the "
+                        f"prior state transitions — an upgrade APPENDS the "
+                        f"completed entry against the same anchored digest and "
+                        f"erases nothing, because the transitions are the "
+                        f"evidence that submitted and confirmed were ever "
+                        f"distinct states")
+
+        if doc.get("long_horizon_claim_admitted") is True:
+            durable = [row for row in rows if row.get("role") == "durability"]
+            confirmed = [row for row in durable
+                         if get(row, "upgrade_stage", "chain_confirmation")
+                         == "confirmed"
+                         or (not row.get("upgrade_stage")
+                             and row.get("status") == "confirmed")]
+            if not confirmed:
+                f.error("long_horizon_claim_on_unupgraded_durability_proof",
+                        f"{label}: a long-horizon durability claim is admitted "
+                        f"while no durability witness reports a confirmed chain "
+                        f"layer ("
+                        f"{[(r.get('witness_id'), r.get('status'), get(r, 'upgrade_stage', 'chain_confirmation')) for r in durable]}) "
+                        f"— such a claim cites Bitcoin-confirmed evidence and "
+                        f"MUST NOT cite an unupgraded OpenTimestamps submission "
+                        f"or the operational witness alone; the valid operational "
+                        f"result stays independently reportable")
+
+    # ---------------- verification results: the profile is named ----------------
+    # THE COMMITTED SNAPSHOT PER WITNESS, indexed once so a result can be
+    # compared against the receipt it names rather than believed. Keyed by
+    # WITNESS and not by chain: `configured_witnesses` carries no uniqueness
+    # constraint on `chain_id`, and the per-chain entry's own `witness_id`
+    # exists because a realization may configure more than one witness against
+    # one chain — so a comparison keyed on the chain would silently collapse
+    # them, which is the ambiguity this index refuses to inherit.
+    snapshot_by_receipt: dict[Any, dict[Any, dict]] = {}
+    chain_by_receipt: dict[Any, dict[Any, Any]] = {}
+    for _, receipt in scope.receipts:
+        by_witness, by_chain = {}, {}
+        for witness in (get(receipt, "mint_time_configuration",
+                            "configured_witnesses") or []):
+            if not isinstance(witness, dict):
+                continue
+            wid = witness.get("witness_id")
+            if isinstance(witness.get("confirmation_profile"), dict):
+                by_witness[wid] = witness["confirmation_profile"]
+            by_chain[wid] = witness.get("chain_id")
+        snapshot_by_receipt[receipt.get("receipt_id")] = by_witness
+        chain_by_receipt[receipt.get("receipt_id")] = by_chain
+
+    for label, doc in scope.verifications:
+        rows = [row for row in (doc.get("confirmation_profiles_evaluated_under") or [])
+                if isinstance(row, dict)]
+        configured = snapshot_by_receipt.get(doc.get("receipt_ref"))
+        chains = chain_by_receipt.get(doc.get("receipt_ref")) or {}
+        if doc.get("status") == "anchor_complete" and not rows:
+            f.error("witness_confirmed_without_named_profile",
+                    f"{label}: reports `anchor_complete` and names no "
+                    f"confirmation profile — every verification result names the "
+                    f"profile under which it was evaluated, because a "
+                    f"completeness answer whose confirmation rule is unstated "
+                    f"cannot be re-checked by the party it is shown to")
+        seen_witnesses: set[Any] = set()
+        for row in rows:
+            where = (f"{label}: confirmation_profiles_evaluated_under"
+                     f"[{row.get('witness_id')!r}]")
+            wid = row.get("witness_id")
+            if wid in seen_witnesses:
+                f.error("witness_confirmed_without_named_profile",
+                        f"{where}: two rows name the same witness — the result "
+                        f"names ONE profile per witness it relied on, and a "
+                        f"second row for one witness is two answers about one "
+                        f"evaluation")
+            seen_witnesses.add(wid)
+
+            # THE NAMED WITNESS IS COMPARED AGAINST THE COMMITTED SET, where the
+            # receipt travels with the result. A row naming a witness the
+            # receipt does not configure, on a chain that is not that witness's,
+            # or under a profile the committed block did not snapshot for it, is
+            # a rule nobody applied.
+            if configured is not None:
+                if wid not in chains:
+                    f.error("witness_confirmed_without_named_profile",
+                            f"{where}: the referenced receipt "
+                            f"{doc.get('receipt_ref')!r} configures no witness "
+                            f"{wid!r} — a result cannot have evaluated a witness "
+                            f"the receipt it names never demanded")
+                elif chains.get(wid) != row.get("chain_id"):
+                    f.error("witness_confirmed_without_named_profile",
+                            f"{where}: this row declares chain "
+                            f"{row.get('chain_id')!r} where the committed block "
+                            f"anchors {wid!r} on {chains.get(wid)!r} — the "
+                            f"witness and the chain are separate facts and a row "
+                            f"that mixes them names no pairing at all")
+                else:
+                    snapshot = configured.get(wid)
+                    if isinstance(snapshot, dict) and (
+                            snapshot.get("profile_id") != row.get("profile_id")
+                            or snapshot.get("version") != row.get("version")
+                            or digest_value(snapshot.get("canonical_digest"))
+                            != digest_value(row.get("canonical_digest"))):
+                        f.error("witness_confirmed_without_named_profile",
+                                f"{where}: names "
+                                f"{row.get('profile_id')!r} v{row.get('version')!r} "
+                                f"where the committed block snapshotted "
+                                f"{snapshot.get('profile_id')!r} "
+                                f"v{snapshot.get('version')!r} for this witness "
+                                f"— the profile a result was reached under is the "
+                                f"one the anchored digest binds, not one chosen "
+                                f"at verification time")
+            token = row.get("as_of_token")
+            if token and not token.startswith(f"confirmed_under_v{row.get('version')}_at_"):
+                f.error("confirmation_profile_standing_rewrites_historical_receipt",
+                        f"{where}: the as-of token {token!r} does not name the "
+                        f"version {row.get('version')!r} this row was evaluated "
+                        f"under — the token is immutable evidence about the past "
+                        f"and current standing is reported BESIDE it, never over "
+                        f"it")
+            if row.get("current_standing") in ("profile_retired", "profile_compromised") \
+                    and row.get("new_claim_admitted") is True:
+                f.error("confirmation_profile_retired_or_compromised_mints_receipt",
+                        f"{where}: a NEW claim is admitted while current registry "
+                        f"standing is {row.get('current_standing')!r} — the "
+                        f"historical as-of evidence remains immutable AND no new "
+                        f"long-horizon claim is admitted from that profile; each "
+                        f"of those is the other's overcorrection")
+            key = (row.get("chain_id"), row.get("profile_id"), row.get("version"))
+            entry = idx.profile_entries.get(key)
+            if entry is None:
+                continue
+            if digest_value(row.get("canonical_digest")) \
+                    != digest_value(entry.get("canonical_digest")):
+                f.error("confirmation_profile_terms_substituted_under_version",
+                        f"{where}: the digest named by this result disagrees with "
+                        f"register entry {entry.get('entry_id')!r}")
+            expected_standing = {"active": "profile_active",
+                                 "retired": "profile_retired",
+                                 "compromised": "profile_compromised"}.get(
+                                     entry.get("standing"))
+            if expected_standing is not None \
+                    and row.get("current_standing") != expected_standing \
+                    and row.get("current_standing") != "profile_digest_mismatch":
+                f.error("confirmation_profile_standing_rewrites_historical_receipt",
+                        f"{where}: reports current standing "
+                        f"{row.get('current_standing')!r} where the append-only "
+                        f"register carries {entry.get('standing')!r} — current "
+                        f"verification reports CURRENT standing, and a result "
+                        f"that reports a stale one is the historical answer "
+                        f"overwriting the live one")
+
+
+def check_manifest_window_profiles(f: Findings, scope: Scope,
+                                   idx: DurabilityIndex) -> None:
+    """THE WINDOW-OPEN SNAPSHOT, CHECKED AGAINST THE WINDOW IT OPENED.
+
+    A profile that activates DURING an open window applies only to the next one.
+    That comparison needs both a window and a snapshot, and only the manifest and
+    its receipt hold both — so it lives here rather than on either alone."""
+    receipts_by_manifest = {get(doc, "daily_item", "manifest_ref"): (label, doc)
+                            for label, doc in scope.receipts
+                            if get(doc, "daily_item", "manifest_ref") is not None}
+    for label, doc in idx.manifests:
+        opened = instant(get(doc, "terms", "window_open"))
+        pair = receipts_by_manifest.get(doc.get("manifest_id"))
+        if opened is None or pair is None:
+            continue
+        receipt_label, receipt = pair
+        for witness in (get(receipt, "mint_time_configuration",
+                            "configured_witnesses") or []):
+            snapshot = witness.get("confirmation_profile") \
+                if isinstance(witness, dict) else None
+            if not isinstance(snapshot, dict):
+                continue
+            key = (snapshot.get("chain_id"), snapshot.get("profile_id"),
+                   snapshot.get("version"))
+            entry = idx.profile_entries.get(key)
+            if entry is None:
+                continue
+            effective = instant(get(entry, "effective_interval", "from_window_open"))
+            if effective is not None and effective > opened:
+                f.error("confirmation_profile_activation_applied_to_open_window",
+                        f"{receipt_label}: the snapshot for "
+                        f"{snapshot.get('chain_id')!r} takes effect at the window "
+                        f"opening {effective.isoformat()} while {label} closed the "
+                        f"window that opened {opened.isoformat()} — a profile "
+                        f"activation during an open window applies only to the "
+                        f"NEXT window, and every event and the final item retain "
+                        f"the window-open snapshot")
+            until = instant(get(entry, "effective_interval", "until_window_open"))
+            if until is not None and until <= opened:
+                f.error("confirmation_profile_snapshot_rolled_back",
+                        f"{receipt_label}: the snapshot for "
+                        f"{snapshot.get('chain_id')!r} ceased to be effective at "
+                        f"{until.isoformat()}, before {label}'s window opened at "
+                        f"{opened.isoformat()} — a window that opens after a new "
+                        f"activation checkpoint and selects an older version is "
+                        f"refused as rollback")
+
+
 # --------------------------- the scope, adjudicated ---------------------------
 
 def validate_scope(f: Findings, records: list[tuple[str, dict]],
@@ -2126,6 +3691,18 @@ def validate_scope(f: Findings, records: list[tuple[str, dict]],
     check_linkage(f, scope)
     check_analyses(f, scope)
     check_declarations(f, scope)
+    # THE DURABILITY PROFILE'S OWN LAYER, LAST, because every one of its rules is
+    # a property of a SET: the index is built once over the whole scope and the
+    # comparisons are made against it rather than inferred from any one record.
+    durability = _build_durability_index(scope)
+    check_confirmation_profiles(f, scope)
+    check_profile_registries(f, scope, durability)
+    check_merkle_profiles(f, scope)
+    check_eligibility_registries(f, scope, durability)
+    check_admissions(f, scope, durability)
+    check_manifests(f, scope, durability)
+    check_manifest_window_profiles(f, scope, durability)
+    check_confirmation_bindings(f, scope, durability)
     return scope
 
 
@@ -2348,6 +3925,17 @@ def main() -> int:
                 f"enumeration disagree: only in contract "
                 f"{sorted(declared - REFUSAL_CODES)}, only in validator "
                 f"{sorted(REFUSAL_CODES - declared)}")
+
+    # THE SENTINEL THE READER HOLDS AND THE ONE THE CONTRACT DEFINES ARE ONE
+    # VALUE, for the same reason the refusal sets are one set: a first manifest
+    # the two spell differently is a first manifest neither can agree on.
+    contract_sentinel = get(docs.get("anchoring-definitions.schema.yaml", {}),
+                            "$defs", "daily_genesis_sentinel", "const")
+    if contract_sentinel is not None \
+            and contract_sentinel != DAILY_GENESIS_SENTINEL:
+        f.error("genesis-sentinel-drift",
+                f"the validator holds {DAILY_GENESIS_SENTINEL!r} and the contract "
+                f"defines {contract_sentinel!r} as the daily genesis sentinel")
 
     try:
         self_test(f, registry, docs)
