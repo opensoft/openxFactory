@@ -112,7 +112,7 @@ import tarfile
 import tempfile
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 _SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 if str(_SCRIPTS_DIR) not in sys.path:
@@ -1010,11 +1010,34 @@ def git_archive_revision(archive_path) -> str | None:
     return value or None
 
 
+def _refuse_unsafe_member(name: str, dest: Path) -> None:
+    """Refuse a tar entry that could be written outside `dest`.
+
+    Checked on the MEMBER NAMES, before extraction, and therefore on BOTH
+    extraction branches. The `data` filter below would catch these on a modern
+    interpreter, but the `TypeError` fallback for an interpreter without
+    extraction filters would not, and "the archive is produced by git so its
+    names are fine" is exactly the assumption an extraction hazard is made of.
+    """
+    if not name or name.startswith("/") or name.startswith("\\"):
+        raise SealRefused(
+            f"the source archive holds an absolute member path: {name!r}")
+    parts = PurePosixPath(name).parts
+    if any(part == ".." for part in parts) or PurePosixPath(name).is_absolute():
+        raise SealRefused(
+            f"the source archive holds a traversing member path: {name!r}")
+    resolved = (dest / name).resolve()
+    if resolved != dest.resolve() and dest.resolve() not in resolved.parents:
+        raise SealRefused(
+            f"the source archive member {name!r} would be written outside the "
+            "seal")
+
+
 def _extract_seal_archive(archive_path, dest) -> int:
     """Extract the archive under `dest`. Refuses any entry that is not a plain
-    file or a directory BEFORE extracting anything, and extracts under the
-    `data` filter where the interpreter has one, so nothing can be written
-    outside `dest`."""
+    file or a directory, and any entry whose name could land outside `dest`,
+    BEFORE extracting anything — then extracts under the `data` filter where
+    the interpreter has one."""
     dest = Path(dest)
     dest.mkdir(parents=True, exist_ok=True)
     try:
@@ -1025,6 +1048,7 @@ def _extract_seal_archive(archive_path, dest) -> int:
                     raise SealRefused(
                         "the source archive holds a non-regular entry: "
                         f"{member.name}")
+                _refuse_unsafe_member(member.name, dest)
             try:
                 archive.extractall(dest, filter="data")
             except TypeError:      # an interpreter without extraction filters
@@ -1072,6 +1096,12 @@ def seal_source(
 
     Raises `SealRefused` — never returns a partial seal."""
     decision = decision or {}
+    # Canonicalized ONCE, here, because the artifact NAME and the manifest's
+    # `correlation_id` are compared against each other by the child: a value
+    # with surrounding whitespace would otherwise be stripped for the name and
+    # recorded unstripped in the manifest, and the child's own check would
+    # refuse a perfectly good seal over a space.
+    correlation_id = (correlation_id or "").strip()
     if decision.get("build") is not True:
         raise SealRefused(
             "the parent decision did not ask for a build "

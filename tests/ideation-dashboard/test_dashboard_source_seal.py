@@ -343,6 +343,28 @@ def test_an_archive_with_no_recorded_revision_is_refused(corpus, tmp_path, monke
     assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
 
 
+@pytest.mark.parametrize("name, match", [
+    ("/etc/cron.d/evil", "absolute member path"),
+    ("../../etc/cron.d/evil", "traversing member path"),
+    ("docs/../../escape.txt", "traversing member path"),
+])
+def test_a_member_path_that_could_escape_the_seal_is_refused(tmp_path, name, match):
+    """Checked on the NAMES, before extraction, so it holds on BOTH extraction
+    branches — the `data` filter would catch these on a modern interpreter, but
+    the `TypeError` fallback for an interpreter without extraction filters
+    would not, and "git produced the archive so its names are fine" is exactly
+    the assumption an extraction hazard is made of (Copilot, PR #648)."""
+    archive = tmp_path / "escape.tar"
+    with tarfile.open(archive, "w") as handle:
+        payload = b"pwned\n"
+        member = tarfile.TarInfo(name)
+        member.size = len(payload)
+        handle.addfile(member, __import__("io").BytesIO(payload))
+    with pytest.raises(lane.SealRefused, match=match):
+        lane._extract_seal_archive(archive, tmp_path / "out")
+    assert not (tmp_path / "escape.txt").exists()
+
+
 def test_a_non_regular_archive_entry_is_refused(tmp_path):
     archive = tmp_path / "linky.tar"
     with tarfile.open(archive, "w") as handle:
@@ -389,6 +411,19 @@ def test_a_malformed_decision_revision_is_refused(corpus, tmp_path, bad):
 def test_a_correlation_id_that_cannot_name_an_artifact_is_refused(bad):
     with pytest.raises(lane.SealRefused, match="cannot name an Actions artifact"):
         lane.seal_artifact_name(bad)
+
+
+def test_the_correlation_id_is_canonicalized_once(corpus, tmp_path):
+    """The artifact NAME and the manifest's `correlation_id` are compared
+    against each other by the child, so a value with surrounding whitespace
+    must be stripped for both or neither — otherwise the child refuses a
+    perfectly good seal over a space (Copilot, PR #648)."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal, correlation_id=f"  {CORRELATION}\n")
+    assert manifest["correlation_id"] == CORRELATION
+    assert manifest["artifact_name"] == \
+        f"{lane.SEAL_ARTIFACT_PREFIX}{manifest['correlation_id']}"
+    assert lane.verify_seal(seal, correlation_id=CORRELATION) == []
 
 
 def test_the_artifact_name_is_the_prefix_plus_the_correlation_id():
