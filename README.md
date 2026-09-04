@@ -1615,6 +1615,23 @@ Active changes:
   exactly, and RECORDS the standing conformance gap that the hosted image
   performs no runtime fetch today, so its baked artifacts are its data).
   `target_release: implementation_pending`.
+  **AN AMENDMENT TO THE RATIFIED `doc-health` DELTA WAS AMENDED 2026-09-04
+  AND RE-RATIFIED THE SAME DAY** (Brett Heap, in-session, verbatim "re-ratify
+  and merge 595"). Everything described above is the design as RATIFIED
+  2026-08-25 and is what still governs. The amendment, authored 2026-09-01 on
+  Brett's host ruling ("the runner design intentionally requires
+  `repository_credentials_absent`; source is delivered as sealed job artifacts
+  and the runners do not clone or push repositories"), moves the
+  fresh-checkout act OFF the credential-free artifact worker and ONTO the
+  credentialed hosted parent, which seals a bounded source artifact the child
+  verifies and consumes — because the ratified lane requires a clone of two
+  PRIVATE repositories on a worker its own authority requirement forbids a
+  repository credential to. Two ADDED scenarios and one ADDED prohibition
+  paragraph in the delta; no requirement title moves and no `MODIFIED` block is
+  introduced. It reached this repository by rescue (PR #595, issue #591) after
+  being stranded uncommitted in the shared checkout, and it is recorded in
+  `proposal.md` § AMENDED AFTER RATIFICATION, 2026-09-04. The archive gate is
+  unmoved either way.
 - [add-roster-directory-admission-surface](openspec/changes/add-roster-directory-admission-surface/proposal.md)
   — authored 2026-08-22, **NOT YET RATIFIED** (`Status: draft`). Admits the
   single `directory` (service-discovery) admission surface into the closed
