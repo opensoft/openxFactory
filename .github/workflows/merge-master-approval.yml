@@ -73,7 +73,9 @@
 # recorded re-point ceremony. The 2026-08-28 ceremony converged all three
 # surfaces on that commit; this file diverged again on 2026-09-01, and pinning
 # the same commit HERE is once more impossible: at `f4702f64` the floor document
-# carries FOUR entries rather than the fifty-seven the (b′) ruling landed, and
+# carries FOUR entries rather than the sixty-three this pin now names — the
+# fifty-three the (b′) ruling landed, grown to fifty-five spec paths by
+# openxFactory's own promotions, beside eight hand-reasoned chokepoints — and
 # `post_merge_tree_paths`, `candidate_floor_drift` and
 # `parse_repository_floor_reporting` — the three functions steps 7 and 8 below
 # now call — do not exist. Since the floor evaluation is the only thing this
@@ -89,6 +91,43 @@
 # 2026-08-28 ceremony, which advanced xFactory's two surfaces and did not come
 # back to correct this paragraph. Recorded rather than quietly overwritten: a
 # stale divergence note is the failure mode this whole block exists to prevent.)
+#
+# ADVANCED AGAIN 2026-09-03, from `db157dbb` to `605d48ac` (codexFactory PR
+# #183, an LQ-A7 completeness repair, ADD-SIDE): the machine-generated block
+# was regenerated at openxFactory `6f80e67e` — this pull request's own branch
+# tip, where `add-project-repo-schema` was archived, realized at
+# `contract-v3.1`, promoted — to carry the new
+# `openspec/specs/project-repo-schema/spec.md` onto the floor. Fifty-seven
+# never-clearable paths becomes fifty-eight (and see the next note, which takes
+# it to sixty-three). Per the pinned core's
+# `docs/repository-gate-floor-repair-runbook.md` and openxFactory PR #569
+# (`47f90080`): this file's two pin literals, the pytest-suite core checkout's
+# `ref:`, `contracts/review-lane-pin.yaml`, and the vendored floor snapshot
+# with its digest all move together, in the one commit that made this note.
+#
+# ADVANCED AGAIN THE SAME DAY, from `605d48ac` to `8f770afb` (codexFactory PR
+# #186, merge, 21:55:35Z) — AS THE SECOND LANDER OF A TWO-PACKET COLLISION.
+# Two openxFactory packets promoted a new capability on 2026-09-03 and each
+# asked for its own regeneration. Regeneration ENUMERATES A TREE rather than
+# editing a list, so codexFactory PR #184 — regenerating for THIS repository's
+# `update-standards-body-current-publications` at that branch's PRE-MERGE head
+# `c9928846` — wrote a block correct for the tree it read and silently dropped
+# `openspec/specs/project-repo-schema/spec.md`, which that tree did not carry.
+# PR #186 regenerated once more at `8d893a0f`, this branch's merge of `main`
+# `19d00872` and the first tree anywhere carrying BOTH specs, restoring
+# `project-repo-schema` beside `standards-body-registry` for fifty-five spec
+# paths. Neither earlier pull request is defective: each regenerated at a real
+# tree, exactly as CSC-C7 requires, and the second-lander regeneration is the
+# runbook's own remedy for the collision.
+#
+# The floor total moves fifty-eight -> SIXTY-THREE, and only ONE of the five
+# added entries is a spec. The other four are CHOKEPOINTS: codexFactory PR
+# #182 (merge `e5534552`, 20:51:52Z — authored before #183/#184 but merged
+# after both) floored `governance/factory-identity/register.yaml` and the
+# wallet, grant and custody attestation beside it BY NAME, realizing this
+# repository's ratified `add-cpc-clearing-boundary` task 2.7. All four exist
+# on this repository's tree, so step 8 below gains four reachable floor paths
+# and no dead entry.
 #
 # WHAT THE (b′) ADVANCE MADE OPERATIVE HERE, on 2026-09-01. Until it, this lane
 # reported against a four-entry floor and could refuse only a floor that had
@@ -200,7 +239,7 @@ jobs:
       # the commit `actions/checkout` actually produced. The AUTHORITATIVE copy
       # is `contracts/review-lane-pin.yaml`; this is a second witness and the
       # test asserts the two agree. Keep it byte-identical to the `ref:` below.
-      PINNED_CORE_COMMIT: "db157dbbcf19a69c1b189ed433b5062807d61043"
+      PINNED_CORE_COMMIT: "8f770afbf86043ee0f5494ded0f12f51c2a9b45e"
     steps:
       # ---- 1. Is there any way to read the decision core at all? ------------
       - name: Preflight — a decision-core read credential must exist
@@ -292,7 +331,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: opensoft/codexFactory
-          ref: "db157dbbcf19a69c1b189ed433b5062807d61043"
+          ref: "8f770afbf86043ee0f5494ded0f12f51c2a9b45e"
           path: .merge-master-core
           persist-credentials: false
           token: ${{ steps.repo-token.outputs.token || steps.org-token.outputs.token || github.token }}

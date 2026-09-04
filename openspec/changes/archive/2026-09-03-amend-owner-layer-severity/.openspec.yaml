@@ -1,0 +1,39 @@
+schema: spec-driven
+created: 2026-09-03
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-03-amend-owner-layer-severity
+  reason: >-
+    Not a staged ideation topic. The forcing facts are two defects in promoted
+    canon, each already filed as its own openxFactory issue and each queued
+    there for the change that would carry it. Issue #561: the promoted
+    `workflow-gate-contract` requirement "Owner layer constraint" says an
+    unresolvable `owner_layer` is reported as a validator WARNING, while
+    `scripts/validate-domain-factory.py` has reported it with `rpt.error` since
+    `493fb33d` (2026-07-03) — six days BEFORE that requirement was promoted at
+    `a1a2802b`. The divergence was met and deliberately NOT resolved by
+    `retire-hermes-flat-keys-and-openworkflow-tokens` (its D4), whose tasks
+    § 6.1 commissioned the issue so the record would outlive that packet.
+    Issue #339: `release-surface-integrity`'s requirement "The declared bundle
+    describes the release surface" illustrates its tag-free reference point
+    with three bundles "recorded in the changelog and the manifest with no
+    published tag" — all three retro-published on 2026-08-25 by PR #333, so the
+    present tense is false. Editing a promoted specification requires a
+    ratified OpenSpec change; neither defect is large enough to carry one
+    alone; the ruling below put them in one.
+  approved_by: >-
+    Brett Heap — in-session on 2026-09-03, verbatim: "implement your
+    recommendations on all these", given over the lane's written
+    recommendations for issues #561/#339, #318, #511, #553 and the #543 fix (b)
+    together, and recorded VERBATIM as the latest comment on both issue #561
+    and issue #339. That comment is the origin act. For #561 it resolves to
+    "canon moves to ERROR ... vehicle: one doc-only OpenSpec change
+    (`code_surface: none`), which also carries #339's sentence"; for #339 it
+    resolves to "fold into #561's packet ... past-tensed and dated (the
+    treatment PR #333 gave the same claim in `release_inventory.py`)". The
+    authorization covers the DISPOSITION and the vehicle. It carries no
+    discretion over the severity — the alternative (relaxing the validator to
+    WARNING) was put with its cost named and declined — and none over the #339
+    wording, which mirrors PR #333's own dated treatment of the identical
+    claim.
+  approved_on: 2026-09-03

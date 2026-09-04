@@ -1,0 +1,74 @@
+schema: spec-driven
+created: 2026-09-03
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-03-add-consumer-identity-namespace
+  reason: >-
+    TWO RULINGS OF ONE DAY, CARRIED BY ONE PACKET BECAUSE THEY WRITE THE SAME
+    REQUIREMENT. Brett Heap ruled on 2026-09-03, in session, on a lane's written
+    recommendations for five queued items at once — verbatim *"implement your
+    recommendations on all these"* — and two of the five land inside
+    `credential-contracts`' requirement *"Two bindings on one secret are refused
+    unless every pair declares distinct consumers, acknowledges the sharing, and
+    names a requirement bound to the binding"*. The rulings are recorded as
+    comments on openxFactory issues #511 and #553, both dated
+    2026-09-03T14:42Z, and both are quoted verbatim in
+    `review/ratification-2026-09-03.md`.
+    #511 — ADD `identity_namespace` as an additive optional member of the
+    `consumer:` block, naming the issuing directory, account or tenant WITHIN
+    the provider; `shared-authority-identity` compares on the pair
+    `(identity_namespace, fetch_identity)` and FALLS BACK to the bare identity
+    where the member is absent, so the rule still REPORTS rather than clears; it
+    lands under the block's declared-at-the-minor / constrained-at-the-major
+    phasing as the ninth warning shape; the contract CUT is not part of it.
+    #553 — AMEND THE PROMOTED SCENARIO, do not broaden the resolver: canon
+    states the PER-DOCUMENT scope the frozen resolver enforces. Ids stay
+    namespaced by their document and repository-wide uniqueness is not a rule.
+    WHY ONE PACKET AND NOT TWO, which is a governance fact rather than a
+    convenience. A `## MODIFIED Requirements` block REPLACES a requirement
+    wholesale, so two live blocks on ONE requirement cannot both survive: the
+    second to archive silently reverts the first, and neither packet's review
+    would have shown it. #553's ruled target — the scenario *"The requirement
+    reference resolves to more than one record"* and the repository-scope clause
+    in the six-conditions sentence — sits inside the requirement #511 must
+    modify to rescope the fetch-identity condition. The lane that held #553 stood
+    down, its branch authored nothing and is deleted, and issue #553 records this
+    packet as its vehicle. BOTH RULINGS ARE THE SAME RATIFIER'S AND THE SAME
+    DAY'S, so the fold changes no authority and no scope; what it changes is how
+    many blocks write one requirement, and the answer canon allows is one.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, checked rather than assumed. No
+    topic under `ideation/staging/` carries either subject; both originate in
+    findings against shipped contract text — #511 in the 2026-08-29
+    `merge_readiness_council` convening on PR #493 (seat LS, finding LS-F3),
+    ported on Brett's 2026-08-30 ruling and re-verified by prototype against the
+    ratified line; #553 in Codex's third round on PR #542 and Brett's scoping
+    ruling of 2026-09-01. Taking `staged` against a topic that neither declares
+    this exit nor carries these claims would put a staging record behind an
+    origin act that was a ruling.
+    AND THIS FILING IS ANOTHER INSTANCE OF ISSUE #318, cited rather than
+    re-derived: the `ad_hoc` vocabulary pairs naturally with "approved", and a
+    packet whose CONTENT is ruled but whose TEXT no authority has read must do by
+    prose what the taxonomy has no kind to do by declaration. Here the ruling
+    reached the CONTENT of both changes, so `approved_by` below records a
+    ratification of substance and states precisely what it does not cover.
+  approved_by: >-
+    Brett Heap (openxFactory repository owner) — 2026-09-03, in session,
+    verbatim *"implement your recommendations on all these"*, over written
+    recommendations that stated the substance of both acts. THAT RULING IS A
+    RATIFICATION OF CONTENT AND IT IS NOT A READ OF THIS TEXT. What he accepted
+    is what the recommendations said and what the two issue comments record:
+    the member, the pair comparison, the reporting fallback, the ninth warning
+    shape, the per-document scope of the ambiguity, and the exclusion of the
+    contract cut. What no authority has read is the requirement text in
+    `specs/credential-contracts/spec.md`, the design decisions in `design.md`,
+    or the realization in `tasks.md`. NO COUNCIL SAT and none was prescribed;
+    the packet is authored to the ruling rather than put to a bench, on the same
+    footing as the other four items of the same word.
+  approved_on: 2026-09-03
+related:
+  - openxFactory:change:add-binding-consumer-identity              # ARCHIVED 2026-08-31. The change that ADDED both requirements this packet modifies; they are PROMOTED canon, so no `Modified over` marker is owed — that form is reserved for a block written over an active sibling's ADDED or RENAMED title
+  - openxFactory:change:add-requirement-ref-resolution-integrity   # RATIFIED 2026-09-01, ACTIVE, code SHIPPED. Its § 9.4 obligation is DISCHARGED here by the AMEND branch; its resolver, its `ambiguous` status and its § 3.4 freeze are CITED and NOT EDITED. Its two ADDED requirements are untouched: this packet MODIFIES two requirements it does not hold
+  - openxFactory:change:add-credential-escrow-checkout             # RATIFIED 2026-08-28, ACTIVE. The other active writer on this schema file and on `contracts/manifest.yaml`; its `credential-contracts` delta MODIFIES *"Canonical credential record shapes"*, which this packet does not touch. Two additive blocks on one shape — the coordination is in proposal.md § The other writers on this file
+  - openxFactory:change:add-identity-brokering                     # RATIFIED 2026-08-21, ACTIVE, contracts SHIPPED at contract-v1.37. Source of the identifier grammar `identity_namespace` reuses rather than re-coins, and of `realm` as a Keycloak-specific spelling this member deliberately does not take
+  - openxFactory:change:adopt-subject-tenant-domain-vocabulary     # archived 2026-07-23. Why the member is NOT called `tenant` or `tenant_ref`: that word is the tenant-operator layer's, mapped in contracts/policies/layer-vocabulary.yaml
+  - openxFactory:change:govern-sibling-added-modified-deltas       # archived 2026-09-02. Read to CONFIRM no marker is owed here, rather than assumed: its `Modified over` form is for a MODIFIED block whose requirement exists only as an active sibling's ADDED or RENAMED title

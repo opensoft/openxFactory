@@ -9,6 +9,285 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v3.2 — 2026-09-03 (additive; the SUPERSEDING release for defective `contract-v3.1`, whose published inventory records two stale digests)
+
+**THIS CUT EXISTS TO CORRECT A DEFECTIVE PUBLISHED RELEASE AND DOES NOTHING
+ELSE.** `contract-v3.1` was cut by PR **#616** (squash
+`19d008723e10b2e19d96bc217292564c941e9f93`) and its annotated tag was pushed at
+that commit. The bundle does not verify there. Both
+`python3 scripts/validate-contract-release.py verify-commit --commit 19d00872`
+and `verify-tag --remote origin --tag contract-v3.1` report, verbatim:
+
+```text
+HGR-RELEASE-DIGEST-MISMATCH error path=requirements/hermes-runtime-contracts.in: digest does not match the raw Git blob at the pinned commit
+HGR-RELEASE-DIGEST-MISMATCH error path=requirements/hermes-runtime-contracts.lock: digest does not match the raw Git blob at the pinned commit
+```
+
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+§ *Immutable Tag Correction* governs exactly this case: *"A published annotated
+tag is immutable: it is never moved, deleted, or re-tagged, not even for a
+defective release. A release found defective after tagging is corrected by a
+superseding release — allocate the next available version through the same
+realization order, record the defect and its migration guidance in
+`contracts/CHANGELOG.md`, and let consumers upgrade by pinning the new
+bundle."* **THIS IS THAT SUPERSEDING RELEASE**, cut on the convener's ruling —
+Brett Heap, 2026-09-03, verbatim: *"cut 3.2"*.
+
+### The measured cause, and whose error it was
+
+MEASURED RATHER THAN INFERRED. The `contract-v3.1` inventory was built LAST at
+#616's branch head `a981c988`, where it verified. The branch forked at
+`0bf37d14`, and THREE first-parent landings reached `main` between that fork and
+the squash: `ea117d4e` (#610), `4fc7b94c` (#566) and `995c0ad5` — the merge of
+`11db75ee` (#621, *"The mint script's Ed25519 dependency is declared where the
+suite installs it"*).
+Intersecting the eighteen paths `git diff --name-only a981c988 19d00872` reports
+with the 283 registered members of
+[`contract-v3.1.digests.yaml`](releases/contract-v3.1.digests.yaml) leaves
+EXACTLY TWO, and both are #621's alone:
+`requirements/hermes-runtime-contracts.in` and
+`requirements/hermes-runtime-contracts.lock` — inventory rows
+`requirements-hermes-runtime-contracts.in` and
+`requirements-hermes-runtime-contracts.lock`. The squash carried #621's bytes
+into the tagged tree while the inventory kept its pre-#621 digests.
+
+**THE DEFECT IS NOT #621's.** That pull request is an ordinary landing on `main`
+doing exactly what a landing does. § *Bundle Realization Order* step 4 is the
+step that was skipped: *"Land the exact reviewed commit on published `main`. If
+promotion creates a different commit, that commit becomes the new candidate and
+every gate and review reruns before tagging."* A squash merge ALWAYS creates a
+different commit, and `verify-commit` was not re-run at that commit before step
+5 published the tag. **That was lane repo-shape's error**, in the cutting
+session itself, and it is recorded here in those terms rather than attributed to
+the merge mechanism or to the unrelated pull request whose bytes it carried.
+This is the same omission — a cut branch not reconciled with the integration
+point — that made `contract-v2.6` unpublishable, arriving at a different step of
+the same order.
+
+### Change class: ADDITIVE (minor)
+
+MEASURED. `git diff --name-status contract-v3.1 HEAD` at this cut's branch point
+is **EMPTY**: the published tag peels to `19d00872`, which is `origin/main`'s
+tip, so this bundle's content is `contract-v3.1`'s realized surface exactly —
+with the two requirements files as they now stand on `main`, and with this cut's
+own release-surface edits on top. Under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+§ *Change Classes* the only movement over any registered member is #621's
+`cryptography==50.0.0` declaration in `requirements/hermes-runtime-contracts.in`
+and the lock closure it pins — a build dependency ADDED, with no required field
+added, no shape removed, and no role or vocabulary semantics changed. Nothing a
+consumer pinned at `contract-v3.1` declares becomes non-conformant, so the class
+is **ADDITIVE (minor)** and the number advances the minor. NOT
+`contract-v3.1.1` OR ANY OTHER SUB-MINOR: § *Version Identity*'s tag form is
+`contract-v<major>.<minor>` exactly, with no third component.
+
+### The number, fresh-counted at the cut
+
+`contracts/manifest.yaml:3` declared `contract-v3.1`; `contracts/releases/` held
+inventories through `contract-v3.1.digests.yaml`; the annotated tag
+`contract-v3.1` is published, and stays published; this changelog headed at
+`contract-v3.1` with no `Unreleased` block pending. The next available number is
+**`contract-v3.2`**, taken here. `contract-v3.1` is not re-cut, not re-tagged
+and not reused.
+
+### No new capability is realized by this cut
+
+Nothing beyond what `contract-v3.1` already named is realized here. No OpenSpec
+change archives with this cut, no schema, validator or governance document gains
+behaviour, and no deprecation entry moves in either direction.
+`add-project-repo-schema` was and remains realized by `contract-v3.1` — that
+realization is not repeated, undone or re-attributed, and a reader asking what
+this family added must read the `contract-v3.1` entry below. What this cut moves
+is the release surface and nothing else: the manifest bump, this entry, the
+rebuilt inventory [`contract-v3.2.digests.yaml`](releases/contract-v3.2.digests.yaml),
+and the by-hand statement `tests/intent-compliance/test_release_boundary.py`'s
+`ReleaseState` tripwire requires of every cut past the floor — recording, as
+every advance above it does, that this bundle touches NO intent-compliance
+member and that the membership that file asserts is UNCHANGED.
+
+### Migration guidance
+
+* **A consumer pinned at `contract-v3.1` re-pins to `contract-v3.2`.** Move
+  `xfactory.contract_ref` to this bundle's published commit, record the tag
+  `contract-v3.2`, and re-run the per-file digest checks under § *Domain Upgrade
+  Runbook*. There is no shape work: nothing this bundle carries refuses anything
+  `contract-v3.1` accepted, and the two files whose digests move are build
+  requirements, not contracts.
+* **`contract-v3.1`'s tag and its inventory remain exactly as published**, as
+  immutable provenance. Neither is moved, deleted, re-tagged nor edited, and
+  nothing retroactively invalidates the evidence of a consumer that verified
+  against it. `verify-commit` at `19d00872` will keep reporting the two lines
+  quoted above; that is the record OF the defect, not a thing to repair.
+* **The number `contract-v3.1` is never reused.**
+* **NOTHING IS DECLARED SPENT BY THIS CUT, and `contract-v3.1` is not in that
+  state.** That state is reserved for a number that was cut and can NEVER be
+  published; `contract-v3.1` WAS published, tag and all. It is DEFECTIVE and
+  SUPERSEDED — the state § *Immutable Tag Correction* describes — and this cut
+  writes no declaration of the other one.
+
+### Publication
+
+The annotated tag `contract-v3.2` is published at the exact commit this cut
+lands on `origin/main`, and NOT before `verify-commit --commit <merge-sha>`
+passes there. That is § *Bundle Realization Order* step 5 preceded by step 4,
+which is the pair whose separation produced the defect this entry records.
+
+## contract-v3.1 — 2026-09-03 (additive; add-project-repo-schema's project-register election and its openRepoShape consumption pin are realized)
+
+Realizes `add-project-repo-schema` **`tasks.md` 9.3** — *"Cut the next additive
+contract bundle carrying `scripts/validate-ideation-dashboard-contracts.py`'s
+new bytes … Until it is cut, `release-inventory-drift` reporting that validator
+is the EXPECTED between-cuts state"* — the archive blocker that packet's own
+realization left to the cutting session, exactly as `contract-v2.5`'s cut left
+`add-signed-execution-chain`'s tranche-one registration to its own. The packet
+was ratified 2026-09-02 by Brett Heap, the convener, in the working session,
+verbatim *"ratify it"* (record:
+`openspec/changes/archive/2026-09-03-add-project-repo-schema/review/ratification-2026-09-02.md`,
+the change having archived alongside this cut in the same pull request).
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md) §
+Change Classes. MEASURED RATHER THAN CLAIMED: `git diff --name-status
+contract-v3.0 HEAD -- contracts/schemas/project-register.schema.yaml
+scripts/validate-ideation-dashboard-contracts.py` shows the schema gaining
+three OPTIONAL fields (`schema`, `reference`, `repository_roles`) with
+`repositories` items unchanged as strings, and the validator gaining four new
+WARNING/ERROR rules over those new fields alone
+(`check_project_schema_election`) with no existing rule's behaviour altered. A
+project declaring nothing is accepted exactly as before — packaged in
+`tests/ideation_dashboard/test_project_schema_election.py`'s own assertion of
+it — so no consumer pinned at `contract-v3.0` is made non-conformant by this
+release.
+
+### The number, fresh-counted at the cut
+
+`contracts/manifest.yaml:3` declared `contract-v3.0`; `contracts/releases/`
+held inventories through `contract-v3.0.digests.yaml`; the annotated tag
+`contract-v3.0` is published; this changelog headed at `contract-v3.0` with no
+`Unreleased` block pending. `grep -rl project-repo-schema
+contracts/releases/contract-v3.0.digests.yaml` finds nothing, so `contract-v3.0`
+covers none of this family. The next available additive number is
+**`contract-v3.1`**, taken here. **NOT `contract-v3.0.1` OR ANY OTHER
+SUB-MINOR**: § Version Identity's tag form is `contract-v<major>.<minor>`
+exactly, with no third component, and every prior additive release under a
+major has advanced the minor (`contract-v2.0` → `contract-v2.1` … →
+`contract-v2.5`) rather than a component this scheme does not declare.
+
+### What this release adds, atomically with the manifest bump
+
+The four artifacts `add-project-repo-schema` §*What this change realizes IN
+THIS PULL REQUEST* names, of which exactly ONE is a registered release member
+and the other three are measured NOT to be (proposal `target_release`, and
+re-measured identically here: zero occurrences of either file in
+`contracts/manifest.yaml` or in `contracts/releases/contract-v3.0.digests.yaml`):
+
+* [`docs/project-repo-schema.md`](../docs/project-repo-schema.md) — the
+  doctrine: the project/spec/code/assembly shape is ELECTIVE and CONFERS
+  NOTHING, the four naming families, the double pin and its lockstep
+  invariant, the manifest-is-the-source rule, the bootstrap contract and its
+  degrade line, and the ownership split between this document, the neutral
+  `opensoft/openRepoShape` standard, and codexFactory's engineering overlay.
+  Not a registered contract; a governance document.
+* [`contracts/openreposhape-pin.yaml`](openreposhape-pin.yaml) — openxFactory's
+  consumption of `opensoft/openRepoShape` at commit
+  `deacbdcce4f52af427bcb4edd075fcc992e3dabe`, in the
+  `kind: pinned_contract_manifest` grammar `openxwallet-pin.yaml` already
+  established: sixteen per-file `sha256` digests plus eighteen
+  `pinned_by_commit_only:` members, covering all thirty-four files present at
+  the pinned commit so none is an undeclared consumption. Not a registered
+  release member, on the same terms as `openxwallet-pin.yaml`: a pin file
+  records a CONSUMPTION, not a contract this repository authors.
+* `scripts/validate-openreposhape-pin.py` +
+  `.github/workflows/openreposhape-pin-gate.yml` — the running check, on the
+  `openxwallet-consumer-gate.yml` pattern: five ordered checks (shape,
+  revision, digests, presence, surface completeness), six named refusal
+  codes, one fixed remediation trailer, no gitlink comparison because
+  openxFactory cites the standard rather than mounting it. RE-VERIFIED at this
+  cut against the real bytes via `--from-gh`:
+  `OK openreposhape-pin verified: opensoft/openRepoShape@deacbdcce4f5…, 16
+  digest(s) recomputed, 18 member(s) present, 34 file(s) declared with none
+  undeclared`, exit 0.
+* **`scripts/validate-ideation-dashboard-contracts.py`** — the ONE registered
+  row this bundle moves (`artifact_id: scripts-validate-ideation-dashboard-
+  contracts.py`, `contracts/releases/contract-v3.0.digests.yaml:1417`), for
+  `check_project_schema_election` and the four rules it adds over
+  `contracts/schemas/project-register.schema.yaml`'s new fields:
+  `project-role-unknown-repository`, `project-duplicate-repository-role`,
+  `project-multiple-assembly-roles`, `project-reference-without-schema`. The
+  schema file itself is NOT a registered row (measured above) so its own bytes
+  moving raises no digest obligation independent of the validator's.
+
+**Also re-baselined at this cut, and disclosed rather than left implicit:**
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+is a NORMATIVE_DOCS release member and its bytes moved since `contract-v3.0`
+— PR #577 (`2898b10`), recording the `contract-v2.6` "Instance Six" disposition
+in the pinned policy document itself. That edit is UNRELATED to
+`add-project-repo-schema`; it is exactly the "known and accepted cost" #577's
+own commit message names — a non-editorial member drifting between cuts,
+carried forward unchanged and re-baselined by whichever cut comes next. This
+one does. No content is altered by the re-baseline; the digest simply now
+matches what has been on `main` since 2026-09-02.
+
+**AND THAT DOCUMENT MOVES A SECOND TIME AT THIS CUT, FOR A REASON OF ITS OWN.**
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+gains a new subsection, *The SPENT State — a Cut Number That Can Never Be
+Published*, under § *Immutable Tag Correction*. That is
+`declare-spent-bundle-state`'s task **3.1**: the obligation-side DEFINITION of
+the SPENT state — the third state between published and owes-a-tag, its
+reserved single-line declaration form and the entry that must contain it, the
+successor guard in all three of its conjuncts, and the three severities the
+`release-tag-publication` family reports it at. OD-6 routed that paragraph to
+*"the next contract cut"* and Brett Heap affirmed the routing on PR **#587**
+(2026-09-03T02:49:08Z): *"Task 3.1 (policy-side SPENT paragraph in
+`docs/contract-versioning-policy.md`) deferred to the next cut per OD-6's shape
+argument: affirmed."* **THIS IS THAT CUT.** The consumer-facing half is NOT
+re-authored here: #577 recorded the supersession as Instance Six and the new
+subsection cites it rather than restating it, *"two records of one measurement
+is how they drift apart"*.
+
+**THE TWO MOVEMENTS IN THIS ONE FILE ARE DISTINCT, AND THE PARAGRAPH ABOVE IS
+ABOUT THE FIRST.** #577's bytes are carried forward with no content altered;
+this cut's bytes are content deliberately ADDED. ONE rebuilt inventory
+re-baselines both, which is why `docs-contract-versioning-policy.md`'s digest
+in [`contract-v3.1.digests.yaml`](releases/contract-v3.1.digests.yaml) records
+the policy document's bytes AS CUT rather than as `contract-v3.0` recorded
+them — and that re-baseline is what discharges `declare-spent-bundle-state`
+§ 3.2, under which this changelog's editorial drift `info` and the policy
+document's `release-inventory-drift` ERROR *"both clear on their own when the
+inventory re-baselines"*.
+
+**NOTHING IS DECLARED SPENT BY THIS CUT.** `contract-v2.6`'s declaration stands
+exactly where it was written, inside § `contract-v3.0`'s own entry below, and
+this cut neither adds a declaration nor edits one. DEFINING the state and
+PERFORMING it are different acts, and only the first happens here.
+
+### Realization evidence
+
+`MedxSoft/MedxScribe` (2026-09-02, against openRepoShape `deacbdc`) is a
+TEMPORARY PILOT — Brett Heap, 2026-09-02: *"MedxScribe is only a temp pilot
+project right? it is not a real project. make sure it noted as pilot to test
+the openRepoShape"* — and is not counted as an adoption. The adoptions counted
+are real, dated 2026-09-03 and post the pin's `update-shape` re-sync at
+`opensoft/openRepoShape@51836ba` (`v0.3`): `MedxSoft/MedxEHR` converted in
+place (legs `MedxEHR-spec`, `MedxEHR-code`; assembly root `f1e07bd`) and
+`MedxSoft/MedxGlass` scaffolded as a declared descendant of `openGlass`
+(assembly root `a0e1897`), both bootstrap-verified. Full evidence:
+`openspec/changes/archive/2026-09-03-add-project-repo-schema/tasks.md` § 9.3.
+
+### Not part of this bundle
+
+`docs/project-repo-schema.md`'s own `Status: ratified` (not `standard`, not
+owed until the capability promotes) is unchanged by this cut. The successor
+work `add-project-repo-schema` §*What is PENDING* names — the codexFactory
+engineering overlay, OpsxFactory organisation/topic administration, and any
+aggregation `project-register.yaml` row for an electing project — is each a
+change in its own repository and none is realized here.
+
+**Superseded by `contract-v3.2` (defective inventory: two digests stale at
+the tag) — see the v3.2 entry above.** Nothing in this entry is rewritten and
+nothing it describes is withdrawn: the release it records was published, its
+tag stands as immutable provenance, and its number is never reused.
+
 ## contract-v3.0 — 2026-09-02 (BREAKING; three retirements execute, chain-attestation's content is carried, and `contract-v2.6` is superseded unpublished)
 
 **THIS ENTRY NAMES EVERY ACT THAT LANDS AT THIS MAJOR**, in the words

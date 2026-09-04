@@ -24,6 +24,8 @@ the acts the ratified packet names and no others:
   * `additionalProperties: false` on the block           (§1.1a)
   * the identifier `pattern` on `holder_ref`/`fetch_identity` and on
     `requirement_ref.requirement_id`                     (§1.1a)
+  * the identifier `pattern` on `identity_namespace`, and its membership of the
+    closed set (add-consumer-identity-namespace §1.1)
   * the qualified two-member `requirement_ref` object    (§1.1)
   * the repository-relative `requirements_document_ref` grammar (§1.5)
   * `const: true` on both tokens                         (§1.1)
@@ -81,6 +83,14 @@ CONSUMER_AT_THE_MAJOR = {
     "properties": {
         "holder_ref": dict(_IDENTIFIER),
         "fetch_identity": dict(_IDENTIFIER),
+        # add-consumer-identity-namespace. A DECLARED member, so the block's
+        # closure does not refuse it; the identifier `pattern` on it is the
+        # ninth act, warned for the whole of this minor by
+        # `consumer-identity-namespace-grammar`. It is NOT added to the `then`
+        # requirement below: the member is optional at the major too, because
+        # most estates run one directory and requiring a namespace of them
+        # would be a narrowing nothing warned about.
+        "identity_namespace": dict(_IDENTIFIER),
         "requirement_ref": {
             "type": "object",
             "required": ["requirement_id", "requirements_document_ref"],

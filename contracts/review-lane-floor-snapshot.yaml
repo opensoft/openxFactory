@@ -3,11 +3,13 @@ kind: repository_gate_floor
 floor:
   id: openxfactory-review-authority-register
   repository: opensoft/openxFactory
-  # THIS DOCUMENT IS 4 + 1, NOT 57 EQUALLY-REASONED CHOKEPOINTS.
+  # THIS DOCUMENT IS 8 + 1, NOT 63 EQUALLY-REASONED CHOKEPOINTS.
   #
-  # FOUR hand-reasoned gate chokepoints, each with its own ground below: the
-  # register, the two paths that determine WHICH READER opens it, and a fourth
-  # that determines WHICH DECISION CORE judges this repository at all.
+  # EIGHT hand-reasoned gate chokepoints, each with its own ground below: the
+  # intake register, the two paths that determine WHICH READER opens it, a
+  # fourth that determines WHICH DECISION CORE judges this repository at all,
+  # and FOUR more naming the SIBLING factory-identity register family added by
+  # openxFactory's ratified `add-cpc-clearing-boundary` (task 2.7).
   #
   # PLUS ONE machine-generated block carrying every tracked path under
   # `openspec/specs` — openxFactory's promoted OpenSpec canon — floored as one
@@ -67,19 +69,64 @@ floor:
     # decision core judges this repository. Clearable, it would let a pull
     # request choose its own judge.
     - contracts/review-lane-pin.yaml
+    # ---------------------------------------------------------------------
+    # THE SIBLING FACTORY-IDENTITY REGISTER FAMILY, entered BY NAME.
+    #
+    # openxFactory `add-cpc-clearing-boundary` (ratified 2026-09-02, merged
+    # c0270d28), capability `factory-origin-identity`, task 2.7. Its ratified
+    # requirement: "Where a gate enumerates never-clearable floor members,
+    # `governance/factory-identity/` SHALL be entered BY NAME rather than
+    # matched by a path-shaped clause, and where a consuming repository's floor
+    # file is compared as an EXACT SET, that file SHALL be updated in the same
+    # governed act that creates the register — an exact-set comparison against a
+    # floor that does not yet name the new register fails closed on every
+    # candidate, so the two are one change and not two."
+    #
+    # BY NAME IS FORCED HERE, NOT MERELY PREFERRED. `_parse_exact_path` refuses
+    # wildcards, `.`/`..` segments and any leading or trailing `/`, so
+    # `governance/factory-identity/` CANNOT be floored as a directory prefix.
+    # Each file is named exactly, which is what the requirement asks for and
+    # what `matching_paths`' exact set membership can act on.
+    #
+    # WHY ALL FOUR AND NOT ONLY THE REGISTER. The intake trio above floors
+    # `governance/review-authority/register.yaml` alone, and §8.3 of
+    # `split-openxwallet-repo` records that omitting its grants, wallets and
+    # attestations is a PRE-EXISTING gap with lead-security's 2026-08-26
+    # floor-reachability finding still standing against it. That gap is not
+    # reproduced here: the ratified requirement for THIS family says "changes to
+    # the factory-identity register AND THE RECORDS BESIDE IT" are landable only
+    # by a human act, and a floor naming only the register would leave the grant
+    # that confers the origin act — and the custody attestation that lifts its
+    # unattested cap — council-clearable. Editing either one changes what a
+    # verified origin signature MEANS without touching the register at all.
+    #
+    # THE STANDING LIMIT, STATED RATHER THAN DISCOVERED LATER. This is an
+    # ENUMERATION, so a record ADDED under `governance/factory-identity/` is not
+    # floored until it is added here. Admitting a second originating repository
+    # is therefore not one act but two files in one act — its wallet, grant and
+    # attestation entered here in the same governed change that adds its row —
+    # which is the same one-governed-act discipline the requirement already
+    # imposes on this file's relationship to the register. `repository_floor_
+    # drift.py` catches the REMOVAL direction; nothing catches the addition
+    # direction but this comment and the reviewer reading it.
+    - governance/factory-identity/register.yaml
+    - governance/factory-identity/wallets/wal-origin-codexfactory-0001.yaml
+    - governance/factory-identity/grants/grant-origin-codexfactory-0001.yaml
+    - governance/factory-identity/attestations/custody-attest-wal-origin-codexfactory-0001.yaml
     # ==== BEGIN MACHINE-GENERATED BLOCK — DO NOT HAND-EDIT ====
     # prefix:             openspec/specs
     # source_repository:  opensoft/openxFactory
-    # generated_at:       1a69b7cb3e3080ffed4593d8519fc4da27028439
-    # entry_count:        53
+    # generated_at:       8d893a0fbf110931c8ab9e48d05a84996ff1891b
+    # entry_count:        55
     # regenerate with:
     #   python3 scripts/merge_master/generate_specs_floor_block.py \
     #     --repo <opensoft/openxFactory checkout> \
-    #     --ref 1a69b7cb3e3080ffed4593d8519fc4da27028439 --write
+    #     --ref 8d893a0fbf110931c8ab9e48d05a84996ff1891b --write
     #
     # ONE GROUND FOR THE WHOLE BLOCK, and it is not the ground above it.
-    # The four entries ABOVE are separately reasoned GATE CHOKEPOINTS: each one
-    # selects the reader, the judge or the register itself. The entries BELOW are
+    # The eight entries ABOVE are separately reasoned GATE CHOKEPOINTS: each one
+    # selects the reader, the judge, or a register or the records beside it. The
+    # entries BELOW are
     # CONTENT — the promoted OpenSpec canon of `opensoft/openxFactory`, every
     # tracked path under the named prefix, floored as one undifferentiated set
     # because the canon is what the review-authority arrangement is FOR and no
@@ -87,7 +134,7 @@ floor:
     # propose a subset because "a smaller enumeration has the identical failure
     # mode, merely less often").
     #
-    # SO THE READER IS NOT MISLED: this document is 4 + 1, not 57 equally-reasoned
+    # SO THE READER IS NOT MISLED: this document is 8 + 1, not 63 equally-reasoned
     # chokepoints (CSC-C9). Do not hand-edit the block. Do not add a member by
     # hand. Regenerate it with the command above, at a named openxFactory commit.
     #
@@ -144,6 +191,7 @@ floor:
     - openspec/specs/omnigent-domain-overlay/spec.md
     - openspec/specs/omnigent-install-manifest/spec.md
     - openspec/specs/pattern-ledger/spec.md
+    - openspec/specs/project-repo-schema/spec.md
     - openspec/specs/reference-proof-placement/spec.md
     - openspec/specs/release-realization/spec.md
     - openspec/specs/release-surface-integrity/spec.md
@@ -151,6 +199,7 @@ floor:
     - openspec/specs/roles-authority-model/spec.md
     - openspec/specs/shared-contract-ownership/spec.md
     - openspec/specs/signed-execution-chain/spec.md
+    - openspec/specs/standards-body-registry/spec.md
     - openspec/specs/workflow-gate-contract/spec.md
     - openspec/specs/workflow-visualization/spec.md
     - openspec/specs/workstation-intake/spec.md

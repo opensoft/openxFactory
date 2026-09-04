@@ -1,0 +1,57 @@
+schema: spec-driven
+created: 2026-09-01
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-01-update-standards-body-current-publications
+  reason: >-
+    THE UPSTREAM HALF OF A CLOSE-OUT THAT COULD NOT PROCEED WITHOUT IT. The
+    OpsxFactory `adopt-neutral-omnigent-overlay` work needed a stable, CURRENT
+    registry vocabulary before it could author descriptive terminology
+    crosswalks, and the registry did not carry one: it named historical ITIL 4
+    and an SFIA entry with no current-publication record, while the omnigent
+    terminology requirement already refuses a crosswalk whose body id does not
+    resolve. Brett Heap ruled upstream-registry-first in session on 2026-09-01
+    out of that close-out, which is what commissioned this packet.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, checked rather than assumed. No
+    topic under `ideation/staging/` carries this subject: the folder listing
+    and `INDEX.md` were both searched for the registry, ITIL, SFIA and APQC
+    subjects and neither returns a row. The organized source is a ruling taken
+    out of a sibling repository's close-out, which is the shape
+    `add-release-tag-publication-check` and `declare-spent-bundle-state` both
+    filed under. `ad_hoc` is correct here and is not a substitute for staging.
+  approved_by: >-
+    Brett Heap (openxFactory repository owner) — commissioned in session on
+    2026-09-01 as the upstream-registry-first ruling from the OpsxFactory
+    `adopt-neutral-omnigent-overlay` close-out.
+    THIS FIELD RECORDS THE PACKET'S OWN ACCOUNT OF ITS COMMISSIONING, CARRIED
+    FORWARD FROM THE RESCUED SNAPSHOT AND NOT RE-VERIFIED BY THE ADOPTING LANE.
+    The authoring session ended without pushing and left no PR, no comment and
+    no review record behind it, so the commissioning citation rests on
+    `proposal.md` and `tasks.md` as that session wrote them. The adopting lane
+    reproduces it verbatim rather than restating it as its own finding, and
+    says so here so that a reader is never left inferring corroboration that
+    does not exist.
+    THIS FIELD RECORDS AUTHORIZATION TO AUTHOR, NOT RATIFICATION OF CONTENT,
+    AND MUST NOT BE READ AS ONE — issue #318's known shape, cited rather than
+    re-derived: an `ad_hoc` origin's vocabulary pairs "approved" naturally with
+    ratification, so a packet that is AUTHORIZED but NOT RATIFIED must do by
+    PROSE what the taxonomy has no kind to declare. `Status:` is `draft` and
+    only Brett ratifies. Two decisions in particular are the authoring
+    session's and are owed an explicit ruling rather than acceptance by
+    silence: D2, that the SFIA product-configuration permission is recorded as
+    an UNVERIFIED OPERATOR OVERRIDE standing beside the steward's restrictive
+    licence statement rather than as a licence conclusion, and D3, the scope of
+    the later APQC crosswalk authorization. See `proposal.md` § Decisions
+    recorded for design and `design.md` § Decisions.
+    A SEPARATE AND LATER ACT AUTHORIZED THE ADOPTION OF THIS BRANCH AND NOTHING
+    IN IT: Brett Heap ruled 2026-09-03, in session, that PR #593 — a
+    byte-identical rescue snapshot of work stranded uncommitted in a shared
+    checkout (openxFactory issue #591) — be ADOPTED and owned by lane
+    `openxfactory-f2` and reshaped into a lawful active draft. That ruling
+    covers the RESCUE AND THE RESHAPING. It ratifies no requirement, disposes
+    no design decision, and does not stand in for the ratification this packet
+    is still owed.
+    RATIFIED 2026-09-03 — Brett Heap, in-session, verbatim "merge 210 and
+    ratify and merge 593"; D1–D4 adopted as written; header flipped to
+    Status: ratified in the same commit (lane openxfactory-f2, PR #593).
+  approved_on: 2026-09-01

@@ -729,6 +729,49 @@ PIN_CLASS: tuple[PinMember, ...] = (
              "site: this key is ALWAYS the product's, and `carve_commit` above "
              "is ALWAYS this repository's.",
     ),
+    # ---- the second neutral-product pin: ONE artifact, ONE locality --------
+    # `contracts/openreposhape-pin.yaml` (add-project-repo-schema) pins
+    # `opensoft/openRepoShape`, the public Apache-2.0 project-repository-shape
+    # standard this repository ratifies the doctrine for and consumes the
+    # mechanics of.
+    #
+    # ONE MEMBER, NOT TWO, AND THE ASYMMETRY WITH THE WALLET PIN IS THE POINT.
+    # `openxwallet-pin.yaml` needed two members because it names BOTH the
+    # product's commit AND `carve_commit`, the openxFactory commit the wallet
+    # bytes were carved out of this repository at — a value that must stay
+    # reachable HERE. This pin has no such value and cannot have one:
+    # openxFactory authored none of openRepoShape's bytes, so there is no carve
+    # and nothing in this file is an openxFactory commit. Declaring a REPO_LOCAL
+    # member beside this one would invent a claim the artifact does not make.
+    PinMember(
+        id="openreposhape-pin-product-commit",
+        paths=("contracts/openreposhape-pin.yaml",),
+        key="commit",
+        key_form="field",
+        generator="authored with the pin (add-project-repo-schema)",
+        reproduction=MEASURED,
+        locality=CROSS_REPOSITORY,
+        presence=CURRENT,
+        note="`source_repository: opensoft/openRepoShape` — the PINNED "
+             "STANDARD'S commit. It does not resolve in this repository and "
+             "must not be reported as an orphan; openRepoShape answers for it, "
+             "and locally `scripts/validate-openreposhape-pin.py` recomputes "
+             "the sixteen digested members against the real bytes at that "
+             "commit, asserts every path-only member is present, and asserts "
+             "SURFACE COMPLETENESS — a file at the pinned commit named by "
+             "neither list is refused. That verifier is a stronger reachability "
+             "guarantee than a ref here could give, which is why the "
+             "cross-repository declaration is not a gap. It differs from the "
+             "wallet verifier in having no gitlink to compare: openxFactory "
+             "CITES this standard rather than mounting it, so the bytes are "
+             "resolved from a supplied checkout or the host API and an "
+             "unresolvable run REFUSES rather than passing. The key is "
+             "`commit`, already in the vocabulary from "
+             "`openxwallet-pin-product-commit`; what makes this a distinct "
+             "member is the PATH, and a site under a known key at an undeclared "
+             "path is UNCOVERED — which is exactly how this one announced "
+             "itself, on the CI run of the pull request that added the pin.",
+    ),
     # ---- the pinned decision core: executable governance, not a bundle -----
     # `contracts/review-lane-pin.yaml` (feature 025-openxfactory-review-lane-caller)
     # pins the codexFactory commit whose Merge Master decision core judges this

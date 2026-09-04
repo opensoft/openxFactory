@@ -1,0 +1,36 @@
+# NEGATIVE (expect: shared-authority-identity). THE FALLBACK, PROBED. Exactly
+# ONE of the two bindings declares an `identity_namespace`; the other does not.
+#
+# The comparison FALLS BACK to the bare fetch identity and the finding is STILL
+# RAISED. This fixture is the reason the fallback is written as "report" rather
+# than "clear": an estate able to silence a real shared authority by OMITTING a
+# member on one side would hold a refusal it can turn off without ever writing
+# anything false, which is a worse instrument than the over-report the namespace
+# member exists to end.
+#
+# The remedy the message names is to declare the namespace on BOTH bindings —
+# never to delete it from the one that carries it.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+credential_bindings:
+  declaring_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-declaring
+    secret_ref: example-declaring-sync-secret
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:declaring-sync-lane
+      fetch_identity: example-runtime-identity
+      identity_namespace: example-directory-tenant-a
+  silent_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-silent
+    secret_ref: example-silent-sync-secret
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:silent-sync-lane
+      fetch_identity: example-runtime-identity
