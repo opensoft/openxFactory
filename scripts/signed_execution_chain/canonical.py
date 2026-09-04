@@ -67,7 +67,7 @@ MAX_EXACT_INTEGER = 2 ** 53 - 1
 # contract's; it is repeated here as a frozen set the validator checks against so
 # a subject the contract does not declare cannot reach a comparison.
 #
-# THE ELEVEN ANCHORING SUBJECTS ARE HERE FOR THE SAME REASON THE FIVE ARE, AND
+# THE ANCHORING SUBJECTS ARE HERE FOR THE SAME REASON THE FIVE ARE, AND
 # NOT BECAUSE THIS MODULE COMPUTES THEM. `digest-construction.schema.yaml`
 # invites a later tranche to add its subjects to that one enumeration rather than
 # declare a second construction — *"Any digest a later tranche introduces is
@@ -118,6 +118,20 @@ SUBJECTS = frozenset({
     # subject the contract admits is the same defect as a reader admitting one
     # it does not.
     "sealed_bundle_manifest",
+    # Widened again by `amend-chain-anchoring-readiness-and-durability`
+    # (requirements 2 and 3): SIX subjects for the fixed-UTC durability batch —
+    # the two registries' terms, the released Merkle construction, and the three
+    # tree positions the batch's proof chain recomputes. Same rule as every
+    # widening above: subjects to the ONE enumeration, never a construction
+    # beside it. This mirror moves with the contract because a reader refusing a
+    # subject the contract admits is the same defect as a reader admitting one
+    # it does not.
+    "confirmation_profile_terms",
+    "durability_eligibility_terms",
+    "daily_merkle_construction",
+    "durability_event_leaf",
+    "daily_batch_node",
+    "daily_batch_root",
 })
 
 _ESCAPES = {

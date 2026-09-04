@@ -1,0 +1,234 @@
+schema_version: 1
+kind: openxfactory-chain-anchoring-contract-schema
+name: xfactory_chain_anchoring_confirmation_profile
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/confirmation-profile.schema.yaml"
+contract_id: chain-anchoring-confirmation-profile
+contract_schema_version: 1
+title: One operator-approved confirmation profile for one witness network
+description: >-
+  WHAT DISTINGUISHES SUBMITTED FROM CONFIRMED ON ONE NETWORK, WRITTEN DOWN AND
+  APPROVED BEFORE ANY SCHEMA OR VALIDATOR RESTS ON IT
+  (`amend-chain-anchoring-readiness-and-durability`, requirement "Witness
+  submission and confirmation remain distinct evidence states").
+
+  THIS SHAPE EXISTS BECAUSE THE ALTERNATIVE IS LEAVING FINALITY TO AN
+  IMPLEMENTER. The amendment's own words: *"This specification MUST NOT invent an
+  unsupported numeric confirmation depth. If either profile is unresolved, schema
+  and validator authoring SHALL remain blocked rather than leaving finality to an
+  implementer."* A contract that named "six confirmations" would be a neutral
+  contract asserting a number about somebody else's consensus rules. So the
+  number is NOT here: what is here is the SHAPE an approved answer takes, and the
+  reader refuses a profile that carries a depth with no citation
+  (`confirmation_profile_numeric_depth_uncited`) exactly as it refuses a depth
+  invented in a schema.
+
+  THE TERMS ARE A SEPARATE MEMBER BECAUSE THE TERMS ARE WHAT IS DIGESTED. A
+  registry entry binds `canonical_digest` over `terms` and over nothing else, so
+  an editorial note, a record version or a later pointer beside them cannot move
+  the value a receipt was minted against. That is also why `terms` is CLOSED by
+  `additionalProperties: false`: a member added there is a deliberate contract
+  edit, which is the only way a profile's substance is meant to change — and it
+  changes by APPENDING A NEW VERSION to the registry, never by editing this one.
+
+  A PROFILE IS NOT A REGISTRY ENTRY AND THIS FILE IS NOT THE REGISTRY. The
+  approval, the activation checkpoint, the effective interval, the predecessor
+  link and the standing live in
+  `confirmation-profile-registry.schema.yaml`, because they are facts about WHEN
+  and UNDER WHAT AUTHORITY this version applies and not facts about what it says.
+  The two are compared rather than assumed to agree: the reader recomputes this
+  record's `canonical_digest` over its own `terms` and refuses a registry entry
+  whose digest disagrees (`confirmation_profile_terms_substituted_under_version`).
+
+  IT NAMES NO NETWORK. `chain_id` is an identifier, as everywhere in this family:
+  the ruled configuration's two targets are declared by a realization, and a
+  neutral contract that spelled either of them would bind every consumer to an
+  operational choice that answers to its own evidence.
+type: object
+required:
+  - schema_version
+  - kind
+  - profile_id
+  - version
+  - chain_id
+  - witness_role
+  - terms
+  - canonical_digest
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_chain_anchoring_confirmation_profile]
+  profile_id: {$ref: '#/$defs/identifier'}
+  version:
+    # IMMUTABLE PER VERSION, AND THE VERSION IS AN INTEGER SO ORDER IS NOT A
+    # STRING COMPARISON. A revision APPENDS a new version; editing a released one
+    # is the rewrite the append-only registry exists to refuse.
+    type: integer
+    minimum: 1
+  chain_id: {$ref: '#/$defs/chain_id'}
+  witness_role: {$ref: '#/$defs/witness_role'}
+  terms:
+    # THE SUBSTANCE, AND THE EXACT BYTES THE REGISTRY'S DIGEST COVERS.
+    type: object
+    required:
+      - submitted_condition
+      - confirmed_condition
+      - retained_proof_material
+      - reorganization_rule
+      - replacement_rule
+      - transition_vectors
+    additionalProperties: false
+    properties:
+      submitted_condition:
+        # SUBMITTED MEANS AN INTERFACE ACCEPTED SOMETHING FOR PROCESSING, AND
+        # THAT IS ALL IT MEANS. The amendment is explicit for both configured
+        # roles: Kaspa submitted *"MUST NOT mean Kaspa confirmed"*, and an
+        # OpenTimestamps submission *"MUST NOT mean Bitcoin confirmed"*. The
+        # evidence list is CLOSED so a fourth kind of hopeful signal cannot be
+        # added by a realization and read as progress.
+        type: object
+        required: [statement, objective_evidence]
+        additionalProperties: false
+        properties:
+          statement: {type: string, minLength: 1, maxLength: 600}
+          objective_evidence:
+            type: array
+            minItems: 1
+            uniqueItems: true
+            items:
+              type: string
+              enum:
+                - interface_acceptance
+                - retained_detached_timestamp_proof
+                - transaction_identifier
+      confirmed_condition:
+        # CONFIRMED MEANS THE CONFIGURED CHAIN-ACCEPTANCE RULE PASSED AND THE
+        # PROOF MATERIAL WAS CAPTURED WHOLE. `chain_acceptance_rule_citation` is
+        # required for the same reason the timing model's skew band cites a
+        # consensus rule: a declared condition with nothing cited behind it is a
+        # number a realization chose.
+        #
+        # `numeric_depth` IS OPTIONAL AND ITS CITATION IS NOT OPTIONAL BESIDE IT.
+        # A depth is a legitimate thing for an operator to approve where a
+        # network's own documented rule supports one; it is not a legitimate
+        # thing for this contract to invent. So the member is writable WITHOUT
+        # the citation precisely so `confirmation_profile_numeric_depth_uncited`
+        # has a negative example to fire on.
+        type: object
+        required: [statement, chain_acceptance_rule_citation, objective_evidence]
+        additionalProperties: false
+        properties:
+          statement: {type: string, minLength: 1, maxLength: 600}
+          chain_acceptance_rule_citation: {type: string, minLength: 1, maxLength: 400}
+          objective_evidence:
+            type: array
+            minItems: 1
+            uniqueItems: true
+            items:
+              type: string
+              enum:
+                - transaction_bytes
+                - inclusion_proof
+                - block_header
+                - chain_acceptance_evidence
+                - upgraded_timestamp_proof
+          numeric_depth: {type: integer, minimum: 1}
+          numeric_depth_citation: {type: string, minLength: 1, maxLength: 400}
+      retained_proof_material:
+        # WHAT IS KEPT AT CONFIRMATION, ENUMERATED. The operational witness's
+        # adoption condition is already that an inclusion proof is captured AT
+        # ANCHOR TIME rather than re-derived later, because the chain will have
+        # pruned the material the derivation needs; a profile that confirms
+        # without naming what it retained is a profile whose confirmation cannot
+        # be re-checked.
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          type: string
+          enum:
+            - transaction_bytes
+            - inclusion_proof
+            - block_header
+            - chain_acceptance_evidence
+            - upgraded_timestamp_proof
+      reorganization_rule:
+        # A CONFIRMED LABEL IS NOT RETAINED BY ASSERTION. When a block is
+        # reorganized the profile's declared rule decides the witness state and
+        # THE CHANGE IS WRITTEN AS EVIDENCE. `retain_confirmed_label` is the
+        # refused answer and is writable so
+        # `reorganized_witness_retains_confirmed_label` has a fixture.
+        $ref: '#/$defs/observation_change_rule'
+      replacement_rule:
+        # THE SAME, FOR A TRANSACTION REPLACED RATHER THAN A BLOCK REORGANIZED.
+        # Two rules and not one, because the two events are distinguishable and a
+        # single rule would force one answer onto both.
+        $ref: '#/$defs/observation_change_rule'
+      transition_vectors:
+        # POSITIVE AND REFUSAL VECTORS AT EVERY TRANSITION BOUNDARY — the
+        # amendment requires them of the APPROVAL, so they live inside the
+        # digested terms and move with the version they belong to. At least one
+        # ACCEPT and at least one REFUSE, enforced by the reader rather than by
+        # a shape, so the refusal can say which boundary was left unexercised.
+        type: array
+        minItems: 2
+        items:
+          type: object
+          required: [vector_id, boundary, expectation, statement]
+          additionalProperties: false
+          properties:
+            vector_id: {$ref: '#/$defs/identifier'}
+            boundary:
+              type: string
+              enum:
+                - pending_to_submitted
+                - submitted_to_confirmed
+                - confirmed_to_invalid
+                - submitted_to_unevaluable
+            expectation:
+              type: string
+              enum: [accept, refuse]
+            statement: {type: string, minLength: 1, maxLength: 600}
+  canonical_digest:
+    # THE DIGEST OF `terms`, CARRIED HERE SO THE PROFILE AND ITS REGISTRY ENTRY
+    # CAN BE COMPARED RATHER THAN ASSUMED TO AGREE. The reader RECOMPUTES it over
+    # this record's own `terms` under the one construction in force; a value that
+    # does not recompute is the substitution refusal firing on the profile side
+    # before any registry entry is consulted.
+    allOf:
+      - {$ref: '#/$defs/digest'}
+      - properties: {subject: {const: confirmation_profile_terms}}
+        required: [subject]
+  released_at: {type: string, format: date-time}
+  record_version: {type: integer, minimum: 1}
+  notes:
+    # OUTSIDE `terms` AND THEREFORE OUTSIDE THE DIGEST. It follows that nothing a
+    # verifier reads may live here — the same rule the receipt's `notes` carries,
+    # for the same reason.
+    type: string
+    maxLength: 1400
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"
+  chain_id:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/chain_id"
+  witness_role:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/witness_role"
+  observation_change_rule:
+    # ONE SHAPE FOR BOTH CHANGE EVENTS, DECLARED ONCE HERE BECAUSE ONLY THIS FILE
+    # USES IT. `on_change` can name the refused answer on purpose; `evidence_
+    # written` is what separates "the state changed" from "somebody edited a
+    # label".
+    type: object
+    required: [statement, on_change, evidence_written]
+    additionalProperties: false
+    properties:
+      statement: {type: string, minLength: 1, maxLength: 600}
+      on_change:
+        type: string
+        enum: [rewrite_state_as_evidence, retain_confirmed_label]
+      evidence_written: {type: boolean}

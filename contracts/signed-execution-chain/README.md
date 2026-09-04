@@ -30,7 +30,12 @@ does. See § What this family does NOT do for what is still outstanding.
 **TWO OF THE FIVE SCHEMAS HAVE MOVED SINCE THAT CUT, ADDITIVELY, AND THE NEXT CUT
 IS OWED RATHER THAN TAKEN HERE.** `add-chain-anchoring` widens the `leaf_type`
 enumeration by twelve, adds ONE optional member (`anchor_event`) and widens
-`digest_subject` by eleven: no required field is added, no shape is removed, and
+`digest_subject` by eleven, and
+`amend-chain-anchoring-readiness-and-durability` (requirements 2 and 3) widens
+`digest_subject` by SIX MORE — for the durability batch's two registry terms,
+its released Merkle construction, and the three tree positions its proof chain
+recomputes — touching nothing else in this family, the leaf grammar
+included: no required field is added, no shape is removed, and
 no existing member's meaning changes, so every instance valid at `contract-v2.5`
 stays valid — measured by re-validating the whole packaged corpus at the new head
 rather than claimed. The manifest's per-file `sha256` for
@@ -74,7 +79,14 @@ twelve leaf kinds its requirements 3, 4, 7 and 8 mandate **inside
 adds no second grammar and must not, so tranche one's grammar is where each event
 discriminator and its required fields are settled"* — and adds its eleven digest
 subjects to the single `digest_subject` enumeration on
-`digest-construction.schema.yaml`'s own written invitation. See
+`digest-construction.schema.yaml`'s own written invitation — and its amendment
+adds six further subjects there and NO LEAF KIND, deliberately: the durability
+profile's control leaves (witness submissions, confirmations, batch manifests,
+continuity checkpoints) are referenced BY IDENTIFIER from the records that
+produce them, exactly as tranche three's other records reference leaves, so
+nothing in that amendment needs a thirteenth anchoring discriminator here. A
+realization that wants those events discriminated IN THIS GRAMMAR is a successor
+act with its own evidence, not a side effect of a contract realization. See
 [`../chain-anchoring/`](../chain-anchoring/) for the family that produces those
 leaves. **The sentence above is unchanged by that**: still nothing here mints an
 anchor, configures a witness, captures a receipt or places anything on any chain,

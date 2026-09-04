@@ -1,0 +1,147 @@
+schema_version: 1
+kind: openxfactory-chain-anchoring-contract-schema
+name: xfactory_chain_anchoring_durability_eligibility_registry
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/durability-eligibility-registry.schema.yaml"
+contract_id: chain-anchoring-durability-eligibility-registry
+contract_schema_version: 1
+title: The append-only signed registry of durability-eligible event kinds
+description: >-
+  THE DENOMINATOR, PUBLISHED APPEND-ONLY
+  (`amend-chain-anchoring-readiness-and-durability`, requirement "Fixed UTC
+  durability batches account for every accepted event exactly once": *"A signed
+  append-only eligibility registry SHALL enumerate the neutral owner-evidence
+  event kinds counted by this profile."*).
+
+  "EVERY ACCEPTED EVENT EXACTLY ONCE" IS A CLAIM ABOUT A SET, AND A SET NEEDS A
+  DEFINITION NOBODY CAN MOVE. Without this register, "every eligible event" is
+  whatever the minter counted, and a completeness proof over a denominator its
+  own author chose proves nothing at all. So the eligible kinds are enumerated,
+  versioned, digested, approved, activated at a log position, and SNAPSHOTTED AT
+  WINDOW OPEN — and every admission assigned to that window carries the same
+  snapshot, so the window's denominator is fixed before its counting starts.
+
+  THE SNAPSHOT IS WHY MID-WINDOW ACTIVATION IS HARMLESS. An entry activating
+  after the window opened applies to the NEXT window
+  (`eligibility_activation_applied_to_open_window` refuses the alternative),
+  because a denominator that can widen mid-count makes the count meaningless in
+  both directions: events admitted before the change were measured against a
+  different set.
+
+  SELECTION IS DETERMINISTIC OR THE WINDOW DOES NOT OPEN. Exactly one entry with
+  `standing: active` whose half-open effective interval contains the boundary,
+  and where several do, the greatest activation checkpoint. Zero or several is
+  `eligibility_boundary_selection_ambiguous`, and offering a RETIRED predecessor
+  after a successor activated is `eligibility_snapshot_rolled_back` — a rollback
+  is exactly how a minter would shrink a denominator after the fact.
+
+  THE KINDS ARE NEUTRAL AND THE OVERLAY MAPS INTO THEM. A domain names its own
+  record kinds in its own digest-pinned overlay and MAPS them onto these; what an
+  overlay may not do is SELECT among events once an eligible one has been
+  accepted (`durability_event_selectivity_applied`), because selection after
+  acceptance is the per-event discretion this whole profile exists to remove.
+
+  CONTROL LEAVES ARE OUTSIDE THE COUNT AND THE ENTRY SAYS SO. Anchor-state
+  transitions, witness submissions, confirmations, batch manifests and continuity
+  checkpoints are anchoring control and MUST NOT enter the batch they produce
+  (`anchoring_control_leaf_admitted_as_event`). Excluding them is what permits
+  genuine consecutive empty windows: a window in which nothing but anchoring
+  happened is honestly empty.
+type: object
+required:
+  - schema_version
+  - kind
+  - registry_id
+  - append_only
+  - entries
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_chain_anchoring_durability_eligibility_registry]
+  registry_id: {$ref: '#/$defs/identifier'}
+  append_only: {$ref: '#/$defs/registry_append_only_declaration'}
+  entries:
+    type: array
+    minItems: 1
+    items: {$ref: '#/$defs/registry_entry'}
+  recorded_at: {type: string, format: date-time}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"
+  registry_standing:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/registry_standing"
+  approval_record:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/approval_record"
+  activation_checkpoint:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/activation_checkpoint"
+  effective_window_interval:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/effective_window_interval"
+  registry_append_only_declaration:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/registry_append_only_declaration"
+  leaf_class:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/leaf_class"
+  registry_entry:
+    # THE SAME SEVEN BINDINGS AS THE CONFIRMATION REGISTER, PLUS THE TERMS THIS
+    # ONE IS ABOUT. The bindings are `$ref`s to the shared definitions and not a
+    # second spelling of them; the SUBSTANCE differs, which is why the two
+    # registers are two shapes.
+    type: object
+    required:
+      - entry_id
+      - version
+      - terms
+      - canonical_digest
+      - approval
+      - activation
+      - effective_interval
+      - standing
+    additionalProperties: false
+    properties:
+      entry_id: {$ref: '#/$defs/identifier'}
+      version: {type: integer, minimum: 1}
+      terms:
+        # THE DIGESTED SUBSTANCE: which neutral event kinds this version counts,
+        # and which leaf classes it excludes. Closed, so a member added here is a
+        # deliberate contract edit.
+        type: object
+        required: [event_kinds, excluded_leaf_classes]
+        additionalProperties: false
+        properties:
+          event_kinds:
+            type: array
+            minItems: 1
+            items:
+              type: object
+              required: [kind_id]
+              additionalProperties: false
+              properties:
+                kind_id: {$ref: '#/$defs/identifier'}
+                kind_statement: {type: string, maxLength: 600}
+          excluded_leaf_classes:
+            # `anchoring_control` BELONGS HERE ON EVERY CONFORMING ENTRY, and the
+            # reader refuses an entry that omits it: an eligibility set that
+            # counts its own control leaves produces a batch that must contain
+            # the manifest describing it, which is not a fixed point but a
+            # regress.
+            type: array
+            minItems: 1
+            uniqueItems: true
+            items: {$ref: '#/$defs/leaf_class'}
+      canonical_digest:
+        allOf:
+          - {$ref: '#/$defs/digest'}
+          - properties: {subject: {const: durability_eligibility_terms}}
+            required: [subject]
+      approval: {$ref: '#/$defs/approval_record'}
+      predecessor_entry_id: {$ref: '#/$defs/identifier'}
+      activation: {$ref: '#/$defs/activation_checkpoint'}
+      effective_interval: {$ref: '#/$defs/effective_window_interval'}
+      standing: {$ref: '#/$defs/registry_standing'}
+      superseded_by_entry_id: {$ref: '#/$defs/identifier'}
+      entry_statement: {type: string, maxLength: 600}
