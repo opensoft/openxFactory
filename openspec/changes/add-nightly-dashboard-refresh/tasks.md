@@ -46,7 +46,14 @@ what the served overlay renders beyond the one digest line.
       > GATE OPEN (human/infra). Until the `XFACTORY_APP` installation includes
       > Omnigent-Install, the delivery step's `repos/<recipe>` probe 403s and the
       > pin PR parks fail-soft — the stage is code-complete behind this gate.
-- [x] 1.3 **N/A — 1.2's condition did not arise.** If 1.2 shows the installation cannot be extended, record the
+- [x] 1.3 **N/A — the contingency this task guards against is foreclosed,
+      and 1.2 stays OPEN on its own separate ground.** 1.2 owes a CALL-TIME
+      write proof and is deferred to §7.1; that is not the question this
+      task turns on. This one asks whether the installation CANNOT be
+      extended, and it demonstrably can be — it is already organization-wide
+      (`repository_selection: all`), so Omnigent-Install is in scope without
+      any extension act. Nothing here asserts 1.2's proof has been taken.
+      If 1.2 shows the installation cannot be extended, record the
       contingency ruling and mint a dedicated refresh-lane App instead. Only
       the `expected_author` value in §6.2's envelope entry changes; nothing
       else in this change depends on which App it is.

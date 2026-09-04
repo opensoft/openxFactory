@@ -21,8 +21,10 @@ divergent, and a stale debug fork is worse than none. Re-copy from the smoke
 and re-apply the hunk rather than editing this file's other 1,164 lines, or
 delete it once step 4 is understood.
 
-The rest of this docstring is `playwright-smoke.py`'s, retained because every
-word of it still describes how to run this file.
+The rest of this docstring is `playwright-smoke.py`'s, retained because it
+still describes this file's requirements and behaviour correctly — with ONE
+exception, corrected in place below and marked there: the invocation line named
+the smoke rather than this fork.
 
 PROVENANCE. Ported into openxFactory on 2026-08-26, on Brett's ruling that
 this tool's home is openxFactory — beside the runtime it drives. It came from
@@ -47,9 +49,11 @@ WHAT IT NEEDS. Playwright 1.61.0 and its chromium browser, on the HOST (`pip
 install playwright==1.61.0 && python -m playwright install chromium`; the
 1.61.1 pin this header once named DOES NOT EXIST on PyPI — corrected from the
 first real run's findings, 2026-07-31). Containers built for the hermetic
-suite deliberately do not carry it. Run from an openxFactory checkout:
+suite deliberately do not carry it. Run from an openxFactory checkout —
+THIS file, not the smoke; the retained line below named the other tool, which
+is the right instruction in `playwright-smoke.py` and the wrong one here:
 
-    python3 tests/ideation-dashboard/tools/playwright-smoke.py
+    python3 tests/ideation-dashboard/tools/playwright-smoke-debug.py
 
 NO CONSOLE URL IS PASSED, and no console should be started for it. The smoke
 builds its own world end to end — a scratch bare remote, a scratch checkout
