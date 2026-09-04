@@ -3,7 +3,7 @@ code_surface: openxFactory (`.github/workflows/doc-health-reusable.yml` gains ON
 target_release: implementation_pending — the requirements land now; the change archives only on merged code with green realization evidence, because its whole content is a delivery lane. The evidence gate is one real nightly producing a digest-only pin PR against Omnigent-Install that merge-master approves, GitHub auto-merges and Flux reconciles, PLUS one deliberately wider diff from the same lane identity refused and parked. A lane proven only by a dry run is exactly the evidence this program has learned not to accept.
 Status: ratified
 Ratified: 2026-08-25 by Brett — in-session, verbatim: "ratify add-nightly-dashboard-refresh against its realized system". The ratification is AGAINST THE REALIZED SYSTEM: the lane's code is merged and wired across all three repositories (openxFactory PR #260 `de638933` and #261 `446291d4`; aggregation opensoft/xFactory PR #141 `c1bba45d`; Omnigent-Install PRs #123 `7d0370d5`, #126 `7365eb36`, #129 `509b7d65`, #143 `5b5592e4`, #146 `575bc26f`, #153 `da0bdeba`), with required-check ruleset 21294850 ("dox digest-only pin scope", target `branch`, enforcement `active`) live on Omnigent-Install's default branch — each verified merged at this gate rather than read out of a handoff. It does NOT ratify an exercised lane: no nightly has yet executed the refresh stage, so this change's own `target_release` evidence gate is unmet and the ARCHIVE GATE STAYS OPEN — see tasks §4.8.
-Amended: 2026-09-01 by Brett — in-session host ruling, verbatim: "The runner design intentionally requires `repository_credentials_absent`; source is delivered as sealed job artifacts and the runners do not clone or push repositories." This corrects the unexercised realization's raw-clone contradiction without changing the lane's output or authority split: repository reads occur in the credentialed hosted parent, the artifact rider receives a bounded sealed source artifact, and the rider still owns strict generation + build + ACR push while holding no repository credential.
+Amended: 2026-09-01 by Brett — in-session host ruling, verbatim: "The runner design intentionally requires `repository_credentials_absent`; source is delivered as sealed job artifacts and the runners do not clone or push repositories." This corrects the unexercised realization's raw-clone contradiction without changing the lane's output or authority split: repository reads occur in the credentialed hosted parent, the artifact rider receives a bounded sealed source artifact, and the rider still owns strict generation + build + ACR push while holding no repository credential. **THE DELTA AMENDMENT ITSELF IS NOT YET RE-RATIFIED** — recorded 2026-09-04 by lane `openxfactory-f2` on adopting the rescued edits (PR #595, issue #591). The ruling quoted above settles the RUNNER DESIGN; it is not an act of consent to the amended `specs/doc-health/spec.md` delta text, and the estate's two precedents for a post-ratification amendment both cite a consenting act of its own (`archive/2026-09-01-add-release-tag-publication-check`, verbatim "accept the amendment"; `add-requirement-ref-resolution-integrity`, "by the same ratifier, in a SEPARATE and LATER act"). The 2026-08-25 `Ratified:` line above stands unchanged and governs everything this amendment does not touch. See § AMENDED AFTER RATIFICATION, 2026-09-04.
 Proposed: 2026-08-22
 Origin: The hosted openXdox dashboard's baked snapshot and baked `/source` corpus are refreshed only when a human rebuilds and repins the image by hand — twice so far, 2026-08-21 and 2026-08-22. The companion change `add-dox-gitops-reconciliation` (Omnigent-Install, merged to `main` 2026-08-22 as `7d0370d`) took the APPLY; it deliberately deferred the two questions this change must answer.
 ---
@@ -67,11 +67,20 @@ So the gap is not capability. It is that nobody has written the stage.
   `doc-health-reusable.yml`'s finalize job, ordered AFTER the existing snapshot
   lane and the report/rolling-PR delivery step, so the refresh can never
   jeopardise the report it depends on. The lane dispatches an artifact-only
-  child onto `cpc-omni01`: the credentialed parent seals fresh openxFactory
-  `main` plus Omnigent-Install's Dockerfile at ITS `main` into a bounded source
-  artifact; the credential-free child verifies it, runs `--strict` snapshot
-  generation from THAT corpus tree, builds, and pushes to
+  child onto `cpc-omni01`: fresh checkout of openxFactory `main`, `--strict`
+  snapshot generation from THAT checkout, `docker build` against
+  Omnigent-Install's Dockerfile at ITS `main`, push to
   `acropensoftxfactoryqa.azurecr.io` under a date-stamped tag, digest returned.
+
+  > **AMENDED 2026-09-01 (pending re-ratification) — the fresh checkout moves
+  > to the credentialed parent.** The sentence above is the text as RATIFIED
+  > 2026-08-25 and is retained unedited. Under Brett's 2026-09-01 host ruling
+  > the lane reads instead: the credentialed hosted parent seals fresh
+  > openxFactory `main` plus Omnigent-Install's Dockerfile at ITS `main` into a
+  > bounded source artifact; the credential-free child verifies it, runs
+  > `--strict` snapshot generation from THAT corpus tree, builds, and pushes to
+  > `acropensoftxfactoryqa.azurecr.io` under a date-stamped tag, digest
+  > returned. See § AMENDED AFTER RATIFICATION, 2026-09-04.
 - **`--strict` is the publication gate.** `--strict` on
   `ideation_dashboard.cli generate` means zero errors AND zero warnings — the
   validator's own contract is "0 ok, 1 findings (or warnings under `--strict`)"
@@ -230,3 +239,150 @@ established shapes.
 - **Review load**: one digest-only PR per changed night, approved by
   merge-master inside a fail-closed envelope. Nights with no corpus change
   produce nothing at all.
+
+## AMENDED AFTER RATIFICATION, 2026-09-04 — flagged, PENDING re-ratification
+
+**NOTHING HERE IS RATIFIED YET.** This section records an amendment to a
+packet that was ratified 2026-08-25 and whose docs are already merged on
+`main` (PRs #260 `de638933`, #261 `446291d4`, #356). It is written the way
+`archive/2026-09-01-add-release-tag-publication-check` § AMENDED AFTER
+RATIFICATION was written before its consenting act landed: *"Recorded here as
+an amendment awaiting Brett rather than absorbed into the realization, because
+the ratified baseline named a delta and this is not that delta."* The same
+sentence governs this one. The 2026-08-25 ratification stands for everything
+below that this amendment does not touch.
+
+**Provenance of the text.** The amendment was authored 2026-09-01 by the lane
+`openxfactory-nightly` and stranded uncommitted in the shared aggregation
+checkout at `6612d323`. It was rescued byte-identical as PR #595 (issue #591,
+2026-09-02), held 24 hours for its originating lane, and adopted by lane
+`openxfactory-f2` on 2026-09-04 on Brett's word, verbatim: "go on 595". The
+prose below is the originating lane's; the standing statement, the retained-text
+restorations and this section are the adopting lane's.
+
+### The ruling that motivates it
+
+Brett Heap, in session 2026-09-01, verbatim:
+
+> The runner design intentionally requires `repository_credentials_absent`;
+> source is delivered as sealed job artifacts and the runners do not clone or
+> push repositories.
+
+### The defect the ruling exposes
+
+The ratified delta placed a **raw repository clone on the artifact worker** —
+*"a FRESH checkout of openxFactory `main` (never the aggregation's submodule
+pin)"* — inside a lane whose own authority requirement holds that *"the worker
+SHALL hold no repository credential."* Both input repositories are private, so
+the two sentences cannot both be satisfied: an artifact rider with no
+repository credential cannot perform the clone the lane's own recipe requires.
+The contradiction was latent because the lane has never run (its archive gate
+is still open, `target_release: implementation_pending`, tasks §4.8); the first
+real child runs surfaced it empirically. The alternative — deploying repository
+keys to the rider through Intune — would weaken the host contract to rescue an
+implementation detail, which is the trade this program has ruled against
+before.
+
+### The correction
+
+Move ONLY the repository-read act to the credentialed hosted parent. The parent
+materializes fresh openxFactory `main` plus the Omnigent-Install recipe into a
+bounded, sealed Actions artifact carrying a manifest; the credential-free child
+verifies and consumes only that artifact. Strict generation, Docker build, ACR
+push and digest production stay on the artifact rider, unchanged. **The lane's
+output, its authority split, its permission matrix, its `--strict` publication
+gate and its evidence gate are all unchanged.** What changes is that the
+realization no longer contradicts `repository_credentials_absent`.
+
+### What moved in `specs/doc-health/spec.md` — the whole of it
+
+Two requirements are touched. **No requirement title changes, no requirement is
+added or removed, and no `## MODIFIED Requirements` block is introduced** — the
+delta remains a single `## ADDED Requirements` block, so no `sequenced_after`
+live pin and no `modified-block-currency` arm moves (measured, not predicted;
+see the PR body).
+
+1. **`Requirement: Ideation-dashboard image refresh lane`** — the opening
+   paragraph's work description is rewritten. BEFORE: *"Its work is then: a
+   FRESH checkout of openxFactory `main` (never the aggregation's submodule
+   pin); snapshot generation from THAT SAME checkout under `--strict` …"*
+   AFTER: *"The credentialed hosted parent SHALL then materialize fresh
+   openxFactory `main` (never the aggregation's submodule pin) plus the
+   Omnigent-Install recipe at ITS `main` into a bounded sealed source artifact
+   carrying the source HEAD, source committer timestamp, and both path-scoped
+   input revisions. The credential-free child SHALL verify and download that
+   artifact … The worker SHALL perform no repository clone, fetch, or push."*
+   The `--strict`-precedes-the-push paragraph beneath it is untouched.
+2. **Its `#### Scenario: The lane runs on a night with corpus movement`** —
+   the THEN bullet is rewritten to name the parent's seal and the child's
+   verification. The AND bullet (*"the snapshot's `source_revision` and the
+   baked corpus revision MUST be the same commit"*) is untouched, which is the
+   property the whole decision exists to hold.
+3. **ONE NEW SCENARIO** on that requirement — `#### Scenario: The sealed source
+   artifact is unavailable or invalid` — failing the child before strict
+   generation and before any registry credential is used, with no repository
+   fallback.
+4. **`Requirement: The refresh lane conserves the worker and identity authority
+   the nightly already holds`** — ONE NEW PARAGRAPH appended, prohibiting
+   repository credentials, deploy keys, credential helpers, raw clones and
+   repository network access on the worker. The requirement's existing first
+   paragraph, including *"The worker SHALL hold no repository credential"*, is
+   untouched; the new paragraph makes the positive mechanism explicit rather
+   than widening the prohibition.
+5. **ONE NEW SCENARIO** on that requirement — `#### Scenario: The worker is
+   asked to fetch repository source` — rejecting any realization that places a
+   repository token, deploy key, credential helper or raw clone on the artifact
+   worker.
+
+**Direction of travel.** Every one of the five is a NARROWING or a
+clarification. Nothing the ratified delta forbade becomes permitted; two new
+things the ratified delta permitted only by omission become forbidden.
+
+### What moved in this file's own `code_surface:` declaration
+
+The front-matter `code_surface:` line is a single machine-read value, so it
+cannot carry the retained text beside the amended one. The pre-amendment
+wording is therefore preserved here, phrase by phrase — this is the WHOLE of
+what moved in it:
+
+| retained (as ratified 2026-08-25) | amended 2026-09-01 |
+| --- | --- |
+| *(nothing at this position)* | inserted: "after the no-change decision, the credentialed hosted parent materializes fresh openxFactory `main` + Omnigent-Install recipe inputs into a bounded sealed source artifact;" |
+| "(fresh openxFactory `main` checkout," | "(verify and download the parent run's sealed source artifact," |
+| "that checkout," | "its fresh corpus tree at the manifest-pinned source revision/time," |
+| "Omnigent-Install's" *(Dockerfile)* | "the bundled Omnigent-Install" *(Dockerfile)*, "at ITS **recorded** `main`" |
+| "`environment: worker-credentials`, credential-by-reference);" | "source delivered as a parent artifact, no repository credential);" |
+| "writing" / "over" *(grammar)* | "writes" / "cover" |
+
+**ONE READER'S NOTE ON THE LAST ROW, raised by the adopting lane and not
+resolved here.** The amended clause drops the words `environment:
+worker-credentials` from the child's shape description. The ACR PUSH credential
+that environment carries is NOT withdrawn by this amendment — §2 of `tasks.md`
+is entirely about it, the authority requirement still describes it as "a host
+substrate credential, scoped to the single image repository, delivered to the
+host BY REFERENCE", and the amendment's own subject is repository credentials,
+not registry ones. So the drop reads as compression rather than a withdrawal.
+It is recorded because a later reader diffing this line alone could read it the
+other way, and because the spec delta — which is the governing text — does not
+mention the environment at all in either version.
+
+### What Brett is being asked to do
+
+**One word on the delta.** Accepting it flips this section's heading to
+ACCEPTED, converts the `Amended:` front-matter line's pending clause into a
+consenting citation naming the act, and leaves the 2026-08-25 `Ratified:` line
+and `Status: ratified` exactly as they are. Declining it means the amended
+delta text comes out and the ratified delta is restored, with the
+`repository_credentials_absent` contradiction filed as an open defect against
+the unexercised realization instead.
+
+### The consequence this amendment does NOT discharge
+
+The landed realization may now disagree with the amended delta. Aggregation PR
+#141 (`c1bba45d`) and PR #179 (`de9a1d99`) landed the child workflow with a
+sparse/blobless repository checkout ON THE CHILD; PR #179's fix was to the
+CHECKOUT SHAPE, not to who performs it. If that is still the shape on
+`opensoft/xFactory` `main`, the code and the amended spec disagree and a
+follow-up realization is owed. **This was not assessed here — the aggregation
+is outside this repository and outside this PR's diff** — and it is the reason
+the lane's archive gate stays open regardless of how the delta is ruled.

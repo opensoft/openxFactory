@@ -119,15 +119,24 @@ an extra field — it needs a schema delta.
 ## 3. The artifact-only child, and the recipe proven by hand (AGGREGATION)
 
 - [ ] 3.1 Prove the fresh-checkout recipe MANUALLY on `cpc-omni01`, end to end,
-      producing a real digest and opening NO pull request: the credentialed
-      parent materializes a fresh, bounded openxFactory `main` + recipe source
-      artifact; the worker downloads and verifies it; scratch context `<ctx>`;
-      `--strict` generation from the sealed corpus tree into
+      producing a real digest and opening NO pull request: scratch context
+      `<ctx>`; fresh openxFactory `main` checkout at `<ctx>/openxFactory`;
+      `--strict` generation from that checkout into
       `<ctx>/health/ideation-dashboard/openxFactory-snapshot.json`;
       `docker build -f <omnigent-install>/containers/ideation-dashboard/Dockerfile
       <ctx>`; date-stamped tag; push; capture digest. Record the digest, the
       `source_revision`, and the corpus revision, and assert they are the same
       commit.
+      > AMENDED 2026-09-01 (pending re-ratification). The task body above is
+      > retained as ratified 2026-08-25. Under Brett's host ruling the proof to
+      > perform is: the credentialed parent materializes a fresh, bounded
+      > openxFactory `main` + recipe source artifact; the worker downloads and
+      > verifies it; scratch context `<ctx>`; `--strict` generation from the
+      > SEALED CORPUS TREE into
+      > `<ctx>/health/ideation-dashboard/openxFactory-snapshot.json`; then build,
+      > tag, push and capture as above. The three recorded facts and the
+      > same-commit assertion are unchanged, and the assertion is the point of
+      > the task either way. STILL OPEN — this has not been run.
 - [x] 3.2 Keep the context minimal: copy only what the Dockerfile copies. Its
       own comment accounts the governed corpus roots at ~8 MB and deliberately
       omits `experiments/` (169 MB); a whole-checkout context would ship that
@@ -179,6 +188,26 @@ an extra field — it needs a schema delta.
       > DONE: the child uses the shared `xfactory-artifact-worker` concurrency
       > group with `cancel-in-progress: false`, and runner group id 5 now allows
       > this child workflow explicitly.
+- [ ] 3.6 (ADDED 2026-09-04 BY THE AMENDMENT, openxFactory) Expose the
+      generation timestamp anchor on the `generate` CLI, because the sealed
+      source artifact is not a git checkout and the amended lane cannot derive
+      it. MEASURED, not assumed: `ideation_dashboard.cli generate` accepts
+      `--repo-root`, `--repository`, `--source-revision`, `--project-register`,
+      `--possibles`, `--strict`, `--no-validate` and nothing else
+      (`scripts/ideation_dashboard/cli.py`, `_add_generate_args`), so the
+      `--generated-at <manifest source committer timestamp>` that `design.md`
+      Decision 3's amended step 3 and the amended spec delta's "using the
+      manifest-pinned source revision and timestamp" both call for DOES NOT
+      EXIST. The Python entry point `generate_snapshot` already takes
+      `generated_at`; `_generation_stamp` (`scripts/ideation_dashboard/
+      generator.py`) otherwise derives it by running `git show -s --format=%cI`
+      inside the scanned tree, and `RealGitDates` degrades "to None … outside a
+      git checkout" — which is exactly what the child now has. So without this
+      task the amended lane publishes a snapshot with NO `generated_at`, and
+      the served plane's freshness header loses its stamp. This is realization
+      work the amendment creates; it lands only if the amendment is
+      re-ratified, and it is NOT part of what makes the archive gate close
+      (§4.8).
 
 ## 4. The nightly stage (openxFactory)
 
@@ -523,3 +552,45 @@ This is the companion's task 7, unblocked by rulings (a) and (b). Ordered after
 - [ ] 8.5 Archive per the `target_release` gate: `implementation_pending`, and
       the evidence is §7's real cycle in BOTH directions. A lane proven only by
       a dry run does not close this change.
+
+## 9. Adoption record — the 2026-09-01 amendment's gate pass (lane `openxfactory-f2`)
+
+**RECORD, 2026-09-04.** The seventeen `[x]` flips in §§1, 2, 3, 6 and 8 above,
+and their completion prose, were authored 2026-09-01 by the lane
+`openxfactory-nightly` and stranded uncommitted in the shared aggregation
+checkout at `6612d323`. They were rescued byte-identical as PR #595 (issue
+#591) and adopted on Brett's word 2026-09-04, verbatim: "go on 595". This
+repository's own rule is that a cross-repository claim is verified at the gate
+rather than read out of a handoff, so the adopting lane re-verified every claim
+those flips make that is checkable from outside the host. **Not one flip was
+altered**; this section records what was and was not confirmed.
+
+**VERIFIED against the provider API, 2026-09-04 — every merge sha the flips
+name is real, merged, and is the sha named:**
+
+| task | claim | verified |
+| --- | --- | --- |
+| 2.2 | Omnigent-Install PR #129 `509b7d65` | MERGED 2026-08-22, `509b7d6541967f44a1fc96f0b7dd047820f5f7ed` |
+| 3.4 | aggregation PR #141 `c1bba45d` | MERGED 2026-08-24, `c1bba45de43586cdd84df8465433b8b3d7bc518a` |
+| 3.4 | aggregation PR #179 `de9a1d99` | MERGED 2026-08-31, `de9a1d99d4c7bb5d85f37a66e6b93834df1e7421` |
+| 6.1 | Omnigent-Install PR #153 `da0bdeba` | MERGED 2026-08-24, `da0bdeba2292a6127a45ecacbf15aacdfd4f3453` |
+| 6.2 | Omnigent-Install PR #146 `575bc26f` | MERGED 2026-08-24, `575bc26f43174e444467c185976ea4181888fa30` |
+| 8.1 | the README "OpenSpec Records" entry | present on `main`, `README.md`, naming the ratification and the open archive gate |
+| 8.3 | strict validation clean | re-run at this branch's head; output in the adopting PR |
+
+**NOT VERIFIED — host- and org-admin facts outside this identity's reach, and
+outside this repository.** Recorded as unconfirmed rather than doubted: the
+`XFACTORY_APP` installation `145372182` being organization-wide with
+`contents: write` + `pull_requests: write` (1.3); the runner label
+`dashboard-image` on runner id 23 and runner group id 5's allowed-workflow
+entry (3.5); active ruleset `21294850` on Omnigent-Install `main` (1.6); the
+current overlay pin digest and its `xf-refresh-provenance: v1` comment (1.5);
+and the escrowed `cpc-brett01-acr-push-token` (2.2's rider note). Every one of
+these is re-checked in §7's real cycle, which is the evidence gate that
+actually closes this change — so none of them is load-bearing for the flip
+being honest, and none is taken on trust by anything that has landed.
+
+**§4.8 AND THE ARCHIVE GATE ARE UNMOVED.** No task in §7 was flipped by the
+amendment, `target_release` stays `implementation_pending`, and the lane has
+still never run. Whatever is ruled on the amendment, the archive gate stays
+open.

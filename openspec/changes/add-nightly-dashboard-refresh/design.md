@@ -267,8 +267,10 @@ aggregation's comment records an earlier revision that got this wrong and
 
 ### Decision 3 — The build context problem, and the fresh-checkout recipe
 
-**AMENDED 2026-09-01 — fresh inputs cross the host boundary as a sealed parent
-artifact, never as worker-side repository clones.** Brett's host ruling is
+**AMENDED 2026-09-01 (PENDING RE-RATIFICATION — see `proposal.md`
+§ AMENDED AFTER RATIFICATION, 2026-09-04) — fresh inputs cross the host
+boundary as a sealed parent artifact, never as worker-side repository
+clones.** Brett's host ruling is
 explicit: "The runner design intentionally requires
 `repository_credentials_absent`; source is delivered as sealed job artifacts and
 the runners do not clone or push repositories." Both input repositories are
@@ -304,6 +306,25 @@ truthfully report a revision the `/source` viewer cannot serve.
 So the recipe is the one the two manual builds used, and it is the recipe
 because of that property:
 
+1. Make a scratch context directory `<ctx>`.
+2. Clone/checkout openxFactory `main` into `<ctx>/openxFactory` — a FRESH
+   checkout, not the submodule pin.
+3. Generate the snapshot FROM THAT CHECKOUT into the context:
+   `PYTHONPATH=scripts python3 -m ideation_dashboard.cli generate
+   --repo-root . --repository openxFactory --strict
+   --output <ctx>/health/ideation-dashboard/openxFactory-snapshot.json`,
+   run from `<ctx>/openxFactory`. `--repo-root .` is what makes
+   `source_revision` the checkout's own git HEAD; `--strict` is the gate.
+4. `docker build -f <omnigent-install-checkout>/containers/ideation-dashboard/Dockerfile <ctx>`
+   — the Dockerfile comes from Omnigent-Install `main`, the CONTEXT is
+   `<ctx>`.
+5. Tag date-stamped, push, capture the digest.
+
+**THE RECIPE AS AMENDED 2026-09-01 (pending re-ratification).** The five steps
+above are the text as ratified 2026-08-25 and are retained unedited. Under
+Brett's host ruling the repository-read act moves to the parent and the recipe
+reads as follows; step 5 is unchanged and is not repeated.
+
 1. AFTER the no-change decision finds movement, the credentialed hosted parent
    checks out openxFactory `main` and the Omnigent-Install recipe at `main`, with
    credentials not persisted, and records each path-scoped baked-input revision.
@@ -326,7 +347,22 @@ because of that property:
 4. `docker build -f <bundle>/omnigent-install/containers/ideation-dashboard/Dockerfile <ctx>`
    — the Dockerfile comes from Omnigent-Install `main`, the CONTEXT is
    `<ctx>`.
-5. Tag date-stamped, push, capture the digest.
+
+> **REALIZATION OWED, MEASURED BY THE ADOPTING LANE 2026-09-04 — step 3 above
+> names a flag that does not exist.** `--source-revision` IS a real argument of
+> `ideation_dashboard.cli generate` (`scripts/ideation_dashboard/cli.py`,
+> `_add_generate_args`). **`--generated-at` IS NOT**: that subcommand accepts
+> only `--repo-root`, `--repository`, `--source-revision`, `--project-register`,
+> `--possibles`, `--strict` and `--no-validate`. The PYTHON entry point
+> `generate_snapshot` does take `generated_at`, and `_generation_stamp`
+> (`generator.py`) derives it from the revision's committer date when it is not
+> passed — but that derivation runs `git show -s --format=%cI` INSIDE the
+> scanned tree, and `RealGitDates` is documented to degrade "to None … outside
+> a git checkout", which a sealed source artifact is. So on the amended lane the
+> snapshot would carry NO `generated_at` at all unless the value is passed in.
+> The requirement is therefore right and the interface is missing: exposing the
+> anchor on the CLI is realization work this amendment creates. Filed as
+> `tasks.md` § 3.6.
 
 Step 3's `--strict` is a real gate and not decoration: it means zero errors AND
 zero warnings, and it also fails when the validator could not RUN, so a
@@ -336,7 +372,7 @@ digest exists, and there is nothing to propose. That ordering is why the
 requirement says "publishes nothing" rather than "publishes and reports": the
 strict failure precedes the push, so there is no artifact to retract.
 
-Two notes for the implementation. The Dockerfile is read by the parent from Omnigent-Install
+Two notes for the implementation. The Dockerfile is read from Omnigent-Install
 `main` rather than from the aggregation's submodule pin, for the same
 staleness reason as the corpus — and it should be recorded as an input in the
 provenance, because a Dockerfile change alters the image without any corpus
@@ -565,8 +601,13 @@ forbids.
 Two independent reasons, both on the IMAGE side:
 
 1. **The build is not reproducible.** Every step of the recipe starts with a
-   freshly materialized source tree (Decision 3 requires it), which stamps every file's
-   modification time at checkout time. The `COPY` layers are tars of those
+   FRESH checkout (Decision 3 requires it), which stamps every file's
+   modification time at checkout time.
+   *(AMENDED 2026-09-01, pending re-ratification: read "a freshly materialized
+   source tree" — under the sealed-artifact recipe the fresh tree is
+   materialized by the parent and unpacked on the worker rather than cloned
+   there. The mtime property the argument turns on is unchanged, and so is the
+   conclusion.)* The `COPY` layers are tars of those
    files, so the layer bytes differ even when every file's CONTENT is
    identical, and the manifest digest moves with them.
 2. **The base image floats.** The Dockerfile says `FROM python:3.12-slim` — a
@@ -717,9 +758,12 @@ for a human decision or execution.
 2. HUMAN GATE — the `acr_push` credential: rule the shape (Decision 8), land
    the Omnigent-Install schema + manifest delta, and reconcile the credential
    onto the host.
-3. Build the parent source-artifact step and the artifact-only child workflow,
-   then prove the sealed-source recipe end to end ON the worker, producing a
-   real digest without any worker repository access and without opening a PR.
+3. Build the artifact-only child workflow in the aggregation and prove the
+   fresh-checkout recipe end-to-end by hand ON the worker, producing a real
+   digest without opening any PR.
+   *(AMENDED 2026-09-01, pending re-ratification: build the parent
+   source-artifact step as well, and prove the SEALED-SOURCE recipe end to end
+   on the worker — a real digest, no worker repository access, no PR.)*
 4. Add the refresh stage to `doc-health-reusable.yml` behind the readiness gate,
    with the no-change short-circuit, in a mode that opens no PR (dry-run):
    prove the skip path, the strict-failure path, and the no-change path.
