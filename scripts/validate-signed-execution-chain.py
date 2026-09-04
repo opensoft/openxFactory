@@ -277,9 +277,11 @@ HUMAN_HOLDER_CLASSES = frozenset({"person", "practitioner"})
 # shipped enumeration are refused as unevaluable rather than accepted unchecked.
 VERIFIABLE_ALGORITHM = "ed25519"
 
-# THE FOUR ACTS THIS CAPABILITY GOVERNS. Every one has a packaged example,
-# because an act whose leaf shape nobody has ever produced is a shape nobody has
-# ever checked.
+# TRANCHE ONE'S FOUR ACTS. Together with tranche two's seven below, these ELEVEN
+# are the acts this capability governs, and every one of the eleven has a
+# packaged example — because an act whose leaf shape nobody has ever produced is
+# a shape nobody has ever checked. The twelve after them are another
+# capability's.
 TRANCHE_ONE_LEAF_TYPES = ("wallet_presented_ratification", "chain_inception",
                           "traveling_contract_issued", "gate_verdict")
 
@@ -296,8 +298,9 @@ TRANCHE_TWO_LEAF_TYPES = ("setup_attestation", "commitment_extension",
 # them — a reader whose leaf-type set is stale reads a lawful leaf as a stranger —
 # but they are NOT acts of this capability: nothing here mints an anchor, and
 # their positive examples belong to the chain-anchoring family that produces
-# them. That is why the corpus-coverage obligation below is over tranche one's
-# four and not over all twenty-three.
+# them. That is why the corpus-coverage obligation below is over THE ELEVEN THIS
+# CAPABILITY GOVERNS — tranche one's four and tranche two's seven — and not over
+# all twenty-three.
 ANCHORING_LEAF_TYPES = (
     "anchor_pending_entry", "horizon_breach", "terminal_witness_failure",
     "anchor_completion", "item_anchor_refusal", "correction_anchored_forward",

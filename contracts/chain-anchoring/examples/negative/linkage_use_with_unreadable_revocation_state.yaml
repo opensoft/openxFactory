@@ -17,5 +17,6 @@ used_at: '2026-08-30T14:30:00Z'
 revocation_surface_ref: rvs-example-identity-plane-0001
 record_version: 1
 notes: 'issuance authorizes; it does not immunize: this use consulted the CURRENT
-  revocation state at the surface the issuance named, read current_not_revoked,
-  and performed the join under it'
+  revocation state at the surface the issuance named, could NOT READ it, and
+  performed the join anyway — which is the refusal. An unevaluable answer never
+  reads as permission'
