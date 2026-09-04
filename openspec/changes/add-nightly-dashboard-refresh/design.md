@@ -340,7 +340,7 @@ reads as follows; step 5 is unchanged and is not repeated.
    `PYTHONPATH=scripts python3 -m ideation_dashboard.cli generate
    --repo-root . --repository openxFactory --strict
    --source-revision <manifest source HEAD>
-   --generated-at <manifest source committer timestamp>  # implemented in task 3.6 (PR #PRNUM)
+   --generated-at <manifest source committer timestamp>  # implemented in task 3.6 (PR #642)
    --output <ctx>/health/ideation-dashboard/openxFactory-snapshot.json`,
    run from `<ctx>/openxFactory`. The two explicit generation anchors preserve
    the deterministic stamp the fresh checkout supplied; `--strict` is the gate.
@@ -364,7 +364,7 @@ reads as follows; step 5 is unchanged and is not repeated.
 > anchor on the CLI is realization work this amendment creates. Filed as
 > `tasks.md` § 3.6.
 >
-> **REALIZED 2026-09-04, openxFactory PR #PRNUM.** `--generated-at` now
+> **REALIZED 2026-09-04, openxFactory PR #642.** `--generated-at` now
 > exists on `generate` and `generate-and-open`; the measurement above
 > records why it had to. Step 3's invocation is runnable as written.
 

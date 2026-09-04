@@ -218,7 +218,7 @@ an extra field — it needs a schema delta.
       task is now REQUIRED realization work on this change's code surface —
       it is not yet done (still unticked above), and it remains NOT part of
       what makes the archive gate close (§4.8).
-      > DONE 2026-09-04, openxFactory PR #PRNUM. `ideation_dashboard.cli`
+      > DONE 2026-09-04, openxFactory PR #642. `ideation_dashboard.cli`
       > `generate` and `generate-and-open` now accept `--generated-at
       > <RFC 3339>` beside `--source-revision`: the value is validated at the
       > CLI boundary (`generator.is_rfc3339_datetime`, the shape the snapshot
