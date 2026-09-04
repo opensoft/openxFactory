@@ -28,19 +28,84 @@ REFUSED = yaml.safe_load(
     (EXAMPLES / "dispatch-record-refused.example.yaml").read_text(encoding="utf-8"))
 
 
-def test_the_refusal_grounds_are_exactly_the_two_the_realization_emits() -> None:
-    """SEEDED, not populated.
+def test_the_refusal_grounds_are_exactly_the_five_a_landed_entry_can_emit() -> None:
+    """SEEDED, then GROWN BY GOVERNED CHANGE — never populated.
 
-    The requirement text names eleven refusal grounds. Only two of them can be
-    emitted by anything that exists — `opensoft/xFactory`'s clearing lane emits
-    `unregistered_operation` and `unknown_lane_selector` and nothing else. The
-    other nine become members AS THE OPERATION THAT CAN PRODUCE THEM LANDS,
-    because an enumeration seeded with grounds no implementation can produce is
-    closed in name only, and a ledger column with unreachable values cannot be
-    audited against what actually happened.
+    The requirement text names eleven refusal grounds. Two were seeded, because
+    `opensoft/xFactory`'s clearing lane emits `unregistered_operation` and
+    `unknown_lane_selector` and nothing else. Each of the rest becomes a member
+    AS THE OPERATION THAT CAN PRODUCE IT LANDS, because an enumeration seeded
+    with grounds no implementation can produce is closed in name only, and a
+    ledger column with unreachable values cannot be audited against what actually
+    happened.
+
+    THREE JOINED ON 2026-09-04 and the reason is the rule, not an exception:
+    `admit-deliberation-clearing-operation` (ratified by Brett Heap, PR #645,
+    merged `3cf917b7`) admits register entry number two, which is the FIRST entry
+    that permits one lane and refuses the other (`lane_not_permitted`), the FIRST
+    to declare a return shape a host actually produces
+    (`output_schema_failure`), and the FIRST whose job carries a token at all
+    (`origin_scoped_credential`). SIX REMAIN ABSENT, and a fourth added here
+    without a ratifier is the defect that packet exists to refuse.
     """
     assert set(SCHEMA["$defs"]["refusal_ground"]["enum"]) == {
-        "unregistered_operation", "unknown_lane_selector"}
+        "unregistered_operation",
+        "unknown_lane_selector",
+        "lane_not_permitted",
+        "output_schema_failure",
+        "origin_scoped_credential",
+    }
+
+
+def test_each_admitted_ground_records_the_change_that_admitted_it() -> None:
+    """A member nobody can trace to a ratifier is a member somebody typed."""
+    described = SCHEMA["$defs"]["refusal_ground"]["description"]
+    for ground in ("lane_not_permitted", "output_schema_failure",
+                   "origin_scoped_credential"):
+        assert ground in described
+    assert "admit-deliberation-clearing-operation" in described
+    assert "add-clearing-dispatch-boundary" in described
+
+
+def test_the_rendering_rule_is_written_down_and_not_left_to_an_ear() -> None:
+    """The awaited grounds are named in PROSE, so an identifier must be RENDERED.
+
+    Without the rule written here, whoever admits one of the remaining six
+    re-derives it from three examples — which is how `output_schema_failure` and
+    `output-schema-failure` end up in one enumeration.
+    """
+    described = SCHEMA["$defs"]["refusal_ground"]["description"]
+    assert "RENDERING RULE" in described
+    for clause in ("lower-casing", "underscores", "`clearing-` prefix", "hyphen"):
+        assert clause in described, clause
+
+
+def test_a_record_naming_each_new_ground_validates_clean(
+        reader, registry_and_docs, entries) -> None:
+    """THE PROOF THESE MEMBERS ARE ADMITTED, and the only proof owed.
+
+    `output_schema_failure` and `origin_scoped_credential` are written by the
+    clearing workflow's HOSTED FINALIZER at dispatch, not by the canonical
+    validator — the latter never writes a dispatch record at all — so no negative
+    fixture can make either fire and none is owed. The family's "every closed
+    refusal code is red-proven" rule binds the validator's finding CODES, not
+    this enumeration's MEMBERS, whose proof is that a packaged record naming them
+    validates CLEAN.
+    """
+    for ground in ("lane_not_permitted", "output_schema_failure",
+                   "origin_scoped_credential"):
+        doc = copy.deepcopy(REFUSED)
+        doc["refusal"] = {"ground": ground, "detail": f"refused: {ground}"}
+        findings = adjudicate(reader, registry_and_docs, entries, {}, doc)
+        assert findings.errors == [], (ground, findings.errors)
+
+
+def test_the_validator_reads_the_enumeration_out_of_the_schema(reader) -> None:
+    """No validator edit was needed to admit three members, and that is the
+    design: `clearing-record-refusal-ground-unknown` calls `_refusal_grounds`,
+    which reads this list at RUN TIME rather than carrying a second copy."""
+    assert reader._refusal_grounds(SCHEMA) == set(
+        SCHEMA["$defs"]["refusal_ground"]["enum"])
 
 
 def test_a_new_ground_is_refused_until_the_schema_admits_it(
