@@ -484,21 +484,35 @@ def test_verify_one_revision_rejects_a_two_revision_image():
 
 
 def _code_string_literals(module) -> set[str]:
-    """Every string constant in `module` EXCEPT its docstrings — i.e. the
-    strings the CODE uses, with the prose that merely describes them removed.
-    Prose has to be excluded or the paragraph explaining that this module runs
-    no container build would itself defeat the check."""
+    """Every WHITESPACE-SPLIT TOKEN of `module`'s non-docstring string
+    constants, plus each whole literal itself — i.e. the tokens and strings
+    the CODE uses, with the prose that merely describes them removed. Both
+    forms are kept because the forbidden recipe could be spelled either as an
+    argv-list element ("clone") or as one shell-style string ("git clone
+    --filter=blob:none ..."); a whole-literal-only check would miss the
+    second shape, matching only an EXACT string equal to a bare command name.
+
+    Docstrings are excluded by AST POSITION — the first statement of a
+    module/class/function body, if it is a bare string expression — not by
+    VALUE, so a non-docstring literal that happens to equal some docstring's
+    text elsewhere in the module is never dropped by mistake."""
     tree = ast.parse(inspect.getsource(module))
-    docstrings = set()
+    docstring_ids: set[int] = set()
     for node in ast.walk(tree):
         if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef,
                              ast.AsyncFunctionDef)):
-            doc = ast.get_docstring(node, clean=False)
-            if doc is not None:
-                docstrings.add(doc)
-    return {n.value for n in ast.walk(tree)
-            if isinstance(n, ast.Constant) and isinstance(n.value, str)
-            and n.value not in docstrings}
+            body = node.body
+            if (body and isinstance(body[0], ast.Expr)
+                    and isinstance(body[0].value, ast.Constant)
+                    and isinstance(body[0].value.value, str)):
+                docstring_ids.add(id(body[0].value))
+    literals: set[str] = set()
+    for n in ast.walk(tree):
+        if (isinstance(n, ast.Constant) and isinstance(n.value, str)
+                and id(n) not in docstring_ids):
+            literals.add(n.value)
+            literals.update(n.value.split())
+    return literals
 
 
 def test_the_module_holds_no_build_recipe_and_no_clone():

@@ -188,14 +188,85 @@ FIXED.**
 
 ## 5. Archive
 
-- [ ] 5.1 ARCHIVE ON MERGED-PLUS-GREEN, never on landing. This packet carries
-      a code surface, so under `docs/release-realization-flow.md` § The
-      Archive Gate it archives only after the PR merges with green
-      realization evidence on `main`: `python3 -m pytest tests/doc-health`,
-      `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`, and a
-      doc-health single-repo run moving by the predicted amount and no other
-      line. Archived via `proposal-support.py archive`, never bare
-      `openspec`.
+- [x] 5.1 **ARCHIVED ON MERGED-PLUS-GREEN, MEASURED AFTER LANDING AND NEVER
+      ASSUMED — DONE 2026-09-04.** This packet carries a code surface, so
+      under `docs/release-realization-flow.md` § The Archive Gate it archives
+      only after the PR merges with green realization evidence on `main`.
+      **MERGED**: PR #619 squashed to `d611666c` on `main`
+      (2026-09-04T01:51:13Z), carrying the packet AND its whole code surface
+      in one landing — the three-state `ad_hoc` arm, `_declared_standing` and
+      the two new finding classes in `scripts/doc_health/proposal_origin.py`;
+      the matching gate arm, the copied field pairs, `write_origin_block`'s
+      new arms and `declare-adhoc`'s two new options in
+      `scripts/proposal-support.py`; and the fixtures in
+      `tests/doc-health/test_proposal_origin.py`,
+      `tests/doc-health/test_lifecycle_scan_set.py` and
+      `tests/doc-health/test_modified_block_currency_self_gate.py`.
+      **GREEN WHERE IT LANDED**: `main`'s own `pytest-suite` run
+      **33835343327** at `92e662cf` — `completed success`, with the
+      realization in that tree (`DRAFTING_FIELDS` reads at
+      `scripts/doc_health/proposal_origin.py:110` and
+      `scripts/proposal-support.py:292` on `92e662cf`) — polled to completion
+      BEFORE this archive branch was cut. It is `main`'s run that satisfies
+      the gate and not this pull request's, because what the rule asks is
+      whether the realization is green WHERE IT LANDED.
+      `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` and the
+      doc-health single-repo comparison are recorded in § 6 below. The move
+      ran through `python3 scripts/proposal-support.py . archive
+      add-drafted-proposal-origin`, never bare `openspec archive`.
+
+- [x] 5.2 **THE PROMOTION, VERIFIED RATHER THAN ASSUMED.** Both MODIFIED
+      blocks promoted **BYTE-IDENTICALLY**, compared block-for-block against
+      the archived deltas: `document-lifecycle`'s "Proposal origin
+      declaration" — 6220 characters on both sides,
+      `sha256:102cfd1dff709b63e4ebbd4c557bcadd44b677004127a2dbc5c4de859e09b4b8`,
+      all seven scenario titles present and in order — and `doc-health`'s
+      "Proposal-origin checks enforced by reference" — 6400 characters on both
+      sides,
+      `sha256:421f16a04ee040b2ffef8550b7f6d9610145c6654005cf0a607ac883a59fdd92`,
+      all ten scenario titles present and in order. `openspec archive`
+      reported `Totals: + 0, ~ 2, - 0, → 0`, and the two `~` are these.
+- [x] 5.3 **THE ARCHIVE MOVED EXACTLY ONE LEDGER ROW.**
+      `tests/sequenced_after/corpus-ledger.yaml`:
+      `add-drafted-proposal-origin` `state: active` → `archived`, stamped
+      `moved_by: "#644"` / `moved_on: "2026-09-04"`, with `class` HOLDING at
+      `co-modifier`, `declares` absent and `prose` false — **no partner
+      flipped**, so under `add-per-change-sweep-ledger`'s rule **no MOVEMENT
+      LOG entry is owed**: the row diff states the whole move. `--seed-ledger`
+      reported `162 rows, 1 moved by #644`, naming that one row, and
+      `--ledger-diff` is clean afterwards. The class holds because archiving
+      moves a change WITHIN the corpus rather than out of it, and the
+      co-modified reading is taken over the active and archived corpora both.
+- [x] 5.4 **THE SELF-GATE'S TWO ROWS RETIRED ON THEIR OWN STATED CONDITION.**
+      `tests/doc-health/test_modified_block_currency_self_gate.py`'s
+      `_LEDGER_SUBJECTS` carried this packet's two rows with the retirement
+      condition § 2.9 wrote for them — "when the packet archives and its blocks
+      are promoted". **BOTH HALVES WERE VERIFIED BEFORE THE ROWS CAME OUT**,
+      not after (5.2 above is the second half), and the retirement is
+      **RECORDED IN PLACE** rather than left as an absence, on the shape
+      `amend-owner-layer-severity` set: a reader who sees only the net cannot
+      tell a packet whose blocks were PROMOTED from one that was never
+      written. The exact set returns 12 → 10 distinct subjects and `_moved()`'s
+      history sentence gains this step. Measured, not assumed: a doc-health run
+      over this tree returns ZERO `modified-block-currency` lines naming this
+      change id, at any path, and the family reports 10 `info` against the
+      set's 10 members.
+- [x] 5.5 **THE PREDICTED MOVEMENT, CONFIRMED IN REVERSE.** § Measured effect
+      predicted the LANDING would move the headline by **+2 `info` and nothing
+      else**, both this packet's own carriage-ledger lines. The archive
+      promotes both blocks, so the same two lines DISAPPEAR and nothing else
+      does: `main` at `92e662cf` in a clean worktree reads **2 critical, 4
+      error, 26 warning, 17 info**; this tree reads **2 critical, 4 error, 26
+      warning, 15 info**; the line-by-line diff of the two reports is exactly
+      those two lines removed and **zero lines added**. **ONE UNRELATED
+      INSTABILITY OBSERVED AND CHARACTERIZED RATHER THAN SWALLOWED**: the
+      FIRST baseline run also carried a `release-tag-publication` `info` line
+      (contract-v2.6 declared SPENT) that a second run of the SAME baseline
+      tree did not, so the baseline read 18 then 17 `info` over an unchanged
+      checkout. It is a ref-reading family's per-run input, it is `main`'s and
+      not this branch's, and it is the class openxFactory **#635** already
+      tracks and PR **#639** already addresses; the comparison above uses the
+      second, stable baseline and the removed line is absent from both sides.
 
 ## 6. Executed
 

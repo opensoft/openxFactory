@@ -631,6 +631,50 @@ class RealGit:
             return out.split()[0]
         return None
 
+    def commit_present(self, repo: Path, sha: str) -> bool:
+        """Whether `sha` names a COMMIT THIS CLONE ALREADY HOLDS.
+
+        THE READERS ABOVE CANNOT ANSWER THIS AND THAT IS THE WHOLE POINT.
+        `blobs_at` answers per-path None for two facts a caller has to tell
+        apart — the path is absent at a commit we hold, and the commit itself
+        is not in the object store — and a family that guesses between them
+        reports one in the other's words (#338, and openxFactory #612 one layer
+        up, where nine repositories that simply carry no `contracts/manifest.yaml`
+        were reported every nightly as commits the checkout had not fetched).
+        `cat-file -e <sha>^{commit}` is the fact, asked in one process.
+        """
+        return self._run(repo, "cat-file", "-e", f"{sha}^{{commit}}") is not None
+
+    def _is_shallow(self, repo: Path) -> bool:
+        out = self._run(repo, "rev-parse", "--is-shallow-repository")
+        return bool(out) and out.strip() == "true"
+
+    def fetch_commit(self, repo: Path, sha: str,
+                     depth: int | None = None) -> bool:
+        """Fetch exactly `sha` from `origin`. True when git reported success.
+
+        BY SHA AND NOT BY BRANCH, because the caller already knows which commit
+        it needs and a branch fetch would race the ref it just resolved. GitHub
+        serves a commit reachable from any ref this way — measured 2026-09-04
+        against a real `--depth=1` clone of this repository, where
+        `git fetch --no-tags --depth=1 origin <old sha>` made the commit and its
+        tree readable in one round trip.
+
+        `--depth` IS APPLIED ONLY TO A CLONE THAT IS ALREADY SHALLOW, and that
+        condition is load-bearing rather than tidy. Measured the same day
+        against a FULL clone of this repository, `git fetch --depth=7 origin
+        <sha>` TRUNCATED IT: 1938 commits reachable from `origin/main` became
+        74 and `.git/shallow` appeared. The nightly's submodules are full
+        clones and other families walk their history, so a depth flag applied
+        unconditionally here would repair one family by breaking several. A
+        full clone gets a plain object fetch instead, which was measured to
+        leave the reachable count and the shallow flag untouched.
+        """
+        flags = ["--no-tags", "--quiet"]
+        if depth and depth > 0 and self._is_shallow(repo):
+            flags.append(f"--depth={int(depth)}")
+        return self._run(repo, "fetch", *flags, "origin", sha) is not None
+
     def head_sha(self, repo: Path) -> str | None:
         out = self._run(repo, "rev-parse", "HEAD")
         return out.strip() if out else None
