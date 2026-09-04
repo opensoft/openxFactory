@@ -279,3 +279,83 @@ def test_no_private_key_material_is_committed_under_the_family() -> None:
                 if token in line:
                     offenders.append(f"{path.name}:{number}: {token!r}")
     assert not offenders, offenders
+
+
+# ------------------------------------------------- outcome 4: a LAPSED row
+
+def test_a_lapsed_row_is_indexed_but_credits_nothing(reader, fixture_origins) -> None:
+    """`state: active` and EXPIRED are both true at once, and both matter.
+
+    Filtering on `state` alone was the bug: a row a human last wrote as active,
+    whose declared expiry time has since passed, still credited signatures.
+    Nothing revokes an origin row at clearing today — the factory-identity
+    register says so in its own header, and OQ1 names four candidate projection
+    shapes and chooses none — so the declared expiry is the ONLY revocation that
+    propagates.
+    """
+    row = fixture_origins["opensoft/example-lapsed-producer"]
+    assert row["state"] == "active"
+    assert reader.row_has_lapsed(row, reader.NOW_SENTINEL)
+    assert not reader.row_has_lapsed(
+        fixture_origins["opensoft/example-producer"], reader.NOW_SENTINEL)
+
+
+def test_a_lapsed_producer_is_refused_offering_hosted_provenance(
+        reader, registry_and_docs, entries, fixture_origins) -> None:
+    """THE DIRECTION THAT IS EASY TO GET WRONG.
+
+    If the reader merely SKIPPED a lapsed row, this producer would look
+    unregistered and hosted provenance would satisfy field (10) — an EXPIRY that
+    WIDENED what a producer may present. Registering an identity tightens a
+    producer and never loosens one; letting one lapse must not loosen one either.
+    """
+    doc = _load(UNREGISTERED)
+    doc["origin"]["repository"] = "opensoft/example-lapsed-producer"
+    findings = adjudicate(reader, registry_and_docs, entries, fixture_origins, doc)
+    codes = reader.codes_of(findings.errors)
+    assert "clearing-origin-row-expired" in codes, findings.errors
+    assert "clearing-origin-signature-missing" not in codes, (
+        "the lapsed-row refusal must be the one reported: a producer whose "
+        "authority has run out is not merely missing a signature"
+    )
+
+
+def test_a_lapsed_producer_is_refused_offering_a_signature(
+        reader, registry_and_docs, entries, fixture_origins) -> None:
+    """The other direction: a signature is not credited against a lapsed row.
+
+    The manifest here is the packaged registered-producer one, re-pointed at the
+    lapsed holder, so the signature is well-formed and simply belongs to an
+    authority that has expired.
+    """
+    doc = _load(REGISTERED)
+    doc["origin"]["repository"] = "opensoft/example-lapsed-producer"
+    findings = adjudicate(reader, registry_and_docs, entries, fixture_origins, doc)
+    assert "clearing-origin-row-expired" in reader.codes_of(findings.errors), \
+        findings.errors
+
+
+def test_an_unexpired_row_is_not_reported_as_lapsed(
+        reader, registry_and_docs, entries, fixture_origins) -> None:
+    """The negative branch, so the predicate is not just always-true."""
+    doc = _load(REGISTERED)
+    findings = adjudicate(reader, registry_and_docs, entries, fixture_origins, doc)
+    assert findings.errors == [], findings.errors
+
+
+def test_the_live_codexfactory_row_has_not_lapsed(reader, live_origins) -> None:
+    """A live-register canary with a real deadline.
+
+    codexFactory's origin grant runs to 2026-12-02. When it lapses this assertion
+    goes red — deliberately: at that moment the key stops evidencing that the
+    repository acted, and the register needs a governed rotation rather than a
+    quieter test.
+    """
+    from datetime import datetime, timezone
+
+    row = live_origins["opensoft/codexFactory"]
+    assert not reader.row_has_lapsed(row, datetime.now(timezone.utc)), (
+        f"the live origin row expired at {row.get('expires_at')}. Supersede it "
+        f"with a new row naming it, or mark it revoked — a revoked row never "
+        f"returns to active"
+    )

@@ -1245,7 +1245,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/dispatch-record.schema.yaml
     type: schema
     schema_version: 1
-    sha256: b5f30c3b01f8097f62eaf4ee30df086df72dad84d05609f52a3402771428376d  # contract-v1.21 (add-capability-steward)
+    sha256: a900da74a87a704fb37a65a39a69e9627c7dad9c640eb67179ea53c6bf32d310  # contract-v1.21 (add-capability-steward)
     intended_consumers:
       - hermes-install dispatch junction (D9 first realization)
       - codexFactory steward and accounting lanes

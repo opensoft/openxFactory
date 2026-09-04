@@ -117,7 +117,7 @@ only rise.
 
 ```bash
 python3 scripts/validate-manifest-digests.py
-python3 -m pytest tests/clearing/test_manifest_row_digests.py -q
+python3 -m pytest tests/clearing/test_clearing_manifest_rows.py -q
 python3 scripts/validate-contract-release.py verify-commit --commit "$(git rev-parse HEAD)"
 ```
 

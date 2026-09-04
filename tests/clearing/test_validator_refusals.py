@@ -53,10 +53,23 @@ def test_each_fixture_fails_for_the_reason_it_declares(
         f"{path.name}: no `# expected_failure:` header. A fixture that does not "
         f"declare WHY it is invalid pins nothing — any failure would satisfy it"
     )
-    docs = reader.load_records(path)
-    assert docs, f"{path.name}: carries no record"
+    import yaml
+
     findings = reader.Findings()
     registry, schema_docs = registry_and_docs
+    try:
+        docs = reader.load_records(path)
+    except yaml.YAMLError as exc:
+        # A FIXTURE MAY BE UNPARSEABLE ON PURPOSE, and exactly one is:
+        # `clearing-artifact-unparseable` can only fire on a file that does not
+        # parse, so the only fixture able to red-prove it is one that does not
+        # parse. The `# expected_failure:` header still reads, because it is
+        # taken from raw lines rather than from YAML. This mirrors the
+        # validator's own self-test rather than special-casing a filename.
+        reader.note_unparseable(findings, path, exc, f"negative/{path.name}")
+        docs = []
+    else:
+        assert docs, f"{path.name}: carries no record"
     for index, doc in enumerate(docs):
         reader.validate_record(findings, doc, f"{path.name}#{index}", registry,
                                schema_docs, entries, fixture_origins,
@@ -96,3 +109,63 @@ def test_the_whole_corpus_is_clean_end_to_end(reader) -> None:
     program: positives, negatives, refusal-code coverage and all.
     """
     assert reader.main([]) == 0
+
+
+# ------------------------------------------- the sweep's unreadable-file branch
+
+def test_an_unparseable_family_artifact_is_named_not_skipped(
+        reader, registry_and_docs, entries, tmp_path) -> None:
+    """A file the sweep could not READ is not a file the sweep CLEARED.
+
+    The bug this pins: `repo_scan` caught `yaml.YAMLError` and moved on, so a
+    file carrying a family `kind:` and broken badly enough not to parse was
+    reported as "0 artifact(s) checked" with exit 0 — a green sweep whose
+    greenness came from unreadability. It is the same error the capability
+    refuses by name everywhere else ("an unreadable or erroring provider API is
+    not a verification that passed"), moved onto the local disk.
+    """
+    broken = tmp_path / "planted-record.yaml"
+    broken.write_text(
+        "schema_version: 1\n"
+        "kind: xfactory_clearing_dispatch_record\n"
+        "lane_declarations: [\n"
+        "  : : :\n",
+        encoding="utf-8")
+    findings = reader.Findings()
+    registry, docs = registry_and_docs
+    reader.repo_scan(findings, tmp_path, registry, docs, entries, {})
+    codes = reader.codes_of(findings.errors)
+    assert "clearing-artifact-unparseable" in codes, findings.errors
+    assert any("planted-record.yaml" in line for line in findings.errors), (
+        "the finding must NAME the file, or a reader cannot act on it"
+    )
+
+
+def test_an_unparseable_file_with_no_family_kind_stays_skipped(
+        reader, registry_and_docs, entries, tmp_path) -> None:
+    """The limit, stated as a test rather than only in a comment.
+
+    With no parse there is no `kind` to dispatch on, so the branch scans raw
+    bytes for a family token. A broken file that names none is somebody else's
+    problem: this reader is not the repository's YAML linter, and claiming
+    otherwise would make every unrelated syntax error a clearing finding.
+    """
+    broken = tmp_path / "unrelated.yaml"
+    broken.write_text("some: value\nbroken: [\n", encoding="utf-8")
+    findings = reader.Findings()
+    registry, docs = registry_and_docs
+    reader.repo_scan(findings, tmp_path, registry, docs, entries, {})
+    assert findings.errors == [], findings.errors
+
+
+def test_a_parseable_tree_still_reports_its_count(
+        reader, registry_and_docs, entries, tmp_path) -> None:
+    """The sweep still says how much it checked, which is the note the CI gate
+    asserts positively — a green check that walked nothing is a vacuous pass."""
+    (tmp_path / "fine.yaml").write_text("some: value\n", encoding="utf-8")
+    findings = reader.Findings()
+    registry, docs = registry_and_docs
+    reader.repo_scan(findings, tmp_path, registry, docs, entries, {})
+    assert findings.errors == []
+    assert any("0 artifact(s) checked" in line for line in findings.notes), \
+        findings.notes

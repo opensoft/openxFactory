@@ -128,7 +128,8 @@ tests/clearing/                          # NEW
 ├── test_validator_refusals.py
 ├── test_digest_by_reference.py
 ├── test_origin_signature.py
-└── test_manifest_row_digests.py
+├── test_clearing_manifest_rows.py
+└── test_clearing_gate_wiring.py
 
 .github/workflows/                       # MODIFIED: one gate job, existing pattern
 contracts/manifest.yaml                  # MODIFIED: family rows + bundle version

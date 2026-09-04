@@ -226,3 +226,15 @@ def test_this_shape_is_not_the_capability_steward_record() -> None:
     assert "pattern" not in SCHEMA["properties"]["dispatch_id"]
     assert set(other["required"]) - shared, "the other record has members of its own"
     assert set(SCHEMA["required"]) - shared, "this record has members of its own"
+
+    ours = SCHEMA["description"]
+    theirs = other["description"]
+    assert "contracts/schemas/dispatch-record.schema.yaml" in ours, (
+        "this schema must name the junction record it is not"
+    )
+    assert "contracts/clearing/dispatch-record.schema.yaml" in theirs, (
+        "the junction schema must name THIS record it is not — a cross-reference "
+        "asserted in one file and absent from the other is not a cross-reference, "
+        "and a reader who greps the shared filename lands on a coincidence"
+    )
+    assert "xfactory_clearing_dispatch_record" in theirs

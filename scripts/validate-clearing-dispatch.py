@@ -191,6 +191,7 @@ REFUSAL_CODES = frozenset({
     "clearing-unregistered-operation",
     "clearing-lane-not-permitted",
     "clearing-bundle-disagrees-with-register",
+    "clearing-origin-row-expired",
     "clearing-origin-signature-missing",
     "clearing-origin-signature-invalid",
     "clearing-origin-signature-partial",
@@ -207,6 +208,7 @@ REFUSAL_CODES = frozenset({
     "clearing-attestation-expected-set-not-per-group",
     "clearing-attestation-dark-lane-as-breach",
     "clearing-attestation-overclaims-completeness",
+    "clearing-artifact-unparseable",
 })
 
 
@@ -248,6 +250,38 @@ def lines_for(lines: list[str], code: str) -> list[str]:
 
 
 # --------------------------------------------------------------- loading
+
+def parse_instant(value: Any) -> datetime | None:
+    """An RFC 3339 instant, normalised to UTC, or None when it is not one.
+
+    Shared by the manifest's own expiry check and the origin row's, because two
+    parsers for one grammar is two answers to one question.
+    """
+    if not isinstance(value, str):
+        return None
+    try:
+        moment = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return moment if moment.tzinfo is not None else moment.replace(
+        tzinfo=timezone.utc)
+
+
+def row_has_lapsed(row: dict, now: datetime) -> bool:
+    """Whether an origin row's declared expiry has PASSED.
+
+    Deliberately distinct from `state != "active"`. A row can be `active` and
+    lapsed at the same time, and that combination is the one this predicate
+    exists for: nothing revokes an origin row at clearing today — the
+    factory-identity register says so in its own header, and `OQ1` names four
+    candidate projection shapes and chooses none — so THE DECLARED EXPIRY IS THE
+    ONLY REVOCATION THAT PROPAGATES. A reader that filtered on `state` alone
+    would credit a signature made by an authority that has run out, which is the
+    one failure mode the short 90-day ceiling exists to bound.
+    """
+    expires = parse_instant(row.get("expires_at"))
+    return expires is not None and expires <= now
+
 
 def load_yaml(path: Path) -> Any:
     with path.open(encoding="utf-8") as handle:
@@ -360,8 +394,12 @@ def read_origin_register(f: Findings, base: Path, pinned) -> dict[str, dict]:
                             f"that disagrees with itself verifies nothing")
         out[holder] = entry
     if out:
+        lapsed = sorted(holder for holder, row in out.items()
+                        if row_has_lapsed(row, datetime.now(timezone.utc)))
         f.note(f"origin identities indexed: {len(out)} active row(s) over "
-               f"{len(out)} originating repository(ies)")
+               f"{len(out)} originating repository(ies); "
+               f"{len(lapsed)} LAPSED and creditable for nothing"
+               + (f" ({', '.join(lapsed)})" if lapsed else ""))
     return out
 
 
@@ -481,13 +519,8 @@ def check_manifest(f: Findings, doc: dict, where: str,
     job = doc.get("job") or {}
     expires = job.get("expires_at")
     if isinstance(expires, str):
-        try:
-            moment = datetime.fromisoformat(expires.replace("Z", "+00:00"))
-        except ValueError:
-            moment = None
+        moment = parse_instant(expires)
         if moment is not None:
-            if moment.tzinfo is None:
-                moment = moment.replace(tzinfo=timezone.utc)
             if moment <= now:
                 f.error("clearing-manifest-expired",
                         f"{where}: the request expired at {expires} and is "
@@ -555,7 +588,27 @@ def check_manifest(f: Findings, doc: dict, where: str,
     origin = doc.get("origin") or {}
     repository = origin.get("repository")
     row = origins.get(repository)
-    if kind == "hosted_workflow_provenance" and row is not None:
+    if row is not None and row_has_lapsed(row, now):
+        # REFUSED IN BOTH DIRECTIONS, and the ordering is the point. A lapsed row
+        # must not credit a signature — the authority behind the key has run out.
+        # It must ALSO not quietly drop the producer back to "unregistered", which
+        # is what skipping the row would do: hosted provenance would then satisfy
+        # field (10) and an EXPIRY would have LOOSENED the boundary. Registering an
+        # identity tightens a producer and never loosens one; so does letting one
+        # lapse.
+        f.error("clearing-origin-row-expired",
+                f"{where}: {repository} resolves to origin row "
+                f"{row.get('row_id')!r}, which is still recorded `state: active` "
+                f"but EXPIRED at {row.get('expires_at')}. Nothing revokes an "
+                f"origin row at clearing today, so the declared expiry is the "
+                f"only revocation that propagates and it has propagated. The "
+                f"request is refused whichever field (10) it carries: a "
+                f"signature is not credited against a lapsed authority, and "
+                f"hosted provenance is not accepted in its place — an expiry "
+                f"that widened what a producer may present would invert the "
+                f"rule it exists to enforce. The remedy is a governed register "
+                f"act: supersede the row, or mark it revoked")
+    elif kind == "hosted_workflow_provenance" and row is not None:
         f.error("clearing-origin-signature-missing",
                 f"{where}: {repository} holds an ACTIVE registered origin "
                 f"identity (row {row.get('row_id')}), so field (10) is an ORIGIN "
@@ -850,6 +903,38 @@ def load_records(path: Path) -> list[Any]:
         return [doc for doc in yaml.safe_load_all(handle) if doc is not None]
 
 
+def note_unparseable(f: Findings, path: Path, exc: Exception, where: str) -> None:
+    """A file this reader could not parse is NOT a file this reader cleared.
+
+    Skipping silently is the failure mode this exists to close: a file carrying
+    one of the family's kinds, broken badly enough not to parse, was reported as
+    "0 artifact(s) checked" and the run exited 0 — a green sweep whose greenness
+    came from the file being UNREADABLE rather than conformant. That is the
+    unreadable-API error moved onto the local disk, and this capability refuses
+    it everywhere else by name.
+
+    THE TEXT SCAN IS THE ONLY THING AVAILABLE, and its limit is stated rather
+    than hidden: with no parse there is no `kind` to dispatch on, so the raw
+    bytes are searched for one of the five kind tokens. A file that mentions a
+    kind in a comment is a FALSE POSITIVE, and that is the direction this errs in
+    on purpose — a spurious finding names a file a human checks in seconds, while
+    a missed one is a hole in a sweep nobody re-runs. A file with no family token
+    stays skipped: this reader is not the repository's YAML linter.
+    """
+    try:
+        raw = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:  # pragma: no cover - unreadable file
+        raw = ""
+    named = sorted(k for k in KIND_TO_SCHEMA if k in raw)
+    if not named:
+        return
+    detail = str(exc).splitlines()[0] if str(exc) else "(no detail)"
+    f.error("clearing-artifact-unparseable",
+            f"{where}: names {named} but does not parse as YAML, so it was NOT "
+            f"adjudicated: {exc.__class__.__name__}: {detail}. An artifact this "
+            f"sweep could not read is not an artifact this sweep cleared")
+
+
 NOW_SENTINEL = datetime(2026, 9, 3, 12, 0, 0, tzinfo=timezone.utc)
 
 
@@ -880,7 +965,17 @@ def self_test(f: Findings, registry: Registry, docs: dict[str, dict],
                     f"nothing — any failure would satisfy it")
             continue
         local = Findings()
-        for index, doc in enumerate(load_records(path)):
+        try:
+            fixture_records = load_records(path)
+        except yaml.YAMLError as exc:
+            # A FIXTURE MAY BE UNPARSEABLE ON PURPOSE. `clearing-artifact-unparseable`
+            # can only fire on a file that does not parse, so the only fixture
+            # that can red-prove it is one that does not parse — and the
+            # `# expected_failure:` header still reads, because that header is
+            # parsed from raw lines rather than from YAML.
+            note_unparseable(local, path, exc, f"negative/{path.name}")
+            fixture_records = []
+        for index, doc in enumerate(fixture_records):
             validate_record(local, doc, f"negative/{path.name}#{index}", registry,
                             docs, entries, origins, NOW_SENTINEL)
         found = codes_of(local.errors)
@@ -932,7 +1027,12 @@ def repo_scan(f: Findings, target: Path, registry: Registry,
     for path in sorted(candidates):
         try:
             records = load_records(path)
-        except yaml.YAMLError:
+        except yaml.YAMLError as exc:
+            try:
+                where = str(path.relative_to(target))
+            except ValueError:  # pragma: no cover - single-file target
+                where = path.name
+            note_unparseable(f, path, exc, where)
             continue
         for index, doc in enumerate(records):
             if not isinstance(doc, dict) or doc.get("kind") not in KIND_TO_SCHEMA:

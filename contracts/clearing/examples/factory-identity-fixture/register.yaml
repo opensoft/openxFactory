@@ -54,3 +54,22 @@ rows:
     grant_ref: grant-origin-retired-producer-0001
     expires_at: "2026-01-01T00:00:00Z"
     state: revoked
+
+  # AN ACTIVE ROW WHOSE EXPIRY HAS PASSED — the combination `state` alone cannot
+  # see. It is `active` and it is LAPSED, and both are true at once because
+  # nothing revokes an origin row at clearing today: OQ1 names four candidate
+  # projection shapes and chooses none, so the DECLARED EXPIRY is the only
+  # revocation that propagates. This row is what proves the reader asks whether
+  # the moment has passed rather than only what the state field says.
+  #
+  # A request from this producer is refused WHICHEVER field (10) it carries.
+  # Skipping the row instead would drop the producer back to "unregistered" and
+  # let hosted provenance satisfy field (10) — an expiry that LOOSENED the
+  # boundary, which inverts the rule it exists to enforce.
+  - row_id: row-origin-lapsed-producer-0001
+    holder_ref: opensoft/example-lapsed-producer
+    wallet_ref: wal-origin-lapsed-producer-0001
+    act: originate
+    grant_ref: grant-origin-lapsed-producer-0001
+    expires_at: "2026-06-01T00:00:00Z"
+    state: active

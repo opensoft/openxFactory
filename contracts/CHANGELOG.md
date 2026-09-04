@@ -91,19 +91,28 @@ signed-execution-chain precedent.
   the ledger's completeness claim honest, with a WIDENING, a DARK LANE and
   CONVERGENCE-NOT-YET-REACHED as three distinct findings and the completeness
   claim carrying its own strength.
-- **`scripts/validate-clearing-dispatch.py`** — the canonical validator. 24
-  closed refusal codes, ALL 24 red-proven by a packaged fixture; a code with no
-  probe is itself a finding.
+- **`scripts/validate-clearing-dispatch.py`** — the canonical validator. 26
+  closed refusal codes, ALL 26 red-proven by a packaged fixture; a code with no
+  probe is itself a finding. Two of the twenty-six answer questions the shapes
+  cannot ask: `clearing-origin-row-expired` refuses a producer whose origin row
+  is recorded `state: active` but whose declared expiry has PASSED — in BOTH
+  directions, since skipping the row would let an expiry LOOSEN what field (10)
+  may carry — and `clearing-artifact-unparseable` refuses a file that names one
+  of the family's kinds and does not parse, because an artifact the sweep could
+  not read is not an artifact the sweep cleared.
 - **The packaged corpus** — `contracts/clearing/examples/`: 6 positive examples
-  and 24 intended-invalid negatives, one per closed refusal code, each declaring
+  and 26 intended-invalid negatives, one per closed refusal code, each declaring
   its own `# expected_failure:` header and naming the ratified sentence it
   violates.
 - **`.github/workflows/clearing-dispatch-gate.yml`** — job id
   `clearing-dispatch-gate`, no display name, with a POSITIVE log assertion.
 - **`tests/clearing/`** — the per-family pytest wiring, including
-  `test_manifest_row_digests.py` closed in BOTH directions and
-  `test_gate_wiring.py` pinning the CI invocation inside the required
-  `pytest-suite` job.
+  `test_clearing_manifest_rows.py` closed in BOTH directions and
+  `test_clearing_gate_wiring.py` pinning the CI invocation inside the required
+  `pytest-suite` job. Both carry the family in the filename because
+  `tests/signed_execution_chain/` already claims those bare module names and
+  neither directory is a Python package, so collection would fail with an
+  import-file mismatch the moment both are collected.
 - **The tranche-3 `digest_subject` widening** — `sealed_bundle_manifest` added to
   `contracts/signed-execution-chain/digest-construction.schema.yaml` and to
   `scripts/signed_execution_chain/canonical.py`'s frozen `SUBJECTS`. That file's

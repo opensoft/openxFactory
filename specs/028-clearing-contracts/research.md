@@ -199,7 +199,10 @@ Measured from the newest families (`signed-execution-chain` @ `contract-v2.5`,
   `README.md`, and modified normative docs) — a NEW neutral family is
   deliberately NOT a member, exactly as `signed-execution-chain` was not at
   `contract-v2.5`. Its identity travels by manifest-row `sha256`.
-- **Per-family digest test**: `tests/<family>/test_manifest_row_digests.py`,
+- **Per-family digest test**: `tests/<family>/test_manifest_row_digests.py`
+  — a basename several families already use, so a family whose directory is
+  not a Python package must qualify it (this family ships
+  `tests/clearing/test_clearing_manifest_rows.py`),
   closed in BOTH directions — every expected row is registered, and every
   `*.schema.yaml` on disk carries a row — plus a per-row recomputation. The
   estate-wide `tests/manifest_digests/` sweep independently recomputes every row.

@@ -172,7 +172,7 @@ inventory at HEAD.
 - [X] T041 [US6] Add the two `contracts/README.md` "Native Contract Index" rows — one for the family's schemas, one for the validator + examples + tests bundle — in the shape the `signed-execution-chain` rows use.
 - [X] T042 [US6] Write the `contracts/CHANGELOG.md` entry for the allocated minor on the `contract-v2.5` new-family template: attribution to both ratified changes with their PR/squash, a MEASURED additive-class justification, the added-artifact inventory, what the release does NOT confer (registration is not enforcement; the release-inventory membership asymmetry), the FRESH-COUNTED bundle-number evidence from T039, and the statement that the annotated tag is published at the LANDED commit per Bundle Realization Order step 5.
 - [X] T043 [US6] Build the inventory with `python3 scripts/validate-contract-release.py build --tag contract-v3.3 --output contracts/releases/contract-v3.3.digests.yaml`, then verify it with `verify-commit --commit $(git rev-parse HEAD)`.
-- [X] T044 [US6] Write `tests/clearing/test_manifest_row_digests.py` closed in BOTH directions — an `EXPECTED_ROWS` map of every family schema plus the registry instance, an assertion that the manifest's clearing rows equal that set, an assertion that every `contracts/clearing/**/*.schema.yaml` and the `.registry.yaml` on disk carries a row, and a parametrized per-row `sha256` recomputation compared as `str()`.
+- [X] T044 [US6] Write `tests/clearing/test_clearing_manifest_rows.py` (named for the family because `tests/signed_execution_chain/` already claims the bare basename, and neither directory is a package) closed in BOTH directions — an `EXPECTED_ROWS` map of every family schema plus the registry instance, an assertion that the manifest's clearing rows equal that set, an assertion that every `contracts/clearing/**/*.schema.yaml` and the `.registry.yaml` on disk carries a row, and a parametrized per-row `sha256` recomputation compared as `str()`.
 
 ---
 
@@ -180,7 +180,7 @@ inventory at HEAD.
 
 - [X] T045 Add `.github/workflows/clearing-dispatch-gate.yml` in the `signed-execution-chain-gate.yml` pattern — job id `clearing-dispatch-gate` with NO `name:` key, `pull_request`/`push` on `main`, `permissions: {contents: read}`, the App-token mint + ssh-URL rewrite + checkout + scoped `git submodule update --init openXwallet` preamble, `setup-python` 3.12, `pip install pyyaml jsonschema rfc3339-validator`, `python3 scripts/verify-openxwallet-pin.py`, then the validator over `.` piped through `tee clearing-gate.log`.
 - [X] T046 Add the POSITIVE assertion step to `.github/workflows/clearing-dispatch-gate.yml`: grep the log for the pinned-decoder note, the register-read note with its literal count, the self-test note, the `K/K closed refusal codes red-proven` line and the repo-scan note, and assert no `ERROR [` line survives — a green check that opened nothing is a vacuous pass.
-- [X] T047 [P] Write `tests/clearing/test_gate_wiring.py` pinning the workflow's job id and the exact validator `run:` string, in the shape `tests/openxwallet_consumer_gate/test_gate_invocation.py` uses.
+- [X] T047 [P] Write `tests/clearing/test_clearing_gate_wiring.py` (family-named for the same collision reason as T044) pinning the workflow's job id and the exact validator `run:` string, in the shape `tests/openxwallet_consumer_gate/test_gate_invocation.py` uses.
 
 ---
 
