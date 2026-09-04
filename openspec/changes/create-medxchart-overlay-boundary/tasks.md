@@ -102,7 +102,7 @@ live and named in `docs/domain-neutralization-candidate-register.md:812-820`:
 `tests/validate_pin.py` with fail-closed checks, the REQUIRED `pin-validation`
 check, ruleset `21701436`.
 
-- [ ] 5.1 Author `tests/validate_pin.py` in `opensoft/MedxChart`, fail-closed,
+- [x] 5.1 Author `tests/validate_pin.py` in `opensoft/MedxChart`, fail-closed,
       REFUSING (never warning, never defaulting) when: the nested `openChart`
       gitlink and `contracts/openchart-pin.yaml`'s `pin.revision` name different
       commits; either is absent or unparseable; the pin manifest's
@@ -110,18 +110,61 @@ check, ruleset `21701436`.
       CHECKED-OUT `openChart/` revision differs from the recorded one or is
       dirty — the fourth check being the one that catches a fork executing at
       another commit while all three declarations agree.
-- [ ] 5.2 Add `.github/workflows/pin-validation.yml` in `opensoft/MedxChart`
+  - *2026-09-04 — DONE, on Brett Heap's word "do the pin validators".*
+    `opensoft/MedxChart` **PR #1**, merged
+    **`8bc39a8ce8bb4e9cf54484e400644114a41b852a`** (2026-09-04T13:05:59Z) on his
+    later word *"merge both when aligned and green"*, adds
+    `tests/validate_pin.py` (384 lines) with **all four conditions above** as
+    named fail-closed refusals — `pin-gitlink-disagrees`/`pin-gitlink-absent`,
+    `pin-manifest-absent`/`pin-manifest-unreadable`,
+    `pin-manifest-shape`/`pin-revision-invalid`, `pin-checkout-drift` — plus
+    `tests/test_validate_pin.py` (213 lines, **seven** self-tests, one per
+    refusal category with the passing, uninitialized and dirty cases). The two
+    deviations from LedgerxWallet's check set are named in the validator's own
+    module docstring rather than left to be found. Evidence, with the API
+    readings: `review/realization-evidence-2026-09-04.md` § 2.
+- [x] 5.2 Add `.github/workflows/pin-validation.yml` in `opensoft/MedxChart`
       running 5.1 on pull request and on push to `main`, with the check named
       `pin-validation` to match the LedgerxWallet precedent.
-- [ ] 5.3 **[OPERATOR]** Create the branch-protection ruleset on
+  - *2026-09-04 — DONE.* `.github/workflows/pin-validation.yml` (74 lines) in
+    the same landing, `name: pin-validation`, on `pull_request` against `main`
+    **and** `push` to `main` — both triggers this task asks for — with the job
+    carrying no display name so the status check surfaces as exactly the literal
+    `pin-validation` the ruleset pins, and no `paths:` filter so the required
+    context can never fail to report. Evidence:
+    `review/realization-evidence-2026-09-04.md` § 3.
+- [x] 5.3 **[OPERATOR]** Create the branch-protection ruleset on
       `opensoft/MedxChart`'s default branch making `pin-validation` a REQUIRED
       status check, on the shape of ruleset `21701436`. This half is Brett's
       console act; no agent performs it, and an agent-reported "ruleset created"
       without the console act is not evidence.
-- [ ] 5.4 Record the ruleset id and one green required run in this change's
+  - *2026-09-04 — DONE BY THE OPERATOR, AND READ BACK RATHER THAN REPORTED.*
+    **Ruleset `22272824`, "MedxChart pin-gate"** — Brett's console act,
+    performed 2026-09-04, verified by the coordinator via
+    `gh api repos/opensoft/MedxChart/rulesets/22272824` and re-read by this lane
+    through the same call: Repository-sourced, `target: branch`, `enforcement:
+    active`, `~DEFAULT_BRANCH`, required status check `pin-validation` with
+    `strict` false, created 2026-09-04T13:17:59Z. His report of it was
+    *"rulesets created … do 5.4 and archive both"*. **The id guessed in session
+    before the act (`21987654`) was wrong; the API is authoritative.** The shape
+    DEVIATES from precedent `21701436` in two directions — two extra rules
+    (`deletion`, `non_fast_forward`) and one extra bypass actor (`RepositoryRole`
+    id 5, `always`) — recorded as an OBSERVED DEVIATION and not repaired here,
+    because editing an operator's ruleset is the act this task reserves:
+    `review/realization-evidence-2026-09-04.md` § 4.1.
+- [x] 5.4 Record the ruleset id and one green required run in this change's
       `review/` directory as realization evidence, then and only then open the
       archive gate.
-- [ ] 5.5 Decide, in the same pass, whether `opensoft/MedxPractice` takes the
+  - *2026-09-04 — DONE; this task is the archive gate and it is now OPEN.*
+    The record is **`review/realization-evidence-2026-09-04.md`**
+    (`Status: record`, `Kind: report`), carrying the ruleset id, its full API
+    reading, and **one green run UNDER the ruleset**: run **`33876197016`**,
+    head `8bc39a8c`, **`run_attempt: 2`**, started 2026-09-04T13:25:34Z and
+    completed **`success`** at 13:25:47Z. The first attempt (created 13:06:02Z)
+    PREDATES the ruleset created at 13:17:59Z and is therefore green under no
+    required regime; **the re-run is the evidence, and the two are distinguished
+    by `run_attempt` because they share one run id**.
+- [x] 5.5 Decide, in the same pass, whether `opensoft/MedxPractice` takes the
       same validator. It is the sibling realized placement this change's
       `domain-descendant-boundary` delta names, it carries the identical
       two-pin shape (`contracts/openpractice-pin.yaml`, `kind:
@@ -133,6 +176,25 @@ check, ruleset `21701436`.
       packet carries no reference to this file yet. Deciding it here keeps one
       answer for one shape; the
       DOING of it belongs to whichever packet the decision assigns.
+  - *2026-09-04 — DECIDED, and the decision is not this lane's to make: it is
+    already ratified text in the packet that owns MedxPractice.*
+    `create-medxpractice-overlay-boundary`'s `tasks.md` § 5 carries the titled
+    paragraph **"THIS GROUP ANSWERS THE SIBLING'S OPEN 5.5"**, whose answer is
+    *"YES, and it is recorded here because this is the packet that owns
+    MedxPractice"* — the two descendants carry the identical two-pin shape, so
+    "one validator shape covers one pin shape and a second shape would be two
+    answers to one question" — and which closes: *"This paragraph is the answer;
+    the sibling's 5.5 checkbox cannot be ticked from this pull request and is
+    left for the sibling's own pass to tick with a pointer here."* **This is that
+    pass and this note is that pointer.** The decision is confirmed by what was
+    built: `opensoft/MedxPractice` PR #1 merged `f7fd8364` (2026-09-04T13:05:10Z)
+    with the same five files at the same sizes, a literal-only diff.
+    **THE FUTURE-TENSE CLAUSE IN THIS TASK'S OWN TEXT IS NOW SPENT**: "no
+    sibling pull request has merged and that packet carries no reference to this
+    file yet" was true when written and stopped being true at `0bf37d14`
+    (openxFactory #609, 2026-09-03), whose R3 cites this change's
+    `domain-descendant-boundary` delta by path. The closed task text is not
+    edited; the correction is this append.
 
 ## 6. Standing of the boundary itself — reported, not precedent
 

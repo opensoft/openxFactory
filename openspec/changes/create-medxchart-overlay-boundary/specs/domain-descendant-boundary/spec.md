@@ -13,6 +13,9 @@ exist — no sibling pull request has merged and that packet carries zero
 references to this file. The sibling is being authored stacked on this branch and
 will carry it.
 
+*Superseded 2026-09-03 at `0bf37d14`: `create-medxpractice-overlay-boundary` R3
+now cites this requirement by path (recorded in its ratification record).*
+
 The scenario title "The draft establishing act archives" is kept VERBATIM even
 though the act is no longer a draft: a canon scenario title this block does not
 restate is a deleted obligation to `doc-health`'s `modified-block-currency`
