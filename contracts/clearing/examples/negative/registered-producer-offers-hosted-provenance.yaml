@@ -1,0 +1,42 @@
+# expected_failure: clearing-origin-signature-missing
+# expected_failure_detail: missing origin signature
+# VIOLATES add-cpc-clearing-boundary's MODIFIED field (10): "A registered
+# producer presents hosted provenance alone → the request MUST be refused AND the
+# refusal MUST NAME THE MISSING ORIGIN SIGNATURE rather than report field (10) as
+# present."
+#
+# THE SECOND CLAUSE IS THE HARDER ONE. This record's field (10) is populated,
+# well-formed, and provider-verifiable. A reader counting fields would find ten.
+# What is missing is the ANSWER TO A DIFFERENT QUESTION: the provider says which
+# run produced the object, and only the signature says the originating
+# repository's hosted environment INTENDED THIS MANIFEST.
+schema_version: 1
+kind: xfactory_sealed_bundle_manifest
+origin:
+  repository: opensoft/example-producer
+  workflow_path: .github/workflows/package-sealed-bundle.yml
+source_commit: 4f1c0d9a7b2e8c3d5a6f0b1e2c4d6a8b0c2e4f60
+job:
+  job_id: sbm-example-0001
+  issued_at: '2026-09-03T11:00:00Z'
+  expires_at: '2026-09-03T13:00:00Z'
+selected_files:
+- path: src/example/module.py
+  content_hash: sha256:9f2c3a1b4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8
+  size_bytes: 2048
+- path: tests/example/test_module.py
+  content_hash: sha256:1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f809
+  size_bytes: 1024
+operation: readiness-diagnostic
+worker_profile: cpc-readonly-probe
+lane:
+  runner_group: xfactory-execution-lane-workers
+  dispatch_label: host-coding-cpc-brett01
+output_schema_ref: contracts/clearing/operation-report.schema.yaml
+data_handling: public_log_only
+origin_attestation:
+  attestation_type: hosted_workflow_provenance
+  provider: github-actions
+  run_id: '33999000222'
+  run_attempt: 1
+  run_url: https://github.com/opensoft/example-producer/actions/runs/33999000222

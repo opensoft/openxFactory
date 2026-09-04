@@ -1,0 +1,28 @@
+# A FIXTURE ORIGIN WALLET for the LAPSED row — packaged corpus only.
+#
+# Its public half is derived from a labelled sha256 digest, so a reader can see
+# at a glance that nobody holds a private half and that no value here could be
+# mistaken for a real minted key. It never has to verify anything: the row that
+# points at it is refused on expiry BEFORE any signature is considered, which is
+# exactly the property the fixture exists to prove.
+schema_version: 1
+kind: xfactory_wallet_record
+wallet_id: wal-origin-lapsed-producer-0001
+holder:
+  holder_id: opensoft/example-lapsed-producer
+  holder_class: organisation
+  display_label: Lapsed producer (packaged fixture, not a real repository)
+key_reference:
+  did: "did:key:z6MkeePckpt22i8e1cZ6GfHa5FR9VkNJRhL624bFhj9ESikT"
+  key_id: key-fixture-lapsed-producer-0001
+  key_fingerprint: sha256:6aebf2d60caa0ae1efc9affa4fe3a35a1107d7e39a60f7da2f1a17f0a43370d8
+  public_key_multibase: z6MkeePckpt22i8e1cZ6GfHa5FR9VkNJRhL624bFhj9ESikT
+  signature_algorithm: ed25519
+custody:
+  model: holder_readable
+  registry_version: 1
+  declared_at: "2026-03-01T00:00:00Z"
+  declared_by: fixture
+state: active
+created_at: "2026-03-01T00:00:00Z"
+policy_version: 1

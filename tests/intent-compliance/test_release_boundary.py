@@ -66,20 +66,15 @@ class ReleaseState(StrEnum):
     same reason as every advance above it, and worth stating twice here
     because a corrective cut is exactly the kind a reader assumes moved
     nothing and therefore needed no statement.
-    Advanced again at the ``contract-v3.3`` cut, which realizes
-    ``add-consumer-identity-namespace``: ``consumer.identity_namespace`` is
-    declared and unconstrained in the credential-contracts schema, the
-    shared-authority comparison reads the PAIR where both sides declare a
-    grammatical namespace, and the block's shape codes go from eight to nine.
-    Intersecting ``git diff --name-only contract-v3.2 HEAD`` with the 283
-    registered members of ``contract-v3.2.digests.yaml`` leaves EXACTLY TWO —
-    ``contracts/manifest.yaml`` and ``docs/contract-versioning-policy.md`` —
-    and NEITHER is an intent-compliance member, so the membership this file
-    asserts is again UNCHANGED. The schema and validator that cut carries are
-    not registered rows at all; the schema's bytes are pinned by its
-    ``contracts/manifest.yaml`` row's ``sha256``, which moved with them. Said
-    by hand, like every advance above it, because "unchanged" is the one thing
-    the library cannot tell from "unnoticed".
+    Advanced again at the ``contract-v3.3`` cut (add-clearing-dispatch-boundary
+    task 6.8: the neutral ``contracts/clearing/`` family), on the same reading
+    as every other cut that registers a DIFFERENT family. What that cut moves
+    among registered rows is six NEW ``contracts/clearing/`` rows and one
+    existing one — ``contracts/signed-execution-chain/digest-construction.schema.yaml``,
+    whose ``digest_subject`` enumeration gains a single member — and NONE of the
+    seven is an intent-compliance member, so the membership this file asserts is
+    again UNCHANGED. Stated by hand, like every advance above it, because
+    "unchanged" is the one fact the library cannot tell from "unnoticed".
     ``contract-v2.6`` stays named above although it was never published: its
     number is spent, and a value this enum has been told how to classify costs
     nothing to keep while removing it would make a historical manifest

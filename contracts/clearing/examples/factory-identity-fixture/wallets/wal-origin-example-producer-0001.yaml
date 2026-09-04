@@ -1,0 +1,37 @@
+# A FIXTURE ORIGIN WALLET — packaged corpus only.
+#
+# EPHEMERAL BY CONSTRUCTION. This public half was generated for one act: signing
+# the packaged `sealed-bundle-manifest-registered-producer.example.yaml` so the
+# validator's origin check has something that genuinely VERIFIES rather than a
+# value shaped like a signature. The private half was never written to this
+# repository and no process here can reproduce it, which is exactly the property
+# that makes committing the public half harmless — a public key is not a secret.
+#
+# NOT A LIVE IDENTITY. `opensoft/example-producer` is not a repository. Nothing
+# resolves this wallet outside the packaged corpus, and
+# `scripts/validate-clearing-dispatch.py` reads this tree only for its self-test.
+#
+# ORGANISATION HOLDER, no seat spelling, no `agent:` prefix, no `keys:` block —
+# the shape `governance/factory-identity/wallets/` uses, so the fixture exercises
+# the reader rather than a shape invented for it.
+schema_version: 1
+kind: xfactory_wallet_record
+wallet_id: wal-origin-example-producer-0001
+holder:
+  holder_id: opensoft/example-producer
+  holder_class: organisation
+  display_label: Example producer (packaged fixture, not a real repository)
+key_reference:
+  did: "did:key:z6MkggQfNHdNAp5D9UUUnuHEe3TwRbBZqhKqnJq2Vz7ByAeT"
+  key_id: key-fixture-example-producer-0001
+  key_fingerprint: sha256:18bfa50d48487a997c1b48c4b33047ec119ab6613a251889be63a59f82f9f04b
+  public_key_multibase: z6MkggQfNHdNAp5D9UUUnuHEe3TwRbBZqhKqnJq2Vz7ByAeT
+  signature_algorithm: ed25519
+custody:
+  model: holder_readable
+  registry_version: 1
+  declared_at: "2026-09-03T00:00:00Z"
+  declared_by: fixture
+state: active
+created_at: "2026-09-03T00:00:00Z"
+policy_version: 1
