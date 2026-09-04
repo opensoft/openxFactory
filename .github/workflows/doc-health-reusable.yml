@@ -265,6 +265,48 @@ jobs:
           else
             echo "openxFactory declares no openXwallet gitlink at this pin; skipping the nested init"
           fi
+          # MedxEHR's own TWO nested legs, `spec` and `code` — the SAME shape
+          # of problem as the openXwallet nested gitlink above, one level
+          # further down. MedxEHR is itself a governed submodule (matched by
+          # the `xFactories/` filter and inited above); its OWN `.gitmodules`
+          # declares `spec` (MedxSoft/MedxEHR-spec) and `code`
+          # (MedxSoft/MedxEHR-code), which the top-level filter cannot reach
+          # for the same reason it cannot reach openXwallet — a submodule of a
+          # submodule needs its own `-C` init.
+          #
+          # THIS IS WHAT `make validate` NEEDS: MedxEHR's lockstep pin
+          # validator (`scripts/validate-pins.py`) recomputes each leg's
+          # pinned digest from the leg's own object store, and correctly
+          # refuses `pin-submodule-uninitialized` — fail-closed — when a leg
+          # is present only as an empty gitlink. Presence is not identity.
+          #
+          # NOT `--recursive` here either, for the identical reason the
+          # openXwallet init above rejects it: naming the two declared legs
+          # keeps the same promise that comment makes — nothing wider joins
+          # the nightly by accident should a leg ever grow submodules of its
+          # own.
+          #
+          # GUARDED on each leg's `.gitmodules` declaration, same as
+          # openXwallet. MedxEHR is not the only governed repo that pins a
+          # neutral product one level down (MedxChart/openChart,
+          # MedxPractice/openPractice, LedgerxFactory's two legs, and
+          # MedxFactory/MedxAvatar all do too), but none of those currently
+          # run a pin-digest recompute through preflight the way MedxEHR's
+          # `make validate` does — only MedxEHR fails today — so only
+          # MedxEHR's legs are inited here: the narrowest mechanism for the
+          # failure actually observed.
+          if git -C xFactories/MedxEHR config --file .gitmodules \
+               --get submodule.spec.path >/dev/null 2>&1; then
+            git -C xFactories/MedxEHR submodule update --init spec
+          else
+            echo "MedxEHR declares no spec gitlink at this pin; skipping the nested init"
+          fi
+          if git -C xFactories/MedxEHR config --file .gitmodules \
+               --get submodule.code.path >/dev/null 2>&1; then
+            git -C xFactories/MedxEHR submodule update --init code
+          else
+            echo "MedxEHR declares no code gitlink at this pin; skipping the nested init"
+          fi
       - name: Verify openXwallet root-gitlink parity
         # split-openxwallet-repo task 9.4 / design D11. THIS IS THE ONLY CI THAT
         # INITIALIZES BOTH GITLINKS, which is why the check is invoked here and
@@ -1156,6 +1198,26 @@ jobs:
             git -C openxFactory submodule update --init openXwallet
           else
             echo "openxFactory declares no openXwallet gitlink at this pin; skipping the nested init"
+          fi
+          # MedxEHR's own TWO nested legs, `spec` and `code` — mirrored from
+          # the `prepare` job's identical step. `finalize` runs on its own
+          # fresh checkout and re-runs the full suite (this job passes no
+          # `--family`, so `run_suite`'s preflight branch runs again here and
+          # its result is what "Run doc-health suite" below actually renders
+          # into the published report), so the same nested init has to be
+          # repeated rather than inherited from `prepare`. See the `prepare`
+          # job's copy of this block for the full rationale.
+          if git -C xFactories/MedxEHR config --file .gitmodules \
+               --get submodule.spec.path >/dev/null 2>&1; then
+            git -C xFactories/MedxEHR submodule update --init spec
+          else
+            echo "MedxEHR declares no spec gitlink at this pin; skipping the nested init"
+          fi
+          if git -C xFactories/MedxEHR config --file .gitmodules \
+               --get submodule.code.path >/dev/null 2>&1; then
+            git -C xFactories/MedxEHR submodule update --init code
+          else
+            echo "MedxEHR declares no code gitlink at this pin; skipping the nested init"
           fi
       - uses: actions/setup-python@v5
         with:
