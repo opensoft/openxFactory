@@ -610,6 +610,45 @@ _LEDGER_SUBJECTS = {
     # block is promoted.
     ("add-chain-attestation", "signed-execution-chain",
      "A gate validates the short chain as a hash-linked chain"),
+    # ADDED 2026-09-03 BY `add-drafted-proposal-origin` (issue #318, ruled the
+    # same day), TWO ROWS FROM ONE PACKET because it MODIFIES one requirement
+    # in each of two capabilities — the owning contract and the family that
+    # enforces it — and those two blocks are the whole of its spec surface.
+    # DELIBERATE REWORDINGS, and the packet cannot make its change without
+    # them: it adds a lawful ORIGIN STATE for a drafted-but-unapproved packet
+    # (`ad_hoc` carrying `proposed_by`/`proposed_on` in place of the approval
+    # pair), and every unit this arm reports as uncarried is a sentence that
+    # ENUMERATED the old two-shape world.
+    #
+    # `document-lifecycle`'s "Proposal origin declaration" — 5 of 15 units.
+    # Three body units: the opening sentence, whose "fixed when the proposal is
+    # created and unchanged for the life of the change" now qualifies WHAT is
+    # fixed (the identity — `kind`, `id`, `path` — which is what the support
+    # manifest repeats), so that approval can be an ADDITION rather than a
+    # mutation this same family would report; the `ad_hoc` sentence, whose
+    # "required `reason`, `approved_by`, and `approved_on`" becomes "a required
+    # `reason`, and EITHER approval provenance OR drafting provenance"; and the
+    # "Ad-hoc status is an explicit, approved exception" sentence, restated as
+    # "An APPROVED ad-hoc origin is an explicit, approved exception" with the
+    # rest of it — the no-substitute-for-staging clause and the no-dual-kind
+    # clause — carried word for word. Two scenario bullets: the `WHEN` of
+    # `An ad-hoc proposal is created`, narrowed to "and its creation is
+    # approved" so the unapproved case has its own scenario rather than
+    # silently widening that one; and the `WHEN` of `The proposal gate rejects
+    # a malformed origin`, which gains the two new rejection cases. All four
+    # promoted scenario TITLES are carried and five are added.
+    #
+    # `doc-health`'s "Proposal-origin checks enforced by reference" — 1 of 13
+    # units: the single sentence enumerating what the family reports, whose
+    # "an ad-hoc origin lacking reason or approval provenance" splits into the
+    # four states the family now distinguishes. All five promoted scenarios are
+    # carried byte-identical and five are added.
+    #
+    # Both rows retire when the packet archives and its blocks are promoted.
+    ("add-drafted-proposal-origin", "document-lifecycle",
+     "Proposal origin declaration"),
+    ("add-drafted-proposal-origin", "doc-health",
+     "Proposal-origin checks enforced by reference"),
     # ADDED AND REMOVED ON 2026-09-03 IN ONE PULL REQUEST BY
     # `amend-owner-layer-severity` — TWO ROWS, one per MODIFIED block, from the
     # doc-only packet carrying openxFactory issues #561 and #339 on Brett
@@ -1001,9 +1040,10 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     fresh = seen - _LEDGER_SUBJECTS
 
     assert not gone and not fresh, _moved(
-        "the carriage-ledger population (10 since 2026-09-03, when "
-        "add-consumer-identity-namespace added TWO subjects at once — one packet "
-        "carrying two rulings of one day, #511 and #553, over two requirements; "
+        "the carriage-ledger population (12 since 2026-09-03, when "
+        "add-drafted-proposal-origin brought two blocks of its own, following "
+        "add-consumer-identity-namespace's two and amend-owner-layer-severity's "
+        "net-zero churn earlier the same day; "
         "9 named subjects at 76a2ad27; 8 after "
         "PR #424's rename; 7 since this packet archived on 2026-08-27; 9 again "
         "while the two doc-health-floor packets of 2026-08-28 stood active; 10 "
@@ -1016,7 +1056,10 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "amend-owner-layer-severity stood active on 2026-09-03 with TWO "
         "MODIFIED blocks, one per issue it carries, and 8 again within the "
         "same pull request when that doc-only packet archived and both blocks "
-        "promoted)",
+        "promoted; 10 since add-consumer-identity-namespace added TWO subjects "
+        "at once — one packet carrying two rulings of one day, #511 and #553, "
+        "over two requirements; 12 since add-drafted-proposal-origin brought "
+        "two blocks of its own on 2026-09-03)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")

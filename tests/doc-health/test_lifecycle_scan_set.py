@@ -86,6 +86,16 @@ NON_READERS = {
     "notebook-projection-drift",
     "document-catalog",
     "ideation-routing",
+    # add-proposal-origin-contract, and STILL a non-reader after
+    # `add-drafted-proposal-origin` gave it one header to read. It reads
+    # `.openspec.yaml` declarations, support manifests and git objects; the
+    # single lifecycle header it now consults — a NAMED packet's own
+    # `proposal.md` `Status:`, to decide whether a status claiming
+    # ratification is standing over an origin that asserts no approval — is
+    # read through `corpus.parse_status` on that file directly, for the same
+    # reason `promotion-fidelity` and `duplicate-packet` are non-readers: it
+    # needs the status of one named packet, never a sweep over a document
+    # list.
     "proposal-origin",
     "client-identity-composition",
     # add-promotion-fidelity-check. It reads archived spec DELTAS and
