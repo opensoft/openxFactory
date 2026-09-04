@@ -8,10 +8,17 @@ OVER TIME: it reports the population, the co-modified / sole-modifier split at
 requirement granularity, adoption of the field, and THE DEEPEST DECLARED CHAIN it
 resolves.
 
-The reading of the live corpus is asserted here against the AUTHORING measurement
-recorded in the ratified proposal, so a drift in either the corpus or the
-counting method surfaces as a test failure rather than as a number nobody
-re-derives.
+THE LIVE READING IS PINNED PER CHANGE, not as a handful of totals. The pin is
+`corpus-ledger.yaml` beside this file — one row per change id, sorted, each
+carrying what the sweep reads about that change — and every total the sweep
+reports is DERIVED from those rows and cross-checked, field by field, against
+the measurement itself. A drift in either the corpus or the counting method
+still surfaces as a test failure rather than as a number nobody re-derives; what
+no longer happens is two pull requests colliding on one shared total for
+bookkeeping neither of them disagrees about (`add-per-change-sweep-ledger`,
+issue #618). The AUTHORING measurement stays where it was recorded — in
+`add-sequenced-after-substrate`'s `proposal.md`, `design.md` and the README —
+as the dated historical snapshot it always was.
 """
 from __future__ import annotations
 
@@ -180,11 +187,204 @@ def test_the_sweep_never_gates(tmp_path):
     assert "corpus sweep" in result.stdout
 
 
-# --- the LIVE corpus reading (task 5.5) -------------------------------------
+# --- the LIVE corpus reading: THE LEDGER (add-per-change-sweep-ledger) ------
 
 
-def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
-    """The authoring measurement, re-derived — and MOVED where the corpus moved.
+def _ledger(root, rows, schema_version=sa.LEDGER_SCHEMA_VERSION,
+            kind=sa.LEDGER_KIND):
+    """Write a synthetic ledger under `root`, one `id: {...}` line per row."""
+    path = sa.ledger_path(root)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    body = "".join(f"  {line}\n" for line in rows)
+    path.write_text(
+        f"schema_version: {schema_version}\nkind: {kind}\n"
+        f"seeded_from: ~\n\nrows:\n{body}", encoding="utf-8")
+    return path
+
+
+def _row(change_id, state="active", klass=sa.CLASS_SOLE, declares="absent",
+         depth=None, prose=False, moved_by="#1", moved_on="2026-09-03"):
+    parts = [f"state: {state}", f"class: {klass}", f"declares: {declares}"]
+    if depth is not None:
+        parts.append(f"depth: {depth}")
+    parts.append("prose: " + ("true" if prose else "false"))
+    parts.append(f'moved_by: "{moved_by}"')
+    parts.append(f'moved_on: "{moved_on}"')
+    return change_id + ": {" + ", ".join(parts) + "}"
+
+
+def test_the_DERIVED_totals_equal_the_MEASURED_sweep():
+    # THE CROSS-CHECK, and the reason `corpus_sweep` was NOT refactored into the
+    # classifier: if the fold were the measurement's own implementation this
+    # equality would hold by construction and prove nothing, and a classifier
+    # bug would silently populate a ledger that agreed with itself.
+    readings = sa.classify_corpus(ROOT)
+    derived = sa.sweep_from_readings(readings)
+    measured = sa.corpus_sweep(ROOT)
+    assert sa.sweep_mismatches(derived, measured) == []
+    assert derived == measured
+
+
+def test_the_LIVE_corpus_and_the_LEDGER_agree_row_by_row():
+    """The LIVE PIN: the LEDGER and the corpus, row by row.
+
+    The pin is no longer a handful of corpus-wide TOTALS asserted as literals
+    here. It is `corpus-ledger.yaml` beside this file — ONE ROW PER CHANGE ID
+    over the active and archived corpora both, sorted, each row carrying what
+    the sweep reads about that change — and every total the sweep reports is
+    DERIVED from those rows. A pull request now moves ITS OWN ROW (and a
+    partner's row when its own `## MODIFIED Requirements` block flips that
+    partner from sole to co-modifier), so two changes in flight edit two
+    non-adjacent lines and merge without a conflict — UNLESS their ids sort
+    with no row between them, where they share one insertion point and collide
+    like any other adjacent insertion; that residue is the landing window's
+    (issue #618 item 1), not something the row shape removes. Ratified by Brett
+    Heap 2026-09-04 (*"ratify 623"*), on the convener's ruling of 2026-09-03
+    (issue #618): *"do 1 and 3, keep the log in one place"*.
+
+    Move your row with
+
+        python3 scripts/validate-sequenced-after.py . --seed-ledger \
+            --moved-by '#<PR>'
+
+    which rewrites the ledger from the live corpus, stamps `moved_by`/`moved_on`
+    on the rows that ACTUALLY moved, and leaves every other row's provenance
+    alone. The diff is then the list of rows your change moved.
+    `--ledger-diff` prints the same findings without writing anything.
+
+    MOVEMENT LOG — THE RULE, RESTATED 2026-09-03. The log stays ONE
+    hand-written ledger and it stays HERE — the convener's constraint, not a
+    design choice. What changed is when an entry is OWED:
+
+    - AN ENTRY IS OWED when a move is NOT explained by the row diff itself: a
+      change to the COUNTING METHOD (what `state`, `class`, `depth` or `prose`
+      mean); a PARTNER'S row moving because of someone else's delta, where the
+      reason is not legible from the two rows alone; a reading that is not
+      per-change moving; or a RE-SEEDING of, or repair to, the ledger.
+    - NO ENTRY IS OWED for a move the row diff already states — a row added, a
+      row's `state` flipping on archive, a row's `class` flipping on
+      ratification. Most changes now append NOTHING.
+    - THE NARRATIVE IS NEVER GENERATED FROM THE DIFF. A narrative that restates
+      what the diff already says is noise that hides the entries carrying
+      judgement. That is why the rule is about what the diff does NOT say.
+
+    - **SEEDED 2026-09-03** from the live corpus, by
+      `validate-sequenced-after.py --seed-ledger`, in PR #623
+      (`add-per-change-sweep-ledger`). 159 rows: every change id in the active
+      and archived corpora both, plus this packet's own directory — which is
+      itself a corpus member, an ACTIVE SOLE modifier on its ALL-ADDED delta
+      over a novel `release-realization` title, and the only change besides
+      `add-sequenced-after-substrate` that declares `sequenced_after:`, taking
+      the DEEPEST DECLARED CHAIN from 1 hop to 2 (this change ->
+      `add-sequenced-after-substrate` -> `add-structured-scope-substrate`).
+      THE SEEDING IS THE LAST ENTRY OWED FOR A MOVE THE DIFF ALSO STATES: the
+      whole file is new, so the diff states everything, and the entry exists
+      because a seeding is one of the four cases the rule above keeps.
+      `seeded_from` in the ledger records `995c0ad5713dc2a22d35a00b083e3445e711b30c`
+      as THE COMMIT THE FILE WAS FIRST SEEDED FROM — not the branch's base,
+      which has moved twice since (`19d00872`, then `9a773a31`), and NOT a sha
+      any record should cite: the ledger is deliberately no longer consistent
+      with the corpus at it, and diffing it there reports eleven findings.
+      RE-MEASURED AT THE HEAD THIS ENTRY LANDS ON, and EVERY READING CARRIES
+      THE SHA IT WAS TAKEN AT, because a reading without one is the staleness
+      this packet exists to stop:
+
+        * `origin/main` at `9a773a31` (dated, superseded): `32 active +
+          126 archived` = 158 change ids, `109` co-modified, `49` sole
+          modifiers, `20 / 12` active co-modified/sole, 1 declaration, 3 prose
+          headers (3 archived), deepest chain 1 hop.
+        * `origin/main` at `c271caa2` (#615 archived
+          `update-standards-body-current-publications`; superseded): `31 active
+          + 127 archived` = 158, `109`, `49`, `20 / 11`, 1 declaration, 3 prose
+          headers (3 archived), deepest chain 1 hop.
+        * `origin/main` at `6a39d2ab` (#617 ratified and archived
+          `amend-owner-layer-severity`; superseded): `31 active + 128 archived`
+          = 159, `111`, `48`, `20 / 11`, 1 declaration, 3 prose headers (3
+          archived), deepest chain 1 hop.
+        * `origin/main` at `95c2cf6a` (#622 authored
+          `add-consumer-identity-namespace`): `32 active + 128 archived` = 160,
+          `112`, `48`, `21 / 11`, 1 declaration, 3 prose headers (3 archived),
+          deepest chain 1 hop.
+        * THIS BRANCH, merged with `95c2cf6a`: `33 active + 128 archived` =
+          161, `112`, `49`, `21 / 12`, 2 declarations, 3 prose headers (3
+          archived), deepest chain 2 hops.
+
+      THE DIFFERENCE IS THIS PACKET AND NOTHING ELSE — one more ACTIVE SOLE
+      modifier and one more declaration — and every one of those numbers is
+      DERIVED from the rows and cross-checked against the measurement rather
+      than asserted below.
+      TWO EARLIER READINGS IN THIS ENTRY WENT STALE AND BOTH ARE NAMED RATHER
+      THAN OVERWRITTEN SILENTLY. The first said `34 active + 125 archived` and
+      `21 / 13`, taken before the merge of `main` at `19d00872` (#616 archived
+      `add-project-repo-schema`); the second said `33 active + 126 archived`
+      and `20 / 13`, taken at `9a773a31` and overtaken by `c271caa2`. Neither
+      was wrong when written and both were wrong when read, which is the whole
+      argument for pinning per row: the ROWS never needed re-measuring across
+      either merge — exactly one row moved each time, and the diff said which.
+
+    - **A PARTNER FLIP, 2026-09-03 — THE FIRST ENTRY THE NEW RULE ACTUALLY
+      OWES, and it is owed for the reason the rule names.** Merging `main` at
+      `6a39d2ab` (#617, which RATIFIED and ARCHIVED `amend-owner-layer-severity`)
+      moved TWO rows:
+
+        * `amend-owner-layer-severity` — a NEW row, `archived` and
+          `co-modifier`. It carries TWO `## MODIFIED Requirements` blocks, so it
+          enters the corpus already co-modified.
+        * `promote-workflow-gate-contract` — `class: sole` -> `co-modifier`,
+          and NOTHING ABOUT THIS CHANGE ITSELF MOVED. It was archived on
+          2026-07-09 and has not been touched since.
+
+      THE ROW DIFF DOES NOT EXPLAIN THE SECOND ONE, WHICH IS WHY THIS ENTRY
+      EXISTS. Read the two rows alone and you can see that a co-modifier
+      appeared and that an unrelated archived change flipped, but not WHICH
+      requirement key they share, nor that this newcomer is what flipped it
+      rather than any other change landing in the same window. That is exactly
+      the case the rule reserves: "a PARTNER'S row moving because of someone
+      else's delta, where the reason is not legible from the two rows alone".
+
+      THE SHARED KEY, MEASURED RATHER THAN INFERRED. `amend-owner-layer-severity`
+      modifies `workflow-gate-contract`'s "Owner layer constraint" and
+      `release-surface-integrity`'s "The declared bundle describes the release
+      surface". Grepping the corpus for the other writers of each:
+      the first key is also written by `promote-workflow-gate-contract`
+      (archived 2026-07-09) and by NOTHING else — so that change was SOLE and
+      flips; the second is also written by `add-release-inventory-drift-check`
+      (archived 2026-08-25), which was ALREADY co-modified — so nothing flips
+      there.
+
+      WHICH IS WHY `co_modified` ROSE BY TWO AND NOT BY THREE. Two MODIFIED
+      blocks, two earlier writers, but only ONE of those writers was sole: the
+      newcomer entering the set (+1) and `promote-workflow-gate-contract`
+      leaving `sole` for it (+1), 109 -> 111. `sole_modifiers` falls by exactly
+      one with it, 50 -> 49 — the rise-by-two shape is ALWAYS accompanied by the
+      sole set falling, and that pairing is the check on the reading rather than
+      a second number to remember. `change_ids` rises 159 -> 160 for the new id;
+      `active` holds at 32 and `active_co_modified` at 20, both changes being
+      ARCHIVED; `declaring`/`root_claims` hold at 2/0 and the prose headers at 3
+      (3 archived).
+
+      NO ENTRY WAS OWED FOR EITHER EARLIER MERGE, and the contrast is the point.
+      `main` at `19d00872` and at `c271caa2` each moved exactly ONE row's
+      `state` between the two corpora, which the diff states in full — so
+      neither got an entry, and neither needed one.
+
+    HISTORY, RETAINED VERBATIM. Every entry below is the record of a move that
+    really happened under the rule that stood until 2026-09-03 — five scalar
+    totals, moved in the same commit as the corpus, narrated here. They are
+    kept because they are the evidence for this change: several exist only to
+    reconcile two branches' readings of one corpus, and one had to REPLACE an
+    earlier entry whose arithmetic went stale between authoring and merge.
+    EVERYTHING BELOW IS PAST TENSE, INCLUDING ITS PROSE. The retained preamble
+    states the rule THAT STOOD UNTIL 2026-09-03 in the present tense — where
+    the live pin lived ("THE LIVE PIN IS THIS TEST, and only this test"), what
+    moved with the corpus, and what an author had to re-derive. It is left
+    unedited because retaining history verbatim is this packet's own rule, and
+    it is read as a record of the old regime rather than as instruction: the
+    live pin is now the LEDGER, and the numbers below are asserted nowhere.
+
+    ----------------------------------------------------------------------
+
+    The authoring measurement, re-derived — and MOVED where the corpus moved.
 
     The ratified proposal recorded, over the corpus as it stood BEFORE this
     change's own directory existed: 152 change ids, 104 co-modified, 48 sole
@@ -905,412 +1105,82 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       difference and none of `main`'s three new commits interacts with it.
       `archived` rises 127 -> 128; prose headers hold at 3 (3 archived);
       `declaring`/`root_claims` hold at 1/0.
-    - `change_ids - 1` reads 160, `sole_modifiers - 1` reads 48 and
-      `active_sole - 1` reads 11 — each one up from the reading the entry above
-      left, and `co_modified` / `active_co_modified` DO NOT MOVE AT ALL. They
-      moved on 2026-09-03 when `add-subject-establishment` (PR #491) merged
-      `origin/main` at `95c2cf6a` and joined this reading of the corpus: one
-      more ACTIVE change, and its spec delta is ADDED-only — eleven requirements
-      on the NEW capability `subject-establishment`, no `## MODIFIED
-      Requirements` block anywhere in the packet — with requirement titles no
-      other change in the corpus writes, so it is a SOLE modifier and never a
-      co-modifier. THIS IS THE EXACT SHAPE PR #555's LANDING HAD, four entries
-      above, and it is the complement of the MODIFIED-block shape: the three
-      sole/population readings each rise by one and both co-modified readings
-      hold, which is the rule this log has now recorded in both directions
-      often enough that a packet moving BOTH would be a defect in the sweep
-      rather than a corpus event. MEASURED ON BOTH TREES AND BY EXCLUSION,
-      never adjusted by arithmetic, via
-      `python3 scripts/validate-sequenced-after.py . --sweep`: `origin/main` at
-      `95c2cf6a` reads `32 active + 128 archived` = 160 change ids, `112`
-      co-modified, `48` sole modifiers, `21 / 11` active co-modified/sole; the
-      merged tree reads `33 active + 128 archived` = 161, `112`, `49`,
-      `21 / 12`. AND THE CONTROL THAT RULES OUT A SECOND MOVER: the same sweep
-      on the merged tree with `openspec/changes/add-subject-establishment/`
-      moved aside reads `160`, `112`, `48`, `21 / 11` — `main`'s own reading
-      EXACTLY — so this one packet is the whole of the difference and nothing
-      else in the 194 commits this merge brought forward touches this file's
-      readings. `archived` holds at 128 (this packet archives nothing and is
-      NOT archived on landing — its gate is merge plus green PLUS a ruling
-      round); prose headers hold at 3 (3 archived); `declaring`/`root_claims`
-      hold at 1/0, this packet declaring no `sequenced_after:` field, the field
-      still being carried by an ACTIVE, UNPROMOTED change. The pin moves in the
-      SAME COMMIT as the corpus — here the merge commit itself — which is this
-      test's own protocol.
     """
-    sweep = sa.corpus_sweep(ROOT)
-    assert sweep.co_modified == 112, (
-        "112 ON THE MERGED TREE 2026-09-03: TWO INDEPENDENT AUTHORINGS, "
-        "EACH RAISING THIS PIN, MEASURED TOGETHER RATHER THAN ADDED. "
-        "`main` reached 111 by amend-owner-layer-severity (#617); this "
-        "branch reached 110 by add-consumer-identity-namespace (#622); the "
-        "merge carries BOTH. The two packets share no requirement key and "
-        "no capability — #617 writes workflow-gate-contract and "
-        "release-surface-integrity, #622 writes credential-contracts — so "
-        "neither changes the other's membership and the moves are "
-        "DISJOINT. That is why the readings compose here; it is NOT a rule "
-        "that they compose, and the number below was RE-MEASURED on the "
-        "merged tree rather than obtained by arithmetic. Each branch's own "
-        "entry is kept verbatim below, newest first. "
-        "111 since amend-owner-layer-severity was AUTHORED 2026-09-03 with TWO "
-        "`## MODIFIED Requirements` blocks — over workflow-gate-contract's "
-        "'Owner layer constraint' and release-surface-integrity's 'The declared "
-        "bundle describes the release surface'. It rose by TWO and not one: the "
-        "newcomer entering the set, plus the ARCHIVED "
-        "promote-workflow-gate-contract leaving `sole` for it, its "
-        "owner-layer key having been shared with nothing until now — while the "
-        "other earlier writer, the archived add-release-inventory-drift-check, "
-        "was already co-modified and did not flip. A rise of two always comes "
-        "with the sole set falling, and it did (49 -> 48). It read 109 "
-        "since create-medxchart-overlay-boundary was RATIFIED 2026-09-03 "
-        "110 since add-consumer-identity-namespace was AUTHORED 2026-09-03 "
-        "(PR #622, openxFactory issues #511 and #553): it carries TWO "
-        "`## MODIFIED Requirements` blocks over credential-contracts' 'A "
-        "credential binding declares the consuming system that holds it and "
-        "the identity it fetches with' and 'Two bindings on one secret are "
-        "refused unless every pair declares distinct consumers, acknowledges "
-        "the sharing, and names a requirement bound to the binding', so it "
-        "joined the co-modified population. THE RISE IS ONE AND "
-        "`sole_modifiers` HOLDS AT 49 — and the reason is worth stating "
-        "because the obvious prediction is the other one. Both those keys had "
-        "exactly ONE earlier writer, the ARCHIVED add-binding-consumer-identity "
-        "that ADDED them, and a lone earlier writer normally FLIPS out of the "
-        "sole set when a second change joins its key, which is the rise-of-two "
-        "shape #560 produced. It does not happen here: "
-        "add-binding-consumer-identity was ALREADY co-modified before this "
-        "packet existed, through a THIRD key it shares with "
-        "add-notebook-hosting-credential-custody — credential-contracts' 'Each "
-        "consuming system reaches a shared operated identity through its own "
-        "binding' — so it was never IN the sole set and had nothing to leave. "
-        "MEASURED, NOT INFERRED: on main at 19d00872 that change writes four "
-        "requirement keys of which ONE is shared; on this branch it writes the "
-        "same four of which THREE are shared, and its co-modified membership "
-        "is unchanged at both readings. A rise of one with the sole set held "
-        "is therefore its own cause, distinct from the rise-of-two shape, and "
-        "the distinguishing question is not how many keys the newcomer shares "
-        "but whether the earlier writer was ALREADY co-modified on some other "
-        "key. It read "
-        "109 since create-medxchart-overlay-boundary was RATIFIED 2026-09-03 "
-        "and gained a `## MODIFIED Requirements` block over "
-        "domain-descendant-boundary's 'A descendant is placed at a ratified "
-        "placement'. THE THIRD EXPECTED CAUSE OF THIS FAILURE, distinct from "
-        "the authoring cause and the archiving cause named below: RATIFYING "
-        "an already-active change moves this pin while `change_ids` and "
-        "`active` do not move at all. The rise is ONE and `sole_modifiers` "
-        "FALLS with it — the same change enters co-modified and leaves sole, "
-        "its only earlier co-writer being the archived split-openxwallet-repo "
-        "that promoted the requirement. THE 108 IT ROSE FROM IS MAIN'S OWN, "
-        "measured on the merged tree at 2b0615da: declare-spent-bundle-state's "
-        "ARCHIVE (#611) does not move this reading — archiving a co-modified "
-        "active change moves `active_co_modified` alone, never the "
-        "corpus-wide `co_modified` — nor do #614, #602 or #604, none of which "
-        "touch `openspec/changes/**/specs/**`, so the rise to 109 is this "
-        "ratification's alone. It read 108 since add-project-repo-schema was authored 2026-09-02: it "
-        "carries a `## MODIFIED Requirements` block over "
-        "ideation-dashboard's \"Project grouping hierarchy\", so it joined the "
-        "co-modified population — and it raised this count by exactly ONE, "
-        "not two, because the only earlier writers of that key are TWO "
-        "ARCHIVED changes that already shared it with each other and were "
-        "already co-modified, so nothing flipped and `sole_modifiers` held "
-        "at 49. A rise of two always comes with the sole set falling; a rise "
-        "of one never does. It read 107 "
-        "since add-cpc-clearing-boundary (PR #560, 2026-09-02), which carries "
-        "three `## MODIFIED Requirements` blocks over "
-        "clearing-dispatch-boundary — all three tracing to the single "
-        "earlier active change add-clearing-dispatch-boundary, previously "
-        "SOLE, now flipped to CO-modified by sharing those three keys with "
-        "#560 (a change's co-modified membership is boolean, so three shared "
-        "titles flip it ONCE, not three times: `co_modified` rises by "
-        "exactly two — #560 itself entering the set and "
-        "add-clearing-dispatch-boundary leaving `sole` for it). It read 105 "
-        "since declare-spent-bundle-state was authored 2026-09-02 on "
-        "main, which is the change that raised it: it carries a `## MODIFIED "
-        "Requirements` block, so it joined the co-modified population. It "
-        "read 104 at THIS test's own authoring — add-sequenced-after-substrate's "
-        "ADDED requirement titles being NOVEL, so that change is a SOLE "
-        "modifier and moved this count not at all — and held at 104 through "
-        "#563's archive, #555's ADDED-only landing, and #571's archive (an "
-        "archive moves `active_co_modified`, never the corpus-wide "
-        "`co_modified`). ANY later change carrying a MODIFIED block raises it "
-        "again, which is one of the two EXPECTED causes of this failure")
-    assert sweep.active_co_modified == 21, (
-        "21 ON THE MERGED TREE 2026-09-03. #617 lands this pin back at "
-        "20 — its authoring raised it and its own archive, in the same "
-        "commit, lowered it — so the ONLY surviving move is this branch's: "
-        "add-consumer-identity-namespace is an ACTIVE co-modifier that does "
-        "NOT archive with its landing (it carries a code surface, so its "
-        "archive gate is merged-plus-green and still ahead). One active "
-        "co-modified arrival, one step. RE-MEASURED on the merged tree. "
-        "Both branches' entries follow, newest first. "
-        "20 ON THE MERGED TREE 2026-09-03 — NEITHER BRANCH'S NUMBER, AND THE "
-        "SECOND TIME IN ONE DAY THIS PIN IS A NET OF OPPOSED MOVES RATHER "
-        "THAN A STEP. FOUR moves off the same 20-baseline land in this merge "
-        "and cancel two-for-two. On `main`: create-medxchart-overlay-boundary's "
-        "RATIFICATION (#608) raised it 20 -> 21, making an ALREADY-ACTIVE "
-        "change a co-modifier with `active_sole` falling 13 -> 12 in the same "
-        "move; then add-project-repo-schema's ARCHIVE, on its own `tasks.md` "
-        "9.3 cut of `contract-v3.1`, lowered it 21 -> 20. On THIS branch: "
-        "amend-owner-layer-severity's AUTHORING raised it 20 -> 21 and its "
-        "ARCHIVE, in the same commit (`code_surface: none`, so the archive "
-        "gate is LANDING), lowered it 21 -> 20. Every one of the four is an "
-        "ACTIVE co-modifier entering or leaving the active corpus, and none "
-        "touches the corpus-wide `co_modified`, which an archive never "
-        "un-shares. #609 moves it not at all (no `## MODIFIED Requirements` "
-        "block; still a sole modifier). "
-        "21 since add-consumer-identity-namespace was AUTHORED 2026-09-03 "
-        "(PR #622). It is an ACTIVE change and it is co-modified, so it enters "
-        "both populations at once and this pin rises with `co_modified` — the "
-        "AUTHORING cause, not the ratifying one and not the archiving one. "
-        "`active_sole` does NOT move with it, for the reason spelled out at "
-        "the `co_modified` pin above: the earlier writer of both its keys was "
-        "already co-modified through a third key, so no change left the sole "
-        "set in either the corpus-wide or the active reading. It read "
-        "20 ON THE MERGED TREE 2026-09-03, which is NEITHER branch's number: "
-        "two moves off the same 20-baseline land in the same commit and "
-        "CANCEL. create-medxchart-overlay-boundary's RATIFICATION (#608) "
-        "raised it 20 -> 21, making an ALREADY-ACTIVE change a co-modifier "
-        "with `active_sole` falling 13 -> 12 in the same move; then "
-        "add-project-repo-schema's ARCHIVE, on its own `tasks.md` 9.3 cut of "
-        "`contract-v3.1`, lowered it 21 -> 20, an archive of a co-modified "
-        "ACTIVE change lowering this count while leaving the corpus-wide "
-        "`co_modified` untouched at 109 — the same shape #563's, #571's and "
-        "declare-spent-bundle-state's own archives moved. #609 moves it not at "
-        "all (no `## MODIFIED Requirements` block; still a sole modifier). "
-        "RE-DERIVE ON THE MERGED TREE, never by taking one side. It read 20 "
-        "since declare-spent-bundle-state was ARCHIVED 2026-09-03: "
-        "archiving a co-modified ACTIVE change lowers this count while "
-        "leaving the corpus-wide `co_modified` untouched, the same shape "
-        "#563's and #571's archives moved. It read 21 "
-        "since add-project-repo-schema was authored 2026-09-02 as one "
-        "more ACTIVE co-modifier entering the active corpus — by ONE and not "
-        "two, because the earlier writers of the requirement key it shares "
-        "are both ARCHIVED and were already co-modified, so no ACTIVE change "
-        "flipped and `active_sole` held at 12 as it then stood — PR #593 "
-        "raised it to 13 on 2026-09-03, which the MOVEMENT LOG records and "
-        "which this pin does not read. It read 20 "
-        "since add-cpc-clearing-boundary (PR #560, 2026-09-02), which is "
-        "itself an ACTIVE co-modifier entering the active corpus AND flips "
-        "add-clearing-dispatch-boundary — also ACTIVE — from sole to "
-        "co-modified by sharing three requirement keys with it: two ACTIVE "
-        "co-modifiers entering the set at once, so `active_co_modified` rises "
-        "by two rather than one. It read 18 on the merged tree: PR #571 archived govern-sibling-added-modified-"
-        "deltas (an ACTIVE co-modifier leaving the active corpus, 18 → 17 on "
-        "this branch alone) the SAME DAY main authored declare-spent-bundle-"
-        "state (an ACTIVE co-modifier entering it, 18 → 19 on main alone) — "
-        "both measured from the same 18-baseline the two branches last shared "
-        "after #563's archive 2026-09-01, so the two moves CANCEL on this "
-        "merge rather than compound. Re-derive with "
-        "`python3 scripts/validate-sequenced-after.py . --sweep` and move this "
-        "pin in the SAME COMMIT, recording in the MOVEMENT LOG above which "
-        "subject moved and why — archiving a co-modified ACTIVE change lowers "
-        "this count while leaving `co_modified` untouched, and AUTHORING one "
-        "raises BOTH, which are two different EXPECTED causes of this failure "
-        "and must not be confused")
-    assert sweep.change_ids == sweep.active + sweep.archived
-    assert sweep.sole_modifiers == sweep.change_ids - sweep.co_modified
-    # This change is itself a sole modifier at requirement granularity — which is
-    # exactly why it declaring a parent anyway is the doctrine applied to its
-    # author: declaring must never be worth less than omitting.
-    assert sweep.change_ids - 1 == 160, (
-        "160 SINCE add-subject-establishment MERGED main 2026-09-03 — one more "
-        "ACTIVE change id in the population, the plainest of the reasons and "
-        "the one this pin exists to see; the MOVEMENT LOG's last entry "
-        "records the measurement and its exclusion control. It read "
-        "159 ON THE MERGED TREE 2026-09-03 — both packets are in the "
-        "corpus and each is one change id. #617 archives itself in its own "
-        "landing commit, which moves buckets and not the total, so its "
-        "contribution to THIS pin survives its archive; #622 is active and "
-        "unarchived. RE-MEASURED, not added. "
-        "158 since amend-owner-layer-severity was authored 2026-09-03, one "
-        "more change id in the CORPUS — and it stays 158 through that same "
-        "commit's ARCHIVE of it, because this pin counts the population and "
-        "not the active corpus: the packet moved from active to archived "
-        "(34+125 -> 33+126, and 32+127 after the merge with main) and a "
-        "bucket move cannot change a total. Do NOT read this row as an "
-        "active-count claim; `active_co_modified` and `active_sole` are the "
-        "readings that saw the archive. Before that: "
-        "158 since add-consumer-identity-namespace was authored 2026-09-03 "
-        "(PR #622) — one more ACTIVE change in the corpus, the population "
-        "count moving for the plainest of the reasons. It read "
-        "the `- 1` subtracts THIS change and nothing else, so the reading is "
-        "the corpus without it: 152 at authoring, 153 when "
-        "add-clearing-dispatch-boundary landed 2026-09-01, 154 when "
-        "declare-spent-bundle-state was authored 2026-09-02, 155 when "
-        "add-cpc-clearing-boundary (PR #560) merged 2026-09-02, 156 when "
-        "add-project-repo-schema was authored 2026-09-02, 157 when "
-        "update-standards-body-current-publications was adopted 2026-09-03 "
-        "-- and HELD at 157 through declare-spent-bundle-state's ARCHIVE "
-        "2026-09-03 (#611, moves a change between buckets, not the total) "
-        "and through create-medxchart-overlay-boundary's RATIFICATION "
-        "2026-09-03, which moves four membership readings and no population "
-        "count at all")
-    # MOVED 2026-09-02: `sole_modifiers` fell 50 → 49 for the same reason
-    # `active_sole` falls below — add-clearing-dispatch-boundary left the sole
-    # set when add-cpc-clearing-boundary (PR #560) began sharing three
-    # requirement keys with it. MOVED AGAIN 2026-09-03: it rose 49 -> 50 when
-    # update-standards-body-current-publications was adopted (PR #593), an
-    # ADDED-only packet over a new capability with novel requirement titles and
-    # therefore a SOLE modifier — the opposite direction and the opposite cause,
-    # which is why the two are recorded separately rather than netted. HELD at
-    # 50 through declare-spent-bundle-state's ARCHIVE 2026-09-03 (#611): that
-    # change was always a co-modifier and never a sole one, so removing it
-    # from the active corpus touches `active_co_modified` alone.
-    #
-    # AND MOVED AGAIN 2026-09-03, on the merge of `main` at `2b0615da` (after
-    # #611's archive of declare-spent-bundle-state, and after #614/#602/#604,
-    # none of which touch `openspec/changes/**/specs/**`) into the
-    # create-medxchart-overlay-boundary RATIFICATION branch: `sole_modifiers`
-    # fell 50 -> 49 when that ratification added a `## MODIFIED Requirements`
-    # block and took the packet OUT of the sole set — it was sole until then
-    # on its NOVEL medxchart-overlay-boundary titles. UNLIKE
-    # add-project-repo-schema's authoring, which held this pin, this move DOES
-    # touch the sole set, because the change entering co-modified is the same
-    # change leaving sole. The `- 1` still subtracts only
-    # add-sequenced-after-substrate (unaffected, still sole), so the reading
-    # falls with `sole_modifiers` to 48.
-    #
-    # ON THE MERGED TREE 2026-09-03 this pin carries #617's move and NOT
-    # this branch's, and the two notes below say why in their own words.
-    # #617 FLIPPED an archived sole modifier (promote-workflow-gate-contract)
-    # into the co-modified set, so the sole set fell. #622 flipped nobody:
-    # the earlier writer of both its keys was ALREADY co-modified through a
-    # third key. A rise in `co_modified` drags this pin only when the
-    # newcomer's earlier co-writer was itself SOLE until then — which is the
-    # whole distinction, and it is why one authoring moved this and the other
-    # did not. RE-MEASURED on the merged tree.
-    # AND MOVED AGAIN 2026-09-03: `sole_modifiers` fell 49 -> 48 when
-    # amend-owner-layer-severity was AUTHORED and its `## MODIFIED
-    # Requirements` block over workflow-gate-contract's 'Owner layer
-    # constraint' flipped the ARCHIVED promote-workflow-gate-contract — sole
-    # until then on that key — into the co-modified set. The newcomer is a
-    # co-modifier itself and never joins `sole`, so this pin records the
-    # FLIPPED change alone. The `- 1` still subtracts only
-    # add-sequenced-after-substrate (unaffected, still sole), so the reading
-    # falls with `sole_modifiers` to 47.
-    # HELD AT 48 THROUGH add-consumer-identity-namespace's AUTHORING 2026-09-03
-    # (PR #622), and the hold is asserted on its cause rather than left to look
-    # like an oversight. That packet carries TWO `## MODIFIED Requirements`
-    # blocks and DID raise `co_modified`, which usually drags this pin with it
-    # — but only when the newcomer's earlier co-writer was itself SOLE until
-    # then. Here the earlier writer of both keys, the archived
-    # add-binding-consumer-identity, was ALREADY co-modified via a third key
-    # shared with add-notebook-hosting-credential-custody, so it was never in
-    # the sole set and nothing left it. The packet itself never enters the sole
-    # set either, being co-modified from the moment it lands.
-    # 48 since add-subject-establishment merged main 2026-09-03: an ADDED-only
-    # packet with requirement titles no other change writes enters the corpus as
-    # a SOLE modifier, which is the one arrival shape that moves this pin and
-    # leaves `co_modified` alone. It read 47 before that merge.
-    assert sweep.sole_modifiers - 1 == 48
-    # STILL INTACT ON ITS MERITS, not by a cancelling pair of errors — checked,
-    # because #563's archive landing between the authoring measurement and this
-    # reading makes the coincidence worth ruling out explicitly. That archive
-    # removed a CO-modified active, never a sole one, so `active_sole` read 11
-    # both before it (`518c670b`) and after it (`ded8b9f1`), and moved to 12
-    # only at `43cf5933`, when THIS change added itself as an active sole
-    # modifier. The `- 1` therefore still subtracts exactly this change and
-    # still recovers the authoring 11.
-    #
-    # MOVED AGAIN 2026-09-02: `active_sole` fell 13 → 12 when
-    # add-cpc-clearing-boundary (PR #560) flipped
-    # add-clearing-dispatch-boundary — an ACTIVE change, previously sole — to
-    # co-modified by sharing three requirement keys with it. UNLIKE #563's
-    # archive, this move DOES touch an active sole modifier, which is exactly
-    # the failure mode the note above ruled out for that earlier case; here it
-    # is the actual cause. The `- 1` still subtracts only
-    # add-sequenced-after-substrate (unaffected, still sole), so the reading
-    # falls with `active_sole` to 11.
-    #
-    # AND MOVED BACK 2026-09-03: `active_sole` rose 12 -> 13 when
-    # update-standards-body-current-publications was adopted as an ACTIVE change
-    # (PR #593). An ADDED-only delta over a new capability with novel
-    # requirement titles is an ACTIVE SOLE modifier, so it enters exactly the
-    # population #560 had just removed one from. The two moves are unrelated and
-    # cancel only numerically; the `- 1` still subtracts
-    # add-sequenced-after-substrate alone. HELD at 13 through
-    # declare-spent-bundle-state's ARCHIVE 2026-09-03 (#611): that change was
-    # always a co-modifier and never a sole one, so an archive of it never
-    # touches the sole set.
-    #
-    # THEN TWO INDEPENDENT MOVES LANDED ON THIS ONE PIN, AND BOTH STAND:
-    #
-    #   (a) `main`, 2026-09-03: `active_sole` fell 13 -> 12 on the merge of
-    #       `main` at `2b0615da` into the create-medxchart-overlay-boundary
-    #       RATIFICATION branch, ALONGSIDE `sole_modifiers` above — that
-    #       packet is ACTIVE and its ratification moved it out of the sole
-    #       set, so the two pins move together, as they always do when the
-    #       change that flips is itself ACTIVE.
-    #
-    #   (b) THIS BRANCH, 2026-09-03, THE SAME DAY AND BY THE SAME PACKET'S
-    #       OTHER HALF: `active_sole` fell 13 -> 12 when
-    #       update-standards-body-current-publications was ARCHIVED on
-    #       merged-and-green realization evidence (PR #593's squash
-    #       `3c237cd0`, `pytest-suite` run 33717394896). Archiving a SOLE
-    #       active removes it from `active_sole` while leaving
-    #       `sole_modifiers` and `change_ids` untouched — both count BOTH
-    #       corpora — and leaving the two co-modified readings untouched too,
-    #       this packet having never been in that population. It is the exact
-    #       mirror of #571's 2026-09-02 archive, which moved
-    #       `active_co_modified` alone.
-    #
-    # THEY COMPOUND rather than cancel or coincide — DIFFERENT subjects, ONE
-    # population — so on the merge of the two `active_sole` reads 11 and this
-    # `- 1` reading falls to 10. Each half read 11 against its own baseline
-    # and each was right about its own act; the total is neither of theirs,
-    # which is why it was RE-MEASURED on the merged tree rather than carried
-    # over from either side. That measurement, its by-exclusion control, and
-    # the pins that HELD are in the MOVEMENT LOG's last entry above.
-    #
-    # AND MOVED AGAIN 2026-09-03, on the merge of `main` at `2b0615da` into
-    # the create-medxchart-overlay-boundary RATIFICATION branch: `active_sole`
-    # fell 13 -> 12 ALONGSIDE `sole_modifiers` above — that packet is ACTIVE
-    # and its ratification moved it out of the sole set, so the two pins move
-    # together, as they always do when the change that flips is itself
-    # ACTIVE. The `- 1` still subtracts add-sequenced-after-substrate alone,
-    # so the reading falls to 11.
-    #
-    # HELD ON THE MERGED TREE 2026-09-03 THROUGH BOTH PACKETS, which is the
-    # one reading neither branch moves. #617 held it (the change it flipped
-    # out of `sole` is ARCHIVED, so no ACTIVE sole modifier moved) and #622
-    # held it (it flipped nobody at all). Two authorings, four other pins
-    # moved between them, and this one unmoved — asserted rather than
-    # assumed, because a pin that holds through a busy merge is exactly the
-    # pin nobody re-derives. RE-MEASURED on the merged tree.
-    # AND HELD 2026-09-03 THROUGH BOTH HALVES OF amend-owner-layer-severity —
-    # its AUTHORING and, in the same commit, its ARCHIVE — so the two moves
-    # above are the whole of this reading and this packet contributes nothing
-    # to it. The hold is ASSERTED rather than assumed precisely because that
-    # commit moves the other four readings: the packet is a CO-modifier, so it
-    # never enters `sole`, and the one change it flipped OUT of `sole`
-    # (promote-workflow-gate-contract) is ARCHIVED, so no ACTIVE sole modifier
-    # moved in either direction. Its archive then removed a CO-modified active
-    # and never a sole one, which is #563's and #571's shape and touches this
-    # pin not at all. Same reading as the add-project-repo-schema entry, and
-    # the OPPOSITE of #560's, where the flipped change was itself active.
-    # HELD AT 11 THROUGH add-consumer-identity-namespace's AUTHORING 2026-09-03
-    # (PR #622), for exactly the reason `sole_modifiers` held: the new ACTIVE
-    # change is co-modified on arrival and never joins this population, and no
-    # existing member left it, the earlier writer of both its keys having been
-    # co-modified already. An ACTIVE co-modified arrival moves
-    # `active_co_modified` alone — which is the one pin above that did move.
-    # 11 since add-subject-establishment merged main 2026-09-03: the same
-    # arrival as the pin above, and ACTIVE — the packet does not archive on
-    # landing, its gate being merge plus green PLUS a ruling round — so it joins
-    # the active sole population as well as the corpus-wide one. It read 10
-    # before that merge.
-    assert sweep.active_sole - 1 == 11
-    assert sweep.prose_headers == 3 and sweep.prose_headers_archived == 3
-    assert sweep.declaring == 1
-    assert sweep.declaring_ids == ("add-sequenced-after-substrate",)
-    assert sweep.root_claims == 0
+    readings = sa.classify_corpus(ROOT)
+    ledger = sa.load_ledger(sa.ledger_path(ROOT))
+    assert sa.ledger_problems(readings, ledger) == []
+
+
+def test_every_corpus_change_has_EXACTLY_ONE_row_and_every_row_a_change():
+    readings = sa.classify_corpus(ROOT)
+    ledger = sa.load_ledger(sa.ledger_path(ROOT))
+    assert set(ledger.rows) == set(readings)
+    assert len(ledger.order) == len(set(ledger.order)) == len(readings)
+
+
+def test_the_live_ledger_is_SORTED_by_change_id():
+    # Sorted order is what keeps two changes' insertions apart in the diff. An
+    # append-ordered file would put every insertion at one growing tail, which
+    # is the collision this change removes.
+    ledger = sa.load_ledger(sa.ledger_path(ROOT))
+    assert list(ledger.order) == sorted(ledger.order)
+
+
+def test_the_totals_DERIVED_FROM_THE_LEDGER_equal_the_MEASURED_sweep():
+    # THE PIN, stated as the requirement states it: the totals a check asserts
+    # are folded from THE ROWS, and they equal the independent measurement. This
+    # is the assertion the five scalar literals used to make, with the rows in
+    # place of the literals.
+    ledger = sa.load_ledger(sa.ledger_path(ROOT))
+    derived = sa.sweep_from_readings(sa.readings_from_ledger(ledger))
+    measured = sa.corpus_sweep(ROOT)
+    assert sa.sweep_mismatches(derived, measured) == []
+    assert derived == measured
+    assert derived.change_ids == len(ledger.rows)
+
+
+def test_the_live_ledger_reports_the_SAME_totals_the_sweep_MEASURES():
+    # The measurement is still measured and still RE-RUNNABLE — from the rows.
+    ledger = sa.load_ledger(sa.ledger_path(ROOT))
+    derived = sa.sweep_from_readings(sa.readings_from_ledger(ledger))
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(ROOT), "--ledger-diff"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "ledger consistent with the corpus" in result.stdout
+    assert derived.render() in result.stdout
 
 
 def test_the_live_sweep_records_a_NON_ZERO_deepest_chain():
-    # The first post-adoption reading: no longer "0 hops BY CONSTRUCTION".
-    sweep = sa.corpus_sweep(ROOT)
-    assert sweep.deepest_chain == 1
-    assert sweep.deepest_chain_change == "add-sequenced-after-substrate"
+    """WHAT THIS TEST PINS, and what it does NOT — stated because the two are
+    easy to confuse and an earlier draft of this comment confused them.
+
+    THIS TEST ASSERTS A FLOOR: the reading is `>= 1`, no longer
+    "0 hops BY CONSTRUCTION". That is the doctrine at stake, and pinning the
+    exact value HERE would re-serialize on every change that declares the
+    field — the very cost this packet removes.
+
+    THE EXACT DEPTH IS STILL PINNED, but by the DECLARING CHANGE'S OWN LEDGER
+    ROW, checked in `test_the_LIVE_corpus_and_the_LEDGER_agree_row_by_row`:
+    setting `depth: 9` on that row fails THAT test, naming the row, the key and
+    both values. So the number is not unpinned, it is pinned per change like
+    every other reading.
+
+    THE SECOND ASSERTION IS A SELF-CONSISTENCY CHECK ON THE FOLD, NOT A LEDGER
+    CHECK. It reads `classify_corpus` and never opens the ledger, so
+    `deepest.depth == sweep.deepest_chain` holds by construction of
+    `sweep_from_readings`. It is kept for what it does prove — that the fold
+    names a row that DECLARES and reports THAT row's depth, rather than a
+    non-declaring row or some other row's number — and it is labelled so no
+    later reader mistakes it for the pin.
+    """
+    readings = sa.classify_corpus(ROOT)
+    sweep = sa.sweep_from_readings(readings)
+    assert sweep.deepest_chain >= 1
+    assert sweep.deepest_chain_change is not None
     assert "ZERO EVIDENCE" not in sweep.render()
+    deepest = readings[sweep.deepest_chain_change]
+    assert deepest.declares is not None and deepest.depth == sweep.deepest_chain
 
 
 def test_the_sweep_is_RE_RUNNABLE_from_the_validator_CLI():
@@ -1320,3 +1190,560 @@ def test_the_sweep_is_RE_RUNNABLE_from_the_validator_CLI():
     assert result.returncode == 0, result.stdout + result.stderr
     assert "DEEPEST DECLARED CHAIN RESOLVED" in result.stdout
     assert "co-modified at requirement granularity" in result.stdout
+
+
+# --- the ledger's own failure shapes ----------------------------------------
+
+
+def test_a_MISSING_row_names_the_change_id(tmp_path):
+    _change(tmp_path, "add-a")
+    _change(tmp_path, "add-b")
+    _ledger(tmp_path, [_row("add-a")])
+    problems = sa.ledger_problems(sa.classify_corpus(tmp_path),
+                                  sa.load_ledger(sa.ledger_path(tmp_path)))
+    assert any(p.startswith("missing row: add-b") for p in problems)
+    assert not any("add-a" in p for p in problems)
+
+
+def test_an_EXTRA_row_names_the_change_id(tmp_path):
+    _change(tmp_path, "add-a")
+    _ledger(tmp_path, [_row("add-a"), _row("add-gone")])
+    problems = sa.ledger_problems(sa.classify_corpus(tmp_path),
+                                  sa.load_ledger(sa.ledger_path(tmp_path)))
+    assert any(p.startswith("extra row: add-gone") for p in problems)
+
+
+def test_a_STALE_state_names_the_id_the_key_and_BOTH_values(tmp_path):
+    _change(tmp_path, "add-a", archived="2026-08-01")
+    _ledger(tmp_path, [_row("add-a", state="active")])
+    problems = sa.ledger_problems(sa.classify_corpus(tmp_path),
+                                  sa.load_ledger(sa.ledger_path(tmp_path)))
+    assert problems == ["stale row: add-a: state: ledger 'active', live "
+                        "'archived'"]
+
+
+def test_a_STALE_class_names_the_id_the_key_and_BOTH_values(tmp_path):
+    _change(tmp_path, "add-a", requirements={"cap": ["Shared rule"]})
+    _change(tmp_path, "add-b", requirements={"cap": ["Shared rule"]})
+    _ledger(tmp_path, [_row("add-a", klass=sa.CLASS_CO_MODIFIER),
+                       _row("add-b", klass=sa.CLASS_SOLE)])
+    problems = sa.ledger_problems(sa.classify_corpus(tmp_path),
+                                  sa.load_ledger(sa.ledger_path(tmp_path)))
+    assert problems == ["stale row: add-b: class: ledger 'sole', live "
+                        "'co-modifier'"]
+
+
+def test_a_PARTNER_FLIP_names_BOTH_change_ids(tmp_path):
+    # THE SHAPE THAT MOTIVATES THE ROW: `add-b` lands carrying a delta over a
+    # requirement `add-a` already wrote, so BOTH become co-modifiers and BOTH
+    # rows move. The failure must name the partner too, or an author moves one
+    # row, re-runs, and discovers the other only on the next red.
+    _change(tmp_path, "add-a", requirements={"cap": ["Shared rule"]})
+    _change(tmp_path, "add-b", requirements={"cap": ["shared   RULE"]})
+    _ledger(tmp_path, [_row("add-a"), _row("add-b")])
+    problems = sa.ledger_problems(sa.classify_corpus(tmp_path),
+                                  sa.load_ledger(sa.ledger_path(tmp_path)))
+    assert len(problems) == 2
+    assert any(p.startswith("stale row: add-a: class:") for p in problems)
+    assert any(p.startswith("stale row: add-b: class:") for p in problems)
+
+
+def test_a_STALE_declaration_and_a_STALE_depth_are_each_named(tmp_path):
+    _change(tmp_path, "add-root", declaration="[]")
+    _change(tmp_path, "add-child", declaration="[add-root]")
+    _ledger(tmp_path, [_row("add-child", declares="absent"),
+                       _row("add-root", declares="[]", depth=7)])
+    problems = sa.ledger_problems(sa.classify_corpus(tmp_path),
+                                  sa.load_ledger(sa.ledger_path(tmp_path)))
+    assert any(p.startswith("stale row: add-child: declares: ledger 'absent'")
+               for p in problems)
+    assert any(p.startswith("stale row: add-root: depth: ledger 7, live 0")
+               for p in problems)
+
+
+def test_a_DEPTH_on_a_row_that_declares_NOTHING_is_a_finding(tmp_path):
+    # `0` on a non-declaring row would read as a resolved root claim, which is
+    # the exact ABSENT/`[]` conflation the substrate refuses.
+    _change(tmp_path, "add-a")
+    _ledger(tmp_path, [_row("add-a", declares="absent", depth=0)])
+    problems = sa.ledger_problems(sa.classify_corpus(tmp_path),
+                                  sa.load_ledger(sa.ledger_path(tmp_path)))
+    assert any("depth" in p and "not applicable" in p for p in problems)
+
+
+def test_an_UNSORTED_ledger_is_a_finding(tmp_path):
+    _change(tmp_path, "add-a")
+    _change(tmp_path, "add-b")
+    _ledger(tmp_path, [_row("add-b"), _row("add-a")])
+    problems = sa.ledger_problems(sa.classify_corpus(tmp_path),
+                                  sa.load_ledger(sa.ledger_path(tmp_path)))
+    assert any(p.startswith("unsorted ledger:") for p in problems)
+
+
+def test_a_MALFORMED_provenance_is_a_finding(tmp_path):
+    _change(tmp_path, "add-a")
+    _ledger(tmp_path, ['add-a: {state: active, class: sole, declares: absent, '
+                       'prose: false, moved_by: "later", moved_on: "soon"}'])
+    problems = sa.ledger_problems(sa.classify_corpus(tmp_path),
+                                  sa.load_ledger(sa.ledger_path(tmp_path)))
+    assert any(p.startswith("malformed provenance: add-a: moved_by")
+               for p in problems)
+    assert any(p.startswith("malformed provenance: add-a: moved_on")
+               for p in problems)
+
+
+def test_a_DIGIT_SHAPED_date_that_is_not_a_DATE_is_a_finding(tmp_path):
+    # `^\d{4}-\d{2}-\d{2}$` accepts 2026-13-45, and a provenance date nobody
+    # can place is no provenance.
+    _change(tmp_path, "add-a")
+    _ledger(tmp_path, [_row("add-a", moved_on="2026-13-45")])
+    problems = sa.ledger_problems(sa.classify_corpus(tmp_path),
+                                  sa.load_ledger(sa.ledger_path(tmp_path)))
+    assert any(p.startswith("malformed provenance: add-a: moved_on")
+               for p in problems)
+
+
+def test_an_UNKNOWN_row_key_is_a_finding(tmp_path):
+    _change(tmp_path, "add-a")
+    _ledger(tmp_path, ['add-a: {state: active, class: sole, declares: absent, '
+                       'prose: false, guess: yes, moved_by: "#1", '
+                       'moved_on: "2026-09-03"}'])
+    problems = sa.ledger_problems(sa.classify_corpus(tmp_path),
+                                  sa.load_ledger(sa.ledger_path(tmp_path)))
+    assert any("unknown key 'guess'" in p for p in problems)
+
+
+def test_a_NON_STRING_row_key_is_REFUSED_never_COERCED(tmp_path):
+    # `str()` on the key would collapse two keys YAML holds APART: `123`
+    # resolves to an int and `"123"` to a string, so the strict loader's
+    # duplicate refusal — which compares keys as YAML typed them — never fires
+    # and the SECOND row silently overwrites the first. That is the exact
+    # last-duplicate-wins defect this loader exists to refuse, one level down,
+    # on the file that IS the pin.
+    _change(tmp_path, "add-a")
+    header = ("schema_version: 1\nkind: sequenced_after_corpus_ledger\n"
+              "seeded_from: ~\n\nrows:\n")
+    body = ("{state: active, class: sole, declares: absent, prose: false, "
+            'moved_by: "#1", moved_on: "2026-09-03"}')
+    path = sa.ledger_path(tmp_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(f'{header}  123: {body}\n  "123": {body}\n',
+                    encoding="utf-8")
+    try:
+        sa.load_ledger(path)
+    except sa.SequencedAfterError as exc:
+        assert "row key 123" in str(exc) and "not a string" in str(exc), str(exc)
+    else:  # pragma: no cover - the refusal is the assertion
+        raise AssertionError("an int row key must be refused, never coerced")
+
+    # ...and it refuses ALONE, not only when a quoted twin is present: the
+    # danger is the coercion, and a lone unquoted id is the same coercion
+    # waiting for a twin.
+    path.write_text(f"{header}  123: {body}\n", encoding="utf-8")
+    try:
+        sa.load_ledger(path)
+    except sa.SequencedAfterError as exc:
+        assert "not a string" in str(exc), str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("a lone int row key must be refused too")
+
+    # THE CLI REPORTS IT AS UNREADABLE (exit 2), NOT AS STALE (exit 1): the two
+    # want different repairs — a stale ledger is fixed by moving a row, an
+    # unreadable one by fixing the file.
+    path.write_text(f'{header}  123: {body}\n  "123": {body}\n',
+                    encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--ledger-diff"],
+        capture_output=True, text=True)
+    assert result.returncode == 2, (result.returncode, result.stdout)
+    assert "CANNOT BE READ" in result.stdout, result.stdout
+
+
+def test_a_PLAIN_STRING_row_key_still_loads(tmp_path):
+    # The positive control the refusal above needs: nothing legitimate is lost,
+    # quoted or unquoted, because a change id is a string by the grammar.
+    _change(tmp_path, "add-a")
+    header = ("schema_version: 1\nkind: sequenced_after_corpus_ledger\n"
+              "seeded_from: ~\n\nrows:\n")
+    body = ("{state: active, class: sole, declares: absent, prose: false, "
+            'moved_by: "#1", moved_on: "2026-09-03"}')
+    path = sa.ledger_path(tmp_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    for spelling in ("add-a", '"add-a"'):
+        path.write_text(f"{header}  {spelling}: {body}\n", encoding="utf-8")
+        ledger = sa.load_ledger(path)
+        assert list(ledger.rows) == ["add-a"], spelling
+        assert ledger.order == ("add-a",), spelling
+        assert sa.ledger_problems(sa.classify_corpus(tmp_path), ledger) == []
+
+
+def test_a_row_TOO_MALFORMED_TO_READ_is_REFUSED_and_never_defaulted(tmp_path):
+    # A defaulted row is an INVENTED reading, and the ledger is what every later
+    # author reads. Each unreadable field refuses under its own message.
+    _change(tmp_path, "add-a")
+    for row, expected in (
+        (_row("add-a", state="somewhere"), "state is 'somewhere'"),
+        (_row("add-a", klass="maybe"), "class is 'maybe'"),
+        (_row("add-a", declares="nonsense"), "declares is 'nonsense'"),
+        (_row("add-a", declares="[add-b]"), "depth is None"),
+        ('add-a: {state: active, class: sole, declares: absent, '
+         'prose: perhaps, moved_by: "#1", moved_on: "2026-09-03"}',
+         "prose is 'perhaps'"),
+    ):
+        ledger = sa.load_ledger(_ledger(tmp_path, [row]))
+        try:
+            sa.readings_from_ledger(ledger)
+        except sa.SequencedAfterError as exc:
+            assert expected in str(exc), str(exc)
+        else:  # pragma: no cover - the refusal is the assertion
+            raise AssertionError(f"{row!r} must be refused")
+
+
+def test_a_WRONG_schema_header_is_a_finding(tmp_path):
+    _change(tmp_path, "add-a")
+    _ledger(tmp_path, [_row("add-a")], schema_version=99, kind="something-else")
+    problems = sa.ledger_problems(sa.classify_corpus(tmp_path),
+                                  sa.load_ledger(sa.ledger_path(tmp_path)))
+    assert any(p.startswith("malformed ledger: schema_version") for p in problems)
+    assert any(p.startswith("malformed ledger: kind") for p in problems)
+
+
+def test_a_DUPLICATE_row_id_is_REFUSED_by_the_loader(tmp_path):
+    # `yaml.safe_load` applies last-duplicate-wins SILENTLY, so a ledger with
+    # two rows for one change would show a reviewer the first and check the
+    # second. Refused by construction, as the front-matter loader refuses it.
+    _change(tmp_path, "add-a")
+    _ledger(tmp_path, [_row("add-a"), _row("add-a", state="archived")])
+    try:
+        sa.load_ledger(sa.ledger_path(tmp_path))
+    except sa.SequencedAfterError as exc:
+        assert "duplicate" in str(exc).lower()
+    else:  # pragma: no cover - the refusal is the assertion
+        raise AssertionError("a duplicate change id must be refused")
+
+
+def test_DERIVED_totals_that_disagree_with_the_MEASUREMENT_name_the_field():
+    left = sa.Sweep(
+        change_ids=2, active=1, archived=1, co_modified=0, sole_modifiers=2,
+        active_co_modified=0, active_sole=1, declaring=0, root_claims=0,
+        prose_headers=0, prose_headers_archived=0, deepest_chain=0,
+        deepest_chain_change=None, declaring_ids=())
+    right = sa.Sweep(**{**left.__dict__, "co_modified": 1, "deepest_chain": 3})
+    problems = sa.sweep_mismatches(left, right)
+    assert len(problems) == 2
+    assert any("co_modified" in p and "0" in p and "1" in p for p in problems)
+    assert any("deepest_chain" in p for p in problems)
+
+
+def test_RE_SEEDING_stamps_ONLY_the_rows_that_MOVED(tmp_path):
+    # The authoring tool: a re-seed after a merge must not restamp 158 rows it
+    # did not move, or the diff stops being the list of rows the change moved.
+    _change(tmp_path, "add-a")
+    _change(tmp_path, "add-b")
+    path = _ledger(tmp_path, [_row("add-a", moved_by="#1", moved_on="2026-01-01"),
+                              _row("add-b", moved_by="#1", moved_on="2026-01-01")])
+    _change(tmp_path, "add-b", archived="2026-08-01")
+    import shutil
+    shutil.rmtree(tmp_path / "openspec" / "changes" / "add-b")
+    readings = sa.classify_corpus(tmp_path)
+    rendered = sa.render_ledger(
+        readings, moved_by="#2", moved_on="2026-09-03",
+        previous=sa.load_ledger(path))
+    path.write_text(rendered, encoding="utf-8")
+    rows = sa.load_ledger(path).rows
+    assert rows["add-a"]["moved_by"] == "#1", (
+        "an unmoved row keeps the pull request that last moved it")
+    assert rows["add-a"]["moved_on"] == "2026-01-01"
+    assert rows["add-b"]["moved_by"] == "#2"
+    assert rows["add-b"]["state"] == "archived"
+    assert sa.ledger_problems(readings, sa.load_ledger(path)) == []
+
+
+def test_the_SEEDER_refuses_a_provenance_it_cannot_read(tmp_path):
+    _change(tmp_path, "add-a")
+    readings = sa.classify_corpus(tmp_path)
+    for by, on in (("620", "2026-09-03"), ("#620", "September")):
+        try:
+            sa.render_ledger(readings, moved_by=by, moved_on=on)
+        except sa.SequencedAfterError:
+            continue
+        raise AssertionError(f"({by!r}, {on!r}) must be refused")
+
+
+def test_the_LEDGER_DIFF_cli_names_the_stale_rows_and_EXITS_NON_ZERO(tmp_path):
+    _change(tmp_path, "add-a")
+    _change(tmp_path, "add-b")
+    _ledger(tmp_path, [_row("add-a")])
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--ledger-diff"],
+        capture_output=True, text=True)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "missing row: add-b" in result.stdout
+    assert "--seed-ledger" in result.stdout
+
+
+def test_the_SEED_LEDGER_cli_writes_a_ledger_the_diff_then_ACCEPTS(tmp_path):
+    _change(tmp_path, "add-a", requirements={"cap": ["Shared rule"]})
+    _change(tmp_path, "add-b", requirements={"cap": ["Shared rule"]})
+    _change(tmp_path, "add-old", archived="2026-08-01")
+    seed = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#623", "--moved-on", "2026-09-03"],
+        capture_output=True, text=True)
+    assert seed.returncode == 0, seed.stdout + seed.stderr
+    diff = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--ledger-diff"],
+        capture_output=True, text=True)
+    assert diff.returncode == 0, diff.stdout + diff.stderr
+    rows = sa.load_ledger(sa.ledger_path(tmp_path)).rows
+    assert rows["add-a"]["class"] == "co-modifier"
+    assert rows["add-old"]["state"] == "archived"
+
+
+def test_MOVED_ROWS_names_exactly_the_rows_a_re_seed_moves(tmp_path):
+    # The one place that decides "did this row move?", so the provenance the
+    # renderer stamps and the summary the CLI prints cannot disagree.
+    _change(tmp_path, "add-a")
+    _change(tmp_path, "add-b")
+    path = _ledger(tmp_path, [_row("add-a"), _row("add-b")])
+    previous = sa.load_ledger(path)
+    readings = sa.classify_corpus(tmp_path)
+    assert sa.moved_rows(readings, previous) == ()
+    assert sa.moved_rows(readings, None) == ("add-a", "add-b"), (
+        "with no previous ledger every row is new, so every row moved")
+    _change(tmp_path, "add-c")
+    assert sa.moved_rows(sa.classify_corpus(tmp_path), previous) == ("add-c",)
+    # A row carrying a key the grammar does not know is MOVED, because a
+    # re-seed drops it and dropping a key is a move.
+    stale = sa.load_ledger(_ledger(tmp_path, [
+        'add-a: {state: active, class: sole, declares: absent, prose: false, '
+        'guess: 1, moved_by: "#1", moved_on: "2026-09-03"}',
+        _row("add-b"), _row("add-c")]))
+    assert sa.moved_rows(sa.classify_corpus(tmp_path), stale) == ("add-a",)
+
+
+def test_the_SEED_summary_counts_ONLY_the_rows_it_MOVED(tmp_path):
+    # A row that merely already carried this pull request is NOT one this run
+    # moved, and reporting it as moved would misdescribe the diff.
+    _change(tmp_path, "add-a")
+    first = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#623", "--moved-on", "2026-09-03"],
+        capture_output=True, text=True)
+    assert first.returncode == 0, first.stdout + first.stderr
+    assert "1 rows, 1 moved by #623" in first.stdout
+    again = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#623", "--moved-on", "2026-09-03"],
+        capture_output=True, text=True)
+    assert again.returncode == 0, again.stdout + again.stderr
+    assert "1 rows, 0 moved by #623" in again.stdout
+
+
+def test_an_UNSAFE_declares_entry_is_QUOTED_and_reads_back(tmp_path):
+    # A MALFORMED DECLARATION IS A REAL INPUT: the sweep reads a shape-refused
+    # declaration AS a declaration (only a strict-LOADER refusal reads as
+    # absence), so an entry can carry a comma or a bracket. Written raw,
+    # `[a, b]` reads back as TWO entries and `[a] b: {c]` does not parse — and
+    # the seeder is the documented REPAIR tool.
+    directory = _change(tmp_path, "add-bad")
+    (directory / "proposal.md").write_text(
+        '---\ncode_surface: openxFactory\n'
+        'sequenced_after: ["a, b", "c] d: {e"]\n---\n\n# add-bad\n',
+        encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#623", "--moved-on", "2026-09-03"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    written = sa.ledger_path(tmp_path).read_text(encoding="utf-8")
+    assert '["a, b", "c] d: {e"]' in written, written
+    rows = sa.load_ledger(sa.ledger_path(tmp_path)).rows
+    assert rows["add-bad"]["declares"] == ["a, b", "c] d: {e"], (
+        "the entries must read back as themselves, not split on the comma")
+    assert sa.ledger_problems(sa.classify_corpus(tmp_path),
+                              sa.load_ledger(sa.ledger_path(tmp_path))) == []
+
+
+def test_a_WELL_FORMED_entry_is_NOT_quoted_for_show(tmp_path):
+    # Both shapes the reference grammar allows stay plain, so the ordinary file
+    # keeps its stable one-line format.
+    _change(tmp_path, "add-root", declaration="[]")
+    _change(tmp_path, "add-child",
+            declaration="[add-root, openxFactory:add-root]")
+    text = sa.render_ledger(sa.classify_corpus(tmp_path), moved_by="#1",
+                            moved_on="2026-09-03")
+    assert "declares: [add-root, openxFactory:add-root]" in text, text
+
+
+def test_a_SEEDED_FROM_carrying_YAML_metacharacters_still_reads_back(tmp_path):
+    # `--seeded-from` is caller-supplied and, unlike `moved_by`/`moved_on`, is
+    # NOT pattern-validated. Hand-quoted, a value carrying a quote or a
+    # backslash produced a header the round-trip then refused — a refusal caused
+    # by the renderer rather than by the input. One quoting strategy for every
+    # scalar in the file, so there is one thing to keep right.
+    _change(tmp_path, "add-a")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#1", "--moved-on", "2026-09-03",
+         "--seeded-from", 'he said "hi" \\back'],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    ledger = sa.load_ledger(sa.ledger_path(tmp_path))
+    assert ledger.seeded_from == 'he said "hi" \\back'
+    assert sa.ledger_problems(sa.classify_corpus(tmp_path), ledger) == []
+
+
+def test_the_RENDERER_REFUSES_output_that_does_not_READ_BACK(tmp_path, monkeypatch):
+    # The guard itself, driven by restoring the unquoted renderer: the seeder
+    # must never report "wrote" for a file it cannot read.
+    directory = _change(tmp_path, "add-bad")
+    (directory / "proposal.md").write_text(
+        '---\ncode_surface: openxFactory\n'
+        'sequenced_after: ["a] b: {c"]\n---\n\n# add-bad\n',
+        encoding="utf-8")
+    monkeypatch.setattr(sa, "_render_entry", lambda entry: entry)
+    try:
+        sa.render_ledger(sa.classify_corpus(tmp_path), moved_by="#1",
+                         moved_on="2026-09-03")
+    except sa.SequencedAfterError as exc:
+        assert "does not read back" in str(exc), str(exc)
+    else:  # pragma: no cover - the refusal is the assertion
+        raise AssertionError("a ledger that does not read back must refuse")
+
+
+def test_the_SEEDER_REPAIRS_a_ledger_too_malformed_to_READ(tmp_path):
+    # Refusing here would leave the only tool that can rewrite the file
+    # unusable on the only file that needs rewriting.
+    _change(tmp_path, "add-a")
+    path = sa.ledger_path(tmp_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("schema_version: 1\nkind: k\nrows: not-a-mapping\n",
+                    encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#623", "--moved-on", "2026-09-03"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "could not be read" in result.stderr
+    assert "EVERY row is stamped #623" in result.stderr
+    assert "1 rows, 1 moved by #623" in result.stdout
+    assert sa.ledger_problems(sa.classify_corpus(tmp_path),
+                              sa.load_ledger(path)) == []
+
+
+def test_the_SEEDER_REFUSES_a_bad_provenance_WITHOUT_a_traceback(tmp_path):
+    # A stack trace tells an author where the library gave up, not what to type
+    # instead — and this command is the thing they run when something is wrong.
+    _change(tmp_path, "add-a")
+    for flags, expected in (
+        (["--moved-by", "620"], "--moved-by must be a pull request reference"),
+        (["--moved-by", "#620", "--moved-on", "soon"],
+         "--moved-on must be an ISO date"),
+        (["--moved-by", "#620", "--moved-on", "2026-13-45"],
+         "--moved-on must be an ISO date"),
+    ):
+        result = subprocess.run(
+            [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+             *flags], capture_output=True, text=True)
+        assert result.returncode != 0, flags
+        assert "Traceback" not in result.stderr, result.stderr
+        assert expected in result.stderr, result.stderr
+
+
+def test_the_SEED_LEDGER_help_does_not_call_moved_by_OPTIONAL():
+    # The usage text and the refusal must agree: `--moved-by` is required with
+    # `--seed-ledger`, and help that brackets it teaches the opposite.
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), "--help"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "--seed-ledger --moved-by '#PR'" in " ".join(result.stdout.split())
+    assert "REQUIRED with --seed-ledger" in " ".join(result.stdout.split())
+
+
+def test_the_CLI_MODES_are_MUTUALLY_EXCLUSIVE(tmp_path):
+    # Combining two modes can only mean the caller believed both would run;
+    # silently running the first is the answer to a question nobody asked.
+    for flags in (["--seed-ledger", "--ledger-diff"],
+                  ["--sweep", "--ledger-diff"],
+                  ["--sweep", "--seed-ledger"],
+                  ["--archive-gate", str(tmp_path), "--sweep"]):
+        result = subprocess.run(
+            [sys.executable, str(VALIDATOR), str(tmp_path), *flags],
+            capture_output=True, text=True)
+        assert result.returncode != 0, flags
+        assert "not allowed with argument" in result.stderr, flags
+
+
+def test_the_ARCHIVE_GATE_resolves_a_relative_dir_against_REPO_ROOT(tmp_path):
+    # Every other mode resolves against `repo_root`; this one resolved against
+    # the CWD, so the same relative CHANGE_DIR could name a DIFFERENT
+    # repository's change of the same name — and a gate that checks the wrong
+    # directory and PASSES is the failure a gate can least afford.
+    elsewhere = tmp_path / "elsewhere"
+    _change(elsewhere, "add-a")
+    decoy = tmp_path / "decoy"
+    _change(decoy, "add-a")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(elsewhere), "--archive-gate",
+         "openspec/changes/add-a", "--ratified-ref", "HEAD"],
+        capture_output=True, text=True, cwd=str(decoy))
+    combined = result.stdout + result.stderr
+    # It reaches the RETENTION gate on the named repo rather than failing to
+    # find the directory: the git call is what refuses next, and it names the
+    # tree it was pointed at.
+    assert "elsewhere" in combined or "does not exist" not in combined, combined
+    assert "decoy" not in combined, (
+        "a relative CHANGE_DIR must not resolve into the current directory's "
+        "repository: " + combined)
+
+
+def test_a_FLAG_OUTSIDE_ITS_MODE_is_REFUSED_not_ignored(tmp_path):
+    # The same doctrine the mutually exclusive modes rest on: accepting
+    # `--ledger-diff --moved-by garbage` and exiting 0 tells a caller their flag
+    # was honoured when nothing read it.
+    _change(tmp_path, "add-a")
+    for flags, expected in (
+        (["--ledger-diff", "--moved-by", "garbage"],
+         "--moved-by is only meaningful with --seed-ledger"),
+        (["--ledger-diff", "--ratified-ref", "HEAD"],
+         "--ratified-ref is only meaningful with --archive-gate"),
+        (["--sweep", "--seeded-from", "abc"],
+         "--seeded-from is only meaningful with --seed-ledger"),
+        (["--sweep", "--moved-on", "2026-09-03"],
+         "--moved-on is only meaningful with --seed-ledger"),
+    ):
+        result = subprocess.run(
+            [sys.executable, str(VALIDATOR), str(tmp_path), *flags],
+            capture_output=True, text=True)
+        assert result.returncode == 2, (flags, result.stdout, result.stderr)
+        assert expected in result.stderr, result.stderr
+    # ...and the legitimate pairings still run.
+    for flags in (["--seed-ledger", "--moved-by", "#1", "--moved-on",
+                   "2026-09-03", "--seeded-from", "abc"], ["--ledger-diff"],
+                  ["--sweep"]):
+        result = subprocess.run(
+            [sys.executable, str(VALIDATOR), str(tmp_path), *flags],
+            capture_output=True, text=True)
+        assert result.returncode == 0, (flags, result.stdout, result.stderr)
+
+
+def test_the_SEED_LEDGER_cli_REQUIRES_a_moving_pull_request(tmp_path):
+    _change(tmp_path, "add-a")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger"],
+        capture_output=True, text=True)
+    assert result.returncode != 0
+    assert "--moved-by" in result.stderr
+
+
+def test_the_SWEEP_output_is_UNCHANGED_by_this_change(tmp_path):
+    # `--sweep` is the substrate's own shipped report (task 5.4) and this change
+    # does not touch what it prints.
+    _change(tmp_path, "add-a")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--sweep"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout.rstrip("\n") == sa.corpus_sweep(tmp_path).render()
