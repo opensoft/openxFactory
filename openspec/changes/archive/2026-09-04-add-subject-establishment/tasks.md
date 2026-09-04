@@ -214,6 +214,42 @@ been re-measured, never retargeted.
 
 ## Open
 
+**ARCHIVED 2026-09-04 VIA THE RECORDED ESCAPE, AND THE SEVEN BOXES BELOW ARE WHY.**
+`python3 scripts/proposal-support.py . archive add-subject-establishment` was
+tried FIRST and REFUSED — exit 1, `"change has incomplete tasks"`. Its gate is
+`re.search(r"^- \[ \]", tasks.md)`, **unconditional on WHICH box**, and every
+open box in this packet is in this section: O.1 … O.7 record OWED SUCCESSOR AND
+CROSS-REPOSITORY WORK — the named successor `add-subject-establishment-contracts`
+(OD-1, accepted as proposed on 2026-09-04), OQ1's measurement pass travelling
+with it, a LedgerxFactory act over ARCHIVED records this repository holds no
+authority to edit, the codexFactory and OpsxFactory consumer instantiations,
+DTN-015's loop before it leaves `seed`, and MedxFactory as third consumer.
+**NOT ONE OF THEM IS UNDONE WORK OF THIS CHANGE**, and ticking any of them to
+satisfy the wrapper would be writing a false completion to get past a gate that
+cannot tell "open by omission" from "open by design" apart. Both gate sections
+above — § Verification and § Archive gate, G.1's merge-plus-green PLUS the
+ruling round — are TRUE and ticked.
+`OPENSPEC_TELEMETRY=0 openspec archive add-subject-establishment --yes` was run
+instead, reporting `Task status: 22/29 tasks`, `Warning: 7 incomplete task(s)
+found. Continuing due to --yes flag.` It created
+`openspec/specs/subject-establishment/spec.md` (`+ 11 added`, `~ 0`, `- 0`) and
+moved the packet to
+`openspec/changes/archive/2026-09-04-add-subject-establishment/`.
+**PRECEDENT, cited rather than invented**: `declare-spent-bundle-state`'s
+§ 5.1 (PR #611, squash `7af2725c`, 2026-09-03), which took the same escape for
+the same reason over its task 3.2, itself following
+`govern-sibling-added-modified-deltas` (PR #571, squash `3bcde7e2`). The one
+DIFFERENCE from #611 is worth stating: there the open box named a FUTURE EVENT
+the act could not discharge; here the open boxes name OWED SUCCESSOR WORK owned
+by other packets and other repositories. Both are "open by design"; neither is
+this archive's to close.
+**THE PROMOTION WAS BYTE-CHECKED, not trusted**: the requirement text of the
+created `openspec/specs/subject-establishment/spec.md` was extracted from its
+first `### Requirement:` line and diffed against the same extraction from the
+archived delta at `specs/subject-establishment/spec.md` — IDENTICAL but for one
+trailing blank line the archiver emits, with **11 requirements / 37 scenarios**
+on both sides and no other file under `openspec/specs/` touched.
+
 - [ ] O.1 **Named successor `add-subject-establishment-contracts`** (OD-1, if
       it stands): `contracts/schemas/xfactory-subject-design.schema.yaml`,
       `contracts/schemas/xfactory-platform-realization.schema.yaml`,
