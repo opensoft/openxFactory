@@ -925,6 +925,40 @@ def test_a_profile_is_retired_or_compromised_after_historical_confirmation(
     assert "witness_confirmed_without_named_profile" in _codes(findings)
 
 
+def test_two_witnesses_are_configured_against_one_chain(registry_and_docs):
+    """Copilot round 2: the SAME anti-pattern round 1 fixed on the
+    verification-result side lived one section earlier, on the receipt's own
+    committed snapshot. `check_confirmation_bindings` indexed each receipt's
+    `configured_witnesses` snapshots by `chain_id`
+    (`snapshots[chain] = snapshot`) — but `configured_witnesses` carries no
+    uniqueness constraint on `chain_id`, and the per-chain entry's own
+    `witness_id` exists for exactly that reason, so a realization running two
+    DIFFERENT witnesses against ONE chain silently let the second witness's
+    snapshot overwrite the first's. A `per_chain_anchors` entry that named the
+    profile it was ACTUALLY confirmed under, for its OWN witness, was then
+    compared against the WRONG witness's snapshot and refused for a defect
+    that never happened."""
+    receipt = copy.deepcopy(reader.labelled(
+        "scenario",
+        EXAMPLES / "anchor-receipt-1-both-witnesses-landed.example.yaml")[0][1])
+    witnesses = receipt["mint_time_configuration"]["configured_witnesses"]
+    # collapse the operational witness onto the durability witness's chain:
+    # two different witnesses, two different committed profiles, one chain
+    witnesses[0]["chain_id"] = DUR
+    witnesses[0]["confirmation_profile"]["chain_id"] = DUR
+    receipt["per_chain_anchors"][0]["chain_id"] = DUR
+    receipt["anchored_digest"]["value"] = canonical.digest(
+        {"material_digest": receipt["material_digest"],
+         "mint_time_configuration": receipt["mint_time_configuration"]})
+    findings = _validate([("scenario/two-witnesses-one-chain", receipt)],
+                         registry_and_docs)
+    # a chain-keyed index compares per_chain_anchors[0] (witness
+    # w-example-op-0001) against witness w-example-dur-0001's snapshot and
+    # refuses a receipt that committed nothing wrong; keyed by witness, both
+    # entries match their OWN witness's snapshot and nothing is refused
+    assert not findings.errors
+
+
 def test_a_durability_proof_is_submitted_but_not_upgraded(base_records,
                                                           registry_and_docs):
     """WHEN the daily item has a retained detached timestamp proof from its

@@ -157,7 +157,11 @@ noted, and each traceable to a scenario of the ratified delta:
      result's rows are keyed by WITNESS and not by chain, and each is compared
      against the committed snapshot FOR THAT WITNESS — `configured_witnesses`
      carries no uniqueness constraint on `chain_id`, so a chain-keyed answer
-     would silently collapse two witnesses on one chain into one row. Both
+     would silently collapse two witnesses on one chain into one row. THE SAME
+     KEYING HOLDS ON THE RECEIPT SIDE: the committed snapshots are indexed by
+     witness, the chain serves only as a resolution hint where it is
+     unambiguous, and a per-chain entry that names no witness on a chain
+     carrying two of them is refused rather than attributed by array order. Both
      overcorrections are refused — a retired or compromised profile minting a
      new receipt or claim, and current standing rewriting a historical one.
      Selection is refused where it rolls back past an activation checkpoint,
@@ -3216,15 +3220,26 @@ def check_confirmation_bindings(f: Findings, scope: Scope,
     # ---------------- receipts: the committed snapshot ----------------
     for label, doc in scope.receipts:
         mtc = doc.get("mint_time_configuration") or {}
+        # KEYED BY WITNESS, NOT BY CHAIN, AND THE DISTINCTION IS LOAD-BEARING.
+        # `configured_witnesses` carries no uniqueness constraint on `chain_id`,
+        # and the per-chain entry's own `witness_id` exists because a
+        # realization may configure more than one witness against one chain — so
+        # a chain-keyed index would let the LAST witness written silently
+        # overwrite the first, and every comparison downstream of it would be
+        # nondeterministic in the order of an array. `witnesses_by_chain` keeps
+        # the chain as a RESOLUTION HINT, usable only where it is unambiguous.
         snapshots: dict[Any, dict] = {}
+        witnesses_by_chain: dict[Any, list] = {}
         for witness in (mtc.get("configured_witnesses") or []):
             if not isinstance(witness, dict):
                 continue
+            witnesses_by_chain.setdefault(witness.get("chain_id"), []) \
+                .append(witness.get("witness_id"))
             snapshot = witness.get("confirmation_profile")
             if not isinstance(snapshot, dict):
                 continue
             chain = snapshot.get("chain_id")
-            snapshots[chain] = snapshot
+            snapshots[witness.get("witness_id")] = snapshot
             if chain != witness.get("chain_id"):
                 f.error("confirmation_profile_terms_substituted_under_version",
                         f"{label}: configured witness "
@@ -3333,7 +3348,28 @@ def check_confirmation_bindings(f: Findings, scope: Scope,
                         f"the whole mint-time configuration from what was "
                         f"committed, and it is refused by the amendment by name")
             named = entry.get("confirmed_under_profile") or {}
-            snapshot = snapshots.get(entry.get("chain_id"))
+            # THE ENTRY'S OWN WITNESS FIRST, and the chain only where the
+            # chain resolves to exactly one configured witness. Where it does
+            # not and the entry names none, the entry cannot be tied to the
+            # profile it was evaluated under, and guessing which of two
+            # witnesses it meant would make the comparison depend on array
+            # order — so it is refused instead.
+            wid = entry.get("witness_id")
+            if wid is None:
+                candidates = witnesses_by_chain.get(entry.get("chain_id")) or []
+                if len(candidates) == 1:
+                    wid = candidates[0]
+                elif len(candidates) > 1:
+                    f.error("witness_confirmed_without_named_profile",
+                            f"{where}: names no witness while the committed "
+                            f"block configures {len(candidates)} witnesses "
+                            f"{candidates} on chain "
+                            f"{entry.get('chain_id')!r} — which witness this "
+                            f"entry discharges cannot be resolved from the "
+                            f"chain, and the profile it was confirmed under is "
+                            f"therefore unattributable")
+                    continue
+            snapshot = snapshots.get(wid)
             if snapshot is None:
                 continue
             if named.get("profile_id") != snapshot.get("profile_id") \
