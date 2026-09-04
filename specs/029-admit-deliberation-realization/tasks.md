@@ -167,4 +167,4 @@ fixture refresh, no annotated tag, no archive.
 - [X] T036 Tick `openspec/changes/admit-deliberation-clearing-operation/tasks.md`
       Phase 2 items 2.1–2.11, each with the sha that realized it. **Phase 3's tag
       and Phase 4's downstream items are NOT ticked here.**
-- [ ] T037 `gh pr ready`, then watch the checks.
+- [X] T037 `gh pr ready`, then watch the checks.
