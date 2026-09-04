@@ -1,0 +1,149 @@
+# THE EMPTY DAY'S RECEIPT, WHICH IS AN ORDINARY RECEIPT. The count-zero manifest
+# enters BOTH configured witnesses through the same receipt path as any other daily
+# item — that is the point of anchoring empty windows at all — and each entry names
+# the profile it was confirmed under with an immutable as-of token.
+schema_version: 1
+kind: xfactory_chain_anchoring_receipt
+receipt_id: rcp-example-daily-0002
+material_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_material
+  value: sha256:bbe7c25ae8d8a8195f21fc7ae80da21ac6bf9d8e5a913a30062f651a99ad1983
+anchored_digest: &id001
+  construction: xfc-jcs-sha256-1
+  subject: anchored_commitment
+  value: sha256:d10f1fa33b9eac2d93115af1f363e6983ea72f165f067ae6fab899651d114f41
+mint_time_configuration:
+  configured_witnesses:
+  - witness_id: w-example-op-0001
+    role: operational
+    chain_id: chain-example-operational
+    confirmation_profile:
+      chain_id: chain-example-operational
+      profile_id: cp-example-operational
+      version: 2
+      canonical_digest: &id002
+        construction: xfc-jcs-sha256-1
+        subject: confirmation_profile_terms
+        value: sha256:90c3d4f763e5dc6691ba596f91ef00e8aeb7d21b611b9e3df6030f95dffc7207
+      activation:
+        log_sequence: 618
+        checkpoint_ref: cp-log-checkpoint-0618
+      standing: active
+    completion_horizon_seconds: 14400
+    chain_accepted_time_rule:
+      rule_id: rule-example-linear-mpt
+      basis: linear_block_header_time_field
+      consensus_rule_citation: 'consensus rule: a block timestamp exceeds the median of the
+        previous eleven and sits within the declared band of network-adjusted time; the worst
+        legal case is declared here in both directions'
+      skew_seconds: 7200
+      tolerance_seconds: 600
+      ordering_only: false
+  - witness_id: w-example-dur-0001
+    role: durability
+    chain_id: chain-example-durability
+    confirmation_profile:
+      chain_id: chain-example-durability
+      profile_id: cp-example-durability
+      version: 1
+      canonical_digest: &id003
+        construction: xfc-jcs-sha256-1
+        subject: confirmation_profile_terms
+        value: sha256:0cbf3cf8b7484f38415d55c5ac3d9b142f59a543d2d94b9ad24cfc144ea94469
+      activation:
+        log_sequence: 610
+        checkpoint_ref: cp-log-checkpoint-0610
+      standing: active
+    completion_horizon_seconds: 86400
+    chain_accepted_time_rule:
+      rule_id: rule-example-dag-accepting
+      basis: dag_accepting_block_header_timestamp
+      consensus_rule_citation: 'consensus rule: an accepting block''s header timestamp is
+        bounded by its parents'' past cone and the declared future band; the worst legal case
+        is declared here in both directions'
+      skew_seconds: 3600
+      tolerance_seconds: 600
+      ordering_only: false
+  submission_time: '2026-09-01T00:04:00Z'
+  max_submission_to_first_anchor_delay_seconds: 3600
+  checkpoint_cadence_seconds: 900
+aggregation_merkle_path: []
+per_chain_anchors:
+- chain_id: chain-example-operational
+  witness_id: w-example-op-0001
+  commitment_derivation:
+    source_aggregation_root: *id001
+    path_present: true
+    proof_over: aggregation_root
+    path_ref: path-rcp-example-daily-0002-chain-example-operational
+    encoding_statement: this witness's commitment path begins at the configuration-bound aggregation
+      root the receipt names; the encoding differs from the other witness's and the SOURCE
+      does not
+  confirmed_under_profile:
+    profile_id: cp-example-operational
+    version: 2
+    canonical_digest: *id002
+    as_of_token: confirmed_under_v2_at_cp-log-checkpoint-0618
+  anchor_transaction_bytes: 15df39a3a4576d13fa53a6779876c1fb395c3A7fA7c12417f5d8cda1516ecbA7f858AbAd4dA4526ca6e7ef5Abcbbc17899c617Aa81f93bAcAece751bce3ab91f
+  inclusion_proof:
+    proof_kind: merkle_transaction_root
+    path:
+    - position: left
+      sibling_value: txmerkle:28d87810e4396e7ec7b227748e052d847300e2c11519f8ac42ce17ad89129f6f
+  block_header:
+    header_bytes: 992a2fd72a7e2aabf4adcd8Ba87bB9B56ce86a8974a6185a36171ec459b1f14a3ddaB4aa5d318b8f9cffcd8758fe36deB93Bc883eB6bc4ee2965fB89f5d62993
+    header_digest: blockhash:0befdb02ced75a5c1d544f6db4565219b77e12e946e0a21e337c92d518dcfe13
+    time_field: '2026-09-01T00:11:00Z'
+  chain_acceptance_evidence:
+    evidence_kind: linear_chain
+    header_source_ref: hs-example-public-headers
+    linear:
+      block_height: 4102931
+      header_chain_linkage:
+      - blockhash:2b004d68addbf338a75ceb0f328194b95234cf7514f4fca79998b47765db01b3
+      - blockhash:0befdb02ced75a5c1d544f6db4565219b77e12e946e0a21e337c92d518dcfe13
+      - blockhash:c6844c9a44247512391069da76ccc9b1b6b6773b26465a3710a0acc24e71ca68
+- chain_id: chain-example-durability
+  witness_id: w-example-dur-0001
+  commitment_derivation:
+    source_aggregation_root: *id001
+    path_present: true
+    proof_over: aggregation_root
+    path_ref: path-rcp-example-daily-0002-chain-example-durability
+    encoding_statement: this witness's commitment path begins at the configuration-bound aggregation
+      root the receipt names; the encoding differs from the other witness's and the SOURCE
+      does not
+  confirmed_under_profile:
+    profile_id: cp-example-durability
+    version: 1
+    canonical_digest: *id003
+    as_of_token: confirmed_under_v1_at_cp-log-checkpoint-0610
+  anchor_transaction_bytes: d864d1c2faf61e199ca5d252818f6b296375e5Ac956c343926bAfdcf73c7889a173223efa666c1Ac41d398b22742191f78a4b879A1129c2621A8c16Ac6dcd71a
+  inclusion_proof:
+    proof_kind: dag_inclusion
+    path:
+    - position: left
+      sibling_value: dagmerkle:5bed94bfde29eba7e37520da6303642114ece68186f14dd115626749c75a059f
+  block_header:
+    header_bytes: 8e87fc666Bb9fb7fb487328ead2164ff9dfa7732e7d917eb2aac928B9b3b7c8df77d52728831648222c6ddadff19a77B3d1cc1771257BbB184e42aaBbcef2ad8
+    header_digest: dagblock:8bd3e09d48d485d5d2658c17995f7d04ed9487bcc14148fb541eff3cfeb12011
+    time_field: '2026-09-01T00:38:00Z'
+  chain_acceptance_evidence:
+    evidence_kind: dag
+    header_source_ref: hs-example-public-headers
+    dag:
+      accepting_block_value: dagblock:8bd3e09d48d485d5d2658c17995f7d04ed9487bcc14148fb541eff3cfeb12011
+      acceptance_path:
+      - dagblock:cd866b14bc1f51eca3cac791c8255a6a5f6294234158d0d46449c5c3de4fca24
+      - dagblock:72c911ebe2d316b0a17cd5dd340c3bc92dc41f064ae732cc20da59770658b6d9
+declared_header_source:
+  source_id: hs-example-public-headers
+  obtainable_independently: true
+  supplied_by_minter: false
+  source_statement: a public header set any verifier can obtain for itself; the trust root
+    is the chain, never this realization
+daily_item:
+  profile: daily_merkle
+  manifest_ref: dbm-example-0002
+record_version: 1

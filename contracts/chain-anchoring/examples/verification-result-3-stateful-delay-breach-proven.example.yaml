@@ -42,9 +42,9 @@ header_source_ref: hs-example-verifier-own-0001
 evaluated_at: '2026-08-30T16:00:00Z'
 verification_leaf_ref: leaf-example-served-verification-0655
 record_version: 1
-notes: 'the sat-on minter, exposed by cadence: the minter DECLARED submission at
-  07:55, but the anchored checkpoint bracket shows the submission leaf was in the
-  log by cp_in 06:00 — so a_first minus cp_in is a LOWER bound of 7200s on the true
-  delay, over the declared maximum plus tolerance (4200s): breach PROVEN. cp_out
-  is reported beside it so the bracket''s width is visible. Falling under the bound
-  would have proven nothing — not-provably-breached is not compliant'
+notes: 'the sat-on minter, exposed by cadence: the minter DECLARED submission at 07:55, but
+  the anchored checkpoint bracket shows the submission leaf was in the log by cp_in 06:00
+  — so a_first minus cp_in is a LOWER bound of 7200s on the true delay, over the declared
+  maximum plus tolerance (4200s): breach PROVEN. cp_out is reported beside it so the bracket''s
+  width is visible. Falling under the bound would have proven nothing — not-provably-breached
+  is not compliant'

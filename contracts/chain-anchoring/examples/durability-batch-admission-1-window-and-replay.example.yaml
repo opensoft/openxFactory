@@ -1,0 +1,215 @@
+# TWO ADMISSIONS AND ONE REPLAY, ALL IN THE SAME FIXED UTC WINDOW. Each is ONE
+# atomic transaction that did all five things — validated eligibility, applied the
+# dedupe rule, recorded trusted acceptance time, selected the window FROM that
+# acceptance time, and assigned the next monotonic sequence. The second sits at
+# acceptance `2026-08-31T00:00:00Z`... which is the NEXT window's open, and is
+# therefore NOT in this batch; it is here at sequence 642 with the day-one window
+# because its acceptance is 2026-08-30, and the midnight fixture in `negative/`
+# proves the boundary the other way. The third is a REPLAY ACKNOWLEDGEMENT: same
+# dedupe key, same material digest, the EXISTING sequence returned, no second
+# sequence consumed, and no pre-closure anchor receipt.
+---
+schema_version: 1
+kind: xfactory_chain_anchoring_durability_batch_admission
+admission_id: dba-example-0001
+admission_kind: new_leaf
+window_open: '2026-08-30T00:00:00Z'
+window_close: '2026-08-31T00:00:00Z'
+leaf_sequence: 641
+leaf_class: owner_evidence_event
+trusted_acceptance_time: '2026-08-30T09:14:00Z'
+material_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_material
+  value: sha256:d17c712339c90120512cb0d98ac2189c6f2e8d7c3a841381de9e3ae0ecb05754
+event_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: durability_event_leaf
+  value: sha256:f26f842c52c98e12421a47e9aa60a4f3099b21c61a6e1f69cd13b10f8569aa32
+dedupe_key_ref: dk-example-0001
+dedupe_rule:
+  rule_id: dedupe-example-owner-local
+  key_scope: owner_local_stable
+  on_identical_replay: return_existing_leaf
+  on_key_reuse_with_different_material: refuse_before_sequence_assignment
+  key_custody:
+    reference_id: custody-example-dedupe-keys
+    resolves_into: governed_layer
+late_arrival_rule:
+  rule_id: late-example-acceptance-selects
+  window_selected_from: trusted_acceptance_time
+  source_time_lateness_recorded: off_chain
+admission_transaction:
+  transaction_ref: txn-dba-example-0001
+  atomic: true
+  steps:
+  - validate_eligibility
+  - apply_dedupe_rule
+  - record_acceptance_time
+  - select_window_from_acceptance_time
+  - assign_next_leaf_sequence
+eligibility_snapshot:
+  registry_id: der-example-0001
+  entry_id: der-entry-0002
+  version: 2
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: durability_eligibility_terms
+    value: sha256:a958754817f2860c0e52986dfad5637425657e7e708b4bb1a2c30ab6ca4bcd2a
+  activation:
+    log_sequence: 616
+    checkpoint_ref: cp-log-checkpoint-0616
+  standing: active
+merkle_profile:
+  profile_id: dmp-example-daily-merkle
+  version: 1
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: daily_merkle_construction
+    value: sha256:498aa35ea0a41ba00fe57f0df0f3c0b388ab1514cfe9ee7187b4104cca5adc8a
+membership_path:
+- position: right
+  sibling_digest:
+    construction: xfc-jcs-sha256-1
+    subject: daily_batch_node
+    value: sha256:924c3474ca73a768e1cd9ffb48a54b940be13947b914092e52bb6a797d5c9e88
+batch_manifest_ref: dbm-example-0001
+recorded_at: '2026-08-30T09:14:00Z'
+record_version: 1
+---
+schema_version: 1
+kind: xfactory_chain_anchoring_durability_batch_admission
+admission_id: dba-example-0002
+admission_kind: new_leaf
+window_open: '2026-08-30T00:00:00Z'
+window_close: '2026-08-31T00:00:00Z'
+leaf_sequence: 642
+leaf_class: owner_evidence_event
+trusted_acceptance_time: '2026-08-31T00:00:00Z'
+material_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_material
+  value: sha256:666ece96836cc7e107a7d27be36aa3e30bc3e06067e09729fba7a3079895063e
+event_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: durability_event_leaf
+  value: sha256:497de709a98b3b66443a80d77402a6ccbd2627931b935df770cf74e74d1e8ad4
+dedupe_key_ref: dk-example-0002
+dedupe_rule:
+  rule_id: dedupe-example-owner-local
+  key_scope: owner_local_stable
+  on_identical_replay: return_existing_leaf
+  on_key_reuse_with_different_material: refuse_before_sequence_assignment
+  key_custody:
+    reference_id: custody-example-dedupe-keys
+    resolves_into: governed_layer
+late_arrival_rule:
+  rule_id: late-example-acceptance-selects
+  window_selected_from: trusted_acceptance_time
+  source_time_lateness_recorded: off_chain
+admission_transaction:
+  transaction_ref: txn-dba-example-0002
+  atomic: true
+  steps:
+  - validate_eligibility
+  - apply_dedupe_rule
+  - record_acceptance_time
+  - select_window_from_acceptance_time
+  - assign_next_leaf_sequence
+eligibility_snapshot:
+  registry_id: der-example-0001
+  entry_id: der-entry-0002
+  version: 2
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: durability_eligibility_terms
+    value: sha256:a958754817f2860c0e52986dfad5637425657e7e708b4bb1a2c30ab6ca4bcd2a
+  activation:
+    log_sequence: 616
+    checkpoint_ref: cp-log-checkpoint-0616
+  standing: active
+merkle_profile:
+  profile_id: dmp-example-daily-merkle
+  version: 1
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: daily_merkle_construction
+    value: sha256:498aa35ea0a41ba00fe57f0df0f3c0b388ab1514cfe9ee7187b4104cca5adc8a
+membership_path:
+- position: left
+  sibling_digest:
+    construction: xfc-jcs-sha256-1
+    subject: daily_batch_node
+    value: sha256:ee53e7222595d8a1f43af5423399be39e1f46a53e5142d55fc03a9857a7cdd4a
+batch_manifest_ref: dbm-example-0001
+recorded_at: '2026-08-31T00:00:00Z'
+record_version: 1
+---
+schema_version: 1
+kind: xfactory_chain_anchoring_durability_batch_admission
+admission_id: dba-example-0003
+admission_kind: replay_acknowledgement
+window_open: '2026-08-30T00:00:00Z'
+window_close: '2026-08-31T00:00:00Z'
+leaf_sequence: 641
+leaf_class: owner_evidence_event
+trusted_acceptance_time: '2026-08-30T09:14:00Z'
+material_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_material
+  value: sha256:d17c712339c90120512cb0d98ac2189c6f2e8d7c3a841381de9e3ae0ecb05754
+event_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: durability_event_leaf
+  value: sha256:f26f842c52c98e12421a47e9aa60a4f3099b21c61a6e1f69cd13b10f8569aa32
+dedupe_key_ref: dk-example-0001
+dedupe_rule:
+  rule_id: dedupe-example-owner-local
+  key_scope: owner_local_stable
+  on_identical_replay: return_existing_leaf
+  on_key_reuse_with_different_material: refuse_before_sequence_assignment
+  key_custody:
+    reference_id: custody-example-dedupe-keys
+    resolves_into: governed_layer
+late_arrival_rule:
+  rule_id: late-example-acceptance-selects
+  window_selected_from: trusted_acceptance_time
+  source_time_lateness_recorded: off_chain
+admission_transaction:
+  transaction_ref: txn-dba-example-0003
+  atomic: true
+  steps:
+  - validate_eligibility
+  - apply_dedupe_rule
+  - record_acceptance_time
+  - select_window_from_acceptance_time
+  - assign_next_leaf_sequence
+eligibility_snapshot:
+  registry_id: der-example-0001
+  entry_id: der-entry-0002
+  version: 2
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: durability_eligibility_terms
+    value: sha256:a958754817f2860c0e52986dfad5637425657e7e708b4bb1a2c30ab6ca4bcd2a
+  activation:
+    log_sequence: 616
+    checkpoint_ref: cp-log-checkpoint-0616
+  standing: active
+merkle_profile:
+  profile_id: dmp-example-daily-merkle
+  version: 1
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: daily_merkle_construction
+    value: sha256:498aa35ea0a41ba00fe57f0df0f3c0b388ab1514cfe9ee7187b4104cca5adc8a
+membership_path:
+- position: right
+  sibling_digest:
+    construction: xfc-jcs-sha256-1
+    subject: daily_batch_node
+    value: sha256:924c3474ca73a768e1cd9ffb48a54b940be13947b914092e52bb6a797d5c9e88
+replay_of_leaf_sequence: 641
+batch_manifest_ref: dbm-example-0001
+recorded_at: '2026-08-30T09:14:00Z'
+record_version: 1

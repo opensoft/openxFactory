@@ -401,6 +401,24 @@ $defs:
     type: string
     enum: [pending, submitted, confirmed, invalid, unevaluable, terminally_failed]
 
+  profile_as_of_token:
+    # THE IMMUTABLE AS-OF EVIDENCE A RECEIPT KEEPS FOREVER. The amendment names
+    # its spelling in its own text — *"Prior receipts retain immutable as-of
+    # evidence such as `confirmed_under_<version>_at_<checkpoint>`"* — so the
+    # pattern is pinned rather than left to a realization: a token a reader
+    # cannot parse is a token a reader cannot compare against the registry entry
+    # it claims to name, and the comparison is the whole point.
+    #
+    # IT CARRIES A VERSION AND A CHECKPOINT AND NEVER A STANDING. A standing is a
+    # fact about NOW and belongs to a current verification's report; folding one
+    # into this token is what would let current standing rewrite a historical
+    # receipt (`confirmation_profile_standing_rewrites_historical_receipt`),
+    # which the amendment refuses in both directions.
+    type: string
+    minLength: 20
+    maxLength: 300
+    pattern: '^confirmed_under_v[1-9][0-9]{0,8}_at_[A-Za-z0-9][A-Za-z0-9._:/-]{0,199}$'
+
   profile_standing_report:
     # WHAT A CURRENT VERIFICATION REPORTS ABOUT THE PROFILE A HISTORICAL RECEIPT
     # WAS EVALUATED UNDER. It is a SECOND answer beside the immutable as-of

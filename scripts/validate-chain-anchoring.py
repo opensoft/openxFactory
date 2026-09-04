@@ -124,7 +124,7 @@ noted, and each traceable to a scenario of the ratified delta:
      and used only against a revocation state that could actually be read.
  13. THE CLOSED DISCRIMINATORS — the analysis result's status, its refusal ground,
      and the de-identification hook that is a HOOK AND NEVER A STANDARD.
- 14. THE CONFORMANCE DECLARATION — closed over the capability's nine obligations
+ 14. THE CONFORMANCE DECLARATION — closed over the capability's eleven obligations
      in BOTH directions (`obligation_not_declared`), with the structural residual
      `CA-R5-COMMITMENT-PATH` refused the word `satisfied`
      (`structural_residual_declared_satisfied`), and every realization POSTURE
@@ -233,6 +233,14 @@ SCHEMA_FILENAMES = [
     "linkage-derivation-use.schema.yaml",
     "analysis-result.schema.yaml",
     "conformance-declaration.schema.yaml",
+    # ADDED BY `amend-chain-anchoring-readiness-and-durability` (requirements 2
+    # and 3): the durability profile's six shapes. Eighteen files, one family.
+    "confirmation-profile.schema.yaml",
+    "confirmation-profile-registry.schema.yaml",
+    "daily-merkle-profile.schema.yaml",
+    "durability-eligibility-registry.schema.yaml",
+    "durability-batch-admission.schema.yaml",
+    "durability-batch-manifest.schema.yaml",
 ]
 
 # The sibling schema every file here `$ref`s for `identifier` and `digest`. It is
@@ -258,6 +266,18 @@ KIND_TO_SCHEMA = {
     "xfactory_chain_anchoring_analysis_result": "analysis-result.schema.yaml",
     "xfactory_chain_anchoring_conformance_declaration":
         "conformance-declaration.schema.yaml",
+    "xfactory_chain_anchoring_confirmation_profile":
+        "confirmation-profile.schema.yaml",
+    "xfactory_chain_anchoring_confirmation_profile_registry":
+        "confirmation-profile-registry.schema.yaml",
+    "xfactory_chain_anchoring_daily_merkle_profile":
+        "daily-merkle-profile.schema.yaml",
+    "xfactory_chain_anchoring_durability_eligibility_registry":
+        "durability-eligibility-registry.schema.yaml",
+    "xfactory_chain_anchoring_durability_batch_admission":
+        "durability-batch-admission.schema.yaml",
+    "xfactory_chain_anchoring_durability_batch_manifest":
+        "durability-batch-manifest.schema.yaml",
 }
 
 # THE CLOSED REFUSAL ENUMERATION, held here as the set the packaged corpus must
@@ -345,11 +365,76 @@ REFUSAL_CODES = frozenset({
     "overlay_relaxes_neutral_refusal",
     "structural_residual_declared_satisfied",
     "obligation_not_declared",
+    # ====================================================================
+    # WIDENED BY `amend-chain-anchoring-readiness-and-durability`
+    # (requirements 2 and 3) — the same forty-eight the contract's own
+    # enumeration declares, in the same order. The two sets are compared
+    # set for set at startup, so a code added to one alone is a finding.
+    # ====================================================================
+    # ---- Fixed UTC windows and the one atomic admission --------------------
+    "durability_window_not_fixed_utc_midnight",
+    "durability_window_selected_from_source_time",
+    "durability_window_reopened_after_close",
+    "durability_admission_not_atomic",
+    "durability_sequence_inverts_acceptance_partition",
+    "durability_event_assigned_to_two_windows",
+    "durability_close_watermark_unproven",
+    "durability_batch_omits_accepted_event",
+    "durability_batch_summary_lowered_below_watermark",
+    "durability_event_selectivity_applied",
+    "anchoring_control_leaf_admitted_as_event",
+    "dedupe_replay_consumed_a_second_sequence",
+    "dedupe_key_reused_for_different_content",
+    "dedupe_key_reachable_from_anchor",
+    "source_time_lateness_recorded_on_chain",
+    "empty_window_without_linked_checkpoint",
+    "open_window_presented_as_anchored",
+    "constituent_event_given_separate_receipt",
+    # ---- The eligibility registry and its denominator ----------------------
+    "eligibility_boundary_selection_ambiguous",
+    "eligibility_activation_applied_to_open_window",
+    "eligibility_snapshot_rolled_back",
+    "eligibility_terms_substituted_under_version",
+    # ---- The released Merkle construction and the continuity link ----------
+    "merkle_profile_absent_or_substituted",
+    "daily_batch_root_not_reproducible",
+    "daily_continuity_link_unresolved",
+    "daily_continuity_link_over_batch_root",
+    "first_daily_manifest_without_genesis_sentinel",
+    # ---- One item, one root, both witnesses --------------------------------
+    "daily_item_witness_roots_differ",
+    "aggregation_root_not_identity_for_daily_item",
+    "witness_commitment_path_absent",
+    "durability_witness_proof_over_raw_batch_root",
+    "daily_manifest_configuration_substituted",
+    # ---- The confirmation-profile registry ---------------------------------
+    "confirmation_profile_unresolved",
+    "confirmation_profile_not_operator_approved",
+    "confirmation_profile_numeric_depth_uncited",
+    "confirmation_profile_snapshot_rolled_back",
+    "confirmation_profile_activation_applied_to_open_window",
+    "confirmation_profile_terms_substituted_under_version",
+    "confirmation_profile_retired_or_compromised_mints_receipt",
+    "confirmation_profile_standing_rewrites_historical_receipt",
+    "registry_history_rewritten",
+    # ---- Submitted is not confirmed ----------------------------------------
+    "witness_confirmed_without_profile_condition",
+    "witness_confirmed_without_named_profile",
+    "witness_pending_with_submission_evidence",
+    "submission_evidence_offered_as_confirmed",
+    "long_horizon_claim_on_unupgraded_durability_proof",
+    "reorganized_witness_retains_confirmed_label",
+    "state_transition_history_erased_on_upgrade",
 })
 
-# The capability's nine obligations, in the delta's own order.
+# The capability's ELEVEN obligations, in the deltas' own order: nine from
+# `add-chain-anchoring` and two from
+# `amend-chain-anchoring-readiness-and-durability`, whose own `tasks.md` 3.2
+# counts "all eleven promoted requirements". A declaration enumerating nine
+# after the amendment ratified would be silent on two obligations, which is
+# exactly what `obligation_not_declared` refuses.
 OBLIGATIONS = ["CA-R1", "CA-R2", "CA-R3", "CA-R4", "CA-R5", "CA-R6",
-               "CA-R7", "CA-R8", "CA-R9"]
+               "CA-R7", "CA-R8", "CA-R9", "CA-R10", "CA-R11"]
 
 # THE ONE OBLIGATION WHOSE RESIDUAL IS STRUCTURAL AT THIS REALIZATION. CA-R5 is
 # the step from "the record DECLARES a salted keyed commitment" to "the anchored
@@ -390,6 +475,12 @@ RECEIPT_ONLY_INPUT_NAMES = frozenset({
     "skew_seconds",
     "tolerance_seconds",
     "ordering_only",
+    # THE CONFIRMATION PROFILE IS A RECEIPT-ONLY INPUT AND JOINS THIS SET BY THE
+    # RULE, not by an enumeration chase — which is the rule the block's own
+    # header says a future timing input joins by. What separates submitted from
+    # confirmed is the profile's objective condition, so a verifier reads it,
+    # so it lives inside the committed block and nowhere else.
+    "confirmation_profile",
 })
 
 # THE STATE VOCABULARY THE RECEIPT MAY NOT CARRY. The receipt holds proof material
@@ -397,7 +488,14 @@ RECEIPT_ONLY_INPUT_NAMES = frozenset({
 # record, which is where every surface reads per-witness status.
 ANCHOR_STATE_VOCABULARY = frozenset({
     "anchored", "anchor_status", "pending", "complete", "state", "status",
-    "anchor_state", "witness_status", "landed", "in_flight",
+    "anchor_state", "witness_status",
+    # `landed` and `in_flight` were this list's words for the per-witness
+    # states; `amend-chain-anchoring-readiness-and-durability` replaced that
+    # enumeration, so the vocabulary the RECEIPT may not carry moves with it.
+    # `confirmed_under_profile` and `commitment_derivation` are receipt members
+    # by design and are not caught here, because this sweep is exact-match: it
+    # refuses a member NAMED for a state, never one whose name contains a word.
+    "submitted", "confirmed", "unevaluable",
 })
 
 # THE AGGREGATE BOOLEAN THAT EXISTS NOWHERE IN THIS CAPABILITY. Such a field can
@@ -640,6 +738,12 @@ class Scope:
     uses: list[tuple[str, dict]] = field(default_factory=list)
     analyses: list[tuple[str, dict]] = field(default_factory=list)
     declarations: list[tuple[str, dict]] = field(default_factory=list)
+    profiles: list[tuple[str, dict]] = field(default_factory=list)
+    profile_registries: list[tuple[str, dict]] = field(default_factory=list)
+    merkle_profiles: list[tuple[str, dict]] = field(default_factory=list)
+    eligibility_registries: list[tuple[str, dict]] = field(default_factory=list)
+    admissions: list[tuple[str, dict]] = field(default_factory=list)
+    manifests: list[tuple[str, dict]] = field(default_factory=list)
     facts: dict[Any, ReceiptFacts] = field(default_factory=dict)
 
 
@@ -655,6 +759,13 @@ _KIND_BUCKET = {
     "xfactory_chain_anchoring_linkage_derivation_use": "uses",
     "xfactory_chain_anchoring_analysis_result": "analyses",
     "xfactory_chain_anchoring_conformance_declaration": "declarations",
+    "xfactory_chain_anchoring_confirmation_profile": "profiles",
+    "xfactory_chain_anchoring_confirmation_profile_registry": "profile_registries",
+    "xfactory_chain_anchoring_daily_merkle_profile": "merkle_profiles",
+    "xfactory_chain_anchoring_durability_eligibility_registry":
+        "eligibility_registries",
+    "xfactory_chain_anchoring_durability_batch_admission": "admissions",
+    "xfactory_chain_anchoring_durability_batch_manifest": "manifests",
 }
 
 
@@ -1067,7 +1178,7 @@ def check_anchor_states(f: Findings, scope: Scope) -> None:
         # the anchoring subsystem marks an item complete by no other path.
         if state == "anchor_complete":
             unlanded = [row.get("witness_id") for row in rows
-                        if row.get("status") != "landed"]
+                        if row.get("status") != "confirmed"]
             if not doc.get("receipt_ref"):
                 f.error("anchor_state_complete_without_captured_receipt",
                         f"{label}: state anchor_complete with no captured receipt "
@@ -1077,7 +1188,7 @@ def check_anchor_states(f: Findings, scope: Scope) -> None:
             if unlanded:
                 f.error("anchor_state_complete_without_captured_receipt",
                         f"{label}: state anchor_complete while witness(es) "
-                        f"{unlanded} are not landed — a completeness claim over a "
+                        f"{unlanded} are not confirmed — a completeness claim over a "
                         f"missing witness is the aggregate boolean's defect "
                         f"wearing the state machine's clothes")
 
@@ -1126,16 +1237,17 @@ def check_anchor_states(f: Findings, scope: Scope) -> None:
 
             # A RECEIPT ENTRY FOR A WITNESS STILL IN FLIGHT: the receipt gains an
             # entry when the four elements are captured whole, never before.
-            if row.get("status") == "in_flight" and facts is not None \
+            if row.get("status") in ("pending", "submitted") and facts is not None \
                     and (wid in facts.entry_witnesses
                          or row.get("chain_id") in facts.entry_chains):
                 f.error("receipt_entry_incomplete_for_pending_witness",
-                        f"{where}: this witness is recorded still in flight while "
+                        f"{where}: this witness is recorded {row.get('status')!r} "
+                        f"— no confirmation evidence yet — while "
                         f"the referenced receipt already carries a per-chain "
                         f"entry for it — a receipt entry exists only once the "
-                        f"four elements are captured whole; a witness in flight "
-                        f"is a pending proof held HERE, and the later upgrade "
-                        f"appends a whole entry")
+                        f"four elements are captured whole; a witness that is "
+                        f"pending or merely submitted is a pending proof held "
+                        f"HERE, and the later upgrade appends a whole entry")
 
             # THE OPERATIONAL WITNESS'S CAPTURE CONDITION, per item.
             if row.get("role") == "operational" \
@@ -1904,7 +2016,7 @@ def check_declarations(f: Findings, scope: Scope) -> None:
                 f.error("obligation_not_declared",
                         f"{label}: obligation {obligation} is declared {count} "
                         f"time(s); the declaration is closed over the "
-                        f"capability's nine obligations with exactly one entry "
+                        f"capability's eleven obligations with exactly one entry "
                         f"each — a declaration that can quietly omit an "
                         f"obligation is how a silent gap gets recorded as "
                         f"conformance")
