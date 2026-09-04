@@ -163,8 +163,20 @@ an extra field — it needs a schema delta.
       > `manifest.json` and `recipe/Dockerfile` — no second clone, no
       > working-tree mutation. Worker half: aggregation PR #243 (squash
       > `84dbbb24`). The child owns no checkout at all now: it downloads the
-      > seal and assembles the same minimal Docker context from it, with
-      > `manifest.json` and `recipe/` kept out of the daemon's context.
+      > seal and assembles the same minimal Docker context from it — it copies
+      > `CONTEXT_ROOTS` out of `<seal>/openxFactory` into a separate `ctx/` and
+      > builds `-f <seal>/recipe/Dockerfile` with **`ctx/`** as the context, so
+      > neither `manifest.json` nor `recipe/` reaches the daemon. That detail is
+      > worth pinning because #648's S3 contract had proposed the SEAL ROOT as
+      > the context with those two paths merely "inert" in it; #243 chose the
+      > leaner assembled shape instead, which is also what the ratified
+      > requirement's "the assembled workspace shape as context" says. Verified
+      > against the landed file rather than either PR body:
+      > `.github/workflows/dashboard-image-worker.yml` at `84dbbb24` builds with
+      > `"$GITHUB_WORKSPACE/ctx"` and carries the assertion in its own comment
+      > ("the daemon receives a lean tree and neither manifest.json nor recipe/
+      > reaches it"), with a post-step guard that fails when the assembled
+      > context is missing the renderer packages.
       > MEASURED, NOT ESTIMATED — the sealed source is **3511 files /
       > 35,123,275 bytes (~35.1 MB)** (#648, real corpus at `3e5a3090`;
       > #243's end-to-end rehearsal measured 35,159,691 bytes at `63586454`,
