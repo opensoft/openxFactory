@@ -442,3 +442,33 @@ def test_the_workflow_checks_out_enough_history_to_find_the_base(token):
     """The first-parent walk and the base diff both need history. A shallow
     checkout would refuse `gate-unreadable-base` on every pull request."""
     assert token in _workflow_body()
+
+
+# --------------------------------------------- git itself cannot be executed
+
+def test_an_unrunnable_git_refuses_rather_than_crashing(tmp_path, monkeypatch):
+    """COPILOT ON PR #668, AND IT IS A REAL ONE. `subprocess.run` RAISES
+    `OSError` rather than returning a non-zero code when the binary itself
+    cannot be executed — no `git` on PATH, an unreadable working directory. An
+    exception escaping `_run` would exit this tool with an uncontrolled code,
+    breaking the "0 or 2, never 1" contract its module docstring states and
+    turning a fail-closed refusal into a crash a workflow reads as an
+    infrastructure blip rather than as a verdict.
+
+    THE POSITIVE CONTROL IS THAT THE SAME TREE PASSES WITH GIT WORKING, so this
+    test cannot pass by refusing for some other reason.
+    """
+    repo, _ = _repo(tmp_path)
+    base = _cut(repo, "contract-v2.0")
+    _tag(repo, "contract-v2.0")
+    head = _cut(repo, "contract-v2.1")
+    _push(repo)
+    assert _run(repo, head=head, base=base).passed
+
+    def _explode(*args, **kwargs):
+        raise OSError(2, "No such file or directory: 'git'")
+
+    monkeypatch.setattr(gate.subprocess, "run", _explode)
+    result = _run(repo, head=head, base=base)
+    assert result.code == gate.REFUSE
+    assert result.refusal == "gate-unreadable-head"

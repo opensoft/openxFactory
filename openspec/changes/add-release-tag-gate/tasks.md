@@ -140,3 +140,21 @@ is `create-medxchart-overlay-boundary` § 5.3/5.4 (`pin-validation`, ruleset
       touches no release-surface path, so `release-tag-gate` must report green
       by short-circuit. Record the run.
 - [x] 5.6 `actionlint` on the new workflow where available.
+- [x] 5.7 INDEPENDENT REVIEW, recorded including its absence. **Codex REFUSED
+      on usage limits** (requested 2026-09-04 22:45:52Z, refused 22:46:02Z); no
+      Codex round ran. Sourcery is the private-repo upsell stub. **Copilot ran
+      and found ONE real defect**, fixed in the same branch: `_run` documented
+      itself as degrading to None on failure, but `subprocess.run` RAISES
+      `OSError` when git cannot be executed at all, which would have exited the
+      tool with an uncontrolled code and broken its own "0 or 2, never 1"
+      contract — turning a fail-closed refusal into a crash. Caught, and
+      `test_an_unrunnable_git_refuses_rather_than_crashing` now pins it with a
+      positive control on the same tree.
+- [x] 5.8 A POSITIVE CONTROL ON THE `## MODIFIED` BLOCK ITSELF. The
+      `modified-block-currency` family reports nothing about this change, which
+      alone cannot be distinguished from a block it never read. One promoted
+      scenario title was deliberately mutated and the family re-run: it fired
+      (*"omits 1 of the 24 scenarios … 'The published tag is lightweight rather
+      than annotated'"*), the delta was restored and the family re-run silent.
+      All 24 promoted scenario titles and every body unit are carried, verified
+      by a probe shown capable of firing.

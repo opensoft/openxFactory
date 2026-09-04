@@ -176,9 +176,23 @@ class Result:
 
 
 def _run(repo: Path, *args: str) -> str | None:
-    """git, degraded to None on failure — the seam `RealGit` already uses."""
-    proc = subprocess.run(["git", "-C", str(repo), *args],
-                          capture_output=True, text=True)
+    """git, degraded to None on failure — the seam `RealGit` already uses.
+
+    `OSError` IS PART OF "FAILURE" AND IS CAUGHT HERE, not left to propagate
+    (Copilot, PR #668). `subprocess.run` RAISES rather than returning a
+    non-zero code when the binary itself cannot be executed — no `git` on
+    PATH, an unreadable working directory — and an escaping exception would
+    exit this tool with an uncontrolled code, breaking the "0 or 2, never 1"
+    contract its module docstring states and turning the fail-closed refusal
+    into a crash a workflow reads as an infrastructure blip. Every caller here
+    already reads None as "git could not be consulted" and refuses on it, so
+    the honest answer for an unrunnable git is the one they already handle.
+    """
+    try:
+        proc = subprocess.run(["git", "-C", str(repo), *args],
+                              capture_output=True, text=True)
+    except OSError:
+        return None
     return proc.stdout if proc.returncode == 0 else None
 
 
