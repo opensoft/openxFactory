@@ -1994,7 +1994,7 @@ repo scope.
   conjuncts are quoted verbatim — as they are again under §§ 4.5/4.6 of the
   archived `tasks.md` and in PR #549's closing comment.
 - **EXIT 3 IS RAISED, 2026-08-29 — the DRAFT change `add-chain-anchoring`**
-  (`openspec/changes/add-chain-anchoring/proposal.md`), the public anchoring layer
+  (`openspec/changes/archive/2026-09-04-add-chain-anchoring/proposal.md`), the public anchoring layer
   plus the permissioned consent plane, as a NEW neutral `chain-anchoring`
   capability of **nine ADDED requirements over 89 SCENARIOS** (52 scenarios at
   the head its council judged; its 2026-08-30 fix round and nine bot rounds
@@ -2021,13 +2021,19 @@ repo scope.
   #509 — an instrument the disposition rules WRONG at item 9, future sittings
   split): four seats, one ACCEPT and three ACCEPT AS AMENDED, **three blocking
   amendments plus one folded bot finding, all discharged in the fix round**, the
-  sitting carried in `openspec/changes/add-chain-anchoring/review/`. **RATIFIED
-  2026-08-30** (record `openspec/changes/add-chain-anchoring/review/ratification-2026-08-30.md`,
+  sitting carried in `openspec/changes/archive/2026-09-04-add-chain-anchoring/review/`. **RATIFIED
+  2026-08-30** (record `openspec/changes/archive/2026-09-04-add-chain-anchoring/review/ratification-2026-08-30.md`,
   ruling *"2 yes with note"* — the note being an unreviewed tail from `fd7c1ca7`
   on a bot quota refusal), together with the frozen-header normalization, the
   blessing of LS-A9, and the timing-model consolidation. **EXIT 3 IS THEREFORE
   RATIFIED AND NOT REALIZED**; the contract family and its validator are a later
-  commission.
+  commission. **THAT COMMISSION HAS SINCE RUN, AND EXIT 3 IS CLOSED**: REALIZED
+  by PR #629 (squash `11feff75`), completed before publication by PR #657
+  (`e65dcc48`), PUBLISHED at `contract-v3.4` (PR #653, squash `807a4f47`, tag
+  `a3309921`), and **ARCHIVED 2026-09-04** on Brett Heap's word *"archive
+  chain-anchoring"* — nine requirements over 89 scenarios promoted to
+  `openspec/specs/chain-anchoring/spec.md`, the paths above following the packet
+  to its archive directory.
   **A ruling of that sitting reaches THIS TOPIC**: its anchor-late constraint sits
   in `## Conflicts` with no disposition stamp and is reached by none of the seven
   Q-dispositions, so it was **NOT ruled by the topic being ruled** — the packet
