@@ -267,8 +267,8 @@ aggregation's comment records an earlier revision that got this wrong and
 
 ### Decision 3 — The build context problem, and the fresh-checkout recipe
 
-**AMENDED 2026-09-01 (PENDING RE-RATIFICATION — see `proposal.md`
-§ AMENDED AFTER RATIFICATION, 2026-09-04) — fresh inputs cross the host
+**AMENDED 2026-09-01, RE-RATIFIED 2026-09-04 (see `proposal.md`
+§ AMENDED AFTER RATIFICATION) — fresh inputs cross the host
 boundary as a sealed parent artifact, never as worker-side repository
 clones.** Brett's host ruling is
 explicit: "The runner design intentionally requires
@@ -320,7 +320,7 @@ because of that property:
    `<ctx>`.
 5. Tag date-stamped, push, capture the digest.
 
-**THE RECIPE AS AMENDED 2026-09-01 (pending re-ratification).** The five steps
+**THE RECIPE AS AMENDED 2026-09-01, RE-RATIFIED 2026-09-04.** The five steps
 above are the text as ratified 2026-08-25 and are retained unedited. Under
 Brett's host ruling the repository-read act moves to the parent and the recipe
 reads as follows; step 5 is unchanged and is not repeated.
@@ -603,7 +603,7 @@ Two independent reasons, both on the IMAGE side:
 1. **The build is not reproducible.** Every step of the recipe starts with a
    FRESH checkout (Decision 3 requires it), which stamps every file's
    modification time at checkout time.
-   *(AMENDED 2026-09-01, pending re-ratification: read "a freshly materialized
+   *(AMENDED 2026-09-01, RE-RATIFIED 2026-09-04: read "a freshly materialized
    source tree" — under the sealed-artifact recipe the fresh tree is
    materialized by the parent and unpacked on the worker rather than cloned
    there. The mtime property the argument turns on is unchanged, and so is the
@@ -761,7 +761,7 @@ for a human decision or execution.
 3. Build the artifact-only child workflow in the aggregation and prove the
    fresh-checkout recipe end-to-end by hand ON the worker, producing a real
    digest without opening any PR.
-   *(AMENDED 2026-09-01, pending re-ratification: build the parent
+   *(AMENDED 2026-09-01, RE-RATIFIED 2026-09-04: build the parent
    source-artifact step as well, and prove the SEALED-SOURCE recipe end to end
    on the worker — a real digest, no worker repository access, no PR.)*
 4. Add the refresh stage to `doc-health-reusable.yml` behind the readiness gate,

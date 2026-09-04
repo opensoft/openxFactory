@@ -134,7 +134,7 @@ an extra field — it needs a schema delta.
       <ctx>`; date-stamped tag; push; capture digest. Record the digest, the
       `source_revision`, and the corpus revision, and assert they are the same
       commit.
-      > AMENDED 2026-09-01 (pending re-ratification). The task body above is
+      > AMENDED 2026-09-01, RE-RATIFIED 2026-09-04. The task body above is
       > retained as ratified 2026-08-25. Under Brett's host ruling the proof to
       > perform is: the credentialed parent materializes a fresh, bounded
       > openxFactory `main` + recipe source artifact; the worker downloads and
@@ -213,9 +213,11 @@ an extra field — it needs a schema delta.
       git checkout" — which is exactly what the child now has. So without this
       task the amended lane publishes a snapshot with NO `generated_at`, and
       the served plane's freshness header loses its stamp. This is realization
-      work the amendment creates; it lands only if the amendment is
-      re-ratified, and it is NOT part of what makes the archive gate close
-      (§4.8).
+      work the amendment creates; the amendment was RE-RATIFIED 2026-09-04 by
+      Brett Heap (see `proposal.md` § AMENDED AFTER RATIFICATION), so this
+      task is now REQUIRED realization work on this change's code surface —
+      it is not yet done (still unticked above), and it remains NOT part of
+      what makes the archive gate close (§4.8).
 
 ## 4. The nightly stage (openxFactory)
 

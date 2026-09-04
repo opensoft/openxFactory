@@ -72,9 +72,11 @@ So the gap is not capability. It is that nobody has written the stage.
   Omnigent-Install's Dockerfile at ITS `main`, push to
   `acropensoftxfactoryqa.azurecr.io` under a date-stamped tag, digest returned.
 
-  > **AMENDED 2026-09-01 (pending re-ratification) — the fresh checkout moves
-  > to the credentialed parent.** The sentence above is the text as RATIFIED
-  > 2026-08-25 and is retained unedited. Under Brett's 2026-09-01 host ruling
+  > **AMENDED 2026-09-01, RE-RATIFIED 2026-09-04 by Brett Heap — in-session,
+  > verbatim "re-ratify and merge 595, delete the debug tool, roll out
+  > lane-line" — the fresh checkout moves to the credentialed parent.** The
+  > sentence above is the text as RATIFIED 2026-08-25 and is retained
+  > unedited. Under Brett's 2026-09-01 host ruling, re-ratified 2026-09-04,
   > the lane reads instead: the credentialed hosted parent seals fresh
   > openxFactory `main` plus Omnigent-Install's Dockerfile at ITS `main` into a
   > bounded source artifact; the credential-free child verifies it, runs
