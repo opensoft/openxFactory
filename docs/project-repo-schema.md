@@ -297,9 +297,19 @@ That run also fixed the standard. The FIRST pilot run found two defects — an
 organisation misdetection that preferred the `upstream` remote over `origin` and
 so refused a correct fork, and a descendant-shaped name read as a fact rather than
 a claim — and both were fixed upstream the same day, at `7edd6bb` and `deacbdc`
-respectively. **The commit this repository pins is `deacbdc`, the one carrying
-both fixes**, so the standard openxFactory ratifies is the one the pilot proved
-rather than the one it broke.
+respectively. **The commit this repository RATIFIED against is `deacbdc`, the one
+carrying both fixes**, so the standard openxFactory ratified is the one the pilot
+proved rather than the one it broke.
+
+> Amended 2026-09-04. This first said "the commit this repository PINS is
+> `deacbdc`". That was true when this document was ratified and is no longer:
+> [`contracts/openreposhape-pin.yaml`](../contracts/openreposhape-pin.yaml) now
+> pins `122d729bc0c2…` — openRepoShape `main` of 2026-09-04, twenty-seven
+> digested and thirty-three path-only members over a sixty-file surface. Nothing
+> in this doctrine moves with that bump: the pin advances within its own ratified
+> grammar, and the PIN FILE rather than this sentence is where the commit in
+> force is read. The ratification fact above is unchanged; only the present tense
+> was wrong.
 
 ## See also
 

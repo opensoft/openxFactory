@@ -7,11 +7,11 @@ of digests. `contracts/openreposhape-pin.yaml` is the whole of that claim and
 this file is the running code that checks it. Everything the pin asserts is
 checked here, and nothing that is not asserted is inferred.
 
-THE TRUSTED REFERENT IS `commit` PLUS THE SIXTEEN `sha256`s. A pin that declares
-`revision_kind` anything other than `commit`, or a `commit` that is not exactly
-40 hex, is refused `pin-tag-only` rather than being resolved — a movable name is
-not a compatibility pin, and resolving one is a network read made to look like a
-check.
+THE TRUSTED REFERENT IS `commit` PLUS THE DIGESTED MEMBERS' `sha256`s. A pin
+that declares `revision_kind` anything other than `commit`, or a `commit` that
+is not exactly 40 hex, is refused `pin-tag-only` rather than being resolved — a
+movable name is not a compatibility pin, and resolving one is a network read
+made to look like a check.
 
 THERE IS NO GITLINK HERE, AND ITS ABSENCE IS THE DESIGN. The sibling
 `scripts/verify-openxwallet-pin.py` compares a RECORDED gitlink and a CHECKED-OUT
@@ -418,7 +418,7 @@ def verify(source: Source, pin: dict) -> dict:
     checks are ORDERED because each later one is only meaningful once the earlier
     ones hold: a digest recomputed against the WRONG revision reports drift when
     the actual defect is that the wrong bytes were resolved. First failure, named
-    correctly, beats sixteen failures that need triage.
+    correctly, beats a pile of failures that need triage.
 
     Prints nothing and exits nothing: it raises, and the caller decides.
     """

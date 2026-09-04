@@ -28,40 +28,70 @@ kind: pinned_contract_manifest
 # passing when it can resolve neither. An unanswerable question is never an
 # implicit pass.
 #
-# THE TRUSTED REFERENT IS `commit` PLUS THE SIXTEEN `sha256`s. `revision_kind:
-# commit` is declared and a tag-only pin is REFUSED (`pin-tag-only`). No tag is
-# recorded beside the commit today because openRepoShape has cut none; when it
-# does, a tag may be recorded as a LABEL and never as the referent — a movable
-# name is not a compatibility pin.
+# THE TRUSTED REFERENT IS `commit` PLUS THE TWENTY-SEVEN `sha256`s.
+# `revision_kind: commit` is declared and a tag-only pin is REFUSED
+# (`pin-tag-only`). No tag is recorded beside the commit today because
+# openRepoShape has cut none; when it does, a tag may be recorded as a LABEL and
+# never as the referent — a movable name is not a compatibility pin.
 #
 # THE TWO LISTS COVER THE WHOLE SURFACE, and that is an obligation rather than a
 # courtesy. `neutral-product-pin`'s own scenario says an artifact appearing in
 # neither list "is an undeclared consumption, not a permitted omission", so the
-# sixteen digested members below plus the eighteen `pinned_by_commit_only:`
-# members are exactly the 34 files present at `commit`. The verifier asserts that
-# completeness against the resolved tree; a file at the pinned commit that
-# neither list names is `pin-surface-undeclared`.
+# twenty-seven digested members below plus the thirty-three
+# `pinned_by_commit_only:` members are exactly the 60 files present at `commit`.
+# The verifier asserts that completeness against the resolved tree; a file at the
+# pinned commit that neither list names is `pin-surface-undeclared`.
 #
-# WHICH SIXTEEN, AND WHY THOSE. They are the standard's NORMATIVE SURFACE — the
-# artifacts a reader of the ratified doctrine must be able to hold openxFactory
-# to: the naming policy as data, the four assembly-root contract and manifest
-# templates, the scaffold, the setup entry point, the bootstrap, the four shipped
-# validators and their shared library, the agent instruction file, the README
-# that states the doctrine in the standard's own words, and the LICENCE the
-# convener ruled. The eighteen path-only members are the standard's own tests,
-# its CI, its ignore files, the `CLAUDE.md` that says only "Read AGENTS.md.", and
-# the spec/code leg skeletons — content the commit addresses and this repository
-# makes no byte-level claim about.
+# WHICH TWENTY-SEVEN, AND WHY THOSE. They are the standard's NORMATIVE SURFACE —
+# the artifacts a reader of the ratified doctrine must be able to hold
+# openxFactory to: the two policy data files (the naming policy, and the path
+# classification an adoption plan proposes a split with), the seven contract and
+# manifest templates of the assembly root and of the family holder, the five
+# tools that CREATE or UPDATE a root (`scaffold-project.py` for a new project,
+# `adopt-project.py` for an existing repository taken in place, `update-shape.py`
+# for a root re-syncing its copied shape files and re-pinning, `setup.sh` and
+# `bootstrap`), the ten shipped validators and the libraries they run out of, the
+# agent instruction file, the README that states the doctrine in the standard's
+# own words, and the LICENCE the convener ruled. The thirty-three path-only
+# members are the standard's own tests, its CI and the CI it ships inside each
+# template, the ignore files, the `CLAUDE.md` that says only "Read AGENTS.md.",
+# the template READMEs and Makefiles, and the leg skeletons — content the commit
+# addresses and this repository makes no byte-level claim about.
+#
+# THE RULE DECIDED EVERY NEW FILE, AND NOTHING MOVED LIST. `122d729b` carries 26
+# files `deacbdcc` did not, and each was classified by the paragraph above rather
+# than by which release it arrived in. `templates/family-root/Makefile` and
+# `templates/family-root/README.md` are path-only because their assembly-root
+# siblings are; `templates/code-root/.gitignore` and
+# `templates/spec-root/.gitignore` are path-only because every ignore file is;
+# `scripts/family.py`, `scripts/path_classify.py` and
+# `scripts/shape_materialize.py` are digested because they are shipped libraries
+# the tools and the validators run out of, exactly as `scripts/repo_shape.py`
+# already was. Every one of the 34 members declared at `deacbdcc` is still
+# present at `122d729b` and still in the list it was in; only their digests
+# moved, and only where the upstream bytes moved.
 # ============================================================================
 
 source_repository: opensoft/openRepoShape
 source_url: https://github.com/opensoft/openRepoShape
 
-# openRepoShape at PR #4 (`Naming: a descendant form is a claim that needs a
-# pin`), which is ALSO the commit the pilot's successful end-to-end run was made
-# against and the commit carrying both defects the first pilot run found. Exactly
-# 40 hex characters.
-commit: "deacbdcce4f52af427bcb4edd075fcc992e3dabe"
+# openRepoShape at `main`, 2026-09-04, after #24 (`adopt execute` and `family
+# init` set the `xf-project-<id>` topic, as the scaffold does) and #25
+# (`recorded_gitlink()` reads the index before HEAD, so a staged leg bump
+# validates). This is the shape every project carrying the standard has ALREADY
+# taken through `update-shape`, which is what makes the bump a re-enumeration of
+# a surface already in service rather than an adoption of new mechanics: it adds
+# the FAMILY holder (`scripts/family.py`, `templates/family-root/`), in-place
+# adoption of an existing repository (`adopt-project.py` with
+# `contracts/path-classification.yaml`), the re-sync tool (`update-shape.py`),
+# and the neutral-product pin template. Exactly 40 hex characters.
+#
+# The ratification commit this pin previously carried,
+# `deacbdcce4f52af427bcb4edd075fcc992e3dabe` (PR #4, `Naming: a descendant form
+# is a claim that needs a pin`), stays the commit `add-project-repo-schema` was
+# ratified against and the one the MedxScribe pilot run was made against; that is
+# a HISTORICAL fact and it does not move with this pin.
+commit: "122d729bc0c2f2e0ded0bb61b6b97f49512f613e"
 revision_kind: commit
 
 digest_algorithm: sha256
@@ -76,44 +106,69 @@ verify_pin: scripts/validate-openreposhape-pin.py
 # other.
 doctrine: docs/project-repo-schema.md
 
-# THE SIXTEEN DIGESTED MEMBERS — the standard's normative surface.
+# THE TWENTY-SEVEN DIGESTED MEMBERS — the standard's normative surface. Ordered
+# as the header enumerates them: the policy data, the contract and manifest
+# templates, the tools that create or update a root, the shipped validators and
+# their libraries, then the agent file, the README and the LICENCE.
 files:
   - path: contracts/repository-naming.yaml
-    sha256: "77bbecc9e7c3b0883749276be8a056df65e551f370f7361e97e8ec0c3240c9e5"
+    sha256: "e546f1685dccb1a04c627226e952ec4931074e4e90e00e4ab5188ba0fc6598d0"
+  - path: contracts/path-classification.yaml
+    sha256: "068adaaccd12df028490ea1e0ca32910e3fbd3f7e1def1c3fd92dfdead276b15"
   - path: templates/assembly-root/project.yaml
-    sha256: "2beffb829c0cdf19a64b79071eaaf31ec2cb40f6aa85d41412c5c478f154016d"
+    sha256: "5f40578aa0d6516ce65355029747a7fd920d352998dd4c6d85b98cb2ea5bebd2"
   - path: templates/assembly-root/contracts/spec-pin.yaml
     sha256: "49dd01b80325bbe37d7049b6b6ec0fa9b6636fffdf0fb08a8a858d15e45f16a7"
   - path: templates/assembly-root/contracts/code-pin.yaml
     sha256: "32de2faeec6c5630be204de13ba0a7995de403f9ba2b3d7281c8387f7959a0f5"
   - path: templates/assembly-root/contracts/shape-pin.yaml
     sha256: "f40230dd50f7ac7eeacecaf5489fe6377b69d807416eb2b5bed4a4a369bb44d5"
+  - path: templates/assembly-root/contracts/neutral-product-pin.yaml
+    sha256: "38813c4378f17fc944ab7e04c5fa0abf05dd2fc3e1cc04d832575cdc1b49577b"
+  - path: templates/family-root/family.yaml
+    sha256: "7439c0253df7c24b26e8dbc6114ea82fc8dce96cce0c05b482a9fbddb36992ac"
+  - path: templates/family-root/contracts/shape-pin.yaml
+    sha256: "7cb0cf85637cbc7115c268a2b0027b35322b72d1f21893784742a0f7d67be934"
   - path: scaffold-project.py
-    sha256: "4eb8ba8977b28c2596e176ec68162f5aae9be9ef4aa5a0789b2a4dd880c7e08c"
+    sha256: "8f2a965dca08ecaf570c79483693365baa022339b00344e55130fce653a2bf5b"
+  - path: adopt-project.py
+    sha256: "015f228091223d85f3a51887c8fb3d200d1e8a17b4d0917d149b4a0574e0dc0b"
+  - path: update-shape.py
+    sha256: "c6cf8bac893daf13289c8c1eed87844c8a2be554df1a36f30615a0b167c820f4"
   - path: setup.sh
-    sha256: "3619df8c8b4c2e1ef0c8abb1ca08d95e2bd103c4fadd150e7361c4eb2ea70abe"
+    sha256: "e00e4aa2cfd9346591eea7c3141b60d7e9d5d498e7080408df90f70038b95a21"
   - path: bootstrap
     sha256: "7bf4681f2dc48da5adbc82118d5695d08968e059bfe4add79deb8d422264c303"
   - path: scripts/repo_shape.py
-    sha256: "bd63bdaa071830eecd70e2a676eca2c54f9d62e9f146017d763b0a9bed84e31d"
+    sha256: "dd49fa686ba9620befca8cc0a62dbbf2c68403d457778b8023c62385e290d670"
+  - path: scripts/path_classify.py
+    sha256: "8438f707e00a919bbfac249cacb0dddf3286a1576a555d2d6358db297a6147b6"
+  - path: scripts/shape_materialize.py
+    sha256: "36a35b92ab5cfdf1a01a2d0e10605475567e09f467304ae8f81451a7724bb4c2"
+  - path: scripts/family.py
+    sha256: "0c2a2574c0b277be5775ea4107353b4912fa80103f5d1570b8588f2967bd6044"
   - path: scripts/validate-repository-naming.py
-    sha256: "7f5696a68875e3f052c5b19be4e87ca12c87783c85b1bf030eb0757de53d402c"
+    sha256: "3b3c36d9522b5db35957c5d281539b060ad77ad60ee8980f17cc87ee6a049e97"
   - path: templates/assembly-root/scripts/bootstrap.py
-    sha256: "c000abd2871dcaa12e847e1f897c84e4b90f064206e1996be9320e75a6d7bde2"
+    sha256: "2e1c5e956fc1bd46708a738e21ecf920bc822d1f24e79804b4c1e4a713a5ac03"
   - path: templates/assembly-root/scripts/validate-manifest.py
-    sha256: "83b0c7ebf1bcac1832ddfbf182fa26185f9453cf433c7ed76e580aae558a24f2"
+    sha256: "5d96f639545766d469d208bad539571d0f49226b5bcc60dd116a9945a6198d00"
   - path: templates/assembly-root/scripts/validate-pins.py
-    sha256: "ce2ff38ae65c76f8ead6fa4d6c32380e0bd5a09538471324a91563b51228a278"
+    sha256: "0192b6da7c9810b67467debe164d641c257e6de86ca5378c5f76fbcfd41a4cbd"
+  - path: templates/family-root/scripts/bootstrap.py
+    sha256: "5106be69d8c21f962e1969325be4bed1770010be221af8eb9f7ab584a6fd0193"
+  - path: templates/family-root/scripts/validate-family.py
+    sha256: "a55e734a93c3aa5e508540c778598226027cae90002c35a72ed6cf4cd131b807"
   - path: AGENTS.md
-    sha256: "df58b126279cd5b3d2363bf3ca9ea4e6f66ac47344decaf4c220060232b40b81"
+    sha256: "b222a244308728d6922b08afd5d6a6171be39bb5de3c9d28bc4f371044c2aac0"
   - path: README.md
-    sha256: "497930526e1ffa67e6aa90d05e1ac9d0c8ae0aec1a334cb1fb0c1abdf864d8b7"
+    sha256: "c3af9c8eb5b44a7b8b3accd1fec100ab99189c530a99fbdeb616df40268bde6d"
   - path: LICENSE
     sha256: "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
 
-# THE EIGHTEEN PATH-ONLY MEMBERS. Presence is checked; identity comes from the
-# commit. Naming them is what makes the surface COMPLETE rather than partially
-# declared — see the header note on `pin-surface-undeclared`.
+# THE THIRTY-THREE PATH-ONLY MEMBERS. Presence is checked; identity comes from
+# the commit. Naming them is what makes the surface COMPLETE rather than
+# partially declared — see the header note on `pin-surface-undeclared`.
 pinned_by_commit_only:
   - .github/workflows/tests.yml
   - .gitignore
@@ -122,14 +177,29 @@ pinned_by_commit_only:
   - templates/assembly-root/.gitignore
   - templates/assembly-root/Makefile
   - templates/assembly-root/README.md
+  - templates/code-root/.gitignore
   - templates/code-root/README.md
   - templates/code-root/src/.gitkeep
+  - templates/family-root/.github/workflows/validate.yml
+  - templates/family-root/.gitignore
+  - templates/family-root/Makefile
+  - templates/family-root/README.md
+  - templates/spec-root/.gitignore
   - templates/spec-root/README.md
   - templates/spec-root/requirements/.gitkeep
   - tests/conftest.py
+  - tests/test_adopt_e2e.py
+  - tests/test_adopt_plan.py
+  - tests/test_adopt_spec_only.py
+  - tests/test_family.py
+  - tests/test_free_plan_hint.py
   - tests/test_manifest_validator.py
   - tests/test_naming_policy.py
+  - tests/test_neutral_pin_validator.py
   - tests/test_pin_validator.py
   - tests/test_repo_hygiene.py
+  - tests/test_reuse_visibility.py
   - tests/test_scaffold_e2e.py
+  - tests/test_scaffold_pin_and_reuse.py
   - tests/test_setup_sh.py
+  - tests/test_update_shape.py
