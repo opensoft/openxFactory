@@ -2103,8 +2103,9 @@ Archived changes:
   Heap in session, verbatim *"ratify both, 1 and 1"* (PR #608, `0f1edc0e`;
   records `review/ratification-2026-09-03.md` and
   `review/verification-2026-09-03.md`, archived with the packet). **ARCHIVED on
-  his word of 2026-09-04, *"rulesets created … do 5.4 and archive both"***,
-  after *"do the pin validators"* and *"merge both when aligned and green"*.
+  his word of 2026-09-04**, verbatim *"rulesets created … do 5.4 and archive
+  both"*, after *"do the pin validators"* and *"merge both when aligned and
+  green"*.
   **REALIZED by `opensoft/MedxChart` PR #1**, merge **`8bc39a8c`**
   (2026-09-04T13:05:59Z): `tests/validate_pin.py` (four fail-closed refusal
   categories, one per condition § 5.1 names), `tests/test_validate_pin.py`
