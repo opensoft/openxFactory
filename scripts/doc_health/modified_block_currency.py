@@ -51,8 +51,11 @@ THREE ARMS, SEVEN FINDING CLASSES, AND THE NUMBERS DIFFER ON PURPOSE:
    its rule text says so: it is the list a reviewer reads to confirm each
    divergence was intended.
 3. **Title resolution and ordering** (`_RESOLUTION_SEVERITY`, `warning`). A
-   block whose title resolves to nothing, and an ordering between two active
-   RATIFIED writers that no declaration settles.
+   block whose title resolves to nothing, and an ordering among active RATIFIED
+   writers that no declaration settles — TWO writers by the single declaration
+   between them, THREE OR MORE by whether their declarations state one linear
+   chain (issue #627, 2026-09-04; before it every larger group was reported
+   whatever it declared, on a measured population of zero).
 4. **Marker defects** (`_LEDGER_SEVERITY`, `info`) — not an arm. A marker that
    names a unit the block still carries declares nothing and is reported itself.
    It does NOT inherit the ledger's hedge, because a marker naming a carried
@@ -1733,6 +1736,59 @@ def _as_basis(block: ActiveBlock) -> PromotedRequirement:
                                block.units)
 
 
+def _chain(changes: list[str], pairs: set[tuple[str, str]]
+           ) -> tuple[list[str] | None, str, list[str]]:
+    """`(order, defect, blamed)` for one group's declarations, earliest first.
+
+    THE DECLARATION IS AN EDGE, AND THE EDGE POINTS BACKWARDS. `(a, b)` in
+    `pairs` says `a`'s proposal names `b`, which under `release-realization`'s
+    "Ordered deltas and branch vocabulary" makes `a` the LATER writer: it is the
+    one declaring its deltas relative to `b`'s outcome. So the earliest writer is
+    the one that names nobody inside the group.
+
+    RESOLVED MEANS ONE TOTAL ORDER, NOT ONE EDGE PER WRITER, and the difference
+    is measured rather than stylistic. OpsxFactory's five-writer chain carries a
+    REDUNDANT edge — `reanchor-keycloak-broker-to-syscore2` names both its
+    predecessor `admit-secretproviderclass-to-aks-scope` and, three links back,
+    `adopt-keycloak-broker-qa`, which it re-anchors and could hardly discuss
+    without naming. That edge states nothing the other four do not already imply
+    by transitivity, and a rule counting one predecessor per writer would report
+    a compliant corpus as forked. The question this answers is therefore whether
+    the declarations admit exactly ONE linear order, which is Kahn's algorithm
+    with a uniqueness demand at every step.
+
+    THE DEFECT IS NAMED BY WHERE THE UNIQUENESS FAILS, and the three failures are
+    distinguishable by construction rather than by guessing:
+
+    - no writer at all is free of in-group declarations -> `cycle` (mutual
+      declaration is the two-writer instance of it, and that shape never reaches
+      here, `_arm_ordering`'s pair path owning it);
+    - MORE THAN ONE writer is free at the FIRST step -> `unanchored`: each of
+      them declares relative to nothing inside the group, so the declarations
+      state more than one starting point where a chain has exactly one;
+    - more than one writer becomes free LATER -> `forked`: each of them is
+      declared later than a writer already placed and none is declared later
+      than another, so no single chain runs through them.
+
+    `blamed` is the ambiguous or cyclic set, sorted, so the finding can name the
+    writers a reader has to go and look at instead of re-deriving them.
+    """
+    later: dict[str, set[str]] = {c: set() for c in changes}
+    for declarer, declared in pairs:
+        later[declarer].add(declared)
+    remaining = set(changes)
+    order: list[str] = []
+    while remaining:
+        free = sorted(c for c in remaining if not (later[c] & remaining))
+        if not free:
+            return None, "cycle", sorted(remaining)
+        if len(free) > 1:
+            return None, ("unanchored" if not order else "forked"), free
+        order.append(free[0])
+        remaining.discard(free[0])
+    return order, "", []
+
+
 def _arm_ordering(repo: str, group: list[ActiveBlock], declared: set
                   ) -> tuple[dict[str, PromotedRequirement], list[Finding]]:
     """`(basis_override, findings)` for one (capability, requirement) group.
@@ -1745,36 +1801,91 @@ def _arm_ordering(repo: str, group: list[ActiveBlock], declared: set
     at `warning` the same units the ledger reports at `info`, and `dh:264` asks
     for the addition to be reported, not reported twice.
 
-    Everything else among two-or-more ratified writers is an UNSTATED ordering,
-    reported against every one of their blocks, each measured against canon:
+    N RATIFIED WRITERS RESOLVE ON THE SAME TERMS WHERE THE DECLARATIONS STATE
+    ONE LINEAR CHAIN (issue #627, 2026-09-04). The 2026-08-27 reading reported
+    every group of three or more as unstated "whatever they declare", on the
+    stated ground that inventing a chain rule for a population of ZERO would be
+    inventing authority. The population is no longer zero: OpsxFactory's
+    `aks-administration-workflow` 'Bounded action classes for managed workloads'
+    has FIVE ratified writers, each declaring its predecessor (PR #182), and
+    `release-realization`'s "Ordered deltas and branch vocabulary" obligates that
+    declaration from EVERY later writer — so a checker that cannot read an
+    N-writer chain cannot read a compliant corpus. Nothing about the RULE
+    changed: the declaration is still the ordering, still read whole-token from
+    the declaring change's own `proposal.md`, and still the only authority
+    consulted. What changed is that the arm now asks whether the declarations
+    admit exactly ONE order (see `_chain`) rather than counting them.
 
-    - NEITHER declaring — "no reader being able to tell which text canon will
-      keep";
-    - BOTH declaring — "mutual declaration deciding nothing";
-    - THREE OR MORE ratified writers, whatever they declare. The delta gives no
-      rule for that shape (`dh:262` says "two or more" and then describes a
-      pair), one declaration orders a pair and leaves the third unstated, and
-      inventing a chain rule for a population of zero would be inventing
-      authority. Reported, and the gap is named in the feature plan.
+    THE BASIS RUNS ALONG THE CHAIN. The earliest writer is measured against
+    canon, and every later writer against the block of the writer immediately
+    before it — the same substitution the pair makes, applied link by link,
+    because `MODIFIED` replaces a requirement wholesale and each block therefore
+    IS the outcome of the writer that holds it.
+
+    THE 2-WRITER PATH IS UNTOUCHED, deliberately and structurally: its branch is
+    still taken first and still returns the same dict, so no rendered byte of the
+    pair case — resolved, mutual or undeclared — moves with this change.
+
+    Everything else is an UNSTATED ordering, reported against every one of their
+    blocks, each measured against canon:
+
+    - NEITHER of two declaring — "no reader being able to tell which text canon
+      will keep";
+    - BOTH of two declaring — "mutual declaration deciding nothing";
+    - a group of three or more whose declarations state no single chain, named
+      by the defect `_chain` found: `cycle`, `forked`, `unanchored`, or
+      `outside` — the last one being an `unanchored` group where a writer's
+      declaration names a writer of this requirement that is NOT ratified, which
+      explains the missing anchor instead of leaving a reader to find it.
 
     An UNRATIFIED writer creates no obligation either way: `release-realization`
     scopes the rule to an active RATIFIED change and this family does not widen
-    it. Its block is still read, because the arms are advisory.
+    it. Its block is still read, because the arms are advisory; it is not a link
+    in the chain, and a declaration pointing at it orders nothing.
     """
     ratified = [b for b in group if b.standing == _RATIFIED]
     if len(ratified) < 2:
         return {}, []
     pairs = {(a.change, b.change) for a in ratified for b in ratified
              if (a.change, b.change) in declared}
+    by_change = {b.change: b for b in ratified}
     if len(ratified) == 2 and len(pairs) == 1:
         declarer, other = next(iter(pairs))
-        by_change = {b.change: b for b in ratified}
         return {declarer: _as_basis(by_change[other])}, []
 
-    names = ", ".join(sorted(b.change for b in ratified))
+    defect, blamed = "", []
     if len(ratified) > 2:
+        order, defect, blamed = _chain(sorted(by_change), pairs)
+        if order is not None:
+            return {late: _as_basis(by_change[early])
+                    for early, late in zip(order, order[1:])}, []
+        unratified = {b.change for b in group} - set(by_change)
+        outside = sorted((a, b) for a in blamed for b in unratified
+                         if (a, b) in declared)
+        if defect == "unanchored" and outside:
+            defect, blamed = "outside", list(outside[0])
+
+    names = ", ".join(sorted(b.change for b in ratified))
+    listed = ", ".join(blamed)
+    if defect == "cycle":
+        why = (f"{len(ratified)} active ratified changes write it and their "
+               f"declarations run in a cycle, leaving {listed} unplaceable — "
+               f"a cycle states no order")
+    elif defect == "forked":
         why = (f"{len(ratified)} active ratified changes write it and the "
-               f"ordering rule states no order for more than two")
+               f"declarations fork at {listed}: each is declared later than a "
+               f"writer already placed and none is declared later than "
+               f"another")
+    elif defect == "unanchored":
+        why = (f"{len(ratified)} active ratified changes write it and {listed} "
+               f"each declare relative to no other ratified writer of it, so "
+               f"the declarations state {len(blamed)} starting points rather "
+               f"than one chain")
+    elif defect == "outside":
+        why = (f"{len(ratified)} active ratified changes write it and "
+               f"{blamed[0]} declares relative to {blamed[1]}, which writes it "
+               f"but is not ratified, so that declaration anchors nothing "
+               f"inside the ratified group")
     elif pairs:
         why = (f"{len(pairs)} declarations stand between them, and mutual "
                f"declaration decides nothing")
