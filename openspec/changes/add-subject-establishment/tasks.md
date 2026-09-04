@@ -104,8 +104,8 @@ path this change writes.
       with `uncommitted-worktree` — a destructive downgrade of the scorer's
       output, not a regeneration of it. The correct regenerator is the nightly
       readiness lane (`scripts/ideation-readiness-nightly.py`, an LLM dispatch),
-      which is not this packet's to run. **AND THE INDEX IS NOT STALENED BY THIS
-      CHANGE**, which is the load-bearing fact: the index is REVISION-ADDRESSED
+      which is not this packet's to run. **AND THIS CHANGE DOES NOT MAKE THE INDEX
+      STALE**, which is the load-bearing fact: the index is REVISION-ADDRESSED
       and is proved against the corpus AT ITS OWN PIN rather than against HEAD,
       a property `6f9d9e0c` established on purpose. Verified rather than
       asserted — `tests/doc-health/test_pin_reachability.py`,
