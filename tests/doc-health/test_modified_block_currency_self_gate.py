@@ -1574,11 +1574,16 @@ _AS_OF = datetime.now(timezone.utc).date().isoformat()
 # reporting 8) — and the same straddle over a superseded-and-untagged bundle
 # moves the `error` band, which this test says must never move.
 #
-# NOT A WARMING SIDE EFFECT, which is what #626 conjectured. MEASURED: no code
-# path under `scripts/` runs `git fetch`, and two renders over a checkout whose
-# published tip is absent leave it absent — the store is exactly as cold after
-# the second render as before the first. What moves is the REFERENCE, not the
-# store, so priming cannot fix it and pinning must.
+# NOT A WARMING SIDE EFFECT, which is what #626 conjectured. MEASURED, and in
+# two ways. NOTHING THE RUN REACHES FETCHES: `scripts/doc_health/` spawns git
+# only through `corpus.Git._run` / `blobs_at`, `proposal_origin`'s `cat-file
+# -e` and `pin_class._git`, no call site of which is a `fetch`, and the four
+# preflight validators it shells out to touch git not at all. AND THE STORE STAYS
+# COLD: two renders over a checkout whose published tip is absent leave it
+# absent — `cat-file -e <tip>` still fails after the second. What moves is the
+# REFERENCE, not the store, so priming cannot fix it and pinning must. The
+# arithmetic agrees: a store that warmed between the renders would have moved
+# the pair by −1 info, and the movement observed was +1.
 #
 # PINNED THE ONLY WAY A TEST CAN PIN IT: the family is skipped in BOTH
 # renderings, so its contribution is 0 on both sides by construction rather
