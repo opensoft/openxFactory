@@ -2,13 +2,13 @@
 
 ## 1. Governance and Single-Feature Handoff
 
-- [ ] 1.1 Ratify this amendment and its three additive `chain-anchoring`
+- [ ] 1.1 Ratify this amendment and its two additive `chain-anchoring`
       requirements; record the owner, exact artifact revision, unconditional
       decision, validation evidence, and timestamp before implementation begins.
-      > **Note (2026-09-04, owner's ruling — requirement 1 dropped):** this
-      > amendment now carries TWO additive requirements (2 and 3), not three.
-      > See `proposal.md` "Requirement 1 removed".
-- [ ] ~~1.2 Verify the released signed-execution-chain contracts and record
+      > **Note (2026-09-04, owner's ruling — requirement 1 dropped):** originally
+      > worded "three additive requirements"; requirement 1 is removed (see
+      > `proposal.md` "Requirement 1 removed"), leaving two (2 and 3).
+- [x] ~~1.2 Verify the released signed-execution-chain contracts and record
       that `signed-execution-chain-gate` is REQUIRED in the live ruleset and its
       broken-chain canary fails as designed; then record
       operational `trust-anchor`-conformant PKI evidence for issuance,
@@ -18,8 +18,10 @@
       > task served requirement 1 alone (the operational-PKI realization gate)
       > and is no longer owed. `add-chain-anchoring` already realized its
       > schemas and validator at PR #629 without this gate, on the owner's
-      > explicit ruling. Retained here, struck rather than deleted, per
-      > `docs/document-lifecycle.md`.
+      > explicit ruling. Struck text kept per `docs/document-lifecycle.md`;
+      > checked off (not left `- [ ]`) so a dropped, no-longer-owed task does
+      > not trip `proposal-support.py`'s incomplete-tasks archive gate, which
+      > matches on the leading marker regardless of the strikethrough.
 - [ ] 1.3 Before schema or validator authoring, approve and publish append-only
       Kaspa and Bitcoin confirmation-profile registry entries with canonical
       content digests, approval records, activation log checkpoints, effective
@@ -31,7 +33,7 @@
       SHA-256, leaf/internal domain separators, sequence ordering, tree shape,
       odd-node handling, deterministic empty root, id, version, content digest,
       and positive/refusal vectors.
-- [ ] ~~1.5 Create exactly one SHARED Speckit feature from the intended
+- [x] ~~1.5 Create exactly one SHARED Speckit feature from the intended
       openxFactory base and record immutable two-way links from that feature to
       both `add-chain-anchoring` and this amendment; neither packet may create a
       competing implementation feature, and executable implementation tasks stay
@@ -44,6 +46,7 @@
       > for requirements 2 and 3 (see `proposal.md` "Realization cost if
       > ratified") may reuse or skip this shared-feature mechanism as its own
       > owner rules; it is no longer mandatory by this amendment's own text.
+      > Checked off (not left `- [ ]`) for the same mechanical reason as 1.2.
 - [ ] 1.6 Verify the linked feature specification maps every requirement and
       scenario in this amendment without reopening the ratified witness
       configuration or importing provider/runtime enforcement.
@@ -52,19 +55,17 @@
 
 ## 2. Linked Feature Acceptance
 
-- [ ] 2.1 Accept feature evidence that the shared realization creates the
-      `chain-anchoring` schemas, examples, and canonical validator from the basis
-      plus this amendment, implements the normative realization gate, and rejects
-      provisional chain or PKI vocabularies.
-      > **Note (2026-09-04, owner's ruling — requirement 1 dropped):** the
-      > schema/example/validator creation half is already DONE, via PR #629,
-      > against the basis alone (no "plus this amendment" — see
-      > `proposal.md` "Realization cost if ratified"). The "implements the
-      > normative realization gate" and "rejects provisional chain or PKI
-      > vocabularies" clauses were requirement 1's and are no longer owed.
-      > What remains owed by this task, if requirements 2 and 3 ratify, is a
-      > follow-on pass adding their durability and confirmation-profile
-      > machinery on top of the already-realized schemas.
+- [x] 2.1 Accept that `chain-anchoring`'s schemas, examples, and canonical
+      validator are already realized (PR #629, against the basis alone). The
+      normative-realization-gate and provisional-chain/PKI-vocabulary clauses
+      this task originally named were requirement 1's and are dropped with it.
+      > **Note (2026-09-04, owner's ruling — requirement 1 dropped):** checked
+      > off because the schema/example/validator creation this task asked to
+      > accept is DONE (see `proposal.md` "Realization cost if ratified" for
+      > the measurement). What remains owed, if requirements 2 and 3 ratify,
+      > is a separate follow-on realization pass adding their durability and
+      > confirmation-profile machinery on top of these already-realized
+      > schemas — tracked as new work, not as this task's completion.
 - [ ] 2.2 Accept deterministic feature evidence for non-empty, empty,
       midnight-boundary, concurrent close/admission, late-source-time,
       identical-replay, conflicting-dedupe, recursive-control-leaf,
@@ -106,16 +107,15 @@
 - [ ] 3.1 Run strict validation for this change and the complete OpenSpec corpus,
       plus the repository's targeted and full validation gates; retain exact
       command results and resolve every finding before acceptance.
-- [ ] 3.2 After the shared feature merges green, archive
-      `add-chain-anchoring` FIRST to create canonical `chain-anchoring`, then
-      archive this amendment SECOND; verify all twelve promoted requirements
-      byte-for-byte against their two deltas.
-      > **Note (2026-09-04, owner's ruling — requirement 1 dropped):**
-      > `add-chain-anchoring` (nine requirements) plus this amendment's
-      > remaining TWO (requirements 2 and 3, not three) makes **eleven**
-      > promoted requirements to verify, not twelve. `add-chain-anchoring`
-      > itself has not archived yet as of this writing (its realization, PR
-      > #629, is merged; its own archive is a separate act).
+- [ ] 3.2 Archive `add-chain-anchoring` FIRST to create canonical
+      `chain-anchoring`, then archive this amendment SECOND; verify all eleven
+      promoted requirements byte-for-byte against their two deltas. (Originally
+      gated on "the shared feature merges green" and "twelve promoted
+      requirements" — requirement 1's shared-Speckit-feature mandate is
+      dropped along with requirement 1 itself; nine from `add-chain-anchoring`
+      plus this amendment's remaining two make eleven. `add-chain-anchoring`
+      itself has not archived yet as of this writing — its realization, PR
+      #629, is merged; its own archive is a separate act.)
 - [ ] 3.3 Cut one additive new-family contract minor allocated by merge order
       only after both archives are present, register all contract members and
       digests, and publish immutable release evidence before any consumer claims

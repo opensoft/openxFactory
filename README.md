@@ -973,30 +973,28 @@ Active changes:
 - [amend-chain-anchoring-readiness-and-durability](openspec/changes/amend-chain-anchoring-readiness-and-durability/proposal.md)
   — authored 2026-08-31 from the owner-approved reconciliation that preserves
   ratified `add-chain-anchoring` and retires the stale competing
-  `add-signed-execution-chain-anchoring` draft. **Three semantic gaps survive the
-  collapse and no identity alias does**: the live REQUIRED signed-chain gate,
-  broken-chain canary and operational PKI plane become normative realization
-  gates, with live signed-log instance evidence kept as a separate runtime gate;
-  one atomic admission transaction and a non-recursive eligibility registry
-  define fixed-UTC membership, then event root → canonical manifest/material
-  digest → configuration-bound anchored digest → aggregation root binds the one
-  item both witnesses prove; and Kaspa/OpenTimestamps submission remains distinct
-  from independently verified Kaspa/Bitcoin confirmation under an append-only
-  profile registry with activation, digest, standing and anti-rollback semantics
-  while preserving the receipt/state split. The superseded draft's
-  provider-neutral gateway text is not imported — protected-operation enforcement
-  remains a consumer/runtime-owner boundary. `Status: draft`; one SHARED Speckit
-  realization with `add-chain-anchoring`, basis archive first and amendment
-  second, then one additive new-family release.
-  **[REQUIREMENT 1 DROPPED, owner's ruling 2026-09-04: "bring 548 forward after
-  629 lands, drop requirement 1."]** The first of the three gaps above — the
-  realization-gate/PKI prerequisite and its shared-feature linkage — is removed
-  from `specs/chain-anchoring/spec.md`; `add-chain-anchoring` realized without
-  it at PR #629 (squash `11feff75`). Requirements 2 (fixed-UTC durability) and 3
-  (submitted-versus-confirmed witness state) are re-presented on their own
-  merits; see `proposal.md`'s "Requirement 1 removed" and "Realization cost if
-  ratified" sections for the reasoning and the measured follow-on cost against
-  #629's already-landed schemas.
+  `add-signed-execution-chain-anchoring` draft. **Originally three semantic gaps
+  survived the collapse; TWO REMAIN** after the owner's ruling of 2026-09-04
+  ("bring 548 forward after 629 lands, drop requirement 1") — the first, a
+  realization-gate/operational-PKI prerequisite with a mandatory shared-Speckit-
+  feature linkage, is DROPPED, because `add-chain-anchoring` has since realized
+  (PR #629, squash `11feff75`) without either mechanism, and ratifying it now
+  would retroactively call that landed realization illegitimate. The two that
+  remain, re-presented on their own merits: one atomic admission transaction and
+  a non-recursive eligibility registry define fixed-UTC durability membership,
+  then event root → canonical manifest/material digest → configuration-bound
+  anchored digest → aggregation root binds the one item both witnesses prove;
+  and Kaspa/OpenTimestamps submission remains distinct from independently
+  verified Kaspa/Bitcoin confirmation under an append-only profile registry with
+  activation, digest, standing and anti-rollback semantics, while preserving the
+  receipt/state split. The superseded draft's provider-neutral gateway text is
+  not imported — protected-operation enforcement remains a consumer/runtime-
+  owner boundary. `Status: draft`; no shared-feature mandate survives
+  requirement 1 — a follow-on realization pass is owed against #629's
+  already-landed schemas if ratified (measured zero confirmation-profile
+  vocabulary anywhere in them), before the next `chain-anchoring` bundle cut.
+  See `proposal.md`'s "Requirement 1 removed" and "Realization cost if ratified"
+  sections for the full reasoning and measurement.
 - [add-chain-anchoring](openspec/changes/add-chain-anchoring/proposal.md)
   — authored 2026-08-29, **`Status: draft` — RATIFICATION IS NOT SOUGHT BY THIS
   PACKET'S LANDING.** Exit 3 of three of the staged topic

@@ -8,26 +8,37 @@ the competing packet's receipt integrity, configured-witness binding,
 permissioned consent seam, keyed commitments, pruning-resistant proof capture,
 claim-level witness failure, programmable-chain boundary, and neutral ownership.
 
-Three useful obligations remain unique. First, the survivor records the PKI
-prerequisite in design/tasks but not in normative contract text. Second, it
-requires Bitcoin-via-OpenTimestamps on every anchored item but does not define
-deterministic daily membership, replay, lateness, or empty-window continuity.
-Third, it has a strong receipt/state split but does not state the network-facing
-submitted-versus-confirmed distinction that prevents interface acceptance or a
-detached timestamp proof from being consumed as completed witness evidence.
+Three useful obligations were originally found unique. First, the survivor
+records the PKI prerequisite in design/tasks but not in normative contract
+text. Second, it requires Bitcoin-via-OpenTimestamps on every anchored item but
+does not define deterministic daily membership, replay, lateness, or
+empty-window continuity. Third, it has a strong receipt/state split but does
+not state the network-facing submitted-versus-confirmed distinction that
+prevents interface acceptance or a detached timestamp proof from being
+consumed as completed witness evidence.
+
+**Update, 2026-09-04 (owner's ruling on PR #548): the first of the three —
+the PKI-prerequisite realization gate (D2 below) — is DROPPED.**
+`add-chain-anchoring` has since realized (PR #629, squash `11feff75`) without
+it. Only the second and third obligations (D3, D4) remain part of this
+amendment; D2 is retained below as the historical record of a decision this
+amendment no longer makes, not as current scope.
 
 ## Goals / Non-Goals
 
 **Goals:**
 
 - Preserve the single `chain-anchoring` capability identity.
-- Make the remaining PKI realization dependency normative and fail closed.
 - Define one deterministic fixed-UTC durability batch for every accepted event.
 - Preserve immutable membership under replay and late source-time arrival.
 - Make submitted and confirmed witness evidence mechanically distinguishable.
 - Reuse the survivor's receipt, anchor-state, timing, and proof-capture model.
 
 **Non-Goals:**
+
+(The goal of making the PKI realization dependency normative and fail
+closed is DROPPED along with D2 and requirement 1 — see "Update,
+2026-09-04" in Context above.)
 
 - Reopen the two-witness configuration, its ordering, or its no-selectivity rule.
 - Reintroduce `signed-execution-chain-anchoring` as an alias or second profile.
@@ -51,7 +62,20 @@ enforcement with the consumer/runtime owner.
 recreate the duplicate canon, weaken stronger survivor text, and bind unrelated
 consumer enforcement to a witness contract.
 
-### D2 — The PKI dependency becomes a normative realization gate
+### D2 — The PKI dependency becomes a normative realization gate [DROPPED]
+
+**DROPPED, owner's ruling 2026-09-04 on PR #548 ("bring 548 forward after 629
+lands, drop requirement 1"): no longer part of this amendment.** This decision
+backed requirement 1, which is removed from `specs/chain-anchoring/spec.md`.
+`add-chain-anchoring` has since realized (PR #629, squash `11feff75`) without
+this gate, on the owner's own separate ruling on #629 ("merge 629, register
+now"); ratifying D2 now would retroactively call that landed realization
+illegitimate. See `proposal.md`'s "Requirement 1 removed" for the full
+reasoning. The original decision text is kept below, unedited, as the record
+of what was decided and then superseded — not as current scope.
+
+<details>
+<summary>Original D2 text (superseded 2026-09-04, kept for the record)</summary>
 
 Tranche-one signed-execution-chain contracts are now realized at
 `contract-v2.5`, but its own archive record leaves the live branch-ruleset act
@@ -71,6 +95,8 @@ named operational log instance with signer chain, custody owner, reachable
 interface, current checkpoint, and successful validator result. This preserves
 the distinction between governing a contract and falsely claiming its runtime
 dependencies already operate.
+
+</details>
 
 ### D3 — Trusted log acceptance owns one non-recursive daily durability item
 
@@ -201,27 +227,35 @@ proof material with an independently verifiable receipt.
 - **[The event root is anchored without receipt configuration]** → recompute the
   full manifest → material digest → anchored digest → aggregation root chain and
   refuse any substituted node or uncommitted configuration.
-- **[PKI paperwork is mistaken for an operational plane]** → require evidence of
-  issuance, verification, revocation, and custody, not repository artifacts.
+- ~~**[PKI paperwork is mistaken for an operational plane]** → require evidence of
+  issuance, verification, revocation, and custody, not repository artifacts.~~
+  (D2's risk, DROPPED 2026-09-04 with D2 and requirement 1 — see Context above.)
 
 ## Migration Plan
 
-1. Ratify this amendment without commissioning implementation.
-2. Verify the released signed-execution-chain baseline, the live REQUIRED
-   `signed-execution-chain-gate`, its broken-chain canary, and operational PKI.
+(Steps 1-2 and 4 below were requirement 1's / D2's and are superseded, kept
+struck for the record rather than renumbered or deleted — 2026-09-04, owner's
+ruling on PR #548. `add-chain-anchoring` has realized without them, PR #629.)
+
+1. ~~Ratify this amendment without commissioning implementation.~~ Ratify
+   requirements 2 and 3 without commissioning implementation.
+2. ~~Verify the released signed-execution-chain baseline, the live REQUIRED
+   `signed-execution-chain-gate`, its broken-chain canary, and operational PKI.~~
 3. Approve and publish append-only Kaspa and Bitcoin confirmation-profile
    registry entries and transition/refusal vectors before schema authoring.
-4. Link this amendment and `add-chain-anchoring` to ONE shared Speckit feature,
+4. ~~Link this amendment and `add-chain-anchoring` to ONE shared Speckit feature,
    so no unreleased "existing" schema is assumed and both packets map to one
-   realization rather than competing implementations.
+   realization rather than competing implementations.~~ No shared-feature
+   mandate survives requirement 1's drop; `add-chain-anchoring` already
+   realized independently at PR #629.
 5. Add deterministic fixtures for non-empty, empty, midnight-boundary, replay,
    conflicting-dedupe, late-source-time, submitted-only, and confirmed-upgrade
    cases.
-6. Merge and archive `add-chain-anchoring` first, then archive this dependent
-   amendment, and cut their one additive new-family contract release only after
-   both delta sets are present. If the basis releases without this amendment,
-   stop and re-evaluate compatibility/versioning rather than claiming this path
-   remains an additive first release.
+6. Archive `add-chain-anchoring` first, then archive this dependent amendment,
+   and cut their additive contract release only after both delta sets are
+   present. If the basis releases without this amendment, stop and re-evaluate
+   compatibility/versioning rather than claiming this path remains an additive
+   first release.
 7. Commission no participating runtime until its operational signed-log instance
    evidence resolves separately from the released contract artifacts.
 
