@@ -619,10 +619,17 @@ _LEDGER_SUBJECTS = {
     # block is promoted.
     ("add-chain-attestation", "signed-execution-chain",
      "A gate validates the short chain as a hash-linked chain"),
-    # ADDED 2026-09-03 BY `add-drafted-proposal-origin` (issue #318, ruled the
-    # same day), TWO ROWS FROM ONE PACKET because it MODIFIES one requirement
-    # in each of two capabilities — the owning contract and the family that
-    # enforces it — and those two blocks are the whole of its spec surface.
+    # ADDED 2026-09-03 AND RETIRED 2026-09-04 BY `add-drafted-proposal-origin`
+    # (issue #318, ruled 2026-09-03), TWO ROWS FROM ONE PACKET because it
+    # MODIFIES one requirement in each of two capabilities — the owning
+    # contract and the family that enforces it — and those two blocks were the
+    # whole of its spec surface. THE RETIREMENT IS RECORDED RATHER THAN LEFT AS
+    # AN ABSENCE, on the shape `amend-owner-layer-severity` set below: a reader
+    # who sees only the net cannot tell a packet whose blocks were PROMOTED
+    # from one that was never written, and the two are the opposite of each
+    # other. The rows stood while the packet was active on `main` (landed by
+    # PR #619, squash `d611666c`) and came out when it archived to
+    # `openspec/changes/archive/2026-09-04-add-drafted-proposal-origin/`.
     # DELIBERATE REWORDINGS, and the packet cannot make its change without
     # them: it adds a lawful ORIGIN STATE for a drafted-but-unapproved packet
     # (`ad_hoc` carrying `proposed_by`/`proposed_on` in place of the approval
@@ -653,11 +660,24 @@ _LEDGER_SUBJECTS = {
     # four states the family now distinguishes. All five promoted scenarios are
     # carried byte-identical and five are added.
     #
-    # Both rows retire when the packet archives and its blocks are promoted.
-    ("add-drafted-proposal-origin", "document-lifecycle",
-     "Proposal origin declaration"),
-    ("add-drafted-proposal-origin", "doc-health",
-     "Proposal-origin checks enforced by reference"),
+    #
+    # THE STATED RETIREMENT CONDITION WAS "when the packet archives and its
+    # blocks are promoted", AND BOTH HALVES WERE VERIFIED BEFORE THE ROWS WERE
+    # DELETED, not after. The packet archived to
+    # `openspec/changes/archive/2026-09-04-add-drafted-proposal-origin/`, and
+    # BOTH blocks WERE promoted BYTE-IDENTICALLY — canon's "Proposal origin
+    # declaration" now equals the delta body under
+    # `sha256:102cfd1dff709b63e4ebbd4c557bcadd44b677004127a2dbc5c4de859e09b4b8`
+    # (6220 characters both sides, all seven scenario titles in order) and
+    # canon's "Proposal-origin checks enforced by reference" under
+    # `sha256:421f16a04ee040b2ffef8550b7f6d9610145c6654005cf0a607ac883a59fdd92`
+    # (6400 characters both sides, all ten scenario titles in order), so the
+    # six units the two findings named as uncarried are carried BY
+    # CONSTRUCTION rather than by argument. The family reads no archived path
+    # by construction, so no finding can name either path this packet ever
+    # had — measured, not assumed: a `--family modified-block-currency` run
+    # over this tree after the act returns ZERO lines mentioning the change
+    # id, at any path.
     # ADDED AND REMOVED ON 2026-09-03 IN ONE PULL REQUEST BY
     # `amend-owner-layer-severity` — TWO ROWS, one per MODIFIED block, from the
     # doc-only packet carrying openxFactory issues #561 and #339 on Brett
@@ -1031,7 +1051,7 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
-    """PACKET § 4.1's editorial arm, as an EXACT SET of eight named subjects.
+    """PACKET § 4.1's editorial arm, as an EXACT SET of ten named subjects.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
@@ -1049,12 +1069,11 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     fresh = seen - _LEDGER_SUBJECTS
 
     assert not gone and not fresh, _moved(
-        "the carriage-ledger population (10 since 2026-09-04, when "
-        "add-consumer-identity-namespace ARCHIVED and both its blocks were "
-        "promoted byte-identical, retiring the two subjects it opened the day "
-        "before; 12 from 2026-09-03, when add-drafted-proposal-origin brought "
-        "two blocks of its own, following add-consumer-identity-namespace's two "
-        "and amend-owner-layer-severity's net-zero churn earlier the same day; "
+        "the carriage-ledger population (8 since 2026-09-04, when "
+        "add-consumer-identity-namespace ALSO archived on merged-plus-green, "
+        "retiring the two subjects it opened the day before, landing right "
+        "behind add-drafted-proposal-origin's own archival the tail below "
+        "already carries, which took the count from 12 to 10 the same day; "
         "9 named subjects at 76a2ad27; 8 after "
         "PR #424's rename; 7 since this packet archived on 2026-08-27; 9 again "
         "while the two doc-health-floor packets of 2026-08-28 stood active; 10 "
@@ -1070,7 +1089,9 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "promoted; 10 since add-consumer-identity-namespace added TWO subjects "
         "at once — one packet carrying two rulings of one day, #511 and #553, "
         "over two requirements; 12 since add-drafted-proposal-origin brought "
-        "two blocks of its own on 2026-09-03)",
+        "two blocks of its own on 2026-09-03; 10 again on 2026-09-04 when that "
+        "packet archived on merged-plus-green and both its blocks promoted "
+        "byte-identically)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
