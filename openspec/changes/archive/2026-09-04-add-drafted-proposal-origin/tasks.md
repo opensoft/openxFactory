@@ -215,6 +215,59 @@ FIXED.**
       ran through `python3 scripts/proposal-support.py . archive
       add-drafted-proposal-origin`, never bare `openspec archive`.
 
+- [x] 5.2 **THE PROMOTION, VERIFIED RATHER THAN ASSUMED.** Both MODIFIED
+      blocks promoted **BYTE-IDENTICALLY**, compared block-for-block against
+      the archived deltas: `document-lifecycle`'s "Proposal origin
+      declaration" — 6220 characters on both sides,
+      `sha256:102cfd1dff709b63e4ebbd4c557bcadd44b677004127a2dbc5c4de859e09b4b8`,
+      all seven scenario titles present and in order — and `doc-health`'s
+      "Proposal-origin checks enforced by reference" — 6400 characters on both
+      sides,
+      `sha256:421f16a04ee040b2ffef8550b7f6d9610145c6654005cf0a607ac883a59fdd92`,
+      all ten scenario titles present and in order. `openspec archive`
+      reported `Totals: + 0, ~ 2, - 0, → 0`, and the two `~` are these.
+- [x] 5.3 **THE ARCHIVE MOVED EXACTLY ONE LEDGER ROW.**
+      `tests/sequenced_after/corpus-ledger.yaml`:
+      `add-drafted-proposal-origin` `state: active` → `archived`, stamped
+      `moved_by: "#644"` / `moved_on: "2026-09-04"`, with `class` HOLDING at
+      `co-modifier`, `declares` absent and `prose` false — **no partner
+      flipped**, so under `add-per-change-sweep-ledger`'s rule **no MOVEMENT
+      LOG entry is owed**: the row diff states the whole move. `--seed-ledger`
+      reported `162 rows, 1 moved by #644`, naming that one row, and
+      `--ledger-diff` is clean afterwards. The class holds because archiving
+      moves a change WITHIN the corpus rather than out of it, and the
+      co-modified reading is taken over the active and archived corpora both.
+- [x] 5.4 **THE SELF-GATE'S TWO ROWS RETIRED ON THEIR OWN STATED CONDITION.**
+      `tests/doc-health/test_modified_block_currency_self_gate.py`'s
+      `_LEDGER_SUBJECTS` carried this packet's two rows with the retirement
+      condition § 2.9 wrote for them — "when the packet archives and its blocks
+      are promoted". **BOTH HALVES WERE VERIFIED BEFORE THE ROWS CAME OUT**,
+      not after (5.2 above is the second half), and the retirement is
+      **RECORDED IN PLACE** rather than left as an absence, on the shape
+      `amend-owner-layer-severity` set: a reader who sees only the net cannot
+      tell a packet whose blocks were PROMOTED from one that was never
+      written. The exact set returns 12 → 10 distinct subjects and `_moved()`'s
+      history sentence gains this step. Measured, not assumed: a doc-health run
+      over this tree returns ZERO `modified-block-currency` lines naming this
+      change id, at any path, and the family reports 10 `info` against the
+      set's 10 members.
+- [x] 5.5 **THE PREDICTED MOVEMENT, CONFIRMED IN REVERSE.** § Measured effect
+      predicted the LANDING would move the headline by **+2 `info` and nothing
+      else**, both this packet's own carriage-ledger lines. The archive
+      promotes both blocks, so the same two lines DISAPPEAR and nothing else
+      does: `main` at `92e662cf` in a clean worktree reads **2 critical, 4
+      error, 26 warning, 17 info**; this tree reads **2 critical, 4 error, 26
+      warning, 15 info**; the line-by-line diff of the two reports is exactly
+      those two lines removed and **zero lines added**. **ONE UNRELATED
+      INSTABILITY OBSERVED AND CHARACTERIZED RATHER THAN SWALLOWED**: the
+      FIRST baseline run also carried a `release-tag-publication` `info` line
+      (contract-v2.6 declared SPENT) that a second run of the SAME baseline
+      tree did not, so the baseline read 18 then 17 `info` over an unchanged
+      checkout. It is a ref-reading family's per-run input, it is `main`'s and
+      not this branch's, and it is the class openxFactory **#635** already
+      tracks and PR **#639** already addresses; the comparison above uses the
+      second, stable baseline and the removed line is absent from both sides.
+
 ## 6. Executed
 
 | Command | Result |
