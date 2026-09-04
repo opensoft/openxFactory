@@ -597,6 +597,16 @@ could tempt a realizer into a code: a fixture that fails only for `schema` is
 LAWFUL, because `test_no_fixture_declares_a_code_outside_the_closed_set`
 explicitly excepts `schema` from the closed-set membership check.
 
+**THE RETURN'S `kind`, for the same reason one enumeration to the left.**
+`KIND_TO_SCHEMA` routes a record to the schema it is validated against, and
+`check_operation_report` — which carries the `VERDICT_WORDS` scan — is dispatched
+on `kind == "xfactory_clearing_operation_report"`. The scan therefore does not
+reach a return of a new kind until the kind exists AND is routed. Leaving the
+kind to realization would leave the realizer holding the choice of whether the
+verdict scan reaches this operation at all, so the kind is ratified text:
+**`xfactory_clearing_deliberation_return`**, in the family's existing
+`xfactory_clearing_*` form.
+
 ### THE QUESTION, PUT FOR RULING
 
 **Three grounds now, or two?** The packet admits three. *Reading A, which the
@@ -620,13 +630,3 @@ could have carried. **Both are defensible. The packet takes A. The ruling is
 Brett's, and a ruling for B is executed by striking one bullet from the
 requirement, one member from task 2.9, and one row from the proposal's fact
 table — nothing else in the packet moves.**
-
-**THE RETURN'S `kind`, for the same reason one enumeration to the left.**
-`KIND_TO_SCHEMA` routes a record to the schema it is validated against, and
-`check_operation_report` — which carries the `VERDICT_WORDS` scan — is dispatched
-on `kind == "xfactory_clearing_operation_report"`. The scan therefore does not
-reach a return of a new kind until the kind exists AND is routed. Leaving the
-kind to realization would leave the realizer holding the choice of whether the
-verdict scan reaches this operation at all, so the kind is ratified text:
-**`xfactory_clearing_deliberation_return`**, in the family's existing
-`xfactory_clearing_*` form.
