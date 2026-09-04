@@ -388,7 +388,20 @@ measurement, so the comparison is no longer branch-against-`main`: it is
 change — the folded `contracts/CHANGELOG.md` block — plus the rebuilt inventory
 and these ticks.
 
-TIP_TABLE_PLACEHOLDER
+| | critical | error | warning | info | total |
+| --- | --- | --- | --- | --- | --- |
+| baseline `origin/main` `21190cf7` | 6 | 4 | 40 | 16 | 66 |
+| fold tip (PR #636, `c82f946e`) | 6 | 4 | 40 | 16 | 66 |
+
+**THE FINDING SETS ARE BYTE-IDENTICAL — 66 ROWS EACH, ZERO ADDED AND ZERO
+REMOVED**, taken as a set difference over the machine block in BOTH directions.
+Per-family counts match exactly on both sides: document-catalog 1/1,
+ideation-routing 1/1, modified-block-currency 12/12, ratified-provenance 2/2,
+record-immutability 4/4, register-lifecycle-consistency 10/10,
+**release-inventory-drift 0/0**, release-tag-publication 2/2,
+staged-candidate-aging 4/4, staged-topic-template 26/26, tag-hygiene 4/4. An
+amendment that adds one changelog block and rebuilds the inventory over it is
+supposed to move nothing else, and this measures that rather than asserting it.
 
 **AND THE DRIFT THIS SECTION EXISTED TO RECORD IS GONE ON BOTH SIDES.** The
 `release-inventory-drift` ERROR on `docs/contract-versioning-policy.md` and the
