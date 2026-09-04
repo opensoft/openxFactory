@@ -426,6 +426,49 @@ _LEDGER_SUBJECTS = {
     # promoted.
     ("add-credential-escrow-checkout", "credential-contracts",
      "Canonical credential record shapes"),
+    # ADDED 2026-09-03 BY `add-consumer-identity-namespace`, TWO SUBJECTS FROM
+    # ONE PACKET, because that packet carries TWO of Brett Heap's rulings of
+    # 2026-09-03 (openxFactory #511 and #553) and they write two requirements
+    # between them — #553's target sitting INSIDE the requirement #511 must
+    # modify, so two live MODIFIED blocks on it could not both survive.
+    #
+    # FIRST SUBJECT — the block requirement, TWO uncarried units, both of them
+    # ENUMERATIONS THE NEW MEMBER FALSIFIES the moment it exists. Canon's "THE
+    # BLOCK MAY ALSO CARRY a reference to the requirement…" lists the optional
+    # members and cannot be restated verbatim beside a sixth; and "The set is
+    # ENUMERATED against the refusals…" lists EIGHT warning shapes, which
+    # becomes NINE with `consumer-identity-namespace-grammar`. Both successors
+    # say MORE and never less. Every other promoted unit of the 68, including
+    # all twelve existing scenarios, is carried verbatim; the block ADDS four.
+    #
+    # SECOND SUBJECT — the lift requirement, SEVEN uncarried units across BOTH
+    # rulings, separable by ruling rather than tangled. #511 owns five: the
+    # six-conditions sentence, whose third condition moves from "their fetch
+    # identities DIFFER" to fetch AUTHORITIES; the EVERY CONDITION FAILS CLOSED
+    # list, whose "a shared fetch identity" becomes "a shared fetch authority";
+    # the two paragraphs stating the named fault and the shared-secret proxy,
+    # both of which say "fetch identity" where the comparison is now the pair;
+    # and the `WHEN` bullet of `Two bindings on one secret share a fetch
+    # identity`, which gains the namespace clause while its other two bullets
+    # stay byte-identical. #553 owns two: the SAME six-conditions sentence,
+    # whose "in the repository under validation" becomes "IN THE ONE
+    # REQUIREMENTS DOCUMENT THAT REFERENCE NAMES" — one sentence, two rulings,
+    # which is why the packet is a fold — and the `WHEN` bullet of `The
+    # requirement reference resolves to more than one record`, narrowed to the
+    # per-document scope `resolve_requirement` actually enforces. Every other
+    # promoted unit of the 60, including all twelve existing scenario TITLES, is
+    # carried verbatim; the block ADDS three scenarios.
+    #
+    # This arm cannot distinguish a ruled amendment from drift and does not
+    # claim to; both findings are INFO and they are the audit trail for the two
+    # rulings. Both retire when the packet archives and its blocks are promoted.
+    ("add-consumer-identity-namespace", "credential-contracts",
+     "A credential binding declares the consuming system that holds it and the "
+     "identity it fetches with"),
+    ("add-consumer-identity-namespace", "credential-contracts",
+     "Two bindings on one secret are refused unless every pair declares distinct "
+     "consumers, acknowledges the sharing, and names a requirement bound to the "
+     "binding"),
     # REMOVED 2026-09-01 BY THE ARCHIVE ACT — ('add-release-tag-publication-
     # check', 'doc-health', 'Deterministic check families'). Added 2026-08-31 as
     # the twenty-third family's packet restated the enumeration to add itself,
@@ -606,6 +649,50 @@ _LEDGER_SUBJECTS = {
      "Proposal origin declaration"),
     ("add-drafted-proposal-origin", "doc-health",
      "Proposal-origin checks enforced by reference"),
+    # ADDED AND REMOVED ON 2026-09-03 IN ONE PULL REQUEST BY
+    # `amend-owner-layer-severity` — TWO ROWS, one per MODIFIED block, from the
+    # doc-only packet carrying openxFactory issues #561 and #339 on Brett
+    # Heap's ruling of that day ("implement your recommendations on all
+    # these", recorded verbatim on both issues). THE PAIR IS RECORDED RATHER
+    # THAN LEFT OUT ALTOGETHER, which is the point of writing a retirement down:
+    # `code_surface: none` makes that packet's archive gate LANDING rather than
+    # merged-plus-green, so it was AUTHORED and ARCHIVED in the same commit and
+    # this ledger moved twice before anything was pushed. A reader who sees
+    # only the net — no rows — cannot tell a packet that archived from one that
+    # was never written, and the two are the opposite of each other.
+    #
+    # WHAT THE TWO ROWS SAID. The first was a RULED SEVERITY CHANGE and the
+    # narrowest one a three-unit requirement can carry: promoted canon said an
+    # unresolvable `owner_layer` "SHALL be reported as a validator warning"
+    # while `scripts/validate-domain-factory.py` had reported it with
+    # `rpt.error` since `493fb33d` (2026-07-03), six days BEFORE the
+    # requirement was promoted at `a1a2802b`; the ruling brought CANON to the
+    # code, so the block said `error` in the body clause and `an error` in the
+    # scenario's THEN bullet — the 2 of 3 units the arm reported, the third
+    # (the scenario's WHEN bullet) byte-identical. The second was a DATED
+    # ILLUSTRATION and no rule change at all: canon's
+    # tag-is-not-the-reference-point paragraph named `contract-v1.33`,
+    # `contract-v1.35` and `contract-v1.39` as bundles that "are recorded in
+    # the changelog and the manifest with no published tag", all three
+    # retro-published 2026-08-25 by PR #333, so the ONE of 23 units the arm
+    # reported was exactly that paragraph, past-tensed with the
+    # retro-publication dated — the treatment #333 itself gave the identical
+    # claim in `scripts/doc_health/release_inventory.py`'s docstring.
+    #
+    # BOTH HALVES OF THE STATED CONDITION WERE VERIFIED BEFORE THE ROWS WERE
+    # DELETED, not after. The packet archived to
+    # `openspec/changes/archive/2026-09-03-amend-owner-layer-severity/`, and
+    # BOTH blocks WERE promoted: canon's "Owner layer constraint" is now
+    # byte-identical to the delta body under
+    # `sha256:035fb89633140423f2da21ee0985fb0773dcc958444838e43fb1ccd8bc4ed439`
+    # and canon's "The declared bundle describes the release surface" under
+    # `sha256:6e102b2e079fe247c5184d826f4e634256a88ecf4a0f9c97c36c878d02a1d19a`,
+    # so the three units the two findings named as uncarried are carried by
+    # construction rather than by argument. The family reads no archived path
+    # by construction, so no finding can name either path this packet ever had
+    # — measured, not assumed: a `--family modified-block-currency` run over
+    # this tree after the act returns ZERO lines mentioning the change id, at
+    # any path.
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -953,7 +1040,11 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     fresh = seen - _LEDGER_SUBJECTS
 
     assert not gone and not fresh, _moved(
-        "the carriage-ledger population (9 named subjects at 76a2ad27; 8 after "
+        "the carriage-ledger population (12 since 2026-09-03, when "
+        "add-drafted-proposal-origin brought two blocks of its own, following "
+        "add-consumer-identity-namespace's two and amend-owner-layer-severity's "
+        "net-zero churn earlier the same day; "
+        "9 named subjects at 76a2ad27; 8 after "
         "PR #424's rename; 7 since this packet archived on 2026-08-27; 9 again "
         "while the two doc-health-floor packets of 2026-08-28 stood active; 10 "
         "since the OD-2 veto of 2026-08-28 gave add-credential-escrow-checkout "
@@ -961,9 +1052,14 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "together; 7 since add-notebook-projection-identity archived on "
         "2026-08-31 and its block promoted byte-identical; 8 since "
         "add-chain-attestation's proposal merged 2026-09-01 via #510's "
-        "landing, its MODIFIED block resolving canon; 10 since "
-        "add-drafted-proposal-origin brought two blocks of its own on "
-        "2026-09-03)",
+        "landing, its MODIFIED block resolving canon; 10 while "
+        "amend-owner-layer-severity stood active on 2026-09-03 with TWO "
+        "MODIFIED blocks, one per issue it carries, and 8 again within the "
+        "same pull request when that doc-only packet archived and both blocks "
+        "promoted; 10 since add-consumer-identity-namespace added TWO subjects "
+        "at once — one packet carrying two rulings of one day, #511 and #553, "
+        "over two requirements; 12 since add-drafted-proposal-origin brought "
+        "two blocks of its own on 2026-09-03)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")

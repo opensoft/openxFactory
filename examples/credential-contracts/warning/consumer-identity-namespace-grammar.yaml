@@ -1,0 +1,28 @@
+# WARNING (expect: consumer-identity-namespace-grammar). An `identity_namespace`
+# outside the identifier grammar — the NINTH shape the coming major refuses, and
+# the probe its deprecation window rests on.
+#
+# IT CARRIES ITS OWN CODE rather than `consumer-member-grammar`, and the reason
+# is a CONSEQUENCE rather than a taxonomy: an unreadable namespace is SKIPPED by
+# the shared-authority comparison, which then falls back to the bare fetch
+# identity. A reader told only that a member failed a grammar would repair a
+# spelling while believing a scoping they declared was in force.
+#
+# IT STAYS VALID HERE. The block is unconstrained at this minor, so this record
+# validates against the shipped schema and draws a WARNING; the refusal lands at
+# the major with the block's other acts, behind one deprecation window.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+credential_bindings:
+  example_system_read:
+    provider: azure_key_vault
+    vault: kv-example
+    secret_ref: example-secret-reference
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:example-system
+      fetch_identity: example-system-workload-identity
+      identity_namespace: "not a namespace!"

@@ -509,6 +509,55 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       than a present one. The pin moves in the SAME COMMIT as the corpus — here
       the merge commit that resolves this conflict — which is this test's own
       protocol.
+    - `active_sole - 1` reads 11. The entry immediately above and the one
+      before it both held it at 12 (`active_sole` 13, unmoved by
+      `declare-spent-bundle-state`'s archive, which is a co-modified change
+      and never touches the sole set); this entry is what drops it, on
+      2026-09-03, by archiving `update-standards-body-current-publications` —
+      the SAME packet whose ADOPTION raised it to 13 several entries above,
+      so this is that packet's other half, written beside the adoption entry
+      rather than over it. The archive was earned and not merely taken: the
+      packet was ratified 2026-09-03 (Brett Heap, in-session) and realized by
+      PR #593 (squash `3c237cd0`) with `pytest-suite` run 33717394896 green
+      on `main`, which is what `docs/release-realization-flow.md` § The
+      Archive Gate requires of a code-surface change.
+      THIS BRANCH TOOK A CATCH-UP MERGE FIRST: `declare-spent-bundle-state`'s
+      own archive (PR #611, squash landed on `main` as `7af2725c`) merged
+      ahead of this one, so the tree this act works from already carries that
+      archive's `active_co_modified` 21 → 20 move. EXACTLY ONE PIN MOVES here
+      and it is DISJOINT from that one, for the shape the adoption entry
+      already recorded: the packet's delta is `## ADDED Requirements` ONLY
+      over the NEW capability `standards-body-registry`, whose four
+      requirement titles exist nowhere else in the corpus, so it is a SOLE
+      modifier and never a co-modifier. Archiving it therefore removes an
+      ACTIVE SOLE modifier — `active_sole` 13 → 12 — and touches nothing
+      else: `co_modified` holds at 108, `active_co_modified` holds at 20
+      (already moved by the sibling archive, not by this one),
+      `sole_modifiers` holds at 50 and `change_ids` at 158 (both count BOTH
+      corpora, and an archive moves a change between them rather than out of
+      them). THE OPPOSITE HALF OF #571's 2026-09-02 move and the SAME SHAPE
+      as the sibling entry immediately above: one archive moves
+      `active_co_modified` alone, the other moves `active_sole` alone, and a
+      packet moving both would still be a defect in the sweep rather than a
+      corpus event.
+      MEASURED ON BOTH SIDES rather than inferred from the failure, via
+      `python3 scripts/validate-sequenced-after.py . --sweep`: `origin/main`
+      at `7af2725c` (`declare-spent-bundle-state` already archived, this
+      packet still active) reads `33 active + 125 archived` = 158 change
+      ids, `108` co-modified, `50` sole modifiers, `20 / 13` active
+      co-modified/sole; this branch after archiving
+      `update-standards-body-current-publications` reads
+      `32 active + 126 archived` = 158, `108`, `50`, `20 / 12`. The `- 1`
+      still subtracts `add-sequenced-after-substrate` alone — an ACTIVE
+      change, still sole, and untouched by this act — so the reading falls
+      with `active_sole` to 11, which is also the authoring measurement this
+      test reproduces. `declaring` holds at 1 and `root_claims` at 0: the
+      archived packet declares no `sequenced_after:` field, and prose
+      headers hold at 3 (3 archived), this packet carrying no prose
+      `Sequenced-after:` header to move into the archived count. The pin
+      moves in the SAME COMMIT as the corpus, which is this test's own
+      protocol, and the archive PR discloses that it touches this file for
+      that reason and for no other: corpus BOOKKEEPING, not realization.
     - RE-DERIVED A THIRD TIME 2026-09-03, on the merge of `main` at `2b0615da`
       (after #611 archived `declare-spent-bundle-state`, then #614, #602,
       #604) into the `create-medxchart-overlay-boundary` RATIFICATION branch,
@@ -631,9 +680,299 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       `## MODIFIED Requirements` block, so it was and remains a SOLE modifier.
       The pin moves in the SAME COMMIT as the corpus — here the merge commit
       that resolves this conflict — which is this test's own protocol.
+    - `active_sole - 1` READS 10 ON THIS MERGE, and the two entries directly
+      above are BOTH kept because both are right about their own act and
+      neither is right about the total. RE-MEASURED 2026-09-03 by lane
+      `openxfactory-f2` on the merge of `main` at `ea117d4e` into this archive
+      branch — a catch-up merge taken to advance
+      `contracts/review-lane-pin.yaml` onto codexFactory's regenerated
+      54-spec floor (codexFactory PR #184, merge `8cb17373`), without which
+      this branch's own promoted spec is off the floor and the REQUIRED
+      `pytest-suite` is red.
+      THE TWO MOVES ABOVE NEITHER CANCEL NOR COINCIDE — THEY COMPOUND. Each
+      lowers `active_sole` 13 -> 12, and each removes a DIFFERENT change from
+      the same population: `main`'s is `create-medxchart-overlay-boundary`'s
+      RATIFICATION leaving the SOLE set (it gained a `## MODIFIED
+      Requirements` block, so `sole_modifiers` fell with it), while this
+      branch's is `update-standards-body-current-publications`' ARCHIVE
+      leaving the ACTIVE corpus (it was always sole, so `sole_modifiers`
+      holds). Two different subjects, one population, so on the merge of the
+      two the reading falls 13 -> 11 and the `- 1` — still subtracting
+      `add-sequenced-after-substrate` alone, an ACTIVE change, still sole, and
+      untouched by either act — falls to 10. A cancelling pair would have held
+      the pin; a coinciding pair would have moved it once. This is neither,
+      which is exactly why the arithmetic had to be re-measured rather than
+      carried over from either side.
+      MEASURED ON BOTH TREES rather than adjusted by arithmetic, via
+      `python3 scripts/validate-sequenced-after.py . --sweep`: `origin/main` at
+      `ea117d4e` reads `33 active + 125 archived` = 158 change ids, `109`
+      co-modified, `49` sole modifiers, `21 / 12` active co-modified/sole; this
+      merge reads `32 active + 126 archived` = 158, `109`, `49`, `21 / 11`.
+      AND MEASURED BY EXCLUSION, which is the step that rules out a third
+      change having moved in the window this catch-up crosses: undoing ONLY
+      the archive on the merged tree — moving the packet back out of
+      `openspec/changes/archive/` — reproduces `main`'s reading EXACTLY
+      (`33 active + 125 archived` = 158, `109`, `49`, `21 / 12`), so that one
+      directory move is the whole of the difference between the two trees and
+      no other change's contribution is hiding inside these counts.
+      EXACTLY ONE PIN MOVES: `active_sole` 12 -> 11. `co_modified` holds at
+      109 and `active_co_modified` at 21 (this packet was never in either
+      population, and `main`'s ratification had already set both);
+      `sole_modifiers` holds at 49 and `change_ids` at 158, both counting BOTH
+      corpora, an archive moving a change between them rather than out of
+      them; `archived` rises 125 -> 126; prose headers hold at 3 (3 archived);
+      `declaring`/`root_claims` hold at 1/0, the archived packet declaring no
+      `sequenced_after:` field and carrying no prose `Sequenced-after:`
+      header. The pin moves in the SAME COMMIT as the corpus — here the merge
+      commit that resolves this conflict — which is this test's own protocol.
+    - MERGE-RESOLVED AGAIN 2026-09-03 by lane `openxfactory-f2`, on the merge
+      of `main` at `19d00872` (the realization of `factory-origin-identity`,
+      #610, and behind it #616 — the ARCHIVE of `add-project-repo-schema`)
+      into this archive branch, and THIS IS THE ENTRY THAT STANDS. The three
+      entries above are all kept because each is right about its own act
+      against its own baseline, and NONE of them is right about the merged
+      total: the pins below take `active_co_modified` from MAIN'S side and
+      `active_sole - 1` from THIS BRANCH'S, which is neither side's pair and
+      is why the arithmetic was re-measured rather than resolved by taking a
+      side.
+      WHY EACH SIDE'S OTHER NUMBER IS WRONG HERE, and it is the same cause
+      read from two directions. This branch's entry above measured
+      `active_co_modified` at 21 against `main` at `ea117d4e`, where
+      `add-project-repo-schema` was still an ACTIVE co-modifier; #616 has
+      since ARCHIVED it, so that population lost one member and reads 20 on
+      the merged tree — main's own value, unmoved by anything this branch
+      does, this packet never having been in the co-modified set at all.
+      Main's entry above measured `active_sole` at 12, before this branch's
+      ARCHIVE of `update-standards-body-current-publications` — an ACTIVE
+      change that was always SOLE — moved it out of the active corpus, so
+      the reading falls to 11 and the `- 1`, still subtracting
+      `add-sequenced-after-substrate` alone (ACTIVE, still sole, untouched by
+      either act), falls to 10.
+      MEASURED ON BOTH TREES rather than netted by arithmetic, via
+      `python3 scripts/validate-sequenced-after.py . --sweep`: `origin/main`
+      at `19d00872` reads `32 active + 126 archived` = 158 change ids, `109`
+      co-modified, `49` sole modifiers, `20 / 12` active co-modified/sole;
+      the merged tree reads `31 active + 127 archived` = 158, `109`, `49`,
+      `20 / 11`.
+      AND MEASURED BY EXCLUSION, the step that rules out a third change
+      having moved inside the window this catch-up merge crosses: the SAME
+      sweep on the merged tree with ONLY this branch's archive undone — the
+      packet moved back out of `openspec/changes/archive/` — reads
+      `32 active + 126 archived` = 158, `109`, `49`, `20 / 12`, MAIN'S
+      READING EXACTLY, so that one directory move is the whole of the
+      difference between the two trees and no other change's contribution is
+      hiding inside these counts.
+      EXACTLY ONE PIN MOVES OFF MAIN: `active_sole - 1` 11 -> 10.
+      `co_modified` holds at 109 and `active_co_modified` at 20 (an archive
+      never un-shares a REQUIREMENT-KEY pairing, and this packet was never in
+      either population); `sole_modifiers - 1` holds at 48 and
+      `change_ids - 1` at 157, both counting BOTH corpora, an archive moving
+      a change between them rather than out of them; `active` falls 32 -> 31
+      and `archived` rises 126 -> 127; prose headers hold at 3 (3 archived);
+      `declaring`/`root_claims` hold at 1/0, the archived packet declaring no
+      `sequenced_after:` field and carrying no prose `Sequenced-after:`
+      header. The pin moves in the SAME COMMIT as the corpus — here the merge
+      commit that resolves this conflict — which is this test's own protocol.
+      WHAT THIS MERGE ALSO DID, disclosed because it moves files this test
+      does not read: the FIVE review-lane pin sites and the vendored floor
+      snapshot were resolved to MAIN'S side (`605d48ac`), REVERTING this
+      branch's own `0d17d1be` advance onto codexFactory `8cb17373`. #616 was
+      the FIRST lander of a two-archive floor collision and its pin half is
+      already on `main`; codexFactory PR #184's 54-spec floor does not cover
+      the merged 55-spec tree, so it cannot be pinned here. Per the pinned
+      core's `docs/repository-gate-floor-repair-runbook.md` the SECOND lander
+      regenerates the floor once at its own post-merge head, and this
+      branch's pin advance is re-authored against that new floor in a
+      separate commit. Until it lands, `tests/review_lane_pin`'s coverage
+      assertion is EXPECTED RED over
+      `openspec/specs/standards-body-registry/spec.md`, which is the guard
+      working.
+    - `co_modified` reads 111, `active_co_modified` reads 22,
+      `change_ids - 1` reads 158 and `sole_modifiers - 1` falls to 47, while
+      `active_sole - 1` HOLDS at 11. They moved on 2026-09-03 when
+      `amend-owner-layer-severity` was AUTHORED (lane `openxfactory-smalls`,
+      openxFactory issues #561 and #339): one more ACTIVE change, carrying TWO
+      `## MODIFIED Requirements` blocks — over `workflow-gate-contract`'s
+      'Owner layer constraint' and `release-surface-integrity`'s 'The declared
+      bundle describes the release surface' — so it is itself a CO-modifier.
+      THE RISE IS TWO AND THE SOLE SET FALLS BY ONE, which is the
+      `add-cpc-clearing-boundary` shape rather than the `add-project-repo-schema`
+      one, and the STANDING OF THE EARLIER WRITERS is again what decides it:
+      the earlier writer of the `release-surface-integrity` key,
+      `archive/2026-08-25-add-release-inventory-drift-check`, was ALREADY
+      co-modified and does not flip; the earlier writer of the
+      `workflow-gate-contract` key,
+      `archive/2026-07-09-promote-workflow-gate-contract`, was SOLE and DOES —
+      so `co_modified` rises by exactly two (the newcomer entering, that one
+      change leaving `sole` for it) and `sole_modifiers` falls by exactly one.
+      Sharing keys with TWO earlier changes flips membership ONCE for each of
+      them and never twice for either, membership being boolean.
+      `active_co_modified` rises by ONE and not two, and `active_sole` holds,
+      because the change that flipped is ARCHIVED: an archived flip cannot
+      enter or leave an ACTIVE population. `change_ids` rises by one
+      (`33 active + 125 archived` = 158 becomes `34 active + 125 archived` =
+      159), `archived` holds at 125, prose headers hold at 3 (3 archived), and
+      `declaring`/`root_claims` hold at 1/0 — the packet declares no
+      `sequenced_after:` field, the field being carried by an ACTIVE,
+      UNPROMOTED change.
+      MEASURED ON BOTH TREES AND BY EXCLUSION rather than inferred from the
+      arithmetic, via `python3 scripts/validate-sequenced-after.py . --sweep`:
+      `origin/main` at `0bf37d14` reads `33 active + 125 archived` = 158 change
+      ids, `109` co-modified, `49` sole modifiers, `21 / 12` active
+      co-modified/sole; this branch reads `34 active + 125 archived` = 159,
+      `111`, `48`, `22 / 12`; and the SAME sweep on this branch with only
+      `openspec/changes/amend-owner-layer-severity/specs/` moved aside reads
+      `159`, `109`, `50`, `21 / 13` — the packet still present as one more
+      change id but owning no requirement key, which reproduces main's two
+      co-modified readings EXACTLY and isolates the entire move to those two
+      delta directories. The pin moves in the SAME COMMIT as the corpus, which
+      is this test's own protocol, and that PR discloses that it touches this
+      file for that reason and for no other: corpus BOOKKEEPING, not a code
+      surface — the packet declares `code_surface: none` and names this pin in
+      that declaration.
+    - `active_co_modified` reads 21, and read 22 in the entry directly above.
+      It moved LATER THE SAME DAY AND IN THE SAME PULL REQUEST, when
+      `amend-owner-layer-severity` was ARCHIVED — the packet whose AUTHORING
+      the entry above records. THE TWO ENTRIES ARE ONE COMMIT'S TWO HALVES,
+      which is what a doc-only packet looks like on this pin: `code_surface:
+      none` makes the archive gate LANDING rather than merged-plus-green, so
+      the authoring and the archive ride one PR and this pin is moved TWICE
+      before anything is pushed. Both halves are recorded rather than netted,
+      because a reader who sees only the net reading cannot tell an archived
+      packet from one that was never authored.
+      THE SHAPE IS #563'S, #571'S AND #611'S, and for their reason: archiving
+      a co-modified ACTIVE change moves it out of the active corpus and into
+      the archived one, so `active_co_modified` falls by exactly one while the
+      corpus-wide `co_modified` — a count of REQUIREMENT-KEY pairings, which an
+      archive never un-shares — HOLDS at 111. `change_ids - 1` holds at 158
+      (moving a change between buckets cannot change the total),
+      `sole_modifiers - 1` holds at 47 (this change was always a co-modifier
+      and never a sole one, and `promote-workflow-gate-contract`, the change it
+      flipped out of `sole`, was already archived), and `active_sole - 1` holds
+      at 11 (an archive of a co-modified active never touches the sole set).
+      The two promoted requirements this packet's MODIFIED blocks targeted are
+      now CANON rather than active deltas, which is what makes the change a
+      FORMER active co-modifier rather than a present one.
+      MEASURED ON BOTH SIDES OF THE ACT rather than adjusted by arithmetic, via
+      `python3 scripts/validate-sequenced-after.py . --sweep`: before the
+      archive the branch read `34 active + 125 archived` = 159 change ids,
+      `111` co-modified, `48` sole modifiers, `22 / 12` active
+      co-modified/sole; after it the branch reads `33 active + 126 archived` =
+      159, `111`, `48`, `21 / 12`. EXACTLY ONE PIN MOVES, and the pre-archive
+      reading is its own by-exclusion control, the archive act being the only
+      difference between the two trees. `archived` rises 125 -> 126; prose
+      headers hold at 3 (3 archived); `declaring`/`root_claims` hold at 1/0.
+    - MERGING THE TWO ENTRIES ABOVE WITH `main` AT `19d00872` LEAVES FOUR OF
+      THE FIVE PINS WHERE THIS BRANCH PUT THEM AND `active_co_modified` WHERE
+      NEITHER BRANCH PUT IT, and the asymmetry is the whole content of this
+      entry. `main` moved twice in the same window off the same 20-baseline —
+      `create-medxchart-overlay-boundary`'s RATIFICATION (#608) 20 -> 21, then
+      `add-project-repo-schema`'s ARCHIVE on its `contract-v3.1` cut (#616)
+      21 -> 20 — and THIS BRANCH moved twice off that same baseline in one
+      commit, the authoring 20 -> 21 and the archive 21 -> 20. FOUR MOVES,
+      CANCELLING TWO-FOR-TWO, so the merged tree reads 20: not `20 + 1`, not
+      `20 - 1`, and not either branch's intermediate. `co_modified`,
+      `change_ids` and `sole_modifiers` compound instead of cancelling,
+      because `main`'s two moves were an ACTIVE-membership ratification and an
+      archive — neither of which touches a corpus-wide count — while this
+      branch's authoring raised `co_modified` by two and lowered
+      `sole_modifiers` by one for good.
+      MEASURED ON ALL THREE TREES AND BY EXCLUSION, never adjusted by
+      arithmetic, via `python3 scripts/validate-sequenced-after.py . --sweep`:
+      `origin/main` at `19d00872` reads `32 active + 126 archived` = 158 change
+      ids, `109` co-modified, `49` sole modifiers, `20 / 12` active
+      co-modified/sole; this branch before the merge read
+      `33 active + 126 archived` = 159, `111`, `48`, `21 / 12`; the merged tree
+      reads `32 active + 127 archived` = 159, `111`, `48`, `20 / 12`. AND THE
+      CONTROL THAT RULES OUT A THIRD MOVER: the same sweep on the merged tree
+      with `openspec/changes/archive/2026-09-03-amend-owner-layer-severity/`
+      moved aside reads `158`, `109`, `49`, `20 / 12` — `main`'s own reading
+      EXACTLY — so this one archived packet is the whole of the difference and
+      no other change moved in the window. `archived` rises 126 -> 127, prose
+      headers hold at 3 (3 archived), and `declaring`/`root_claims` hold at
+      1/0. The pin moves in the SAME COMMIT as the corpus — here the merge
+      commit itself — which is this test's own protocol.
+    - A SECOND CATCH-UP MERGE, `main` at `c271caa2`, AND THIS TIME THIS BRANCH
+      MOVES NOTHING THAT `main` HAD NOT ALREADY MOVED. `main` advanced three
+      commits under this branch — #616's `contract-v3.1` cut and its archive of
+      `add-project-repo-schema`, #624's `contract-v3.2` superseding cut, and
+      #615's archive of `update-standards-body-current-publications` — and the
+      last of those is the one that reaches this file: it takes `active_sole`
+      13 -> 12 -> 11 together with the entry above it, so `active_sole - 1`
+      reads 10. THIS BRANCH'S CONTRIBUTION IS UNCHANGED IN SHAPE A SECOND TIME
+      and is entirely in the other four readings: `co_modified` 109 -> 111,
+      `sole_modifiers` 49 -> 48, `change_ids` 158 -> 159, and
+      `active_co_modified` NOT AT ALL — its authoring and its archive cancel
+      inside the one commit, which is what a doc-only landing does to that pin.
+      MEASURED ON BOTH TREES AND BY EXCLUSION, never adjusted by arithmetic,
+      via `python3 scripts/validate-sequenced-after.py . --sweep`:
+      `origin/main` at `c271caa2` reads `31 active + 127 archived` = 158 change
+      ids, `109` co-modified, `49` sole modifiers, `20 / 11` active
+      co-modified/sole; the merged tree reads `31 active + 128 archived` = 159,
+      `111`, `48`, `20 / 11`; and the same sweep on the merged tree with only
+      `openspec/changes/archive/2026-09-03-amend-owner-layer-severity/` moved
+      aside reads `158`, `109`, `49`, `20 / 11` — `main`'s own reading EXACTLY,
+      a second time — so this one archived packet remains the whole of the
+      difference and none of `main`'s three new commits interacts with it.
+      `archived` rises 127 -> 128; prose headers hold at 3 (3 archived);
+      `declaring`/`root_claims` hold at 1/0.
+    - MERGE-RESOLVED 2026-09-03 by lane `openxfactory-smalls`, on the merge of
+      `main` at `95c2cf6a` (carrying `amend-owner-layer-severity`, #617,
+      ARCHIVED, and `add-consumer-identity-namespace`, #622, ACTIVE — both
+      landed after this branch's own entry at the TOP of this log was
+      written) into this `add-drafted-proposal-origin` branch (#318): this
+      branch's own contribution stacks UNCHANGED IN SHAPE atop `main`'s,
+      exactly as the entry above's own "MEASURED BY EXCLUSION" controls
+      confirm at each pin. `change_ids` rises by exactly one over `main`'s own
+      160 (161), `co_modified` and `active_co_modified` each rise by exactly
+      one over `main`'s own 112/21 (113/22), and `sole_modifiers`/`active_sole`
+      hold UNMOVED at `main`'s own 48/11 — `add-drafted-proposal-origin`
+      shares no requirement key and no capability with either sibling (it
+      writes `document-lifecycle` and `doc-health`; #617 wrote
+      `workflow-gate-contract` and `release-surface-integrity`; #622 writes
+      `credential-contracts`), so it flips no earlier writer out of the sole
+      set and the disjoint-move rule the two siblings already established for
+      each other holds a third time.
+      MEASURED ON BOTH TREES AND BY EXCLUSION rather than inferred from the
+      arithmetic, via `python3 scripts/validate-sequenced-after.py . --sweep`:
+      `origin/main` at `95c2cf6a` reads `32 active + 128 archived` = 160
+      change ids, `112` co-modified, `48` sole modifiers, `21 / 11` active
+      co-modified/sole; the merged tree reads `33 active + 128 archived` =
+      161, `113`, `48`, `22 / 11`; and the same sweep on the merged tree with
+      `openspec/changes/add-drafted-proposal-origin/` moved aside reproduces
+      `main`'s reading EXACTLY (160, 112, 48, 21 / 11), so this one packet is
+      the whole of the difference and no other change moved in the window.
+      `archived` holds at 128 (unmoved: this packet neither archives nor is
+      archived), prose headers hold at 3 (3 archived), and
+      `declaring`/`root_claims` hold at 1/0. The pin moves in the SAME COMMIT
+      as the corpus — here the merge commit that resolves this conflict —
+      which is this test's own protocol.
     """
     sweep = sa.corpus_sweep(ROOT)
-    assert sweep.co_modified == 110, (
+    assert sweep.co_modified == 113, (
+        "113 ON THE MERGED TREE 2026-09-03 — A THIRD DISJOINT AUTHORING "
+        "COMPOSES WITH THE TWO ALREADY COMPOSED BELOW. `main` reached 112 "
+        "by composing amend-owner-layer-severity (#617) and "
+        "add-consumer-identity-namespace (#622), recorded verbatim below; "
+        "this branch reached 110 by add-drafted-proposal-origin (#318), "
+        "also recorded verbatim below. `add-drafted-proposal-origin` shares "
+        "no requirement key and no capability with either sibling — it "
+        "writes document-lifecycle and doc-health, #617 writes "
+        "workflow-gate-contract and release-surface-integrity, #622 writes "
+        "credential-contracts — so the three moves are DISJOINT and compose "
+        "rather than interact, exactly as the two below already do. "
+        "RE-MEASURED on the merged tree via "
+        "`python3 scripts/validate-sequenced-after.py . --sweep` rather "
+        "than obtained by arithmetic: `origin/main` at `95c2cf6a` reads "
+        "`32 active + 128 archived` = 160 change ids, `112` co-modified, "
+        "`48` sole modifiers, `21 / 11` active co-modified/sole; the merged "
+        "tree reads `33 active + 128 archived` = 161, `113`, `48`, "
+        "`22 / 11`. AND MEASURED BY EXCLUSION: the same sweep on the merged "
+        "tree with `openspec/changes/add-drafted-proposal-origin/` moved "
+        "aside reproduces `main`'s reading EXACTLY (160, 112, 48, 21 / 11), "
+        "so this packet is the whole of the difference and no other change "
+        "moved in the window. Both sibling entries are kept verbatim below, "
+        "newest first. "
         "110 since add-drafted-proposal-origin was AUTHORED 2026-09-03 "
         "(issue #318). It carries TWO `## MODIFIED Requirements` blocks — "
         "document-lifecycle's 'Proposal origin declaration' and doc-health's "
@@ -649,6 +988,57 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "documents', shared with two). Nothing flipped, so `sole_modifiers` "
         "holds at 49 — a rise of one never comes with the sole set falling. "
         "It read 109 since create-medxchart-overlay-boundary was RATIFIED 2026-09-03 "
+        "112 ON THE MERGED TREE 2026-09-03: TWO INDEPENDENT AUTHORINGS, "
+        "EACH RAISING THIS PIN, MEASURED TOGETHER RATHER THAN ADDED. "
+        "`main` reached 111 by amend-owner-layer-severity (#617); this "
+        "branch reached 110 by add-consumer-identity-namespace (#622); the "
+        "merge carries BOTH. The two packets share no requirement key and "
+        "no capability — #617 writes workflow-gate-contract and "
+        "release-surface-integrity, #622 writes credential-contracts — so "
+        "neither changes the other's membership and the moves are "
+        "DISJOINT. That is why the readings compose here; it is NOT a rule "
+        "that they compose, and the number below was RE-MEASURED on the "
+        "merged tree rather than obtained by arithmetic. Each branch's own "
+        "entry is kept verbatim below, newest first. "
+        "111 since amend-owner-layer-severity was AUTHORED 2026-09-03 with TWO "
+        "`## MODIFIED Requirements` blocks — over workflow-gate-contract's "
+        "'Owner layer constraint' and release-surface-integrity's 'The declared "
+        "bundle describes the release surface'. It rose by TWO and not one: the "
+        "newcomer entering the set, plus the ARCHIVED "
+        "promote-workflow-gate-contract leaving `sole` for it, its "
+        "owner-layer key having been shared with nothing until now — while the "
+        "other earlier writer, the archived add-release-inventory-drift-check, "
+        "was already co-modified and did not flip. A rise of two always comes "
+        "with the sole set falling, and it did (49 -> 48). It read 109 "
+        "since create-medxchart-overlay-boundary was RATIFIED 2026-09-03 "
+        "110 since add-consumer-identity-namespace was AUTHORED 2026-09-03 "
+        "(PR #622, openxFactory issues #511 and #553): it carries TWO "
+        "`## MODIFIED Requirements` blocks over credential-contracts' 'A "
+        "credential binding declares the consuming system that holds it and "
+        "the identity it fetches with' and 'Two bindings on one secret are "
+        "refused unless every pair declares distinct consumers, acknowledges "
+        "the sharing, and names a requirement bound to the binding', so it "
+        "joined the co-modified population. THE RISE IS ONE AND "
+        "`sole_modifiers` HOLDS AT 49 — and the reason is worth stating "
+        "because the obvious prediction is the other one. Both those keys had "
+        "exactly ONE earlier writer, the ARCHIVED add-binding-consumer-identity "
+        "that ADDED them, and a lone earlier writer normally FLIPS out of the "
+        "sole set when a second change joins its key, which is the rise-of-two "
+        "shape #560 produced. It does not happen here: "
+        "add-binding-consumer-identity was ALREADY co-modified before this "
+        "packet existed, through a THIRD key it shares with "
+        "add-notebook-hosting-credential-custody — credential-contracts' 'Each "
+        "consuming system reaches a shared operated identity through its own "
+        "binding' — so it was never IN the sole set and had nothing to leave. "
+        "MEASURED, NOT INFERRED: on main at 19d00872 that change writes four "
+        "requirement keys of which ONE is shared; on this branch it writes the "
+        "same four of which THREE are shared, and its co-modified membership "
+        "is unchanged at both readings. A rise of one with the sole set held "
+        "is therefore its own cause, distinct from the rise-of-two shape, and "
+        "the distinguishing question is not how many keys the newcomer shares "
+        "but whether the earlier writer was ALREADY co-modified on some other "
+        "key. It read "
+        "109 since create-medxchart-overlay-boundary was RATIFIED 2026-09-03 "
         "and gained a `## MODIFIED Requirements` block over "
         "domain-descendant-boundary's 'A descendant is placed at a ratified "
         "placement'. THE THIRD EXPECTED CAUSE OF THIS FAILURE, distinct from "
@@ -691,7 +1081,27 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "archive moves `active_co_modified`, never the corpus-wide "
         "`co_modified`). ANY later change carrying a MODIFIED block raises it "
         "again, which is one of the two EXPECTED causes of this failure")
-    assert sweep.active_co_modified == 21, (
+    assert sweep.active_co_modified == 22, (
+        "22 ON THE MERGED TREE 2026-09-03 — A THIRD ACTIVE CO-MODIFIER "
+        "ARRIVES ON TOP OF THE 21 ALREADY COMPOSED BELOW. `main`'s own 21 "
+        "already nets #617's authoring-then-archive (net zero, in one "
+        "commit) against #622's single arriving active co-modifier "
+        "(20 -> 21, recorded verbatim below); this branch's "
+        "add-drafted-proposal-origin is a SECOND arriving ACTIVE "
+        "co-modifier that is never archived, so it adds a further +1 "
+        "rather than cancelling with anything — 21 -> 22. `active_sole` "
+        "holds at 11 throughout: neither #622 nor "
+        "add-drafted-proposal-origin flips an earlier writer out of the "
+        "sole set, for the reason each names at its own `co_modified` "
+        "entry above. RE-MEASURED on the merged tree via "
+        "`python3 scripts/validate-sequenced-after.py . --sweep` rather "
+        "than obtained by arithmetic: `origin/main` at `95c2cf6a` reads "
+        "`21 / 11` active co-modified/sole; the merged tree reads "
+        "`22 / 11`; and the same sweep with "
+        "`openspec/changes/add-drafted-proposal-origin/` moved aside "
+        "reproduces `main`'s `21 / 11` EXACTLY, so this packet is the "
+        "whole of the difference. Both branches' entries follow, newest "
+        "first. "
         "21 since add-drafted-proposal-origin was AUTHORED 2026-09-03 "
         "(issue #318) as an ACTIVE change carrying two `## MODIFIED "
         "Requirements` blocks: it enters both the corpus-wide co-modified set "
@@ -703,6 +1113,38 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "tree rather than taken from either side. "
         "It read 20 ON THE MERGED TREE 2026-09-03, which is NEITHER "
         "branch's number: "
+        "21 ON THE MERGED TREE 2026-09-03. #617 lands this pin back at "
+        "20 — its authoring raised it and its own archive, in the same "
+        "commit, lowered it — so the ONLY surviving move is this branch's: "
+        "add-consumer-identity-namespace is an ACTIVE co-modifier that does "
+        "NOT archive with its landing (it carries a code surface, so its "
+        "archive gate is merged-plus-green and still ahead). One active "
+        "co-modified arrival, one step. RE-MEASURED on the merged tree. "
+        "Both branches' entries follow, newest first. "
+        "20 ON THE MERGED TREE 2026-09-03 — NEITHER BRANCH'S NUMBER, AND THE "
+        "SECOND TIME IN ONE DAY THIS PIN IS A NET OF OPPOSED MOVES RATHER "
+        "THAN A STEP. FOUR moves off the same 20-baseline land in this merge "
+        "and cancel two-for-two. On `main`: create-medxchart-overlay-boundary's "
+        "RATIFICATION (#608) raised it 20 -> 21, making an ALREADY-ACTIVE "
+        "change a co-modifier with `active_sole` falling 13 -> 12 in the same "
+        "move; then add-project-repo-schema's ARCHIVE, on its own `tasks.md` "
+        "9.3 cut of `contract-v3.1`, lowered it 21 -> 20. On THIS branch: "
+        "amend-owner-layer-severity's AUTHORING raised it 20 -> 21 and its "
+        "ARCHIVE, in the same commit (`code_surface: none`, so the archive "
+        "gate is LANDING), lowered it 21 -> 20. Every one of the four is an "
+        "ACTIVE co-modifier entering or leaving the active corpus, and none "
+        "touches the corpus-wide `co_modified`, which an archive never "
+        "un-shares. #609 moves it not at all (no `## MODIFIED Requirements` "
+        "block; still a sole modifier). "
+        "21 since add-consumer-identity-namespace was AUTHORED 2026-09-03 "
+        "(PR #622). It is an ACTIVE change and it is co-modified, so it enters "
+        "both populations at once and this pin rises with `co_modified` — the "
+        "AUTHORING cause, not the ratifying one and not the archiving one. "
+        "`active_sole` does NOT move with it, for the reason spelled out at "
+        "the `co_modified` pin above: the earlier writer of both its keys was "
+        "already co-modified through a third key, so no change left the sole "
+        "set in either the corpus-wide or the active reading. It read "
+        "20 ON THE MERGED TREE 2026-09-03, which is NEITHER branch's number: "
         "two moves off the same 20-baseline land in the same commit and "
         "CANCEL. create-medxchart-overlay-boundary's RATIFICATION (#608) "
         "raised it 20 -> 21, making an ALREADY-ACTIVE change a co-modifier "
@@ -748,7 +1190,38 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # This change is itself a sole modifier at requirement granularity — which is
     # exactly why it declaring a parent anyway is the doctrine applied to its
     # author: declaring must never be worth less than omitting.
-    assert sweep.change_ids - 1 == 158, (
+    assert sweep.change_ids - 1 == 160, (
+        "160 ON THE MERGED TREE 2026-09-03 — THIS BRANCH'S OWN ARRIVAL "
+        "STACKS ON TOP OF THE 159 MAIN ALREADY COMPOSED, recorded verbatim "
+        "below. Every arrival is one more change id regardless of "
+        "co-modification status or archival, so `main`'s 159 (composing "
+        "amend-owner-layer-severity, #617, and add-consumer-identity-"
+        "namespace, #622) and this branch's own arrival "
+        "(add-drafted-proposal-origin, #318) simply stack: 159 + 1 = 160. "
+        "RE-MEASURED on the merged tree via "
+        "`python3 scripts/validate-sequenced-after.py . --sweep` rather "
+        "than obtained by arithmetic: `origin/main` at `95c2cf6a` reads "
+        "`32 active + 128 archived` = 160 change ids; the merged tree "
+        "reads `33 active + 128 archived` = 161 (`- 1` reads 160); and the "
+        "same sweep with `openspec/changes/add-drafted-proposal-origin/` "
+        "moved aside reproduces `main`'s 160 EXACTLY, so this packet is "
+        "the whole of the difference. `main`'s own entry follows, verbatim. "
+        "159 ON THE MERGED TREE 2026-09-03 — both packets are in the "
+        "corpus and each is one change id. #617 archives itself in its own "
+        "landing commit, which moves buckets and not the total, so its "
+        "contribution to THIS pin survives its archive; #622 is active and "
+        "unarchived. RE-MEASURED, not added. "
+        "158 since amend-owner-layer-severity was authored 2026-09-03, one "
+        "more change id in the CORPUS — and it stays 158 through that same "
+        "commit's ARCHIVE of it, because this pin counts the population and "
+        "not the active corpus: the packet moved from active to archived "
+        "(34+125 -> 33+126, and 32+127 after the merge with main) and a "
+        "bucket move cannot change a total. Do NOT read this row as an "
+        "active-count claim; `active_co_modified` and `active_sole` are the "
+        "readings that saw the archive. Before that: "
+        "158 since add-consumer-identity-namespace was authored 2026-09-03 "
+        "(PR #622) — one more ACTIVE change in the corpus, the population "
+        "count moving for the plainest of the reasons. It read "
         "the `- 1` subtracts THIS change and nothing else, so the reading is "
         "the corpus without it: 152 at authoring, 153 when "
         "add-clearing-dispatch-boundary landed 2026-09-01, 154 when "
@@ -760,9 +1233,12 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
         "2026-09-03 (#611, moves a change between buckets, not the total) "
         "and through create-medxchart-overlay-boundary's RATIFICATION "
         "2026-09-03, which moves four membership readings and no population "
-        "count at all -- then 158 when add-drafted-proposal-origin was "
-        "AUTHORED 2026-09-03 (issue #318), a NEW active change directory, "
-        "which is the one move that does raise the population")
+        "count at all -- and on to 159 through `main`'s own two arrivals "
+        "detailed above (#622's authoring, #617's authoring-then-archive "
+        "netting zero on this pin), then 160 when add-drafted-proposal-origin "
+        "was AUTHORED 2026-09-03 (issue #318) on THIS branch, a NEW active "
+        "change directory arriving on top of both — the one move that "
+        "raises the population past `main`'s own 159")
     # MOVED 2026-09-02: `sole_modifiers` fell 50 → 49 for the same reason
     # `active_sole` falls below — add-clearing-dispatch-boundary left the sole
     # set when add-cpc-clearing-boundary (PR #560) began sharing three
@@ -787,7 +1263,36 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # change leaving sole. The `- 1` still subtracts only
     # add-sequenced-after-substrate (unaffected, still sole), so the reading
     # falls with `sole_modifiers` to 48.
-    assert sweep.sole_modifiers - 1 == 48
+    #
+    # ON THE MERGED TREE 2026-09-03 this pin carries #617's move and NOT
+    # this branch's, and the two notes below say why in their own words.
+    # #617 FLIPPED an archived sole modifier (promote-workflow-gate-contract)
+    # into the co-modified set, so the sole set fell. #622 flipped nobody:
+    # the earlier writer of both its keys was ALREADY co-modified through a
+    # third key. A rise in `co_modified` drags this pin only when the
+    # newcomer's earlier co-writer was itself SOLE until then — which is the
+    # whole distinction, and it is why one authoring moved this and the other
+    # did not. RE-MEASURED on the merged tree.
+    # AND MOVED AGAIN 2026-09-03: `sole_modifiers` fell 49 -> 48 when
+    # amend-owner-layer-severity was AUTHORED and its `## MODIFIED
+    # Requirements` block over workflow-gate-contract's 'Owner layer
+    # constraint' flipped the ARCHIVED promote-workflow-gate-contract — sole
+    # until then on that key — into the co-modified set. The newcomer is a
+    # co-modifier itself and never joins `sole`, so this pin records the
+    # FLIPPED change alone. The `- 1` still subtracts only
+    # add-sequenced-after-substrate (unaffected, still sole), so the reading
+    # falls with `sole_modifiers` to 47.
+    # HELD AT 48 THROUGH add-consumer-identity-namespace's AUTHORING 2026-09-03
+    # (PR #622), and the hold is asserted on its cause rather than left to look
+    # like an oversight. That packet carries TWO `## MODIFIED Requirements`
+    # blocks and DID raise `co_modified`, which usually drags this pin with it
+    # — but only when the newcomer's earlier co-writer was itself SOLE until
+    # then. Here the earlier writer of both keys, the archived
+    # add-binding-consumer-identity, was ALREADY co-modified via a third key
+    # shared with add-notebook-hosting-credential-custody, so it was never in
+    # the sole set and nothing left it. The packet itself never enters the sole
+    # set either, being co-modified from the moment it lands.
+    assert sweep.sole_modifiers - 1 == 47
     # STILL INTACT ON ITS MERITS, not by a cancelling pair of errors — checked,
     # because #563's archive landing between the authoring measurement and this
     # reading makes the coincidence worth ruling out explicitly. That archive
@@ -818,6 +1323,35 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # always a co-modifier and never a sole one, so an archive of it never
     # touches the sole set.
     #
+    # THEN TWO INDEPENDENT MOVES LANDED ON THIS ONE PIN, AND BOTH STAND:
+    #
+    #   (a) `main`, 2026-09-03: `active_sole` fell 13 -> 12 on the merge of
+    #       `main` at `2b0615da` into the create-medxchart-overlay-boundary
+    #       RATIFICATION branch, ALONGSIDE `sole_modifiers` above — that
+    #       packet is ACTIVE and its ratification moved it out of the sole
+    #       set, so the two pins move together, as they always do when the
+    #       change that flips is itself ACTIVE.
+    #
+    #   (b) THIS BRANCH, 2026-09-03, THE SAME DAY AND BY THE SAME PACKET'S
+    #       OTHER HALF: `active_sole` fell 13 -> 12 when
+    #       update-standards-body-current-publications was ARCHIVED on
+    #       merged-and-green realization evidence (PR #593's squash
+    #       `3c237cd0`, `pytest-suite` run 33717394896). Archiving a SOLE
+    #       active removes it from `active_sole` while leaving
+    #       `sole_modifiers` and `change_ids` untouched — both count BOTH
+    #       corpora — and leaving the two co-modified readings untouched too,
+    #       this packet having never been in that population. It is the exact
+    #       mirror of #571's 2026-09-02 archive, which moved
+    #       `active_co_modified` alone.
+    #
+    # THEY COMPOUND rather than cancel or coincide — DIFFERENT subjects, ONE
+    # population — so on the merge of the two `active_sole` reads 11 and this
+    # `- 1` reading falls to 10. Each half read 11 against its own baseline
+    # and each was right about its own act; the total is neither of theirs,
+    # which is why it was RE-MEASURED on the merged tree rather than carried
+    # over from either side. That measurement, its by-exclusion control, and
+    # the pins that HELD are in the MOVEMENT LOG's last entry above.
+    #
     # AND MOVED AGAIN 2026-09-03, on the merge of `main` at `2b0615da` into
     # the create-medxchart-overlay-boundary RATIFICATION branch: `active_sole`
     # fell 13 -> 12 ALONGSIDE `sole_modifiers` above — that packet is ACTIVE
@@ -825,7 +1359,32 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # together, as they always do when the change that flips is itself
     # ACTIVE. The `- 1` still subtracts add-sequenced-after-substrate alone,
     # so the reading falls to 11.
-    assert sweep.active_sole - 1 == 11
+    #
+    # HELD ON THE MERGED TREE 2026-09-03 THROUGH BOTH PACKETS, which is the
+    # one reading neither branch moves. #617 held it (the change it flipped
+    # out of `sole` is ARCHIVED, so no ACTIVE sole modifier moved) and #622
+    # held it (it flipped nobody at all). Two authorings, four other pins
+    # moved between them, and this one unmoved — asserted rather than
+    # assumed, because a pin that holds through a busy merge is exactly the
+    # pin nobody re-derives. RE-MEASURED on the merged tree.
+    # AND HELD 2026-09-03 THROUGH BOTH HALVES OF amend-owner-layer-severity —
+    # its AUTHORING and, in the same commit, its ARCHIVE — so the two moves
+    # above are the whole of this reading and this packet contributes nothing
+    # to it. The hold is ASSERTED rather than assumed precisely because that
+    # commit moves the other four readings: the packet is a CO-modifier, so it
+    # never enters `sole`, and the one change it flipped OUT of `sole`
+    # (promote-workflow-gate-contract) is ARCHIVED, so no ACTIVE sole modifier
+    # moved in either direction. Its archive then removed a CO-modified active
+    # and never a sole one, which is #563's and #571's shape and touches this
+    # pin not at all. Same reading as the add-project-repo-schema entry, and
+    # the OPPOSITE of #560's, where the flipped change was itself active.
+    # HELD AT 11 THROUGH add-consumer-identity-namespace's AUTHORING 2026-09-03
+    # (PR #622), for exactly the reason `sole_modifiers` held: the new ACTIVE
+    # change is co-modified on arrival and never joins this population, and no
+    # existing member left it, the earlier writer of both its keys having been
+    # co-modified already. An ACTIVE co-modified arrival moves
+    # `active_co_modified` alone — which is the one pin above that did move.
+    assert sweep.active_sole - 1 == 10
     assert sweep.prose_headers == 3 and sweep.prose_headers_archived == 3
     assert sweep.declaring == 1
     assert sweep.declaring_ids == ("add-sequenced-after-substrate",)

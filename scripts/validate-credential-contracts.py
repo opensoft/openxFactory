@@ -19,12 +19,23 @@ release where the old shape produced deprecation warnings" — was not merely
 unimplemented here, it was INEXPRESSIBLE. The warning channel below follows
 `scripts/validate-client-identity-roster.py`'s `WARN  [code] message` shape
 rather than inventing a fourth. A warning never reddens the verdict; the
-EIGHT `consumer-*` codes it carries are the deprecation the next major's
+NINE `consumer-*` codes it carries are the deprecation the next major's
 refusals depend on, and every one of them is registered against a packaged
 probe in `examples/credential-contracts/warning/`.
 
+A NINTH `consumer-*` CODE SINCE add-consumer-identity-namespace, which declares
+the block's `identity_namespace` — the issuing directory of the fetch identity.
+The shared-authority comparison reads the PAIR where both sides declare a
+grammatical namespace and the BARE identity everywhere else, so absence and
+malformedness fall back and REPORT rather than clear: an estate that could
+silence a real shared authority by omitting a member on one side would hold a
+rule it can turn off without writing anything false. The ninth code names the
+namespace's own grammar rather than joining `consumer-member-grammar`, because
+an unreadable namespace ALSO un-scopes that comparison and a reader told only
+"member grammar" would not learn it.
+
 TWO MORE CODES, OF A SECOND FAMILY, SINCE add-requirement-ref-resolution-
-integrity. The `consumer-*` eight name SHAPE faults — a block that is missing,
+integrity. The `consumer-*` nine name SHAPE faults — a block that is missing,
 incomplete, closed-and-violated, ungrammatical, or carrying a token declared
 false. A reference that RESOLVES TO NOTHING is none of those: it is well-formed,
 inside the declared member set, grammatical in both members, and WRONG ABOUT THE
@@ -106,6 +117,11 @@ NEGATIVE_EXPECTATIONS = {
     "three-bindings-two-share-authority.yaml": "shared-authority-identity",
     "consumer-holder-ref-raw-secret.yaml": "baked-secret",
     "consumer-fetch-identity-raw-secret.yaml": "baked-secret",
+    # add-consumer-identity-namespace: the third free string, and the two shapes
+    # the namespace comparison must NOT clear.
+    "consumer-identity-namespace-raw-secret.yaml": "baked-secret",
+    "consumer-shared-authority-one-sided-namespace.yaml": "shared-authority-identity",
+    "consumer-shared-authority-same-namespace.yaml": "shared-authority-identity",
 }
 
 # add-client-identity-roster (Decision B): the CLOSED issuance-precondition
@@ -130,9 +146,24 @@ MAJOR_RELEASE = "contract-v3.0"
 # the schema CONSTRAINS nothing about the block, so the member set has no
 # enforceable home there and the warnings would have no vocabulary to check
 # against. `tests/credential_contracts/` gates the mirror against the schema.
-CONSUMER_MEMBERS = ("holder_ref", "fetch_identity", "requirement_ref",
-                    "shared_credential_acknowledged", "instantiation_stub")
+CONSUMER_MEMBERS = ("holder_ref", "fetch_identity", "identity_namespace",
+                    "requirement_ref", "shared_credential_acknowledged",
+                    "instantiation_stub")
 CONSUMER_IDENTIFIERS = ("holder_ref", "fetch_identity")
+# add-consumer-identity-namespace: the ISSUING DIRECTORY of the fetch identity.
+# A principal name is unique only inside the directory that minted it, so the
+# shared-authority comparison reads the PAIR where both sides declare one and
+# falls back to the bare identity where either does not. It is NOT one of the
+# CONSUMER_IDENTIFIERS: those two are what the block must carry, and this one is
+# what SCOPES the second of them.
+IDENTITY_NAMESPACE = "identity_namespace"
+# THE FREE STRINGS ON THE RECORD KIND WHOSE INVARIANT IS "NEVER BAKE A SECRET",
+# which is a THIRD sink now rather than a second. §2.6 of the introducing packet
+# widened this screen the moment it declared two free-string members; declaring
+# a third and leaving it unscreened would reopen exactly the gap that task
+# closed, on a member whose grammar admits `ghp_…` and `AKIA…` shapes like the
+# others.
+CONSUMER_FREE_STRINGS = CONSUMER_IDENTIFIERS + (IDENTITY_NAMESPACE,)
 CONST_TRUE_TOKENS = ("shared_credential_acknowledged", "instantiation_stub")
 REQUIREMENT_REF_MEMBERS = ("requirement_id", "requirements_document_ref")
 
@@ -178,6 +209,15 @@ DEPRECATION_CODES = (
     "consumer-binding-key-grammar",
     "consumer-access-mode-vocabulary",
     "consumer-requirement-ref-grammar",
+    # add-consumer-identity-namespace — THE NINTH SHAPE FAULT, and it carries a
+    # code of its own rather than joining `consumer-member-grammar` because its
+    # CONSEQUENCE is not the other members'. An ungrammatical namespace is
+    # SKIPPED by the authority comparison, which then falls back to the bare
+    # fetch identity; a reader told only that a member failed a grammar would
+    # not learn that the scoping they declared is not in force. It is a SHAPE
+    # fault, so it belongs to the consumer block's family and not to the
+    # resolution family beside it.
+    "consumer-identity-namespace-grammar",
     # add-requirement-ref-resolution-integrity — THE SECOND FAMILY, and the
     # enumeration rule is satisfied by declaring the ACT AT THE MAJOR rather
     # than by exempting these two from it: a declared reference that resolves to
@@ -203,6 +243,7 @@ WARNING_EXPECTATIONS = {
     "consumer-binding-key-grammar.yaml": "consumer-binding-key-grammar",
     "consumer-access-mode-vocabulary.yaml": "consumer-access-mode-vocabulary",
     "consumer-requirement-ref-grammar.yaml": "consumer-requirement-ref-grammar",
+    "consumer-identity-namespace-grammar.yaml": "consumer-identity-namespace-grammar",
     "requirement-ref-unresolved.yaml": "requirement-ref-unresolved",
     "requirement-ref-ambiguous.yaml": "requirement-ref-ambiguous",
 }
@@ -255,6 +296,67 @@ def _consumer(binding: object) -> object:
     if not isinstance(binding, dict):
         return None
     return binding.get("consumer")
+
+
+def _namespace(consumer: dict) -> str | None:
+    """The declared identity namespace, or None where none can be READ.
+
+    An ABSENT member and a member whose value is outside the identifier grammar
+    are the same thing to the authority comparison, deliberately: both fall back
+    to the bare fetch identity and both REPORT. The malformed one is ALSO warned
+    under `consumer-identity-namespace-grammar`, so the record says what
+    happened; what neither may do is CLEAR a finding on a value nothing could
+    read. Clearing on an unreadable value is the fail-open shape this family has
+    already had to repair once.
+    """
+    value = consumer.get(IDENTITY_NAMESPACE)
+    return value if _is_identifier(value) else None
+
+
+def _same_fetch_authority(con_a: dict, con_b: dict) -> bool:
+    """Whether two consumer blocks name ONE fetch authority.
+
+    THE ONE PREDICATE, CALLED FROM BOTH PLACES CANON STATES IT. The promoted
+    text says "their fetch AUTHORITIES DIFFER" once — in the lift's third
+    condition — and raises the named finding on the same comparison; two
+    implementations of one sentence drift, and this family has already paid for
+    a rule that lived in two shapes.
+
+    THE PAIR WHERE BOTH SIDES DECLARE A GRAMMATICAL NAMESPACE, THE BARE IDENTITY
+    EVERYWHERE ELSE. Absence and malformedness both fall back to the bare
+    identity, so they REPORT and withhold the lift rather than clearing: a rule
+    an estate could turn off by omitting a member on one side, without writing
+    anything false, is not a rule. Callers guard the identifier grammar of
+    `fetch_identity` itself before asking.
+    """
+    fetch_a, fetch_b = con_a.get("fetch_identity"), con_b.get("fetch_identity")
+    if fetch_a != fetch_b:
+        return False
+    ns_a, ns_b = _namespace(con_a), _namespace(con_b)
+    return not (ns_a is not None and ns_b is not None and ns_a != ns_b)
+
+
+def _authority_label(ns_a: str | None, ns_b: str | None, fetch: object) -> str:
+    """The identity as the comparison READ it. Where both sides named the same
+    namespace the message says so, because "authenticating as `runtime_identity`"
+    is ambiguous in exactly the way this member exists to end."""
+    if ns_a is not None and ns_a == ns_b:
+        return f"{fetch!r} in identity_namespace {ns_a!r}"
+    return f"{fetch!r}"
+
+
+def _namespace_hint(ns_a: str | None, ns_b: str | None) -> str:
+    """The one-sided case, said out loud. Falling back is correct AND it is the
+    shape most likely to be a missing declaration rather than a real collapse,
+    so the message names the remedy instead of leaving a reader to infer it from
+    a silence — and names the remedy that keeps the record true, which is to
+    declare the namespace on both sides rather than to delete it from one."""
+    if (ns_a is None) == (ns_b is None):
+        return ""
+    return (". Exactly one of these bindings declares an identity_namespace this check could "
+            "READ, so the comparison fell back to the bare fetch identity rather than clearing; "
+            "if these are two directories' identically-named principals, declare the namespace "
+            "on BOTH bindings — a value outside the identifier grammar is not read as one")
 
 
 def _declares_stub(consumer: object) -> bool:
@@ -439,17 +541,23 @@ def _lift_refusal_detail(first: tuple[str, dict], second: tuple[str, dict],
         return ("c2-holders-differ",
                 f"both bindings declare holder_ref {holder_a!r} — one system wearing two hats")
 
-    # 3. fetch identities differ, and are identities
+    # 3. fetch AUTHORITIES differ, and the identities are identities
     fetch_a, fetch_b = con_a.get("fetch_identity"), con_b.get("fetch_identity")
     for name, fetch in ((name_a, fetch_a), (name_b, fetch_b)):
         if not _is_identifier(fetch):
             return ("c3-fetch-identities-differ",
                     f"binding {name!r}'s fetch_identity is {fetch!r}, which is not an identifier "
                     f"({IDENTIFIER.pattern}), so the per-system authority is unproven")
-    if fetch_a == fetch_b:
+    # THE AUTHORITY, NOT THE BARE STRING (add-consumer-identity-namespace). Two
+    # tenants of one provider whose principals share a NAME are two authorities,
+    # and the lift is theirs to take; a namespace absent or ungrammatical on
+    # either side falls back to the bare identity and the condition stands.
+    if _same_fetch_authority(con_a, con_b):
         return ("c3-fetch-identities-differ",
-                f"both bindings fetch with {fetch_a!r} — one identity MAY be shared, "
-                f"one AUTHORITY SHALL NOT")
+                f"both bindings fetch with "
+                f"{_authority_label(_namespace(con_a), _namespace(con_b), fetch_a)} — one "
+                f"identity MAY be shared, one AUTHORITY SHALL NOT"
+                f"{_namespace_hint(_namespace(con_a), _namespace(con_b))}")
 
     # 4. both acknowledge the sharing
     for name, con in ((name_a, con_a), (name_b, con_b)):
@@ -514,14 +622,17 @@ def _binding_findings(doc: dict, index: dict[str, list[dict]]) -> list[str]:
     bindings = [(n, b) for n, b in _mapping(doc.get("credential_bindings")).items()
                 if isinstance(b, dict)]
 
-    # THE SCREEN, over THREE sinks rather than one. `secret_ref` was the only
-    # free string read before add-binding-consumer-identity; the block adds two
-    # more on the one record kind whose invariant is "never bake a secret".
+    # THE SCREEN, over FOUR sinks rather than one. `secret_ref` was the only
+    # free string read before add-binding-consumer-identity; the block added two
+    # more on the one record kind whose invariant is "never bake a secret", and
+    # add-consumer-identity-namespace adds the third. A new free-string member
+    # joins the screen in the SAME COMMIT that declares it — declaring a sink
+    # and screening it a release later is how the gap §2.6 closed reopens.
     for name, binding in bindings:
         consumer = _consumer(binding)
         sinks = [("secret_ref", binding.get("secret_ref"))]
         if isinstance(consumer, dict):
-            sinks += [(f"consumer.{m}", consumer.get(m)) for m in CONSUMER_IDENTIFIERS]
+            sinks += [(f"consumer.{m}", consumer.get(m)) for m in CONSUMER_FREE_STRINGS]
         for field, value in sinks:
             if isinstance(value, str) and _looks_like_raw_secret(value):
                 out.append(f"baked-secret: binding {name!r} {field} is a raw secret value, not a "
@@ -543,6 +654,16 @@ def _binding_findings(doc: dict, index: dict[str, list[dict]]) -> list[str]:
     # exactly the narrowing the whole packet phases. A malformed identity is
     # WARNED by `consumer-member-grammar` for the whole of this minor and
     # refused at the major, at which point the record is gone anyway.
+    # AND THE IDENTITY IS READ WITH THE NAMESPACE THAT ISSUED IT
+    # (add-consumer-identity-namespace). A principal name is unique only inside
+    # its issuing directory, so a BARE string comparison refused two tenants of
+    # one provider whose principals happen to share a name — a false refusal the
+    # record could not escape, because the only workaround was to write a name
+    # the provider does not use. The comparison is the PAIR where both sides
+    # declare a grammatical namespace, and the BARE identity everywhere else:
+    # absence and malformedness FALL BACK AND REPORT, never clear, because an
+    # estate that could silence a real shared authority by omitting a member on
+    # one side would hold a rule it can turn off without writing anything false.
     authority_pairs: set[tuple[str, str]] = set()
     for (name_a, binding_a), (name_b, binding_b) in combinations(bindings, 2):
         con_a, con_b = _consumer(binding_a), _consumer(binding_b)
@@ -552,13 +673,15 @@ def _binding_findings(doc: dict, index: dict[str, list[dict]]) -> list[str]:
         fetch_a, fetch_b = con_a.get("fetch_identity"), con_b.get("fetch_identity")
         if not all(_is_identifier(v) for v in (holder_a, holder_b, fetch_a, fetch_b)):
             continue
-        if holder_a != holder_b and fetch_a == fetch_b:
+        ns_a, ns_b = _namespace(con_a), _namespace(con_b)
+        if holder_a != holder_b and _same_fetch_authority(con_a, con_b):
             authority_pairs.add((name_a, name_b))
             out.append(f"shared-authority-identity: bindings {name_a!r} ({holder_a!r}) and "
                        f"{name_b!r} ({holder_b!r}) are two systems authenticating as "
-                       f"{fetch_a!r}; one identity MAY be shared, one AUTHORITY SHALL NOT — "
-                       f"give each consuming system its own fetch identity, its own grant and "
-                       f"its own audit trail")
+                       f"{_authority_label(ns_a, ns_b, fetch_a)}; one identity MAY be shared, "
+                       f"one AUTHORITY SHALL NOT — give each consuming system its own fetch "
+                       f"identity, its own grant and its own audit trail"
+                       f"{_namespace_hint(ns_a, ns_b)}")
 
     # THE DEFAULT REFUSAL, over EVERY PAIR sharing a secret reference. The
     # inherited shape kept the FIRST binding per secret and compared later ones
@@ -672,6 +795,19 @@ def _consumer_block_warnings(name: str, binding: dict) -> list[tuple[str, str]]:
                         f"characters). A grammar-passing SENTINEL is not the repair — it reads "
                         f"as an authority declaration while naming nothing; a stub declares "
                         f"`instantiation_stub: true` instead. ERROR at {MAJOR_RELEASE}"))
+
+    # THE NINTH SHAPE (add-consumer-identity-namespace). Its own code, not
+    # `consumer-member-grammar`: the two identifiers' grammar faults are naming
+    # defects a reader repairs by renaming, while an unreadable NAMESPACE also
+    # un-scopes the authority comparison, and a reader told only "member
+    # grammar" would believe a scoping they declared is in force.
+    if IDENTITY_NAMESPACE in consumer and not _is_identifier(consumer[IDENTITY_NAMESPACE]):
+        out.append(("consumer-identity-namespace-grammar",
+                    f"binding {name!r}'s consumer.{IDENTITY_NAMESPACE} is "
+                    f"{consumer[IDENTITY_NAMESPACE]!r}, outside the identifier grammar "
+                    f"{IDENTIFIER.pattern} (1–{IDENTIFIER_MAX} characters), SO IT IS NOT READ "
+                    f"AS A NAMESPACE: the shared-authority comparison falls back to the bare "
+                    f"fetch identity and still reports. ERROR at {MAJOR_RELEASE}"))
 
     # MEMBERSHIP, NOT TRUTHINESS (PR #516, Codex P2). `requirement_ref: null` is
     # a DECLARED member whose value is not an object, and the major refuses it;

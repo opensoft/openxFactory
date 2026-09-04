@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v3.1
+contract_bundle_version: contract-v3.2
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -2178,7 +2178,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-credential-contracts.schema.yaml
     type: schema
     schema_version: 1
-    sha256: d0e936fc7377dc5346d9863a5cec74b4edb5b73300c17b66843798bf96a47028
+    sha256: b8aa4c77e937915adfb400cf9ad8447f4bf0df758e150270d5e804555d549845
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -2248,6 +2248,32 @@ contracts:
       to be inferred: the digest is the SCHEMA FILE's, resolution is not
       a shape JSON Schema can check — it is a lookup into another
       document — and the schema is not edited.
+      GREW ADDITIVELY A THIRD TIME with the OPTIONAL
+      consumer.identity_namespace — the issuing directory, account or
+      tenant WITHIN the provider that minted the fetch identity
+      (add-consumer-identity-namespace, openxFactory issue #511). A
+      principal name is unique only inside the directory that issued it,
+      so two tenants of ONE provider may both call a principal
+      runtime_identity; the shared-authority check compared the bare
+      string and refused them, and the only escape was to write a name
+      the provider does not use, which makes the record FALSE. THE
+      COMPARISON IS NOW THE PAIR (identity_namespace, fetch_identity)
+      where BOTH sides declare a grammatical namespace, and the BARE
+      identity everywhere else — absence and malformedness FALL BACK AND
+      REPORT rather than clear, so an estate cannot silence a real
+      shared authority by omitting a member on one side. ONE predicate
+      serves both the named finding and the lift's third condition,
+      canon stating it once. The member is UNCONSTRAINED at this minor
+      like every other member of the block and carries the identifier
+      grammar at the major, taking the block's SHAPE acts from EIGHT
+      codes to NINE with consumer-identity-namespace-grammar — a code of
+      its own rather than a widening of consumer-member-grammar, because
+      an unreadable namespace ALSO un-scopes the authority comparison
+      and a reader told only "member grammar" would not learn it. It is
+      the THIRD free string on this record kind and joins the
+      baked-secret screen in the same commit that declares it. THIS
+      ROW'S sha256 DOES MOVE with that act: the schema's member
+      description is edited.
       A record written before any
       install exists declares consumer: {instantiation_stub: true}, and
       that TOKEN is the only exemption — a *.template.yaml FILENAME

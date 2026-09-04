@@ -504,62 +504,65 @@ Active changes:
   approval pair. Archive gate is **merged-plus-green on `main`**
   (`pytest tests/doc-health`, `openspec validate --all --strict`, a
   doc-health run moving by the predicted amount and no other line).
-- [update-standards-body-current-publications](openspec/changes/update-standards-body-current-publications/proposal.md)
-  — authored 2026-09-01, **RATIFIED 2026-09-03 by Brett Heap, in-session**
-  (verbatim "merge 210 and ratify and merge 593"), with **D1–D4 ADOPTED AS
-  WRITTEN**. **RESCUED, NOT RE-AUTHORED**: the authoring
-  session ended without pushing, so the packet and its code existed on no branch
-  and not on `main` (openxFactory issue **#591**); PR **#593** snapshot `d1799988`
-  carries it byte-identical, and the same 2026-09-03 in-session word both ruled
-  it adopted and owned by lane `openxfactory-f2` and ratified it; **realization
-  lands with this PR** — the archive gate is **merged-plus-green on `main`**
-  (`pytest tests/test_standards_body_registry.py`, `validate-omnigent-contracts.py`,
-  `openspec validate --all --strict`), measured after landing, never assumed,
-  per the release-realization gate (`docs/release-realization-flow.md` § The
-  Archive Gate).
-  Adds a distinct **`itil5`** body for ITIL Version 5 while preserving `itil4`
-  for historical consumers — *no silent rename* — records **SFIA 9** as current
-  beside the steward's restrictive licence statement and Brett's product-config
-  permission as an **explicit `status: unverified` operator override** carrying
-  approver, date, rationale and the conflicting source (a validator refuses an
-  override missing any of them, so the decision is preserved without being
-  laundered into a licence conclusion), and re-verifies **APQC PCF 8.0** with its
-  IT-process crosswalk scope and mandatory attribution. Crosswalks stay
-  **descriptive**: no practice text, skill definition or process hierarchy is
-  copied, and no mapping confers archetype, permission, credential tier or
-  terminal-action authority. **THE SNAPSHOT WAS IN THREE UNLAWFUL SHAPES AND
-  EACH WAS REPAIRED**: it sat under `openspec/changes/archive/2026-09-01-…`
-  though it had never landed and, carrying a code surface, could not archive
-  under `docs/release-realization-flow.md` § The Archive Gate — moved to the
-  ACTIVE corpus; it had **PRE-PROMOTED** its delta into
-  `openspec/specs/standards-body-registry/spec.md`, a verbatim duplicate under
-  the archiver's `TBD - created by archiving` purpose line — **REMOVED**,
-  promotion being the archive step's act; and it declared `target_release: none`
-  while shipping a module, a validator line and tests, `none` being reserved for
-  `code_surface: none` — corrected to **`implemented`**, with the front matter
-  fenced so a machine reads it at all and an `ad_hoc` **origin declaration**
-  added (there is no staged topic; searched). **THE RELEASE-INVENTORY QUESTION
-  IS ANSWERED BY MEASUREMENT, NOT BY PREFERENCE**:
-  `contracts/policies/standards-bodies.yaml` is a member of NEITHER
-  `contracts/manifest.yaml` NOR
-  `contracts/releases/contract-v3.0.digests.yaml` (283 entries, zero under
-  `contracts/policies/`), so the policy edit raises **no**
-  `release-inventory-drift` finding, needs no editorial allowance, and **rides
-  this PR rather than the next cut**. One thing moved that is bookkeeping and
-  not realization: adopting an ADDED-only packet over a NEW capability with
-  novel requirement titles makes it an **ACTIVE SOLE modifier**, so the
-  `sequenced_after` live pin moves `sole_modifiers - 1` 48 → 49 and
-  `active_sole - 1` 11 → 12, and moves the two co-modified readings NOT AT ALL.
-  `change_ids - 1` reads **157** on the merged tree rather than the 156 this
-  packet alone would leave, because `add-project-repo-schema` landed on `main`
-  in the same window and is one more ACTIVE change too — and, carrying a
-  MODIFIED block where this packet carries none, it is that other packet and not
-  this one that moves `co_modified` and `active_co_modified` to 108 and 21. The
-  two sets of moves are DISJOINT except on the population count, so nothing here
-  is a net of opposed moves. Measured on all three trees and confirmed BY
-  EXCLUSION (dropping either packet from the merged corpus reproduces the other
-  branch's own reading exactly), moved in the same commit, with a dated MOVEMENT
-  LOG entry, which is that pin's own protocol.
+- [add-consumer-identity-namespace](openspec/changes/add-consumer-identity-namespace/proposal.md)
+  — authored 2026-09-03, **RATIFIED 2026-09-03 by Brett Heap, in session**
+  (verbatim "implement your recommendations on all these", over written
+  recommendations for five queued items). **IT CARRIES TWO RULINGS OF THAT ONE
+  WORD, openxFactory #511 AND #553, IN ONE `## MODIFIED Requirements` BLOCK** —
+  because a MODIFIED block replaces a requirement WHOLESALE and both rulings
+  write the same one (*"Two bindings on one secret are refused unless every pair
+  declares distinct consumers…"*), so two live blocks could not both survive: the
+  second to archive would silently revert the first. The lane holding #553 stood
+  down before authoring and its branch is deleted; issue #553 records this packet
+  as its vehicle. **#511** declares `consumer.identity_namespace` — the issuing
+  directory, account or tenant WITHIN the provider — as an ADDITIVE OPTIONAL
+  member, and rescopes `shared-authority-identity` from a BARE STRING to the PAIR
+  `(identity_namespace, fetch_identity)`. The finding fired on two tenants of one
+  provider whose principals share a name, and **the only escape was to rename a
+  fetch identity in the record while the principal kept its real name in the
+  provider** — a refusal whose only escape is a lie. THE FALLBACK REPORTS RATHER
+  THAN CLEARS: where either side declares no namespace, or one outside the
+  identifier grammar, the comparison returns to the bare identity, because an
+  estate able to silence a real shared authority by OMITTING a member on one side
+  would hold a rule it can turn off without writing anything false. ONE predicate
+  serves both the named finding and the lift's THIRD condition — canon states the
+  comparison once, and the first draft that rescoped only the finding was caught
+  by execution, refusing a two-tenant pair under `shared-secret-identity` and
+  sending a reader to split a secret instead of reading a namespace. The member
+  lands under the block's declared-at-the-minor / constrained-at-the-major
+  phasing as the **NINTH `consumer-*` shape code**,
+  `consumer-identity-namespace-grammar` — its own code rather than a widening of
+  `consumer-member-grammar`, because an unreadable namespace ALSO un-scopes the
+  comparison — **and its deprecation window opens at ITS OWN minor, not at
+  `contract-v2.4`**, a row that borrowed a window it never served being the exact
+  defect that policy entry exists to prevent. **#553** amends the promoted
+  scenario *"The requirement reference resolves to more than one record"* to the
+  PER-DOCUMENT scope `resolve_requirement` actually enforces, and rescopes the
+  six-conditions sentence with it — **exactly two edits**, no code, no status, no
+  severity; the resolver, its `ambiguous` verdict and
+  `add-requirement-ref-resolution-integrity` § 3.4's freeze are CITED AND NOT
+  EDITED, and that packet's § 9.4 obligation is discharged by the AMEND branch it
+  names. Ids stay namespaced by their document; repository-wide uniqueness is not
+  a rule. **PROPOSAL AND REALIZATION LAND IN ONE PR** — schema member, shared
+  predicate, ninth code, five packaged fixtures in BOTH directions (the CLEARING
+  one first, a corpus holding only the reporting direction being unable to tell a
+  working check from one that fires on everything), nineteen tests, the
+  `contracts/manifest.yaml` digest recomputed from the bytes, and the policy
+  entry — **and NO CUT**, which is the ruling's own exclusion: no tag, no digest
+  inventory, no version-headed CHANGELOG entry, that entry prescribed verbatim in
+  `tasks.md` § 5.3 so the cut invents nothing. NOTHING NARROWS EXCEPT ONE NAMED
+  SCREEN — `baked-secret` over the third free string, under
+  `add-binding-consumer-identity` § 2.6's own precedent — the comparison change
+  being a SUBTRACTION that can only make a reported pair go silent. Carriage
+  measured: titles byte-identical, 12 scenarios in and 16 out on the block
+  requirement, 12 in and 15 out on the lift requirement, **zero units lost**. No
+  `Modified over` marker is owed and that was CHECKED against
+  `govern-sibling-added-modified-deltas`: both requirements are PROMOTED canon.
+  Two `release-inventory-drift` findings are raised and are the CUT's to
+  discharge — the family's own remedy line forbids hand-editing an inventory to
+  make the comparison pass. **NO COUNCIL SAT AND NONE WAS PRESCRIBED**, and the
+  ratification record says in terms that the ruling reached the SUBSTANCE and is
+  not a read of this text.
 - [add-cpc-clearing-boundary](openspec/changes/add-cpc-clearing-boundary/proposal.md)
   — authored 2026-09-01, RE-SCOPED the same day after adversarial review,
   **`Status: ratified`** (2026-09-02, Brett Heap, in-session, on the recorded
@@ -2072,6 +2075,69 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [amend-owner-layer-severity](openspec/changes/archive/2026-09-03-amend-owner-layer-severity/proposal.md)
+  — **ARCHIVED 2026-09-03 IN ITS OWN LANDING COMMIT**, the shape
+  `2026-08-25-reconcile-lifecycle-books-count` set for a doc-only packet:
+  `code_surface: none`, so the archive gate is LANDING rather than
+  merged-plus-green and canon moves in the same pull request as the packet
+  rather than a commit later. Authored and **RATIFIED 2026-09-03 by Brett
+  Heap, in-session** (verbatim "implement your recommendations on all these",
+  recorded VERBATIM as the latest comment on openxFactory issues **#561** and
+  **#339**; record `review/ratification-2026-09-03.md`). Two
+  `## MODIFIED Requirements` blocks, one per issue.
+  **#561: CANON MOVED TO THE CODE, NOT THE CODE TO CANON.**
+  `workflow-gate-contract`'s *Owner layer constraint* said an `owner_layer`
+  resolving to neither a canonical role nor a declared layer id "SHALL be
+  reported as a validator warning" — promoted at `a1a2802b` on 2026-07-09,
+  while `scripts/validate-domain-factory.py`'s `check_workflows` has reported
+  it with `rpt.error` since `493fb33d` on 2026-07-03, **six days EARLIER**. Not
+  a regression against canon: canon was written after the code and did not
+  match it on the day it landed. `retire-hermes-flat-keys-and-openworkflow-tokens`
+  met the divergence, recorded it as **D4** and deliberately left it — its
+  requirement names the fall-through's severity as "whatever the general rule
+  carries", so this change could move it without reopening that row — and its
+  tasks § 6.1 commissioned the issue. **THE MEASUREMENT CAME BEFORE THE
+  RULING**, which is what the issue's own item 2 demanded: at `96b2b968`, ZERO
+  gates across codexFactory, MedxFactory, LedgerxFactory, OpsxFactory and
+  AdxFactory carry an `owner_layer` that resolves to nothing — so no consumer
+  is refused whichever text moved, **no deprecation phasing is owed**, and the
+  stricter gate every consumer has conformed to for two months is the one that
+  stays. Canon now reads `error` in the body clause and "MUST report an error"
+  in the scenario. **NOT ONE LINE OF THE VALIDATOR MOVED**, which is the ruling
+  rather than an omission from it. **#339: AN ILLUSTRATION WAS DATED, NOT
+  DELETED.** `release-surface-integrity`'s *The declared bundle describes the
+  release surface* justified its tag-free reference point with three bundles
+  that "are recorded in the changelog and the manifest with no published tag" —
+  `contract-v1.33`, `contract-v1.35` and `contract-v1.39`, all three
+  retro-published 2026-08-25 by PR #333, so the present tense had been false for
+  nine days. The paragraph is past-tensed with the retro-publication dated and
+  attributed, the treatment **PR #333 itself gave the identical claim** in
+  `scripts/doc_health/release_inventory.py`'s docstring. The rule it justifies
+  — a declared bundle need not carry a tag, so the inventory FILE at the commit
+  is the reference — survives with only the tense-driven rewrap, and the
+  scenario that states it (*The declared bundle was never tagged*) is
+  byte-identical. **BOTH BLOCKS WERE BUILT FROM CANON BY EXTRACTION, NEVER
+  RETYPED, AND THE PROMOTION IS PROVEN BY sha256 RATHER THAN ASSERTED**: each
+  block extracted from canon AFTER promotion hashes identical to the packet's
+  own delta block (`035fb896…bc4ed439`, `6e102b2e…d02a1d19a`), and the
+  post-promotion word-diff against pre-promotion canon (`abe58572…77118237`,
+  `4c9e0b71…313f29567`) shows two words in the first requirement and one dated
+  paragraph in the second and nothing else, with canon's 1 + 4 scenario titles
+  all restated in canon's order. Archived through
+  `scripts/proposal-support.py … archive`, never a bare `openspec archive`.
+  Doc-health over the landed tree reads **no new `critical`, `error` or
+  `warning` finding** against the `origin/main` baseline and **no new `info`
+  either**: the two carriage-ledger rows the active packet carried RETIRED on
+  the condition they were written with when the blocks promoted, both halves
+  verified before the rows were deleted. Two live corpus pins moved TWICE in
+  the one commit and both halves are recorded rather than netted —
+  `tests/sequenced_after/test_sweep.py` `co_modified` 109 -> 111,
+  `change_ids - 1` 157 -> 158, `sole_modifiers - 1` 48 -> 47,
+  `active_co_modified` 21 -> 22 on the authoring and 22 -> 21 on the archive,
+  `active_sole - 1` HELD at 11 through both with the hold asserted; and the
+  carriage-ledger population 8 -> 10 -> 8 — each moved in this change's own
+  commit with a dated note per those pins' own protocol, and named in the
+  proposal's `code_surface` line rather than left to a diff.
 - [add-project-repo-schema](openspec/changes/archive/2026-09-03-add-project-repo-schema/proposal.md)
   — **ARCHIVED 2026-09-03 on merged-and-green realization evidence, with this
   pull request.** Ratified 2026-09-02 by Brett Heap, the convener, verbatim
@@ -2170,6 +2236,120 @@ Archived changes:
   3.2 (the editorial drift `info` and the policy `error` clearing on their own
   at the next cut) travels OPEN, by design, into the archived packet — it names
   a future event rather than a task this act can discharge.
+- [update-standards-body-current-publications](openspec/changes/archive/2026-09-03-update-standards-body-current-publications/proposal.md)
+  — **ARCHIVED 2026-09-03 on merged-and-green realization evidence read off
+  `main`, one day after it was rescued from a shared checkout.** Ratified
+  2026-09-03 by Brett Heap in-session (verbatim *"merge 210 and ratify and merge
+  593"*), **D1–D4 ADOPTED AS WRITTEN**; realized by **PR #593**, squash
+  **`3c237cd0`** (2026-09-03), which carried the packet AND its whole code
+  surface in one landing — `scripts/standards_body_registry.py` (a stdlib-only
+  `registry_errors()` reader plus `load_registry()`, a duplicate-key-refusing
+  loader), the import and `main()` loop in
+  `scripts/validate-omnigent-contracts.py` that reach it,
+  `tests/test_standards_body_registry.py`, one negative fixture, and the
+  `contracts/policies/standards-bodies.yaml` refresh. **GREEN AT THAT COMMIT**:
+  `pytest-suite` run **33717394896** (05:26Z, `success`) and
+  `signed-execution-chain-gate` `success` on `3c237cd0`. `target_release:
+  implemented` names the openxFactory main line, so merged-plus-green on `main`
+  IS the gate (`docs/release-realization-flow.md` § The Archive Gate) — the
+  archive act is separate from the realization and ran through
+  `scripts/proposal-support.py . archive`, never bare `openspec archive`.
+  **THE REGISTER IT PROMOTES**: a distinct **`itil5`** body for ITIL Version 5
+  with `itil4` preserved for historical consumers — *no silent rename* — **SFIA
+  9** recorded as current beside the steward's restrictive licence statement,
+  with Brett's product-config permission carried as an explicit
+  `status: unverified` **operator override** naming approver, date, rationale and
+  the conflicting source (a validator refuses an override missing any of them,
+  so the decision is preserved without being laundered into a licence
+  conclusion), and **APQC PCF 8.0** re-verified with its IT-process crosswalk
+  scope and mandatory attribution. Crosswalks stay **descriptive**: resolving a
+  body id exposes term kind and licensing posture and confers no archetype,
+  permission, credential tier or terminal-action authority.
+  **THE OBLIGATION IS KEYED TO THE CLAIM, AND THAT IS A MEASUREMENT AND NOT A
+  PREFERENCE** — the register's own numbers, 2026-09-03: of **45** bodies, **32**
+  carry `status: current` and exactly **3** carry a verification date, those
+  three being the ones this change read against primary sources. An obligation
+  written over `status: current` would have been FALSE of 29 records the day it
+  promoted, and the only repairs available were to backfill 29 dates nobody
+  performed (the fabrication the register's own sourcing caveat forbids) or to
+  demote records whose currency is not in doubt. Keying it to `verified_on` —
+  **presence of the key, not its truthiness**, so a half-written `verified_on:`
+  is caught rather than excused — makes it true of every record that makes a
+  claim and silent about records that assert nothing. Re-verifying the other 29
+  is named as work owed to a successor rather than pretended away.
+  **PROMOTION VERIFIED BYTE-FOR-BYTE**: `standards-body-registry` is a NEW
+  capability, created 0 → **4 requirements / 10 scenarios**, and the promoted
+  body is byte-identical to the archived delta (compared as bytes, not read).
+  Its `## Purpose` is written from the proposal, **not** left as the archiver's
+  `TBD - created by archiving` line. **THIS BRANCH TOOK TWO CATCH-UP MERGES**:
+  `declare-spent-bundle-state`'s own archive (the entry immediately above, PR
+  #611, squash landed on `main` as `7af2725c`) merged ahead of this one, and
+  five more commits landed before this PR could open (`#603`, `#599`, `#601`,
+  `#614`, `#602`, squash tip `1c3e744f`) — none touching this packet's files,
+  its README entry, `tests/sequenced_after/test_sweep.py`, or
+  `openspec/specs/standards-body-registry/`. Every gate below is measured
+  against `1c3e744f` and not the stale `6da1e1f5` the authoring session last
+  touched. Gates, measured either side of this archive's own act:
+  `openspec validate --all --strict` **86 → 86 passed, 0 failed** — the count
+  does not move because promoting a NEW capability trades one active change
+  for one spec (33 active + 53 specs → 32 active + 54 specs), which is the
+  one arithmetic an archive of a new-capability packet predicts and a `-1`
+  would have contradicted; `pytest tests/doc-health` **1500 passed** either
+  side (one foreground run hit a single transient failure in
+  `test_this_repository_can_consult_the_retention_namespace`, a remote-ref
+  network read; it passed alone and a full clean rerun read 1500/1500, so it
+  is recorded as a network flake and not a regression); `pytest
+  tests/test_standards_body_registry.py` **17 passed**;
+  `scripts/validate-omnigent-contracts.py` all checks passed; full
+  `doc-health.py --single-repo .` **6 critical, 6 error, 29 warning, 14 info**
+  either side, measured back-to-back on `1c3e744f` and on the merged tree with
+  this archive applied, 0 new regressions on both runs — UNCHANGED by this
+  act. (An earlier reading taken between the two catch-up merges read 13
+  info, one lower, because `contracts/manifest.yaml` was not yet readable at
+  the `main` published tip and the `release-tag-publication` family skipped
+  rather than reported its pre-existing `contract-v2.6` SPENT-declaration
+  info; the second catch-up made that read possible and the finding is
+  pre-existing corpus content, not something this packet introduces.) `--family
+  promotion-fidelity`, `duplicate-packet` and `status-validity` **no findings**
+  either side — the three families an archive can red on. One
+  thing moved that is bookkeeping and not realization: archiving an **ACTIVE
+  SOLE modifier** lowers the `sequenced_after` live pin `active_sole - 1`
+  **12 → 11** and moves NOTHING else — `co_modified` 108, `active_co_modified`
+  20 (already moved 21 → 20 by the sibling `declare-spent-bundle-state`
+  archive this branch merged, not by this act), `sole_modifiers - 1` 49 and
+  `change_ids - 1` 157 all hold, the last two because they count BOTH corpora
+  and an archive moves a change between them rather than out of them. THE
+  OPPOSITE HALF of that same sibling archive's move, and the exact mirror of
+  #571's 2026-09-02 archive: one moves `active_co_modified` alone, this one
+  moves `active_sole` alone. Measured on both trees, moved in the same commit,
+  with a dated MOVEMENT LOG entry, which is that pin's own protocol.
+  **RESCUED, NOT RE-AUTHORED, AND THE RESCUE IS PART OF THE RECORD**: the
+  authoring session of 2026-09-01 ended without pushing, so the packet and its
+  code existed on no branch and not on `main` (openxFactory issue **#591**); PR
+  #593 carried the snapshot byte-identical and repaired **three unlawful
+  shapes** — it sat under `openspec/changes/archive/2026-09-01-…` though it had
+  never landed and, carrying a code surface, could not archive (moved to the
+  ACTIVE corpus, and archived only now, from the gate); it had **PRE-PROMOTED**
+  its delta under the archiver's `TBD` purpose line (removed, promotion being
+  the archive step's act, and performed here); and it declared `target_release:
+  none` while shipping a module, a validator line and tests (corrected to
+  `implemented`). Five adversarial Copilot rounds on that PR forced five
+  substantive fixes, each recorded in `tasks.md` §3.5–§3.8: the **duplicate
+  `source_url`** that silently ate the SFIA licensing evidence D2 exists to
+  preserve, the checker's own under-enforcement of `steward` and `names`, the
+  truthiness trigger, the second reader still on permissive `yaml.safe_load`, and
+  a registry that does not parse arriving as a traceback rather than a finding.
+  **NO CONTRACT BUNDLE IS OWED, BY MEASUREMENT**:
+  `contracts/policies/standards-bodies.yaml` is a member of NEITHER
+  `contracts/manifest.yaml` NOR `contracts/releases/contract-v3.0.digests.yaml`
+  (283 entries, zero under `contracts/policies/`), so the policy edit raises no
+  `release-inventory-drift` finding at any severity and owes no cut. **WHAT
+  REMAINS OWED, NAMED RATHER THAN CLOSED**: the missing SFIA written permission
+  (owner: the operator/legal-review seat, §4.3), the OpsxFactory crosswalk this
+  change only AUTHORIZES (§4.1–§4.2, `handoff/opsx-overlay-current-standards.md`
+  travels with the archived packet), and re-verification of the 29 unverified
+  register records.
+
 - [govern-sibling-added-modified-deltas](openspec/changes/archive/2026-09-02-govern-sibling-added-modified-deltas/proposal.md)
   — **ARCHIVED 2026-09-02 on merged-and-green realization evidence, and on a
   MEASURED estate rather than a predicted one.** Ratified 2026-08-31 by direct
