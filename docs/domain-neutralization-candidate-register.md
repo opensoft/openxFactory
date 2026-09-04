@@ -44,7 +44,7 @@ implemented/promoted, `adopted` = adopted.
 | DTN-014 | Governed derived model (non-authoritative models and scenarios, tiered conformance) | `promote` | P2 | `implemented` | `governed-derived-model` capability: conformance schema, invariant vocabulary, `validate-derived-models.py` |
 | DTN-015 | Learned handling rule / correction-promotion loop | `promote` | P2 | `seed` | handling-rule invariant vocabulary + correction→promotion lifecycle (governed-derived-model profile) |
 | DTN-016 | Consent instrument (the rung-1↔rung-2 authority root as a schema'd object) | `promote` | P1 | `adopted` | `xfactory_consent_instrument` schema + vocabulary; mapping to memory-gateway consent-profile |
-| DTN-017 | Subject establishment (facts → neutral best-practice design → platform realization → verified apply; plus the audit-lift mirror) | `promote` | P1 | `openspec` | neutral subject-design + platform-realization artifact kinds, provenance-graded fact set, reference-archetype lifecycle, conformance-tiering dial, verify-by-read-back obligation |
+| DTN-017 | Subject establishment (facts → neutral best-practice design → platform realization → verified apply; plus the audit-lift mirror) | `promote` | P1 | `implemented` | neutral subject-design + platform-realization artifact kinds, provenance-graded fact set, reference-archetype lifecycle, conformance-tiering dial, verify-by-read-back obligation |
 | DTN-018 | Domain-repo conformance-gate check pack | `promote` | P1 | `adopted` | neutral inventory/parity/pin checks run from the pinned openxFactory checkout |
 | DTN-019 | Proposal-support lifecycle tool | `promote` | P1 | `adopted` | `scripts/proposal-support.py` beside its in-repo doc-health consumer (family 5) |
 | DTN-020 | Change-ratification workflow contract | `promote` | P2 | `seed` | neutral reference ratification workflow (pre-implementation governance sidecar) |
@@ -469,7 +469,7 @@ mechanics, fee/term content, jurisdiction-specific clauses.
 ### DTN-017: Subject establishment (facts → neutral design → platform realization → verified apply)
 
 Staged 2026-07-28: staging topic
-[subject-establishment](../ideation/staging/subject-establishment/subject-establishment.md)
+[subject-establishment](../openspec/changes/archive/2026-09-04-add-subject-establishment/supporting-docs/subject-establishment.md)
 (named by Brett Heap while designing LedgerxFactory's company
 provisioning). Every domain runs the same motion at the start of a
 subject's life — establish provenance-graded facts, design the
@@ -537,7 +537,7 @@ external systems are supported and their mapping tables, and the expert
 seat that reviews a deviating design.
 
 FILED 2026-08-28 as
-[add-subject-establishment](../openspec/changes/add-subject-establishment/proposal.md),
+[add-subject-establishment](../openspec/changes/archive/2026-09-04-add-subject-establishment/proposal.md),
 on Brett's ruling "Progress both" — the FULL promotion of the staged
 topic, taking its own declared exit path now that both of its gates are
 clear (LedgerxFactory's first instantiation archived 2026-08-04; the
@@ -552,6 +552,25 @@ one by name; and the two artifact kinds' SCHEMAS are deliberately NOT in
 this packet, named instead as the successor
 `add-subject-establishment-contracts` and flagged for veto as OD-1. The
 row moves to `implemented` only when that change archives.
+
+ARCHIVED 2026-09-04 and **THE ROW MOVED ACCORDINGLY, `openspec` →
+`implemented`** — the sentence above is the instruction and this is it being
+carried out, not a re-reading of it. `implemented` is the register's own gloss
+for "implemented/promoted" and the promotion is what happened: PR #491 merged
+at squash `9ef151ad` (2026-09-04), the ruling round completed the same day by
+Brett Heap in session (verbatim "accept all, recommendations stand" — OD-1 …
+OD-6 accepted as proposed, OQ1 … OQ6 recommendations standing), `main` green
+on `pytest-suite` run `33838718587`, and the delta promoted whole into
+`openspec/specs/subject-establishment/spec.md` — eleven requirements, 37
+scenarios, byte-checked against the delta rather than trusted. **NOT
+`adopted`**: that value asks for domain re-pin and local-copy retirement, and
+no domain has instantiated this capability yet — the codexFactory and
+OpsxFactory consumers and the LedgerxFactory back-citation are named as OWED
+work in the archived packet's `tasks.md` § Open, and the two artifact kinds'
+schemas remain the successor `add-subject-establishment-contracts` (OD-1,
+accepted as proposed). The two links above are repointed to the archived
+packet in the same act — the staged-topic link had been dangling since the
+topic's folder left `ideation/staging/` at the full promotion.
 
 ### DTN-018: Domain-repo conformance-gate check pack
 

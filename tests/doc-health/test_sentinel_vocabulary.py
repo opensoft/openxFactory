@@ -948,6 +948,20 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     # MERGED TREE rather than obtained by adding one: every manifest main carries
     # and this packet's own are present together, and the census reads 70.
     # `lost` / `uncovered` / `vanished` / `arrived` are untouched by the step.
+    #
+    # 70 -> 70 ON THE ARCHIVE OF `add-subject-establishment` (PR #647,
+    # 2026-09-04), AND THE STANDING NUMBER IS WHY THE MOVE IS RECORDED HERE AT
+    # ALL. The manifest above travelled INTO the archive with its packet and now
+    # sits at
+    # `openspec/changes/archive/2026-09-04-add-subject-establishment/supporting-docs/manifest.yaml`;
+    # the `proposal-support-manifest` member globs
+    # `openspec/changes/archive/*/supporting-docs/*manifest.yaml` alongside the
+    # active form, so the site is the SAME site under a new path and the census
+    # holds at 70 / 24. A path in a comment going stale while the assertion
+    # stayed true is exactly the case a reader would otherwise misdiagnose as an
+    # unrecorded step, so the path is corrected rather than left to be found.
+    # RE-ENUMERATED WITH `pin_class.verify()` ON THE COMMITTED TREE after the
+    # move (`pass`, member `proposal-support-manifest`), never by arithmetic.
     assert len(report.results) == 70
     assert len({r.site.member_id for r in report.results}) == 24
     assert len(report.lost) == 1
