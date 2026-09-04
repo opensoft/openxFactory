@@ -127,7 +127,9 @@ validator conventions and its own `stack.yaml`.
 
 ## Slice 7 — archive preflight
 
-- [ ] **7.1** Ratification by Brett Heap, recorded in
+- [x] **7.1** **(DONE 2026-09-04.)** Ratification by Brett Heap, recorded in
+      `review/ratification-2026-09-04.md` — verbatim "ratify 667", heard
+      first-hand by session opsxfactory-fb, relay path recorded. Was: recorded in
       `review/ratification-<date>.md`. Not sought by this packet's landing.
 - [ ] **7.2** `OPENSPEC_TELEMETRY=0 openspec validate add-openspec-cli-pin
       --strict` and `--all --strict` green at the archive gate, re-run at that

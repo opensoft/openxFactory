@@ -1,12 +1,16 @@
 ---
 code_surface: openxFactory — FOUR NEW artifacts, all landing in this pull request, none of them a registered contract row. (1) `contracts/openspec-cli-pin.yaml`, openxFactory's consumption of `@fission-ai/openspec` at version `1.2.0` whose REFERENT is the published tarball's SHA-512 integrity `sha512-2XDmPZcVY0Bs014lP9aoxe3VoEU8hFvqaBFxQaiJO2nhC8vTKCyo6sT/5YpQcOTfR/a64Hht2anTyqLR4eNhlg==` (registry shasum `0fd5333520c8846f0ac51727379b8812e2f13c1b`, tarball `https://registry.npmjs.org/@fission-ai/openspec/-/openspec-1.2.0.tgz`), in the `neutral-product-pin` shape with `kind: pinned_contract_manifest` reused unchanged. (2) `scripts/validate-openspec-cli-pin.py`, standard-library-only and fail-closed, five named refusal codes and one fixed remediation trailer — and it is BOTH the pin's verifier AND the consumer entrypoint through which strict validation runs, which is the design rather than an economy. (3) `.github/workflows/openspec-cli-pin-gate.yml`, which makes this the FIRST repository in the estate whose archive gate actually runs in continuous integration. (4) `tests/openspec_cli_pin/test_openspec_cli_pin.py`, 41 tests over the five checks, the refusal vocabulary, the cache's re-verification property and the gate's freedom from a second copy of the version. NOT THIS CHANGE'S SURFACE, each for a stated reason: the CONSUMING repositories' wiring (OpsxFactory, codexFactory, MedxFactory, LedgerxFactory, AdxFactory) is a successor change per repository and is named in the impact map below; the VERSION BUMP to a later CLI is a separate human-only governed change that must land its target-version evidence with it; the DEPENDENCY CLOSURE of the pinned artifact is a declared shortfall recorded in the pin's own header and named as successor work, not silently implied; and `.github/workflows/pytest-suite.yml`'s literal `@fission-ai/openspec@1.2.0` line is left ALONE in this packet and named as task 5.1, because replacing it touches the repository's most load-bearing required check and deserves its own diff rather than a rider on this one.
 target_release: none (no contract-bundle involvement — every artifact this change adds is NEW and none is a registered row: `contracts/openspec-cli-pin.yaml` is a CONSUMPTION pin in the shape of `contracts/openreposhape-pin.yaml` and `contracts/openxwallet-pin.yaml`, and measured on this branch neither of those appears in `contracts/manifest.yaml` nor in any `contracts/releases/*.digests.yaml` inventory; `scripts/validate-openspec-cli-pin.py` is likewise a new unregistered validator, exactly as `scripts/validate-openreposhape-pin.py` is. No digest set moves, no `contract_bundle_version` is spent, and no release tag is owed. The archive gate is therefore `release-realization`'s merged-plus-green realization evidence for a non-empty code surface, and NOT a bundle cut.)
-Status: draft
+Status: ratified
 ---
 
 # Proposal: add-openspec-cli-pin
 
-Status: draft
+Status: ratified
+Ratified: Brett Heap, 2026-09-04 — verbatim "ratify 667", heard first-hand by
+session opsxfactory-fb; record at `review/ratification-2026-09-04.md`, which
+also records the relay path and the authoring lane's correct refusal to act
+on a second-hand word.
 Proposed: 2026-09-04
 Origin: Operator instruction, Brett Heap, 2026-09-04, verbatim: *"draft the
 openxFactory pin change, pinned at 1.2.0"*. The instruction is explicit that
@@ -14,6 +18,9 @@ this packet PINS THE CURRENT VERSION and does not bump it; the upgrade is a
 later, separate change.
 
 **RATIFICATION HAS NOT HAPPENED AND IS NOT SOUGHT BY THIS PACKET'S LANDING.**
+*(True at authoring. RATIFIED 2026-09-04 — see the Ratified line above and
+`review/ratification-2026-09-04.md`; the paragraph is kept as the record of
+what this packet did and did not seek.)*
 Brett Heap authorized the DRAFT. Every judgment the authoring session took is
 listed in § Authoring decisions rather than presented as settled.
 
