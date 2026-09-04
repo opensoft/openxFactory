@@ -482,28 +482,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-drafted-proposal-origin](openspec/changes/add-drafted-proposal-origin/proposal.md)
-  — authored and **RATIFIED 2026-09-03 by Brett Heap, in-session** (verbatim
-  "implement your recommendations on all these"; the ruling and its resolution
-  for this issue are recorded on openxFactory issue **#318**), realization
-  landing with the same PR. Gives a drafted-but-unapproved change packet a
-  LAWFUL ORIGIN SHAPE: an `ad_hoc` origin may declare `proposed_by` +
-  `proposed_on` in place of `approved_by` + `approved_on`, so an unapproved
-  packet is expressible and reports nothing, while approval becomes an
-  ADDITION to a fixed origin identity — `kind` and `id` never move, so the
-  support manifest that repeats them never comes to disagree with the packet.
-  `approved_on` remains required in full wherever approval is claimed, and a
-  proposal whose own `Status:` declares `ratified` or beyond over an
-  unapproved origin is a NEW `error` finding with resolution class
-  `contested` (`unapproved-origin-at-ratification`), because approval must
-  appear when the status claims it and inventing the date is the defect the
-  field exists to catch. Before this, the two shapes available to a drafted
-  packet were both errors and two medx boundary packets carried one long
-  enough to join the standing error baseline. Empty population by
-  construction: all 109 ad-hoc origins in this corpus carry a complete
-  approval pair. Archive gate is **merged-plus-green on `main`**
-  (`pytest tests/doc-health`, `openspec validate --all --strict`, a
-  doc-health run moving by the predicted amount and no other line).
 - [add-consumer-identity-namespace](openspec/changes/add-consumer-identity-namespace/proposal.md)
   — authored 2026-09-03, **RATIFIED 2026-09-03 by Brett Heap, in session**
   (verbatim "implement your recommendations on all these", over written
@@ -2168,6 +2146,59 @@ Archived changes:
   the `proposal-support-manifest` member globs the archived path as well as the
   active one, so `pin_class.verify()` re-derived **70 sites / 24 members**
   unchanged — re-enumerated on the committed tree rather than reasoned about.
+- [add-drafted-proposal-origin](openspec/changes/archive/2026-09-04-add-drafted-proposal-origin/proposal.md)
+  — **ARCHIVED 2026-09-04 on merged-and-green realization evidence read off
+  `main`.** Authored and **RATIFIED 2026-09-03 by Brett Heap, in-session**
+  (verbatim *"implement your recommendations on all these"*; the ruling and its
+  resolution for this issue are recorded on openxFactory issue **#318**, which
+  chose shape 1 and named the vehicle — record
+  `review/ratification-2026-09-03.md`, archived with the packet).
+  **REALIZED by PR #619**, squash **`d611666c`** (2026-09-04T01:51:13Z), which
+  carried the packet AND its whole code surface in one landing — the
+  three-state `ad_hoc` arm, `_declared_standing` and the two new finding
+  classes in `scripts/doc_health/proposal_origin.py`; the matching gate arm,
+  the copied field pairs, `write_origin_block`'s refusing arms and
+  `declare-adhoc`'s `--proposed-by`/`--proposed-on` in
+  `scripts/proposal-support.py`; and the fixtures across `tests/doc-health/`.
+  **GREEN WHERE IT LANDED**: `main`'s own `pytest-suite` run **33835343327**
+  at `92e662cf`, `success`, with the realization in that tree — polled to
+  completion BEFORE the archive branch was cut, because what
+  `release-realization`'s realization archive gate asks is whether the
+  realization is green WHERE IT LANDED, not on the archive pull request.
+  `target_release: implemented` names the openxFactory main line and this
+  surface cuts no contract bundle, so merged-plus-green on `main` IS the gate
+  (`docs/release-realization-flow.md` § The Archive Gate); the archive act ran
+  through `scripts/proposal-support.py`, never bare `openspec archive`.
+  **WHAT IT LEAVES IN CANON**: TWO requirements promoted **byte-identically** —
+  `document-lifecycle`'s *"Proposal origin declaration"* (6220 characters both
+  sides, seven scenarios) and `doc-health`'s *"Proposal-origin checks enforced
+  by reference"* (6400 characters both sides, ten scenarios). A drafted-but-
+  unapproved change packet now has a LAWFUL ORIGIN SHAPE: an `ad_hoc` origin
+  may declare `proposed_by` + `proposed_on` in place of `approved_by` +
+  `approved_on`, so an unapproved packet is expressible and reports nothing,
+  while approval becomes an ADDITION to a fixed origin identity — `kind` and
+  `id` never move, so the support manifest that repeats them never comes to
+  disagree with the packet. `approved_on` remains required in full wherever
+  approval is claimed, and a proposal whose own `Status:` declares `ratified`
+  or beyond over an unapproved origin is an `error` finding with resolution
+  class `contested` (`unapproved-origin-at-ratification`), because approval
+  must appear when the status claims it and inventing the date is the defect
+  the field exists to catch. Before this, the two shapes available to a
+  drafted packet were both errors and two medx boundary packets carried one
+  long enough to join the standing error baseline. Empty population by
+  construction: all 109 ad-hoc origins in this corpus carry a complete
+  approval pair.
+  **THE ARCHIVE MOVED ONE LEDGER ROW AND RETIRED TWO SELF-GATE ROWS.**
+  `tests/sequenced_after/corpus-ledger.yaml`: `state: active` → `archived`,
+  `class` holding at `co-modifier`, `declares` absent, no partner flipped, so
+  no MOVEMENT LOG entry was owed. `tests/doc-health/`
+  `test_modified_block_currency_self_gate.py`: the packet's two
+  `_LEDGER_SUBJECTS` rows retired on the stated condition — the packet
+  archived AND both blocks promoted — with both halves verified before the
+  rows came out, and the retirement RECORDED in place rather than left as an
+  absence. The doc-health headline moved by exactly the reverse of what
+  `proposal.md` § Measured effect predicted for the landing: **−2 `info` and
+  nothing else**, both of them this packet's own carriage-ledger lines.
 - [add-per-change-sweep-ledger](openspec/changes/archive/2026-09-04-add-per-change-sweep-ledger/proposal.md)
   — **ARCHIVED 2026-09-04 on merged-and-green realization evidence read off
   `main`, and it is THE FIRST ARCHIVE PERFORMED UNDER THE PIN IT INTRODUCES.**
