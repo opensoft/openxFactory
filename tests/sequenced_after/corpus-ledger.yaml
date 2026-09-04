@@ -186,7 +186,7 @@ rows:
   concretize-prose-tagging-syntax: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   create-ledgerxwallet-overlay-boundary: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   create-medxchart-overlay-boundary: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#654", moved_on: "2026-09-04"}
-  create-medxpractice-overlay-boundary: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  create-medxpractice-overlay-boundary: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#660", moved_on: "2026-09-04"}
   declare-client-standing-policy-contract: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   declare-generated-projection-status: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   declare-sentinel-pin-vocabulary: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}

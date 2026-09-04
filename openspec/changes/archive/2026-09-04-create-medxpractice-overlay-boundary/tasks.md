@@ -275,3 +275,43 @@ here.**
         is protected only by this prose, by the pull request body, and by the
         coordinator who merges** — which is worth saying plainly rather than
         leaving a reader to assume a machine is watching.
+
+## 7. The archive act
+
+- [x] 7.1 **THE LANDING ACT.** This change is archived by **openxFactory PR
+      #660**, branch `change/archive-create-medxpractice-overlay-boundary`, cut
+      from `main` at `bc1bd4ee` — the merge of PR #654, which archived the
+      sibling and put the placement amendment into canon. On Brett Heap's word
+      of 2026-09-04: *"land it and do medxpractice"*. The move ran through
+      **`python3 scripts/proposal-support.py . archive
+      create-medxpractice-overlay-boundary --date 2026-09-04 --yes`** — the
+      sanctioned wrapper, never bare `openspec archive`. **THAT WRAPPER REFUSED
+      FIRST** (exit 1, *"change has incomplete tasks"*, its gate unconditional
+      on which box) while § 5.5 was open; the refusal was reported to the
+      convener rather than routed around, and § 5.5's tick records the owner's
+      disposition. `.openspec.yaml` is UNTOUCHED and proven so by digest —
+      sha256 `c151811b…` on both this tree and the ratified ref `0bf37d14` — as
+      `release-realization`'s origin-retention rule requires; the
+      parent-declaration retention gate (`--archive-gate` against `0bf37d14`)
+      passes, confirming this change's ABSENCE of a `sequenced_after`
+      declaration is unchanged.
+- [x] 7.2 **THE LEDGER MOVE, CONFIRMED RATHER THAN PREDICTED.** Exactly one
+      `tests/sequenced_after/corpus-ledger.yaml` row moved —
+      `create-medxpractice-overlay-boundary`, `state: active` → `archived` —
+      with `class` held at **`sole`** (this packet carries NO
+      `## MODIFIED Requirements` block and never did, so it was and remains a
+      sole modifier), `declares: absent` unchanged, and **no partner flipped**.
+      **NO MOVEMENT LOG entry is owed**: the row diff explains the whole move.
+      Contrast the sibling, whose row is `co-modifier` because it carried the
+      placement delta — the two rows differ in exactly the way the packets do.
+- [x] 7.3 **THE ORDER § 6.2 DEMANDED WAS KEPT, AND THIS IS THE PROOF.** § 6.2
+      says this packet archives after its sibling because it CITES the placement
+      amendment and "the amendment must be on the base branch before the packet
+      that cites it can be read against it". It was: PR #654 merged `bc1bd4ee`
+      at 2026-09-04T14:59:12Z, promoting the amendment into
+      `openspec/specs/domain-descendant-boundary/spec.md`; this branch is cut
+      from that commit, and R3's primary citation resolves against it at line
+      76. **The out-of-order cost § 6.2 named — "a ratified change contradicting
+      promoted canon" — was therefore never paid.** Nothing in the repository
+      enforced the order; it was protected by that prose, the pull request
+      bodies, and the coordinator who merged.
