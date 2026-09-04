@@ -1,0 +1,37 @@
+# expected_failure: clearing-report-carries-a-verdict
+# expected_failure_detail: eligibility_verdict
+# VIOLATES "deliberation is register entry number two and returns evidence only":
+# the entry may not "carry a verdict, eligibility, decision, go/no-go, approval,
+# or recommendation field: what the seats produce is evidence, and the outcome is
+# computed by the runtime from the signed returns, downstream of and outside this
+# boundary" — and the scenario "The return carries a verdict" requires that "the
+# scan that produces that refusal MUST be applied to records of kind
+# `xfactory_clearing_deliberation_return` as well as to the operation report, a
+# refusal that fires only on a kind this operation never emits being no refusal
+# at all for it."
+#
+# THE SEAT'S IDENTITY IS THE KEY, so this fixture puts the verdict where a closed
+# root cannot see it: in a seat NAME. `propertyNames` admits it — it is a
+# well-formed identifier — and the shape check passes over it, which is exactly
+# why the name scan exists as the other half. A schema closed to unknown members
+# refuses a member it does not know; it cannot refuse one it does know whose name
+# announces a decision.
+#
+# THE REFUSAL CODE IS THE EXISTING ONE. `clearing-report-carries-a-verdict`
+# already exists and is already red-proven by the operation report's own fixture;
+# admitting this operation mints NO new finding code, and a
+# `clearing-return-carries-a-verdict` twin would be widening a closed set to
+# duplicate a refusal that already fires.
+schema_version: 1
+kind: xfactory_clearing_deliberation_return
+operation: deliberation
+lane: artifact
+binding:
+  convening_job_id: cvn-2026-09-04-0007
+  verified_subject_pin: subject:opensoft/codexFactory@0d5e1ba9
+  inbound_bundle_digest: sha256:2b7d1c4e6a8f0b3d5e7091a2c4e6f80b1d3f5a7c9e0b2d4f6a8c0e2f4a6b8d0c
+seats:
+  eligibility_verdict:
+    output:
+      form: inline
+      payload: 'clear to merge'
