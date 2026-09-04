@@ -396,6 +396,33 @@ Copilot thread is unaddressed.
 *"Your private repo does not have access to Sourcery"* comment on 2026-08-31 and
 reviewed nothing.
 
+**The round on THIS commit — one finding class, REFUSED WITH A MEASUREMENT.**
+Copilot reviewed the ratifying commit `82c47452` on `2026-09-04T05:55:09Z` — 🟡
+*Changes recommended*, two threads plus one suppressed comment, all three the
+same claim: that the inline code spans this record and `README.md` wrap across a
+line break *"will render incorrectly"* because *"inline code spans can't contain
+newlines"*. **The premise is false.** Under CommonMark, which GFM is built on, a
+line ending inside a code span is CONVERTED TO A SPACE. Proved through GitHub's
+own GFM renderer (`POST /markdown`, `mode=gfm`) on the exact flagged source —
+including the two-space list-continuation indent the `README.md` site actually
+carries — rather than argued: the enum span renders as the single correct
+`<code>[in_flight, landed, terminally_failed]</code>`, and the `git diff` span
+as one `<code>` element with a space where the break was. **And it is this
+corpus's own convention, not a slip here**: measured over every governed
+Markdown file with fenced blocks excluded, **1,554 inline code spans carry a
+line break across 348 distinct files** — 1.7% of all 93,323 spans — and the
+precedent ratification record this one was written to match
+(`2026-09-03-declare-spent-bundle-state/review/ratification-2026-09-02.md`)
+carries two itself. Unwrapping three sites would make them the divergence from a
+convention used 1,554 times and push several lines past the 80-column wrap. The
+one way it could have been a real defect was checked rather than assumed: every
+break falls after a token boundary (`--`, a comma, a command word), so the
+inserted space lands between tokens and a copied command stays valid; no break
+falls inside a path or an identifier. **Refused, no change made, both threads
+answered in-thread with the measurement and resolved.** Codex was invoked once
+more on this commit and replied with the usage-limit refusal — **NON-REVIEW
+again**, consistent with every invocation after the requirement-1 drop.
+
 ## One inherited red, cleared before ratification and recorded because it shaped the PR's history
 
 This PR spent time on two failures that were never its own, and both are closed.
