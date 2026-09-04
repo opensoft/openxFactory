@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Validate the `clearing` contract family — the neutral clearing-dispatch boundary.
 
-The openxFactory-owned canonical validator for the five kinds
+The openxFactory-owned canonical validator for the six kinds
 `xfactory_sealed_bundle_manifest`,
 `xfactory_clearing_permitted_operations_registry`,
 `xfactory_clearing_operation_report`,
+`xfactory_clearing_deliberation_return`,
 `xfactory_clearing_dispatch_record` and
 `xfactory_clearing_single_door_attestation`
 (`contracts/clearing/*.schema.yaml`). Run from the pinned openxFactory checkout,
@@ -31,7 +32,7 @@ TWO LAYERS RUN.
    is a refusal nobody has tested.
 
 2. OPTIONAL REAL ARTIFACTS under REPO_PATH: every `*.y*ml` whose top-level
-   `kind` is one of the five family kinds is validated. The packaged examples
+   `kind` is one of the six family kinds is validated. The packaged examples
    tree is excluded, because layer 1 already adjudicates exactly how each of
    those fails. ZERO REAL ARTIFACTS IS THE EXPECTED STATE until a clearing
    implementation writes its first neutral record — `opensoft/xFactory`'s
