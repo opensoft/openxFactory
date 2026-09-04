@@ -232,8 +232,9 @@ an extra field — it needs a schema delta.
       > `build_and_push`, `BuildPlan` and the clone/sparse block, because a
       > module-side raw clone contradicts the re-ratified prohibition whether or
       > not a caller exists. `--phase` now accepts only
-      > `decide | pin | report | seal | record-pr`, and `--phase build` is an
-      > argparse usage error. What is still the aggregation's to author, and the
+      > `decide | seal | pin | report | record-pr` — that order verbatim, as
+      > `dashboard_refresh_lane.py`'s `choices=` tuple declares it and as the
+      > usage error prints it — and `--phase build` is an argparse usage error. What is still the aggregation's to author, and the
       > sentence's surviving claim, is the child WORKFLOW itself.
       > DONE: aggregation PR #141 (`c1bba45d`) landed the active child workflow
       > (id 341027124); PR #179 (`de9a1d99`) corrected its canonical
