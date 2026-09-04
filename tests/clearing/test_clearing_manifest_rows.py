@@ -16,6 +16,7 @@ rootless directories cannot both claim one bare module name in `sys.modules`.
 from __future__ import annotations
 
 import hashlib
+import re
 
 import pytest
 import yaml
@@ -128,15 +129,60 @@ def test_the_registry_instance_is_typed_as_a_registry(rows) -> None:
             assert rows[row_id]["type"] == "schema"
 
 
-def test_the_declared_bundle_version_is_the_one_the_rows_name() -> None:
-    """The manifest's own version and the rows' registration note agree.
+#: ``Registered at contract-v<major>.<minor>`` as the rows spell it.
+_REGISTERING_RELEASE = re.compile(r"Registered at (contract-v(\d+)\.(\d+))")
 
-    Two places hold the number; a cut that moved one and not the other would
-    publish rows claiming a release the bundle does not declare.
+
+def _bundle_order(tag: str) -> tuple[int, int]:
+    matched = re.fullmatch(r"contract-v(\d+)\.(\d+)", tag)
+    assert matched, f"{tag!r} is not a contract-v<major>.<minor> bundle tag"
+    return int(matched.group(1)), int(matched.group(2))
+
+
+def test_the_declared_bundle_has_an_inventory_and_is_not_behind_the_rows(rows) -> None:
+    """The rows' REGISTERING release and the manifest's DECLARED bundle agree.
+
+    Two places hold a number and they are DIFFERENT numbers, which is why this
+    no longer asserts they are equal. The rows say ``Registered at
+    contract-v3.3`` and that is HISTORY — it names the bundle whose bytes first
+    carried this family, and it never moves again. ``contract_bundle_version``
+    names the bundle the repository declares TODAY, and it advances at EVERY
+    cut. Written as an equality while `contract-v3.3` was both, this test could
+    only red the required suite at the next cut, for no defect in the family it
+    guards; `contract-v3.4` — the first cut past its own writing — is where that
+    came due, and the equality is repaired here rather than re-pinned to a
+    number that would fail again at `contract-v3.5`.
+
+    What was actually owed survives and is checked instead: every row names ONE
+    registering release, that release has an inventory beside it, the declared
+    bundle has one too, and the declared bundle is NEVER BEHIND the release the
+    rows advertise — a manifest declaring an earlier bundle than its own rows
+    name would publish rows claiming a release the bundle does not contain,
+    which is the failure the original docstring described.
     """
+    registering = {
+        matched.group(1)
+        for row in rows.values()
+        for matched in [_REGISTERING_RELEASE.search(row["consumption_rule"])]
+        if matched
+    }
+    assert len(registering) == 1, (
+        "the clearing rows name more than one registering release "
+        f"({sorted(registering)}); a consumer reading one row would not know "
+        "which bundle to pin"
+    )
+    registered_at = registering.pop()
+
     doc = yaml.safe_load(MANIFEST.read_text(encoding="utf-8"))
-    assert doc["contract_bundle_version"] == "contract-v3.3"
-    inventory = REPO_ROOT / "contracts" / "releases" / "contract-v3.3.digests.yaml"
-    assert inventory.is_file(), (
-        "the manifest declares a bundle with no release inventory beside it"
+    declared = doc["contract_bundle_version"]
+
+    for tag in (registered_at, declared):
+        inventory = REPO_ROOT / "contracts" / "releases" / f"{tag}.digests.yaml"
+        assert inventory.is_file(), (
+            f"{tag} has no release inventory beside it at contracts/releases/"
+        )
+
+    assert _bundle_order(declared) >= _bundle_order(registered_at), (
+        f"the manifest declares {declared}, which is BEHIND the {registered_at} "
+        "these rows advertise as their registering release"
     )

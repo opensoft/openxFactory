@@ -288,6 +288,32 @@ submitted-versus-confirmed witness distinction are RATIFIED and UNREALIZED, and
 the schemas this bundle publishes predate both. See the section at the head of
 this entry.
 
+### A guard repaired by this cut, because this cut is where it could first fire
+
+`tests/clearing/test_clearing_manifest_rows.py` carried
+`test_the_declared_bundle_version_is_the_one_the_rows_name`, written at
+`contract-v3.3` and asserting `doc["contract_bundle_version"] == "contract-v3.3"`
+against the LIVE manifest. **That equality could only hold until the next cut.**
+The clearing rows' `Registered at contract-v3.3` is HISTORY — the bundle whose
+bytes first carried that family, which never moves — while
+`contract_bundle_version` names what the repository declares TODAY and advances
+at every cut. The two were the same number for exactly one release and the test
+pinned them to each other, so it reds the REQUIRED `pytest-suite` here, over a
+family this cut does not touch at all.
+
+**Repaired rather than re-pinned**, because re-pinning it to `contract-v3.4`
+would only move the failure to `contract-v3.5`. The guard's stated purpose — *"a
+cut that moved one and not the other would publish rows claiming a release the
+bundle does not declare"* — survives whole: the test now reads the registering
+release OUT OF the rows, requires all six to name ONE release, requires an
+inventory beside both that release and the declared bundle, and requires the
+declared bundle never to be BEHIND the release the rows advertise. Renamed to
+`test_the_declared_bundle_has_an_inventory_and_is_not_behind_the_rows` to say
+what it checks. Measured: `pytest tests/clearing/test_clearing_manifest_rows.py`
+— **16 passed**. The file is not a release-inventory member (measured: no
+`tests/clearing/` path appears in either inventory), so this repair moves no
+digest of its own.
+
 ### The bundle number, FRESH-COUNTED at the cut
 
 Measured at this branch's tip rather than trusted:

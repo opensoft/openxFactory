@@ -10,7 +10,7 @@ entries:
   path: contracts/CHANGELOG.md
   type: changelog
   git_mode: '100644'
-  digest: sha256:351282cf4eb42a63b767c3b8dba5b1f9b41ca5aa6e99fd2929181fc84f05e6c4
+  digest: sha256:0a81676247a5fde5ca2012b7b3dab61440757163b401d9b3db1fa56c90a9623f
 - artifact_id: contracts-readme.md
   path: contracts/README.md
   type: documentation
