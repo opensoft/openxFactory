@@ -222,7 +222,7 @@ directory; it holds no material.
   § 2.6's precedent; and that nothing else narrows — the member being optional,
   the schema constraining nothing about the block, and the comparison only
   ceasing to refuse.
-  **EXECUTED BY THE CUT, the `chore/cut-contract-v3.3` cut PR (lane `openxfactory-smalls`), 2026-09-04**, on
+  **EXECUTED BY THE CUT, PR #636 (lane `openxfactory-smalls`), 2026-09-04**, on
   the convener's own word — Brett Heap, 2026-09-04, verbatim *"cut v3.3"*.
   `contract-v3.3` was the next available number, fresh-counted at the cut:
   `contracts/manifest.yaml:3` read `contract-v3.2`, `contracts/releases/` held
@@ -264,7 +264,7 @@ directory; it holds no material.
   order; never hand-edit an inventory or `contract_bundle_version` to make this
   comparison pass"*, and `add-binding-consumer-identity` § 6.3 took exactly these
   two findings for exactly this reason.
-  **DISCHARGED BY THE CUT AND NOT BY A HAND-EDIT — VERIFIED BY
+  **DISCHARGED BY THE CUT, PR #636, AND NOT BY A HAND-EDIT — VERIFIED BY
   MEASUREMENT.** Neither the inventory nor `contract_bundle_version` was
   adjusted to make a comparison pass: the bundle number advanced through the
   realization order and the inventory was REBUILT from the bytes on disk by
@@ -344,7 +344,7 @@ directory; it holds no material.
   #624 cut, plus three INFO. It is § 5.3's to discharge and § 5.4's to refuse to
   hand-edit; figures, both-directions set difference and the reason the answer
   changed are in § 8.1.
-  **NOW TICKED, AND ONLY BECAUSE THE CUT DISCHARGED IT.** At `contract-v3.3` the `release-inventory-drift` ERROR on
+  **NOW TICKED, AND ONLY BECAUSE THE CUT DISCHARGED IT.** At `contract-v3.3` (PR #636) the `release-inventory-drift` ERROR on
   `docs/contract-versioning-policy.md` and the INFO on
   `contracts/manifest.yaml` are BOTH absent from the tip report while both
   stand on the `origin/main` `b1d492a3` baseline, and the cut's tip adds ZERO
@@ -380,17 +380,17 @@ evidence.
 Both sides run with `--single-repo`, both checkouts named exactly `openxFactory`,
 both `--as-of 2026-09-03`.
 
-**DISCHARGED AT THE CUT — RE-MEASURED 2026-09-04 OVER THE `contract-v3.3` CUT,
+**DISCHARGED AT THE CUT — RE-MEASURED 2026-09-04 OVER `contract-v3.3` (PR #636),
 BOTH CHECKOUTS NAMED `openxFactory`, both `--as-of 2026-09-04`.** This packet had
 already MERGED as #622 (`95c2cf6a`) when the cut was taken, so the comparison is
 no longer branch-against-`main`: it is `origin/main` `b1d492a3` — carrying this
 packet's landing and the `contract-v3.2` inventory it drifted — against the cut's
-tip on `chore/cut-contract-v3.3`.
+tip on `chore/cut-contract-v3.3` (PR #636's head).
 
 | | critical | error | warning | info | total |
 | --- | --- | --- | --- | --- | --- |
 | baseline `origin/main` `b1d492a3` | 6 | **5** | 39 | 17 | 67 |
-| cut tip (`chore/cut-contract-v3.3`) | 6 | **4** | 39 | 16 | 65 |
+| cut tip (PR #636 head) | 6 | **4** | 39 | 16 | 65 |
 
 **THE DELTA IS TWO REMOVALS AND ZERO ADDITIONS**, taken as a set difference over
 the machine block in BOTH directions:
