@@ -1,0 +1,83 @@
+# expected_failure: clearing-attestation-expected-set-not-per-group
+# expected_failure_detail: PER GROUP
+# VIOLATES "THE EXPECTED ALLOWLIST SHALL BE COMPUTED PER GROUP, not once for the
+# estate ... Computing one estate-wide expected set instead would report every
+# group as diverging from every other group's members, which is a definition
+# that cannot be green while more than one group exists."
+#
+# Both groups here declare the SAME expected allowlist — the union of what the
+# two of them permit. It looks tidier and it is unusable: the execution lane
+# would forever appear to be missing the artifact group's members, and the
+# artifact group would forever appear to be missing the execution lane's. An
+# attestation that can never be green is an attestation nobody reads.
+schema_version: 1
+kind: xfactory_clearing_single_door_attestation
+attestation_id: sda-2026-09-03-0001
+attested_at: '2026-09-03T02:00:00Z'
+provider: github-actions
+clearing_repository: opensoft/xFactory
+clearing_workflow_path: .github/workflows/clearing-dispatch.yml
+enumeration_source: opensoft/xFactory/.github/clearing/grandfather-enumeration.yaml
+groups:
+- runner_group: xfactory-execution-lane-workers
+  expected_allowlist:
+  - execution-lane-coding-worker.yml
+  - council-deliberation-worker.yml
+  observed_allowlist:
+  - execution-lane-coding-worker.yml
+  expected_repositories:
+  - opensoft/xFactory
+  observed_repositories:
+  - opensoft/xFactory
+  clearing_path_admitted: false
+  enumerated_members:
+  - workflow: execution-lane-coding-worker.yml
+    declared_allowlist_status: present
+  findings: []
+- runner_group: xfactory-artifact-workers
+  expected_allowlist:
+  - execution-lane-coding-worker.yml
+  - council-deliberation-worker.yml
+  observed_allowlist:
+  - council-deliberation-worker.yml
+  - dashboard-image-worker.yml
+  - doc-health-analysis-worker.yml
+  - doc-health-cataloger-worker.yml
+  - doc-health-derive-possibles-worker.yml
+  - doc-health-readiness-worker.yml
+  - an-unaccounted-worker.yml
+  expected_repositories:
+  - opensoft/xFactory
+  observed_repositories:
+  - opensoft/xFactory
+  - opensoft/codexFactory
+  clearing_path_admitted: false
+  enumerated_members:
+  - workflow: council-deliberation-worker.yml
+    declared_allowlist_status: present
+  - workflow: dashboard-image-worker.yml
+    declared_allowlist_status: present
+  - workflow: doc-health-analysis-worker.yml
+    declared_allowlist_status: present
+  - workflow: doc-health-cataloger-worker.yml
+    declared_allowlist_status: present
+  - workflow: doc-health-derive-possibles-worker.yml
+    declared_allowlist_status: present
+  - workflow: doc-health-readiness-worker.yml
+    declared_allowlist_status: present
+  - workflow: review-lane-worker.yml
+    declared_allowlist_status: absent
+  - workflow: ideation-organizer-worker.yml
+    declared_allowlist_status: absent
+  findings: []
+completeness_claim:
+  strength: narrower_pre_admission
+  cites_attestation: sda-2026-09-03-0001
+  statement: No allowlist entry outside each group's expected set exists other than the widening
+    reported above, so nothing reaches the host by a path the enumeration does not account
+    for. The ledger itself is complete only for dispatches that came THROUGH THE DOOR, because
+    the door is not yet the only way in and is not yet open.
+residual_statement: Runner-group membership and workflow allowlists are provider-side configuration
+  outside this repository's version control, changeable by an administrator with no pull request.
+  This contract does not make that configuration versioned and does not claim to; it makes
+  a change to it OBSERVABLE within one attestation cycle.

@@ -602,6 +602,17 @@ independently refreshed checkout.
       the `contract-v1.45` residue, which stood three days, is what that
       obligation exists to avoid repeating. The module docstring's *"six closed
       envelopes"* sentence is corrected in the same edit.
+      **THE POST-TAG ACT IS TAKEN — 2026-09-02, the day of publication.**
+      `CONTRACT_REF` is now `ff9ed81541ab3eb2ebeb2e79676e5a875dd58064`, the
+      commit annotated tag object `59f4f51f2e0ac7c833cdaee9f385e9e83777650e`
+      dereferences to, PEELED FROM THE REMOTE in a clone that never created the
+      tag; `RELEASED_REF` in the companion test moved with it, spelled as its own
+      literal so the test asserts what the pin IS rather than that the module
+      agrees with itself. The module records the resolution beside the sentinel
+      paragraphs rather than replacing them, on this file's own rule that a
+      record of what was true then is not edited to match today. The residue this
+      obligation exists to prevent stood three days at `contract-v1.45`; this one
+      stood about two hours.
 
 ## 7. Post-cut verification
 
@@ -619,9 +630,38 @@ evidence — never on landing.** The evidence set:
 
 - [ ] 8.1 §§ 2-5 merged on `openxFactory` `main`, `pytest-suite` green on the
       merge commit.
-- [ ] 8.2 The `contract-v3.0` bundle declared with the moved digest and the
+- [x] 8.2 The `contract-v3.0` bundle declared with the moved digest and the
       rebuilt inventory, and its annotated tag PUBLISHED and verified from an
       independently refreshed checkout.
+      **DONE 2026-09-02.** All three conjuncts, each measured rather than
+      asserted:
+      *The moved digest* — `contracts/manifest.yaml`'s row for
+      `xfactory-workbench-chat-turn.schema.yaml` records the post-removal bytes,
+      and `validate-manifest-digests.py` verified 163 per-file digests at the cut.
+      *The rebuilt inventory* — `contracts/releases/contract-v3.0.digests.yaml`,
+      built LAST by the canonical
+      `build --tag contract-v3.0 --output contracts/releases/contract-v3.0.digests.yaml`
+      and never hand-edited: 283 entries in, 283 out, membership and order
+      unchanged.
+      *The tag PUBLISHED and verified* — annotated tag object
+      `59f4f51f2e0ac7c833cdaee9f385e9e83777650e`, peeling FROM THE REMOTE to
+      `ff9ed81541ab3eb2ebeb2e79676e5a875dd58064`, the squash of PR #573. It was
+      taken only after § Bundle Realization Order **step 4 was performed on the
+      PROMOTED commit from an independent clone, before any tag existed**:
+      `verify-commit --commit ff9ed815` → `pass` and
+      `verify-promotion --commit ff9ed815 --remote origin --tag contract-v3.0` →
+      `pass`, both exit 0 with `"findings":[]`; the promoted tree proved
+      byte-identical to the reviewed candidate `5418256a` (one tree sha,
+      `12e326e5`). Then `verify-commit` + `verify-tag --remote origin --tag
+      contract-v3.0`, both `pass` with zero findings, from a SECOND fresh clone
+      that never saw the first one's tree. Evidence with UTC timestamps and clone
+      provenance: PR #573 comment `5506503494`.
+      **AND TASK 6.9'S POST-TAG ACT IS DISCHARGED WITH IT, THE SAME DAY**:
+      `scripts/ideation_dashboard/doxbench_contracts.py`'s `CONTRACT_REF` moved
+      off `unpublished:contract-v3.0` to `ff9ed815`, the commit the tag
+      dereferences to. The `contract-v1.45` residue stood three days; this one
+      stood about two hours, which is the whole reason the obligation was written
+      into the module rather than left to be remembered.
 - [ ] 8.3 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green.
 - [ ] 8.4 The 4.7 validator run recorded at `0 error(s), 0 warning(s)`.
 - [ ] 8.5 The seven refusal-class dispositions of 4.4 recorded, each one either

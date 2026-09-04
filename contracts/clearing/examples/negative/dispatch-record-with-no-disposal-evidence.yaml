@@ -1,0 +1,70 @@
+# expected_failure: clearing-record-disposal-unattested
+# expected_failure_detail: UNATTESTED DISPOSAL
+# VIOLATES add-cpc-clearing-boundary's ADDED requirement: "A dispatch record
+# whose disposal field is absent or empty SHALL NOT be read as evidence of a
+# clean host, and the periodic attestation that reads those records SHALL report
+# it as an UNATTESTED DISPOSAL rather than passing it."
+#
+# NOTE THE DIRECTION OF THE RULE. `disposed: false` would be LAWFUL here — it
+# records that the host was not left clean, which is a fact somebody can act on.
+# What is refused is the EMPTY field, because an empty field and a clean host are
+# indistinguishable to a reader, and the attestation would otherwise count the
+# dispatch as clean on the strength of nothing.
+schema_version: 1
+kind: xfactory_clearing_dispatch_record
+dispatch_id: cd-33999123456-1
+dispatched_at: '2026-09-03T11:03:58Z'
+actor: brettheap
+actor_id: '1513478'
+clearing_repository: opensoft/xFactory
+clearing_workflow_ref: opensoft/xFactory/.github/workflows/clearing-dispatch.yml@refs/heads/main
+run_id: '33999123456'
+run_attempt: 1
+run_url: https://github.com/opensoft/xFactory/actions/runs/33999123456
+cleared: true
+operation:
+  claimed: readiness-diagnostic
+  resolved: readiness-diagnostic
+bundle_present: false
+verification:
+  provider_verified:
+  - field: origin_repository
+    claimed: opensoft/xFactory
+    resolved: opensoft/xFactory
+    agrees: true
+  - field: dispatching_identity
+    claimed: brettheap
+    resolved: brettheap
+    agrees: true
+  policy_checked:
+  - field: operation
+    claimed: readiness-diagnostic
+    resolved_from_register: readiness-diagnostic
+    agrees: true
+  - field: worker_profile
+    claimed: null
+    resolved_from_register: cpc-readonly-probe
+    agrees: true
+  - field: data_handling
+    claimed: null
+    resolved_from_register: public_log_only
+    agrees: true
+  origin_signature:
+    performed: false
+    outcome: not_required
+    register_row_id: null
+    key_id: null
+lane_declarations:
+- lane: coding
+  declared_runner_group: xfactory-execution-lane-workers
+  declared_dispatch_label: host-coding-cpc-brett01
+- lane: artifact
+  declared_runner_group: xfactory-artifact-workers
+  declared_dispatch_label: host-rider-cpc-brett01
+declared_data_handling: public_log_only
+refusal: null
+workspace_disposal:
+  disposed: null
+  method: ''
+chain_ref: null
+outcome: success

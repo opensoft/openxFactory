@@ -1,0 +1,86 @@
+# expected_failure: ordering-only-correspondence
+# expected_failure_detail: header time under an ordering-only rule
+# A timestamp invented for a chain whose configured rule declares ordering and
+# inclusion only: the honest header time there is null, and a fabricated one
+# would rest a fail-closed decision on a number nothing can check. The
+# correspondence is enforced in BOTH directions — a null time under a time-
+# bearing rule is the same defect pointing the other way.
+schema_version: 1
+kind: xfactory_chain_anchoring_receipt
+receipt_id: rcp-negative-0071
+material_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_material
+  value: sha256:efe5901377a6c78402da6ca7a21bc9c7d4d3cb67c3677250aa714a0612ea4c80
+anchored_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchored_commitment
+  value: sha256:f8d2108546998f4f5f2868049a617ab8ffc2c82e4a181772cb64a7a9b45d02b9
+mint_time_configuration:
+  configured_witnesses:
+  - witness_id: w-example-op-0002
+    role: operational
+    chain_id: chain-example-operational
+    completion_horizon_seconds: 14400
+    chain_accepted_time_rule:
+      rule_id: rule-example-linear-mpt
+      basis: linear_block_header_time_field
+      consensus_rule_citation: 'consensus rule: a block timestamp exceeds the median
+        of the previous eleven and sits within the declared band of network-adjusted
+        time; the worst legal case is declared here in both directions'
+      skew_seconds: 7200
+      tolerance_seconds: 600
+      ordering_only: false
+  - witness_id: w-example-ord-0002
+    role: durability
+    chain_id: chain-example-ordering-only
+    completion_horizon_seconds: 86400
+    chain_accepted_time_rule:
+      rule_id: rule-example-ordering-only
+      basis: ordering_and_inclusion_only
+      consensus_rule_citation: this chain's header carries no usable time field;
+        the honest rule is ordering and inclusion only, and this witness is not
+        eligible as a horizon base
+      skew_seconds: 0
+      tolerance_seconds: 0
+      ordering_only: true
+  submission_time: '2026-08-30T09:00:00Z'
+  max_submission_to_first_anchor_delay_seconds: 3600
+  checkpoint_cadence_seconds: 900
+aggregation_merkle_path:
+- position: right
+  sibling_digest:
+    construction: xfc-jcs-sha256-1
+    subject: anchored_commitment
+    value: sha256:c7c701e2ff2ecbfeea5ea53ab06cdbac00351aa42fd373e0e49e92b5cc79eee0
+per_chain_anchors:
+- chain_id: chain-example-ordering-only
+  witness_id: w-example-ord-0002
+  anchor_transaction_bytes: Xcvm0m83050F0C61g2VCh_Ocjdm9VFXHHJH7ZX3vdRy44lFg2ZECUygIWJ8QCQ4c276iCK1Jg77B4rs2DLM9QyFFWAEAw0Jl5eMllkonl3JCamSGhXhmwOZKJK51I0av
+  inclusion_proof:
+    proof_kind: merkle_transaction_root
+    path:
+    - position: left
+      sibling_value: txmerkle:7916f21ddfc80819c3515ca9afed24003513708e47c6308c46f38a9c96908f37
+    - position: right
+      sibling_value: txmerkle:b5c14b8afab327bcdf4d941e953b342d1552cf8b6fd22e34e1631140de7e8da7
+  block_header:
+    header_bytes: 67-QWs8af_22721ny9-wnBlbpKoCo49MJBYSH-69OJXlgUqfNeQyqPH1e8utTg8GQnmHg0DGEC0VRSBRT30Q9NGPNgj8Dquim97ltNg-Sw0
+    header_digest: blockhash:255025f76b0c83f67cf3d88f034b0e500a6bafe9466086f23425432660d00052
+    time_field: '2026-08-30T11:00:00Z'
+  chain_acceptance_evidence:
+    evidence_kind: linear_chain
+    header_source_ref: hs-example-public-headers
+    linear:
+      block_height: 88231
+      header_chain_linkage:
+      - blockhash:fc80983ab6f64555f300d32a7529a8a8fdbef5d643b5874c8371ba56541485d1
+      - blockhash:255025f76b0c83f67cf3d88f034b0e500a6bafe9466086f23425432660d00052
+      - blockhash:a0cd0a8bdaaa418c6254b90cbb823b455caae679f864caf823194286ef657ee7
+declared_header_source:
+  source_id: hs-example-public-headers
+  obtainable_independently: true
+  supplied_by_minter: false
+  source_statement: a public header set any verifier can obtain for itself; the
+    trust root is the chain, never this realization
+record_version: 1

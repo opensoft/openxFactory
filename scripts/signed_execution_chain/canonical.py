@@ -66,7 +66,20 @@ MAX_EXACT_INTEGER = 2 ** 53 - 1
 # The subjects this capability computes digests over. The enumeration is the
 # contract's; it is repeated here as a frozen set the validator checks against so
 # a subject the contract does not declare cannot reach a comparison.
+#
+# THE ELEVEN ANCHORING SUBJECTS ARE HERE FOR THE SAME REASON THE FIVE ARE, AND
+# NOT BECAUSE THIS MODULE COMPUTES THEM. `digest-construction.schema.yaml`
+# invites a later tranche to add its subjects to that one enumeration rather than
+# declare a second construction — *"Any digest a later tranche introduces is
+# computed under this construction, with its subject added to the enumeration
+# below"* — and `add-chain-anchoring` took the invitation. This mirror is pinned
+# against the contract by `tests/signed_execution_chain/test_digest_construction.py`,
+# so the two sets are one set; a mirror left short would make a LAWFULLY DECLARED
+# subject unreachable here, which is the frozen copy defeating the enumeration it
+# exists to protect. Nothing in this module or in the tranche-one reader MINTS an
+# anchoring digest.
 SUBJECTS = frozenset({
+    # --- signed-execution-chain (tranche one) ---
     "ratified_subject",
     "signed_ratification",
     "transparency_log_leaf",
@@ -86,6 +99,25 @@ SUBJECTS = frozenset({
     "reviewed_subject",
     "review_record",
     "governed_test_definition",
+    # --- add-chain-anchoring (tranche three), under this same construction ---
+    "anchor_material",
+    "anchored_commitment",
+    "anchor_receipt",
+    "anchor_state",
+    "anchor_bound_commitment",
+    "consent_checkpoint",
+    "log_checkpoint",
+    "linkage_derivation",
+    "analysis_result",
+    "verification_result",
+    "anchor_event",
+    # Widened at tranche three (add-cpc-clearing-boundary, realized by the
+    # neutral contracts/clearing/ family): ONE subject added to the
+    # ENUMERATION and no second CONSTRUCTION. The contract file carries the
+    # reasoning; this frozen copy moves with it, because a reader refusing a
+    # subject the contract admits is the same defect as a reader admitting one
+    # it does not.
+    "sealed_bundle_manifest",
 })
 
 _ESCAPES = {

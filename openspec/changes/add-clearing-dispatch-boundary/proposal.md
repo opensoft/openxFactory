@@ -377,3 +377,37 @@ Ratification authorizes the realization sequence in `tasks.md` and performs
 none of it — no workflow, no console act, no contract byte follows from
 this document's approval alone; #555's own merge stays gated on the
 inherited pytest-suite failure recorded at `tasks.md` §9.2.
+
+**REALIZATION NOTE, 2026-09-03 — the neutral half declared in this document's
+`code_surface` is now realized, and the front matter's `target_release` line is
+annotated rather than rewritten.** `contracts/clearing/` exists: the sealed-bundle
+manifest with its ten declared fields, the CLOSED permitted-operations register as
+a schema-plus-instance pair holding exactly `readiness-diagnostic`, the operation
+report, the dispatch ledger, the single-door attestation, a packaged corpus of six
+positives and twenty-four negatives, the canonical
+`scripts/validate-clearing-dispatch.py` with all twenty-four closed refusal codes
+red-proven, its CI gate, `tests/clearing/`, and registration at **`contract-v3.3`**
+— the minor FRESH-COUNTED at the realization branch's tip, as
+`docs/contract-versioning-policy.md` requires and as this document's front matter
+deliberately declined to reserve. The two cuts that front matter named as ahead of
+this packet have resolved: `add-chain-attestation`'s realization was carried at
+`contract-v3.0`, and `add-chain-anchoring`'s has not landed. The realization also
+honours `add-cpc-clearing-boundary`'s two MODIFIED tightenings over this packet's
+own additions and discharges that packet's task 2.9, the tranche-3
+`digest_subject` widening its field-(10) requirement was blocked on. Ticks and
+their scope notes are in `tasks.md` §6; the annotated tag is a follow-on act at
+the LANDED commit per Bundle Realization Order step 5, and §7 and §8 are
+untouched. Filed forward rather than edited into the front matter, per this
+repository's correction convention.
+
+**CORRECTION, 2026-09-02 — the gate this paragraph names has since
+cleared, and the PR it named has since merged.** #555 MERGED as squash
+`ab0bb2dd2e642fce43bee3d02128bafd664d3be3` on 2026-09-02T09:16:29Z, admin
+squash with provenance on Brett Heap's recorded word (PR #555 comment,
+2026-09-02T09:16:26Z), at head `8d6f091d` — reached after both inherited
+reds this packet did not cause were fixed (PR #557, squash `5383e72c`; PR
+#568, squash `d308c012`) and this packet's own `sequenced_after` live-pin
+move landed in the same branch, per `tasks.md` §9.2's own dated
+corrections. This paragraph's "stays gated" clause is therefore historical,
+not current — filed forward rather than reworded, per this repository's
+correction convention.

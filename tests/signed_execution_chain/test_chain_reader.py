@@ -19,6 +19,7 @@ part a self-test cannot check about itself:
 from __future__ import annotations
 
 import importlib.util
+import re
 import sys
 from pathlib import Path
 
@@ -97,9 +98,42 @@ def test_the_corpus_covers_all_four_kinds_and_every_leaf_type(registry_and_docs,
     assert kinds - consumed == set(reader.KIND_TO_SCHEMA)
     leaf_types = {doc["leaf_type"] for _, doc in records
                   if doc["kind"] == "xfactory_signed_execution_chain_log_leaf"}
-    assert leaf_types == set(reader.LEAF_TYPES), (
+    assert leaf_types == set(reader.TRANCHE_ONE_LEAF_TYPES
+                             + reader.TRANCHE_TWO_LEAF_TYPES), (
         "every act this capability governs writes a leaf, so every leaf type has "
         "a packaged example or one of them is a shape nobody has ever produced")
+
+
+def test_the_reader_and_the_shipped_leaf_enumeration_are_the_same_set():
+    """THE SCHEMA AND THE READER MOVE TOGETHER OR NOT AT ALL.
+
+    The obligation above is over the ELEVEN acts this capability governs —
+    tranche one's four and tranche two's seven — and it is unweakened: those
+    eleven still each have a packaged example. What it never checked was the other
+    direction — that the reader's leaf-type set is the set the SHIPPED SHAPE
+    declares. `add-chain-anchoring` tasks.md 5.3 settles twelve further kinds in
+    this grammar, and a reader that does not carry them reads a lawful leaf as a
+    stranger and skips its payload commitment in silence, which reads as a checked
+    leaf and is not one.
+
+    The twelve deliberately have no packaged example HERE: they are not acts of
+    this capability, nothing in this realization mints an anchor, and the family
+    that produces them owns their corpus. That is exactly why this pin is needed —
+    the corpus can no longer catch a drifted enumeration on its own.
+    """
+    schema = yaml.safe_load(
+        (REPO_ROOT / "contracts" / "signed-execution-chain" /
+         "transparency-log-leaf.schema.yaml").read_text(encoding="utf-8"))
+    declared = schema["properties"]["leaf_type"]["enum"]
+    assert declared == list(reader.LEAF_TYPES), (
+        "the shipped leaf_type enumeration and the reader's LEAF_TYPES are one "
+        "closed set, in one order")
+    assert list(reader.LEAF_TYPES) == (list(reader.TRANCHE_ONE_LEAF_TYPES) +
+                                       list(reader.TRANCHE_TWO_LEAF_TYPES) +
+                                       list(reader.ANCHORING_LEAF_TYPES))
+    assert len(reader.TRANCHE_ONE_LEAF_TYPES) == 4
+    assert len(reader.TRANCHE_TWO_LEAF_TYPES) == 7
+    assert len(reader.ANCHORING_LEAF_TYPES) == 12
 
 
 def test_every_closed_refusal_code_has_a_packaged_probe():
@@ -495,6 +529,405 @@ def test_the_reader_exits_zero_on_the_corpus_and_the_tree(capsys):
     assert "self-test:" in out
     assert "closed refusal codes red-proven" in out
     assert "repo scan (" in out and "artifact(s) checked" in out
+
+
+# THE SWEEP'S SCOPE, IN BOTH DIRECTIONS. The whole-tree sweep collected only this
+# family's OWN kinds until the § 5.8 canary build found it (openxFactory #579,
+# fixed in #566): the three CONSUMED `add-trust-anchor` kinds every tier-2
+# signature resolves against were dropped, so a VALID tranche-two chain placed in
+# the tree drew 53 refusals — 49 `forged_attestation_identity` and 4
+# `controller_anchor_not_held` — because the records that discharge the
+# composition could never reach the scope that resolves them.
+#
+# THE TWO HALVES ARE ONE FIX AND ARE TESTED AS TWO. Admitting the kinds without
+# generalizing the packaged-corpus exclusion sweeps `contracts/trust-anchor/`'s
+# own deliberately-invalid negatives as LIVE records — measured, before the
+# exclusion landed, as two `carried-vocabulary` refusals on a clean tree. The
+# second half is already guarded by the whole-tree test above (it goes red
+# without the exclusion, over the trust-anchor negatives this repository tracks);
+# the tests below hold both halves HERMETICALLY, so they still stand if either
+# family's packaged corpus moves — along with the four properties the bot bench
+# on #566 found the sweep owed: a non-string `kind` skipped rather than crashing,
+# a duplicate consumed identity refused rather than resolved by file order, an
+# exclusion that cannot be evaded by placement, and an ambiguous scope refused
+# without being walked.
+#
+# ONE FIXTURE, TWO PATHS, OPPOSITE OUTCOMES is the whole statement: the same
+# bytes are adjudicated at a live path and excluded under a packaged `examples/`
+# tree.
+CONSUMED_FIXTURE = (
+    REPO_ROOT / "contracts" / "trust-anchor" / "examples" / "negative"
+    / "anchor-shortfall-cited-with-no-claim-moment.yaml")
+
+
+def _swept(tmp_path, relative_path, registry_and_docs, carried):
+    """Run the sweep over a tree holding ONE consumed-kind record at
+    `relative_path`, plus one document of a kind this reader owns nothing of."""
+    target = tmp_path / relative_path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(CONSUMED_FIXTURE.read_text(encoding="utf-8"),
+                      encoding="utf-8")
+    (tmp_path / "unrelated.yaml").write_text(
+        "schema_version: 1\nkind: something_this_reader_does_not_own\n",
+        encoding="utf-8")
+    findings = reader.Findings()
+    registry, docs = registry_and_docs
+    reader.repo_scan(findings, tmp_path, registry, docs, carried)
+    return findings
+
+
+def test_the_sweep_collects_and_adjudicates_the_consumed_trust_anchor_kinds(
+        tmp_path, registry_and_docs, carried):
+    """A consumed record at a LIVE path is in scope, and held to the vocabulary
+    that owns it. Counting it is not enough — a kind admitted to the count and
+    never adjudicated is the vacuous pass in miniature — so the fixture used is
+    one `add-trust-anchor` itself packages as invalid, and the refusal proves the
+    record was really read."""
+    findings = _swept(tmp_path, "governance/anchor-under-adjudication.yaml",
+                      registry_and_docs, carried)
+    assert reader.codes_of(findings.errors) == {"carried-vocabulary"}
+    assert len(findings.errors) == 1
+    assert "1 artifact(s) checked" in findings.notes[0]
+    # The kind this reader owns nothing of is still skipped and still counted.
+    assert "1 skipped" in findings.notes[0]
+
+
+def test_the_sweep_excludes_the_consumed_familys_own_packaged_examples(
+        tmp_path, registry_and_docs, carried):
+    """THE SAME BYTES under trust-anchor's packaged `examples/` tree draw
+    NOTHING. A negative fixture is invalid ON PURPOSE and its own family's layer
+    1 already asserts exactly how; re-adjudicating it here would make every
+    checkout that vendors either family refuse on sight."""
+    findings = _swept(
+        tmp_path,
+        "contracts/trust-anchor/examples/negative/anchor-shortfall.yaml",
+        registry_and_docs, carried)
+    assert findings.errors == []
+    assert "0 artifact(s) checked" in findings.notes[0]
+
+
+def test_the_sweeps_skipped_count_does_not_misreport_why(
+        tmp_path, registry_and_docs, carried):
+    """The note the operator reads when diagnosing a skip must name the scope the
+    sweep actually has. It said "not a signed-execution-chain kind" while the
+    sweep also admits the consumed vocabulary, which would send a reader looking
+    for the wrong cause."""
+    findings = _swept(tmp_path, "governance/anchor-under-adjudication.yaml",
+                      registry_and_docs, carried)
+    note = findings.notes[0]
+    assert "not a signed-execution-chain kind" not in note
+    assert "CONSUMED trust-anchor kinds" in note
+    assert "BOTH families' packaged examples/ excluded" in note
+
+
+def test_a_kind_that_is_not_a_string_is_skipped_and_never_crashes_the_sweep(
+        tmp_path, registry_and_docs, carried):
+    """A sweep reads ARBITRARY YAML, and `{"a": 1} in some_dict` RAISES rather
+    than returning False. `kind: [a, b]` in one unrelated file took the whole
+    scan down with a `TypeError` and discarded every other file's findings — a
+    required gate felled by a document it does not even own. Found by Copilot on
+    #566."""
+    (tmp_path / "list-kind.yaml").write_text(
+        "schema_version: 1\nkind: [a, b]\n", encoding="utf-8")
+    (tmp_path / "mapping-kind.yaml").write_text(
+        "schema_version: 1\nkind: {a: 1}\n", encoding="utf-8")
+    (tmp_path / "numeric-kind.yaml").write_text(
+        "schema_version: 1\nkind: 7\n", encoding="utf-8")
+    findings = reader.Findings()
+    registry, docs = registry_and_docs
+    reader.repo_scan(findings, tmp_path, registry, docs, carried)
+    assert findings.errors == []
+    assert "0 artifact(s) checked, 3 skipped" in findings.notes[0]
+
+
+def test_two_consumed_records_sharing_an_id_are_ambiguous_not_last_seen(
+        tmp_path, registry_and_docs, carried):
+    """AN AMBIGUOUS CONSUMED SET IS REFUSED, NEVER RESOLVED BY FILE ORDER.
+
+    The view that resolves consumed records keeps the LAST document it saw, so
+    in an arbitrary checkout two certificates sharing an id would let
+    lexicographic file order decide which fingerprint a tier-2 signature is
+    compared against. `add-trust-anchor`'s own reader refuses this as
+    `record-id-duplicate` on every copy; this reader already refuses a key id two
+    wallets claim differently rather than taking the last one seen. Found by
+    Codex on #566, where admitting the consumed kinds to the sweep is what made
+    an UNCURATED consumed set reachable at all."""
+    source = [d for d in yaml.safe_load_all(
+        (EXAMPLES / "tranche-two" / "consumed-trust-anchor-records.example.yaml")
+        .read_text(encoding="utf-8")) if d]
+    certificate = next(d for d in source
+                       if d.get("kind") == "xfactory_certificate_record")
+    for name in ("a-first.yaml", "z-last.yaml"):
+        (tmp_path / name).write_text(yaml.safe_dump(certificate, sort_keys=False),
+                                     encoding="utf-8")
+    findings = reader.Findings()
+    registry, docs = registry_and_docs
+    reader.repo_scan(findings, tmp_path, registry, docs, carried)
+    assert "consumed-record-id-duplicate" in reader.codes_of(findings.errors)
+    # REFUSED ON EVERY COPY, so the finding names both files rather than
+    # whichever one file order happened to leave standing.
+    duplicate = next(line for line in findings.errors
+                     if "consumed-record-id-duplicate" in line)
+    assert "a-first.yaml" in duplicate and "z-last.yaml" in duplicate
+    # One copy alone is not ambiguous, and is not refused.
+    (tmp_path / "z-last.yaml").unlink()
+    findings = reader.Findings()
+    reader.repo_scan(findings, tmp_path, registry, docs, carried)
+    assert "consumed-record-id-duplicate" not in reader.codes_of(findings.errors)
+
+    # AND THE OTHER LAYER-2 ENTRY POINT IS COVERED TOO, because `repo_scan()`
+    # serves an explicitly named single file as well as a directory sweep, and one
+    # file can carry a whole multi-document stream. The docstring says so, so it is
+    # held to it rather than believed.
+    one_file = tmp_path / "stream.yaml"
+    one_file.write_text(yaml.safe_dump_all([certificate, certificate],
+                                           sort_keys=False), encoding="utf-8")
+    findings = reader.Findings()
+    reader.repo_scan(findings, one_file, registry, docs, carried)
+    assert "consumed-record-id-duplicate" in reader.codes_of(findings.errors)
+
+
+def test_an_ambiguous_scope_is_not_walked_at_all(tmp_path, registry_and_docs,
+                                                 carried):
+    """FAIL CLOSED, DO NOT WALK. Refusing the duplicate and then walking anyway
+    would leave every rule resolving through the identifiers just declared
+    ambiguous, so the secondary findings would themselves depend on file order —
+    the defect reported and then committed one line later. Found by Copilot on
+    #566, in the review body rather than on a thread.
+
+    The tree here would draw a `carried-vocabulary` refusal on its own, from a
+    trust-anchor fixture invalid against the shape that owns it. Under an
+    ambiguous set that finding is not reported, because the reading that produced
+    it is not a reading anyone should act on."""
+    registry, docs = registry_and_docs
+    invalid = CONSUMED_FIXTURE.read_text(encoding="utf-8")
+    (tmp_path / "invalid.yaml").write_text(invalid, encoding="utf-8")
+    findings = reader.Findings()
+    reader.repo_scan(findings, tmp_path, registry, docs, carried)
+    assert reader.codes_of(findings.errors) == {"carried-vocabulary"}, (
+        "the baseline for this test is that the tree refuses on its own")
+
+    source = [d for d in yaml.safe_load_all(
+        (EXAMPLES / "tranche-two" / "consumed-trust-anchor-records.example.yaml")
+        .read_text(encoding="utf-8")) if d]
+    certificate = next(d for d in source
+                       if d.get("kind") == "xfactory_certificate_record")
+    for name in ("a-first.yaml", "z-last.yaml"):
+        (tmp_path / name).write_text(yaml.safe_dump(certificate, sort_keys=False),
+                                     encoding="utf-8")
+    findings = reader.Findings()
+    reader.repo_scan(findings, tmp_path, registry, docs, carried)
+    assert reader.codes_of(findings.errors) == {"consumed-record-id-duplicate"}, (
+        "an ambiguous scope must be refused as unevaluable, not walked to "
+        "produce order-dependent secondary findings")
+    assert "NOT RUN" in next(line for line in findings.errors
+                             if "consumed-record-id-duplicate" in line), (
+        "the refusal must SAY the walk did not run, or a reader takes the "
+        "absence of further findings for their absence in the tree")
+
+
+def test_the_exclusion_ignores_components_above_the_scanned_tree(
+        tmp_path, registry_and_docs, carried):
+    """THE CHECKOUT'S OWN LOCATION MUST NOT SWITCH A REQUIRED GATE OFF.
+
+    `main()` resolves the scan path, so every swept file's components include the
+    directories a runner happened to put the checkout under. Matching the
+    excluded sequence over that whole absolute path made the ENTIRE sweep
+    skippable from outside the repository: a tree at
+    `<anything>/contracts/<family>/examples/<checkout>` gave every file in it the
+    sequence by inheritance, and the sweep reported `0 artifact(s) checked, 0
+    skipped` over a live malformed record — never seen, no refusal, gate green.
+    That is worse than the in-tree placement evasion below, because it needs no
+    fabricated path inside the repository and takes out every file at once.
+    Found by Codex on #566.
+
+    Measured before the repair, for BOTH family names. The neutral-ancestor case
+    is asserted first so the test cannot pass by the fixture simply being inert.
+    """
+    registry, docs = registry_and_docs
+    invalid = CONSUMED_FIXTURE.read_text(encoding="utf-8")
+
+    def swept_under(ancestor: str):
+        root = tmp_path / ancestor / "domain-repo"
+        record = root / "governance" / "live-and-malformed.yaml"
+        record.parent.mkdir(parents=True, exist_ok=True)
+        record.write_text(invalid, encoding="utf-8")
+        findings = reader.Findings()
+        # RESOLVED, exactly as `main()` hands it over — an unresolved relative
+        # path would not carry the ancestors this test is about.
+        reader.repo_scan(findings, root.resolve(), registry, docs, carried)
+        return findings
+
+    baseline = swept_under("work")
+    assert "1 artifact(s) checked" in baseline.notes[0]
+    assert reader.codes_of(baseline.errors) == {"carried-vocabulary"}, (
+        "the baseline for this test is that the record refuses at a live path")
+
+    for family in ("trust-anchor", "signed-execution-chain"):
+        findings = swept_under(f"work/contracts/{family}/examples")
+        assert "1 artifact(s) checked" in findings.notes[0], (
+            f"a checkout parked under contracts/{family}/examples had its whole "
+            f"sweep excluded by its own location: {findings.notes[0]}")
+        assert reader.codes_of(findings.errors) == {"carried-vocabulary"}
+
+    # AND THE VENDORED CORPUS INSIDE THE TREE IS STILL EXCLUDED — the property
+    # relativizing must not cost, since a domain repo scans a COPY.
+    vendored = tmp_path / "consumer"
+    for family in ("trust-anchor", "signed-execution-chain"):
+        target = (vendored / "vendor" / "openxFactory" / "contracts" / family
+                  / "examples" / "negative" / "fixture.yaml")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(invalid, encoding="utf-8")
+    findings = reader.Findings()
+    reader.repo_scan(findings, vendored.resolve(), registry, docs, carried)
+    assert findings.errors == []
+    assert "0 artifact(s) checked" in findings.notes[0]
+
+
+def test_skip_dir_names_ignore_components_above_the_scanned_tree(
+        tmp_path, registry_and_docs, carried):
+    """THE SAME PLACEMENT EVASION, ONE CHECK EARLIER THAN THE ONE ABOVE.
+
+    `SKIP_DIR_NAMES` was matched over the ABSOLUTE path too, so a checkout
+    parked under a `.venv/`, `node_modules/`, `.git/` or `__pycache__/`
+    ANCESTOR gave every file in it one of those names by inheritance and
+    switched the whole sweep off, before `under_packaged_examples()` is ever
+    reached — the same checkout-location evasion closed two commits ago, on
+    the check that runs immediately after this one. Found by Copilot on #566.
+
+    The ancestor case is asserted first so the test cannot pass by the fixture
+    simply being inert; the in-tree control then proves relativizing did not
+    cost the property SKIP_DIR_NAMES exists for.
+    """
+    registry, docs = registry_and_docs
+    invalid = CONSUMED_FIXTURE.read_text(encoding="utf-8")
+
+    def swept_under(ancestor: str):
+        root = tmp_path / ancestor / "domain-repo"
+        record = root / "governance" / "live-and-malformed.yaml"
+        record.parent.mkdir(parents=True, exist_ok=True)
+        record.write_text(invalid, encoding="utf-8")
+        findings = reader.Findings()
+        # RESOLVED, exactly as `main()` hands it over — an unresolved relative
+        # path would not carry the ancestor this test is about.
+        reader.repo_scan(findings, root.resolve(), registry, docs, carried)
+        return findings
+
+    for skip_name in sorted(reader.SKIP_DIR_NAMES):
+        findings = swept_under(skip_name)
+        assert "1 artifact(s) checked" in findings.notes[0], (
+            f"a checkout parked under a {skip_name}/ ancestor had its whole "
+            f"sweep excluded by its own location: {findings.notes[0]}")
+        assert reader.codes_of(findings.errors) == {"carried-vocabulary"}
+
+    # AND A SKIP-NAMED DIRECTORY INSIDE THE TREE IS STILL EXCLUDED — the
+    # property relativizing must not cost, since a real checkout does carry a
+    # `.venv/` or `node_modules/` of its own.
+    root = tmp_path / "consumer"
+    record = root / ".venv" / "vendor-lib" / "fixture.yaml"
+    record.parent.mkdir(parents=True, exist_ok=True)
+    record.write_text(invalid, encoding="utf-8")
+    findings = reader.Findings()
+    reader.repo_scan(findings, root.resolve(), registry, docs, carried)
+    assert findings.errors == []
+    assert "0 artifact(s) checked" in findings.notes[0]
+
+
+def test_an_unadjudicated_scope_is_never_reported_as_checked(
+        tmp_path, registry_and_docs, carried):
+    """THE NOTE MUST NOT CALL A SCOPE "CHECKED" THAT NO RULE WAS APPLIED TO.
+
+    Under an ambiguous consumed set the walk does not run — the test above pins
+    that — but the operator-facing note still counted the collected documents as
+    `N artifact(s) checked`. A reader who trusts that count takes the absence of
+    further findings for a clean reading of those records, which is the vacuous
+    pass in miniature and the exact confusion the walk was skipped to avoid.
+    Found by Copilot on #566.
+
+    ZERO is the honest count, the collected size is still reported, and the
+    gate's own anti-vacuity grep — which asks for `N artifact(s) checked` — is
+    satisfied by the truthful zero rather than being fooled by a false N."""
+    registry, docs = registry_and_docs
+    source = [d for d in yaml.safe_load_all(
+        (EXAMPLES / "tranche-two" / "consumed-trust-anchor-records.example.yaml")
+        .read_text(encoding="utf-8")) if d]
+    certificate = next(d for d in source
+                       if d.get("kind") == "xfactory_certificate_record")
+    for name in ("a-first.yaml", "z-last.yaml"):
+        (tmp_path / name).write_text(yaml.safe_dump(certificate, sort_keys=False),
+                                     encoding="utf-8")
+    findings = reader.Findings()
+    reader.repo_scan(findings, tmp_path, registry, docs, carried)
+    note = findings.notes[0]
+    assert reader.codes_of(findings.errors) == {"consumed-record-id-duplicate"}, (
+        "the baseline for this test is an ambiguous, unwalked scope")
+    assert "2 artifact(s) checked" not in note, (
+        "the note reported an unadjudicated scope as checked: " + note)
+    assert "0 artifact(s) checked" in note
+    assert "2 collected and then NOT ADJUDICATED" in note
+    assert "THE CHAIN WALK OVER THIS SCOPE WAS NOT RUN" in note
+
+    # THE GATE'S OWN GREP still matches, so the ambiguous run fails on its
+    # refusal and not on a misdiagnosed "the sweep did not run".
+    assert re.match(r"^note  repo scan \(.*\): [0-9]+ artifact\(s\) checked",
+                    note), (
+        "the gate's anti-vacuity step greps this exact shape; an ambiguous run "
+        "must fail on its refusal, not on a misdiagnosed 'sweep did not run'")
+
+
+def test_the_corpus_exclusion_is_not_evadable_by_placement(
+        tmp_path, registry_and_docs, carried):
+    """THE EXCLUSION IS A PACKAGED-CORPUS EXCLUSION, NOT A KEYWORD FILTER.
+
+    It cannot be anchored to this checkout's paths — a domain repo vendors
+    openxFactory and scans a COPY — so it matches path COMPONENTS. Asking only
+    whether the words appear ANYWHERE made the required gate evadable by
+    placement: a chain record parked under any path carrying both `examples` and
+    a family name was dropped from the sweep and drew no finding. Found by Codex
+    on #566. Requiring the components ADJACENT keeps every vendored copy
+    excluded and admits the paths that merely mention them."""
+    registry, docs = registry_and_docs
+    consumed = CONSUMED_FIXTURE.read_text(encoding="utf-8")
+    evasive = [
+        "governance/trust-anchor/live/examples/invalid.yaml",
+        "governance/signed-execution-chain/live/examples/invalid.yaml",
+        "somewhere/examples/deep/trust-anchor/invalid.yaml",
+        # THE SECOND ROUND'S PATHS, which mere ADJACENCY of `<family>/examples`
+        # still dropped — the shape the packaged corpus does NOT occupy, because
+        # it lives under `contracts/`. Copilot found the first repair
+        # insufficient on exactly these.
+        "governance/trust-anchor/examples/invalid.yaml",
+        "governance/signed-execution-chain/examples/invalid.yaml",
+    ]
+    # DISTINCT IDENTITIES, because three copies of one record are an AMBIGUOUS
+    # scope and the reader refuses that without walking — the fail-closed rule
+    # below. This test is about placement, so it gives each copy its own id and
+    # leaves ambiguity to the test that owns it.
+    for index, relative_path in enumerate(evasive):
+        record = yaml.safe_load(consumed)
+        record["anchor_id"] = f"anchor:evasive-{index}"
+        target = tmp_path / relative_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(yaml.safe_dump(record, sort_keys=False),
+                          encoding="utf-8")
+    findings = reader.Findings()
+    reader.repo_scan(findings, tmp_path, registry, docs, carried)
+    assert f"{len(evasive)} artifact(s) checked" in findings.notes[0], (
+        "a record the reader owns was dropped from the sweep by where it sits")
+    assert len(findings.errors) >= len(evasive)
+
+    # AND THE VENDORED PACKAGED CORPUS IS STILL EXCLUDED, at a prefix that is not
+    # this checkout's — the property the component test exists to keep.
+    vendored = tmp_path / "vendor"
+    for family in ("trust-anchor", "signed-execution-chain"):
+        target = (vendored / "openxFactory" / "contracts" / family / "examples"
+                  / "negative" / "fixture.yaml")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(consumed, encoding="utf-8")
+    findings = reader.Findings()
+    reader.repo_scan(findings, vendored, registry, docs, carried)
+    assert findings.errors == []
+    assert "0 artifact(s) checked" in findings.notes[0]
 
 
 def test_the_reader_no_longer_says_the_capability_confers_nothing(

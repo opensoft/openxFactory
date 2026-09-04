@@ -50,7 +50,9 @@ no writes, no network.
 
 from __future__ import annotations
 
+import datetime
 import importlib.util
+import json
 import re
 import subprocess
 import sys
@@ -839,3 +841,698 @@ def corpus_sweep(
         deepest_chain_change=deepest_change,
         declaring_ids=tuple(declaring),
     )
+
+
+# --- the PER-CHANGE ledger ---------------------------------------------------
+#
+# WHY A LEDGER AND NOT FIVE SCALARS. The sweep above is the MEASUREMENT the
+# "Chain-walk policy belongs to the consumer, and its bound SHALL be measured"
+# requirement obliges, and re-running it is what makes that obligation discharge
+# over time. What ages badly is not the measurement but the way it was PINNED: a
+# handful of corpus-wide TOTALS asserted as literals in one test. Every change
+# that is authored, ratified, adopted or archived moves at least one total, so
+# two pull requests in flight edit the SAME LINES, git cannot auto-merge them,
+# and whichever lands second owes a merge-from-main and a re-derivation for each
+# CI window. The measurement is right; the pin serializes the queue.
+#
+# THE LEDGER IS THE SAME READING, KEYED BY CHANGE ID. One row per change carries
+# what the sweep reads ABOUT THAT CHANGE — its corpus (active/archived), its
+# co-modified/sole class, its declaration, its resolved chain depth, and whether
+# it carries the legacy prose header — and EVERY total the `Sweep` reports is
+# DERIVED from the rows. A pull request then edits ITS OWN ROW, and a partner's
+# row when its own `## MODIFIED Requirements` block flips that partner from sole
+# to co-modified. Two disjoint changes touch disjoint lines and merge without a
+# conflict; two changes that really do move the same fact still collide, which
+# is correct — that collision is a real disagreement about one row.
+#
+# ONE RESIDUE, MEASURED RATHER THAN ARGUED AWAY. Two NEW change ids that sort
+# ADJACENTLY, with no existing row between them, share ONE INSERTION POINT and
+# still conflict. Measured on a 159-row base by varying the gap: 0 intervening
+# rows CONFLICTS, and ONE intervening row is already enough to merge clean (git
+# needs context lines to separate two hunks, and a one-line row supplies them).
+# Sorted order therefore shrinks the collision surface from "every change-dir
+# pull request" to "two ids that sort with nothing between them"; it does not
+# remove it, and the remainder is the landing window's (issue #618 item 1).
+#
+# THE DERIVATION IS DELIBERATELY INDEPENDENT OF `corpus_sweep`. `classify_corpus`
+# walks the corpus again rather than being refactored out of the sweep, so
+# `sweep_from_readings(classify_corpus(root)) == corpus_sweep(root)` is a
+# CROSS-CHECK between two computations of the same totals rather than a
+# tautology. The cost is one duplicated traversal of a corpus of a few hundred
+# directories, paid so that a classifier bug cannot silently populate a ledger
+# that then agrees with itself.
+
+#: The ledger's location, relative to the repository root. It sits BESIDE the
+#: test that reads it rather than under `contracts/`, because it is a test
+#: fixture recording a measurement of this repository's own corpus — not a
+#: neutral contract any consumer pins.
+LEDGER_REL = Path("tests") / "sequenced_after" / "corpus-ledger.yaml"
+
+LEDGER_SCHEMA_VERSION = 1
+LEDGER_KIND = "sequenced_after_corpus_ledger"
+
+#: The two corpora a change can sit in, and the two classes it can hold.
+STATE_ACTIVE = "active"
+STATE_ARCHIVED = "archived"
+CLASS_SOLE = "sole"
+CLASS_CO_MODIFIER = "co-modifier"
+
+#: The row token for A FIELD THAT IS NOT THERE. Rendered as a bare word rather
+#: than as YAML `~`, because `null` is a VALUE `sequenced_after:` can carry (a
+#: key with no value, which `read_declaration` returns as `None` and
+#: `validate_shape` refuses), and a ledger that spelled absence `~` could not
+#: tell the two apart. A declaration is always a SEQUENCE, so no real
+#: declaration can collide with the word.
+DECLARES_ABSENT = "absent"
+
+#: `#<number>`, the pull request that last moved a row, and an ISO date.
+MOVED_BY = re.compile(r"^#[0-9]+$")
+MOVED_ON = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
+
+
+def is_moved_on(value: object) -> bool:
+    """A REAL ISO date, not merely a digit-shaped one: the pattern alone accepts
+    `2026-13-45`, and a provenance date nobody can place is no provenance."""
+    if not isinstance(value, str) or not MOVED_ON.match(value):
+        return False
+    try:
+        datetime.date.fromisoformat(value)
+    except ValueError:
+        return False
+    return True
+
+#: The row keys, in the order they are rendered. `depth` is present only on a
+#: row that declares, because a chain depth is not a property a change without a
+#: declaration has — reporting `0` for it would read as a resolved root claim.
+ROW_KEYS = ("state", "class", "declares", "depth", "prose")
+PROVENANCE_KEYS = ("moved_by", "moved_on")
+
+
+@dataclass(frozen=True)
+class Reading:
+    """What the corpus says about ONE change — the per-change half of a `Sweep`.
+
+    `declares` is `None` for a field that is not there (or one the strict loader
+    refused, which the sweep reads the same way) and a TUPLE otherwise, with the
+    empty tuple being the positive `[]` ROOT CLAIM. The `ABSENT`/`[]` distinction
+    the whole root-proof doctrine rests on therefore survives into the ledger.
+    """
+
+    state: str
+    modifier_class: str
+    declares: tuple[str, ...] | None
+    depth: int | None
+    prose_header: bool
+
+    def row(self) -> dict[str, object]:
+        """The row body — the DERIVED half, without the provenance keys."""
+        body: dict[str, object] = {
+            "state": self.state,
+            "class": self.modifier_class,
+            "declares": (DECLARES_ABSENT if self.declares is None
+                         else list(self.declares)),
+        }
+        if self.declares is not None:
+            body["depth"] = self.depth
+        body["prose"] = self.prose_header
+        return body
+
+
+def classify_corpus(
+    repo_root: str | Path,
+    declaring_repository: str = DECLARING_REPOSITORY,
+) -> dict[str, Reading]:
+    """Change id -> its `Reading`, over the ACTIVE and ARCHIVED corpora both.
+
+    The per-change derivation the ledger records. Reads exactly what
+    `corpus_sweep` reads and makes the same allowances — an unreadable proposal
+    declares nothing and carries no prose header, because a measurement is not a
+    gate and `validate_corpus` is where a refusal is reported.
+
+    TWO KINDS OF REFUSAL, AND THEY LAND DIFFERENTLY. A STRICT-LOADER refusal (a
+    duplicate key, an anchor, an alias) raises out of `read_declaration`, so the
+    change reads as declaring NOTHING. A SHAPE refusal (`sequenced_after:
+    add-other` — a scalar where a sequence is owed) does NOT: the field is
+    present, `read_declaration` returns its raw value, and the change is recorded
+    as DECLARING, exactly as `corpus_sweep` counts it. That is why a `declares`
+    entry can be something no reference grammar would accept, and why the
+    renderer quotes an entry that would not read back as itself.
+    """
+    repo_root = Path(repo_root)
+    corpus = corpus_change_dirs(repo_root)
+    active = set(active_change_dirs(repo_root))
+
+    keys = {cid: requirement_keys(path) for cid, path in corpus.items()}
+    owners: dict[tuple[str, str], set[str]] = {}
+    for cid, cid_keys in keys.items():
+        for key in cid_keys:
+            owners.setdefault(key, set()).add(cid)
+
+    readings: dict[str, Reading] = {}
+    for cid, path in sorted(corpus.items()):
+        co_modified = any(len(owners[key]) > 1 for key in keys[cid])
+        declares: tuple[str, ...] | None = None
+        depth: int | None = None
+        prose = False
+        proposal = path / "proposal.md"
+        if proposal.is_file():
+            try:
+                raw = read_declaration(proposal)
+            except SequencedAfterError:
+                raw = ABSENT
+            if raw is not ABSENT:
+                # A NON-LIST value is PRESENT-but-malformed (a `sequenced_after:`
+                # key with no value reads as `None`). The sweep counts it as a
+                # declaration, so the ledger records it as one and records what
+                # it read; `validate-sequenced-after.py` with no flag is what
+                # REFUSES it, and stays red independently of this measurement.
+                declares = tuple(str(entry) for entry in raw) if isinstance(
+                    raw, list) else (str(raw),)
+                depth = chain_depth(repo_root, cid,
+                                    declaring_repository=declaring_repository)
+            try:
+                text = proposal.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):  # pragma: no cover
+                text = ""
+            prose = any(PROSE_HEADER.match(line) for line in text.splitlines())
+        readings[cid] = Reading(
+            state=STATE_ACTIVE if cid in active else STATE_ARCHIVED,
+            modifier_class=CLASS_CO_MODIFIER if co_modified else CLASS_SOLE,
+            declares=declares,
+            depth=depth,
+            prose_header=prose,
+        )
+    return readings
+
+
+def sweep_from_readings(readings: dict[str, Reading]) -> Sweep:
+    """Derive the whole `Sweep` from the per-change readings — EVERY field.
+
+    No total survives as a hand-carried number: the population, both splits,
+    adoption, the prose headers and the DEEPEST DECLARED CHAIN are all folds
+    over the rows. The deepest-chain tie-break is the sweep's own — strictly
+    greater, over change ids in sorted order — so the derived reading names the
+    same change the measurement does.
+    """
+    ordered = sorted(readings.items())
+    active = [cid for cid, r in ordered if r.state == STATE_ACTIVE]
+    archived = [cid for cid, r in ordered if r.state == STATE_ARCHIVED]
+    co = [cid for cid, r in ordered if r.modifier_class == CLASS_CO_MODIFIER]
+    sole = [cid for cid, r in ordered if r.modifier_class == CLASS_SOLE]
+    declaring = [cid for cid, r in ordered if r.declares is not None]
+
+    deepest = 0
+    deepest_change: str | None = None
+    for cid in declaring:
+        depth = readings[cid].depth or 0
+        if depth > deepest:
+            deepest, deepest_change = depth, cid
+
+    return Sweep(
+        change_ids=len(ordered),
+        active=len(active),
+        archived=len(archived),
+        co_modified=len(co),
+        sole_modifiers=len(sole),
+        active_co_modified=len(set(co) & set(active)),
+        active_sole=len(set(sole) & set(active)),
+        declaring=len(declaring),
+        root_claims=sum(1 for cid in declaring if readings[cid].declares == ()),
+        prose_headers=sum(1 for _, r in ordered if r.prose_header),
+        prose_headers_archived=sum(
+            1 for _, r in ordered
+            if r.prose_header and r.state == STATE_ARCHIVED),
+        deepest_chain=deepest,
+        deepest_chain_change=deepest_change,
+        declaring_ids=tuple(declaring),
+    )
+
+
+def sweep_mismatches(derived: Sweep, measured: Sweep) -> list[str]:
+    """Field-by-field disagreements between two readings of one corpus.
+
+    NAMES THE FIELD AND BOTH VALUES. A bare `assert derived == measured` on a
+    fourteen-field dataclass tells an author that something moved and not what,
+    which is the failure mode this whole change exists to remove.
+    """
+    problems: list[str] = []
+    for field in Sweep.__dataclass_fields__:
+        left, right = getattr(derived, field), getattr(measured, field)
+        if left != right:
+            problems.append(
+                f"derived total mismatch: {field}: ledger-derived {left!r} != "
+                f"measured {right!r}")
+    return problems
+
+
+@dataclass(frozen=True)
+class Ledger:
+    """One parsed ledger file: its rows, the ORDER they were written in, and the
+    provenance each row carries."""
+
+    schema_version: object
+    kind: object
+    seeded_from: object
+    order: tuple[str, ...]
+    rows: dict[str, dict[str, object]]
+
+
+def ledger_path(repo_root: str | Path) -> Path:
+    return Path(repo_root) / LEDGER_REL
+
+
+def load_ledger(source: str | bytes | Path) -> Ledger:
+    """Parse a ledger file under the STRICT loader's duplicate-key refusal.
+
+    A DUPLICATE CHANGE ID IS THE ONE FAILURE A PERMISSIVE LOADER WOULD HIDE:
+    `yaml.safe_load` applies last-duplicate-wins silently, so a ledger carrying
+    two rows for one change would show a reviewer the first row and check the
+    second — the same defect the realization-axis front-matter loader exists to
+    refuse, and the reason this file is read through that loader's own
+    `StrictLoader` rather than through `safe_load`.
+
+    The front-matter BYTE CEILING is deliberately NOT applied: it bounds an
+    authorization surface parsed out of a document a human wrote, while this
+    file's size is a function of how many changes the corpus holds and grows by
+    construction. A ceiling here would convert corpus growth into a refusal.
+    """
+    # A `Path` is a FILE and a `str` is TEXT — the same convention
+    # `frontmatter_strict.source_text` takes, so a caller cannot pass a path as
+    # a string and have it parsed as a one-line YAML document.
+    try:
+        text = fms.source_text(source)
+    except fms.StrictFrontMatterError as exc:
+        raise SequencedAfterError(f"malformed ledger: {exc}") from exc
+
+    for number, line in enumerate(text.split("\n"), start=1):
+        if line.startswith("%"):
+            raise SequencedAfterError(
+                f"malformed ledger: a YAML directive ({line.strip()!r}) at line "
+                f"{number}")
+    if fms.yaml is None:  # pragma: no cover - pyyaml is a suite dependency
+        raise SequencedAfterError(
+            "pyyaml is required to read the per-change sweep ledger")
+    try:
+        fms._scan_refused_constructs(text)  # anchors, aliases, merge keys
+        documents = list(fms.yaml.load_all(text, Loader=fms.StrictLoader))
+    except fms.StrictFrontMatterError as exc:
+        raise SequencedAfterError(f"malformed ledger: {exc}") from exc
+    except fms.yaml.YAMLError as exc:
+        raise SequencedAfterError(f"malformed ledger: does not parse: {exc}") \
+            from exc
+    if len(documents) != 1 or not isinstance(documents[0], dict):
+        raise SequencedAfterError(
+            "malformed ledger: exactly one YAML mapping document is required")
+    document = documents[0]
+
+    raw_rows = document.get("rows")
+    if not isinstance(raw_rows, dict):
+        raise SequencedAfterError(
+            "malformed ledger: the `rows:` mapping is missing")
+    rows: dict[str, dict[str, object]] = {}
+    for change_id, row in raw_rows.items():
+        # A NON-STRING KEY IS REFUSED, NOT COERCED. `str()` on the key would
+        # collapse two keys YAML holds APART: `123` resolves to an int and
+        # `"123"` to a string, so the strict loader's duplicate refusal — which
+        # compares keys as YAML typed them — never fires, and the second row
+        # then silently overwrites the first. That is the exact
+        # last-duplicate-wins defect this loader exists to refuse, reproduced
+        # one level down, on the file that IS the pin. A change id is a string
+        # by the reference grammar, so nothing legitimate is lost.
+        if not isinstance(change_id, str):
+            raise SequencedAfterError(
+                f"malformed ledger: the row key {change_id!r} is "
+                f"{type(change_id).__name__}, not a string; quote it — an "
+                "unquoted all-digit or boolean-looking change id is a "
+                "different key to YAML than its quoted form, and coercing the "
+                "two together would hide a duplicate row")
+        if not isinstance(row, dict):
+            raise SequencedAfterError(
+                f"malformed ledger: the row for {change_id!r} is not a mapping")
+        rows[change_id] = row
+    order = tuple(raw_rows)
+    # THE STRUCTURAL BACKSTOP. The two refusals above should make this
+    # unreachable; it is asserted anyway because it is the property every later
+    # check depends on — `ledger_problems` compares SETS of ids and would read a
+    # collapsed pair as one row that simply agrees.
+    if len(rows) != len(order):
+        raise SequencedAfterError(
+            f"malformed ledger: {len(order)} row keys collapsed to "
+            f"{len(rows)} rows; two keys name the same change")
+    return Ledger(
+        schema_version=document.get("schema_version"),
+        kind=document.get("kind"),
+        seeded_from=document.get("seeded_from"),
+        order=order,
+        rows=rows,
+    )
+
+
+class _Missing:
+    def __repr__(self) -> str:  # pragma: no cover - trivial
+        return "<not in the row>"
+
+
+_MISSING = _Missing()
+
+
+def _row_value(row: dict[str, object], key: str) -> object:
+    """The row's value for `key`, with the ledger's list/absent spelling
+    normalized to the `Reading.row()` shape so the two compare directly."""
+    value = row.get(key, _MISSING)
+    if key == "declares" and isinstance(value, list):
+        return [str(entry) for entry in value]
+    return value
+
+
+def ledger_problems(
+    readings: dict[str, Reading],
+    ledger: Ledger,
+) -> list[str]:
+    """Every disagreement between the ledger and the live corpus, NAMED.
+
+    Each problem names the change id and, for a stale value, the key with the
+    ledger's reading beside the live one — so an author reads WHICH ROW TO MOVE
+    off the failure rather than re-deriving a total to find out.
+    """
+    problems: list[str] = []
+    if ledger.schema_version != LEDGER_SCHEMA_VERSION:
+        problems.append(
+            f"malformed ledger: schema_version is {ledger.schema_version!r}, "
+            f"expected {LEDGER_SCHEMA_VERSION!r}")
+    if ledger.kind != LEDGER_KIND:
+        problems.append(
+            f"malformed ledger: kind is {ledger.kind!r}, expected "
+            f"{LEDGER_KIND!r}")
+
+    if list(ledger.order) != sorted(ledger.order):
+        out_of_place = [cid for cid, expected
+                        in zip(ledger.order, sorted(ledger.order))
+                        if cid != expected]
+        problems.append(
+            "unsorted ledger: the rows are not in change-id order; first out of "
+            f"place: {', '.join(out_of_place[:5])}. Sorted order is what keeps "
+            "two changes' insertions apart in the diff")
+
+    for change_id in sorted(set(readings) - set(ledger.rows)):
+        problems.append(
+            f"missing row: {change_id} is in the corpus and has no ledger row; "
+            "add one (`validate-sequenced-after.py . --seed-ledger "
+            "--moved-by '#<PR>'`)")
+    for change_id in sorted(set(ledger.rows) - set(readings)):
+        problems.append(
+            f"extra row: {change_id} has a ledger row and is in neither the "
+            "active nor the archived corpus")
+
+    for change_id in sorted(set(readings) & set(ledger.rows)):
+        row = ledger.rows[change_id]
+        expected = readings[change_id].row()
+        for key in ROW_KEYS:
+            if key not in expected:
+                if key in row:
+                    problems.append(
+                        f"stale row: {change_id}: {key}: ledger "
+                        f"{row[key]!r}, live <not applicable> (a change that "
+                        "declares nothing has no chain depth)")
+                continue
+            found = _row_value(row, key)
+            if found != expected[key]:
+                problems.append(
+                    f"stale row: {change_id}: {key}: ledger {found!r}, live "
+                    f"{expected[key]!r}")
+        for key in PROVENANCE_KEYS:
+            value = row.get(key)
+            ok = (isinstance(value, str) and bool(MOVED_BY.match(value))
+                  if key == "moved_by" else is_moved_on(value))
+            if not ok:
+                problems.append(
+                    f"malformed provenance: {change_id}: {key} is {value!r}; "
+                    "every row records the pull request that last moved it and "
+                    "the date")
+        for key in sorted(set(row) - set(ROW_KEYS) - set(PROVENANCE_KEYS),
+                          key=str):
+            problems.append(
+                f"stale row: {change_id}: unknown key {key!r}")
+    return problems
+
+
+def readings_from_ledger(ledger: Ledger) -> dict[str, Reading]:
+    """The ledger's OWN reading of the corpus, as `Reading`s.
+
+    This is what makes "the totals are DERIVED from the rows" literal rather
+    than a description of a re-classification: the totals a check asserts are
+    folded from THESE readings, and `ledger_problems` is what ties them back to
+    the live corpus row by row. A row too malformed to read is refused here
+    rather than silently defaulted, a defaulted row being an invented reading.
+    """
+    readings: dict[str, Reading] = {}
+    for change_id in sorted(ledger.rows):
+        row = ledger.rows[change_id]
+        state, klass = row.get("state"), row.get("class")
+        if state not in (STATE_ACTIVE, STATE_ARCHIVED):
+            raise SequencedAfterError(
+                f"malformed ledger: {change_id}: state is {state!r}")
+        if klass not in (CLASS_SOLE, CLASS_CO_MODIFIER):
+            raise SequencedAfterError(
+                f"malformed ledger: {change_id}: class is {klass!r}")
+        raw = row.get("declares")
+        if raw == DECLARES_ABSENT:
+            declares, depth = None, None
+        elif isinstance(raw, list):
+            declares = tuple(str(entry) for entry in raw)
+            depth = row.get("depth")
+            if not isinstance(depth, int) or isinstance(depth, bool):
+                raise SequencedAfterError(
+                    f"malformed ledger: {change_id}: depth is {depth!r} on a "
+                    "row that declares")
+        else:
+            raise SequencedAfterError(
+                f"malformed ledger: {change_id}: declares is {raw!r}; expected "
+                f"{DECLARES_ABSENT!r} or a sequence")
+        prose = row.get("prose")
+        if not isinstance(prose, bool):
+            raise SequencedAfterError(
+                f"malformed ledger: {change_id}: prose is {prose!r}")
+        readings[change_id] = Reading(
+            state=str(state), modifier_class=str(klass), declares=declares,
+            depth=depth, prose_header=prose)
+    return readings
+
+
+#: An entry safe to write UNQUOTED inside a `[...]` flow sequence. Deliberately
+#: narrow: bare `add-foo` and repository-qualified `openxFactory:add-foo` — the
+#: only two shapes the reference grammar allows — both match, so the ordinary
+#: file keeps its stable one-line format and nothing is quoted for show.
+_PLAIN_ENTRY = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/@+-]*$")
+
+
+def _render_entry(entry: str) -> str:
+    """One `declares` entry, quoted only when it would not read back as itself.
+
+    A MALFORMED DECLARATION IS A REAL INPUT HERE. `classify_corpus` records what
+    the sweep READ, and the sweep reads a shape-refused declaration as a
+    declaration (only a strict-LOADER refusal reads as absence), so an entry may
+    contain a comma, a bracket or a colon-space. Written raw, `["a, b"]` would
+    read back as TWO entries and `["a] b: {c"]` would not parse at all — and the
+    seeder is documented as the REPAIR tool, so it must never be the thing that
+    writes a file it cannot read.
+    """
+    if _PLAIN_ENTRY.match(entry):
+        try:
+            if fms.yaml is not None and fms.yaml.safe_load(entry) == entry:
+                return entry
+        except Exception:  # pragma: no cover - a scalar PyYAML will not resolve
+            pass
+    # A JSON string IS a valid YAML double-quoted scalar: the escape set is a
+    # subset, so this needs no hand-rolled escaping to get right.
+    return json.dumps(entry)
+
+
+def _render_row(body: dict[str, object], moved_by: str, moved_on: str) -> str:
+    parts: list[str] = []
+    for key in ROW_KEYS:
+        if key not in body:
+            continue
+        value = body[key]
+        if key == "declares" and isinstance(value, list):
+            rendered = "[" + ", ".join(_render_entry(e) for e in value) + "]"
+        elif isinstance(value, bool):
+            rendered = "true" if value else "false"
+        else:
+            rendered = str(value)
+        parts.append(f"{key}: {rendered}")
+    # QUOTED THE SAME WAY AS EVERY OTHER SCALAR IN THIS FILE. These two are
+    # pattern-validated before they arrive, so hand-quoting them was safe --
+    # but "safe because something upstream checked" is the reasoning that made
+    # `declares` unsafe, and one quoting strategy is easier to keep right than
+    # three. The output is byte-identical for every valid value.
+    parts.append("moved_by: " + json.dumps(moved_by))
+    parts.append("moved_on: " + json.dumps(moved_on))
+    return "{" + ", ".join(parts) + "}"
+
+
+LEDGER_HEADER = """\
+schema_version: {schema_version}
+kind: {kind}
+
+# THE PER-CHANGE SWEEP LEDGER — one row per change id, sorted, machine-derived.
+#
+# What the `sequenced_after` corpus sweep reads ABOUT EACH CHANGE, carried per
+# change instead of as a handful of corpus-wide totals. Every total the sweep
+# reports is DERIVED from these rows and none is asserted as a literal anywhere,
+# so a pull request moves ITS OWN ROW (and a partner's row when its
+# `## MODIFIED Requirements` block flips that partner from sole to co-modifier)
+# rather than a shared number every other pull request in flight also edits.
+#
+# HOW TO MOVE YOUR ROW. Run
+#   python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#<PR>'
+# which rewrites the file from the live corpus, stamps `moved_by`/`moved_on` on
+# the rows that ACTUALLY MOVED and leaves every other row's provenance exactly as
+# it was. Then read the diff: it is the list of rows your change moved.
+#   python3 scripts/validate-sequenced-after.py . --ledger-diff
+# prints the same finding set without writing anything, and exits non-zero when
+# the ledger is stale.
+#
+# ROW KEYS
+#   state     `active` | `archived` — which corpus the change dir sits in.
+#   class     `sole` | `co-modifier` — whether ANY requirement key this change
+#             writes (capability + normalized requirement title) is also written
+#             by another change in the corpus. Membership is BOOLEAN: sharing
+#             three titles with one partner flips a change once, not three times.
+#   declares  `absent` when the proposal declares no `sequenced_after:` field —
+#             or declares one the strict loader refuses, which the sweep reads
+#             the same way and `validate-sequenced-after.py` reports separately.
+#             A sequence otherwise, with `[]` the POSITIVE root claim. Absence
+#             and `[]` are DIFFERENT FACTS and the ledger keeps them apart.
+#   depth     the longest resolvable declared chain from this change, in hops.
+#             Present only on a row that declares: a change with no declaration
+#             has no chain depth, and `0` would read as a resolved root.
+#   prose     whether the proposal carries a legacy free-text `Sequenced-after:`
+#             header, which is NOT a machine-readable declaration.
+#   moved_by  the pull request that last moved this row's DERIVED keys.
+#             AUTHOR-SUPPLIED AND UNVERIFIED: only its SHAPE is checked
+#             (`#<digits>`), never that the pull request exists, that it touched
+#             this row, or that it had landed when the row was stamped. It is a
+#             pointer for a human reading the history, not evidence.
+#   moved_on  the date it did. Shape- and calendar-checked, likewise unverified.
+#
+# FILE KEYS (not row keys)
+#   seeded_from  the commit this file was FIRST seeded from, once, as history.
+#                It is PRESERVED across re-seeds and therefore goes further out
+#                of date with every landing — the ledger is NOT consistent with
+#                the corpus at that commit and was never claimed to be.
+#                **IT IS NOT THE SHA A RECORD CITES.** A record cites the head
+#                at which `--ledger-diff` last ran clean.
+#
+# WHAT A `Status: record` FILE CITES. Its own change's row(s) and "the ledger is
+# consistent with the corpus at <sha>", where <sha> is THE HEAD THE AUTHOR RAN
+# `--ledger-diff` ON AND SAW EXIT 0 — never `seeded_from`, and never a
+# corpus-wide total. A total moves whenever anyone else lands, so a record that
+# quoted one would owe re-derivation on every merge from main; a row moves only
+# when the fact it states about that change moves.
+#
+# THE HAND-WRITTEN NARRATIVE STAYS IN ONE PLACE and it is not this file: the
+# MOVEMENT LOG in `tests/sequenced_after/test_sweep.py`, appended only when a
+# move is NOT explained by the row diff itself.
+
+seeded_from: {seeded_from}
+
+rows:
+"""
+
+
+def moved_rows(
+    readings: dict[str, Reading],
+    previous: Ledger | None,
+) -> tuple[str, ...]:
+    """The change ids whose DERIVED keys a re-seed actually moves, in order.
+
+    THE ONE PLACE THAT DECIDES "did this row move?", so the provenance a re-seed
+    stamps and the summary it prints cannot disagree — counting rows that merely
+    already carry the same pull request would report unmoved rows as moved. A
+    row is moved when it is NEW, when any derived key differs, or when it
+    carries a key the row grammar does not know (which a re-seed drops, and
+    dropping a key is a move).
+    """
+    if previous is None:
+        return tuple(sorted(readings))
+    moved: list[str] = []
+    for change_id, reading in sorted(readings.items()):
+        row = previous.rows.get(change_id)
+        if row is None:
+            moved.append(change_id)
+            continue
+        body = reading.row()
+        unchanged = all(_row_value(row, key) == body.get(key, _MISSING)
+                        for key in ROW_KEYS)
+        extra = set(row) - set(ROW_KEYS) - set(PROVENANCE_KEYS)
+        prior_by, prior_on = row.get("moved_by"), row.get("moved_on")
+        readable = (isinstance(prior_by, str) and bool(MOVED_BY.match(prior_by))
+                    and is_moved_on(prior_on))
+        if not (unchanged and not extra and readable):
+            moved.append(change_id)
+    return tuple(moved)
+
+
+def render_ledger(
+    readings: dict[str, Reading],
+    moved_by: str,
+    moved_on: str,
+    previous: Ledger | None = None,
+    seeded_from: str | None = None,
+) -> str:
+    """Render the whole ledger, PRESERVING the provenance of unmoved rows.
+
+    A row whose derived keys are unchanged keeps the `moved_by`/`moved_on` it
+    already carried, so re-seeding after a merge stamps only the rows that
+    actually moved and the diff stays readable as "these rows moved, and this
+    pull request moved them".
+    """
+    if not MOVED_BY.match(moved_by):
+        raise SequencedAfterError(
+            f"--moved-by must be a pull request reference like '#620', not "
+            f"{moved_by!r}")
+    if not is_moved_on(moved_on):
+        raise SequencedAfterError(
+            f"--moved-on must be an ISO date, not {moved_on!r}")
+    if seeded_from is None and previous is not None:
+        seeded_from = (str(previous.seeded_from)
+                       if previous.seeded_from is not None else None)
+    lines = [LEDGER_HEADER.format(
+        schema_version=LEDGER_SCHEMA_VERSION,
+        kind=LEDGER_KIND,
+        # NOT hand-quoted: `--seeded-from` is caller-supplied and, unlike the
+        # provenance pair, is NOT pattern-validated, so a value carrying a
+        # quote, a backslash or a newline would have produced a header the
+        # round-trip below then refused -- a refusal caused by the renderer
+        # rather than by the input.
+        seeded_from=json.dumps(seeded_from) if seeded_from else "~",
+    )]
+    moved = set(moved_rows(readings, previous))
+    for change_id, reading in sorted(readings.items()):
+        body = reading.row()
+        if change_id in moved or previous is None:
+            by, on = moved_by, moved_on
+        else:
+            row = previous.rows[change_id]
+            by, on = str(row["moved_by"]), str(row["moved_on"])
+        lines.append(f"  {change_id}: {_render_row(body, by, on)}\n")
+    text = "".join(lines)
+
+    # THE RENDERER PROVES ITS OWN OUTPUT BEFORE RETURNING IT. The seeder is the
+    # REPAIR tool, so the one thing it must never do is report "wrote" for a
+    # file that does not read back — which is exactly what an unquoted
+    # malformed entry used to produce. Re-reading here costs one parse of a
+    # file of a few hundred lines and converts a silent corruption into a
+    # refusal at the point of writing.
+    try:
+        parsed = load_ledger(text)
+    except SequencedAfterError as exc:
+        raise SequencedAfterError(
+            f"the rendered ledger does not read back: {exc}") from exc
+    problems = ledger_problems(readings, parsed)
+    if problems:
+        raise SequencedAfterError(
+            "the rendered ledger does not read back as what was rendered: "
+            + "; ".join(problems[:3]))
+    return text

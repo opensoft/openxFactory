@@ -9,6 +9,16 @@ preserved (manifest disagreement is contested mutation evidence); the
 archived bootstrap exception resolvable via the migration record; and
 backfilled origins validated against migration evidence without fabricated
 history (pre-contract legacy reports WARNING, never ERROR).
+
+`add-drafted-proposal-origin` (issue #318) adds the UNAPPROVED state and its
+own matrix, in both directions: the lawful draft reports nothing, the same
+packet at `Status: ratified` reports a `contested` ERROR, a half-declared
+drafting pair is its own finding, an origin declaring neither state says so
+once, and the approval pair is still required in full wherever approval is
+claimed. The fixtures are `tmp_path` packets built by `_change` — this
+family's own fixture idiom since it was written, because what it reads is
+`.openspec.yaml` text and a `Status:` line rather than a corpus of governed
+documents.
 """
 
 from __future__ import annotations
@@ -26,6 +36,8 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 from doc_health import ERROR, WARNING, CONTESTED  # noqa: E402
 from doc_health import proposal_origin as po  # noqa: E402
+from doc_health.promotion_fidelity import (  # noqa: E402
+    PRE_RATIFICATION, RATIFIED_OR_BEYOND)
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from action_pins import assert_actions_pinned, harvest_static  # noqa: E402
@@ -37,13 +49,19 @@ sys.modules[_SUPPORT_SPEC.name] = support
 _SUPPORT_SPEC.loader.exec_module(support)
 
 
-def _change(tmp_path, name, packet=None, manifest=None, archived=False):
+def _change(tmp_path, name, packet=None, manifest=None, archived=False,
+            status=None):
+    """`status`, when given, writes the packet's own `Status:` header — the
+    ONE input class 7 reads. Absent it the proposal carries no header at all,
+    which is what every test written before `add-drafted-proposal-origin`
+    assumed and what class 7 must stay silent on."""
     base = tmp_path / "openspec" / "changes"
     if archived:
         base = base / "archive"
     d = base / name
     d.mkdir(parents=True)
-    (d / "proposal.md").write_text("# p\n")
+    (d / "proposal.md").write_text(
+        "# p\n" if status is None else f"# p\n\nStatus: {status}\n")
     if packet is not None:
         (d / ".openspec.yaml").write_text(packet)
     if manifest is not None:
@@ -73,6 +91,21 @@ origin:
   reason: deliberate exception
   approved_by: Brett
   approved_on: 2026-08-10
+"""
+
+
+# The UNAPPROVED state (`add-drafted-proposal-origin`): the same `ad_hoc`
+# kind and the same durable id as `ADHOC` — that is the whole point, the
+# identity does not move when the approval lands — with the drafting pair
+# where the approval pair will go.
+DRAFTED = """schema: spec-driven
+created: 2026-08-10
+origin:
+  kind: ad_hoc
+  id: repo:adhoc:2026-08-10-topic
+  reason: drafted under a scout-and-draft assignment, not yet approved
+  proposed_by: A Session
+  proposed_on: 2026-08-10
 """
 
 
@@ -133,6 +166,146 @@ def test_adhoc_incomplete_provenance_rejected(tmp_path):
     rules = [f.rule for f in po.check_change("r", tmp_path, d,
                                              frozenset(), False)]
     assert any("lacks required `approved_by`" in r for r in rules)
+
+
+# --- the UNAPPROVED state (add-drafted-proposal-origin, issue #318) -------
+#
+# THE STATE HAD NO LAWFUL SHAPE AT ALL before this change, which is why the
+# matrix below is worth stating in full rather than as one happy-path
+# assertion: an `ad_hoc` origin without `approved_on` was an error, no origin
+# block was an error, and the only remaining moves were to approve the change,
+# delete the draft, or invent a date — the last being the exact defect this
+# family exists to catch.
+
+
+def test_an_unapproved_draft_reports_nothing(tmp_path):
+    """PROPERTY (a). The whole point of the change: expressible AND quiet."""
+    d = _change(tmp_path, "add-draft", DRAFTED, status="draft")
+    assert po.check_change("r", tmp_path, d, frozenset(), False) == []
+
+
+def test_an_unapproved_draft_with_no_status_header_reports_nothing(tmp_path):
+    """A packet whose `Status:` is missing entirely is `fam_status_validity`'s
+    finding, not this family's — and class 7 cannot read a claim that is not
+    there, so it must not invent one."""
+    d = _change(tmp_path, "add-draft-nostatus", DRAFTED)
+    assert po.check_change("r", tmp_path, d, frozenset(), False) == []
+
+
+@pytest.mark.parametrize("standing", sorted(PRE_RATIFICATION))
+def test_the_state_is_lawful_at_every_pre_ratification_standing(
+        tmp_path, standing):
+    d = _change(tmp_path, f"add-draft-{standing}", DRAFTED, status=standing)
+    assert po.check_change("r", tmp_path, d, frozenset(), False) == []
+
+
+@pytest.mark.parametrize("standing", sorted(RATIFIED_OR_BEYOND))
+def test_a_status_claiming_ratification_over_an_unapproved_origin_is_error(
+        tmp_path, standing):
+    """PROPERTY (b), over EVERY standing at or beyond ratification rather than
+    over `ratified` alone — a packet that reached `standard` or `superseded`
+    without its approval ever being recorded is the same defect one stage
+    later, and keying on the single word `ratified` would let it through.
+
+    `contested`, and the resolution class is the argued half: resolving this
+    finding either TRANSCRIBES an approval act that happened or WITHDRAWS a
+    status claim that should not have been made. Inventing the date is the
+    third option, it is the defect, and a mechanical class would invite it."""
+    d = _change(tmp_path, f"add-claim-{standing}", DRAFTED, status=standing)
+    [f] = po.check_change("r", tmp_path, d, frozenset(), False)
+    assert f.severity == ERROR and f.resolution == CONTESTED
+    assert f"declares `Status: {standing}`" in f.rule
+    assert "approval MUST appear when the status claims it" in f.rule
+
+
+def test_an_approved_origin_at_ratified_status_reports_nothing(tmp_path):
+    """The other direction of the same rule: approval PRESENT and a status
+    claiming it is the ordinary lawful case, and it must stay quiet."""
+    d = _change(tmp_path, "add-approved", ADHOC, status="ratified")
+    assert po.check_change("r", tmp_path, d, frozenset(), False) == []
+
+
+def test_approval_arriving_beside_the_drafting_record_is_lawful(tmp_path):
+    """APPROVAL IS AN ADDITION, NOT A REWRITE — the property the encoding was
+    chosen for. The identity (`kind`, `id`) is byte-identical to the drafted
+    packet's, so the support manifest that repeats it never comes to disagree,
+    and the drafting record survives beside the approval rather than being
+    deleted to make room for it."""
+    packet = DRAFTED + "  approved_by: Brett\n  approved_on: 2026-09-03\n"
+    d = _change(tmp_path, "add-approved-later", packet, status="ratified")
+    assert po.check_change("r", tmp_path, d, frozenset(), False) == []
+
+
+def test_the_unapproved_state_is_declared_never_inferred_from_silence(
+        tmp_path):
+    """A packet cannot buy the lenient treatment by leaving fields out. An
+    origin carrying only `reason` has declared NO provenance state, and at
+    `Status: ratified` it gets the missing-provenance finding — never class
+    7's, which reports on a state this packet never claimed."""
+    packet = ADHOC.replace("  approved_by: Brett\n", "").replace(
+        "  approved_on: 2026-08-10\n", "")
+    d = _change(tmp_path, "add-silent", packet, status="ratified")
+    [f] = po.check_change("r", tmp_path, d, frozenset(), False)
+    assert f.severity == ERROR
+    assert "declares no provenance state" in f.rule
+    assert "approval MUST appear" not in f.rule
+
+
+def test_an_origin_declaring_neither_state_says_so_once(tmp_path):
+    """ONE finding, not one per absent field: nothing has been half-claimed,
+    and the remedy is a single choice between two shapes."""
+    packet = ADHOC.replace("  approved_by: Brett\n", "").replace(
+        "  approved_on: 2026-08-10\n", "")
+    d = _change(tmp_path, "add-neither", packet, status="draft")
+    findings = po.check_change("r", tmp_path, d, frozenset(), False)
+    assert len(findings) == 1
+    assert findings[0].action == (
+        "record the approval provenance the ad-hoc exception requires, or "
+        "declare the unapproved state with `proposed_by` and `proposed_on`")
+
+
+@pytest.mark.parametrize("missing", po.DRAFTING_FIELDS)
+def test_a_half_declared_drafting_pair_is_its_own_finding(tmp_path, missing):
+    packet = "".join(line for line in DRAFTED.splitlines(keepends=True)
+                     if not line.strip().startswith(f"{missing}:"))
+    d = _change(tmp_path, f"add-half-{missing}", packet, status="draft")
+    [f] = po.check_change("r", tmp_path, d, frozenset(), False)
+    assert f.severity == ERROR
+    assert f"drafting origin lacks required `{missing}`" in f.rule
+
+
+@pytest.mark.parametrize("missing", po.APPROVAL_FIELDS)
+def test_a_claimed_approval_still_owes_the_whole_pair(tmp_path, missing):
+    """PROPERTY (c). `approved_on` is required for an ad-hoc APPROVAL exactly
+    as it was before this change, and so is `approved_by`: an origin that
+    claims approval at all owes both, and the drafting state does not weaken
+    that by a byte. Nothing already lawful changes shape."""
+    packet = "".join(line for line in ADHOC.splitlines(keepends=True)
+                     if not line.strip().startswith(f"{missing}:"))
+    d = _change(tmp_path, f"add-partial-{missing}", packet, status="draft")
+    rules = [f.rule for f in po.check_change("r", tmp_path, d,
+                                             frozenset(), False)]
+    assert [f"ad-hoc origin lacks required `{missing}`"] == rules
+
+
+def test_a_drafting_origin_still_owes_its_reason(tmp_path):
+    """The state relaxes the APPROVAL pair and nothing else. `reason` is the
+    provenance half of an ad-hoc origin, and an unapproved draft has one."""
+    packet = DRAFTED.replace(
+        "  reason: drafted under a scout-and-draft assignment, "
+        "not yet approved\n", "")
+    d = _change(tmp_path, "add-draft-noreason", packet, status="draft")
+    rules = [f.rule for f in po.check_change("r", tmp_path, d,
+                                             frozenset(), False)]
+    assert rules == ["ad-hoc origin lacks required `reason`"]
+
+
+def test_a_staged_origin_at_ratified_status_owes_no_approval(tmp_path):
+    """Class 7 is an AD-HOC rule. A staged origin's provenance is the staging
+    topic and its transition record; it has never carried an approval pair and
+    a ratified staged packet must not start being asked for one."""
+    d = _change(tmp_path, "add-staged-ratified", STAGED, status="ratified")
+    assert po.check_change("r", tmp_path, d, frozenset(), False) == []
 
 
 def test_manifest_disagreement_is_contested_mutation(tmp_path):
@@ -353,6 +526,104 @@ def test_transition_writes_origin_and_manifest_repeats_it(tmp_path):
                                  manifest=manifest) == []
 
 
+def test_the_gate_accepts_an_unapproved_draft(tmp_path):
+    """PROPERTY (a) AT THE GATE, and it is not decoration: a state the nightly
+    family calls lawful while `proposal-support.py verify` rejects it is not a
+    lawful state, it is a state with two answers."""
+    d = _change(tmp_path, "add-draft-gate", DRAFTED)
+    assert support.origin_errors(tmp_path, d, strict=True) == []
+
+
+def test_the_gate_rejects_a_half_declared_drafting_pair(tmp_path):
+    packet = DRAFTED.replace("  proposed_on: 2026-08-10\n", "")
+    d = _change(tmp_path, "add-half-gate", packet)
+    errors = support.origin_errors(tmp_path, d, strict=True)
+    assert any("drafting origin lacks required `proposed_on`" in e
+               for e in errors)
+
+
+def test_the_gate_rejects_an_origin_declaring_neither_state(tmp_path):
+    packet = ADHOC.replace("  approved_by: Brett\n", "").replace(
+        "  approved_on: 2026-08-10\n", "")
+    d = _change(tmp_path, "add-neither-gate", packet)
+    errors = support.origin_errors(tmp_path, d, strict=True)
+    assert any("declares no provenance state" in e for e in errors)
+
+
+def test_the_gate_and_the_family_name_the_same_provenance_fields():
+    """THE AGREEMENT TEST FOR A DELIBERATE DUPLICATION. The gate copies the
+    two field pairs rather than importing them — `proposal-support.py` states
+    why beside the copy: `doc_health.proposal_origin` depends on PyYAML and on
+    two further package modules, so it fails the "nothing outside the standard
+    library" test that earned `doc_health.pin_sentinels` its import, exactly
+    as the two id grammars above it are copied for the same reason. A copied
+    rule is held by a test or by nothing."""
+    assert support.APPROVAL_FIELDS == po.APPROVAL_FIELDS
+    assert support.DRAFTING_FIELDS == po.DRAFTING_FIELDS
+
+
+def test_write_origin_block_writes_the_unapproved_state(tmp_path):
+    """EVERY LAWFUL SHAPE HAS A PRODUCER. A state only hand-authorable is a
+    state the repository's own writer disagrees with."""
+    d = _change(tmp_path, "add-write-draft", None)
+    support.write_origin_block(
+        d, {"kind": "ad_hoc", "id": "repo:adhoc:2026-09-03-write-draft",
+            "reason": "drafted, not approved", "proposed_by": "A Session",
+            "proposed_on": "2026-09-03"}, "2026-09-03")
+    packet = yaml.safe_load((d / ".openspec.yaml").read_text())
+    # `str(...)`, because an unquoted ISO date loads as `datetime.date` — the
+    # reason every presence test on these fields, in the family and in the
+    # gate alike, goes through `str(value).strip()` rather than comparing to
+    # a string or testing truthiness of a raw scalar.
+    assert str(packet["origin"]["proposed_on"]) == "2026-09-03"
+    assert "approved_on" not in packet["origin"]
+    assert support.origin_errors(tmp_path, d, strict=True) == []
+    assert po.check_change("r", tmp_path, d, frozenset(), False) == []
+
+
+def test_write_origin_block_writes_both_pairs_when_both_are_given(tmp_path):
+    d = _change(tmp_path, "add-write-both", None)
+    support.write_origin_block(
+        d, {"kind": "ad_hoc", "id": "repo:adhoc:2026-09-03-write-both",
+            "reason": "drafted, then approved", "proposed_by": "A Session",
+            "proposed_on": "2026-09-01", "approved_by": "Brett",
+            "approved_on": "2026-09-03"}, "2026-09-01")
+    origin = yaml.safe_load((d / ".openspec.yaml").read_text())["origin"]
+    assert str(origin["proposed_on"]) == "2026-09-01"
+    assert str(origin["approved_on"]) == "2026-09-03"
+
+
+@pytest.mark.parametrize("half", ["proposed_by", "proposed_on",
+                                  "approved_by", "approved_on"])
+def test_write_origin_block_refuses_a_half_given_pair(tmp_path, half):
+    """FOUND BY COPILOT ON PR #619, AND IT WAS A SILENT DROP. The writer wrote
+    only pairs it found COMPLETE, so a caller handing it a full approval pair
+    and a lone `proposed_by` got a block with the stray field discarded and no
+    word said — a record that looks complete, produced by the writer whose own
+    gate reports a half-declared pair as a defect. Refused now, in both
+    directions and at either field of either pair."""
+    origin = {"kind": "ad_hoc", "id": "repo:adhoc:2026-09-03-half",
+              "reason": "one pair complete, the other half-given"}
+    complete = ("proposed", "approved")[half.startswith("proposed")]
+    origin[f"{complete}_by"] = "Someone"
+    origin[f"{complete}_on"] = "2026-09-03"
+    origin[half] = "a lone half"
+    d = _change(tmp_path, f"add-write-half-{half}", None)
+    with pytest.raises(support.SupportError) as raised:
+        support.write_origin_block(d, origin, "2026-09-03")
+    assert half in str(raised.value)
+    assert not (d / ".openspec.yaml").is_file()
+
+
+def test_write_origin_block_refuses_an_ad_hoc_origin_with_neither_pair(
+        tmp_path):
+    d = _change(tmp_path, "add-write-neither", None)
+    with pytest.raises(support.SupportError):
+        support.write_origin_block(
+            d, {"kind": "ad_hoc", "id": "repo:adhoc:2026-09-03-x",
+                "reason": "no provenance state at all"}, "2026-09-03")
+
+
 def test_every_action_string_the_proposal_origin_family_can_emit_is_pinned_verbatim(
         tmp_path):
     """`fam_proposal_origin`'s `check_change` raises ELEVEN distinct action
@@ -466,6 +737,25 @@ def test_every_action_string_the_proposal_origin_family_can_emit_is_pinned_verba
     behavioral |= {f.action for f in
                   po.check_change("r", git_root, d, frozenset(), False)}
 
+    # add-drafted-proposal-origin's three classes: the half-declared drafting
+    # pair, the origin declaring neither state, and the status claiming a
+    # ratification its origin does not carry.
+    packet = DRAFTED.replace("  proposed_on: 2026-08-10\n", "")
+    d = _change(tmp_path, "pin-half-drafting", packet, status="draft")
+    behavioral |= {f.action for f in
+                  po.check_change("r", tmp_path, d, frozenset(), False)}
+
+    packet = ADHOC.replace("  approved_by: Brett\n", "").replace(
+        "  approved_on: 2026-08-10\n", "")
+    d = _change(tmp_path, "pin-no-state", packet, status="draft")
+    behavioral |= {f.action for f in
+                  po.check_change("r", tmp_path, d, frozenset(), False)}
+
+    d = _change(tmp_path, "pin-unapproved-ratified", DRAFTED,
+                status="ratified")
+    behavioral |= {f.action for f in
+                  po.check_change("r", tmp_path, d, frozenset(), False)}
+
     behavioral = frozenset(behavioral)
     static = harvest_static(po)
 
@@ -486,6 +776,14 @@ def test_every_action_string_the_proposal_origin_family_can_emit_is_pinned_verba
         "restore the origin block recorded in the migration evidence",
         "the recorded provenance must contain the staging folder; correct "
         "the manifest or the declaration",
+        # add-drafted-proposal-origin (issue #318)
+        "record the approval provenance the ad-hoc exception requires, or "
+        "declare the unapproved state with `proposed_by` and `proposed_on`",
+        "record both `proposed_by` and `proposed_on`, or the approval pair "
+        "once an approval exists",
+        "record the approval provenance the declared status claims, or "
+        "return the proposal to `draft`; resolving it reverses a gate "
+        "decision",
     }
     assert_actions_pinned(EXPECTED_ACTIONS, behavioral, static,
                           family="proposal-origin")

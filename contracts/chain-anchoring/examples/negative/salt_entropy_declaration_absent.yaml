@@ -1,0 +1,29 @@
+# expected_failure: salt_entropy_declaration_absent
+# expected_failure_detail: names no source
+# 'Salted' with neither a source nor a width is not a property a validator or a
+# reader can judge — it is the word where the fact should be.
+schema_version: 1
+kind: xfactory_chain_anchoring_anchor_bound_commitment
+commitment_id: cac-negative-0042
+commitment_value: sha256:afbe55555270609848a7ce737fc4fb056ee8d35e8ff36bea65c4831f65287745
+declared_construction:
+  algorithm: hmac-sha256
+  keyed: true
+  salted: true
+  salt_custody:
+    reference_id: salt-example-record-0001
+    resolves_into: governed_layer
+    plane: record
+  key_custody:
+    reference_id: key-example-record-plane
+    resolves_into: governed_layer
+    plane: record
+  salt_scope: per_record
+plane: record
+receipt_ref: rcp-example-0003
+named_gate_ref: gate-example-merge-0001
+record_version: 1
+commitment_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_bound_commitment
+  value: sha256:b5492d1e5fc6b6e94edd7d648515549079af79d4747e21f7fc074a6c83dc7e1c

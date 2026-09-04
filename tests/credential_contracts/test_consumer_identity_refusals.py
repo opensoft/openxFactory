@@ -633,6 +633,249 @@ def test_a_record_that_declares_no_consumer_is_refused_exactly_as_it_is_today():
     assert len(findings) == 1 and findings[0].startswith("shared-secret-identity")
 
 
+# ------------- the namespace that scopes the authority (add-consumer-identity-namespace) -------------
+
+def _same_name_different_holders(secret_b="a-different-secret"):
+    """The shared-authority SHAPE: two holders, one fetch identity, no shared
+    secret. Every test below starts here and adds only namespaces, so what moves
+    the verdict is the member under test and nothing else."""
+    doc = _conforming_pair()
+    bindings = doc["credential_bindings"]
+    bindings["projection_editor_surface"]["secret_ref"] = secret_b
+    bindings["projection_editor_surface"]["consumer"]["fetch_identity"] = \
+        bindings["projection_sync_lane"]["consumer"]["fetch_identity"]
+    return doc
+
+
+def _consumers(doc):
+    """The two consumer blocks, in the template's own declaration order.
+
+    ORDER IS DELIBERATELY NOT SORTED, and the reason is that no test in this
+    section depends on WHICH binding receives an edit — every assertion is
+    symmetric over the pair, because the fault this section is about is a
+    property of the PAIR and not of either side. Sorting the keys would fix an
+    order the tests do not read while implying they do. What DOES matter is the
+    arity of the findings, and the two tests that index into a finding list pin
+    `len(...) == 1` before they do.
+    """
+    return [b["consumer"] for b in doc["credential_bindings"].values()]
+
+
+def test_the_shape_reports_before_any_namespace_is_declared():
+    """The BASELINE the rest of this section is read against. Without it a test
+    that passes because the finding was never raised looks like a test that
+    passes because a namespace cleared it."""
+    assert _codes(_same_name_different_holders()) == ["shared-authority-identity"]
+
+
+def test_two_directories_naming_one_principal_the_same_are_NOT_one_authority():
+    """The false refusal this member exists to end (openxFactory#511). Two
+    tenants of one provider may both call a principal `runtime_identity`; before
+    the member the only escape was to write a name the provider does not use,
+    which makes the record FALSE."""
+    doc = _same_name_different_holders()
+    for consumer, namespace in zip(_consumers(doc), ("directory-tenant-a", "directory-tenant-b")):
+        consumer["identity_namespace"] = namespace
+    assert _findings(doc) == []
+
+
+def test_one_namespace_on_both_sides_is_still_the_collapse():
+    """The member SCOPES the comparison; it does not lift it. Same directory,
+    same principal name, two consuming systems is the fault whatever is
+    declared."""
+    doc = _same_name_different_holders()
+    for consumer in _consumers(doc):
+        consumer["identity_namespace"] = "directory-tenant-a"
+    assert _codes(doc) == ["shared-authority-identity"]
+
+
+def test_a_namespace_on_ONE_side_falls_back_and_still_REPORTS():
+    """ABSENCE NEVER CLEARS. An estate that could silence a real shared
+    authority by omitting a member on one side would hold a refusal it can turn
+    off without ever writing anything false — a worse instrument than the
+    over-report the member exists to end."""
+    doc = _same_name_different_holders()
+    _consumers(doc)[0]["identity_namespace"] = "directory-tenant-a"
+    assert _codes(doc) == ["shared-authority-identity"]
+
+
+def test_the_one_sided_message_names_the_remedy_that_keeps_the_record_TRUE():
+    """The fallback is also the shape most likely to be a MISSING DECLARATION
+    rather than a real collapse, so the message says which repair is the honest
+    one: declare the namespace on BOTH bindings, never delete it from the one
+    that carries it."""
+    doc = _same_name_different_holders()
+    _consumers(doc)[0]["identity_namespace"] = "directory-tenant-a"
+    findings = _findings(doc)
+    # PIN THE ARITY BEFORE READING AN INDEX. `[0]` on an unpinned list reads
+    # whichever finding happened to sort first, so a second finding arriving
+    # later would change what this test asserts about without failing it.
+    assert len(findings) == 1
+    assert "identity_namespace" in findings[0]
+    assert "BOTH bindings" in findings[0]
+
+
+def test_an_UNGRAMMATICAL_namespace_is_not_read_as_one_and_the_pair_still_reports():
+    """Clearing on a value nothing could read is the fail-open shape this family
+    has already had to repair once. A malformed namespace is treated exactly as
+    an absent one by the comparison — and warned in its own right beside it."""
+    doc = _same_name_different_holders()
+    _consumers(doc)[0]["identity_namespace"] = "not a namespace!"
+    _consumers(doc)[1]["identity_namespace"] = "directory-tenant-b"
+    assert _codes(doc) == ["shared-authority-identity"]
+    warnings = [c for c, _ in V._deprecation_warnings(doc)]
+    assert warnings.count("consumer-identity-namespace-grammar") == 1
+
+
+def test_the_message_names_the_namespace_when_BOTH_sides_share_one():
+    """`authenticating as 'runtime_identity'` is ambiguous in exactly the way
+    this member exists to end, so where the comparison READ a namespace the
+    finding says which one."""
+    doc = _same_name_different_holders()
+    for consumer in _consumers(doc):
+        consumer["identity_namespace"] = "directory-tenant-a"
+    findings = _findings(doc)
+    assert len(findings) == 1
+    assert "in identity_namespace 'directory-tenant-a'" in findings[0]
+
+
+def test_the_namespace_does_not_reach_a_pair_whose_fetch_identities_ALREADY_differ():
+    """A subtraction, not an addition: the member narrows what is reported and
+    can never widen it. Two different identities were never this fault, and
+    declaring namespaces on them changes nothing."""
+    doc = _conforming_pair()
+    doc["credential_bindings"]["projection_editor_surface"]["secret_ref"] = "a-different-secret"
+    for consumer, namespace in zip(_consumers(doc), ("directory-tenant-a", "directory-tenant-b")):
+        consumer["identity_namespace"] = namespace
+    assert _findings(doc) == []
+
+
+def test_a_shared_secret_pair_with_two_namespaces_reaches_the_LIFT_rather_than_the_named_fault():
+    """The named fault REPLACES the default finding for a pair; where the
+    namespaces separate two authorities the pair is no longer that fault, so the
+    six-condition lift decides the record — and here it lifts, every condition
+    holding."""
+    doc = _conforming_pair()
+    for consumer, namespace in zip(_consumers(doc), ("directory-tenant-a", "directory-tenant-b")):
+        consumer["fetch_identity"] = "example-runtime-identity"
+        consumer["identity_namespace"] = namespace
+    assert _findings(doc) == []
+
+
+def test_a_shared_secret_pair_sharing_ONE_namespace_is_refused_under_the_named_fault():
+    """The control for the test above, one byte apart: one namespace on both
+    sides and the pair is the authority collapse again."""
+    doc = _conforming_pair()
+    for consumer in _consumers(doc):
+        consumer["fetch_identity"] = "example-runtime-identity"
+        consumer["identity_namespace"] = "directory-tenant-a"
+    assert _codes(doc) == ["shared-authority-identity"]
+
+
+def test_the_namespace_is_a_DECLARED_member_and_no_longer_an_unknown_one():
+    """Before this change a block carrying `identity_namespace` warned as
+    carrying an undeclared member — a warning against a member the estate had no
+    other way to express. Declaring it is what removes that."""
+    doc = _same_name_different_holders()
+    _consumers(doc)[0]["identity_namespace"] = "directory-tenant-a"
+    warnings = [c for c, _ in V._deprecation_warnings(doc)]
+    assert "consumer-block-unknown-member" not in warnings
+    assert "identity_namespace" in V.CONSUMER_MEMBERS
+
+
+def test_the_namespace_does_not_stand_in_for_an_identifier():
+    """A namespace names a DIRECTORY and not a principal, so a block carrying one
+    and no identifiers is still incomplete — on the same ground a grammar-passing
+    sentinel is refused as a repair."""
+    doc = _conforming_pair()
+    for binding in doc["credential_bindings"].values():
+        binding["consumer"] = {"identity_namespace": "directory-tenant-a"}
+    warnings = [c for c, _ in V._deprecation_warnings(doc)]
+    assert warnings.count("consumer-block-incomplete") == 2
+
+
+def test_a_namespace_beside_the_stub_token_keeps_the_stub_exemption():
+    """A record written before any install exists MAY already know which
+    directory will issue its identity, and naming a directory names no principal
+    — so the exemption is unchanged. Stated as a decision rather than left to be
+    read off the code: `_declares_stub` keys on the two IDENTIFIERS, and this
+    change does not add a third."""
+    doc = _conforming_pair()
+    for binding in doc["credential_bindings"].values():
+        binding["consumer"] = {"instantiation_stub": True,
+                               "identity_namespace": "directory-tenant-a"}
+    assert [c for c, _ in V._deprecation_warnings(doc)] == []
+
+
+def test_the_ninth_code_is_declared_beside_its_family_and_carries_a_probe():
+    """It is a SHAPE fault, so it belongs to the consumer block's family rather
+    than to the resolution family; and a deprecation code with no packaged probe
+    is a deprecation the major cannot evidence."""
+    assert "consumer-identity-namespace-grammar" in V.DEPRECATION_CODES
+    codes = list(V.DEPRECATION_CODES)
+    assert codes.index("consumer-identity-namespace-grammar") == codes.index(
+        "consumer-requirement-ref-grammar") + 1
+    assert "consumer-identity-namespace-grammar" in set(V.WARNING_EXPECTATIONS.values())
+
+
+def test_the_namespace_grammar_warning_says_the_value_is_not_read_as_a_namespace():
+    """Its own code exists for a CONSEQUENCE rather than a taxonomy, and the
+    message is where that consequence reaches the reader."""
+    doc = _conforming_pair()
+    _consumers(doc)[0]["identity_namespace"] = "not a namespace!"
+    message = [m for c, m in V._deprecation_warnings(doc)
+               if c == "consumer-identity-namespace-grammar"][0]
+    assert "NOT READ" in message
+    assert "falls back" in message
+
+
+def test_a_namespace_carrying_a_raw_secret_is_screened_like_the_two_beside_it():
+    """The THIRD free string on the record kind whose invariant is 'never bake a
+    secret', screened in the SAME COMMIT that declares it — declaring a sink and
+    screening it a release later is how the gap §2.6 closed reopens."""
+    doc = _conforming_pair()
+    _consumers(doc)[0]["identity_namespace"] = "ghp_0123456789abcdefghijklmnopqrstuvwxyz"
+    assert any(f.startswith("baked-secret") and "identity_namespace" in f
+               for f in _findings(doc))
+
+
+@pytest.mark.parametrize("name,ns_a,ns_b,fetch_b,same_authority", [
+    ("neither side declares one — every record that exists today", ..., ..., "x", True),
+    ("both declare the same one", "dir-a", "dir-a", "x", True),
+    ("both declare DIFFERENT ones — the only clearing case", "dir-a", "dir-b", "x", False),
+    ("one side only", "dir-a", ..., "x", True),
+    ("one side's value is ungrammatical", "not a ns!", "dir-b", "x", True),
+    ("both values are ungrammatical", "not a ns!", "also bad!", "x", True),
+    ("a declared null is a value nothing can read", None, "dir-b", "x", True),
+    ("the identities already differ", "dir-a", "dir-a", "y", False),
+])
+def test_the_authority_predicate_over_its_WHOLE_truth_table(name, ns_a, ns_b, fetch_b,
+                                                            same_authority):
+    """EIGHT CASES, WHICH IS THE WHOLE TABLE, AND EACH ASSERTED SYMMETRICALLY.
+
+    The fallback is stated in canon as a rule about ABSENCE, and a rule about
+    absence is only as good as its enumeration of the ways a value can be
+    missing: not declared, declared and ungrammatical, declared as null. Testing
+    the first alone would leave the other two to a reader's confidence. EXACTLY
+    ONE row clears — both sides declaring a grammatical namespace and the two
+    differing — and every other row falls back to the bare identity and reports.
+
+    SYMMETRY IS ASSERTED RATHER THAN ASSUMED because the predicate is called
+    over `combinations`, which fixes an order: a predicate that answered
+    differently depending on which binding came first would produce a finding
+    that depends on declaration order, and a rule whose outcome depends on which
+    was found first is not a rule.
+    """
+    con_a = {"fetch_identity": "x"}
+    con_b = {"fetch_identity": fetch_b}
+    if ns_a is not ...:
+        con_a["identity_namespace"] = ns_a
+    if ns_b is not ...:
+        con_b["identity_namespace"] = ns_b
+    assert V._same_fetch_authority(con_a, con_b) is same_authority, name
+    assert V._same_fetch_authority(con_b, con_a) is same_authority, f"{name} (reversed)"
+
+
 # --------------------------- the screen (§2.6, openxFactory#506) ---------------------------
 
 @pytest.mark.parametrize("value", [

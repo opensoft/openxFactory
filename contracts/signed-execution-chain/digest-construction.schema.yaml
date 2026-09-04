@@ -103,6 +103,49 @@ description: >-
   computed under this construction, with its subject added to the enumeration
   below; a second construction declared beside this one is a defect whatever it
   is called.
+
+  AND THAT INVITATION HAS NOW BEEN TAKEN, BY NAME. `add-chain-anchoring` computes
+  ELEVEN further digests and declares no construction of its own: each is
+  `xfc-jcs-sha256-1`, taken by `$ref` to this file, with its subject added to the
+  enumeration below exactly as the paragraph above provides. The subjects follow,
+  in the same voice and to the same purpose — SAYING WHAT EACH DIGEST IS TAKEN
+  OVER, because readers that agree on how to hash can still disagree on what was
+  hashed:
+
+  * `anchor_material` — the validated, gate-passed material submitted for
+    anchoring, taken over that material and nothing else. It is nameable in its
+    own right so a receipt can point at what it anchored without carrying it.
+  * `anchored_commitment` — the two-member block `{material_digest,
+    mint_time_configuration}`, and so a STRICT SUPERSET of `anchor_material` in
+    the same way the chain identity is of the ratified subject. Because the
+    digest covers the WHOLE mint-time configuration block, rewriting a witness
+    set or extending a horizon changes this value and breaks every proof taken
+    against it — which is the property the closure rule exists to buy.
+  * `anchor_receipt` — a whole multi-anchor receipt record, for a reference that
+    names one rather than embeds it.
+  * `anchor_state` — an anchor-state record: one item's per-witness state. Kept a
+    DISTINCT subject from `anchor_receipt` on purpose, because the receipt is
+    PROOF MATERIAL and the state record is STATE, and one digest over both would
+    make the two indistinguishable to anything that compares them.
+  * `anchor_bound_commitment` — an anchor-bound commitment record: the keyed and
+    salted value that stands in for content on a chain. Over the COMMITMENT
+    RECORD, never over the content it commits to.
+  * `consent_checkpoint` — a consent-plane checkpoint: that plane's root at a
+    moment. Over the CHECKPOINT and never over a per-subject row.
+  * `log_checkpoint` — a transparency-log checkpoint: the log's prefix at a
+    declared tree size. It witnesses WHAT THE LOG SAID and is not a claim about
+    the validity of any leaf inside it.
+  * `linkage_derivation` — a linkage-derivation record, at issuance or at use.
+  * `analysis_result` — an analysis-result record, INCLUDING its status
+    discriminator and any named omitted correlation, so a result cannot be
+    re-described after the fact without changing its digest.
+  * `verification_result` — a verification-result record, including the
+    verification mode it was reached under.
+  * `anchor_event` — the `anchor_event` block a chain-anchoring leaf carries,
+    which is that leaf's `payload_digest` subject exactly as `gate_verdict` is a
+    gate leaf's. The block, not the leaf: the leaf's own digest is
+    `transparency_log_leaf`, and the two are different subjects over different
+    bytes.
 type: object
 $defs:
   identifier:
@@ -114,17 +157,24 @@ $defs:
     type: string
     const: xfc-jcs-sha256-1
   digest_subject:
-    # WIDENED AT TRANCHE TWO, WHICH IS THE ONE WAY THIS FILE IS MEANT TO MOVE. A
-    # later tranche adds SUBJECTS to this enumeration and never a second
-    # CONSTRUCTION; the members below the rule are tranche two's eleven, and
-    # `construction_name` is untouched.
+    # ONE ENUMERATION, AND IT IS THE ONLY PLACE A SUBJECT IS NAMED. A digest whose
+    # subject is not on this list is refused rather than guessed at, which is what
+    # makes "every digest NAMES its subject" a checkable claim.
+    #
+    # WIDENED AT TRANCHE TWO AND AGAIN AT TRANCHE THREE, WHICH IS THE ONE WAY THIS
+    # FILE IS MEANT TO MOVE. A later tranche adds SUBJECTS to this enumeration and
+    # never a second CONSTRUCTION; the members below the tranche-one five are
+    # tranche two's eleven and tranche three's eleven, and `construction_name` is
+    # untouched by both.
     type: string
     enum:
+      # --- signed-execution-chain (tranche one) ---
       - ratified_subject
       - signed_ratification
       - transparency_log_leaf
       - traveling_contract
       - gate_verdict
+      # --- add-chain-attestation (tranche two) ---
       - setup_attestation
       - commitment_extension
       - signed_chain_binding
@@ -136,6 +186,43 @@ $defs:
       - reviewed_subject
       - review_record
       - governed_test_definition
+      # --- add-chain-anchoring, on this file's own invitation above: no second
+      #     construction, one enumeration, eleven further subjects ---
+      - anchor_material
+      - anchored_commitment
+      - anchor_receipt
+      - anchor_state
+      - anchor_bound_commitment
+      - consent_checkpoint
+      - log_checkpoint
+      - linkage_derivation
+      - analysis_result
+      - verification_result
+      - anchor_event
+      # ADDED AT TRANCHE THREE (`add-cpc-clearing-boundary`, realized by the
+      # neutral `contracts/clearing/` family) — ONE SUBJECT, NO SECOND
+      # CONSTRUCTION, which is exactly the movement this file's own header
+      # sanctions. That packet's MODIFIED requirement says it in its own words:
+      # the manifest's digest and the origin signature over it "SHALL use the
+      # estate's canonical JSON construction `xfc-jcs-sha256-1`, which requires
+      # the manifest to be admitted as a SUBJECT of that construction's closed
+      # `digest_subject` enumeration — a tranche widening of SUBJECTS, never a
+      # second construction ... Until that subject exists, this requirement is
+      # UNREALIZABLE as written and SHALL NOT be reported as satisfied." This
+      # member is what makes it realizable.
+      #
+      # * `sealed_bundle_manifest` — the sealed bounded request's manifest, the
+      #   TEN DECLARED FIELDS as one JSON value. The origin signature covers
+      #   this subject and therefore covers all ten fields, the per-file hashes
+      #   included, so no field can be altered after signing without detection.
+      #
+      # WHAT IS DELIBERATELY NOT ADDED HERE. `add-cpc-clearing-boundary`'s own
+      # task 2.9 names a SECOND candidate, the sealed RETURN. No shipped shape
+      # computes a digest over a return today — the return path belongs to the
+      # hosted-finalizer successor — and an admitted subject with no consumer is
+      # a widening nothing exercises. It is added by the tranche that first
+      # produces one, under this same construction.
+      - sealed_bundle_manifest
   digest:
     type: object
     required: [construction, subject, value]

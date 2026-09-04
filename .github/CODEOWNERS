@@ -18,3 +18,10 @@
 # answer, and `tests/review_lane_pin/` is the only thing that stops it drifting
 # away from the caller's `ref:`.
 /contracts/review-lane-pin.yaml @brettheap
+# The vendored floor snapshot (2026-09-01, the (b′) activation). Routed on
+# stronger ground than the pin itself: these bytes are what a REQUIRED check
+# (`pytest-suite`) asserts the repository's promoted OpenSpec canon against, so
+# an unnoticed edit here does not merely change which core judges — it changes
+# what the required assertion is asserting. The digest in the pin and the
+# freshness verifier both refuse a drifted copy; this routes the human.
+/contracts/review-lane-floor-snapshot.yaml @brettheap

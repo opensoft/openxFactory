@@ -1,0 +1,23 @@
+# expected_failure: consent_enforcement_as_on_chain_contract_code
+# expected_failure_detail: contract code on
+# Consent enforcement proposed as contract code on the anchoring chain:
+# consent, enrollment and access policy are authority questions, and this
+# capability places none of them on any anchoring chain. The refusal writes no
+# permanent bar and names no trigger condition — a later change answers to its
+# own evidence.
+schema_version: 1
+kind: xfactory_chain_anchoring_consent_checkpoint_commitment
+commitment_id: ccc-negative-0045
+checkpoint_commitment:
+  construction: xfc-jcs-sha256-1
+  subject: consent_checkpoint
+  value: sha256:c4789f1cddded753622d427eadcde2d19444240d15fdbaea5b443e1516379ee7
+plane_root_ref: plane-root-example-permissioned-0001
+receipt_ref: rcp-example-0002
+enforcement_site: anchoring_chain_contract_code
+revocation_semantics: supersedes_forward_only
+recall_claimed: false
+plane_unreachable_refuses: true
+consent_log_tree_size: 128
+anchored_at_leaf_ref: leaf-example-consent-checkpoint-anchored-0512
+record_version: 1

@@ -496,7 +496,11 @@ def test_the_two_codes_are_DECLARED_and_are_not_a_widening_of_the_consumer_block
     declares."""
     assert V.DEPRECATION_CODES[-2:] == ("requirement-ref-unresolved",
                                         "requirement-ref-ambiguous")
-    assert len(V.DEPRECATION_CODES) == 10
+    # 10 -> 11 by add-consumer-identity-namespace, whose ninth `consumer-*` code
+    # joins its OWN family and is inserted BEFORE these two, so the claim this
+    # test actually makes — that the resolution pair is a second family and sits
+    # apart from the block's shape codes — is unweakened by the move.
+    assert len(V.DEPRECATION_CODES) == 11
     for code in V.DEPRECATION_CODES[-2:]:
         assert not code.startswith("consumer-"), code
 

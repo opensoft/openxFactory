@@ -81,6 +81,23 @@ one, against the fixed interface constants below. They are interface, not
 suggestion: the workflow path is what the operator admits to the allowlist in
 §4, and a rename after that act costs a second console act.
 
+**CORRECTION, 2026-09-02 — this section's present tense is now historical.**
+The realization PR named above landed as `opensoft/xFactory#191`, "Open the
+CPC clearing door: clearing-dispatch.yml, with readiness-diagnostic as its
+first operation" — MERGED 2026-09-01T12:11:46Z as squash
+`95f1a9c60d7e75649e76a494bc82a9c9eceae112`. `.github/workflows/clearing-dispatch.yml`
+exists on `opensoft/xFactory`'s default branch and
+`.github/workflows/runner-readiness-diagnostic.yml` no longer does (verified
+2026-09-02 against the provider API), consistent with items 3.1 and 3.2
+below; `.github/clearing/grandfather-enumeration.yaml` also exists on that
+branch, consistent with item 3.4. This packet's own checkboxes in this
+section are left AS THIS PACKET WROTE THEM — filing forward a status note is
+not the same act as re-auditing and re-ticking each item's box, which is
+outside this correction's scope; a reader should take the checkbox state in
+this section as the record of what THIS PACKET asserted at authoring time,
+and this note as the fact that supersedes the section heading's present
+tense, not as a re-certification of every item below it.
+
 | constant | value |
 |---|---|
 | clearing workflow | `opensoft/xFactory` → `.github/workflows/clearing-dispatch.yml` |
@@ -399,17 +416,38 @@ summary and log, not from the individual lane jobs — and §6.3's
 
 Deliberately not started before §2. Nothing here is authored by this packet.
 
-- [ ] 6.1 `contracts/clearing/sealed-bundle-manifest.schema.yaml` — the ten
+**REALIZED 2026-09-03 by the openxFactory Speckit feature
+`specs/028-clearing-contracts`, at `contract-v3.3`.** The ticks below are that
+feature's, recorded here rather than left for a reader to infer from a merge
+list — `release-realization` makes this packet's archive gate merged-plus-green
+realization evidence, and an unticked section is not evidence. The realization
+also carries `add-cpc-clearing-boundary`'s two MODIFIED tightenings, which are
+that packet's requirements written over this one's additions: field (10) becomes
+a REQUIRED origin signature where an origin identity is registered, and the
+policy-checked fields are RESOLVED FROM the register rather than read from the
+bundle. Its task 2.9 — the tranche-3 `digest_subject` widening, named there as
+NOT that change's task and as a blocker on the origin signature — is discharged
+by the same feature.
+
+**WHAT REMAINS AFTER THESE TICKS**, so the section's completeness is not
+overread: §7 (the L5 attestation IMPLEMENTATION) and §8 (the named successors)
+are untouched, the annotated `contract-v3.3` tag is published at the LANDED
+commit per Bundle Realization Order step 5 rather than from the realization
+branch, and §3.7's obligation now falls due — the clearing workflow must validate
+its dispatched operation against the registry INSTANCE and stop relying on its
+own choice list.
+
+- [x] 6.1 **DONE 2026-09-03** — `contracts/clearing/sealed-bundle-manifest.schema.yaml` — the ten
       declared fields, with expiration required, per-file hashes required
       alongside the file list, and the digest construction cited rather than
       redefined.
-- [ ] 6.2 `contracts/clearing/permitted-operations.schema.yaml` plus the
+- [x] 6.2 **DONE 2026-09-03** — `contracts/clearing/permitted-operations.schema.yaml` plus the
       CLOSED registry INSTANCE
       `contracts/clearing/permitted-operations.registry.yaml`, on the
       `openxwallet-custody` schema-plus-instance pair convention. Entry #1 is
       `readiness-diagnostic` with its class constraints and
       `repository_affecting_output: false`.
-- [ ] 6.3 `contracts/clearing/operation-report.schema.yaml` — the
+- [x] 6.3 **DONE 2026-09-03** — `contracts/clearing/operation-report.schema.yaml` — the
       `readiness-diagnostic` report shape, and specifically THE COMPOSED
       REPORT: the artifact the `operation-report` job assembles from the lane
       jobs' forwarded outputs (§5), one report of record per dispatch across
@@ -420,7 +458,7 @@ Deliberately not started before §2. Nothing here is authored by this packet.
       (§3.5), never as observed group membership. It carries probed FACTS and
       deliberately carries no eligibility verdict (design D9); a reviewer
       should refuse a field that turns it into a readiness decision.
-- [ ] 6.4 `contracts/clearing/dispatch-record.schema.yaml` — resolved and
+- [x] 6.4 **DONE 2026-09-03** — `contracts/clearing/dispatch-record.schema.yaml` — resolved and
       claimed values, refusal grounds as a CLOSED NAMED ENUMERATION rather
       than free text, and the chain reference per §2.1 OQ2. **Seed the
       enumeration with exactly the two grounds the realization emits**
@@ -433,19 +471,37 @@ Deliberately not started before §2. Nothing here is authored by this packet.
       a new string in a workflow. Carry the DECLARED-vs-observed distinction
       into the field names so a declared lane cannot be read as an observed
       one.
-- [ ] 6.5 `contracts/clearing/single-door-attestation.schema.yaml` — expected
+- [x] 6.5 **DONE 2026-09-03** — `contracts/clearing/single-door-attestation.schema.yaml` — expected
       versus observed admitted repositories and allowlist entries per group,
       with the divergence direction carried.
-- [ ] 6.6 Packaged POSITIVE examples plus a NEGATIVE fixture per named
+- [x] 6.6 **DONE 2026-09-03, WITH A SCOPE NOTE** — Packaged POSITIVE examples plus a NEGATIVE fixture per named
       refusal: missing field, hash mismatch, expired handle, workflow-path
       contradiction, commit mismatch, unreadable API, unregistered operation,
       lane not permitted for the operation, output failing its declared
       schema, origin-scoped credential on the host, and a bundle offered as
       committed data.
-- [ ] 6.7 Canonical `scripts/validate-clearing-dispatch.py` with the
+
+      **THE FIXTURE SET IS THE REFUSALS THE VALIDATOR IMPLEMENTS, WHICH IS NOT
+      THE WHOLE OF THIS ITEM'S LIST.** 6 positives and 24 negatives ship, one per
+      CLOSED REFUSAL CODE, and the validator refuses a code with no probe. Four
+      refusals this item names have NO fixture because the neutral validator does
+      not perform them and must not pretend to: the WORKFLOW-PATH CONTRADICTION,
+      the COMMIT MISMATCH and the UNREADABLE API are provider-side resolutions
+      that only the clearing implementation can perform — a contract validator
+      asserting a live API answer would be a second implementation of a check the
+      ratified text places on the clearing workflow — and OUTPUT FAILING ITS
+      DECLARED SCHEMA belongs to the hosted finalizer, which this slice
+      deliberately does not ship. The ORIGIN-SCOPED CREDENTIAL and the
+      COMMITTED-DATA OFFER are likewise properties of a dispatch attempt rather
+      than of a record: neither is expressible as an invalid instance of any
+      shape shipped here. What the ledger CAN carry about all six is the refusal
+      GROUND, and §6.4's enumeration is seeded with exactly the two the current
+      realization emits, each further ground landing with the operation that can
+      produce it.
+- [x] 6.7 **DONE 2026-09-03** — Canonical `scripts/validate-clearing-dispatch.py` with the
       cross-shape rules the schemas cannot express, plus `tests/clearing/`
       under pytest on the per-family convention.
-- [ ] 6.8 Register in `contracts/manifest.yaml` and `contracts/CHANGELOG.md`
+- [x] 6.8 **DONE 2026-09-03, TAG PENDING** — Register in `contracts/manifest.yaml` and `contracts/CHANGELOG.md`
       at the next additive bundle cut, the minor allocated AT REALIZATION
       after merge order is known. **Two cuts ahead are already claimed** —
       the in-flight `add-chain-attestation` realization takes the next, and
@@ -454,6 +510,26 @@ Deliberately not started before §2. Nothing here is authored by this packet.
       this packet, and publish the annotated tag at the realized commit in
       the same act (the policy's recurring untagged-bundle gap,
       `opensoft/openxFactory#528`).
+
+      **REGISTERED AT `contract-v3.3`, FRESH-COUNTED at the realization
+      branch's tip exactly as this item requires.** The two cuts this item
+      names as already claimed have resolved: `add-chain-attestation`'s
+      realization landed and was CARRIED at `contract-v3.0` (PR #556, squash
+      `518c670b`), and `add-chain-anchoring`'s has not landed at all, so neither
+      stands ahead of this one. The manifest declared `contract-v3.2`, the
+      release inventories ran through `contract-v3.2`, published tags ran
+      through `contract-v3.2`, and no open pull request was cutting a bundle.
+
+      **THE ANNOTATED TAG IS NOT PUBLISHED IN THE SAME ACT, AND THIS ITEM'S
+      "in the same act" IS THEREFORE NOT SATISFIED AS WRITTEN.** Publishing a
+      tag from a realization branch is precisely what made `contract-v3.1`
+      defective: a squash merge always creates a different commit, and
+      `verify-commit` was not re-run there before the tag was pushed. Bundle
+      Realization Order step 4 lands the reviewed commit and step 5 tags THAT
+      commit; the tag is therefore a follow-on operator act at the landed sha,
+      after `verify-commit` passes there. The gap this item points at
+      (`opensoft/openxFactory#528`) stays open for the interval between landing
+      and tagging, and is named rather than closed by assertion.
 
 ## 7. The single-door attestation realization (L5)
 
@@ -535,9 +611,15 @@ Deliberately not started before §2. Nothing here is authored by this packet.
 
 ## 9. Verification bar
 
-- [ ] 9.1 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green at
+- [x] 9.1 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green at
       every step, not only at authoring.
-- [ ] 9.2 Repository validators and doc-health clean against THIS CHANGE'S
+      **DONE 2026-09-02** — `OPENSPEC_TELEMETRY=0 openspec validate
+      add-clearing-dispatch-boundary --strict` reports "Change
+      'add-clearing-dispatch-boundary' is valid"; `OPENSPEC_TELEMETRY=0
+      openspec validate --all --strict` reports "Totals: 84 passed, 0
+      failed (84 items)". Both run at this packet-corrections branch's
+      head, evidence filed in PR #592's description.
+- [x] 9.2 Repository validators and doc-health clean against THIS CHANGE'S
       OWN CONTENT — and the pytest suite is currently RED FOR A REASON THIS
       PACKET DID NOT CAUSE, recorded here so nobody reads a green tick that
       cannot exist yet.
@@ -590,6 +672,51 @@ Deliberately not started before §2. Nothing here is authored by this packet.
       `active_sole - 1` were bumped IN-BRANCH, in the same commit as this
       packet's own landing: 152 → 153, 48 → 49, and 11 → 12 respectively —
       i.e. the sequenced_after live pin's `change_ids` moves 153 → 154.
+      **CORRECTION, 2026-09-02 — #555 has since MERGED; the original
+      "CONSEQUENCE FOR THIS PULL REQUEST" clause above is now historical,
+      not live.** The 2026-09-01 CORRECTION and RECORD paragraphs above
+      establish that neither inherited red was this packet's own and that
+      this branch's checks re-ran green on a head including both fixes; what
+      neither paragraph stated outright is the outcome: #555 MERGED as
+      squash `ab0bb2dd2e642fce43bee3d02128bafd664d3be3` on
+      2026-09-02T09:16:29Z (admin squash with provenance, on Brett Heap's
+      recorded word, PR #555 comment 2026-09-02T09:16:26Z, head `8d6f091d`).
+      The realization named throughout this section — `opensoft/xFactory#191`
+      (squash `95f1a9c60d7e75649e76a494bc82a9c9eceae112`, merged
+      2026-09-01T12:11:46Z) — is itself merged and green, and the clearing
+      door's first dispatch (§5.1/§5.2, run `33512287539`, ledger
+      `cd-33512287539-1`) is already on record. So: **"MERGE WAITS ON THAT
+      LANE'S RESOLUTION"** and **"Re-check before merge rather than assuming
+      it has cleared"** no longer describe a live wait — the check was
+      re-run and the merge happened. This does not touch §9.3: release
+      realization archiving is a separate gate (§6.8's contract cut has not
+      landed) and stays open on its own terms.
+      A LATER, UNRELATED main-branch red surfaced after this correction's
+      window and is noted here only to foreclose confusion, since it is
+      NOT a claim this packet or its realization caused: the
+      `release-tag-publication` family (codexFactory issue #575) went red
+      on `main` after #555 had already merged, and was cleared by PR #587
+      (squash `3fa222f3`, 2026-09-02, run `33654163291`). Nothing in this
+      packet references that family and nothing here claims credit for its
+      fix; it is recorded solely so a reader scanning this section for "is
+      main green" does not mistake a later, unrelated red for this one.
+      **DONE 2026-09-02 — the tick's evidence, targeted AND whole-suite.**
+      `python3 -m pytest -q tests/doc-health tests/sequenced_after` reports
+      "1529 passed, 7 warnings in 530.96s (0:08:50)" on this packet-
+      corrections branch's head — the inherited red named above (and the
+      `sequenced_after` live-pin move recorded above it) are both confirmed
+      cleared in those two suites. That alone does not speak for the whole
+      required `pytest-suite` check, which runs all of `tests/`
+      (`.github/workflows/pytest-suite.yml`), so it is not cited alone: the
+      required `pytest-suite` check itself ran on this same head and PASSED
+      — `opensoft/openxFactory` run `33693230302`, `python3 -m pytest
+      tests/ -q -m "not postgres"` reporting `8671 passed, 21 skipped, 338
+      deselected, 9 warnings, 46 subtests passed in 1225.73s (0:20:25)`,
+      and its pin-and-freshness step reporting `selected=8738 passed=8717
+      skipped=21 failures=0 errors=0` with the pinned freshness verifier
+      itself PASSED. Repository validators and doc-health are therefore
+      confirmed clean against the WHOLE tree on this head, not only the two
+      suites this item's inherited-red history names.
 - [ ] 9.3 Release-realization: this change declares a code surface, so it
       ARCHIVES only on merged realization plus green evidence — §5.4's filed
       reports and §6.8's cut — and stays ACTIVE until then, ratified or not.

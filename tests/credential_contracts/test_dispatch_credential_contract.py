@@ -46,6 +46,11 @@ POSITIVES = (
     # requirement — the fixture a check that fired on every declared reference
     # would fail.
     "resolving-requirement-ref.binding-template.example.yaml",
+    # add-consumer-identity-namespace: THE CLEARING DIRECTION. Two tenants of
+    # one provider whose principals share a name, distinguished by the
+    # namespace that issued each — the record that was a false refusal before
+    # the member existed, packaged so the silence has a probe of its own.
+    "two-tenant-identity-namespace.binding-template.example.yaml",
 )
 
 NEGATIVES = (
@@ -66,6 +71,12 @@ NEGATIVES = (
     "three-bindings-two-share-authority.yaml",
     "consumer-holder-ref-raw-secret.yaml",
     "consumer-fetch-identity-raw-secret.yaml",
+    # add-consumer-identity-namespace: the two shapes the namespace must NOT
+    # clear — one namespace on both sides, and a namespace on one side only —
+    # plus the third free string joining the raw-secret screen.
+    "consumer-shared-authority-same-namespace.yaml",
+    "consumer-shared-authority-one-sided-namespace.yaml",
+    "consumer-identity-namespace-raw-secret.yaml",
 )
 
 WARNINGS = (
@@ -84,6 +95,9 @@ WARNINGS = (
     # nobody — which is the scope the codes exist to widen.
     "requirement-ref-unresolved.yaml",
     "requirement-ref-ambiguous.yaml",
+    # add-consumer-identity-namespace § the ninth shape: one probe for the one
+    # code, without which the ninth deprecation would ship unevidenced.
+    "consumer-identity-namespace-grammar.yaml",
 )
 
 SUPPORT = (
@@ -114,6 +128,11 @@ def test_selftest_passes_on_the_packaged_examples() -> None:
     # add-requirement-ref-resolution-integrity: two warning probes (one per code
     # of the resolution-integrity family) and ONE positive proving the SILENT
     # direction — 6 -> 7 positive, 10 -> 12 warning, negatives unmoved at 16.
+    # They grew a FOURTH time by add-consumer-identity-namespace: one positive
+    # (the clearing direction), three negatives (same namespace both sides, a
+    # namespace on one side only, and the third free string under the raw-secret
+    # screen) and one warning probe for the ninth deprecation code —
+    # 7 -> 8 positive, 16 -> 19 negative, 12 -> 13 warning.
     assert (f"self-test: {len(POSITIVES)} positive + {len(NEGATIVES)} negative + "
             f"{len(WARNINGS)} warning example(s) confirmed") in result.stdout
 
