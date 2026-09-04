@@ -989,12 +989,19 @@ Active changes:
   activation, digest, standing and anti-rollback semantics, while preserving the
   receipt/state split. The superseded draft's provider-neutral gateway text is
   not imported — protected-operation enforcement remains a consumer/runtime-
-  owner boundary. `Status: draft`; no shared-feature mandate survives
-  requirement 1 — a follow-on realization pass is owed against #629's
-  already-landed schemas if ratified (measured zero confirmation-profile
-  vocabulary anywhere in them), before the next `chain-anchoring` bundle cut.
-  See `proposal.md`'s "Requirement 1 removed" and "Realization cost if ratified"
-  sections for the full reasoning and measurement.
+  owner boundary. **`Status: ratified`** — Brett Heap, 2026-09-04, in session,
+  recorded on PR #548, verbatim "ratify 2 and 3", ratifying BOTH remaining
+  requirements AS WRITTEN over head `2677cef9`; requirement 1 is WITHDRAWN, not
+  refused, and no shared-feature mandate survives it. Record:
+  `openspec/changes/amend-chain-anchoring-readiness-and-durability/review/ratification-2026-09-04.md`.
+  Ratification promotes the delta and realizes nothing: a follow-on pass is now
+  OWED against #629's already-landed schemas — measured zero confirmation-profile
+  vocabulary anywhere in them, and a closed `[in_flight, landed,
+  terminally_failed]` per-witness enum to widen or replace — and must land before
+  the next `chain-anchoring` bundle cut, the `contract-v3.3` tag having predated
+  #629 by twenty minutes and so left those schemas registered but unpublished.
+  See `proposal.md`'s "Requirement 1 removed" and "Realization cost — ratified,
+  and now owed" sections for the full reasoning and measurement.
 - [add-chain-anchoring](openspec/changes/add-chain-anchoring/proposal.md)
   — authored 2026-08-29, **`Status: draft` — RATIFICATION IS NOT SOUGHT BY THIS
   PACKET'S LANDING.** Exit 3 of three of the staged topic

@@ -17,4 +17,50 @@ origin:
     preserve unique improvements in follow-up amendments, and reconcile
     MedxFactory PR #20, Brett replied verbatim: "proceed". This origin approval
     authorizes filing the draft and does not ratify its content.
+    THE VETO WINDOW HAS SINCE CLOSED, AND THE PACKET IS NOW RATIFIED — BY TWO
+    SEPARATE AND LATER ACTS OF THE SAME OWNER ON 2026-09-04, both in session and
+    both recorded on PR #548. THIS FIELD STILL RECORDS AUTHORIZATION TO FILE
+    ONLY; neither later act is this field's, and neither is the other's.
+    ACT ONE, THE WITHDRAWAL, ~02:3xZ, verbatim: "bring 548 forward after 629
+    lands, drop requirement 1". Requirement 1 (`Realization waits for the
+    released chain and an operational PKI plane`, 6 scenarios) is WITHDRAWN —
+    NOT REFUSED and NOT RATIFIED. It gated `chain-anchoring` schema and
+    validator AUTHORING on an operational PKI plane that does not exist, and the
+    owner had already ruled that authoring DONE at PR #629 (squash `11feff75`),
+    which landed without the gate and without requirement 1's mandatory shared
+    Speckit feature; ratifying it afterwards would have retroactively declared
+    that landed realization illegitimate. Nothing in the withdrawal decides
+    whether an operational PKI plane is owed before a RUNTIME is commissioned —
+    that question is live and lives at #629's OPEN item 2 under its `[OPERATOR]`
+    conditions.
+    ACT TWO, THE RATIFICATION, ~05:10Z, verbatim: "ratify 2 and 3". Requirement
+    2 (`Fixed UTC durability batches account for every accepted event exactly
+    once`, 20 scenarios) and requirement 3 (`Witness submission and confirmation
+    remain distinct evidence states`, 14 scenarios) are RATIFIED AS WRITTEN,
+    unamended, over head `2677cef9` — seven required checks green, all 22 review
+    threads resolved, Copilot 🟢 Approval recommended on that exact head. The
+    two survivors' text is BYTE-IDENTICAL from the pre-removal commit
+    `adccf578`, so the requirements ratified are exactly the two that stood
+    before the third was withdrawn. Record:
+    `review/ratification-2026-09-04.md`; `proposal.md` carries `Status:
+    ratified` with a single `Ratified:` citation line in the record spelling
+    (no approving OpenSpec change exists to name — this IS the change).
+    RATIFICATION AUTHORIZES PROMOTION OF THE SPEC DELTA AND PERFORMS NO
+    REALIZATION. No schema is edited, `anchor-state.schema.yaml`'s closed
+    per-witness `status` enum `[in_flight, landed, terminally_failed]` is
+    untouched, no confirmation-profile registry is authored or approved, no
+    `daily-Merkle` construction profile is released, no bundle is cut, no tag is
+    published, and no runtime is commissioned. THE NAMED SUCCESSOR is a new,
+    separate realization PR against the schemas #629 already landed, owing the
+    confirmation-profile registry contract and binding, the widen-or-replace of
+    that closed enum, and requirement 2's durability/eligibility/daily-Merkle
+    machinery — and it MUST land before `contracts/chain-anchoring/` ships in a
+    TAGGED bundle, because the enum change is breaking against a published
+    bundle and free against an unpublished one. Measured at ratification rather
+    than assumed: `contracts/manifest.yaml` declares `contract-v3.3` and carries
+    54 `chain-anchoring` references, while
+    `contracts/releases/contract-v3.3.digests.yaml` carries ZERO — the family is
+    registered but unshipped, because the `contract-v3.3` tag (`16b85614`,
+    2026-09-03T23:35:19-04:00) predates #629 (`11feff75`,
+    2026-09-03T23:55:32-04:00) by twenty minutes.
   approved_on: 2026-08-31

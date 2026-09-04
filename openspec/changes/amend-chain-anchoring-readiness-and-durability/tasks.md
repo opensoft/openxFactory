@@ -1,13 +1,48 @@
 # Tasks: amend-chain-anchoring-readiness-and-durability
 
+> **RATIFIED 2026-09-04 — Brett Heap, repository owner, in session, recorded on
+> PR #548, verbatim: "ratify 2 and 3".** Requirements 2 and 3 are ratified AS
+> WRITTEN over head `2677cef9`; requirement 1 is WITHDRAWN (not refused) by his
+> separate earlier ruling of the same day. Record:
+> [`review/ratification-2026-09-04.md`](review/ratification-2026-09-04.md).
+>
+> **EVERY UNTICKED TASK BELOW BELONGS TO THE NAMED SUCCESSOR, NOT TO THIS
+> PACKET.** Ratification promotes the spec delta and realizes nothing. The
+> successor is a **new, separate realization PR** against the schemas PR #629
+> (squash `11feff75`) already landed, and it owes: (1) a confirmation-profile
+> registry contract plus its id/version/content-digest/activation-checkpoint
+> binding in the receipt's mint-time configuration block, (2) the widen-or-
+> replace of `contracts/chain-anchoring/anchor-state.schema.yaml`'s closed
+> per-witness `status` enum `[in_flight, landed, terminally_failed]` to separate
+> `submitted` from `confirmed` per network, and (3) requirement 2's fixed-UTC
+> durability batch, eligibility-registry and daily-Merkle construction
+> machinery. **It MUST land before `contracts/chain-anchoring/` ships in a
+> TAGGED bundle** — item 2 is a breaking change to a closed enum, free while
+> unpublished and a compatibility break once published — and the window exists
+> only because the `contract-v3.3` tag (`16b85614`) predates #629 by twenty
+> minutes, leaving the family registered in `contracts/manifest.yaml` (54
+> references) but carrying ZERO entries in
+> `contracts/releases/contract-v3.3.digests.yaml`. § 2.4 is the successor's
+> FIRST act. See `proposal.md` § *Realization cost — ratified, and now owed*.
+
 ## 1. Governance and Single-Feature Handoff
 
-- [ ] 1.1 Ratify this amendment and its two additive `chain-anchoring`
+- [x] 1.1 Ratify this amendment and its two additive `chain-anchoring`
       requirements; record the owner, exact artifact revision, unconditional
       decision, validation evidence, and timestamp before implementation begins.
       > **Note (2026-09-04, owner's ruling — requirement 1 dropped):** originally
       > worded "three additive requirements"; requirement 1 is removed (see
       > `proposal.md` "Requirement 1 removed"), leaving two (2 and 3).
+      > **DONE 2026-09-04** — [`review/ratification-2026-09-04.md`](review/ratification-2026-09-04.md)
+      > carries every element this task names: the owner (Brett Heap, repository
+      > owner, in session, recorded on PR #548), the exact artifact revision
+      > (head `2677cef9`, with the catch-up merge proven not to move a line of
+      > the delta), the UNCONDITIONAL decision ("ratify 2 and 3" — both AS
+      > WRITTEN, unamended), the validation evidence (the § *Gates at the
+      > ratification commit* block plus the seven green required checks), and the
+      > timestamp (2026-09-04 ~05:10Z). It also records requirement 1's
+      > disposition as WITHDRAWN rather than refused, which no other artifact
+      > states.
 - [x] ~~1.2 Verify the released signed-execution-chain contracts and record
       that `signed-execution-chain-gate` is REQUIRED in the live ruleset and its
       broken-chain canary fails as designed; then record
@@ -104,9 +139,23 @@
 
 ## 3. Validation, Release, and Closure
 
-- [ ] 3.1 Run strict validation for this change and the complete OpenSpec corpus,
+- [x] 3.1 Run strict validation for this change and the complete OpenSpec corpus,
       plus the repository's targeted and full validation gates; retain exact
       command results and resolve every finding before acceptance.
+      > **DONE 2026-09-04 FOR THE RATIFICATION COMMIT, and scoped to it.** The
+      > exact command results are retained in
+      > [`review/ratification-2026-09-04.md`](review/ratification-2026-09-04.md)
+      > § *Gates at the ratification commit*: `openspec validate
+      > amend-chain-anchoring-readiness-and-durability --strict` VALID and
+      > `--all --strict` 90 passed / 0 failed; `proposal-support.py . verify`
+      > ok; `pytest tests/sequenced_after -q` 162 passed;
+      > `validate-sequenced-after.py . --ledger-diff` ledger consistent with the
+      > corpus (164 rows); `pytest tests/doc-health -q -p no:cacheprovider`
+      > 1542 passed / 0 failed; and all seven required CI checks SUCCESS. Zero
+      > findings outstanding. **The SUCCESSOR realization owes its own run of
+      > this gate against the schemas it changes** — this tick covers the
+      > ratification commit and claims nothing about a tree that edits
+      > `contracts/chain-anchoring/`.
 - [ ] 3.2 Archive `add-chain-anchoring` FIRST to create canonical
       `chain-anchoring`, then archive this amendment SECOND; verify all eleven
       promoted requirements byte-for-byte against their two deltas. (Originally

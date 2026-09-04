@@ -6,7 +6,27 @@ sequenced_after: [add-chain-anchoring]
 
 # Amend Chain-Anchoring Readiness and Durability
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-04 by Brett Heap (repository owner) — in session, recorded on
+PR #548, verbatim: "ratify 2 and 3". Requirements 2 (*Fixed UTC durability
+batches account for every accepted event exactly once*) and 3 (*Witness
+submission and confirmation remain distinct evidence states*) are ratified **AS
+WRITTEN**, unamended, over head `2677cef9`. Requirement 1 was **WITHDRAWN — not
+refused** — by his SEPARATE and EARLIER ruling of the same day ("bring 548
+forward after 629 lands, drop requirement 1"); the two acts are one sentence
+apart in the day's history and mean opposite things about the same text, so the
+record keeps them apart. No approving OpenSpec change exists to name — this IS
+the change — so the citation takes the record spelling
+`sanction-ratified-record-spelling` sanctions for exactly that case, and clears
+its three-way floor on all three axes: approver (Brett Heap), date
+(2026-09-04), and a resolvable record path (`review/ratification-2026-09-04.md`).
+**RATIFICATION AUTHORIZES PROMOTION OF THE SPEC DELTA AND PERFORMS NO
+REALIZATION**: no schema is edited, `anchor-state.schema.yaml`'s closed
+per-witness `status` enum is untouched, no confirmation-profile registry is
+authored or approved, no `daily-Merkle` profile is released, no bundle is cut
+and no runtime is commissioned. The follow-on pass named in § *Realization cost
+— ratified, and now owed* is the SUCCESSOR and is owed before
+`contracts/chain-anchoring/` ships in a tagged bundle.
 
 ## Why
 
@@ -21,8 +41,9 @@ submission and independently verified confirmation. **The first of those three
 — the operational-PKI realization gate — was dropped by the owner's ruling of
 2026-09-04, after `add-chain-anchoring` realized without it; see "Requirement 1
 removed" below.** The two that remain, fixed-UTC durability membership and the
-submitted-versus-confirmed witness distinction, are re-presented in this PR on
-their own merits.
+submitted-versus-confirmed witness distinction, were re-presented in this PR on
+their own merits and are **RATIFIED AS WRITTEN** — Brett Heap, 2026-09-04, in
+session, "ratify 2 and 3"; record `review/ratification-2026-09-04.md`.
 
 ## Requirement 1 removed — owner's ruling 2026-09-04
 
@@ -52,8 +73,12 @@ and is dropped from `specs/chain-anchoring/spec.md`'s `## ADDED Requirements`
 block by the commit that lands this section. Requirements 2 (*Fixed UTC
 durability batches account for every accepted event exactly once*) and 3
 (*Witness submission and confirmation remain distinct evidence states*) are
-unmodified by that removal — byte-identical to their pre-removal text — and
-are re-presented below, on their own merits, for the owner's ratification.
+unmodified by that removal — byte-identical to their pre-removal text,
+verified by comparison against `adccf578` rather than asserted — and were
+re-presented on their own merits for the owner's ratification. **He ratified
+both, AS WRITTEN, on 2026-09-04: "ratify 2 and 3"** — the delta going from 3
+requirements / 40 scenarios to 2 / 34, with the two survivors' text untouched.
+Record: `review/ratification-2026-09-04.md`.
 
 ## What Changes
 
@@ -100,18 +125,20 @@ None.
 
 - `chain-anchoring`: Add fixed-UTC complete durability batches, deterministic
   dedupe/lateness rules, and submitted-versus-confirmed witness semantics
-  without changing the ratified witness configuration. (Realization readiness
+  without changing the ratified witness configuration — RATIFIED as written
+  on 2026-09-04 (`review/ratification-2026-09-04.md`). (Realization readiness
   — requirement 1 — is no longer part of this amendment; see above.)
 
 ## Impact
 
 - **openxFactory contracts:** `add-chain-anchoring`'s twelve schemas and
   canonical validator already realized at PR #629 (squash `11feff75`), ahead
-  of and without this amendment. If ratified, requirements 2 and 3 owe a
-  **follow-on realization pass** against those already-landed schemas before
-  they ship in a contract bundle — see "Realization cost if ratified" below —
-  rather than landing inside the basis packet's original realization as first
-  drafted.
+  of and without this amendment. Requirements 2 and 3 are now RATIFIED, so
+  the **follow-on realization pass** against those already-landed schemas is
+  OWED — not conditional — and must land before they ship in a tagged contract
+  bundle; see "Realization cost — ratified, and now owed" below. It is a
+  separate successor PR rather than something landing inside the basis packet's
+  original realization as first drafted.
 - **Runtime owners:** must provide the declared scheduling, persistence,
   retry, and network adapters that the durability and confirmation profiles
   require; those runtime surfaces remain outside this repository. (The
@@ -125,14 +152,19 @@ None.
   contracts are released and consumer conformance passes.
 - **Compatibility:** the basis, `add-chain-anchoring`, has already realized
   (PR #629) but is NOT yet released — no contract bundle has cut its schemas;
-  `contract-v3.3` remains unspent. The additive first-release path survives
-  only if requirements 2 and 3 ratify and their follow-on realization pass
-  lands **before** the next `chain-anchoring` bundle cut; if a bundle ships
-  those schemas first, compatibility and version class must be re-evaluated
-  before this packet proceeds, because a released receipt is never silently
-  reinterpreted.
+  `contract-v3.3` remains unspent of this family (its digest inventory
+  carries ZERO `chain-anchoring` entries, re-measured at ratification). With
+  requirements 2 and 3 now ratified, the additive first-release path survives
+  only if the follow-on realization pass lands **before** the next
+  `chain-anchoring` bundle cut; if a bundle ships those schemas first,
+  compatibility and version class must be re-evaluated before the successor
+  proceeds, because a released receipt is never silently reinterpreted. The
+  margin is real and narrow: the `contract-v3.3` tag (`16b85614`,
+  2026-09-03T23:35:19-04:00) PREDATES #629 (`11feff75`,
+  2026-09-03T23:55:32-04:00) by twenty minutes, which is the only reason the
+  closed `status` enum is still unpublished and the enum change still cheap.
 
-## Realization cost if ratified
+## Realization cost — ratified, and now owed
 
 PR #629 already realized `chain-anchoring`'s twelve schemas and canonical
 validator (`scripts/validate-chain-anchoring.py`) against the basis alone.
@@ -162,10 +194,11 @@ distinction, and binds no confirmation-profile id, version, content digest,
 activation checkpoint, or standing anywhere in the mint-time configuration
 block.
 
-If requirements 2 and 3 are ratified, landing them requires a **follow-on
+**Requirements 2 and 3 ARE ratified** (2026-09-04, "ratify 2 and 3";
+`review/ratification-2026-09-04.md`), so landing them requires a **follow-on
 realization pass** against these already-shipped schemas, before they ship in
-a contract bundle at the next cut (so the pinned shape is the amended one, not
-a since-superseded one):
+a tagged contract bundle at the next cut (so the pinned shape is the amended
+one, not a since-superseded one):
 
 - **Requirement 3** needs a new confirmation-profile registry contract (or an
   extension of an existing one), a widened or replaced `witness_status_row`
@@ -182,6 +215,13 @@ a since-superseded one):
   the pre-existing basis's own unclosed operator conditions, not this
   amendment's durability profile).
 
-Whichever way the owner rules on requirements 2 and 3, this follow-on pass is
-a **new, separate realization PR**, sequenced after this proposal's
-ratification and before the next `chain-anchoring` contract bundle cut.
+This follow-on pass is a **new, separate realization PR** — the NAMED
+SUCCESSOR of this packet — sequenced after this proposal's ratification and
+before the next `chain-anchoring` contract bundle cut. The owner queued it in
+the same breath as the ratification: *"Queued as the realization cost, ahead of
+the next contract cut … must land BEFORE those schemas ship in a tagged bundle,
+or the enum change becomes a breaking change on a published bundle."* `tasks.md`
+§ 2.4 is its first act: verify, immediately before touching any schema, that no
+bundle cut the family in between — and if one has, STOP and govern the
+compatibility and version class rather than discovering the break at a
+consumer.
