@@ -529,6 +529,86 @@ def test_verify_reports_a_tampered_file(corpus, tmp_path):
                for problem in lane.verify_seal(seal))
 
 
+# ---------------------------------------------------------------------------
+# a tampered `files` index cannot walk `verify_seal` outside the seal
+# (Copilot, PR #648). Every case here has an attacker who ALSO recomputes
+# `tree_digest` over the tampered index — matching what a real forger would
+# do, since `TREE_DIGEST_SPEC` is public — so a passing digest is never the
+# thing standing between the seal and the escape; `_contained_relpath` is.
+# ---------------------------------------------------------------------------
+
+def test_verify_refuses_a_files_key_that_escapes_the_seal(corpus, tmp_path):
+    """A `..` component reaching OUTSIDE the seal, with the outside file
+    present and `tree_digest` recomputed to match, is refused before any join
+    or open — so the outside file's contents are never in a `sha256 mismatch`
+    or any other problem string."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    outside = tmp_path / "escape.txt"
+    outside.write_text("stolen\n", encoding="utf-8")
+    manifest["files"]["../escape.txt"] = lane.file_sha256(outside)
+    manifest["tree_digest"] = lane.tree_digest(manifest["files"])
+    (seal / lane.SEAL_MANIFEST_NAME).write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    problems = lane.verify_seal(seal)
+    assert any("../escape.txt" in problem for problem in problems)
+    assert not any("stolen" in problem for problem in problems)
+
+
+def test_verify_refuses_an_absolute_files_key(corpus, tmp_path):
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    victim = sorted(manifest["files"])[0]
+    manifest["files"]["/etc/passwd"] = manifest["files"].pop(victim)
+    manifest["tree_digest"] = lane.tree_digest(manifest["files"])
+    (seal / lane.SEAL_MANIFEST_NAME).write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    problems = lane.verify_seal(seal)
+    assert any("absolute path" in problem and "/etc/passwd" in problem
+               for problem in problems)
+
+
+def test_verify_refuses_a_symlinked_entry(corpus, tmp_path):
+    """The manifest still names a real path INSIDE the seal, but that path is
+    now a symlink to a file outside — no `..`, no absolute path, nothing the
+    literal-component checks alone would catch."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    victim = next(key for key in sorted(manifest["files"])
+                  if key.endswith(".md"))
+    target = seal / victim
+    outside = tmp_path / "outside.md"
+    outside.write_text(target.read_text(encoding="utf-8"), encoding="utf-8")
+    target.unlink()
+    target.symlink_to(outside)
+    problems = lane.verify_seal(seal)
+    assert any("symlinked path" in problem and victim in problem
+               for problem in problems)
+
+
+def test_verify_refuses_a_path_through_a_symlinked_directory(corpus, tmp_path):
+    """`..`-free: the manifest key is `linked_dir/secret.txt`, a plain
+    descendant-looking relative path. It only escapes because `linked_dir`
+    itself — a directory ENTRY under the seal — is a symlink to somewhere
+    else, so every component of the walk (not just the leaf) must be
+    checked."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    outside_dir = tmp_path / "outside_dir"
+    outside_dir.mkdir()
+    secret = outside_dir / "secret.txt"
+    secret.write_text("stolen\n", encoding="utf-8")
+    linked = seal / "linked_dir"
+    linked.symlink_to(outside_dir)
+    manifest["files"]["linked_dir/secret.txt"] = lane.file_sha256(secret)
+    manifest["tree_digest"] = lane.tree_digest(manifest["files"])
+    (seal / lane.SEAL_MANIFEST_NAME).write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    problems = lane.verify_seal(seal)
+    assert any("linked_dir/secret.txt" in problem for problem in problems)
+    assert not any("stolen" in problem for problem in problems)
+
+
 def test_verify_reports_a_digest_that_does_not_recompute(corpus, tmp_path):
     seal = tmp_path / "seal"
     manifest = _seal(corpus, seal)

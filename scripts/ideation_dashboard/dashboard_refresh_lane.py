@@ -945,13 +945,67 @@ def file_sha256(path) -> str:
     return digest.hexdigest()
 
 
+def _contained_relpath(root, relpath: str) -> Path:
+    """A relative path named by the seal — a `manifest["files"]` key, a
+    `seal_paths` entry, the validator path — made safe to join under `root`.
+    THE CONTAINMENT CHECK RUNS BEFORE ANY JOIN OR OPEN.
+
+    `verify_seal` is the reference implementation of the CHILD's intake check
+    (S3): the manifest it reads is exactly as trustworthy as whatever tampered
+    it, so a `files` key of `../../etc/passwd` or `/etc/passwd` must never
+    reach `root / relpath` at all, let alone `is_file()` or a hash read.
+    Refuses, in this order: an unusable (empty or non-string) value; a
+    backslash anywhere (never a valid separator here, and exactly what an
+    attacker reaches for once forward slashes and `..` are refused — it would
+    also defang a Windows-style absolute path, which is not otherwise
+    `PurePosixPath.is_absolute`); a leading `/`; any `.`, `..`, or empty
+    ('a//b', 'a/') component; a symlink at ANY component of the path — walked
+    root to leaf, so a symlinked ancestor directory that itself resolves back
+    inside `root` is still refused, because it is not the file the manifest
+    named; and finally a resolved location outside `root`
+    (`is_relative_to`), which also catches whatever the literal-component
+    walk cannot.
+
+    Raises `SealRefused`; never returns a path outside `root`. Shared by the
+    seal WRITER (`seal_file_index`, `seal_source`) and the reference VERIFIER
+    (`verify_seal`) so the two enforce one rule rather than two that could
+    drift apart."""
+    root = Path(root)
+    value = relpath if isinstance(relpath, str) else ""
+    if not value:
+        raise SealRefused(f"the seal names an unusable path: {relpath!r}")
+    if "\\" in value:
+        raise SealRefused(
+            f"the seal names a path with a backslash: {relpath!r}")
+    if value.startswith("/"):
+        raise SealRefused(f"the seal names an absolute path: {relpath!r}")
+    parts = value.split("/")
+    if any(part in ("", ".", "..") for part in parts):
+        raise SealRefused(f"the seal names an unsafe path: {relpath!r}")
+    root_resolved = root.resolve()
+    candidate = root
+    for part in parts:
+        candidate = candidate / part
+        if candidate.is_symlink():
+            raise SealRefused(
+                f"the seal names a symlinked path: {relpath!r}")
+    resolved = candidate.resolve()
+    if not resolved.is_relative_to(root_resolved):
+        raise SealRefused(
+            f"the seal names a path outside the seal: {relpath!r}")
+    return candidate
+
+
 def seal_file_index(seal_dir) -> dict[str, str]:
     """Every regular file under the seal, by POSIX relative path, to its
     sha256. The manifest itself is excluded — it carries this index and cannot
     hash itself — and a non-regular entry is a refusal rather than a skip:
     `upload-artifact@v4` neither preserves symlinks nor restores execute bits,
     so an index that silently omitted one would promise something the download
-    cannot deliver."""
+    cannot deliver. `_contained_relpath` is applied to every entry too, so the
+    writer refuses the same symlinked or escaping path the reference verifier
+    would (Copilot, PR #648) — the walk already lands on real filesystem
+    entries, so this is belt-and-suspenders, not the primary gate."""
     root = Path(seal_dir)
     index: dict[str, str] = {}
     for path in sorted(root.rglob("*")):
@@ -962,7 +1016,8 @@ def seal_file_index(seal_dir) -> dict[str, str]:
             continue
         if path.is_symlink() or not path.is_file():
             raise SealRefused(f"the seal holds a non-regular entry: {relpath}")
-        index[relpath] = file_sha256(path)
+        contained = _contained_relpath(root, relpath)
+        index[relpath] = file_sha256(contained)
     return index
 
 
@@ -1159,11 +1214,11 @@ def seal_source(
                 f"({recorded or 'absent'}) is not the sealed source_head "
                 f"({source_head})")
         _extract_seal_archive(archive_path, corpus_root)
-    if not any((corpus_root / path.split("/", 1)[0]).exists()
+    if not any(_contained_relpath(corpus_root, path.split("/", 1)[0]).exists()
                for path in seal_paths):
         raise SealRefused(
             "the sealed corpus is empty — none of the seal paths materialized")
-    validator = corpus_root / VALIDATOR_SEAL_PATH
+    validator = _contained_relpath(corpus_root, VALIDATOR_SEAL_PATH)
     if not validator.is_file():
         # The #179 trap, refused at the seal rather than at `--strict` three
         # steps later: without this file the child's validation cannot RUN, and
@@ -1258,7 +1313,15 @@ def verify_seal(seal_dir, *, correlation_id: str | None = None,
     carries, so calling it from the seal is the artifact vouching for itself.
     The child implements the same check in its own workflow, from its own
     checkout; this is the shape it implements and the unit-tested definition of
-    the digest rule."""
+    the digest rule.
+
+    `manifest["files"]` IS ATTACKER-CONTROLLED DATA. Every key is routed
+    through `_contained_relpath` before it is joined to `seal_dir` — refusing
+    an absolute path, a `..` escape, a symlinked component, or a resolved
+    location outside the seal root, all BEFORE the join/open — because this
+    is the reference for the child-side gate: a tampered manifest whose
+    `files` index reads `../../etc/passwd` and whose `tree_digest` was
+    recomputed to match must be refused, not followed (Copilot, PR #648)."""
     problems: list[str] = []
     manifest = read_seal_manifest(seal_dir)
     if manifest is None:
@@ -1277,7 +1340,15 @@ def verify_seal(seal_dir, *, correlation_id: str | None = None,
     root = Path(seal_dir)
     recomputed: dict[str, str] = {}
     for relpath in sorted(files):
-        path = root / relpath
+        # THE CONTAINMENT CHECK RUNS BEFORE THE JOIN. `files` is manifest data
+        # — exactly as trustworthy as whatever produced the manifest — so an
+        # absolute path, a `..` escape, or a symlink must be refused here,
+        # never followed by `is_file()`/`open()` (Copilot, PR #648).
+        try:
+            path = _contained_relpath(root, relpath)
+        except SealRefused as exc:
+            problems.append(str(exc))
+            continue
         if not path.is_file():
             problems.append(f"a required path is absent: {relpath}")
             continue
