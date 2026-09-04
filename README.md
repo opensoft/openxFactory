@@ -1156,38 +1156,6 @@ Active changes:
   `docs/sequenced-after-trust-root-floor.md`, `tests/sequenced_after/`); the
   codexFactory verifier that CONSUMES the field is downstream and NOT this
   change's surface.
-- [add-subject-establishment](openspec/changes/add-subject-establishment/proposal.md)
-  — filed 2026-08-28 on Brett's ruling "Progress both" as the FULL promotion of
-  the `subject-establishment` staged topic, taking that topic's OWN declared
-  exit path with both of its gates cleared: the LedgerxFactory first
-  instantiation archived three packets on 2026-08-04, and codexFactory
-  new-project was decided as the second consumer on 2026-07-28. ADDS the NEW
-  neutral `subject-establishment` capability — eleven requirements, 37
-  scenarios, ADDED-only, no promoted requirement anywhere moves a word.
-  **The generalization**: every domain runs the same start-of-life motion for a
-  new subject and four of the five have not built it yet, so the packet fixes
-  the ordered pipeline and its TWO ARTIFACT KINDS — the neutral subject design
-  (semantic roles, no vendor object) and the platform realization (exactly one
-  system of record, every element traced) — because that SPLIT is what buys
-  portability, expert reviewability and second-platform-as-a-mapping, and a
-  collapsed artifact silently loses all three. **The finding the second
-  consumer produced and the first structurally could not**: for codexFactory
-  the DESIGNING domain and the APPLYING administrator are different factories
-  (GitHub administration is OpsxFactory's), so the realization is
-  handoff-shaped — and the crossing is CONSUMED from the ratified
-  `deployment-handoff-boundary` rather than invented, because that capability's
-  own text says "a new record kind SHALL NOT be introduced for this purpose",
-  which forbids the obvious design. Conformance tiering is likewise
-  `roles-authority-model`'s route/park/interrupt ladder applied, not a second
-  mechanism. **What is deliberately absent**: the two artifact kinds' schemas
-  and their validator, named as the successor
-  `add-subject-establishment-contracts` and flagged for veto as OD-1 — against
-  a live counter-precedent, the identical call having been VETOED in
-  `add-credential-escrow-checkout` the same day. `code_surface: none` and
-  `target_release: none`, but the change does NOT archive on landing: six
-  orchestrator decisions are flagged for veto, six open questions carry
-  recommendations and no decisions, and the archive gate is merge plus green
-  PLUS that ruling round (OD-6). Registers DTN-017 `staged` → `openspec`.
 - [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
   — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
   survey of the fourteen staging topics `doc-health`'s
@@ -2134,6 +2102,82 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-subject-establishment](openspec/changes/archive/2026-09-04-add-subject-establishment/proposal.md)
+  — **ARCHIVED 2026-09-04 on the gate its own OD-6 made STRICTER than
+  `code_surface: none` required: merge PLUS green PLUS the ruling round.** All
+  three legs are read off `main` and none is assumed. **Filed** 2026-08-28 on
+  Brett's ruling *"Progress both"* — admission to the proposal queue and nothing
+  more, the survey's Group-4 recommendation being the orchestrating session's
+  wording and the SELECTION Brett's. **RULED AND RATIFIED** 2026-09-04 by Brett
+  Heap in session, recorded on PR #491, verbatim *"accept all, recommendations
+  stand"* — a SECOND AND SEPARATE ACT covering all six § Orchestrator decisions
+  (OD-1 … OD-6, **accepted as proposed**, OD-1 accepted with the PR #479
+  counter-precedent disclosed and deliberately not followed) and all six § Open
+  Questions (OQ1 … OQ6, each **recommendation stands**); record
+  `review/ratification-2026-09-04.md`, archived with the packet. **MERGED** as
+  PR #491, squash **`9ef151ad`** (2026-09-04T04:36Z). **GREEN AT/AFTER THAT
+  COMMIT ON `main`**: `pytest-suite` run **`33838718587`**, `success`, head
+  `73b1b3c1` — `9ef151ad`'s own `pytest-suite` run `33837475299` was CANCELLED
+  by the next push rather than failing, so the gate is satisfied by the first
+  COMPLETED green run on a `main` commit that has `9ef151ad` as an ancestor
+  (`git merge-base --is-ancestor`, exit 0), which is what "green where it
+  landed" means when pushes overtake each other.
+  **WHAT IT LEAVES IN CANON**: a NEW capability
+  `openspec/specs/subject-establishment/spec.md` — **eleven requirements, 37
+  scenarios, ADDED-only**, promoted byte-identically from the delta (verified by
+  extraction and `diff`, not trusted) with no promoted requirement in any other
+  capability moving a word. Every DomainxFactory's start-of-life motion for a
+  newly admitted subject is ONE ordered neutral pipeline over TWO artifact
+  kinds — the neutral subject design (semantic roles, no vendor object) and the
+  platform realization (exactly one system of record, every element traced,
+  every unrealizable design element recorded with a reason) — because that SPLIT
+  is what buys portability, expert reviewability and second-platform-as-a-mapping,
+  and a collapsed artifact silently loses all three. With it: provenance-graded
+  facts (registry, self-report and factory observation are not the same
+  evidence), the reference-archetype lifecycle whose harvest produces a NEW
+  version rather than manufacturing retroactive non-conformance, conformance
+  tiering expressed as `roles-authority-model`'s ratified route/park/interrupt
+  ladder, the cross-factory apply seam riding `deployment-handoff-boundary`'s
+  `client_infrastructure_request` crossing, verify-by-read-back with
+  pre-authorization probes refused BY NAME, the two authority classes that never
+  share a grant, the audit-lift mirror, and layer ownership without a storage
+  rule.
+  **THE FINDING THE SECOND CONSUMER PRODUCED AND THE FIRST STRUCTURALLY COULD
+  NOT**: for codexFactory the DESIGNING domain and the APPLYING administrator
+  are DIFFERENT FACTORIES (GitHub administration is OpsxFactory's), so
+  requirement 7 exists — and its crossing is CONSUMED from the ratified
+  `deployment-handoff-boundary` rather than invented, that capability's own text
+  forbidding the obvious design by saying "a new record kind SHALL NOT be
+  introduced for this purpose". A contract written from LedgerxFactory alone
+  would have assumed one actor and been wrong for the second consumer on the day
+  it landed.
+  **WHAT IS DELIBERATELY ABSENT AND WAS ACCEPTED AS ABSENT**: the two artifact
+  kinds' schemas and their validator, named as the successor
+  `add-subject-establishment-contracts` (OD-1). `code_surface: none` and
+  `target_release: none` both stand unchanged — the target was RE-MEASURED
+  against `contract-v3.0`/`v3.1`/`v3.2`'s digest inventories and no path the
+  packet writes appears in any of them — so no bundle was spent and G.2's
+  veto-grows-the-gate branch is MOOT.
+  **REGISTERS DTN-017 `openspec` → `implemented`**, which is the register's own
+  lifecycle value for "implemented/promoted" and the step `tasks.md` B.3 held
+  back at filing precisely because nothing was promoted until this archive.
+  **ARCHIVED VIA THE RECORDED ESCAPE**, disclosed in the archived `tasks.md`
+  § Open: `scripts/proposal-support.py . archive` was tried first and refused
+  (exit 1, `"change has incomplete tasks"` — its gate is unconditional on WHICH
+  box), and all seven open boxes are § Open's O.1 … O.7, which record OWED
+  SUCCESSOR AND CROSS-REPOSITORY work (the named successor, OQ1's measurement
+  pass, a LedgerxFactory act over ARCHIVED records this repository cannot edit,
+  the codexFactory and OpsxFactory instantiations, DTN-015's loop, MedxFactory
+  as third consumer) rather than undone tasks of this change. Precedent
+  `declare-spent-bundle-state` § 5.1 (PR #611, `7af2725c`), itself following
+  `govern-sibling-added-modified-deltas` (PR #571, `3bcde7e2`).
+  **THE ARCHIVE MOVED EXACTLY ONE LEDGER ROW** — `state: active` → `archived`,
+  `class: sole`, `declares: absent` and `prose: false` unchanged, no partner
+  flipped — so no MOVEMENT LOG entry is owed. **AND IT MOVED NO PIN COUNT**: the
+  packet's `supporting-docs/manifest.yaml` travelled INTO the archive with it and
+  the `proposal-support-manifest` member globs the archived path as well as the
+  active one, so `pin_class.verify()` re-derived **70 sites / 24 members**
+  unchanged — re-enumerated on the committed tree rather than reasoned about.
 - [add-drafted-proposal-origin](openspec/changes/archive/2026-09-04-add-drafted-proposal-origin/proposal.md)
   — **ARCHIVED 2026-09-04 on merged-and-green realization evidence read off
   `main`.** Authored and **RATIFIED 2026-09-03 by Brett Heap, in-session**

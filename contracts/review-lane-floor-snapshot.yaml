@@ -3,7 +3,7 @@ kind: repository_gate_floor
 floor:
   id: openxfactory-review-authority-register
   repository: opensoft/openxFactory
-  # THIS DOCUMENT IS 8 + 1, NOT 63 EQUALLY-REASONED CHOKEPOINTS.
+  # THIS DOCUMENT IS 8 + 1, NOT 64 EQUALLY-REASONED CHOKEPOINTS.
   #
   # EIGHT hand-reasoned gate chokepoints, each with its own ground below: the
   # intake register, the two paths that determine WHICH READER opens it, a
@@ -116,12 +116,12 @@ floor:
     # ==== BEGIN MACHINE-GENERATED BLOCK — DO NOT HAND-EDIT ====
     # prefix:             openspec/specs
     # source_repository:  opensoft/openxFactory
-    # generated_at:       8d893a0fbf110931c8ab9e48d05a84996ff1891b
-    # entry_count:        55
+    # generated_at:       c236c6b1cd21db3736ff668bb3ce0f9f23a91137
+    # entry_count:        56
     # regenerate with:
     #   python3 scripts/merge_master/generate_specs_floor_block.py \
     #     --repo <opensoft/openxFactory checkout> \
-    #     --ref 8d893a0fbf110931c8ab9e48d05a84996ff1891b --write
+    #     --ref c236c6b1cd21db3736ff668bb3ce0f9f23a91137 --write
     #
     # ONE GROUND FOR THE WHOLE BLOCK, and it is not the ground above it.
     # The eight entries ABOVE are separately reasoned GATE CHOKEPOINTS: each one
@@ -134,7 +134,7 @@ floor:
     # propose a subset because "a smaller enumeration has the identical failure
     # mode, merely less often").
     #
-    # SO THE READER IS NOT MISLED: this document is 8 + 1, not 63 equally-reasoned
+    # SO THE READER IS NOT MISLED: this document is 8 + 1, not 64 equally-reasoned
     # chokepoints (CSC-C9). Do not hand-edit the block. Do not add a member by
     # hand. Regenerate it with the command above, at a named openxFactory commit.
     #
@@ -200,6 +200,7 @@ floor:
     - openspec/specs/shared-contract-ownership/spec.md
     - openspec/specs/signed-execution-chain/spec.md
     - openspec/specs/standards-body-registry/spec.md
+    - openspec/specs/subject-establishment/spec.md
     - openspec/specs/workflow-gate-contract/spec.md
     - openspec/specs/workflow-visualization/spec.md
     - openspec/specs/workstation-intake/spec.md

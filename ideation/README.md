@@ -354,8 +354,22 @@ Active proposals promoted from staging:
   exists only to test openRepoShape — not a real project, and deletable once
   the standard is ratified; the evidence is the recorded run, which survives
   the pilot's deletion.
-- [add-subject-establishment](../openspec/changes/add-subject-establishment/proposal.md)
-  — raised 2026-08-28 as the FULL promotion of the `subject-establishment`
+- [add-subject-establishment](../openspec/changes/archive/2026-09-04-add-subject-establishment/proposal.md)
+  — **ARCHIVED 2026-09-04** on the gate its own OD-6 made stricter than
+  `code_surface: none` required — merge (PR #491, squash `9ef151ad`) PLUS green
+  on `main` (`pytest-suite` run `33838718587`) PLUS the ruling round (Brett Heap
+  in session, 2026-09-04, verbatim *"accept all, recommendations stand"*: OD-1 …
+  OD-6 accepted as proposed, OQ1 … OQ6 recommendations standing). This pointer
+  now names the archive path, per this repository's convention that a
+  promoted-from-staging pointer follows its packet. `subject-establishment` —
+  eleven requirements, 37 scenarios — is now CANON under `openspec/specs/`, not
+  an active delta, and DTN-017's register row moved `openspec` →
+  `implemented` in the same act. What the packet still OWES is unchanged and
+  travels open in its archived `tasks.md` § Open: the successor
+  `add-subject-establishment-contracts` carrying the two artifact kinds'
+  schemas, the codexFactory and OpsxFactory consumer instantiations, and the
+  LedgerxFactory back-citation.
+  Raised 2026-08-28 as the FULL promotion of the `subject-establishment`
   staged topic, whose row and detail section leave
   [staging/INDEX.md](staging/INDEX.md) with this pointer. The topic took its
   OWN declared exit path: both of its stated gates had cleared — the
