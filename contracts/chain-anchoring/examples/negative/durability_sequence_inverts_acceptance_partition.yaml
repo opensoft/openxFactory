@@ -1,0 +1,127 @@
+# expected_failure: durability_sequence_inverts_acceptance_partition
+# expected_failure_detail: inverts the partition
+# A SEQUENCE THAT RUNS BACKWARDS AGAINST ACCEPTANCE. The earlier admission holds the GREATER sequence, so the completeness walk — which reproduces the admission set by walking sequences and trusting acceptance imposed their order — reaches a different set than acceptance did.
+---
+schema_version: 1
+kind: xfactory_chain_anchoring_durability_batch_admission
+admission_id: dba-negative-665
+admission_kind: new_leaf
+window_open: '2026-09-02T00:00:00Z'
+window_close: '2026-09-03T00:00:00Z'
+leaf_sequence: 665
+leaf_class: owner_evidence_event
+trusted_acceptance_time: '2026-09-02T05:00:00Z'
+material_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_material
+  value: sha256:8e035ebcf22715a77e171f7616ca644eeda95d83dde94f3ba95733ed93796e60
+event_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: durability_event_leaf
+  value: sha256:91f9dd321efdf906039f95d87a981d69b9caa657bb80b8d81e671be7911bcb02
+dedupe_key_ref: dk-negative-665
+dedupe_rule:
+  rule_id: dedupe-example-owner-local
+  key_scope: owner_local_stable
+  on_identical_replay: return_existing_leaf
+  on_key_reuse_with_different_material: refuse_before_sequence_assignment
+  key_custody:
+    reference_id: custody-example-dedupe-keys
+    resolves_into: governed_layer
+late_arrival_rule:
+  rule_id: late-example-acceptance-selects
+  window_selected_from: trusted_acceptance_time
+  source_time_lateness_recorded: off_chain
+admission_transaction:
+  transaction_ref: txn-dba-negative-665
+  atomic: true
+  steps:
+  - validate_eligibility
+  - apply_dedupe_rule
+  - record_acceptance_time
+  - select_window_from_acceptance_time
+  - assign_next_leaf_sequence
+eligibility_snapshot:
+  registry_id: der-example-0001
+  entry_id: der-entry-0002
+  version: 2
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: durability_eligibility_terms
+    value: sha256:a958754817f2860c0e52986dfad5637425657e7e708b4bb1a2c30ab6ca4bcd2a
+  activation:
+    log_sequence: 616
+    checkpoint_ref: cp-log-checkpoint-0616
+  standing: active
+merkle_profile:
+  profile_id: dmp-example-daily-merkle
+  version: 1
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: daily_merkle_construction
+    value: sha256:498aa35ea0a41ba00fe57f0df0f3c0b388ab1514cfe9ee7187b4104cca5adc8a
+membership_path: []
+recorded_at: '2026-09-02T05:00:00Z'
+record_version: 1
+---
+schema_version: 1
+kind: xfactory_chain_anchoring_durability_batch_admission
+admission_id: dba-negative-664
+admission_kind: new_leaf
+window_open: '2026-09-02T00:00:00Z'
+window_close: '2026-09-03T00:00:00Z'
+leaf_sequence: 664
+leaf_class: owner_evidence_event
+trusted_acceptance_time: '2026-09-02T09:00:00Z'
+material_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_material
+  value: sha256:0613fc8a13c103e680e860f041239fe31f40ef2446b3cbb019e0c2247823e268
+event_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: durability_event_leaf
+  value: sha256:f197fd0dd5aacd82137cee990a67cef86b19a26ba2026018ba6cf35e339da79b
+dedupe_key_ref: dk-negative-664
+dedupe_rule:
+  rule_id: dedupe-example-owner-local
+  key_scope: owner_local_stable
+  on_identical_replay: return_existing_leaf
+  on_key_reuse_with_different_material: refuse_before_sequence_assignment
+  key_custody:
+    reference_id: custody-example-dedupe-keys
+    resolves_into: governed_layer
+late_arrival_rule:
+  rule_id: late-example-acceptance-selects
+  window_selected_from: trusted_acceptance_time
+  source_time_lateness_recorded: off_chain
+admission_transaction:
+  transaction_ref: txn-dba-negative-664
+  atomic: true
+  steps:
+  - validate_eligibility
+  - apply_dedupe_rule
+  - record_acceptance_time
+  - select_window_from_acceptance_time
+  - assign_next_leaf_sequence
+eligibility_snapshot:
+  registry_id: der-example-0001
+  entry_id: der-entry-0002
+  version: 2
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: durability_eligibility_terms
+    value: sha256:a958754817f2860c0e52986dfad5637425657e7e708b4bb1a2c30ab6ca4bcd2a
+  activation:
+    log_sequence: 616
+    checkpoint_ref: cp-log-checkpoint-0616
+  standing: active
+merkle_profile:
+  profile_id: dmp-example-daily-merkle
+  version: 1
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: daily_merkle_construction
+    value: sha256:498aa35ea0a41ba00fe57f0df0f3c0b388ab1514cfe9ee7187b4104cca5adc8a
+membership_path: []
+recorded_at: '2026-09-02T09:00:00Z'
+record_version: 1

@@ -1,0 +1,61 @@
+# expected_failure: registry-entry-predecessor-unresolved
+# expected_failure_detail: names no predecessor
+# A VERSION CHAIN WITH A HOLE IN IT. Version two names no predecessor, so a reader holding it cannot show that version one was the thing it succeeded — and a chain that cannot be walked cannot prove a rollback did not happen. Its code lives outside the closed enumeration.
+schema_version: 1
+kind: xfactory_chain_anchoring_confirmation_profile_registry
+registry_id: cpr-negative-0001
+append_only:
+  append_only: true
+  history_rewritten: false
+  signature_ref: sig-negative-cpr
+configured_networks:
+- chain-example-fixture-net
+entries:
+- entry_id: cpr-negative-v1
+  chain_id: chain-example-fixture-net
+  witness_role: operational
+  profile_id: cp-negative-fixture
+  version: 1
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: confirmation_profile_terms
+    value: sha256:8358ac733f8413897db1346e1b20195e45bdb7eccdffb88faa634d80321701e8
+  approval:
+    approval_id: approval-example-negative-0001
+    approved_by: operator
+    approved_on: '2026-08-25'
+    approval_record_ref: record-example-operator-approval-negative-0001
+    decision_statement: approved by the repository operator as the objective condition separating
+      submitted from confirmed on this network, with its transition vectors
+  activation:
+    log_sequence: 600
+    checkpoint_ref: cp-log-checkpoint-0600
+  effective_interval:
+    from_window_open: '2026-08-26T00:00:00Z'
+    until_window_open: '2026-08-28T00:00:00Z'
+  standing: retired
+  superseded_by_entry_id: cpr-negative-v2
+- entry_id: cpr-negative-v2
+  chain_id: chain-example-fixture-net
+  witness_role: operational
+  profile_id: cp-negative-fixture
+  version: 2
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: confirmation_profile_terms
+    value: sha256:e89fbd7ff261eb9a3483914c5015960339257ed2015084034bbbc6e904eb6cd4
+  approval:
+    approval_id: approval-example-negative-0001
+    approved_by: operator
+    approved_on: '2026-08-25'
+    approval_record_ref: record-example-operator-approval-negative-0001
+    decision_statement: approved by the repository operator as the objective condition separating
+      submitted from confirmed on this network, with its transition vectors
+  activation:
+    log_sequence: 605
+    checkpoint_ref: cp-log-checkpoint-0605
+  effective_interval:
+    from_window_open: '2026-08-28T00:00:00Z'
+  standing: active
+recorded_at: '2026-09-02T00:00:00Z'
+record_version: 1

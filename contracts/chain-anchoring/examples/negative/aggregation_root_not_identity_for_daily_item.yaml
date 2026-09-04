@@ -1,0 +1,159 @@
+# expected_failure: aggregation_root_not_identity_for_daily_item
+# expected_failure_detail: carries a non-empty aggregation path
+# A DAILY ITEM BATCHED WITH SOMETHING ELSE. For this one-item daily profile the shared aggregation path is the IDENTITY path, so `aggregation_root == anchored_digest`; a sibling here means the value the witnesses committed to is not the closed manifest this receipt names.
+schema_version: 1
+kind: xfactory_chain_anchoring_receipt
+receipt_id: rcp-negative-non-identity
+material_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_material
+  value: sha256:68a4296d8171b8ab29566f1238e4f96aef0ccba8ab78359e3a4daf09d6cbe890
+anchored_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchored_commitment
+  value: sha256:210f4ccf1583607945c38dc09c5106759b7056f3964899be7b440481e4765efc
+mint_time_configuration:
+  configured_witnesses:
+  - witness_id: w-example-op-0001
+    role: operational
+    chain_id: chain-example-operational
+    confirmation_profile:
+      chain_id: chain-example-operational
+      profile_id: cp-example-operational
+      version: 2
+      canonical_digest: &id001
+        construction: xfc-jcs-sha256-1
+        subject: confirmation_profile_terms
+        value: sha256:90c3d4f763e5dc6691ba596f91ef00e8aeb7d21b611b9e3df6030f95dffc7207
+      activation:
+        log_sequence: 618
+        checkpoint_ref: cp-log-checkpoint-0618
+      standing: active
+    completion_horizon_seconds: 14400
+    chain_accepted_time_rule:
+      rule_id: rule-example-linear-mpt
+      basis: linear_block_header_time_field
+      consensus_rule_citation: 'consensus rule: a block timestamp exceeds the median of the
+        previous eleven and sits within the declared band of network-adjusted time; the worst
+        legal case is declared here in both directions'
+      skew_seconds: 7200
+      tolerance_seconds: 600
+      ordering_only: false
+  - witness_id: w-example-dur-0001
+    role: durability
+    chain_id: chain-example-durability
+    confirmation_profile:
+      chain_id: chain-example-durability
+      profile_id: cp-example-durability
+      version: 1
+      canonical_digest: &id002
+        construction: xfc-jcs-sha256-1
+        subject: confirmation_profile_terms
+        value: sha256:0cbf3cf8b7484f38415d55c5ac3d9b142f59a543d2d94b9ad24cfc144ea94469
+      activation:
+        log_sequence: 610
+        checkpoint_ref: cp-log-checkpoint-0610
+      standing: active
+    completion_horizon_seconds: 86400
+    chain_accepted_time_rule:
+      rule_id: rule-example-dag-accepting
+      basis: dag_accepting_block_header_timestamp
+      consensus_rule_citation: 'consensus rule: an accepting block''s header timestamp is
+        bounded by its parents'' past cone and the declared future band; the worst legal case
+        is declared here in both directions'
+      skew_seconds: 3600
+      tolerance_seconds: 600
+      ordering_only: false
+  submission_time: '2026-08-31T00:05:00Z'
+  max_submission_to_first_anchor_delay_seconds: 3600
+  checkpoint_cadence_seconds: 900
+aggregation_merkle_path:
+- position: right
+  sibling_digest:
+    construction: xfc-jcs-sha256-1
+    subject: anchored_commitment
+    value: sha256:ed584b7a2635695ea7c542a302a20dd9bf96a86c9c1b5cf32e6799dc184a0c63
+per_chain_anchors:
+- chain_id: chain-example-operational
+  witness_id: w-example-op-0001
+  commitment_derivation:
+    source_aggregation_root:
+      construction: xfc-jcs-sha256-1
+      subject: anchored_commitment
+      value: sha256:210f4ccf1583607945c38dc09c5106759b7056f3964899be7b440481e4765efc
+    path_present: true
+    proof_over: aggregation_root
+    path_ref: path-rcp-example-daily-0001-chain-example-operational
+    encoding_statement: this witness's commitment path begins at the configuration-bound aggregation
+      root the receipt names; the encoding differs from the other witness's and the SOURCE
+      does not
+  confirmed_under_profile:
+    profile_id: cp-example-operational
+    version: 2
+    canonical_digest: *id001
+    as_of_token: confirmed_under_v2_at_cp-log-checkpoint-0618
+  anchor_transaction_bytes: 88b423b48A93881cce9873c31465aeef74d7c94ce3A83c97e72Ae6a212dc1942979a734a77bbed9c26764f9eA816cf5be1cb1a9d3a463d6A3e7a8966257b3d69
+  inclusion_proof:
+    proof_kind: merkle_transaction_root
+    path:
+    - position: left
+      sibling_value: txmerkle:e7d9ba17fc6941f1d5860ebe9275cce9c0946f2474e57469f3e46320557a197d
+  block_header:
+    header_bytes: f541ec64f8673b4fB1b6151fc31aafe12e2bfa7ffa71ad5d65e29d1bd2127585B6b9a1B7c8a3e8472a2Bd859a554dbb96f2cfd88a7865162f1fda93Be5fBeb9a
+    header_digest: blockhash:a8511716c62f0be50f9966aa465943af1207f59a120695bc36f4cbfef0c39f65
+    time_field: '2026-08-31T00:12:00Z'
+  chain_acceptance_evidence:
+    evidence_kind: linear_chain
+    header_source_ref: hs-example-public-headers
+    linear:
+      block_height: 4102931
+      header_chain_linkage:
+      - blockhash:b325c97d90023569688398c55c480f0bdbef866bba9c9bf99050afc89ddc62c5
+      - blockhash:a8511716c62f0be50f9966aa465943af1207f59a120695bc36f4cbfef0c39f65
+      - blockhash:93c79ecfbd305fc81d006ce54f2e7eb0cda4aa478c0c89fb11ca8f3da782acdf
+- chain_id: chain-example-durability
+  witness_id: w-example-dur-0001
+  commitment_derivation:
+    source_aggregation_root:
+      construction: xfc-jcs-sha256-1
+      subject: anchored_commitment
+      value: sha256:210f4ccf1583607945c38dc09c5106759b7056f3964899be7b440481e4765efc
+    path_present: true
+    proof_over: aggregation_root
+    path_ref: path-rcp-example-daily-0001-chain-example-durability
+    encoding_statement: this witness's commitment path begins at the configuration-bound aggregation
+      root the receipt names; the encoding differs from the other witness's and the SOURCE
+      does not
+  confirmed_under_profile:
+    profile_id: cp-example-durability
+    version: 1
+    canonical_digest: *id002
+    as_of_token: confirmed_under_v1_at_cp-log-checkpoint-0610
+  anchor_transaction_bytes: a973d3ab1afa4834bafA34c264fAc6854eeA9eAeA4bA859bfbebd75ee667d92a585436dc4c43c862Ab866bd44bAd1157Aa842eaA9c992bAf6c328ff1f466fAac
+  inclusion_proof:
+    proof_kind: dag_inclusion
+    path:
+    - position: left
+      sibling_value: dagmerkle:51ddc40464a15b179f7534d599bce2e81bb42650a777f43bc972a75141572fe3
+  block_header:
+    header_bytes: f48295778e4b6e523fBace83948befe678146e2533ab1fb1a33b5aec85697B3c8514ffbec66ad26db9679f84e8cc6e2Bf5B7B426a51f674B723e11Bad455b6d5
+    header_digest: dagblock:be2042569c900e412d94d6cff463a43e3ba0663dad140f68d96c1126fc22f16c
+    time_field: '2026-08-31T00:40:00Z'
+  chain_acceptance_evidence:
+    evidence_kind: dag
+    header_source_ref: hs-example-public-headers
+    dag:
+      accepting_block_value: dagblock:be2042569c900e412d94d6cff463a43e3ba0663dad140f68d96c1126fc22f16c
+      acceptance_path:
+      - dagblock:5bb9cd9a22eede0731f1e135ba4fa0e35159f3e30fc2e7c9d7cb97ed5c241f7f
+      - dagblock:c177da2a4db5817e0fd1fdc226654f533a22d79a455f850eed7d877495877a79
+declared_header_source:
+  source_id: hs-example-public-headers
+  obtainable_independently: true
+  supplied_by_minter: false
+  source_statement: a public header set any verifier can obtain for itself; the trust root
+    is the chain, never this realization
+daily_item:
+  profile: daily_merkle
+  manifest_ref: dbm-negative-none
+record_version: 1

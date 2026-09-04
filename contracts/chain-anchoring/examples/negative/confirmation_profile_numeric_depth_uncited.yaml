@@ -1,0 +1,69 @@
+# expected_failure: confirmation_profile_numeric_depth_uncited
+# expected_failure_detail: names a numeric depth
+# SIX CONFIRMATIONS, CITED TO NOBODY. A depth an operator approves against a network's own documented rule is legitimate; a depth with nothing cited behind it is a number somebody chose about another chain's consensus rules, which is precisely what the amendment forbids this specification to invent.
+schema_version: 1
+kind: xfactory_chain_anchoring_confirmation_profile
+profile_id: cp-negative-depth
+version: 1
+chain_id: chain-example-operational
+witness_role: operational
+terms:
+  submitted_condition:
+    statement: the declared interface accepted the serialized commitment transaction for processing;
+      this is NOT confirmation on this network
+    objective_evidence:
+    - interface_acceptance
+    - transaction_identifier
+  confirmed_condition:
+    statement: the configured chain-acceptance rule passes and all four per-chain receipt
+      elements are captured whole
+    chain_acceptance_rule_citation: the configured operational witness's own documented acceptance
+      rule for its accepting block, cited by the realization in its conformance declaration
+    objective_evidence:
+    - transaction_bytes
+    - inclusion_proof
+    - block_header
+    - chain_acceptance_evidence
+    numeric_depth: 6
+  retained_proof_material:
+  - transaction_bytes
+  - inclusion_proof
+  - block_header
+  - chain_acceptance_evidence
+  reorganization_rule:
+    statement: a reorganized accepting block moves this witness out of confirmed and the move
+      is written as evidence; the prior confirmed label is not retained by assertion
+    on_change: rewrite_state_as_evidence
+    evidence_written: true
+  replacement_rule:
+    statement: a replaced commitment transaction moves this witness out of confirmed and the
+      move is written as evidence
+    on_change: rewrite_state_as_evidence
+    evidence_written: true
+  transition_vectors:
+  - vector_id: cp-example-operational-vec-accept-submitted
+    boundary: pending_to_submitted
+    expectation: accept
+    statement: the declared interface accepted the serialized commitment transaction for processing
+      and nothing more is claimed
+  - vector_id: cp-example-operational-vec-refuse-confirmed
+    boundary: submitted_to_confirmed
+    expectation: refuse
+    statement: interface acceptance alone does not satisfy this profile's confirmation condition
+      and is refused as confirmation
+  - vector_id: cp-example-operational-vec-accept-confirmed
+    boundary: submitted_to_confirmed
+    expectation: accept
+    statement: the configured acceptance rule passed and every named proof element was captured
+      whole
+  - vector_id: cp-example-operational-vec-refuse-stale
+    boundary: confirmed_to_invalid
+    expectation: refuse
+    statement: a reorganized block no longer satisfies this profile and a retained confirmed
+      label is refused
+canonical_digest:
+  construction: xfc-jcs-sha256-1
+  subject: confirmation_profile_terms
+  value: sha256:ff2132aeb6dec0d91c1f86ca2d7d155593a7c525cee934b2942c615db27e9d98
+released_at: '2026-08-25T00:00:00Z'
+record_version: 1
