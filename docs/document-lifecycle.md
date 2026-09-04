@@ -387,10 +387,18 @@ its own.>
   and repeats it in the support manifest; a deliberate exception uses
   `scripts/proposal-support.py declare-adhoc <change> --reason --approved-by
   --approved-on` — ad-hoc is an explicit approved exception, never a default,
-  and never a substitute when organized source material exists. Strict
+  and never a substitute when organized source material exists. A packet
+  DRAFTED BUT NOT YET APPROVED declares the same command's
+  `--proposed-by --proposed-on` INSTEAD of the approval pair: an unapproved
+  origin is a lawful state that reports nothing, approval is later ADDED to
+  it without the identity moving, and a proposal whose `Status:` claims
+  `ratified` or beyond over an unapproved origin is reported — approval
+  appears when the status claims it, and an approval date is never invented
+  to quiet a check. Strict
   per-change verification (`proposal-support.py verify <change>`) and the
   archive gate reject missing, malformed, dual-kind, or manifest-disagreeing
-  origins; the nightly `proposal-origin` doc-health family (the fifteenth)
+  origins, and an ad-hoc origin declaring neither provenance pair or half of
+  one; the nightly `proposal-origin` doc-health family (the fifteenth)
   reports drift — including post-ratification mutation, a `contested`
   finding — across active and archived proposals.
 - `proposed -> ratified -> implemented`: standard OpenSpec flow.
