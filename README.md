@@ -1171,6 +1171,38 @@ Active changes:
   `docs/sequenced-after-trust-root-floor.md`, `tests/sequenced_after/`); the
   codexFactory verifier that CONSUMES the field is downstream and NOT this
   change's surface.
+- [add-subject-establishment](openspec/changes/add-subject-establishment/proposal.md)
+  — filed 2026-08-28 on Brett's ruling "Progress both" as the FULL promotion of
+  the `subject-establishment` staged topic, taking that topic's OWN declared
+  exit path with both of its gates cleared: the LedgerxFactory first
+  instantiation archived three packets on 2026-08-04, and codexFactory
+  new-project was decided as the second consumer on 2026-07-28. ADDS the NEW
+  neutral `subject-establishment` capability — eleven requirements, 37
+  scenarios, ADDED-only, no promoted requirement anywhere moves a word.
+  **The generalization**: every domain runs the same start-of-life motion for a
+  new subject and four of the five have not built it yet, so the packet fixes
+  the ordered pipeline and its TWO ARTIFACT KINDS — the neutral subject design
+  (semantic roles, no vendor object) and the platform realization (exactly one
+  system of record, every element traced) — because that SPLIT is what buys
+  portability, expert reviewability and second-platform-as-a-mapping, and a
+  collapsed artifact silently loses all three. **The finding the second
+  consumer produced and the first structurally could not**: for codexFactory
+  the DESIGNING domain and the APPLYING administrator are different factories
+  (GitHub administration is OpsxFactory's), so the realization is
+  handoff-shaped — and the crossing is CONSUMED from the ratified
+  `deployment-handoff-boundary` rather than invented, because that capability's
+  own text says "a new record kind SHALL NOT be introduced for this purpose",
+  which forbids the obvious design. Conformance tiering is likewise
+  `roles-authority-model`'s route/park/interrupt ladder applied, not a second
+  mechanism. **What is deliberately absent**: the two artifact kinds' schemas
+  and their validator, named as the successor
+  `add-subject-establishment-contracts` and flagged for veto as OD-1 — against
+  a live counter-precedent, the identical call having been VETOED in
+  `add-credential-escrow-checkout` the same day. `code_surface: none` and
+  `target_release: none`, but the change does NOT archive on landing: six
+  orchestrator decisions are flagged for veto, six open questions carry
+  recommendations and no decisions, and the archive gate is merge plus green
+  PLUS that ruling round (OD-6). Registers DTN-017 `staged` → `openspec`.
 - [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
   — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
   survey of the fourteen staging topics `doc-health`'s
@@ -1640,6 +1672,23 @@ Active changes:
   exactly, and RECORDS the standing conformance gap that the hosted image
   performs no runtime fetch today, so its baked artifacts are its data).
   `target_release: implementation_pending`.
+  **AN AMENDMENT TO THE RATIFIED `doc-health` DELTA WAS AMENDED 2026-09-04
+  AND RE-RATIFIED THE SAME DAY** (Brett Heap, in-session, verbatim "re-ratify
+  and merge 595"). Everything described above is the design as RATIFIED
+  2026-08-25 and is what still governs. The amendment, authored 2026-09-01 on
+  Brett's host ruling ("the runner design intentionally requires
+  `repository_credentials_absent`; source is delivered as sealed job artifacts
+  and the runners do not clone or push repositories"), moves the
+  fresh-checkout act OFF the credential-free artifact worker and ONTO the
+  credentialed hosted parent, which seals a bounded source artifact the child
+  verifies and consumes — because the ratified lane requires a clone of two
+  PRIVATE repositories on a worker its own authority requirement forbids a
+  repository credential to. Two ADDED scenarios and one ADDED prohibition
+  paragraph in the delta; no requirement title moves and no `MODIFIED` block is
+  introduced. It reached this repository by rescue (PR #595, issue #591) after
+  being stranded uncommitted in the shared checkout, and it is recorded in
+  `proposal.md` § AMENDED AFTER RATIFICATION, 2026-09-04. The archive gate is
+  unmoved either way.
 - [add-roster-directory-admission-surface](openspec/changes/add-roster-directory-admission-surface/proposal.md)
   — authored 2026-08-22, **NOT YET RATIFIED** (`Status: draft`). Admits the
   single `directory` (service-discovery) admission surface into the closed

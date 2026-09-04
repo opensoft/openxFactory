@@ -627,6 +627,82 @@ def _git_toplevel(path: Path) -> Path:
     return Path(out.stdout.strip())
 
 
+def change_id_of_dir(change_dir: str | Path) -> str:
+    """The change id a CURRENT directory names — active or archived.
+
+    An active directory `openspec/changes/<id>` names `<id>` directly. An
+    archived directory `openspec/changes/archive/<YYYY-MM-DD>-<id>` names
+    `<id>` with the date prefix stripped, via the SAME `ARCHIVE_DIR` naming
+    convention `archived_change_dirs` already parses — reused here rather than
+    re-invented, so the two readings of the convention cannot drift apart.
+    "Archived" is decided by the PARENT directory's name, not by whether the
+    directory's own name happens to match the date-prefix shape, so an active
+    id that coincidentally looks date-prefixed is never misread.
+    """
+    path = Path(change_dir)
+    if path.parent.name == "archive":
+        match = ARCHIVE_DIR.match(path.name)
+        if match is not None:
+            return match.group("id")
+    return path.name
+
+
+def _blob_exists_at_ref(repo_root: Path, ref: str, rel_path: str) -> bool:
+    """Whether `rel_path` names a blob in `ref`'s tree — checked without
+    touching the working tree or the index (`git cat-file -e`, no checkout)."""
+    out = subprocess.run(
+        ["git", "-C", str(repo_root), "cat-file", "-e", f"{ref}:{rel_path}"],
+        capture_output=True, text=True,
+    )
+    return out.returncode == 0
+
+
+def _archive_dir_names_at_ref(repo_root: Path, ref: str) -> list[str]:
+    """Directory names directly under `openspec/changes/archive/` in `ref`'s
+    tree — empty when that path did not exist there yet. Read with `ls-tree`,
+    never a checkout."""
+    out = subprocess.run(
+        ["git", "-C", str(repo_root), "ls-tree", "--name-only", ref,
+         "openspec/changes/archive/"],
+        capture_output=True, text=True,
+    )
+    if out.returncode != 0:
+        return []
+    return [line.rsplit("/", 1)[-1] for line in out.stdout.splitlines() if line]
+
+
+def proposal_path_at_ref(repo_root: Path, ref: str, change_id: str) -> str:
+    """The repo-relative `proposal.md` path for `change_id` AS IT STOOD AT
+    `ref`, resolved BY CHANGE ID against `ref`'s OWN tree — never derived from
+    the caller's CURRENT directory, which may name a location the id never
+    occupied at `ref` (a change archived after `ref` had no archived path
+    there; one archived before `ref` had no active one).
+
+    Tries the active location first
+    (`openspec/changes/<change_id>/proposal.md`), then any archived directory
+    at `ref` matching `openspec/changes/archive/<YYYY-MM-DD>-<change_id>/`
+    (the same `ARCHIVE_DIR` convention `archived_change_dirs` parses on the
+    working tree). Raises `SequencedAfterError` naming the id, the ref and
+    both paths tried when NEITHER exists at `ref` — never lets the underlying
+    git failure propagate as a traceback.
+    """
+    active_rel = f"openspec/changes/{change_id}/proposal.md"
+    if _blob_exists_at_ref(repo_root, ref, active_rel):
+        return active_rel
+    for name in sorted(_archive_dir_names_at_ref(repo_root, ref)):
+        match = ARCHIVE_DIR.match(name)
+        if match is None or match.group("id") != change_id:
+            continue
+        archived_rel = f"openspec/changes/archive/{name}/proposal.md"
+        if _blob_exists_at_ref(repo_root, ref, archived_rel):
+            return archived_rel
+    raise SequencedAfterError(
+        f"{change_id!r} has no proposal.md at ref {ref!r} — tried "
+        f"{active_rel!r} and any "
+        f"'openspec/changes/archive/<YYYY-MM-DD>-{change_id}/proposal.md'; "
+        f"neither exists in that ref's tree")
+
+
 def declaration_at_ref(repo_root: Path, ref: str, proposal_rel: str) -> object:
     """The declaration as it stood at git `ref` (the ratified snapshot), or
     `ABSENT` when the field was not declared there."""
@@ -640,18 +716,27 @@ def declaration_at_ref(repo_root: Path, ref: str, proposal_rel: str) -> object:
 def retention_at_archive(change_dir: str | Path, ratified_ref: str) -> str | None:
     """Archive-gate freeze check for one change directory.
 
-    Reads the declaration from the change's `proposal.md` at `ratified_ref` and
-    from the current working tree and returns a contested-class problem string
-    if they differ (None when retained). The gate ALSO proves the archive does
-    not REWRITE declarations: since it compares the entries as authored, any
-    date-prefixing, re-pointing or normalization performed on archival would
-    register here as a mutation.
+    Reads the declaration from the change's `proposal.md` at `ratified_ref`
+    and from the current working tree and returns a contested-class problem
+    string if they differ (None when retained). The ratified-side proposal is
+    located BY CHANGE ID at `ratified_ref` (`proposal_path_at_ref`) — never by
+    reusing `change_dir`'s CURRENT path — so the gate keeps working after the
+    change has moved from its active location to
+    `openspec/changes/archive/<date>-<id>/` between ratification and archive:
+    that move is exactly the case this gate exists to check. The gate ALSO
+    proves the archive does not REWRITE declarations: since it compares the
+    entries as authored, any date-prefixing, re-pointing or normalization
+    performed on archival would register here as a mutation.
+
+    Raises `SequencedAfterError` (never a traceback) when `change_id` has no
+    proposal.md at `ratified_ref` at all.
     """
     change_path = Path(change_dir)
     proposal = change_path / "proposal.md"
     repo_root = _git_toplevel(change_path)
-    proposal_rel = proposal.resolve().relative_to(repo_root.resolve()).as_posix()
-    ratified = declaration_at_ref(repo_root, ratified_ref, proposal_rel)
+    change_id = change_id_of_dir(change_path)
+    ratified_rel = proposal_path_at_ref(repo_root, ratified_ref, change_id)
+    ratified = declaration_at_ref(repo_root, ratified_ref, ratified_rel)
     current = read_declaration(proposal) if proposal.is_file() else ABSENT
     return retention_problem(ratified, current)
 

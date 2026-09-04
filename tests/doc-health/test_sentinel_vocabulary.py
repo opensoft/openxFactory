@@ -906,18 +906,21 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     network. What it does assert is the separation the design turns on — the
     commit path and the classification path never see the same site."""
     report = pc.verify(REPO_ROOT, allow_remote=False)
-    # 67, not the 66 this census landed with. A `proposal-support.py transition`
+    # 70, not the 66 this census landed with, and every step is kept apart
+    # because each was taken by a different packet: two on 2026-08-28 and two
+    # more that arrived from `main` in the 2026-09-03 merge. Read the four
+    # paragraphs below in order; the assertion at the end of them is the only
+    # number this test enforces.
+    #
+    # 66 -> 67, `add-worker-enrollment-broker`: a `proposal-support.py transition`
     # writes a `supporting-docs/manifest.yaml` carrying a `source_revision`, and
     # that key is a declared `proposal-support-manifest` pin site — so EVERY full
-    # promotion moves this number by one, by design. The 67th is
-    # `add-worker-enrollment-broker`'s, written when the `worker-enrollment-broker`
-    # topic was promoted in full. Only the SITE count moves: the member count is
-    # unchanged because the class already had 24 other manifests in it, and
-    # `lost`/`uncovered`/`vanished`/`arrived` are untouched. Note this test cannot
+    # promotion moves this number by one, by design. The 67th was written when the
+    # `worker-enrollment-broker` topic was promoted in full. Note this test cannot
     # see an uncommitted manifest — `pc.verify` reads the committed tree — so a
     # promotion's own pre-commit run passes and CI is where the count lands.
     #
-    # 69, AND THIS ONE MOVE IS TWO SITES FROM ONE CHANGE, arriving by the two
+    # 67 -> 69, AND THAT ONE MOVE IS TWO SITES FROM ONE CHANGE, arriving by the two
     # different routes this census distinguishes. `add-project-repo-schema`
     # (2026-09-02) is a FULL PROMOTION, so it writes the 68th by the mechanism
     # the paragraph above already describes — its `supporting-docs/manifest.yaml`
@@ -933,7 +936,19 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     # declared that PATH, so nothing covered it. That is the intended failure
     # shape for a new pin artifact — found, not covered, reported — and it is
     # why the member had to be declared rather than the count merely bumped.
-    assert len(report.results) == 69
+    #
+    # 69 -> 70, `add-subject-establishment`: the same FULL-PROMOTION mechanism as
+    # the 67th and the 68th, one branch later. The promotion of the
+    # `subject-establishment` staged topic wrote
+    # `openspec/changes/add-subject-establishment/supporting-docs/manifest.yaml`,
+    # whose `source_revision` is the 70th site. It joins the EXISTING
+    # `proposal-support-manifest` member, so the member count does NOT move and
+    # holds at main's 24 — the 24th was `openreposhape-pin-product-commit`, not
+    # anything this packet writes. ENUMERATED WITH `pin_class.verify()` ON THE
+    # MERGED TREE rather than obtained by adding one: every manifest main carries
+    # and this packet's own are present together, and the census reads 70.
+    # `lost` / `uncovered` / `vanished` / `arrived` are untouched by the step.
+    assert len(report.results) == 70
     assert len({r.site.member_id for r in report.results}) == 24
     assert len(report.lost) == 1
     assert len(report.lost_awaiting_record) == 0
