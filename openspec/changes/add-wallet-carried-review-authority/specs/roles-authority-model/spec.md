@@ -23,12 +23,18 @@ ratified change adds or renames to", both carried by
 `govern-sibling-added-modified-deltas` at
 `openspec/changes/govern-sibling-added-modified-deltas/specs/release-realization/spec.md`.
 **THAT TEXT IS RATIFIED AND IT IS NOT CANON.**
+*(Superseded 2026-09-04: `govern-sibling-added-modified-deltas` archived
+2026-09-02 via #571 `3bcde7e2`; the text is now canon at
+`openspec/specs/release-realization/spec.md`, the requirement "Ordered deltas
+and branch vocabulary" — cite that path directly.)*
 `govern-sibling-added-modified-deltas` was ratified on 2026-08-31 by Brett Heap's
 direct ruling, and its deltas promote only at its own archive, so it is cited
 here as a RATIFIED-BUT-UNPROMOTED DELTA at its change-directory path and never as
-a promoted specification. The obligation this delta is under is unchanged by the
-correction — reference the basis change, declare relative to its outcome, and do
-not archive while the title is unpromoted; what changes is which text says so.
+a promoted specification. *(Superseded 2026-09-04: the delta is now promoted;
+`openspec/specs/` MAY be cited for it — see the note above.)* The obligation
+this delta is under is unchanged by the correction — reference the basis
+change, declare relative to its outcome, and do not archive while the title is
+unpromoted; what changes is which text says so.
 
 ## ADDED Requirements
 
