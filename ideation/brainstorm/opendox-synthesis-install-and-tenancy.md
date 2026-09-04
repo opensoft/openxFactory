@@ -3,14 +3,15 @@
 Status: brainstorm
 Kind: architecture
 Summary: Synthesis across the packet: the per-tenant descendant install Brett
-described ("If I install MedxFacotry, then I get a medXdox install running in
-the installed tenand with its own db") is the requirement that forces every
-other choice — it makes the app-with-a-database non-optional, it makes the
-two-layer split load-bearing rather than tidy, it lands squarely on the ratified
-`domain-descendant-boundary` pattern, and it inherits a proven in-house runtime
-shape from the Hermes install; what it does NOT settle is whether a descendant
-instance is always its own instance, and whether the descendant pins openXdox or
-openDox.
+described is the requirement that forces every other choice, and he settled two
+of its three unknowns the same day — RULED 2026-09-04: the runtime REUSES the
+Hermes install pattern (FastAPI + Postgres, deployed as `xFactory-Hermes-Install`
+is on AKS, OIDC through the Keycloak broker being adopted in QA, growing into
+the OpsxFactory `dox` workload set), and the topology is ONE INSTANCE AND ONE
+DATABASE PER TENANT, ALWAYS, in both the operator-hosted and tenant-hosted
+cases, with no cross-tenant data ever sharing a store; what remains open is what
+`domain-descendant-boundary` has to grow to describe a descendant of a running
+product with a schema, and whether a descendant may pin openDox directly.
 Topics: opendox, openxdox, medxdox, codexdox, tenant-install,
 per-tenant-database, domain-descendant-boundary, neutral-product-pin,
 hermes-install, runtime-shape, openxdox-install-app-provisioning,
@@ -24,8 +25,8 @@ Captured: 2026-09-04
 ## Possible feats
 
 - **The openDox install repository** — `openDox-Install`, or install machinery
-  inside openDox itself; the Hermes install's shape is the decision to copy or
-  reject.
+  inside openDox itself, built on the Hermes install's shape (Q2, ruled: reuse
+  the pattern).
 - **Descendant provisioning inside a DomainxFactory install** — the install
   flow that stands up one descendant instance with its own database in the
   tenant it just created.
@@ -38,6 +39,33 @@ Captured: 2026-09-04
 - **Fold the App-provisioning topic in** — `openxdox-install-app-provisioning`
   designed the two-App manifest bootstrap for the intent plane; a per-tenant
   app install needs it and adds a database to it.
+
+## RULED — Q2 and Q3, Brett Heap, 2026-09-04 (issue #656)
+
+**Q2 — the runtime REUSES the Hermes install pattern.** FastAPI + Postgres,
+deployed the way `xFactory-Hermes-Install` is (live on AKS since 2026-07-19),
+with OIDC through the **Keycloak broker** being adopted in QA. The OpsxFactory
+`dox` workload set — `dox-auth`, `dox-dashboard`, `dox-intent-inbox`,
+`dox-token-minter`, declared at `workflows/aks-administration.yaml:412-431` in
+namespace `dox` — is the deployment shape it grows into. Rejected: bolting a
+database onto today's stdlib `serve.py` monolith; and building a new full-stack
+platform.
+
+**Q3 — one instance and one database per tenant, always.** Every domain-factory
+install brings its own descendant instance (`MedxDox`, `codexDox`, …) and its
+own database inside the tenant, whether Opensoft operates it (the credential
+runbook's **Case A**, operator vault) or the tenant does (**Case B**, tenant
+provider). **No cross-tenant data ever shares a store.** Rejected: a shared
+multi-tenant openDox with row-level isolation; and a per-tenant default with a
+pooled option for operator-hosted tenants — so the "consent-gated shared
+profile" this document previously floated is explicitly off the table.
+
+What that settles, taken together: the deployment unit is the descendant
+instance; the identity boundary is the Keycloak broker rather than openDox's own
+password store (which composes with Q1 putting users and memberships IN the
+database — an account is a durable row, authentication is delegated); and the
+operating cost is N instances, N databases, N migration runs, N backup policies,
+in both operating cases. That cost is now a decision rather than a discovery.
 
 ## The requirement that forces everything else
 
@@ -173,51 +201,64 @@ workload set declares four workloads in namespace `dox` (`dox-auth`,
 `dox-dashboard`, `dox-intent-inbox`, `dox-token-minter`); the DNS record exists
 on the live zone but is ungoverned.
 
-## Shared instance or always its own — the question this document cannot answer
+## Shared instance or always its own — ANSWERED, and what the answer costs
 
-Brett said "its own db". That reads as a per-tenant database, and every
-sovereignty argument in the house supports it: the Hermes install is per-client,
-the App-provisioning topic's whole design exists so that no opensoft identity
-holds a key on tenant assets, and the readiness contract's serving-tier
-separation is a physical boundary.
+Three shapes were compatible with "its own db", and Q3's ruling took the
+strictest:
 
-But "its own db" is compatible with at least three deployment shapes, and they
-have very different costs:
+1. **One instance, one database, per tenant — RULED, in both operating
+   cases.** Maximum isolation, maximum operational surface. The Hermes install's
+   actual shape.
+2. **One shared instance, one database per tenant — REJECTED.** It satisfies
+   "its own db" literally while breaking sovereignty on the runtime, and the
+   ruling explicitly rejects the per-tenant-default-with-a-pooled-option form
+   too, so it cannot return as an operator convenience.
+3. **One instance and database per DOMAIN, tenants as rows — REJECTED.**
+   Recorded so nobody arrives at it under cost pressure.
 
-1. **One instance, one database, per tenant.** Maximum isolation, maximum
-   operational surface — N instances to upgrade, N migration runs, N backup
-   policies. The Hermes install's actual shape.
-2. **One shared instance, one database per tenant.** Isolation of DATA with
-   shared runtime; upgrades are one deployment and N migration runs. Satisfies
-   "its own db" literally while breaking sovereignty on the runtime.
-3. **One instance and database per DOMAIN, tenants as rows.** Cheapest,
-   contradicts the ruling as spoken, and is worth naming only so that nobody
-   arrives at it by accident under cost pressure.
+The bill this creates, stated plainly because it is now unavoidable: N runtime
+deployments to upgrade, N migration runs per release, N backup and restore
+policies, N sets of credentials, and N instances whose observability someone has
+to aggregate. The Hermes install pays exactly this bill today with ordered SQL
+migrations, a 20-verb lifecycle CLI and per-client instance trees — which is the
+strongest practical argument for Q2's pattern reuse, because the alternative is
+paying it twice with two sets of runbooks.
 
-The choice interacts with the descendant pattern: a descendant repository per
-domain suggests shape 1 or 2 (the descendant IS the deployment unit), whereas
-shape 3 would make the descendant a tenant-agnostic distribution and put
-tenancy entirely inside the app.
+It also settles the descendant's role: **the descendant IS the deployment
+unit**, which is why the open question below is about what
+`domain-descendant-boundary` must grow rather than about whether it applies.
 
 ## Synthesis: what has to be true, in order
 
-1. **Break the import cycle.** `doc_health` ↔ `ideation_dashboard` is two lazy
-   imports of one class in one 377-line module in one direction and 23 imports
-   in the other. Fix the cheap direction first. Nothing else can start.
-2. **Name the corpus adapter.** One interface — enumerate, read/write,
-   classify, assess, act — replaces a third of the package's knowledge of
-   openxFactory's tree layout.
-3. **Rule the authority boundary.** Database versus git, per object class. D5
-   already fired for projects; the other six object classes need the same
-   declaration before code is written, because an unstated split forks.
-4. **Choose the runtime.** Adopt the Hermes install pattern or state why not.
+Steps 3 and 4 were open when this document was drafted and are now ruled; they
+are kept in the sequence because their POSITION is what matters.
+
+1. **Break the import cycle, as Q4 directs.** openDox defines the
+   corpus-adapter interface; openXdox implements it; the two
+   `doc_health` → `ideation_dashboard.boundary` back-imports move into a small
+   neutral module both sides depend on; the dependency points one way. The cheap
+   direction is two lazy imports of one class in one 377-line module. Nothing
+   else can start.
+2. **Name the corpus adapter's operations.** One interface — list, read, write
+   back, check — replaces a third of the package's knowledge of openxFactory's
+   tree layout, and under Q4 the 23 outbound `doc_health` imports become that
+   interface's openXdox-side implementation rather than a dependency to remove.
+3. **The authority boundary — RULED (Q1).** Identity and coordination in the
+   database; governed artifacts in git, written back only through the apply
+   lane. What remains is writing it into a contract, and hardening the apply
+   lane, which is now the only governed write path and has one dispatch in its
+   history.
+4. **The runtime — RULED (Q2).** The Hermes install pattern, OIDC through the
+   Keycloak broker, growing into the `dox` workload set.
 5. **Then carve.** Two repositories, non-byte-identical, on the
    `split-openxwallet-repo` shape with the byte-identity floor replaced by
    something honest — a conformance corpus and a behavioural equivalence suite
    rather than eight matching digests.
-6. **Then a descendant.** Lazily, on the first domain that stands one up —
-   which is also the precedent's own trigger, and the trigger the 2026-09-04
-   read-only review recommended waiting for.
+6. **Then a descendant.** Per Q3 it is the deployment unit, one instance and one
+   database per tenant in both operating cases — and per
+   `domain-descendant-boundary`'s own laziness rule it appears on a domain's
+   first profile, which is also the trigger the 2026-09-04 read-only review
+   recommended waiting for.
 
 Step 6 is where this ruling and that recommendation meet. The review's advice
 was "not now, gate the split on the first real consumer"; the ruling is a

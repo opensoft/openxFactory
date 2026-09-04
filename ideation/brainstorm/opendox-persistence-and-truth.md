@@ -3,12 +3,14 @@
 Status: brainstorm
 Kind: architecture
 Summary: The ruling adds a database to a product whose entire safety story is
-that git is the record, and the two do not automatically compose — this document
-lays out four candidate authority boundaries (database-authoritative,
-git-authoritative with a cache, split by object class, and event-sourced with
-git as the publication), tests each against the D5 precedent that already ruled
-this once for projects and against what a gate means when its record lives in
-Postgres, and does not pick one.
+that git is the record, and Brett settled the composition the same day — RULED
+2026-09-04: the database owns IDENTITY AND COORDINATION (users, memberships,
+projects, the project-to-repository mapping, sessions, unsaved drafts) and git
+owns GOVERNED ARTIFACTS, read from repositories and written back only through
+the apply lane, so every existing gate stays valid and the database is
+disposable relative to the corpus; this document keeps the four-option space it
+was chosen from, records what was rejected and why, and works through the
+consequences the ruling now makes concrete.
 Topics: opendox, openxdox, ideation-dashboard, project-register, persistence,
 database, git-authority, derived-cache, governed-derived-model,
 workflow-gate-contract, document-lifecycle, tenant-project-catalog, feat-request
@@ -19,9 +21,17 @@ Captured: 2026-09-04
 
 ## Possible feats
 
-- **A declared authority boundary** — one contract that says, per object class,
-  whether the database or git is authoritative, so the two models cannot fork
-  the way D5 was written to prevent.
+- **A declared authority boundary** — RULED 2026-09-04; the feat is now
+  WRITING IT DOWN as a contract (identity and coordination in the database,
+  governed artifacts in git, apply lane as the only write path) so the two
+  models cannot fork the way D5 was written to prevent.
+- **Repository creation as a first-class openDox act** — the ruling keeps specs
+  in git, so a new project needs a new repository the app can create, or the
+  origin complaint returns one level down.
+- **Apply-lane hardening** — under the ruling it is the only write path to
+  governed content, and it has one dispatch in its entire history.
+- **A pre-governed scratch space** — somewhere a half-thought can live that is
+  neither a governed document nor a draft OF one.
 - **The governed-write bridge** — every write that changes governed content
   goes to git through a branch session and lands in the database as a
   projection of the commit, not the other way round.
@@ -32,6 +42,35 @@ Captured: 2026-09-04
   query, with the commit as the record of standing.
 - **Event-sourced project state** — projects, membership and settings as an
   append-only log whose materialization is the database and whose export is git.
+
+## RULED — Q1, Brett Heap, 2026-09-04 (issue #656)
+
+**The database owns identity and coordination; git owns governed artifacts.**
+
+- **In the openDox database:** users, memberships, projects, the
+  project-to-repository mapping, sessions, and unsaved drafts.
+- **In git:** specs, changes, ideation documents and contracts — read from
+  repositories, and **written back only through the apply lane**.
+- **Therefore:** every existing gate stays valid. doc-health still reads a tree.
+  OpenSpec still validates packets. The PR checks still gate on refs. And the
+  database is **disposable relative to the corpus** — losing it loses
+  coordination state, never governed content.
+- **Rejected:** documents in the database with git as an export (option A
+  below); and the hybrid where ideas live in the database until promoted
+  (the middle of option C).
+
+That is close to option B with the project half of option C, and it is a
+narrower answer than any of the four as written — the four options below are
+kept as the space the choice was made from, not as live alternatives.
+
+Two consequences worth naming immediately. First, **the apply lane becomes
+load-bearing** rather than a demo: it is now the only write path to governed
+content, and it has been dispatched exactly once, ever (2026-08-15). Second,
+**the origin complaint is answered by the coordination half, not the document
+half** — "no good place to store my projects" is solved by projects, members and
+the project-to-repository map living in a database that any tenant install has,
+while the specs themselves still land in a repository. Which means openDox must
+be able to CREATE that repository, or the complaint returns one level down.
 
 ## The problem in one paragraph
 
@@ -77,7 +116,7 @@ Two things follow that are not yet written down anywhere:
 
 ## Four candidate authority boundaries
 
-### A. Database-authoritative, git as an export
+### A. Database-authoritative, git as an export — **REJECTED 2026-09-04**
 
 The app is the truth. Documents live in Postgres, are edited there, and are
 pushed to git as a publication step. Users, projects, ideas, threads and
@@ -93,7 +132,7 @@ ratification whose only home is a table is not something a merge gate can
 enforce, and "external enforcement" is the bottom layer of the whole xFactory
 model.
 
-### B. Git-authoritative, database as a cache
+### B. Git-authoritative, database as a cache — **closest to the ruling**
 
 Git stays the record for everything governed. The database holds users,
 sessions, projects-as-navigation, abstracts, threads, model bindings, telemetry
@@ -108,7 +147,7 @@ project still needs a repository, and "no good place to store my projects" is
 answered with "make a repo first". It also makes openDox-without-openXdox a
 strange product: an app whose documents must live in someone's git remote.
 
-### C. Split by object class — the pragmatic middle
+### C. Split by object class — the pragmatic middle; its PROJECT half is ruled in, its ideas-until-promoted half REJECTED
 
 Governed content (documents that carry a lifecycle status, gate acts,
 ratification records) is git-authoritative. App state (users, sessions,
@@ -126,7 +165,7 @@ has two backends and every write path has to know which one it is in. And the
 transition — the first publish — is a migration of authority mid-object-life,
 which is the class of thing that produces the worst bugs.
 
-### D. Event-sourced, git as the published log
+### D. Event-sourced, git as the published log — not chosen
 
 Every act is an append-only event. The database materializes current state; git
 receives a serialization of the events that matter, as commits. The commit is
@@ -183,11 +222,36 @@ because it is a constitutional question rather than a storage one.
   derived indexes maintained as files. In a database they are queries. That is a
   strict improvement and a real migration.
 
-## Contradiction, kept
+## What the ruling leaves, and one contradiction kept
 
-Option B says nothing in the governance estate changes, and that is why it is
-safe. Option A answers the requirement, and that is why it exists. Option C is
-what everyone will build if nobody rules, and it is the one with the worst
-failure mode, because an unstated split is a fork by default — which is exactly
-what D5 was written to prevent, for one object class, five weeks before this
-ruling created the same risk for six more.
+Settled: the authority boundary, and with it most of Q1's risk — an unstated
+split was the worst outcome and there is now a stated one.
+
+Left open by it, and worth naming so nobody assumes otherwise:
+
+- **The draft-to-governed transition.** "Unsaved drafts" live in the database
+  and governed documents live in git, so the first save of a new document is
+  still a migration of authority mid-object-life. The ruling names both ends and
+  not the crossing.
+- **The apply lane is the only write path and is nearly unexercised.** One
+  dispatch, ever. Under the ruling it carries every governed write from every
+  tenant instance. That is a large promotion for a path with no operating
+  history, and it makes the lane's own hardening a precondition rather than a
+  follow-up.
+- **What "read from repositories" costs per tenant.** Each instance now needs
+  read access to the repositories its projects map to, which is the content
+  App's scope question from `openxdox-install-app-provisioning` arriving in a
+  new form.
+- **Ideas.** They were the hybrid's subject and the hybrid is rejected, so an
+  idea is a governed document in git from the moment it is saved. That is
+  consistent and it makes the brainstorm stage heavier than a lab assistant may
+  want — a student jotting a half-thought now writes a file through an apply
+  lane. Whether openDox needs a pre-governed scratch space that is NOT a "draft
+  of a document" is a real residual.
+
+Contradiction kept: this reading and the origin complaint still pull against
+each other. The ruling keeps documents in git, and Brett's complaint was that
+there is nowhere to put a project's specs. Both are satisfied only if openDox
+can create and populate a repository for a new project as a first-class act —
+otherwise "no good place to store my projects" is answered with "make a repo
+first", which is the complaint restated.

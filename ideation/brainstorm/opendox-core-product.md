@@ -7,9 +7,12 @@ hosted app with its own database whose four first-class objects are users,
 projects, documents and ideas, keeping the git and NotebookLM integrations and
 the document-management and ideation tooling the workbench already has; the
 origin of the requirement is Brett's complaint that there is nowhere to put a
-project, and the honest reading of today's code is that three of the four
-objects already exist in some form and only one of them (the user) is genuinely
-absent.
+project, three of the four objects already exist in some form and only the USER
+is genuinely absent, and Brett's Q5 direction sets the test that governs
+everything here — openDox must be useful ALONE to a student or a lab assistant,
+which turns "what is neutral?" into "what would someone with no notion of
+factories, gates or tenants use?" and makes a named pull-up wave part of the
+product rather than a nicety.
 Topics: opendox, ideation-dashboard, doxbench, projects, project-register,
 users, hosted-actor, documents, ideas, notebooklm, git-integration,
 branch-session, document-management, feat-request
@@ -20,10 +23,17 @@ Captured: 2026-09-04
 ## Possible feats
 
 - **A project is a stored object, not a register row** — a project with an
-  owner, members, repositories, documents and its own state, persisted, created
+  owner, members, repositories, documents and its own state, persisted (Q1:
+  projects and the project-to-repository mapping are database rows), created
   from the app rather than commissioned into an aggregation YAML file.
-- **A user is a first-class principal** — accounts, not a display-only header
-  the gateway stamps.
+- **A user is a first-class principal** — an account row, not a display-only
+  header the gateway stamps, with authentication delegated to the broker.
+- **Repository creation as a first-class act** — Q1 keeps specs in git, so a new
+  project needs a repository the app can create, or "no good place to store my
+  projects" returns one level down.
+- **The pull-up wave** — the knowledge/compression stack, abstracts, the lens
+  set-builder and the NotebookLM connection, moved up so a lab assistant gets
+  them with no factory at all.
 - **A document store with git as a backing remote** — documents live in the
   app, and git is where they are published, versioned and reviewed.
 - **The idea object** — brainstorm capture, clustering, the possibles register
@@ -33,6 +43,52 @@ Captured: 2026-09-04
   path as a per-project setting rather than a repo-wide sync script.
 - **Bring your own repo** — start a project against a new empty repository the
   app creates for you, which is the literal thing the ruling asks for.
+
+## The standalone test (Q5 direction, 2026-09-04)
+
+> "we want to make openDox useful on its own, it shoudl be able to still manage
+> docs and do brainstorming and connect to notebook lm. it is domain neutral and
+> external from openXfactory … a student could use openDox or a lab assistant.
+> so we want that to still be useful on its own"
+
+That is the acceptance criterion for this layer, and it is sharper than
+"neutral": a module belongs in openDox if someone with no notion of factories,
+gates or tenants would use it. It also creates an obligation the packet has to
+discharge — actively finding what to PULL UP out of today's dashboard so openDox
+is a genuinely good brainstorming and research-analysis tool rather than a
+governance dashboard with the governance removed.
+
+The pull-up shortlist, worked in full in
+[the boundary document](opendox-openxdox-boundary.md):
+
+| Pull up | Why a lab assistant wants it |
+| --- | --- |
+| The knowledge and compression stack (`doxbench_knowledge`, 1,231 LOC) | Assemble a bounded context packet over the documents you selected, with declared fidelity. The core research move; filed as governance today only because its input set is called "the staged set". |
+| Abstracts (`doxbench_abstract_store` + the generation surface) | Deterministic abstracts that state their own absences, plus a separately-invoked distilled abstract verified against the document's declared fields, cached by path-digest-model. A literature-review tool. |
+| The lens set-builder (the keyword-query half of `lens`) | Naming an intensional set the machine clustering missed is how a human organizes twenty papers. |
+| NotebookLM connection (`notebook_action`, 239 LOC) | Named in the direction. What must NOT come up is the stage-to-book mapping — a per-project book is the neutral shape. |
+| The editor and chat bound to the active buffer | The surface the other four are used through. |
+
+Two things deliberately not pulled up: Adx's `calibrated`-tier calibration loop
+(domain machinery, and openDox has no outcome to read) and the gate console (a
+student has nobody to gate against).
+
+## What the rulings already settled about this layer
+
+- **Q1 — the database owns identity and coordination.** Users, memberships,
+  projects, the project-to-repository mapping, sessions and unsaved drafts are
+  openDox database rows. Governed documents stay in git, written back only
+  through the apply lane. So of the four objects below, the USER and the PROJECT
+  become real database objects; the DOCUMENT stays a git artifact with a
+  database-held draft; and the IDEA — since the ideas-in-the-DB-until-promoted
+  hybrid was explicitly rejected — is a governed document from its first save.
+- **Q2 — identity is delegated, accounts are owned.** OIDC through the Keycloak
+  broker, on the Hermes install's deployment pattern. openDox holds an account
+  as a durable principal that a project's owner column points at; it does not
+  become an identity provider with password resets.
+- **Q3 — one instance and one database per tenant, always.** Which means the
+  "student or lab assistant" case is a single-tenant install of the same
+  artifact, not a special mode.
 
 ## The origin: "we have no good place to store my projects"
 
@@ -69,10 +125,12 @@ sent it. An app with users inverts that. This is the single largest conceptual
 change in the ruling and it is easy to under-read: "we should have users" is not
 a login page, it is a different authorization model.
 
-Open, and named in the staged topic: does openDox own accounts, or does it
-delegate to the gateway it already delegates logout to? The gateway pattern is
-proven and live; owning accounts means owning password reset, sessions,
-invitations and the rest, in a product whose subject is documents.
+**Answered by Q1 + Q2:** openDox owns the ACCOUNT (a durable principal, a
+database row, the thing a project's owner column points at) and delegates
+AUTHENTICATION to OIDC through the Keycloak broker. It does not own password
+reset. What remains genuinely open is the first-user bootstrap in a fresh
+per-tenant install, and how an account row is linked to a broker identity
+without that mapping becoming an administrative surface of its own.
 
 ### Projects
 
@@ -120,9 +178,14 @@ row in a possibles register the cross-reference index consolidates, plus a
 position in a funnel the dashboard renders. The lens is a set-builder over
 keywords. Clustering is derived.
 
-Whether "ideas" is a distinct object type in openDox or just a document with a
-lifecycle state is genuinely open, and the two readings pull the boundary in
-opposite directions:
+Q1 rejected the hybrid where ideas live in the database until promoted, so an
+idea is a governed document in git from its first save. That is consistent, and
+it makes the brainstorm stage heavier than a lab assistant may want — a student
+jotting a half-thought writes a file through an apply lane. Whether openDox
+needs a pre-governed scratch space that is not a "draft of a document" is a real
+residual, and it is separate from the question of whether "ideas" is a distinct
+OBJECT TYPE, where the two readings still pull the boundary in opposite
+directions:
 
 - **Ideas are documents with a state.** Then the lifecycle vocabulary is
   openDox's — the app knows a document can be a brainstorm — and openXdox only

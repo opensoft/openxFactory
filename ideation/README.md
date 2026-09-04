@@ -244,16 +244,21 @@ below with its lifecycle notes.
   active `add-workbench-integrated-editor-chat` change owns proposed
   requirements and implementation gates (2026-07-28).
 - [openDox and openXdox — Two Open-Source Layers](brainstorm/opendox-two-layer-overview.md)
-  — entry point for the five-document openDox packet: the core product (users,
-  projects, documents, ideas; git and NotebookLM; the "no place to store
-  projects" origin), where the boundary falls in today's 80K lines (a measured
-  first cut plus the corpus-adapter seam that breaks the two-way `doc_health`
-  coupling), persistence and truth (four candidate database-versus-git authority
-  boundaries against the D5 precedent), and a synthesis on install and tenancy
-  (the per-tenant descendant install, the Hermes runtime precedent, and what
-  `domain-descendant-boundary` has to grow for a product with a schema). The
-  packet is non-normative and may contradict itself; the governing record is
-  `opensoft/openxFactory` issue #656 and the staged topic is
+  — entry point for the six-document openDox packet, written under Brett's
+  2026-09-04 rulings (the database owns identity and coordination while git owns
+  governed artifacts; the runtime reuses the Hermes install pattern; one instance
+  and one database per tenant always; openDox defines the corpus-adapter
+  interface and openXdox implements it, one way) and his Q5 THREE-LAYER
+  direction: openDox must be useful alone to a student or a lab assistant,
+  openXdox holds the machinery common to how Medx, Ledgerx and Adx each map onto
+  the workbench, descendants hold the domain-specific mapping. The packet covers
+  the core product and its standalone test, the three domain mappings and the
+  seven machineries common to them, a three-column assignment of the 48 modules
+  and 102 requirements with the pull-up candidates named, persistence and truth,
+  and a synthesis on install and tenancy. It is non-normative and deliberately
+  contradicts itself over roughly 15K lines — whether the projection, gates and
+  lanes are the common core or one domain's mapping. Governing record:
+  `opensoft/openxFactory` issue #656; staged topic
   [`opendox-two-layer-product`](staging/opendox-two-layer-product/opendox-two-layer-product.md)
   (2026-09-04).
 - [Agent-Assisted App Testing Overview](brainstorm/agent-assisted-app-testing-overview.md)

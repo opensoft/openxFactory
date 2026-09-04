@@ -7,10 +7,15 @@ splits into two open-source repositories — `opensoft/openDox`, a hosted
 installable app with its own database, users and projects that manages documents
 and ideas with git and NotebookLM integration, and `opensoft/openXdox`, openDox
 tuned for openxFactory — with domain descendants (`MedxDox`, `codexDox`) pinning
-openXdox and installing per tenant with their own database; this packet is the
-entry point to the four documents that work out what each layer owns, where the
-boundary falls in today's 80K lines, what the database is authoritative for, and
-what a tenant install actually is.
+openXdox and installing per tenant with their own database; over the following
+half hour he ruled four of the open questions (the database owns identity and
+coordination while git owns governed artifacts; the runtime reuses the Hermes
+install pattern; one instance and one database per tenant always; openDox
+defines the corpus-adapter interface and openXdox implements it, one way) and
+gave a THREE-LAYER test for the module split — openDox must be useful alone to a
+student or a lab assistant, openXdox holds the machinery common to how Medx,
+Ledgerx and Adx map onto the workbench, and descendants hold the domain-specific
+mapping; this packet is the entry point to the five documents that work that out.
 Topics: opendox, openxdox, ideation-dashboard, doxbench, repo-split,
 domain-descendant-boundary, neutral-product-pin, two-layer-product,
 tenant-install, per-tenant-database, users, projects, notebooklm, git-integration,
@@ -66,6 +71,65 @@ And earlier in the same sitting:
 > "We then further pin that down to medxDox and CodeXdox for use in those domain
 > factories. If I install MedxFacotry, then I get a medXdox install running in
 > the installed tenand with its own db."
+
+## What Brett ruled within the hour (issue #656)
+
+Four rulings and one direction, all 2026-09-04, all recorded as comments on the
+governing record. They are settled context for the whole packet; the documents
+below work under them rather than reopening them.
+
+- **Q1 — the database owns identity and coordination; git owns governed
+  artifacts.** Users, memberships, projects, the project-to-repository mapping,
+  sessions and unsaved drafts live in the openDox database. Specs, changes,
+  ideation documents and contracts stay in git, read from repositories and
+  **written back only through the apply lane**. Every existing gate stays valid;
+  the database is disposable relative to the corpus. Rejected: documents in the
+  database with git as an export, and the hybrid where ideas live in the
+  database until promoted.
+- **Q2 — reuse the Hermes install pattern.** FastAPI + Postgres, deployed the
+  way `xFactory-Hermes-Install` is (live on AKS since 2026-07-19), OIDC through
+  the Keycloak broker being adopted in QA, growing into the OpsxFactory `dox`
+  workload set. Rejected: bolting a database onto today's stdlib `serve.py`
+  monolith, and a new full-stack platform.
+- **Q3 — one instance and one database per tenant, always**, in both the
+  operator-hosted (Case A) and tenant-hosted (Case B) cases. No cross-tenant
+  data ever shares a store. Rejected: shared multi-tenant with row-level
+  isolation, and a per-tenant default with a pooled operator option.
+- **Q4 — openDox defines the corpus-adapter interface; openXdox implements
+  it.** openDox declares how documents are listed, read, written back and
+  checked, with no knowledge of OpenSpec or doc-health. The two
+  `doc_health` → `ideation_dashboard.boundary` back-imports move into a small
+  neutral module both sides depend on. **The dependency points ONE way: openXdox
+  depends on openDox, never the reverse.** Rejected: openDox pinning doc-health
+  as a library (inverts the layering), and openXdox as a tuned copy with no
+  shared interface (guarantees divergence).
+- **Q5 — a DIRECTION, not a module ruling.** Verbatim: *"we want to make openDox
+  useful on its own … it is domain neutral and external from openXfactory. we
+  need to make sure openXfactory brings in the core machinery to map to domains.
+  we need to think how a patient managment and research maps to the openXdox.
+  and how a finacial simulations or accounting questions would map in
+  ledgerXfactory. same for marketing analysis in adXfactory. what is core to
+  these that we pull out and put in openXdox. and what can pull up to openDox
+  that does not rely on openXfactory … a student could use openDox or a lab
+  assistant. so we want that to still be useful on its own"*. The per-module
+  assignment is design work under that test, carried by this packet.
+
+## The test the direction sets
+
+Three questions, asked of every module and every requirement:
+
+1. **openDox** — would someone with no notion of factories, gates or tenants use
+   it? A student. A lab assistant. Then it belongs here — and the packet must
+   actively look for what to PULL UP from today's dashboard to make openDox a
+   better brainstorming and research-analysis tool.
+2. **openXdox** — is it the core machinery common to how MedxFactory (patient
+   management and research), LedgerxFactory (financial simulations, accounting
+   questions) and AdxFactory (marketing analysis) each map onto the workbench?
+3. **Descendant** — is it one domain's own mapping?
+
+That third column is what makes this harder than a two-way split, and
+[the domain-mappings document](opendox-domain-mappings.md) argues it may take a
+great deal more than expected.
 
 ## The four layers, top to bottom
 
@@ -146,33 +210,40 @@ half of a mutual dependency is a design change before it is a move.
   plausible — a person who wants a document-and-idea app with git integration
   and no interest in xFactory at all — which makes the license question live
   rather than theoretical.
-- **The DB may make openXdox smaller than it looks.** A great deal of the
-  reader's complexity today is that it recomputes lifecycle state from files on
-  every serve. If openDox persists documents with their state, openXdox's job
-  narrows toward *importing* a git corpus into that store and *exporting*
-  governance acts back to it — which is a smaller surface than 30K lines of
-  projection.
-- **Or the opposite.** If git stays authoritative for governed content (and the
-  gate contract arguably requires it — a ratification that exists only in a
-  database is not a reviewable commit), then openXdox keeps the whole projection
-  and the database is a cache. These two readings contradict each other; the
-  persistence document works through both and does not resolve them.
+- **The "DB makes openXdox smaller" reading is now closed.** Q1 keeps governed
+  content in git, so openXdox keeps the whole projection and the database holds
+  coordination state. What the ruling DOES shrink is the risk: an unstated split
+  was the failure mode, and there is now a stated one.
+- **But it opens a new one: openXdox may be the wrong shape entirely.** If the
+  common core is the domain-mapping machinery (Q5's second layer) rather than
+  the openxFactory corpus reader, then most of today's reader is `codexDox` and
+  openXdox is largely unbuilt. The domain-mappings document holds that as a
+  hypothesis against the boundary document's conservative cut; they disagree
+  about roughly 15K lines.
 
 ## Where the other documents go
 
 - [openDox — the core product](opendox-core-product.md) — users, projects,
-  documents, ideas; the git and NotebookLM integrations; and the
-  "no place to store projects" complaint that started this.
-- [openDox / openXdox — where the boundary falls](opendox-openxdox-boundary.md)
-  — a measured first cut over the 48 modules, 40 web files and 125 test files,
-  and the corpus-adapter seam that has to exist for any of it.
-- [openDox persistence and truth](opendox-persistence-and-truth.md) — database
-  versus git, the D5 precedent that already ruled this once for projects, and
-  what a gate means when the record lives in Postgres.
+  documents, ideas; the git and NotebookLM integrations; the standalone
+  student-and-lab-assistant test; and the "no place to store projects"
+  complaint that started this.
+- [openDox domain mappings](opendox-domain-mappings.md) — the three mappings the
+  direction asks for, worked explicitly against measured domain facts (Medx
+  patient management and research, Ledgerx financial simulations and accounting
+  questions, Adx marketing analysis), the seven machineries common to them, and
+  the uncomfortable finding about what that makes today's reader.
+- [openDox / openXdox / descendant — where the boundary falls](opendox-openxdox-boundary.md)
+  — a three-column assignment of the 48 modules and 102 requirements under the
+  direction's test, the named pull-up candidates, and the corpus-adapter seam.
+- [openDox persistence and truth](opendox-persistence-and-truth.md) — Q1's
+  ruling, the option space it was chosen from, the D5 precedent it fires, and
+  the consequences the ruling makes concrete.
 - [openDox install and tenancy — synthesis](opendox-synthesis-install-and-tenancy.md)
-  — the runtime shape, the per-tenant instance, and what a DomainxFactory
-  install actually has to do.
+  — Q2 and Q3's rulings, what per-tenant-always costs, and what
+  `domain-descendant-boundary` has to grow for a product with a schema.
 
 The governing record is issue #656 and the staged topic
 [`opendox-two-layer-product`](../staging/opendox-two-layer-product/opendox-two-layer-product.md);
-this packet is non-normative exploration and may contradict itself.
+this packet is non-normative exploration and may contradict itself — and
+between the boundary document and the domain-mappings document it deliberately
+does.
