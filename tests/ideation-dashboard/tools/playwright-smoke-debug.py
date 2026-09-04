@@ -1,5 +1,27 @@
 #!/usr/bin/env python3
-"""T098: the scratch-repository doxBench Playwright smoke (quickstart §7).
+"""T098 DEBUG FORK of `playwright-smoke.py` — step 4 DOM capture. NOT the smoke.
+
+WHAT THIS FILE IS, AND WHY IT IS NOT THE SMOKE. This is a copy of
+`playwright-smoke.py` as of 2026-09-02 with ONE difference: step 4's
+`page.click(".doxbench-canvas [role=tab] >> text=Document")` is wrapped in a
+try/except that, on failure, writes `/tmp/t098-step4.png` and dumps the canvas
+DOM (selects, buttons, canvas HTML, context text) before exiting non-zero with
+`DEBUG4: <error>`. Fifteen added lines; `diff -u playwright-smoke.py
+playwright-smoke-debug.py` is that single hunk and nothing else. It exists
+because step 4 failed against a real plane and the failure was invisible from
+Playwright's own error.
+
+THE ORACLE IS `playwright-smoke.py`, NEVER THIS FILE. This fork asserts nothing
+the smoke does not assert, and a green run of it proves only what a green run
+of the smoke proves. It fails EARLIER and LOUDER at step 4, which is its whole
+purpose. **It has no mechanism keeping it in sync with the smoke**: an edit to
+`playwright-smoke.py` that is not mirrored here leaves the two silently
+divergent, and a stale debug fork is worse than none. Re-copy from the smoke
+and re-apply the hunk rather than editing this file's other 1,164 lines, or
+delete it once step 4 is understood.
+
+The rest of this docstring is `playwright-smoke.py`'s, retained because every
+word of it still describes how to run this file.
 
 PROVENANCE. Ported into openxFactory on 2026-08-26, on Brett's ruling that
 this tool's home is openxFactory — beside the runtime it drives. It came from
@@ -515,7 +537,7 @@ def main() -> int:
                 page.click(".doxbench-canvas [role=tab] >> text=Document")
             except Exception as e:
                 page.screenshot(path="/tmp/t098-step4.png", full_page=True)
-                html = page.evaluate("""() => {
+                html = page.evaluate(r"""() => {
                   const pick = (sel) => { const n = document.querySelector(sel); return n ? n.outerHTML.slice(0, 2500) : null; };
                   return {
                     selects: [...document.querySelectorAll('.doxbench-canvas select, .swb-context select')].map(x => ({cls: x.className, label: x.getAttribute('aria-label'), options: [...x.options].map(o => o.textContent)})),
