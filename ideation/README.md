@@ -243,6 +243,19 @@ below with its lifecycle notes.
   and governed runtime. The packet is non-normative design exploration; the
   active `add-workbench-integrated-editor-chat` change owns proposed
   requirements and implementation gates (2026-07-28).
+- [openDox and openXdox — Two Open-Source Layers](brainstorm/opendox-two-layer-overview.md)
+  — entry point for the five-document openDox packet: the core product (users,
+  projects, documents, ideas; git and NotebookLM; the "no place to store
+  projects" origin), where the boundary falls in today's 80K lines (a measured
+  first cut plus the corpus-adapter seam that breaks the two-way `doc_health`
+  coupling), persistence and truth (four candidate database-versus-git authority
+  boundaries against the D5 precedent), and a synthesis on install and tenancy
+  (the per-tenant descendant install, the Hermes runtime precedent, and what
+  `domain-descendant-boundary` has to grow for a product with a schema). The
+  packet is non-normative and may contradict itself; the governing record is
+  `opensoft/openxFactory` issue #656 and the staged topic is
+  [`opendox-two-layer-product`](staging/opendox-two-layer-product/opendox-two-layer-product.md)
+  (2026-09-04).
 - [Agent-Assisted App Testing Overview](brainstorm/agent-assisted-app-testing-overview.md)
   — anchors a twenty-document packet (sixteen atomic docs, three syntheses, and
   one overview) for turning browser annotations, Hermes UI audits, and
