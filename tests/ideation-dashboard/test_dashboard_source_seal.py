@@ -40,6 +40,7 @@ import json
 import os
 import subprocess
 import tarfile
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -50,6 +51,19 @@ from ideation_dashboard.generator import is_rfc3339_datetime
 
 CORRELATION = "dashboard-refresh-4242-1"
 COMMITTED_AT = "2026-09-04T01:02:03+00:00"
+
+
+def _instant(value: str) -> datetime:
+    """The INSTANT a stamp denotes, not its spelling.
+
+    `git show -s --format=%cI` renders a ZERO offset as `+00:00` on some git
+    versions and as `Z` on others (measured: `+00:00` on git 2.43 locally,
+    `Z` on the Actions runner), and the manifest records whatever git said
+    VERBATIM — deliberately, because `--generated-at` is "recorded in the
+    snapshot EXACTLY as given … never normalised". Both spellings are RFC 3339
+    and both are accepted by `generator.is_rfc3339_datetime`, which is the
+    property that matters; pinning one spelling would pin a git version."""
+    return datetime.fromisoformat(value.replace("Z", "+00:00"))
 RECIPE_REV = "c" * 40
 RECIPE_TEXT = "FROM python:3.12-slim\nCOPY openxFactory/docs /srv/source/docs\n"
 
@@ -252,7 +266,7 @@ def test_the_manifest_names_the_field_that_feeds_generated_at(corpus, tmp_path):
     assert manifest["generated_at_field"] == "source_committed_at"
     stamp = manifest[manifest["generated_at_field"]]
     assert is_rfc3339_datetime(stamp)               # the flag will accept it
-    assert stamp == COMMITTED_AT                    # the commit's own date
+    assert _instant(stamp) == _instant(COMMITTED_AT)   # the commit's own date
     assert manifest["sealed_at"] != stamp
     assert manifest["generated_at_field"] != "sealed_at"
 
@@ -638,7 +652,8 @@ def test_the_seal_phase_writes_the_dispatch_gate(corpus, tmp_path, monkeypatch):
     assert result["source_head"] == head
     assert result["corpus_revision"] == head
     assert result["recipe_revision"] == RECIPE_REV
-    assert result["source_committed_at"] == COMMITTED_AT
+    assert _instant(result["source_committed_at"]) == _instant(COMMITTED_AT)
+    assert is_rfc3339_datetime(result["source_committed_at"])
     assert len(result["tree_digest"]) == 64
     assert result["file_count"] > 0 and result["total_bytes"] > 0
     manifest = lane.read_seal_manifest(tmp_path / "seal")
