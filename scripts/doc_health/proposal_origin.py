@@ -31,7 +31,37 @@ Enforces the promoted origin requirements of `document-lifecycle` and
    `origin.id`. A staging folder that disappeared AFTER transition is legal
    history and reports nothing.
 5. **adhoc-provenance-incomplete** — an `ad_hoc` origin lacking a
-   non-empty `reason`, `approved_by`, or `approved_on`.
+   non-empty `reason`; an origin that CLAIMS approval (one of
+   `approved_by`/`approved_on` present) with the other half of the pair
+   missing; or an origin that declares no provenance state at all —
+   neither approval nor drafting.
+6. **drafting-provenance-incomplete** — an `ad_hoc` origin declaring the
+   UNAPPROVED state (`proposed_by`/`proposed_on`, no approval asserted)
+   with one of that pair missing or empty. The state is DECLARED, never
+   inferred from silence: an origin that merely omits its approval is
+   class 5, not this one, so a packet cannot buy the lenient treatment by
+   leaving fields out.
+7. **unapproved-origin-at-ratification** — a proposal whose own `Status:`
+   declares `ratified` or beyond while its origin still carries drafting
+   provenance and asserts no approval. Approval MUST appear when the
+   status claims it. ERROR with resolution class `contested`: resolving it
+   either transcribes an approval act or withdraws a status claim, and
+   inventing the date instead is the exact defect the drafting state was
+   added to prevent.
+
+THE UNAPPROVED STATE (`add-drafted-proposal-origin`, issue #318). Until
+2026-09-03 a drafted-but-unapproved packet had NO lawful shape: `ad_hoc`
+without `approved_on` was class 5, no origin block at all was class 1, and
+the third option did not exist. Two medx boundary packets sat in that state
+long enough to become part of the standing error baseline, and the only ways
+out were to approve the change, delete the draft, or invent an approval date
+— which is precisely the defect this family exists to catch. An `ad_hoc`
+origin may therefore declare `proposed_by` + `proposed_on` INSTEAD OF the
+approval pair, and approval is then a pure ADDITION to a fixed origin
+identity rather than a rewrite of it: `kind` and `id` never move, so the
+support manifest that repeats them never comes to disagree with the packet
+(class 3). What the state does NOT buy is silence at ratification — class 7
+is the other side of the same rule.
 
 Deterministic: filesystem + git object reads only, no model calls, no
 writes. Resolution classes are set per finding (the catalog/routing
@@ -51,6 +81,8 @@ except ImportError:  # pragma: no cover
     yaml = None
 
 from . import CONTESTED, ERROR, WARNING, Finding, Skip, recorded_rel
+from . import corpus
+from .promotion_fidelity import RATIFIED_OR_BEYOND, declared_standing
 
 FAMILY = "proposal-origin"
 
@@ -66,6 +98,16 @@ CONTRACT_DATE = "2026-08-07"
 STAGED_ID_RE = re.compile(r"^[A-Za-z0-9_.-]+:staging:[a-z0-9][a-z0-9-]*$")
 ADHOC_ID_RE = re.compile(r"^[A-Za-z0-9_.-]+:adhoc:[A-Za-z0-9][A-Za-z0-9-]*$")
 _STAGING_HEADER_RE = re.compile(r"^Staging ID:\s*`?([^`\s]+)`?\s*$", re.M)
+
+# The two pairs an `ad_hoc` origin can carry. APPROVAL is the pair the origin
+# contract has always required and it is UNCHANGED — still required in full
+# wherever approval is claimed, so nothing already lawful changes shape.
+# DRAFTING is the state a packet declares before any approval exists; a
+# proposal declares one of the two pairs, and MAY carry both once the approval
+# arrives (the drafting record does not have to be deleted to record the
+# approval, and deleting it would destroy the only trace of who drafted).
+APPROVAL_FIELDS = ("approved_by", "approved_on")
+DRAFTING_FIELDS = ("proposed_by", "proposed_on")
 _ARCHIVE_DATE_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})-")
 
 # The recorded migration provenance (spec: "Backfilled origins SHALL be
@@ -155,6 +197,28 @@ def _staging_header_matches(repo_path: Path, origin_path: str,
     return False
 
 
+def _declared_standing(change_dir: Path) -> str | None:
+    """The lifecycle standing this packet's own `proposal.md` DECLARES.
+
+    Read through `corpus.parse_status` and
+    `promotion_fidelity.declared_standing` — the ONE lifecycle-header reader
+    and the ONE standing grammar in this package — never through a private
+    regex. Two families reading one header two ways is how they come to
+    disagree about what a packet claims (the lesson `promotion_fidelity`
+    records about its own reader), and the real-line window
+    `align-status-reader-to-real-lines` ratified is not a rule a family
+    re-spells for itself.
+
+    A packet with no `proposal.md`, no `Status:` header, or a status the
+    taxonomy does not recognize answers None, so class 7 stays silent on it:
+    `fam_status_validity` already reports a missing or invalid header, over
+    the scan set `govern-openspec-corpus-membership` declared, and a second
+    family accusing the same document of the same defect buys nothing.
+    """
+    return declared_standing(
+        corpus.parse_status(_read(change_dir / "proposal.md")))
+
+
 def _manifest_origin(change_dir: Path):
     manifest = change_dir / "supporting-docs" / "manifest.yaml"
     if not manifest.is_file():
@@ -237,14 +301,66 @@ def check_change(repo: str, repo_path: Path, change_dir: Path,
                 "use <repo>:staging:<topic-slug> or <repo>:adhoc:<date>-<slug>"))
 
     if kind == "ad_hoc":
-        for field in ("reason", "approved_by", "approved_on"):
-            value = origin.get(field)
-            if not value or not str(value).strip():
-                findings.append(Finding(
-                    ERROR, FAMILY, repo, rel,
-                    f"ad-hoc origin lacks required `{field}`",
-                    "record the explicit approval provenance the ad-hoc "
-                    "exception requires"))
+        if not str(origin.get("reason") or "").strip():
+            findings.append(Finding(
+                ERROR, FAMILY, repo, rel,
+                "ad-hoc origin lacks required `reason`",
+                "record the explicit approval provenance the ad-hoc "
+                "exception requires"))
+        # WHICH PROVENANCE STATE DOES THIS ORIGIN DECLARE? Both questions are
+        # asked of PRESENCE, not of completeness, so a half-written pair is
+        # reported as an incomplete claim of the state it was reaching for
+        # rather than silently re-classified as the other state.
+        claims_approval = any(str(origin.get(f) or "").strip()
+                              for f in APPROVAL_FIELDS)
+        claims_drafting = any(str(origin.get(f) or "").strip()
+                              for f in DRAFTING_FIELDS)
+        if claims_approval:
+            # UNCHANGED, deliberately: an origin that claims approval owes the
+            # whole pair exactly as it did before the drafting state existed,
+            # same rule, same finding, same action line.
+            for field in APPROVAL_FIELDS:
+                if not str(origin.get(field) or "").strip():
+                    findings.append(Finding(
+                        ERROR, FAMILY, repo, rel,
+                        f"ad-hoc origin lacks required `{field}`",
+                        "record the explicit approval provenance the ad-hoc "
+                        "exception requires"))
+        elif not claims_drafting:
+            # ONE finding rather than one per absent field: an origin in this
+            # state has not half-written a claim, it has made none, and the
+            # remedy is a single choice between two shapes. Measured before
+            # changing it: 109 ad-hoc origins in this repository, ZERO in this
+            # state, so the corpus movement is nil and the shape is better for
+            # the next packet that lands here.
+            findings.append(Finding(
+                ERROR, FAMILY, repo, rel,
+                "ad-hoc origin declares no provenance state — neither "
+                "approval (`approved_by` + `approved_on`) nor drafting "
+                "(`proposed_by` + `proposed_on`)",
+                "record the approval provenance the ad-hoc exception "
+                "requires, or declare the unapproved state with "
+                "`proposed_by` and `proposed_on`"))
+        if claims_drafting:
+            for field in DRAFTING_FIELDS:
+                if not str(origin.get(field) or "").strip():
+                    findings.append(Finding(
+                        ERROR, FAMILY, repo, rel,
+                        f"drafting origin lacks required `{field}`",
+                        "record both `proposed_by` and `proposed_on`, or the "
+                        "approval pair once an approval exists"))
+            if not claims_approval:
+                standing = _declared_standing(change_dir)
+                if standing in RATIFIED_OR_BEYOND:
+                    findings.append(Finding(
+                        ERROR, FAMILY, repo, rel,
+                        f"proposal declares `Status: {standing}` while its "
+                        "origin asserts no approval — approval MUST appear "
+                        "when the status claims it",
+                        "record the approval provenance the declared status "
+                        "claims, or return the proposal to `draft`; "
+                        "resolving it reverses a gate decision",
+                        resolution=CONTESTED))
 
     manifest, manifest_path = _manifest_origin(change_dir)
     if isinstance(manifest, dict) and isinstance(manifest.get("origin"), dict):

@@ -94,6 +94,7 @@ rows:
   add-doxbench-editing-phase-a: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-doxbench-editing-phase-b: {state: archived, class: co-modifier, declares: absent, prose: true, moved_by: "#623", moved_on: "2026-09-03"}
   add-doxchat-model-intake: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-drafted-proposal-origin: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#619", moved_on: "2026-09-03"}
   add-duplicate-packet-check: {state: archived, class: co-modifier, declares: absent, prose: true, moved_by: "#623", moved_on: "2026-09-03"}
   add-family-enumeration-check: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-github-app-identity-tiers: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
