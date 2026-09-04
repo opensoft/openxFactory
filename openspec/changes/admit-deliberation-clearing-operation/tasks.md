@@ -52,7 +52,7 @@ no `contracts/` byte moves before task 1.1 is done.
 Each item names the assertion it must satisfy. `python3 -m pytest tests/clearing -q`
 must be green at the end, and so must `python3 scripts/validate-clearing-dispatch.py .`
 
-- [ ] 2.1 **`contracts/clearing/permitted-operations.registry.yaml` gains ENTRY
+- [x] 2.1 **DONE 2026-09-04, `34030213`** — **`contracts/clearing/permitted-operations.registry.yaml` gains ENTRY
       NUMBER TWO.** Every field the ratified requirement fixes, in the order
       entry one uses: `operation_id: deliberation`; `title`;
       `permitted_semantics.may` / `.may_not` (both non-empty — an entry listing
@@ -79,7 +79,7 @@ must be green at the end, and so must `python3 scripts/validate-clearing-dispatc
       `test_both_ratified_lanes_are_declared_with_literal_group_and_label`
       (entry two declares ONE lane, and a test that only ever read entry one
       would pass over a malformed entry two in silence).
-- [ ] 2.2 **Author the NEW NEUTRAL `contracts/clearing/deliberation-return.schema.yaml`**
+- [x] 2.2 **DONE 2026-09-04, `e1a5f7b7` (schema, routing, corpus) + `afae18cc` (registration, READMEs)** — **Author the NEW NEUTRAL `contracts/clearing/deliberation-return.schema.yaml`**
       (OQ1, ruled — design D4). Minimal: the per-seat outputs as STRUCTURED
       EVIDENCE — seat identity, that seat's output (inline payload or reference),
       and the run identifiers binding the return to the convening job id, the
@@ -109,7 +109,7 @@ must be green at the end, and so must `python3 scripts/validate-clearing-dispatc
       excepts `schema` by name from the closed-set membership check — and it adds
       nothing to the probed set, so `26/26` is arithmetically untouched. Do not
       reach for a new `clearing-…` code to give the fixture something to declare.
-- [ ] 2.3 **FIVE frozen copies move in ONE reviewed diff** (design D9):
+- [x] 2.3 **DONE 2026-09-04, `34030213` — all five in one diff** — **FIVE frozen copies move in ONE reviewed diff** (design D9):
       (a) `scripts/validate-clearing-dispatch.py` `RATIFIED_OPERATIONS`;
       (b) `tests/clearing/test_register_closure.py` `RATIFIED` (the INDEPENDENT
       copy — do not import one from the other, the independence is the control);
@@ -123,7 +123,7 @@ must be green at the end, and so must `python3 scripts/validate-clearing-dispatc
       **Assertion:** `clearing-dispatch-gate` green on the PR, with its "the
       closed register was not opened" fail line not fired, and
       `pytest tests/clearing` green.
-- [ ] 2.4 **Re-point the two `deliberation` negative fixtures to `coding`**
+- [x] 2.4 **DONE 2026-09-04, `34030213`; the free-text fixture RE-RUN and unchanged** — **Re-point the two `deliberation` negative fixtures to `coding`**
       (design D8) — `examples/negative/register-carrying-an-unratified-operation.yaml`
       and `examples/negative/manifest-naming-an-unregistered-operation.yaml` —
       and REWRITE THEIR COMMENTS to argue about `coding` (the basis's design D11
@@ -143,7 +143,7 @@ must be green at the end, and so must `python3 scripts/validate-clearing-dispatc
       free-text ground `operator_decided_it_looked_wrong`, which stays outside
       the enumeration after 2.10 and keeps the fixture red for its own reason.
       Confirm that by running it, not by reading it.
-- [ ] 2.5 **Extend the verdict scan to the new return kind.** `check_operation_report`
+- [x] 2.5 **DONE 2026-09-04, `e1a5f7b7` — scan EXTRACTED, not copied** — **Extend the verdict scan to the new return kind.** `check_operation_report`
       is dispatched by `kind == "xfactory_clearing_operation_report"`, so the
       `VERDICT_WORDS` name scan does NOT reach a return of a different kind today
       — measured, not assumed. Register the ratified kind
@@ -163,24 +163,24 @@ must be green at the end, and so must `python3 scripts/validate-clearing-dispatc
       hosted finalizer, not here (design D13's emitter table). **Assertion:** a negative fixture carrying a verdict-named member
       in a deliberation return is refused `clearing-report-carries-a-verdict`, and
       `test_no_fixture_declares_a_code_outside_the_closed_set` still passes.
-- [ ] 2.6 **Prove each frozen copy fails ALONE.** Before the slice is called done,
+- [x] 2.6 **DONE 2026-09-04 — five reverts and three, each RED alone; results below** — **Prove each frozen copy fails ALONE.** Before the slice is called done,
       revert exactly one of the FIVE in 2.3 and confirm the change goes red, one
       at a time, five times. Five chances to move four and miss one is the
       failure mode (design D12); a copy that never went red is a copy nobody
       tested. Do the same for the three pinned numerals D9 names — the schema
       list five → six, the manifest rows six → seven, and the moved row
       digests.
-- [ ] 2.7 **`examples/dispatch-record-refused.example.yaml` follows the fixture
+- [x] 2.7 **DONE 2026-09-04, `34030213`** — **`examples/dispatch-record-refused.example.yaml` follows the fixture
       re-point** (design D8): its whole subject is a refused CLAIM of
       `deliberation`, which after admission documents a refusal that can no longer
       happen. `tests/clearing/test_dispatch_record.py::test_a_refusal_records_what_was_asked_for`
       asserts the claimed value literally and moves in the same commit.
-- [ ] 2.8 **`contracts/clearing/README.md`**: the register section stops saying
+- [x] 2.8 **DONE 2026-09-04, `afae18cc`** — **`contracts/clearing/README.md`**: the register section stops saying
       "exactly one member" and stops saying `deliberation` is deliberately
       absent; the shape table gains the return schema; the honest-limit paragraph
       is retained verbatim in substance and extended to name the gate's grep AND
       the test that pins that grep as the fourth and fifth copies (design D9).
-- [ ] 2.9 **ADMIT THE THREE REFUSAL GROUNDS TO
+- [x] 2.9 **DONE 2026-09-04, `271f59da` — three members, and the rendering rule written in** — **ADMIT THE THREE REFUSAL GROUNDS TO
       `contracts/clearing/dispatch-record.schema.yaml`** — `$defs.refusal_ground.enum`
       gains `lane_not_permitted`, `output_schema_failure` and
       `origin_scoped_credential`, and NOTHING ELSE (design D13; the six other
@@ -203,7 +203,7 @@ must be green at the end, and so must `python3 scripts/validate-clearing-dispatc
       TASK THAT WIDENS A CLOSED ENUMERATION, and it is lawful only because the
       ratified requirement names the three members; a fourth added here is the
       defect this packet exists to refuse.**
-- [ ] 2.10 **Contract-tree bookkeeping that moves with the bytes.**
+- [x] 2.10 **DONE 2026-09-04, `afae18cc` — counts MEASURED (7 positives, 28 negatives), not incremented** — **Contract-tree bookkeeping that moves with the bytes.**
       `contracts/manifest.yaml`'s clearing-family header comment counts the
       corpus ("6 positive examples + 24 intended-invalid") and both numbers move
       — NOTE that the second is ALREADY STALE on `main`, where the validator's
@@ -213,10 +213,39 @@ must be green at the end, and so must `python3 scripts/validate-clearing-dispatc
       `contracts/clearing/README.md`'s corpus counts move. **Assertion:**
       `tests/clearing/test_clearing_manifest_rows.py` green in full — rows,
       digests, ownership fields and declared bundle version.
-- [ ] 2.11 **Green run of `python3 -m pytest tests/clearing -q`** and of
+- [x] 2.11 **DONE 2026-09-04 — 0/0, `2 registered operations`, 26/26 red-proven** — **Green run of `python3 -m pytest tests/clearing -q`** and of
       `python3 scripts/validate-clearing-dispatch.py .` with the packaged corpus
       proving every closed refusal code still red-proven, and the whole corpus
       clean end to end.
+
+### Task 2.6 evidence — each copy observed RED ALONE, 2026-09-04
+
+Realization branch `029-admit-deliberation-realization` (openxFactory PR #652).
+Each row is ONE revert, applied by itself and then restored:
+
+| # | copy reverted | observed |
+|---|---|---|
+| (a) | `scripts/validate-clearing-dispatch.py` `RATIFIED_OPERATIONS` → one member | RED — `ERROR [clearing-register-member-unratified] … 'deliberation' is not in the ratified member set ['readiness-diagnostic']` |
+| (b) | `tests/clearing/test_register_closure.py` `RATIFIED` → one member | RED — `test_the_shipped_instance_holds_exactly_the_ratified_set` |
+| (c) | the register instance → its base bytes | RED, in SIX places, including `test_the_shipped_instance_holds_exactly_the_ratified_set`, `test_the_registry_version_advanced_with_the_governed_addition`, both entry-two twins, and the row digest |
+| (d) | `.github/workflows/clearing-dispatch-gate.yml` literal → `\(1 registered operation\)` | RED — `test_the_assertion_pins_the_registers_literal_member_count` |
+| (e) | that test's own pinned literal → `1 registered operation` | RED — the same test, from the second file |
+
+And the THREE pinned numerals D9 names:
+
+| numeral | reverted | observed |
+|---|---|---|
+| the schema filename list | six → five | RED — `test_the_family_ships_six_schemas` |
+| the manifest row count | seven → six | RED — `test_every_expected_row_declares_its_provenance_form`, then the membership assertion |
+| a moved row digest | `clearing-dispatch-record` → its pre-change value | RED — `test_the_row_digest_matches_the_artifact_on_disk` |
+
+**(d) IS THE ONE WORTH RECORDING TWICE.** Its first revert attempt did NOT go red
+— because the grep literal in the workflow is written `\(2 registered
+operations\)` with the parentheses escaped for `grep -E`, and a revert that
+searched for the UNESCAPED form silently changed nothing. A copy that "was
+proven" by an edit that never landed is exactly the miss design D12 names, and it
+was caught only by re-reading the file rather than trusting the exit code of the
+revert. The corrected revert is the row above.
 
 ## Phase 3 — The contract cut
 
@@ -224,6 +253,22 @@ must be green at the end, and so must `python3 scripts/validate-clearing-dispatc
       row 4 (Rule 7: a version number can be claimed once, and the tag is
       immutable). The minor is ALLOCATED AT REALIZATION by merge order:
       `docs/contract-versioning-policy.md` forbids a proposal reserving one.
+      **NOT PERFORMED BY THE PHASE-2 REALIZATION, AND THE REASON IS MEASURED
+      RATHER THAN DEFERRED.** Row 4 was already held when Phase 2 was built:
+      openxFactory issue #630, comment of 2026-09-04T12:40:25Z, lane
+      `repo-shape`, claiming `contract-v3.4` on Brett Heap's word in session,
+      verbatim *"cut contract-v3.4"* — twenty-five minutes before this lane's own
+      realization claim, and Amendment 1 rule 7 serializes contract-cut claims
+      FIFO. So the realization REGISTERS ITS ROWS AND RESERVES NO NUMBER, in the
+      form the `chain-anchoring` and `chain-attestation` rows in the same
+      manifest already use: `contract_bundle_version` is not moved, no changelog
+      entry is written, no release inventory is built, and the new row's
+      `consumption_rule` says *"the bundle number is the cutting session's and is
+      not reserved here"*. The measurement a cutting session needs — 119
+      additions and 6 modifications since the `contract-v3.3` tag, of which NINE
+      are this change's and 110 are `add-chain-anchoring`'s — is recorded at
+      `specs/029-admit-deliberation-realization/research.md` § O8 so it is not
+      re-derived. **This whole phase therefore stays OPEN after Phase 2 lands.**
 - [ ] 3.2 **`contracts/manifest.yaml`** — register the new return schema and
       advance `contract_bundle_version` to the allocated minor, committed
       ATOMICALLY with the contract files.

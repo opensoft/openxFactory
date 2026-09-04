@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Validate the `clearing` contract family — the neutral clearing-dispatch boundary.
 
-The openxFactory-owned canonical validator for the five kinds
+The openxFactory-owned canonical validator for the six kinds
 `xfactory_sealed_bundle_manifest`,
 `xfactory_clearing_permitted_operations_registry`,
 `xfactory_clearing_operation_report`,
+`xfactory_clearing_deliberation_return`,
 `xfactory_clearing_dispatch_record` and
 `xfactory_clearing_single_door_attestation`
 (`contracts/clearing/*.schema.yaml`). Run from the pinned openxFactory checkout,
@@ -31,7 +32,7 @@ TWO LAYERS RUN.
    is a refusal nobody has tested.
 
 2. OPTIONAL REAL ARTIFACTS under REPO_PATH: every `*.y*ml` whose top-level
-   `kind` is one of the five family kinds is validated. The packaged examples
+   `kind` is one of the six family kinds is validated. The packaged examples
    tree is excluded, because layer 1 already adjudicates exactly how each of
    those fails. ZERO REAL ARTIFACTS IS THE EXPECTED STATE until a clearing
    implementation writes its first neutral record — `opensoft/xFactory`'s
@@ -122,14 +123,20 @@ SCHEMA_FILENAMES = (
     "sealed-bundle-manifest.schema.yaml",
     "permitted-operations.schema.yaml",
     "operation-report.schema.yaml",
+    "deliberation-return.schema.yaml",
     "dispatch-record.schema.yaml",
     "single-door-attestation.schema.yaml",
 )
 
+#: A RECORD IS ROUTED TO ITS SCHEMA BY ITS `kind`, AND AN UNROUTED KIND IS NOT
+#: VALIDATED LOOSELY — IT IS NOT VALIDATED AT ALL. `validate_record` below does
+#: `KIND_TO_SCHEMA.get(kind)` and returns immediately on `None`, so a row missing
+#: here is a shape nothing checks and a verdict scan nothing reaches.
 KIND_TO_SCHEMA = {
     "xfactory_sealed_bundle_manifest": "sealed-bundle-manifest.schema.yaml",
     "xfactory_clearing_permitted_operations_registry": "permitted-operations.schema.yaml",
     "xfactory_clearing_operation_report": "operation-report.schema.yaml",
+    "xfactory_clearing_deliberation_return": "deliberation-return.schema.yaml",
     "xfactory_clearing_dispatch_record": "dispatch-record.schema.yaml",
     "xfactory_clearing_single_door_attestation": "single-door-attestation.schema.yaml",
 }
@@ -150,13 +157,26 @@ DECLARED_FIELDS = (
     "origin_attestation",
 )
 
-#: THE RATIFIED MEMBER SET of the closed permitted-operations register. ONE
-#: member: `readiness-diagnostic`, register entry number one.
+#: THE RATIFIED MEMBER SET of the closed permitted-operations register. TWO
+#: members: `readiness-diagnostic`, register entry number one
+#: (`add-clearing-dispatch-boundary`, ratified 2026-09-01), and `deliberation`,
+#: register entry number two (`admit-deliberation-clearing-operation`, ratified
+#: 2026-09-04, merged `3cf917b7`).
 #:
-#: `deliberation` (codexFactory #165) is a LATER GOVERNED CHANGE and is
-#: deliberately absent. Adding a name here without the spec delta that ratifies
-#: it is the self-service widening the closed register exists to end.
-RATIFIED_OPERATIONS = frozenset({"readiness-diagnostic"})
+#: `coding` is the next real LATER GOVERNED CHANGE and is deliberately absent —
+#: `add-clearing-dispatch-boundary` design D11 names it, the estate already holds
+#: its lane and its grandfathered worker, and
+#: `examples/negative/register-carrying-an-unratified-operation.yaml` uses it as
+#: the fixture that proves this refusal fires. Adding a name here without the
+#: spec delta that ratifies it is the self-service widening the closed register
+#: exists to end.
+#:
+#: THIS IS COPY 1 OF FIVE. The others are the INDEPENDENT constant in
+#: `tests/clearing/test_register_closure.py`, the register instance itself,
+#: `.github/workflows/clearing-dispatch-gate.yml`'s literal member-count grep,
+#: and the test that pins that grep from a second file. Do not import one from
+#: another: the independence is the control.
+RATIFIED_OPERATIONS = frozenset({"readiness-diagnostic", "deliberation"})
 
 #: The digest subject this family's manifest is admitted under, in
 #: `signed-execution-chain`'s closed enumeration.
@@ -176,6 +196,12 @@ ENVIRONMENT_ALLOWLIST = frozenset({
 #: infrastructure-readiness result, or add an eligibility verdict to it; a schema
 #: closed to unknown members cannot recognise intent, so the name scan is the
 #: other half.
+#:
+#: THE SCAN REACHES TWO KINDS, NOT ONE. `admit-deliberation-clearing-operation`
+#: requires it of `xfactory_clearing_deliberation_return` as well, in as many
+#: words: "a refusal that fires only on a kind this operation never emits is no
+#: refusal at all for it". It is applied by ONE function called from both check
+#: paths rather than copied, because two copies of a word list are two word lists.
 VERDICT_WORDS = ("verdict", "eligib", "readiness_decision", "decision",
                  "go_no_go", "approved", "ready_for", "recommendation")
 
@@ -694,18 +720,44 @@ def _b64u_decode(text: str) -> bytes:
 
 # ------------------------------------------------------- the operation report
 
-def check_operation_report(f: Findings, doc: dict, where: str) -> None:
+def check_no_verdict(f: Findings, doc: dict, where: str, tail: str) -> None:
+    """THE NAME SCAN, shared by every evidence shape this family carries.
+
+    A schema closed to unknown members refuses a member it does not know; it
+    cannot refuse one it DOES know whose name announces a decision. This is the
+    other half, and it is one function rather than one per kind: the ratified
+    entry-two requirement demands the same scan over
+    `xfactory_clearing_deliberation_return`, and a copied word list drifts.
+
+    `tail` is the half of the message that differs by subject — the argument for
+    WHY this particular shape may not carry a verdict. The CODE is the same, and
+    is not widened: `clearing-report-carries-a-verdict` already exists and is
+    already red-proven.
+    """
     for name in _member_names(doc):
         lowered = name.lower()
         if any(word in lowered for word in VERDICT_WORDS):
             f.error("clearing-report-carries-a-verdict",
                     f"{where}: member {name!r} reads as an eligibility verdict. "
-                    f"The operation report is EVIDENCE produced BY passing "
-                    f"through the boundary; it is not, and may not grow into, "
-                    f"the neutral infrastructure-readiness result that the "
-                    f"promoted document-cataloging and ideation-routing "
-                    f"preflights await — that is a decision input consulted "
-                    f"BEFORE dispatch")
+                    f"{tail}")
+
+
+OPERATION_REPORT_VERDICT_TAIL = (
+    "The operation report is EVIDENCE produced BY passing through the boundary; "
+    "it is not, and may not grow into, the neutral infrastructure-readiness "
+    "result that the promoted document-cataloging and ideation-routing "
+    "preflights await — that is a decision input consulted BEFORE dispatch")
+
+DELIBERATION_RETURN_VERDICT_TAIL = (
+    "The deliberation return is EVIDENCE: what the seats produce is their "
+    "output, and the outcome is computed by the runtime from the SIGNED "
+    "returns, downstream of and outside this boundary. A return that carried "
+    "the outcome would move the decision onto the governed host, which is the "
+    "one thing this entry's whole class of constraints exists to prevent")
+
+
+def check_operation_report(f: Findings, doc: dict, where: str) -> None:
+    check_no_verdict(f, doc, where, OPERATION_REPORT_VERDICT_TAIL)
     for lane_key, lane in (doc.get("lanes") or {}).items():
         if not isinstance(lane, dict):
             continue
@@ -738,6 +790,21 @@ def _member_names(value: Any, depth: int = 0) -> list[str]:
         names.append(key)
         names.extend(_member_names(sub, depth + 1))
     return names
+
+
+# --------------------------------------------------- the deliberation return
+
+def check_deliberation_return(f: Findings, doc: dict, where: str) -> None:
+    """Register entry number two's declared return shape, beyond its schema.
+
+    The schema does the structural half — the root and every nested object are
+    closed, the three binding identifiers are required, and there is no signature
+    member to put a host-side signature in. What a schema cannot do is recognise
+    a member whose name announces an outcome, so the shared name scan is applied
+    here for the same reason it is applied to the operation report, and with the
+    SAME finding code: this entry mints none.
+    """
+    check_no_verdict(f, doc, where, DELIBERATION_RETURN_VERDICT_TAIL)
 
 
 # ------------------------------------------------------- the dispatch record
@@ -891,6 +958,8 @@ def validate_record(f: Findings, doc: Any, where: str, registry: Registry,
         check_register(f, doc, where)
     elif kind == "xfactory_clearing_operation_report":
         check_operation_report(f, doc, where)
+    elif kind == "xfactory_clearing_deliberation_return":
+        check_deliberation_return(f, doc, where)
     elif kind == "xfactory_clearing_dispatch_record":
         check_dispatch_record(f, doc, where, schema)
     elif kind == "xfactory_clearing_single_door_attestation":
@@ -1109,9 +1178,14 @@ def main(argv: list[str] | None = None) -> int:
     validate_record(f, register_doc, "permitted-operations.registry.yaml",
                     registry, docs, {}, {}, NOW_SENTINEL)
     entries = check_register(f, register_doc, "permitted-operations.registry.yaml")
+    # THE COUNT IS A LITERAL THE CI GATE GREPS FOR, and the plural agrees with it.
+    # `clearing-dispatch-gate.yml` pins the exact sentence this line prints, so a
+    # register that gained a member and a reader that still said "1 registered
+    # operation" would disagree in the one place the gate is looking.
+    plural = "" if len(entries) == 1 else "s"
     f.note(f"permitted-operations register read: "
            f"{REGISTRY_INSTANCE.relative_to(ROOT)} "
-           f"({len(entries)} registered operation)")
+           f"({len(entries)} registered operation{plural})")
 
     try:
         fixture_origins = read_origin_register(f, FIXTURE_IDENTITY, pinned)

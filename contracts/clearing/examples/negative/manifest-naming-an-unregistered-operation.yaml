@@ -4,11 +4,19 @@
 # declares an operation id with no entry in the register → the dispatch MUST be
 # refused with the unknown operation named AND no runner MUST be selected."
 #
-# `deliberation` is not an arbitrary invention: codexFactory #165 wants exactly
-# this operation on the governed host. It is a LATER GOVERNED CHANGE with its own
-# spec delta and its own reviewer, and until that change lands a bundle naming it
-# is refused here rather than served. That is the closed register doing the only
+# `coding` is not an arbitrary invention: `add-clearing-dispatch-boundary` design
+# D11 names it as the next real later operation, the estate already holds its
+# lane and its grandfathered worker, and a producer will want exactly this
+# operation on the governed host. It is a LATER GOVERNED CHANGE with its own spec
+# delta and its own reviewer, and until that change lands a bundle naming it is
+# refused here rather than served. That is the closed register doing the only
 # thing it exists to do.
+#
+# The fixture named `deliberation` until 2026-09-04, when
+# `admit-deliberation-clearing-operation` (PR #645, merged `3cf917b7`) admitted
+# that operation as register entry number two. A fixture whose bytes name a
+# REGISTERED operation proves nothing, so it moved to the next honest name in the
+# same diff.
 schema_version: 1
 kind: xfactory_sealed_bundle_manifest
 origin:
@@ -26,7 +34,7 @@ selected_files:
 - path: tests/example/test_module.py
   content_hash: sha256:1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f809
   size_bytes: 1024
-operation: deliberation
+operation: coding
 worker_profile: cpc-readonly-probe
 lane:
   runner_group: xfactory-execution-lane-workers
