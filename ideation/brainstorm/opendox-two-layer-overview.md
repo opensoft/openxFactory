@@ -69,8 +69,8 @@ Verbatim, 2026-09-04, recorded in `opensoft/openxFactory` issue #656:
 And earlier in the same sitting:
 
 > "We then further pin that down to medxDox and CodeXdox for use in those domain
-> factories. If I install MedxFacotry, then I get a medXdox install running in
-> the installed tenand with its own db."
+> factories. If I install MedxFacotry [sic], then I get a medXdox install running in
+> the installed tenand [sic] with its own db."
 
 ## What Brett ruled within the hour (issue #656)
 
@@ -106,8 +106,8 @@ below work under them rather than reopening them.
 - **Q5 — a DIRECTION, not a module ruling.** Verbatim: *"we want to make openDox
   useful on its own … it is domain neutral and external from openXfactory. we
   need to make sure openXfactory brings in the core machinery to map to domains.
-  we need to think how a patient managment and research maps to the openXdox.
-  and how a finacial simulations or accounting questions would map in
+  we need to think how a patient managment [sic] and research maps to the openXdox.
+  and how a finacial [sic] simulations or accounting questions would map in
   ledgerXfactory. same for marketing analysis in adXfactory. what is core to
   these that we pull out and put in openXdox. and what can pull up to openDox
   that does not rely on openXfactory … a student could use openDox or a lab

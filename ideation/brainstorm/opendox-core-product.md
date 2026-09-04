@@ -46,7 +46,7 @@ Captured: 2026-09-04
 
 ## The standalone test (Q5 direction, 2026-09-04)
 
-> "we want to make openDox useful on its own, it shoudl be able to still manage
+> "we want to make openDox useful on its own, it shoudl [sic] be able to still manage
 > docs and do brainstorming and connect to notebook lm. it is domain neutral and
 > external from openXfactory … a student could use openDox or a lab assistant.
 > so we want that to still be useful on its own"

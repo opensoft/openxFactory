@@ -69,8 +69,8 @@ in both operating cases. That cost is now a decision rather than a discovery.
 
 ## The requirement that forces everything else
 
-> "If I install MedxFacotry, then I get a medXdox install running in the
-> installed tenand with its own db."
+> "If I install MedxFacotry [sic], then I get a medXdox install running in the
+> installed tenand [sic] with its own db."
 
 Read that as a specification and four things fall out immediately:
 

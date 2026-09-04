@@ -55,8 +55,8 @@ documents and ideas. it will keep the integration with git and notebook lm etc
 and have all tools that help for document management and ideation. then openXdox
 will integrate with openXfactory"), plus the descendant sentence from earlier in
 the same sitting ("We then further pin that down to medxDox and CodeXdox for use
-in those domain factories. If I install MedxFacotry, then I get a medXdox
-install running in the installed tenand with its own db"). Four further rulings
+in those domain factories. If I install MedxFacotry [sic], then I get a medXdox
+install running in the installed tenand [sic] with its own db"). Four further rulings
 (Q1 the authority boundary at 15:24Z, Q2 the runtime at 15:31Z, Q3 the instance
 topology at 15:32Z, Q4 the seam at 15:34Z) and one direction (Q5 the three-layer
 test at 15:48Z) followed the same afternoon and are carried as claims below. The
@@ -115,8 +115,8 @@ rulings did NOT settle.
    `medXdox`, which would be a third casing scheme in the org; the ruling's own
    transcript spells it both ways and the ratified form governs.
 5. **A DomainxFactory install brings up its descendant, in the tenant, with its
-   own database.** "If I install MedxFacotry, then I get a medXdox install
-   running in the installed tenand with its own db."
+   own database.** "If I install MedxFacotry [sic], then I get a medXdox install
+   running in the installed tenand [sic] with its own db."
 6. **The naming record is overridden, and owes an Amendment 3 — carried by the
    change, not by this topic.** `docs/openxdox-naming.md` (`Status: ratified`,
    LOCKED 2026-08-13) rejected `openDox` as "the taken name" and built the
@@ -189,16 +189,16 @@ rulings did NOT settle.
     interface, which guarantees divergence and makes every fix land twice.
 15. **DIRECTION Q5 (15:48Z) — a THREE-layer test, and the per-module assignment
     is design work under it.** Verbatim: *"we want to make openDox useful on its
-    own, it shoudl be able to still manage docs and do brainstorming and connect
+    own, it shoudl [sic] be able to still manage docs and do brainstorming and connect
     to notebook lm. it is domain neutral and external from openXfactory. we need
     to make sure openXfactory brings in the core machinery to map to domains. we
-    need to think how a patient managment and research maps to the openXdox. and
-    how a finacial simulations or accounting questions would map in
+    need to think how a patient managment [sic] and research maps to the openXdox. and
+    how a finacial [sic] simulations or accounting questions would map in
     ledgerXfactory. same for marketing analysis in adXfactory. what is core to
     these that we pull out and put in openXdox. and what can pull up to openDox
     that does not rely on openXfactory. and what do we need to try to pull from
-    openXdox to openDox to make openDox more useful as a braintorming and
-    reserch analysis tool. a student could use openDox or a lab assistant. so we
+    openXdox to openDox to make openDox more useful as a braintorming [sic] and
+    reserch [sic] analysis tool. a student could use openDox or a lab assistant. so we
     want that to still be useful on its own"*. Three settled consequences:
     (a) **openDox must be useful ALONE** to a student or a lab assistant —
     manage documents, brainstorm, do research analysis, connect to NotebookLM —

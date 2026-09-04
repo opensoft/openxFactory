@@ -46,8 +46,8 @@ Captured: 2026-09-04
 ## The direction this document answers
 
 > "we need to make sure openXfactory brings in the core machinery to map to
-> domains. we need to think how a patient managment and research maps to the
-> openXdox. and how a finacial simulations or accounting questions would map in
+> domains. we need to think how a patient managment [sic] and research maps to the
+> openXdox. and how a finacial [sic] simulations or accounting questions would map in
 > ledgerXfactory. same for marketing analysis in adXfactory. what is core to
 > these that we pull out and put in openXdox. and what can pull up to openDox
 > that does not rely on openXfactory."

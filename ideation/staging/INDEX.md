@@ -2489,8 +2489,8 @@ repo scope.
   opensource repo. we have two layers of opensource openDox and openXdox … we
   will make openDox work to just manage documents and ideas. it will keep the
   integration with git and notebook lm etc … then openXdox will integrate with
-  openXfactory", plus the descendant sentence "If I install MedxFacotry, then I
-  get a medXdox install running in the installed tenand with its own db." Four
+  openXfactory", plus the descendant sentence "If I install MedxFacotry [sic], then I
+  get a medXdox install running in the installed tenand [sic] with its own db." Four
   further rulings (Q1 15:24Z, Q2 15:31Z, Q3 15:32Z, Q4 15:34Z) and one direction
   (Q5 15:48Z) followed the same afternoon.
 - Claim: fifteen settled claims. Ten from the founding ruling — two open-source
@@ -2624,11 +2624,17 @@ repo scope.
   reader is `codexDox` and openXdox is largely unbuilt; under the second the
   domain-mapping core has no home. The packet keeps both, and the concrete test
   between them is whether a clinician would ever see the word "requirement".
-- Files: 1 (`opendox-two-layer-product.md`). Brainstorm packet (six docs):
-  `ideation/brainstorm/opendox-two-layer-overview.md` (entry point),
-  `-core-product.md`, `-domain-mappings.md` (the three mappings and the common
-  core), `-openxdox-boundary.md` (the three-column assignment and the pull-ups),
-  `-persistence-and-truth.md`, `opendox-synthesis-install-and-tenancy.md`.
+- Files: 1 (`opendox-two-layer-product.md`). Brainstorm packet (six docs, all
+  under `ideation/brainstorm/`):
+  [`opendox-two-layer-overview.md`](../brainstorm/opendox-two-layer-overview.md)
+  (entry point),
+  [`opendox-core-product.md`](../brainstorm/opendox-core-product.md),
+  [`opendox-domain-mappings.md`](../brainstorm/opendox-domain-mappings.md) (the
+  three mappings and the common core),
+  [`opendox-openxdox-boundary.md`](../brainstorm/opendox-openxdox-boundary.md)
+  (the three-column assignment and the pull-ups),
+  [`opendox-persistence-and-truth.md`](../brainstorm/opendox-persistence-and-truth.md),
+  [`opendox-synthesis-install-and-tenancy.md`](../brainstorm/opendox-synthesis-install-and-tenancy.md).
 - Target capabilities: REMOVED-by-SPLIT `ideation-dashboard` (with a
   per-requirement successor map across three destinations); ADDED a neutral
   corpus-adapter seam capability (declared by openDox, implemented by openXdox);
