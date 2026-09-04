@@ -216,8 +216,9 @@ an extra field — it needs a schema delta.
       work the amendment creates; the amendment was RE-RATIFIED 2026-09-04 by
       Brett Heap (see `proposal.md` § AMENDED AFTER RATIFICATION), so this
       task is now REQUIRED realization work on this change's code surface —
-      it is not yet done (still unticked above), and it remains NOT part of
-      what makes the archive gate close (§4.8).
+      it is not yet done (still unticked above — SUPERSEDED 2026-09-04 by the
+      DONE note below, which is where this task's state is now recorded), and
+      it remains NOT part of what makes the archive gate close (§4.8).
       > DONE 2026-09-04, openxFactory PR #642. `ideation_dashboard.cli`
       > `generate` and `generate-and-open` now accept `--generated-at
       > <RFC 3339>` beside `--source-revision`: the value is validated at the
@@ -233,9 +234,8 @@ an extra field — it needs a schema delta.
       > cases: the amended recipe's own argv parses, verbatim, override,
       > absence, seven malformed spellings refused with no file left behind,
       > and the pinned value passing a real `--strict` validation run). The
-      > "not yet done" clause above states the position at authoring; this
-      > note supersedes it. The task remains NOT part of what closes the
-      > archive gate (§4.8) — that is unchanged.
+      > task remains NOT part of what closes the archive gate (§4.8) — that
+      > is unchanged.
 
 ## 4. The nightly stage (openxFactory)
 
