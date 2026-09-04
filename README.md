@@ -482,6 +482,54 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [admit-deliberation-clearing-operation](openspec/changes/admit-deliberation-clearing-operation/proposal.md)
+  — authored 2026-09-04, `Status: draft`, **awaiting Brett's ratification word**.
+  **THE GOVERNED CONTRACT CHANGE THE CLOSED REGISTER ASKS FOR BY NAME.**
+  `add-clearing-dispatch-boundary`'s requirement *"The permitted-operations
+  register is closed"* says admission "SHALL BE A GOVERNED CONTRACT CHANGE with a
+  spec delta and a reviewer, and SHALL NOT be a workflow edit"; the realized
+  register instance says `deliberation` "IS NOT HERE ON PURPOSE … a LATER GOVERNED
+  CHANGE", and uses the name as the fixture proving the refusal fires. This packet
+  is that change: **ONE requirement ADDED** to `clearing-dispatch-boundary` —
+  *"deliberation is register entry number two and returns evidence only"* —
+  written over the basis's RATIFIED (2026-09-01) and REALIZED (#628, `0d5e1ba9`)
+  but UNARCHIVED addition, the pairing declared in prose because
+  `govern-sibling-added-modified-deltas`' reserved marker is a MODIFIED-block form
+  and this is an ADDED one (the sibling `add-cpc-clearing-boundary` ships exactly
+  that reading: markers on its three MODIFIED requirements, none on its ADDED
+  block). Filed as codexFactory PR #165 tasks.md **1.6** / design **D13** — *"leg 3
+  has no legal home until this lands"*. The entry: **ARTIFACT LANE ONLY**
+  (`xfactory-artifact-workers` / `host-rider-cpc-brett01` /
+  `xfactory-artifact-cpc-brett01`; a coding-lane request is refused
+  `clearing-lane-not-permitted`); `checks_out_code`/`writes`/`may_reference_secrets`
+  all **false**; `token_scopes: [actions:read]` — EXACTLY the clearing side's own
+  scoped read-only admission credential, spelled in the vocabulary
+  `credential-contracts` already carries, with entry one's empty list NOT widened
+  (the basis says a bundle-carrying operation carries the admission credential
+  "under its OWN entry's constraints"); `worker_profile:
+  council-deliberation-worker`; `data_handling: internal-governance` — the
+  STRICTER class the register instance's comment promised a bundle-carrying
+  operation would declare; and `repository_affecting_output: **false**` — the
+  return is EVIDENCE, the verdict is computed by the runtime, and **NO SEAT KEY IS
+  EVER ON THE HOST** (sign-on-return, #165 D6). `output_schema_ref` is a **NEW
+  NEUTRAL** `contracts/clearing/deliberation-return.schema.yaml`, **ruled by Brett
+  Heap 2026-09-04** (*"Ruling OQ1: new neutral deliberation-return schema"*) over
+  the rejected alternative of pointing at a codexFactory-owned path, which would
+  make the producer the author of the shape its own return is checked against.
+  Two findings the packet records rather than papers over: the member set is
+  frozen in **FOUR** places, not two — the validator's `RATIFIED_OPERATIONS`, the
+  independent copy in `tests/clearing/test_register_closure.py`, the instance, and
+  `.github/workflows/clearing-dispatch-gate.yml`'s literal
+  `(1 registered operation)` grep — and the `VERDICT_WORDS` scan is dispatched by
+  `kind == xfactory_clearing_operation_report`, so it does **not** reach a return
+  of a new kind until realization routes it there. The two `deliberation` negative
+  fixtures re-point to **`coding`**, the next real unratified operation (basis
+  design D11), so the closure refusal keeps a live probe. **NO CONTRACT BYTE MOVES
+  IN THE PROPOSAL PR** — ratification authorizes realization, it does not perform
+  it. `target_release:` is the next ADDITIVE minor, allocated at realization by
+  merge order (the policy forbids reserving one). Archives AFTER
+  `add-clearing-dispatch-boundary`, on merged-plus-green realization evidence.
+  Lane `hermes-wallet-exercise`.
 - [add-drafted-proposal-origin](openspec/changes/add-drafted-proposal-origin/proposal.md)
   — authored and **RATIFIED 2026-09-03 by Brett Heap, in-session** (verbatim
   "implement your recommendations on all these"; the ruling and its resolution
