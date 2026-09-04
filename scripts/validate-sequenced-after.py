@@ -30,7 +30,15 @@ Usage:
     rule) otherwise.
 
     --archive-gate CHANGE_DIR --ratified-ref REF
-        Parent-declaration retention (freeze) gate.
+        Parent-declaration retention (freeze) gate. CHANGE_DIR may name either
+        the change's ACTIVE or its ARCHIVED directory — the ratified-side
+        proposal is always located BY CHANGE ID against REF's own tree (active
+        path first, then any archived `<date>-<id>` directory), never by
+        reusing CHANGE_DIR's current path, so the gate still runs after the
+        change has moved from its active location to
+        `openspec/changes/archive/<date>-<id>/` between ratification and
+        archive. When the id has no proposal.md at REF at all, this prints a
+        named finding and exits 2 rather than tracing back.
 
     --sweep
         THE CORPUS SWEEP, re-runnable: the change-id population, the
@@ -141,7 +149,16 @@ def validate_corpus(repo_root: Path, repository: str) -> int:
 
 
 def _archive_gate(change_dir: Path, ratified_ref: str) -> int:
-    problem = sa.retention_at_archive(change_dir, ratified_ref)
+    try:
+        problem = sa.retention_at_archive(change_dir, ratified_ref)
+    except sa.SequencedAfterError as exc:
+        # UNRESOLVABLE AT THE REF IS NOT A MUTATION FINDING (exit 1) AND NOT A
+        # TRACEBACK: it is a distinct fact — the id names no proposal.md at
+        # `ratified_ref` at all — reported the same way every other refusal in
+        # this CLI is, as a named finding and exit 2.
+        print("sequenced_after PARENT-DECLARATION-RETENTION gate CANNOT RUN:")
+        print(f"  - {exc}")
+        return 2
     if problem is not None:
         print("sequenced_after PARENT-DECLARATION-RETENTION gate FAILED (contested):")
         print(f"  - {problem}")
