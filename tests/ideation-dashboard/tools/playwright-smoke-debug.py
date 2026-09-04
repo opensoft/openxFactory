@@ -536,7 +536,19 @@ def main() -> int:
             try:
                 page.click(".doxbench-canvas [role=tab] >> text=Document")
             except Exception as e:
-                page.screenshot(path="/tmp/t098-step4.png", full_page=True)
+                # A DURABLE, PORTABLE home for the two debug artifacts. NOT
+                # `base`: that workspace is `shutil.rmtree`d in main's
+                # `finally`, and this branch exits through it, so anything
+                # written there is deleted before the operator can look. NOT a
+                # hardcoded "/tmp/..." either — this tool is meant to run on
+                # the Windows rider too, where that path does not exist. A
+                # fresh mkdtemp is durable, collision-free between concurrent
+                # runs, and `gettempdir()`-rooted on every platform; its
+                # location is printed, because an artifact nobody can find is
+                # not an artifact.
+                debug_dir = Path(tempfile.mkdtemp(prefix="t098-debug-step4-"))
+                shot = debug_dir / "step4.png"
+                page.screenshot(path=str(shot), full_page=True)
                 html = page.evaluate(r"""() => {
                   const pick = (sel) => { const n = document.querySelector(sel); return n ? n.outerHTML.slice(0, 2500) : null; };
                   return {
@@ -548,6 +560,7 @@ def main() -> int:
                 }""")
                 import json as _j
                 print("STEP4 DOM:", _j.dumps(html, indent=1)[:3000])
+                print(f"STEP4 SCREENSHOT: {shot}")
                 raise SystemExit(f"DEBUG4: {e}")
             page.select_option(
                 ".doxbench-document-picker",
