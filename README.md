@@ -1523,42 +1523,6 @@ Active changes:
   digest inventory and the tag happen once, with the other next-additive-bundle
   changes. Archives only when hermes-install re-pins and admits
   `hermes_client_overlay` to its `PARITY_KINDS` sweep.
-- [create-medxpractice-overlay-boundary](openspec/changes/create-medxpractice-overlay-boundary/proposal.md)
-  — **RATIFIED 2026-09-03** (Brett Heap, in-session: *"ratify both, 1 and 1"*;
-  record at `review/ratification-2026-09-03.md`). MedxPractice owns the PRIVATE
-  practice-operations composition boundary over a PUBLIC upstream — the
-  visibility asymmetry is the boundary's reason for existing — and pins
-  `opensoft/openPractice` at `9526bd9e` twice, nested gitlink and
-  `contracts/openpractice-pin.yaml` (`kind: medxpractice_openpractice_pin`), in
-  ONE commit. `opensoft/MedxPractice` EXISTS (private, published 2026-08-23) and
-  the aggregation resolves it at `git@github.com:opensoft/MedxPractice.git`,
-  gitlink `d8d73195`; the relative `../MedxPractice` form it first landed with
-  was normalized at `opensoft/xFactory` `386e7ee2` alongside its MedxChart
-  sibling. **The spec delta was NARROWED at ratification** under decision 2
-  option 1 to what is MedxPractice-specific — the pin's identity, the
-  aggregation's single route to openPractice, and this descendant's placement
-  CITED rather than restated — because the three requirements as authored
-  restated promoted `domain-descendant-boundary` in differing words, which the
-  Explicit delta rule calls a defect. It was narrowed AGAIN in the pre-capture
-  fix round: the placement requirement no longer states the path, remote or
-  gitlink in its body (they are evidence in its scenarios), the relocation
-  requirement keeps only the half a remote reading can settle with the
-  workspace-root layout recorded as a local convention in `design.md`, and the
-  pin manifest's shape is stated as the NESTED file the descendant actually
-  carries. **This change carries NO `## MODIFIED Requirements`
-  block**: the placement amendment is the sibling
-  `create-medxchart-overlay-boundary`'s, which names `xFactories/MedxPractice`
-  among its realized placements, so one requirement has one writer. **It
-  RATIFIES AND MERGES SECOND**, after that sibling, and archives after it too.
-  MedxPractice is a REPORTED EMPTY BOUNDARY under the lazy-creation rule (five
-  tracked entries, all composition metadata, zero openPractice profile
-  artifacts) and is **not** precedent for creating more. **ARCHIVE IS GATED** on
-  `tasks.md` § 5: the descendant pin validator, its required `pin-validation`
-  check and its ruleset in `opensoft/MedxPractice` — which today has zero
-  workflows and no repository-level ruleset at all — on the LedgerxWallet
-  pattern, the ruleset half being an operator act. That group also ANSWERS the
-  sibling's open 5.5: MedxPractice takes the same validator shape, one answer
-  for one pin shape.
 - [add-nightly-dashboard-refresh](openspec/changes/add-nightly-dashboard-refresh/proposal.md)
   — authored 2026-08-22, **RATIFIED 2026-08-25** against its realized system
   (Brett, in-session: "ratify add-nightly-dashboard-refresh against its
@@ -2094,6 +2058,75 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [create-medxpractice-overlay-boundary](openspec/changes/archive/2026-09-04-create-medxpractice-overlay-boundary/proposal.md)
+  — **ARCHIVED 2026-09-04, SECOND OF THE MEDX PAIR AND FOR THE REASON THE PAIR
+  WAS ORDERED**: this packet CITES the placement amendment its sibling wrote, so
+  the amendment had to be in canon before the packet citing it archived against
+  it. Proposed 2026-08-23; **ADMITTED** 2026-08-25 (PR #345, `f90f3a08`) on
+  *"admit the two medx boundary packets"* — origin metadata only, not a
+  ratification; **RATIFIED 2026-09-03** by Brett Heap in session, verbatim
+  *"ratify both, 1 and 1"*, the second `1` being decision 2 option 1, which
+  NARROWED this packet's delta to what is MedxPractice-specific (PR #609,
+  `0bf37d14`; records `review/ratification-2026-09-03.md` and
+  `review/verification-2026-09-03.md`, archived with the packet). **ARCHIVED on
+  his word of 2026-09-04**, verbatim *"land it and do medxpractice"*.
+  **REALIZED by `opensoft/MedxPractice` PR #1**, merge **`f7fd8364`**
+  (2026-09-04T13:05:10Z — forty-nine seconds before its MedxChart sibling, the
+  two landed together on *"merge both when aligned and green"*):
+  `tests/validate_pin.py` (384 lines, four fail-closed conditions across seven
+  named refusal tokens, including the NESTED-manifest reading § 5.1 insisted on
+  — two declaration fields above and six under `pin:`, "a validator that reads
+  them flat passes a file that does not exist"), `tests/test_validate_pin.py`
+  (SEVEN self-tests), `.github/workflows/pin-validation.yml` (`pull_request` +
+  `push` to `main`, no job display name, no `paths:` filter), `.gitignore` and a
+  README Validation section. **GATED by ruleset `22273105`** "MedxPractice
+  pin-gate" (Repository-sourced, `~DEFAULT_BRANCH`, `pin-validation` REQUIRED,
+  `strict` false), Brett's console act at 2026-09-04T13:23:13Z — closing a gap
+  this packet had MEASURED on 2026-09-03, when the repository had zero workflows
+  and only two organization-sourced rulesets, neither requiring a status check.
+  **GREEN UNDER THE RULESET**: run **`33876124444`**, head `f7fd8364`,
+  **`run_attempt: 2`**, `success` at 13:25:59Z; the first attempt (13:05:15Z)
+  predates the ruleset, so it is the RE-RUN that is the evidence.
+  Recorded at `review/realization-evidence-2026-09-04.md`, which also carries
+  the **OBSERVED DEVIATION from the LedgerxWallet precedent `21701436`** — two
+  extra rules (`deletion`, `non_fast_forward`) and one extra bypass actor
+  (`RepositoryRole`) — reported and deliberately NOT repaired, since editing an
+  operator's ruleset is the act § 5.3 reserves to the console; MedxChart's
+  `22272824` carries the identical shape, so it is one operator pattern applied
+  twice rather than a slip in either repository.
+  **"ONE VALIDATOR SHAPE FOR ONE PIN SHAPE" WAS MEASURED, NOT REPEATED**:
+  normalizing the sibling's validator through the product vocabulary and diffing
+  leaves THREE lines, all the uppercase banner string; the same over the
+  self-tests leaves ONE.
+  **WHAT IT LEAVES IN CANON**: THREE requirements promoted into a NEW capability
+  `openspec/specs/medxpractice-overlay-boundary/spec.md` (specs 57 → 58) —
+  MedxPractice pins openPractice at one named revision (`9526bd9e`) twice, the
+  aggregation reaches openPractice ONLY through MedxPractice, and MedxPractice
+  is aggregated at the CITED placement and named by MedxFactory. **This change
+  carries NO `## MODIFIED Requirements` block**, so `domain-descendant-boundary`
+  is not touched by this archive: one requirement, one writer.
+  **R3'S RATIFIED TEXT IS LEFT EXACTLY AS RATIFIED.** Its primary citation,
+  the promoted `openspec/specs/domain-descendant-boundary/spec.md:76-85`, still
+  resolves — PR #654 promoted the amendment into that file. Its secondary
+  citation, the sibling's DELTA, became HISTORICAL at `bc1bd4ee`: that file now
+  lives at
+  `openspec/changes/archive/2026-09-04-create-medxchart-overlay-boundary/specs/domain-descendant-boundary/spec.md`.
+  The redirection is recorded in the evidence record § 7 rather than written into
+  ratified requirement text, on Brett's ruling.
+  **§ 5.5 IS TICKED AS SPENT, NOT AS DONE**, on his ruling *"option 1, land it
+  when green"*: its precondition — *"while that tree is open"* — closed when
+  MedxPractice PR #1 merged without the change, so the task is unperformable as
+  written; the `git@` submodule URL stands on `design.md`'s ratified ground (one
+  convention with every aggregation submodule, the cost "real but small" since
+  MedxPractice is itself PRIVATE); the workflow's `insteadOf` rewrite is the CI
+  accommodation and its own header says it does not discharge 5.5; and if ever
+  revisited it is a MedxPractice change of its own. **Nothing was built to
+  satisfy that box and nothing is claimed for it.**
+  MedxPractice REMAINS A REPORTED EMPTY BOUNDARY — composition metadata plus,
+  now, its own gate; zero openPractice profile artifacts — so it is **not**
+  precedent for creating another descendant. **THE ARCHIVE MOVED EXACTLY ONE
+  LEDGER ROW** (`state: active` → `archived`, `class` held at `sole`, `declares`
+  absent, no partner flipped), so no MOVEMENT LOG entry was owed.
 - [create-medxchart-overlay-boundary](openspec/changes/archive/2026-09-04-create-medxchart-overlay-boundary/proposal.md)
   — **ARCHIVED 2026-09-04 on the realization gate its own § 5 commissioned, and
   the gate is the point: this packet spent a month as an ASSERTED boundary and

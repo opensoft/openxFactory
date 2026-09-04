@@ -181,13 +181,47 @@ here.**
     the ruleset created at 13:23:13Z and is therefore green under no required
     regime; **the re-run is the evidence, and the two are distinguished by
     `run_attempt` because they share one run id**.
-- [ ] 5.5 While that tree is open, close the known limitation `design.md`
+- [x] 5.5 While that tree is open, close the known limitation `design.md`
       records: MedxPractice's own `.gitmodules` names the PUBLIC
       `opensoft/openPractice` over `git@`, so an anonymous recursive clone
       cannot initialize the nested checkout. **This is a `[ ]` because it is a
       commit in another repository, not because it gates anything** — it does
       NOT gate the archive, which 5.4 alone opens, and it is carried here only
       so the next act on that tree does not have to rediscover it.
+
+  - *2026-09-04 — RECORDED SPENT, NOT DONE, ON THE OWNER'S RULING.* Brett Heap,
+    in session 2026-09-04, verbatim: **"option 1, land it when green"** — put to
+    him as three dispositions for this box after `proposal-support.py archive`
+    refused on it (`change has incomplete tasks`, exit 1, its gate being
+    unconditional on WHICH box). The disposition he chose, in full:
+    - **THE PRECONDITION CLOSED AND CANNOT REOPEN.** This task's own scope is
+      *"while that tree is open"*. That window shut when `opensoft/MedxPractice`
+      PR #1 merged **`f7fd8364`** (2026-09-04T13:05:10Z) without the change. The
+      task is therefore not merely undone; it is UNPERFORMABLE AS WRITTEN, and
+      recording it as spent is what is true rather than a rounding-up.
+    - **THE `git@` FORM STANDS, ON THE RATIFIED CHOICE.** `design.md` declined
+      this fix deliberately and on a stated ground — the `git@` entry "matches
+      every sibling submodule entry in the aggregation, which is what makes one
+      convention rather than two", the cost being "real but small" because
+      MedxPractice is itself PRIVATE, so every clone of it is already
+      authenticated. That reasoning is part of what was ratified on 2026-09-03
+      and the ruling upholds it.
+    - **THE WORKFLOW'S REWRITE IS THE CI ACCOMMODATION, NOT A DISCHARGE.**
+      `pin-validation.yml` sets `url."https://github.com/".insteadOf
+      "git@github.com:"` before initializing the submodule, and its own header
+      names that as the workaround for "the open item blocking a truly anonymous
+      clone that `create-medxpractice-overlay-boundary` tasks.md 5.5 already
+      names". An anonymous `git clone --recursive` by a human still cannot
+      initialize `openPractice/`; that limitation stands, reported.
+    - **IF EVER REVISITED IT IS A MedxPractice CHANGE OF ITS OWN**, not this
+      packet's — which is what this task said from the first ("a commit in
+      another repository") and what `design.md` said too ("a repository this
+      packet does not edit from here").
+    **NOTHING WAS BUILT TO SATISFY THIS BOX AND NOTHING IS CLAIMED.** The tick
+    records an owner's disposition of an obligation, not a completed act, and it
+    says so here so no later reader mistakes the one for the other. Evidence and
+    the read-back of `.gitmodules` at the merge commit:
+    `review/realization-evidence-2026-09-04.md` § 6.
 
 ## 6. Standing of the boundary itself — reported, not precedent
 
