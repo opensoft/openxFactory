@@ -974,7 +974,7 @@ entries:
   path: contracts/manifest.yaml
   type: manifest
   git_mode: '100644'
-  digest: sha256:3b3800ce3ef5349f418c6043121239c252cce6d730cc7266b8ec5a1220b814b8
+  digest: sha256:bfb645b6cab13e176df4935d99d20400c08e5d7799f8fc121731acb3bc494e22
 - artifact_id: contracts-releases-release-digest-inventory.schema.yaml
   path: contracts/releases/release-digest-inventory.schema.yaml
   type: schema
@@ -1068,7 +1068,7 @@ entries:
   path: docs/contract-versioning-policy.md
   type: documentation
   git_mode: '100644'
-  digest: sha256:280691a5ada08aabebc16353f5afc00d7e88567d13962f1829810ccbfbf1a18d
+  digest: sha256:9c5cf89892348eef584a34bdcc0de322e86fb2c2282b0b339ce48487d6bff9b0
 - artifact_id: docs-terminology-and-repo-topology.md
   path: docs/terminology-and-repo-topology.md
   type: documentation
@@ -1508,7 +1508,7 @@ entries:
   path: tests/intent-compliance/test_release_boundary.py
   type: documentation
   git_mode: '100644'
-  digest: sha256:4f73e3c0b4f79a02656a1584bb51be6eae776a29db81c5e66fe246c76bf45354
+  digest: sha256:101750e51c24461a477e160c007339b2893e2a0f94245d38cea92d45c7fbf848
 - artifact_id: tests-intent-compliance-test_temporal.py
   path: tests/intent-compliance/test_temporal.py
   type: documentation
