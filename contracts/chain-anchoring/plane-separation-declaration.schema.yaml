@@ -1,0 +1,183 @@
+schema_version: 1
+kind: openxfactory-chain-anchoring-contract-schema
+name: xfactory_chain_anchoring_plane_separation_declaration
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/plane-separation-declaration.schema.yaml"
+contract_id: chain-anchoring-plane-separation-declaration
+contract_schema_version: 1
+title: Plane separation declaration
+description: >-
+  HOW A REALIZATION'S THREE PLANES ARE SEPARATED, DECLARED SO THE SEPARATION CAN
+  BE CHECKED RATHER THAN ASSUMED (add-chain-anchoring, capability
+  `chain-anchoring`, requirement "The record and demographic planes are
+  analyzable without the identity plane"). Analysis across the RECORD and
+  DEMOGRAPHIC planes is possible WITHOUT the IDENTITY plane BY CONSTRUCTION
+  rather than by policy: neither of the first two carries an identifier that
+  resolves a person, and the linkage that joins either to a person exists only
+  inside the governed permissioned identity plane. No DIRECT identifier is
+  exposed because there is none to expose, not because a query was written
+  carefully.
+
+  THE CROSS-PLANE JOIN KEY IS THE DEFECT THIS DECLARATION CLOSES. A design that
+  segregates three stores while carrying ONE shared record digest across all
+  three has made that digest a join key: anyone holding two rows can link them
+  without either plane's permission. So the per-plane key is derived under THAT
+  PLANE'S OWN SALT, and the anchored commitment — derived under the record's
+  salt, held in the governed layer — does not function as a cross-plane join key
+  (`anchored_commitment_used_as_join_key`). THE SEGREGATION IS ONLY STRUCTURAL IF
+  THE KEYS ARE.
+
+  AND THE LANE STILL NEEDS A JOIN, SO THE JOIN IS DEFINED RATHER THAN LEFT
+  IMPOSSIBLE. Correlating a demographic attribute with a record attribute
+  requires SOME correspondence between the two planes' rows, and refusing the one
+  thing that would silently supply it would leave a first-class use case that the
+  refusals forbid — an unachievable-by-construction obligation, which is a WORSE
+  defect than the join key it closes, because a stable key is a hazard an
+  implementer can see and an impossible requirement is one they will satisfy by
+  inventing the hazard back. The lawful mechanism is the AUTHORIZED, SCOPED
+  LINKAGE DERIVATION of this family's issuance and use records; a shared stable
+  key and a shared record digest are the same key wearing a different name
+  (`cross_plane_join_key_shared`).
+
+  WHAT THIS DELIVERS AND WHAT IT DOES NOT, STATED WITHOUT OVERSTATEMENT. It
+  delivers that the identity plane is NOT READ BY an analysis, that neither
+  analyzed plane carries a direct identifier, and that no anchored value serves
+  as a cross-plane join key. It does NOT deliver a DE-IDENTIFIED result: the
+  attributes that remain can single out a person in combination and can be linked
+  back to a record with no direct identifier present anywhere. The named
+  determination that carries that label belongs to the domain overlay, and this
+  capability names NO standard for it and stands in for none.
+
+  EVERY POSTURE MEMBER IS REQUIRED, BECAUSE A DECLARATION THAT CAN OMIT ONE
+  RECORDS THE SAFE CASE BY SILENCE. The identifier policy, the correlation
+  mechanism and the join-key posture are the three facts this record exists to
+  make checkable; an optional member would let a realization decline to state the
+  one that would have been refused, which is the same defect the analysis result
+  refuses under `analysis_result_silently_partial`.
+type: object
+required:
+  - schema_version
+  - kind
+  - declaration_id
+  - planes
+  - per_plane_keys
+  - per_plane_salts
+  - identifier_policy
+  - cross_plane_correlation
+  - anchored_commitment_usable_as_join_key
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_chain_anchoring_plane_separation_declaration]
+  declaration_id: {$ref: '#/$defs/identifier'}
+  planes:
+    # THE PLANES THIS REALIZATION RUNS. The names are structural — a plane is a
+    # custody boundary and not a subject area — and the enumeration is closed, so
+    # a realization cannot introduce a fourth plane whose separation nothing
+    # here describes.
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items: {$ref: '#/$defs/plane_name'}
+  per_plane_keys:
+    # ONE COMMITMENT KEY PER PLANE, EACH IN GOVERNED CUSTODY. One
+    # `reference_id` appearing under two planes is refused
+    # (`commitment_key_shared_across_planes`): a key common to two planes joins
+    # them whatever their salts do. The check is over the reference VALUES,
+    # which is why the custody reference carries an identifier a validator can
+    # compare rather than a description a reader has to interpret.
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      type: object
+      required: [plane, key_custody]
+      additionalProperties: false
+      properties:
+        plane: {$ref: '#/$defs/plane_name'}
+        key_custody: {$ref: '#/$defs/custody_reference'}
+  per_plane_salts:
+    # PER-PLANE SALTS UNDER PER-PLANE KEYS. The pair is what makes the
+    # segregation structural; either one alone leaves a join available.
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      type: object
+      required: [plane, salt_custody]
+      additionalProperties: false
+      properties:
+        plane: {$ref: '#/$defs/plane_name'}
+        salt_custody: {$ref: '#/$defs/custody_reference'}
+  identifier_policy:
+    # WHETHER A PLANE CARRIES AN IDENTIFIER THAT RESOLVES A PERSON, DECLARED PER
+    # PLANE. `true` on the RECORD or DEMOGRAPHIC plane is refused
+    # (`direct_identifier_in_demographic_plane`) — and the refusal is
+    # STRUCTURAL, resting on the identifier's DECLARED RESOLUTION rather than on
+    # its apparent content, which is what lets a neutral validator make it at
+    # all. The value stays writable on every plane so the negative example
+    # exists.
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      type: object
+      required: [plane, direct_identifier_present]
+      additionalProperties: false
+      properties:
+        plane: {$ref: '#/$defs/plane_name'}
+        direct_identifier_present: {type: boolean}
+        resolution_statement: {type: string, maxLength: 600}
+  cross_plane_correlation:
+    # THE ONE LAWFUL MECHANISM, AND THE TWO THAT ARE REFUSED, IN ONE CLOSED
+    # ENUMERATION. `shared_stable_key` and `shared_record_digest` are the
+    # refused values (`cross_plane_join_key_shared`) and are MEMBERS on purpose:
+    # a realization that has built one must be able to declare it and be
+    # refused, rather than be unable to say what it did.
+    type: object
+    required: [mechanism]
+    additionalProperties: false
+    properties:
+      mechanism:
+        type: string
+        enum: [authorized_scoped_derivation, shared_stable_key, shared_record_digest]
+      derivation_issuer_plane:
+        # WHERE A DERIVATION IS MINTED, where the mechanism is the lawful one.
+        # It is the IDENTITY plane and nowhere else
+        # (`linkage_derivation_not_issued_by_identity_plane`): linkage lives
+        # only there, and an unauthorized derivation is a join key minted by
+        # whoever wanted one.
+        $ref: '#/$defs/plane_name'
+      statement: {type: string, maxLength: 900}
+  anchored_commitment_usable_as_join_key:
+    # `true` IS REFUSED (`anchored_commitment_used_as_join_key`). A holder of an
+    # anchored commitment cannot use it to join a demographic entry to an
+    # identity entry, because the commitment is derived under the RECORD plane's
+    # own salt held in the governed layer and no plane's key is derivable from
+    # it. The member is writable as `true` so the claim can be made and refused.
+    type: boolean
+  identity_plane_read_by_analysis:
+    # DECLARED, BECAUSE THE HEADLINE CLAIM DEPENDS ON IT. Correlation is
+    # authorized IN ADVANCE by a derivation rather than resolved during a run,
+    # so an analysis reads the record and demographic planes alone. A
+    # realization declaring `true` has kept the linkage inside the run, which is
+    # the arrangement the whole separation exists to avoid.
+    type: boolean
+  deidentification_claimed_from_separation:
+    # `true` IS REFUSED (`analysis_result_labelled_deidentified`). Not querying
+    # the identity plane is NOT de-identification: it removes the direct linkage
+    # and not the identifying power of the attributes that remain. Absent the
+    # overlay's NAMED determination, a plane-separated result remains governed
+    # personal data under the same custody as the planes it came from.
+    type: boolean
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  plane_name:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/plane_name"
+  custody_reference:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/custody_reference"

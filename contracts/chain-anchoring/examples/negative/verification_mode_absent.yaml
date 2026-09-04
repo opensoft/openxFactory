@@ -1,0 +1,30 @@
+# expected_failure: verification_mode_absent
+# expected_failure_detail: no verification_mode
+# receipt_only and stateful carry genuinely different knowledge behind the same
+# status value; a result that does not say which it is leaves the caller
+# consuming the weaker answer as the stronger.
+schema_version: 1
+kind: xfactory_chain_anchoring_verification_result
+result_id: vr-negative-0017
+subject_ref: item-example-0001-log-checkpoint-640
+status: anchor_complete
+horizon_base:
+  kind: chain_derived
+  chain_id: chain-example-operational
+  chain_accepted_time: '2026-08-30T10:05:00Z'
+witness_shortfall:
+  configured:
+  - w-example-op-0001
+  - w-example-dur-0001
+  present:
+  - w-example-op-0001
+  - w-example-dur-0001
+  missing: []
+terminal_failure_distinguished: false
+receipt_ref: rcp-example-0001
+header_source_ref: hs-example-verifier-own-0001
+evaluated_at: '2026-08-31T09:00:00Z'
+record_version: 1
+notes: 'a receipt-only verification a holder ran on its own machine against a header
+  set it obtained for itself: no verification_leaf_ref, and that absence is the
+  receipt''s self-sufficiency working as designed, not non-conformance'

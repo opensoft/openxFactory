@@ -1,0 +1,153 @@
+schema_version: 1
+kind: openxfactory-chain-anchoring-contract-schema
+name: xfactory_chain_anchoring_linkage_derivation_issuance
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/linkage-derivation-issuance.schema.yaml"
+contract_id: chain-anchoring-linkage-derivation-issuance
+contract_schema_version: 1
+title: Authorized scoped linkage derivation — issuance
+description: >-
+  THE ONE LAWFUL CROSS-PLANE CORRELATION PATH, AT ITS ISSUANCE
+  (add-chain-anchoring, capability `chain-anchoring`, requirement "The record and
+  demographic planes are analyzable without the identity plane"). The stable
+  shared cross-plane key is refused; a lane that needs to correlate a demographic
+  attribute with a record attribute still needs SOME correspondence, so the
+  correspondence is DEFINED rather than left impossible — an impossible
+  requirement is one an implementer satisfies by inventing the hazard back.
+
+  EVERY ADJECTIVE IS LOAD-BEARING, AND EACH IS A REFUSAL. The derivation is
+  ISSUED BY THE IDENTITY PLANE, which is the only place linkage is permitted to
+  live (`linkage_derivation_not_issued_by_identity_plane`); UNDER AN ANCHORED
+  CONSENT CHECKPOINT, on the same footing the ruled boundary gives an off-chain
+  disclosure (`linkage_derivation_without_anchored_consent_checkpoint`);
+  PER-ANALYSIS AND NEVER STABLE, derived under a parameter unique to the
+  authorized analysis so two analyses' derivations correlate neither with each
+  other nor with anything outside them
+  (`linkage_derivation_reused_across_analyses`); EXPIRING AND REVOCABLE, so an
+  authorization that ends actually ends
+  (`linkage_derivation_not_expiring_or_revocable`); USABLE ONLY WITHIN THAT
+  ANALYSIS, resolving no person and travelling to no other consumer; and WRITTEN
+  AS LEAVES at issuance and at use.
+
+  A DERIVATION STABLE ACROSS ANALYSES IS THE REFUSED KEY UNDER ANOTHER NAME, and
+  the per-analysis parameter is what keeps that refusal from being reintroduced
+  by convenience. The refusal holds however the value is computed, since the
+  defect is the missing authorization and not the arithmetic.
+
+  ISSUANCE AUTHORIZES; IT DOES NOT IMMUNIZE. A revocation supersedes forward from
+  the moment it is recorded and anchored, so every USE answers to the CURRENT
+  revocation state and not merely to the fact of issuance — which is why this
+  record names a REVOCATION SURFACE a use must consult, and why a pre-issued
+  derivation is never self-authorizing offline.
+
+  THE IDENTITY PLANE IS STILL NOT READ BY THE ANALYSIS. The derivation is issued
+  IN ADVANCE and under consent; the analysis then runs over the record and
+  demographic planes alone and no person-resolving identifier enters it. This
+  record therefore carries no subject member of any kind, and
+  `additionalProperties: false` is what keeps one out.
+
+  AND THE NEUTRAL LAYER DEFINES THE SHAPE, NOT THE OCCASION. What a lawful
+  correlation path must BE is fixed here; WHEN a lane may be authorized, WHO may
+  authorize it and AGAINST WHAT STANDARD are domain law and domain judgement, and
+  they stay in the domain overlay. A capability that answered them would be
+  writing one domain's research-governance policy into a neutral contract.
+type: object
+required:
+  - schema_version
+  - kind
+  - derivation_id
+  - issuing_plane
+  - consent_checkpoint_ref
+  - consent_checkpoint_anchored
+  - per_analysis_parameter
+  - analysis_ref
+  - expires_at
+  - revocation_surface_ref
+  - issuance_leaf_ref
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_chain_anchoring_linkage_derivation_issuance]
+  derivation_id: {$ref: '#/$defs/identifier'}
+  issuing_plane:
+    # MUST BE `identity`, AND THE OTHER TWO ARE WRITABLE ON PURPOSE. A
+    # derivation minted in the record or demographic plane is the commissioned
+    # negative, refused by name
+    # (`linkage_derivation_not_issued_by_identity_plane`) with the ground
+    # stated, rather than made unrepresentable by a `const` that would report
+    # only that a value did not match.
+    $ref: '#/$defs/plane_name'
+  consent_checkpoint_ref:
+    # THE ANCHORED CONSENT CHECKPOINT THIS DERIVATION WAS ISSUED UNDER, by
+    # identifier — a `consent-checkpoint-commitment` record of this family.
+    $ref: '#/$defs/identifier'
+  consent_checkpoint_anchored:
+    # WHETHER THAT CHECKPOINT IS ACTUALLY ANCHORED. `false` is refused
+    # (`linkage_derivation_without_anchored_consent_checkpoint`), and so is an
+    # ABSENT declaration under the same code: an authorization resting on a
+    # checkpoint nobody witnessed rests on the issuer's own word, which is the
+    # thing the anchoring exists to replace.
+    type: boolean
+  per_analysis_parameter:
+    # THE PARAMETER THAT MAKES THIS DERIVATION THIS ANALYSIS'S AND NO OTHER'S.
+    # It is an opaque scope value and never a person-resolving one. Its
+    # UNIQUENESS is what the canonical validator checks across the corpus: a
+    # parameter repeated under a second `analysis_ref` is refused
+    # (`linkage_derivation_reused_across_analyses`), because a derivation stable
+    # across analyses is the shared cross-plane key under another name.
+    type: string
+    minLength: 16
+    maxLength: 200
+    pattern: '^[A-Za-z0-9_-]+$'
+  analysis_ref:
+    # THE ONE ANALYSIS THIS DERIVATION IS USABLE WITHIN. A use naming a
+    # different analysis is refused on the same code as a reused parameter,
+    # because carrying a derivation into a second analysis and deriving two that
+    # agree are the same defect reached two ways.
+    $ref: '#/$defs/identifier'
+  expires_at:
+    # EXPIRING, SO AN AUTHORIZATION THAT ENDS ACTUALLY ENDS. Required, with the
+    # revocation surface below: a derivation that neither expires nor can be
+    # revoked is refused (`linkage_derivation_not_expiring_or_revocable`).
+    type: string
+    format: date-time
+  revocation_surface_ref:
+    # WHAT A USE CONSULTS FOR THE CURRENT REVOCATION STATE. Naming it at
+    # issuance is what makes the use-time check performable at all — and where
+    # that state CANNOT be read, the correlation is refused rather than allowed
+    # to proceed on the strength of the issuance
+    # (`linkage_use_with_unreadable_revocation_state`).
+    $ref: '#/$defs/identifier'
+  issuance_leaf_ref:
+    # THE LEAF WRITTEN AT ISSUANCE, on the served surface. Issuance and use are
+    # each written as leaves; the leaf's own shape belongs to tranche one's
+    # grammar, and this record references it rather than defining a second one.
+    $ref: '#/$defs/identifier'
+  issued_at: {type: string, format: date-time}
+  correlating_planes:
+    # WHICH TWO PLANES THIS DERIVATION CORRELATES. The identity plane may ISSUE
+    # a derivation and is not among the planes an authorized analysis reads,
+    # which is the distinction the headline claim rests on.
+    type: array
+    minItems: 2
+    maxItems: 2
+    uniqueItems: true
+    items: {$ref: '#/$defs/plane_name'}
+  derivation_digest:
+    # The digest of this record under the one construction in force, for the
+    # leaf that records the issuance.
+    allOf:
+      - {$ref: '#/$defs/digest'}
+      - properties: {subject: {const: linkage_derivation}}
+        required: [subject]
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"
+  plane_name:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/plane_name"

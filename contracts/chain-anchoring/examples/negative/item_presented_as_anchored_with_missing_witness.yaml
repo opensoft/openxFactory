@@ -1,0 +1,33 @@
+# expected_failure: item_presented_as_anchored_with_missing_witness
+# expected_failure_detail: while the shortfall names
+# anchor_complete over a named missing witness: while an item is incomplete, a
+# verification returns anchor_incomplete NAMING the missing witnesses — never a
+# bare pass and never a bare fail, because the record supports neither answer.
+schema_version: 1
+kind: xfactory_chain_anchoring_verification_result
+result_id: vr-negative-0029
+subject_ref: item-example-0004-correction-checkpoint-652
+verification_mode: receipt_only
+status: anchor_complete
+horizon_base:
+  kind: chain_derived
+  chain_id: chain-example-operational
+  chain_accepted_time: '2026-08-30T08:00:00Z'
+witness_shortfall:
+  configured:
+  - w-example-op-0004
+  - w-example-dur-0004
+  present:
+  - w-example-op-0004
+  missing:
+  - w-example-dur-0004
+terminal_failure_distinguished: false
+receipt_ref: rcp-example-0004
+header_source_ref: hs-example-verifier-own-0001
+evaluated_at: '2026-08-30T16:00:00Z'
+record_version: 1
+notes: 'the SAME item as the stateful result beside it, verified receipt-only: same
+  status, weaker knowledge — this mode cannot distinguish a terminal failure from
+  a horizon breach (incomplete_cause: undistinguished_receipt_only, said rather
+  than omitted silently) and cannot prove a delay breach. The mode member is what
+  lets a caller tell the two answers apart'

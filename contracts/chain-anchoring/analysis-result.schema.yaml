@@ -1,0 +1,185 @@
+schema_version: 1
+kind: openxfactory-chain-anchoring-contract-schema
+name: xfactory_chain_anchoring_analysis_result
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/analysis-result.schema.yaml"
+contract_id: chain-anchoring-analysis-result
+contract_schema_version: 1
+title: Cross-plane analysis result with its outcome discriminator
+description: >-
+  THE RESULT OF AN ANALYSIS OVER THE SEPARATED PLANES, CARRYING A DECLARED
+  OUTCOME RATHER THAN LEAVING A CONSUMER TO INFER ONE (add-chain-anchoring,
+  capability `chain-anchoring`, requirement "The record and demographic planes are
+  analyzable without the identity plane"). *"Says which part"* is a DECLARED
+  OUTCOME ON THE RESULT, not a courtesy in a log line, so it is given a shape a
+  validator can check.
+
+  A SILENTLY PARTIAL RESULT IS REFUSED, ON THE SAME REASONING THE ANCHORING
+  REQUIREMENTS REFUSE AN AGGREGATE `anchored` BOOLEAN. A consumer reads the value
+  it is given and not the circumstance behind it, so a result that merely OMITS
+  what it could not do will be consumed as a result that had NOTHING TO ADD. The
+  three shapes — a complete result, a correlation-refused result, and a result
+  with no correlation to make — are decidable apart BY THE RESULT ITSELF
+  (`analysis_result_silently_partial`).
+
+  THE GROUND IS ENUMERATED AND NEVER FREE TEXT, because a ground a validator
+  cannot compare is a ground it cannot check
+  (`analysis_result_refusal_ground_free_text`); and a status value outside the
+  closed enumeration is refused rather than passed through
+  (`analysis_result_status_outside_enumeration`).
+
+  THE PER-PLANE RESULTS ARE CARRIED DISTINCTLY FROM THE CORRELATED OUTPUT, so
+  what was produced WITHOUT a join is never read as the join's answer. That
+  separation is the shape's half of the refusal above.
+
+  AND THE DE-IDENTIFICATION MEMBER IS A HOOK AND NEVER A STANDARD. NOT QUERYING
+  THE IDENTITY PLANE IS NOT DE-IDENTIFICATION: the attributes that remain — the
+  demographic values and the record-plane material the analysis exists to read —
+  can SINGLE OUT a person in combination and can be linked back to a record, with
+  no direct identifier present anywhere. So a result claiming the label with NO
+  named determination referenced is refused
+  (`analysis_result_labelled_deidentified`), and absent that determination the
+  result remains GOVERNED PERSONAL DATA in the governed layer under the same
+  custody as the planes it came from. **THIS CAPABILITY NAMES NO DETERMINATION
+  STANDARD, PROVIDES NO PATH BY WHICH ONE IS PRESUMED, AND STANDS IN FOR NONE.**
+  The reference is an opaque identifier of a determination made elsewhere; WHICH
+  determination, against WHAT standard and by WHOSE judgement belong to the
+  domain overlay, and a neutral contract that named one would be carrying one
+  domain's law.
+
+  THERE IS NO `correlation_attempted` MEMBER, DELIBERATELY. Whether a correlation
+  was attempted is already recorded by the linkage-derivation USE records of the
+  corpus, and a second spelling of one fact is a channel for the two to disagree
+  — which is exactly the defect a result carrying its own convenient answer would
+  introduce. The canonical validator reads the corpus.
+type: object
+required:
+  - schema_version
+  - kind
+  - result_id
+  - status
+  - per_plane_results
+  - deidentification
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_chain_anchoring_analysis_result]
+  result_id: {$ref: '#/$defs/identifier'}
+  analysis_ref:
+    # The analysis this result belongs to — the same identifier a linkage
+    # derivation is scoped by, so a result and the derivation that authorized
+    # its join can be compared.
+    $ref: '#/$defs/identifier'
+  status:
+    # THE CLOSED STATUS DISCRIMINATOR. `correlation_not_requested` is a distinct
+    # answer from `correlation_refused` on purpose: an analysis that never
+    # needed a join and one whose join was refused produce the same per-plane
+    # rows, and a consumer that cannot tell them apart will read the second as
+    # the first.
+    type: string
+    enum: [complete, correlation_refused, correlation_not_requested]
+  per_plane_results:
+    # CARRIED DISTINCTLY FROM THE CORRELATED OUTPUT. Each entry names its plane
+    # and REFERENCES its output rather than carrying it: this record is a result
+    # descriptor and not a payload container, and the boundary the commitment
+    # requirement draws applies to every record of this family.
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      type: object
+      required: [plane, result_ref]
+      additionalProperties: false
+      properties:
+        plane: {$ref: '#/$defs/plane_name'}
+        result_ref: {$ref: '#/$defs/identifier'}
+  correlated_output:
+    # PRESENT ONLY WHERE A JOIN WAS ACTUALLY PERFORMED, and referenced rather
+    # than carried, on the same reasoning as the per-plane results. A result
+    # with `status: complete` that carries no correlated output while the corpus
+    # shows a correlation was attempted is the silently-partial case.
+    type: object
+    required: [output_ref, derivation_ref]
+    additionalProperties: false
+    properties:
+      output_ref: {$ref: '#/$defs/identifier'}
+      derivation_ref:
+        # THE AUTHORIZATION THE JOIN RAN UNDER. A correlated output that names
+        # no derivation is a join whose authorization nothing records, which is
+        # the unauthorized derivation refused by the plane-separation
+        # requirement.
+        $ref: '#/$defs/identifier'
+      use_ref: {$ref: '#/$defs/identifier'}
+  omitted_correlation:
+    # REQUIRED IN SUBSTANCE WHERE `status` IS `correlation_refused`, and named by
+    # the validator rather than forced by an `if/then`, so a result that omits
+    # it earns `analysis_result_silently_partial` — the refusal that says what
+    # was actually wrong — instead of a schema error reporting a missing
+    # property.
+    type: object
+    required: [correlation_name, ground]
+    additionalProperties: false
+    properties:
+      correlation_name:
+        # WHICH correlation was not performed. A named correlation is what makes
+        # the omission checkable; "some correlation failed" is the silent
+        # partial with a sentence attached.
+        type: string
+        minLength: 1
+        maxLength: 200
+      ground:
+        # THE CLOSED ENUMERATION OF GROUNDS. Free text is refused
+        # (`analysis_result_refusal_ground_free_text`) because a ground a
+        # validator cannot compare is a ground it cannot check — and the three
+        # members are the three ways the consent-gated path can fail closed.
+        type: string
+        enum: [revocation_state_unreadable, consent_revoked, derivation_refused]
+      statement: {type: string, maxLength: 600}
+  deidentification:
+    # THE HOOK, NEVER THE STANDARD. `claimed: true` with `named_determination_ref:
+    # null` is refused (`analysis_result_labelled_deidentified`): the label is
+    # carried by a NAMED determination made elsewhere, and plane separation
+    # alone does not make one.
+    #
+    # `named_determination_ref` IS AN OPAQUE REFERENCE AND ITS TARGET IS NOT
+    # THIS CAPABILITY'S BUSINESS. This contract does not enumerate determination
+    # standards, does not validate one, and offers no default — a neutral
+    # contract that named a standard would be encoding one domain's law, and the
+    # neutrality requirement refuses exactly that.
+    type: object
+    required: [claimed, named_determination_ref]
+    additionalProperties: false
+    properties:
+      claimed: {type: boolean}
+      named_determination_ref:
+        # `null` IS THE HONEST VALUE WHERE NO DETERMINATION HAS BEEN MADE, and
+        # it is what makes the refusal above representable: a shape that could
+        # not say "claimed with nothing behind it" could carry no negative
+        # example for the claim it exists to refuse.
+        oneOf:
+          - {type: string, minLength: 1, maxLength: 300}
+          - {type: "null"}
+      remains_governed_personal_data:
+        # DECLARED, BECAUSE THE DEFAULT IS THE ONE A REALIZATION WILL FORGET.
+        # Absent a named determination the result stays in the governed layer
+        # under the same custody as the planes it came from; a realization
+        # treating the output as reusable BECAUSE the identity plane was not
+        # queried is refused.
+        type: boolean
+  result_digest:
+    allOf:
+      - {$ref: '#/$defs/digest'}
+      - properties: {subject: {const: analysis_result}}
+        required: [subject]
+  produced_at: {type: string, format: date-time}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"
+  plane_name:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/plane_name"

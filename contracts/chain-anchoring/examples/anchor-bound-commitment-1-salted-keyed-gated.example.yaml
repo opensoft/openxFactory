@@ -1,0 +1,36 @@
+# THE ONLY KIND OF VALUE THIS CAPABILITY PUTS ON A CHAIN: an opaque commitment
+# whose construction is DECLARED — keyed and salted, csprng salt of 256 bits
+# (floor is 128), per-record scope, both secrets custodied in the governed
+# layer where no anchor can reach them — and whose material passed the named
+# gate before earning an item anchor. The record carries no free-text member:
+# the one record whose value reaches a chain offers no prose channel.
+# Destroying the salt is the erasure mechanism, and the same act makes the
+# handle permanently unverifiable — that is not a defect of the mechanism, it
+# IS the mechanism.
+schema_version: 1
+kind: xfactory_chain_anchoring_anchor_bound_commitment
+commitment_id: cac-example-0001
+commitment_value: sha256:afbe55555270609848a7ce737fc4fb056ee8d35e8ff36bea65c4831f65287745
+declared_construction:
+  algorithm: hmac-sha256
+  keyed: true
+  salted: true
+  salt_custody:
+    reference_id: salt-example-record-0001
+    resolves_into: governed_layer
+    plane: record
+  key_custody:
+    reference_id: key-example-record-plane
+    resolves_into: governed_layer
+    plane: record
+  salt_source: csprng
+  salt_width_bits: 256
+  salt_scope: per_record
+plane: record
+receipt_ref: rcp-example-0003
+commitment_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_bound_commitment
+  value: sha256:e7ebc7d27fee789eb8ba06190646d9cf38fcfe466d376c5865b06235db326884
+named_gate_ref: gate-example-merge-0001
+record_version: 1

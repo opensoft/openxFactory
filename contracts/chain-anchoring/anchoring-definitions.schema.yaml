@@ -1,0 +1,337 @@
+schema_version: 1
+kind: openxfactory-chain-anchoring-contract-schema
+name: xfactory_chain_anchoring_definitions
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml"
+contract_id: chain-anchoring-definitions
+contract_schema_version: 1
+title: The shared definitions in force for chain-anchoring
+description: >-
+  THE SHARED VOCABULARY IS DECLARED HERE, ONCE, AND NOWHERE ELSE
+  (add-chain-anchoring, capability `chain-anchoring`, requirements "The
+  multi-anchor receipt format is defined FIRST and is chain-agnostic", "Both
+  ruled witnesses anchor every anchored item, with no selectivity" and "This
+  capability is neutral and names no domain semantics"). This file declares NO
+  RECORD KIND: it is the definition set every record shape in this family takes
+  by `$ref`, on tranche one's own precedent, so the family cannot grow a second
+  spelling of a witness role, a plane name, a custody reference, a duration or a
+  refusal code beside the first.
+
+  THE DIGEST CONSTRUCTION IS NOT RESTATED, AND NOTHING HERE SUPPLIES A SECOND
+  ONE. Every digest this capability COMPUTES is `xfc-jcs-sha256-1` under
+  `signed-execution-chain`'s `digest-construction.schema.yaml`, taken by `$ref`
+  to its absolute identifier. A later tranche adds no second rule; it adds a
+  SUBJECT to that file's enumeration, which is what this tranche does.
+
+  EVERY INTERVAL IN THIS FAMILY IS AN INTEGER SECOND COUNT, AND THAT IS A
+  DECISION RATHER THAN A CONVENIENCE. The timing model of the receipt requirement
+  is read by two parties who must reach the same instant from the same bytes: a
+  horizon expressed as "four hours" in one record and "14400" in another is two
+  values a reader has to reconcile, and a reconciliation is where a direction
+  error hides. One unit, one type, no per-record spelling.
+
+  THE ENUMERATIONS BELOW CAN SAY THE WRONG THING ON PURPOSE. A restriction this
+  capability places on a value a record DECLARES — a custody reference that
+  resolves onto a chain, a salt drawn from a non-cryptographic source, a witness
+  role a claim may not stand on — is refused BY NAME by the canonical validator
+  with the ground stated, and a shape that cannot EXPRESS the refused value
+  cannot carry the negative example that proves the refusal fires. Shapes this
+  family OWNS are made unrepresentable; restrictions it imposes on a declared
+  value are refused by name. The rule is tranche one's, carried unchanged.
+
+  NEUTRALITY IS A PROPERTY OF THESE NAMES. No member, enumeration value or
+  refusal code here names a domain, a domain's record kinds, a regulating body,
+  or a determination standard. The de-identification determination reachable from
+  the analysis-result record is a REFERENCE HOOK and never a standard; naming one
+  here would be the defect the neutrality requirement exists to refuse.
+type: object
+$defs:
+  # THE SHARED VOCABULARY OF TRANCHE ONE IS TAKEN BY REFERENCE, NEVER RESTATED.
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"
+
+  witness_role:
+    # EXACTLY TWO ROLES, AND THE DISTINCTION IS EVIDENTIARY RATHER THAN
+    # ORDERING. The OPERATIONAL witness answers first and is CORROBORATING
+    # evidence; the DURABILITY witness is what a long-horizon claim cites.
+    # "Primary" is order of arrival and never evidentiary weight, so this
+    # enumeration carries no ordering member for a reader to mistake for one.
+    # A third ROLE is not representable because a role is this family's own
+    # shape; a third anchor TARGET is representable and refused by name
+    # (`third_anchor_target`), because that is a configuration a realization
+    # declares and a refusal must say what was actually added.
+    type: string
+    enum: [operational, durability]
+
+  chain_id:
+    # A configured anchor target, named by identifier. It carries no chain
+    # semantics, no endpoint and no consensus family: what a verifier needs
+    # about a chain is the DECLARED CHAIN-ACCEPTED-TIME RULE below and the
+    # per-chain evidence the receipt carries, both of which travel with the
+    # artifact rather than with the name.
+    $ref: '#/$defs/identifier'
+
+  plane_name:
+    # The three planes of the separation requirement, named structurally. A
+    # plane is a custody boundary and not a subject area: the RECORD plane holds
+    # material, the DEMOGRAPHIC plane holds attributes, the IDENTITY plane holds
+    # the linkage that resolves a person and is the only place linkage may live.
+    type: string
+    enum: [record, demographic, identity]
+
+  duration_seconds:
+    # Every horizon, tolerance, skew band, cadence and delay bound in this
+    # family. An integer second count, so two readers compare the same value,
+    # and small by orders of magnitude — which keeps it inside the integer class
+    # the one digest construction admits, since a value that construction
+    # REFUSES cannot be committed by the anchored digest at all.
+    type: integer
+    minimum: 0
+
+  custody_reference:
+    # WHERE A SECRET LIVES, DECLARED RATHER THAN INFERRED. A salted keyed
+    # commitment has TWO secrets and the erasure property rests on BOTH: a
+    # reachable key destroys it exactly as a reachable salt does. So salts and
+    # keys take ONE shape here rather than two vocabularies that could drift.
+    #
+    # `resolves_into` CAN NAME THE REFUSED VALUES ON PURPOSE. The canonical
+    # validator refuses anything but `governed_layer` — `anchoring_chain` and
+    # `anchored_record` are the two ways the secret becomes reachable from the
+    # anchor, and a shape that could not say them could not carry the negative
+    # example that proves the refusal fires. The refusals are
+    # `salt_custody_reference_reachable_from_anchor` and
+    # `key_custody_reference_reachable_from_anchor`.
+    #
+    # `plane` is what makes a KEY reference checkable against the
+    # plane-separation requirement: one `reference_id` appearing under two
+    # planes is a join key whatever the salts do
+    # (`commitment_key_shared_across_planes`).
+    type: object
+    required: [reference_id, resolves_into]
+    additionalProperties: false
+    properties:
+      reference_id: {$ref: '#/$defs/identifier'}
+      resolves_into:
+        type: string
+        enum: [governed_layer, anchoring_chain, anchored_record]
+      plane: {$ref: '#/$defs/plane_name'}
+
+  chain_accepted_time_rule:
+    # THE RULE THAT DERIVES `A(c)` FROM THE RECEIPT'S OWN BYTES. It is declared
+    # per configured witness and lives INSIDE the mint-time configuration block,
+    # so the anchored digest commits to it: a rule a holder could edit while
+    # every inclusion proof still validated is not an input to a fail-closed
+    # decision.
+    #
+    # THE BASIS IS A HEADER FIELD OR IT IS NOTHING. `A(c)` is read from the
+    # BLOCK HEADER the per-chain entry already carries — the accepting block's
+    # time field on a linear chain, the accepting block's header timestamp on a
+    # DAG — and the rule CITES the consensus rule that constrains that field, so
+    # two verifiers reading one receipt reach one instant. A minter's local
+    # clock, a capture-time field, an observation time and any value the minter
+    # writes into the receipt are REFUSED as sources. A basis naming a minter
+    # clock is therefore not representable here; a rule whose basis IS a header
+    # field while a receipt's horizon base names a minter clock IS
+    # representable, and is refused by name (`horizon_base_from_minter_clock`).
+    #
+    # `ordering_and_inclusion_only` IS THE HONEST ANSWER FOR A CHAIN WHOSE
+    # HEADER CARRIES NO USABLE TIME FIELD. Such a witness still proves the
+    # anchor and still counts toward the configured set; it is simply NOT
+    # ELIGIBLE as a horizon base, because inventing a timestamp for it would
+    # rest a fail-closed decision on a number nothing can check. `basis:
+    # ordering_and_inclusion_only` and `ordering_only: true` are the same fact
+    # in two members, and the validator enforces the equivalence in BOTH
+    # directions rather than trusting either alone.
+    #
+    # `skew_seconds` IS ONE DECLARED VALUE SERVING BOTH USES. It is that
+    # chain's consensus rule's WORST LEGAL CASE, stated in BOTH directions and
+    # citing the rule, and it exists because no inequality holds between `A(c)`
+    # and the true submission instant: a header time is a reference with a
+    # WIDTH, not a point, and never an upper bound on submission. The SAME value
+    # feeds the horizon computation and the self-consistency refusal, so the two
+    # margins cannot drift apart — which is what a second declared skew would
+    # eventually do.
+    type: object
+    required: [rule_id, basis, consensus_rule_citation, skew_seconds, tolerance_seconds]
+    additionalProperties: false
+    properties:
+      rule_id: {$ref: '#/$defs/identifier'}
+      basis:
+        type: string
+        enum:
+          - linear_block_header_time_field
+          - dag_accepting_block_header_timestamp
+          - ordering_and_inclusion_only
+      consensus_rule_citation:
+        # THE RULE IS CITED, NOT ASSERTED. A declared width with no cited
+        # consensus rule behind it is a number a realization chose, and the
+        # whole point of the band is that a reader can check where it came from.
+        type: string
+        minLength: 1
+        maxLength: 400
+      skew_seconds: {$ref: '#/$defs/duration_seconds'}
+      tolerance_seconds:
+        # THE MARGIN IS APPLIED IN ONE DIRECTION ON PURPOSE. A breach is
+        # declared only where the elapsed interval exceeds the horizon PLUS the
+        # skew PLUS this tolerance; a horizon exceeded by less than it is not a
+        # breach. The harm is asymmetric — neither answer presents the item as
+        # anchored, but a FALSE breach raises the operator obligation on a
+        # SOUND item and turns the signal into noise, while a slightly LATE
+        # breach is still caught on its own transition leaf.
+        $ref: '#/$defs/duration_seconds'
+      ordering_only: {type: boolean}
+
+  chain_native_value:
+    # A VALUE THE ANCHORING CHAIN COMPUTED, TRANSCRIBED — AND DELIBERATELY NOT
+    # THIS FAMILY'S DIGEST SHAPE. A block hash, a Merkle sibling on a foreign
+    # tree and a DAG acceptance path element are produced by another chain's
+    # consensus rules; carrying them as `{construction: xfc-jcs-sha256-1, ...}`
+    # would assert a construction that did not produce them, which is the same
+    # defect a second construction would be, pointing the other way. The digest
+    # subject enumeration has no member for foreign chain material for exactly
+    # this reason.
+    #
+    # IT IS STILL ALGORITHM-TAGGED, on the family's own doctrine: an untagged
+    # opaque value makes a later migration a silent reinterpretation. Nothing
+    # this capability COMPUTES uses this shape — every digest it computes takes
+    # the one construction by `$ref`.
+    type: string
+    minLength: 20
+    maxLength: 400
+    pattern: '^[a-z0-9][a-z0-9-]{0,31}:[0-9a-f]{16,256}$'
+
+  base64url_bytes:
+    # RAW BYTES CAPTURED WHOLE — an anchor transaction, a block header — carried
+    # in the receipt rather than fetched later. Unpadded base64url, the spelling
+    # the family already uses for signature material.
+    #
+    # THE BOUND IS ON A TRANSACTION, NOT AN ADMISSION OF A PAYLOAD. `maxLength`
+    # bounds a captured chain artifact; it is not a doorway for record content,
+    # which the structural payload refusal of the commitment requirement closes
+    # on the records that are anchor-bound.
+    type: string
+    minLength: 1
+    maxLength: 500000
+    pattern: '^[A-Za-z0-9_-]+$'
+
+  commitment_value:
+    # THE ANCHOR-BOUND OPAQUE VALUE ITSELF, ALGORITHM-TAGGED. A salted keyed
+    # commitment and a plain digest of the same material are INDISTINGUISHABLE
+    # BY INSPECTION — both are opaque values of the same width — which is
+    # precisely why the construction is DECLARED beside the value and never
+    # inferred from it. The tag says which algorithm produced the bytes; it says
+    # nothing about keying or salting, and no reader should take it to.
+    type: string
+    minLength: 20
+    maxLength: 400
+    pattern: '^[a-z0-9][a-z0-9-]{0,31}:[0-9a-f]{32,256}$'
+
+  terminal_failure_ground:
+    # THE THREE GROUNDS A REALIZATION CAN NAME for a witness that failed in a
+    # way waiting cannot fix. A terminal failure moves an item out of
+    # `anchor_pending` IMMEDIATELY rather than waiting out a horizon that cannot
+    # now be met, because waiting would report a sound pending item over a
+    # known-dead witness.
+    #
+    # THE SAME THREE GROUNDS THE LEAF GRAMMAR SETTLES, STATED HERE BECAUSE A
+    # STATE RECORD IS NOT A LEAF. The transition leaf's shape is settled in
+    # tranche one's `transparency-log-leaf.schema.yaml`, which this family adds
+    # no second grammar beside; the anchor-state record carries the same ground
+    # so the record and its leaf can be compared rather than assumed to agree.
+    type: string
+    enum: [anchor_refused, capture_irrecoverable, target_withdrawn]
+
+  refusal_code:
+    # THE CLOSED REFUSAL ENUMERATION OF THIS CAPABILITY, IN ONE PLACE. Every
+    # record kind that reports a refusal takes it from here by `$ref`, so a
+    # refusal names what was actually lacking rather than what was convenient to
+    # report — and the canonical validator's self-test REFUSES a code with no
+    # negative example that provokes it, which is tranche one's rule carried
+    # unchanged.
+    #
+    # NOT ONE CODE NAMES A DOMAIN. The payload refusal is structural, the
+    # identifier refusal is structural, and the de-identification code names a
+    # LABEL claimed without a referenced determination rather than any standard
+    # a determination might be made against.
+    type: string
+    enum:
+      # ---- Receipt and capture time ------------------------------------------
+      - receipt_missing_transaction_bytes
+      - receipt_missing_inclusion_proof
+      - receipt_missing_block_header
+      - receipt_missing_chain_acceptance_evidence
+      - receipt_header_not_canonical
+      - receipt_transaction_deferred_to_verification
+      - receipt_missing_configured_witness_set
+      - receipt_configuration_not_committed
+      - receipt_configuration_block_edited
+      - receipt_only_input_outside_committed_block
+      - receipt_submission_after_earliest_chain_time
+      - receipt_self_inconsistent_delay
+      - receipt_entry_incomplete_for_pending_witness
+      - receipt_single_chain_shape
+      - receipt_carries_anchor_state
+      # ---- Verification ------------------------------------------------------
+      - verification_header_source_is_minter_supplied
+      - verification_mode_absent
+      - verification_result_claims_stateful_knowledge
+      - horizon_base_from_minter_clock
+      - determination_made_with_minter_claimed_base
+      - breach_declared_within_tolerance
+      - honest_receipt_refused_within_skew
+      - delay_check_read_as_compliance
+      - witness_shortfall_miscomputed
+      # ---- Anchor state and witnesses ----------------------------------------
+      - anchor_state_aggregate_boolean
+      - anchor_state_pending_and_incomplete
+      - anchor_state_transition_without_leaf
+      - anchor_state_complete_without_captured_receipt
+      - item_presented_as_anchored_with_missing_witness
+      - ten_year_claim_on_operational_witness
+      - claim_stands_on_operational_witness_alone
+      - witness_selectivity_rule
+      - third_anchor_target
+      - operational_anchor_without_retained_proof
+      - durability_proof_reanchored_rather_than_upgraded
+      # ---- Boundary and commitment -------------------------------------------
+      - payload_bearing_field
+      - commitment_construction_absent
+      - commitment_not_keyed_and_salted
+      - salt_custody_reference_reachable_from_anchor
+      - key_custody_reference_reachable_from_anchor
+      - commitment_key_shared_across_planes
+      - salt_entropy_declaration_absent
+      - salt_width_below_floor
+      # ---- Consent plane and checkpoints -------------------------------------
+      - consent_row_offered_for_anchoring
+      - consent_enforcement_as_on_chain_contract_code
+      - revocation_presented_as_recall
+      - checkpoint_inclusion_presented_as_validation
+      - checkpoint_anchor_missing_disclaimer
+      - item_anchor_over_ungated_material
+      - attempt_row_offered_for_direct_anchoring
+      - checkpoint_cadence_not_met
+      # ---- Served audit surface ----------------------------------------------
+      - served_audit_logs_refusals_only
+      - reporting_obligation_on_independent_verifiers
+      - served_verification_event_unlogged
+      # ---- Planes, linkage and analysis --------------------------------------
+      - direct_identifier_in_demographic_plane
+      - cross_plane_join_key_shared
+      - anchored_commitment_used_as_join_key
+      - linkage_derivation_reused_across_analyses
+      - linkage_derivation_not_issued_by_identity_plane
+      - linkage_derivation_without_anchored_consent_checkpoint
+      - linkage_derivation_not_expiring_or_revocable
+      - linkage_use_with_unreadable_revocation_state
+      - analysis_result_status_outside_enumeration
+      - analysis_result_refusal_ground_free_text
+      - analysis_result_silently_partial
+      - analysis_result_labelled_deidentified
+      # ---- Neutrality and declaration ----------------------------------------
+      - domain_record_kind_in_neutral_family
+      - overlay_relaxes_neutral_refusal
+      - structural_residual_declared_satisfied
+      - obligation_not_declared

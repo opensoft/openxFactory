@@ -1,0 +1,22 @@
+# expected_failure: revocation_presented_as_recall
+# expected_failure_detail: recall claimed
+# Revocation presented as recall: a revocation supersedes forward from the
+# moment it is recorded and anchored; it does not reach a copy already
+# disclosed, and nothing on a chain can be un-published. Any surface presenting
+# subject control carries the same limit.
+schema_version: 1
+kind: xfactory_chain_anchoring_consent_checkpoint_commitment
+commitment_id: ccc-negative-0046
+checkpoint_commitment:
+  construction: xfc-jcs-sha256-1
+  subject: consent_checkpoint
+  value: sha256:c4789f1cddded753622d427eadcde2d19444240d15fdbaea5b443e1516379ee7
+plane_root_ref: plane-root-example-permissioned-0001
+receipt_ref: rcp-example-0002
+enforcement_site: permissioned_plane
+revocation_semantics: supersedes_forward_only
+recall_claimed: true
+plane_unreachable_refuses: true
+consent_log_tree_size: 128
+anchored_at_leaf_ref: leaf-example-consent-checkpoint-anchored-0512
+record_version: 1

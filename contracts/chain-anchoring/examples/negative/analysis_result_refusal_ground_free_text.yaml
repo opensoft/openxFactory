@@ -1,0 +1,33 @@
+# expected_failure: analysis_result_refusal_ground_free_text
+# expected_failure_detail: is not one of
+# A refusal ground written as prose: a ground a validator cannot compare is a
+# ground it cannot check. The three enumerated members are the three ways the
+# consent-gated path fails closed.
+schema_version: 1
+kind: xfactory_chain_anchoring_analysis_result
+result_id: ar-negative-0064
+analysis_ref: ana-example-0001
+status: correlation_refused
+per_plane_results:
+- plane: record
+  result_ref: res-example-record-0001
+- plane: demographic
+  result_ref: res-example-demographic-0001
+deidentification:
+  claimed: false
+  named_determination_ref: null
+  remains_governed_personal_data: true
+produced_at: '2026-08-30T15:00:00Z'
+record_version: 1
+notes: 'the authorized join, end to end: per-plane results carried distinctly from
+  the correlated output, the output naming the derivation and the use that authorized
+  it — and no de-identification claimed, because plane separation alone does not
+  make one; absent a named determination the result remains governed under the same
+  custody as the planes it came from'
+omitted_correlation:
+  correlation_name: record-to-demographic-join
+  ground: the join was skipped for operational reasons
+result_digest:
+  construction: xfc-jcs-sha256-1
+  subject: analysis_result
+  value: sha256:2ffe5a12f74c125d7eff609c45c07393c7deb603fa8bbb32ddd307eb0fb78ad6

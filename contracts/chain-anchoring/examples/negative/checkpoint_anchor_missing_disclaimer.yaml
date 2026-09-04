@@ -1,0 +1,23 @@
+# expected_failure: checkpoint_anchor_missing_disclaimer
+# expected_failure_detail: reworded
+# The disclaimer reworded into its own negation: a disclaimer a realization can
+# reword is a disclaimer a realization can weaken, and this is the one sentence
+# whose weakening turns an integrity witness into a validity claim. Carried as
+# a constant so it travels with every record.
+schema_version: 1
+kind: xfactory_chain_anchoring_log_checkpoint_anchor
+anchor_id: lca-negative-0048
+checkpoint_ref: leaf-example-checkpoint-head-0640
+checkpoint_digest:
+  construction: xfc-jcs-sha256-1
+  subject: log_checkpoint
+  value: sha256:e3984376d1bc890294ec52dbe3f70f302b9fd2cc02f9839b18264517df384dd0
+tree_size: 640
+receipt_ref: rcp-example-0001
+validation_disclaimer: Inclusion in an anchored checkpoint may be treated as validation
+  of its leaves.
+presented_as_validation: false
+previous_checkpoint_anchor_ref: lca-example-0000
+covers_refused_leaves: true
+anchored_at_tree_size_leaf_ref: leaf-example-checkpoint-anchored-0641
+record_version: 1

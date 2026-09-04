@@ -1,0 +1,32 @@
+# expected_failure: item_anchor_over_ungated_material
+# expected_failure_detail: no named gate reference
+# An item anchor minted over material no gate passed: the resulting anchor is
+# PERMANENT, a broken chain is a fraud signal, and no configuration, operator
+# flag or urgency argument admits unvalidated material to this path. The
+# latency saved is one aggregation interval; the risk taken is permanent.
+schema_version: 1
+kind: xfactory_chain_anchoring_anchor_bound_commitment
+commitment_id: cac-negative-0049
+commitment_value: sha256:afbe55555270609848a7ce737fc4fb056ee8d35e8ff36bea65c4831f65287745
+declared_construction:
+  algorithm: hmac-sha256
+  keyed: true
+  salted: true
+  salt_custody:
+    reference_id: salt-example-record-0001
+    resolves_into: governed_layer
+    plane: record
+  key_custody:
+    reference_id: key-example-record-plane
+    resolves_into: governed_layer
+    plane: record
+  salt_source: csprng
+  salt_width_bits: 256
+  salt_scope: per_record
+plane: record
+receipt_ref: rcp-example-0003
+record_version: 1
+commitment_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_bound_commitment
+  value: sha256:4ef4b0afc943dc91a95de765ff4756d1bb6aa1dad0f307755900794500d7a1db

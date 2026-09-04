@@ -1,0 +1,21 @@
+# ONE USE OF THE ISSUED DERIVATION, AND THE REVOCATION STATE IT ANSWERED TO:
+# issuance authorizes, it does not immunize, so the use consulted the surface
+# the issuance named, read current_not_revoked, and performed the join under
+# that answer — never on the strength of the issuance alone, because a pre-
+# issued derivation treated as self-authorizing offline is how a revoked
+# authorization keeps working. The use is written as a leaf on the served
+# surface.
+schema_version: 1
+kind: xfactory_chain_anchoring_linkage_derivation_use
+use_id: lu-example-0001
+derivation_ref: ld-example-0001
+analysis_ref: ana-example-0001
+revocation_state_read: current_not_revoked
+correlation_performed: true
+use_leaf_ref: leaf-example-derivation-used-0701
+used_at: '2026-08-30T14:30:00Z'
+revocation_surface_ref: rvs-example-identity-plane-0001
+record_version: 1
+notes: 'issuance authorizes; it does not immunize: this use consulted the CURRENT
+  revocation state at the surface the issuance named, read current_not_revoked,
+  and performed the join under it'
