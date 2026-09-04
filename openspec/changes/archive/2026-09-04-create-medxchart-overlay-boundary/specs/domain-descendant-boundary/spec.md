@@ -13,8 +13,14 @@ exist — no sibling pull request has merged and that packet carries zero
 references to this file. The sibling is being authored stacked on this branch and
 will carry it.
 
-*Superseded 2026-09-03 at `0bf37d14`: `create-medxpractice-overlay-boundary` R3
-now cites this requirement by path (recorded in its ratification record).*
+*Superseded 2026-09-03 at `0bf37d14`: the two sentences immediately above —
+"at this head it does not yet exist", "carries zero references to this file" —
+were true when this delta was written and are FALSE NOW;
+`create-medxpractice-overlay-boundary` R3 cites this requirement by path
+(recorded in its ratification record). **THIS LINE IS THE CURRENT TRUTH ABOUT
+THE CITATION**; the paragraph above it is kept as the ratified text said it,
+because that text is what Brett Heap ratified on 2026-09-03 and an archive is
+not the place to rewrite it.*
 
 The scenario title "The draft establishing act archives" is kept VERBATIM even
 though the act is no longer a draft: a canon scenario title this block does not
