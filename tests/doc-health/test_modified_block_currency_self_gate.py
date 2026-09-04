@@ -1817,7 +1817,6 @@ def test_the_report_moves_only_in_this_family_s_lines(tmp_path):
 
 _FIXTURE_BUNDLE = "contract-v2.1"
 _FIXTURE_SUPERSEDED = "contract-v2.0"
-_UNREADABLE_TIP = "could not be read at the published tip"
 
 
 def _git(repo: Path, *args: str) -> str:
@@ -1933,10 +1932,27 @@ def test_the_measured_pair_survives_a_landing_on_main(tmp_path):
     pinned_cold = _report(repo, tmp_path / "pinned-cold", skip=False)
 
     # 1. THE DEFECT IS REAL, and it moves a band this gate says never moves.
-    assert _UNREADABLE_TIP in control_cold and _UNREADABLE_TIP not in control_warm, (
-        "the control pair did not straddle the landing: the second rendering "
-        "was expected to report the published tip as unreadable and the first "
-        "was not")
+    #
+    # RE-AIMED FOR openxFactory #612, on this fixture's own instruction: re-aim
+    # it at whatever the family reports now, do not delete it. Before #612 the
+    # cold rendering reported the published tip as UNREADABLE and this line
+    # asserted those words. The family now OBTAINS a tip its clone does not
+    # hold, so it READS the landing rather than declining it — and reads a
+    # different tree than the warm rendering did, which is the SAME straddle
+    # with a different symptom. The straddle is therefore asserted where it
+    # actually lives: in the live-remote family's own section, which must
+    # differ across the landing whatever words it uses to differ.
+    warm_section = _sections(control_warm).get(f"### {_LIVE_REMOTE_FAMILY}", [])
+    cold_section = _sections(control_cold).get(f"### {_LIVE_REMOTE_FAMILY}", [])
+    assert warm_section and cold_section, (
+        f"an unpinned rendering carries no {_LIVE_REMOTE_FAMILY} section at "
+        f"all, so this fixture is no longer measuring the family that reads "
+        f"`origin` live: {warm_section} then {cold_section}")
+    assert warm_section != cold_section, (
+        f"the control pair did not straddle the landing: {_LIVE_REMOTE_FAMILY} "
+        f"said the same thing before and after a commit landed on published "
+        f"`main` that this checkout did not have, so #626's mechanism no "
+        f"longer reproduces here. Its section read: {cold_section}")
     assert _bands(control_warm) != _bands(control_cold), (
         f"the unpinned pair did not move across a landing on `main` "
         f"({_bands(control_warm)} then {_bands(control_cold)}), so #626's "
@@ -1946,9 +1962,19 @@ def test_the_measured_pair_survives_a_landing_on_main(tmp_path):
         f"reports now — do not delete it.")
 
     # 2. THE PIN CLOSES IT, over the same tree and the same landing.
-    assert _UNREADABLE_TIP not in pinned_warm + pinned_cold, (
-        "a pinned rendering still reached `origin` for the published tip, so "
-        "`--skip-family release-tag-publication` did not take effect")
+    #
+    # ASSERTED ON THE SKIP NOTICE RATHER THAN ON A REASON STRING, and re-aimed
+    # for the same reason as the arm above: "the family did not say the words it
+    # used to say" would now pass over a family that ran in both renderings. A
+    # family skipped by run configuration says so in its own section, which is
+    # the fact this arm is actually about.
+    for label, text in (("warm", pinned_warm), ("cold", pinned_cold)):
+        section = _sections(text).get(f"### {_LIVE_REMOTE_FAMILY}", [])
+        assert any("skipped by run configuration" in line for line in section), (
+            f"the pinned {label} rendering does not show {_LIVE_REMOTE_FAMILY} "
+            f"skipped by run configuration, so `--skip-family` did not take "
+            f"effect and it reached `origin` for the published tip. Its "
+            f"section read: {section}")
     assert _bands(pinned_warm) == _bands(pinned_cold), (
         f"two renderings of ONE unchanged tree still moved across a landing on "
         f"`main`: {_bands(pinned_warm)} then {_bands(pinned_cold)}. Some family "
