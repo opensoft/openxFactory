@@ -59,7 +59,9 @@ construction rather than by an operator's care. The assertion is made where the
 build is — on the worker child, before the image exists — so the two-revision
 trap is DETECTABLE rather than merely avoidable: an image whose snapshot names
 revision X over a corpus at revision Y publishes a freshness header the viewer
-cannot satisfy. THIS MODULE HOLDS THE PREDICATE AND NOTHING ELSE.
+cannot satisfy. OF THAT RECIPE, THIS MODULE HOLDS ONLY THE PREDICATE
+(`verify_one_revision`) — never the generation, the build or the assertion's
+call site.
 
 `--strict` IS THE PUBLICATION GATE and it precedes the push. Zero errors AND
 zero warnings, and a validator that could not RUN fails too; a non-zero exit
