@@ -228,10 +228,17 @@ a new rule. The authoritative text is the ratified delta.
   `contracts/clearing/README.md` and `contracts/CHANGELOG.md` MUST move with the
   bytes, and the clearing header's negative-fixture count MUST be corrected to
   the MEASURED value rather than incremented from the written one.
-- **FR-011** The contract bundle version MUST advance by ONE ADDITIVE MINOR
-  allocated at realization by merge order, with a release digest inventory beside
-  it. **The annotated tag is the repository owner's act at the LANDED sha and is
-  NOT performed here.**
+- **FR-011** The new schema MUST be REGISTERED in `contracts/manifest.yaml` with
+  its digest. **NO BUNDLE NUMBER IS RESERVED.** `contract-v3.4` was claimed on
+  openxFactory issue #630 row 4 by lane `repo-shape` at 2026-09-04T12:40Z on the
+  repository owner's word *"cut contract-v3.4"*, and Amendment 1 rule 7
+  serializes contract-cut claims FIFO — so `contract_bundle_version` does not
+  move here, no changelog entry is written, and no release inventory is built.
+  The row records the CHANGE that registered it and leaves the number to the
+  cutting session, which is the form the `chain-anchoring` and
+  `chain-attestation` rows in this manifest already use and the form
+  `docs/contract-versioning-policy.md` requires. See research.md § O7 —
+  **LEFT FOR BRETT**.
 
 ### Key Entities
 
@@ -251,7 +258,8 @@ a new rule. The authoritative text is the ratified delta.
 - **SC-002** `python3 -m pytest tests/ -q -m "not postgres"` is green.
 - **SC-003** `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` passes.
 - **SC-004** The doc-health single-repo run reports no finding naming a path this
-  feature moved.
+  feature moved, and the `contract-v3.3` release inventory shows no NEW drift —
+  measured member by member at this head and at the base, research.md § O8.
 - **SC-005** Each of the five frozen copies and each of the three pinned numerals
   has been observed RED alone.
 - **SC-006** No new member of `REFUSAL_CODES`; no fourth refusal ground; no
@@ -273,5 +281,9 @@ Phase 4:
 - **The three packaged attestation fixtures** that carry
   `council-deliberation-worker.yml` as a live allowlisted member. They stay
   correct until the retirement lands (Phase 4.2a).
-- **The annotated `contract-v<minor>` tag** and the openspec archive of the
-  change (Phase 3.4 and Phase 5).
+- **THE WHOLE CONTRACT CUT** — the version line, the changelog entry, the release
+  digest inventory and the annotated tag (the ratified `tasks.md` Phase 3, items
+  3.1 – 3.4). `contract-v3.4` is another lane's on the owner's word; this feature
+  registers rows and reserves no number. research.md § O7.
+- **The openspec archive** of the change (its Phase 5), which is ordered after
+  `add-clearing-dispatch-boundary` archives.

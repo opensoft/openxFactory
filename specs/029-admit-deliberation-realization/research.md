@@ -178,41 +178,106 @@ ratified members than the instance is well-formed. Growing the fixture into a
 three-entry mirror of the instance would add a maintenance surface no ratified
 text asks for.
 
-### O7. The contract minor, and the two tests that pin `contract-v3.3`
+### O7. THE CONTRACT MINOR IS NOT TAKEN BY THIS FEATURE — `contract-v3.4` IS ALREADY CLAIMED
 
-`git tag -l 'contract-v3.*'` returns `contract-v3.0 … contract-v3.3`;
-`contracts/manifest.yaml` on the base declares `contract-v3.3`; no later cut has
-landed on `main`. **Merge order therefore allocates `contract-v3.4`.**
+**MEASURED, and it changed the answer.** `git tag -l 'contract-v3.*'` returns
+`contract-v3.0 … contract-v3.3`; `contracts/manifest.yaml` on `main` still
+declares `contract-v3.3`; no later cut has landed. On merge order alone the next
+number would be `contract-v3.4`.
 
-Two shipped assertions read the old number and MUST move with the cut, and both
-moves are recorded because neither is cosmetic:
+**IT IS SPOKEN FOR.** openxFactory issue #630 (the pinned *Shared substrates —
+claims* register) carries, at **2026-09-04T12:40:25Z**, comment
+`#issuecomment-5540561424`:
 
-- `tests/clearing/test_clearing_manifest_rows.py::test_every_row_declares_the_neutral_ownership_fields`
-  asserts the literal `"contract-v3.3"` in EVERY clearing row's
-  `consumption_rule`. Its docstring's own reason is *"each row records the
-  release that registered it, so a consumer reading one row knows which bundle to
-  pin"* — which is a PER-ROW fact, not a family-wide one. The assertion is
-  re-expressed per row: the six existing rows keep `contract-v3.3` (they were
-  registered there) and the new row records `contract-v3.4`. **Weakening it to
-  "some contract-v3.x" would have thrown the property away; it is tightened
-  instead.**
-- `tests/intent-compliance/test_release_boundary.py`'s `ReleaseState` enum ends at
-  `FEATURE_SUCCESSOR_7 = "contract-v3.3"`, and `_release_state()` FAILS the suite
-  on an unlisted value. It gains `FEATURE_SUCCESSOR_8 = "contract-v3.4"` plus the
-  by-hand paragraph every previous cut added, saying what the cut moves among
-  registered rows and that no intent-compliance member is among them — *"because
-  'unchanged' is the one thing the library cannot tell from 'unnoticed'."*
+> **SUBSTRATE CLAIMED — lane repo-shape** … Substrate: **row 4** (Contract cuts)
+> — version number **`contract-v3.4`** … Brett Heap's word 2026-09-04, in
+> session, lane repo-shape, verbatim: *"cut contract-v3.4"*.
 
-### O8. The release digest inventory is built by the repo's own tool
+Lane Collision Protocol **Amendment 1 rule 7** makes contract cuts a claimable
+shared substrate and serializes claims **FIFO**. That claim is 25 minutes older
+than this lane's realization claim, it names the repository owner's word, and its
+object (the openRepoShape consumption pin) has since landed on `main` as **#650**
+with the cut itself still to come.
 
-`scripts/doc_health/release_inventory.py` reports a declared bundle with no
-`contracts/releases/<tag>.digests.yaml` as an ERROR, so the inventory lands in the
-same commit set as the version line. It is MACHINE-WRITTEN by
-`python3 scripts/validate-contract-release.py build --tag contract-v3.4 --output …`
-and re-derived at the integration point, never hand-edited — the same order the
-`contract-v3.3` cut used (`920fade6` *"Re-derive the contract-v3.3 inventory at
-the integration point, not at the fork"*).
+**READING TAKEN, and it is the conservative one: THIS FEATURE DOES NOT CUT.**
 
-**The annotated tag is NOT this feature's act.** `docs/contract-versioning-policy.md`
-puts it at the LANDED sha, after `verify-commit` is re-run there, and it is the
-repository owner's.
+- `contract_bundle_version` is **NOT MOVED**. It still reads `contract-v3.3`.
+- **NO `contracts/CHANGELOG.md` ENTRY IS WRITTEN.** The policy allows one entry
+  per RELEASE, and this feature allocates no release.
+- **NO `contracts/releases/<tag>.digests.yaml` IS BUILT.** An inventory names a
+  bundle, and naming one would reserve it.
+- The new manifest row is **REGISTERED AT REALIZATION** and says so in its own
+  `consumption_rule`: *"Registered at realization by
+  `admit-deliberation-clearing-operation` … the bundle number is the cutting
+  session's and is not reserved here."*
+
+**THIS IS THE REPOSITORY'S OWN ESTABLISHED FORM, not an invention.** The twelve
+`contracts/chain-anchoring/` rows already on `main` carry the identical sentence,
+under a manifest comment that states the rule: *"NO BUNDLE NUMBER IS RESERVED BY
+THIS REGISTRATION … the next additive number is fresh-counted at the tip the cut
+is taken from … because a proposed change MUST NOT reserve a minor number before
+merge order is known."* `add-chain-attestation` split the same way — rows in the
+realization (#556), version bump and changelog in the cut (#565).
+`docs/contract-versioning-policy.md` says it in as many words.
+
+**LEFT FOR BRETT.** The realization's own `tasks.md` Phase 3 (3.1 – 3.4) is
+therefore UNDISCHARGED and its item 3.1 — *"claim the version number, not the
+files, on openxFactory issue #630 row 4"* — cannot be performed by this lane
+while row 4 is held. The cut that carries these bytes will be whichever cut
+follows `contract-v3.4`, and it must, when it comes:
+
+1. advance `contract_bundle_version`;
+2. write ONE changelog entry, class **ADDITIVE (minor)**, MEASURED — see the
+   measurement already taken in § O9 below, which a cutting session can use
+   rather than re-deriving;
+3. build `contracts/releases/<tag>.digests.yaml` with
+   `scripts/validate-contract-release.py build`;
+4. move `tests/clearing/test_clearing_manifest_rows.py`'s `REGISTRATION` map
+   entry for `clearing-deliberation-return` from the change name to the number,
+   and `tests/intent-compliance/test_release_boundary.py`'s `ReleaseState` enum
+   to admit the new value — both of which this feature deliberately did NOT
+   touch, because touching them is cutting.
+
+### O8. What a later cut will be carrying — MEASURED NOW so it is not re-derived
+
+`git diff --name-status contract-v3.3 <this branch> -- contracts/` reports **119
+additions and 6 modifications**. Only NINE of them are this feature's:
+
+| this feature's | |
+|---|---|
+| A | `contracts/clearing/deliberation-return.schema.yaml` |
+| A | `contracts/clearing/examples/deliberation-return.example.yaml` |
+| A | `contracts/clearing/examples/negative/deliberation-return-carrying-a-verdict.yaml` |
+| A | `contracts/clearing/examples/negative/deliberation-return-that-does-not-match-its-shape.yaml` |
+| M | `contracts/clearing/permitted-operations.registry.yaml` |
+| M | `contracts/clearing/dispatch-record.schema.yaml` |
+| M | `contracts/clearing/examples/dispatch-record-refused.example.yaml` |
+| M | `contracts/clearing/examples/negative/register-carrying-an-unratified-operation.yaml` |
+| M | `contracts/clearing/examples/negative/manifest-naming-an-unregistered-operation.yaml` |
+
+plus this feature's share of `contracts/manifest.yaml` and `contracts/README.md`.
+
+**THE OTHER 110 ARE NOT THIS FEATURE'S, and are named here for the same reason
+the `contract-v3.3` entry named the two review-lane files it did not own — so a
+reader intersecting the diff with an entry does not attribute them to the wrong
+change.** They moved on `main` between the `contract-v3.3` tag (which peels to
+`16b85614`) and this branch's base `3cf917b7`:
+
+- **`contracts/chain-anchoring/` — the whole tranche-three family, 110 new
+  files**, registered at realization by `add-chain-anchoring` with its rows
+  already in `contracts/manifest.yaml` and its changelog entry expressly left, in
+  that manifest's own words, as *"the cutting session's act, unwritten at this
+  commit"*.
+- `contracts/signed-execution-chain/digest-construction.schema.yaml`,
+  `transparency-log-leaf.schema.yaml` and that family's `README.md` — the same
+  tranche-three work.
+- `contracts/review-lane-pin.yaml` and `contracts/review-lane-floor-snapshot.yaml`.
+
+**NO RELEASE-INVENTORY DRIFT IS CREATED BY THIS FEATURE, and that was measured
+rather than assumed.** Every one of the 283 members of
+`contracts/releases/contract-v3.3.digests.yaml` was re-hashed at this branch's
+head: one drifts, `contracts/manifest.yaml`, which
+`scripts/doc_health/release_inventory.py` classes as EDITORIAL and reports at
+INFO. `contracts/clearing/` is not in that inventory at all, so no member of it
+moved. The count is identical at the base commit, so this feature adds nothing to
+it.

@@ -116,29 +116,42 @@ fixture refresh, no annotated tag, no archive.
 ## Phase 5: Bookkeeping that moves with the bytes (ratified 2.10, and Phase 3's 3.2/3.3)
 
 - [ ] T026 `contracts/manifest.yaml`: the new row `clearing-deliberation-return`
-      with its digest; the register instance's and the dispatch-record schema's
-      row digests recomputed; the clearing-family header comment's corpus counts
-      corrected to the MEASURED values; `contract_bundle_version` →
-      `contract-v3.4`.
+      with its digest, REGISTERED AT REALIZATION and reserving no bundle number;
+      the register instance's and the dispatch-record schema's row digests
+      recomputed; the clearing-family header comment's corpus counts corrected to
+      the MEASURED values (7 positives, 28 negatives — the second was written
+      "24" while the disk held 26). **`contract_bundle_version` is NOT moved:
+      `contract-v3.4` is claimed by lane `repo-shape` on the owner's word,
+      research.md § O7.**
 - [ ] T027 `tests/clearing/test_clearing_manifest_rows.py`: `EXPECTED_ROWS` 6 → 7,
-      the count test renamed, the per-row registration assertion re-expressed so
-      each row records the release that registered IT.
-- [ ] T028 `contracts/releases/contract-v3.4.digests.yaml`, MACHINE-WRITTEN by
-      `python3 scripts/validate-contract-release.py build --tag contract-v3.4`
-      and re-derived at the integration point. **Never hand-edited.**
+      the count test renamed, and the per-row registration assertion re-expressed
+      through a new `REGISTRATION` map so each row records WHERE IT CAME FROM —
+      the six cut rows their bundle, the realization row its CHANGE — plus
+      `test_the_realization_row_reserves_no_bundle_number`, which is what stops a
+      later session writing a number in without cutting.
+- [X] T028 ~~Build the release digest inventory~~ **NOT DONE, DELIBERATELY.** An
+      inventory names a bundle and naming one reserves it. Measured instead: no
+      member of `contracts/releases/contract-v3.3.digests.yaml` drifts at this
+      head beyond the EDITORIAL `contracts/manifest.yaml`, identically to the
+      base, so this feature creates no release-inventory finding. research.md
+      § O8.
 - [ ] T029 [P] `contracts/clearing/README.md`: the register section stops saying
       "exactly one member" and stops saying `deliberation` is deliberately
       absent; the shape table gains the return schema; the corpus counts move;
       the honest-limit paragraph is retained and extended to name the gate's grep
       AND the test that pins it as copies four and five.
 - [ ] T030 [P] `contracts/README.md`: the two clearing index rows move.
-- [ ] T031 [P] `contracts/CHANGELOG.md`: one entry, class **ADDITIVE (minor)**,
-      written from a MEASURED diff against `contract-v3.3`, naming anything that
-      moved on `main` between the tag and this base so a reader does not
-      attribute it to this cut.
-- [ ] T032 `tests/intent-compliance/test_release_boundary.py`: `ReleaseState`
-      gains `FEATURE_SUCCESSOR_8 = "contract-v3.4"` with the by-hand paragraph
-      every previous cut added.
+- [X] T031 [P] ~~`contracts/CHANGELOG.md` entry~~ **NOT WRITTEN, DELIBERATELY** —
+      one entry per RELEASE, and this feature allocates none. The MEASUREMENT a
+      cutting session needs is taken and recorded in research.md § O8: 119
+      additions and 6 modifications since the tag, of which NINE are this
+      feature's and 110 are `add-chain-anchoring`'s, named so a reader does not
+      attribute them to the wrong change.
+- [X] T032 ~~`tests/intent-compliance/test_release_boundary.py`~~ **UNTOUCHED,
+      DELIBERATELY.** Its `ReleaseState` enum gates a bundle-number ADVANCE, and
+      advancing one is cutting. The cutting session moves it, together with
+      `REGISTRATION["clearing-deliberation-return"]` in
+      `tests/clearing/test_clearing_manifest_rows.py`.
 
 ## Phase 6: Proof and ticks
 

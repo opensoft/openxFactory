@@ -53,7 +53,7 @@ application.
 | Domain-neutral contracts live in openxFactory | the return schema is authored HERE, which is design D4's whole ruling |
 | Every YAML carries `schema_version` + `kind` | the new schema does, in the family's form |
 | Run the local validator before pushing | `validate-clearing-dispatch.py` plus the full pytest suite plus openspec strict |
-| A version number is allocated at realization by merge order | `contract-v3.4`, measured against `git tag -l` and the base manifest; **the tag itself is the owner's act at the landed sha** |
+| A change MUST NOT reserve a minor before merge order is known | measured: `contract-v3.4` is CLAIMED by lane `repo-shape` on the owner's word (issue #630 row 4, 12:40Z, FIFO under Amendment 1 rule 7), so this feature registers its row AT REALIZATION and reserves NO number — the `chain-anchoring` form already in this manifest. research.md § O7 |
 | Lane on every artifact | `Lane: hermes-wallet-exercise` on the PR body, every PR comment, and every commit trailer |
 | Never `git add -A` | explicit pathspecs on every commit in the shared checkout |
 
@@ -72,9 +72,9 @@ application.
    The shared verdict check is EXTRACTED rather than copied.
 4. **The three refusal grounds** — independent of 3, ordered after it only so the
    diff reads in the order the requirement does.
-5. **Bookkeeping** — manifest rows, digests, counts, READMEs, changelog, the
-   additive minor, the release inventory, and the two shipped assertions that
-   pin the old bundle number.
+5. **Bookkeeping** — manifest rows, digests, corrected corpus counts, and the two
+   READMEs. **NOT the cut**: no version line, no changelog entry, no release
+   inventory, no tag.
 6. **The proof that each frozen copy fails alone**, run one at a time and
    recorded.
 7. **Ticks** on the ratified change's `tasks.md` Phase 2, each with its sha.
@@ -88,7 +88,7 @@ application.
 | The verdict scan is copied rather than shared, and drifts | the scan is extracted to one function called from both check paths |
 | A realizer mints a finding code for the schema failure | ratified design D13 names the emitter; the fixture declares `schema`, which the closed-set test excepts by name |
 | The gate's `N/N` line moves | the new negative fixture declares `schema`, which is not in the probed set, so N stays 26 |
-| The bundle version advances with no inventory | the inventory is built by `validate-contract-release.py build` in the same commit set |
+| A number another lane holds is taken | measured against issue #630 before writing; the feature cuts nothing and its row says so in its own text, pinned by `test_the_realization_row_reserves_no_bundle_number` |
 | A shared-index commit sweeps another session's work | explicit pathspecs; `git diff --cached --stat` inspected before each commit |
 
 ## Out of scope

@@ -59,9 +59,12 @@ python3 -m pytest tests/ -q -m "not postgres"
 Two modules outside `tests/clearing/` gate this change and are easy to forget:
 
 ```bash
-python3 -m pytest tests/intent-compliance/test_release_boundary.py -q   # the bundle-number enum
-python3 -m pytest tests/manifest_digests -q                             # every registered row's digest
+python3 -m pytest tests/manifest_digests -q   # every registered row's digest
 ```
+
+(`tests/intent-compliance/test_release_boundary.py`'s `ReleaseState` enum would
+gate a bundle-number advance. This feature advances none — see research.md § O7 —
+so that module is untouched.)
 
 ## 6. OpenSpec
 
@@ -102,5 +105,7 @@ digests (`tests/clearing/test_clearing_manifest_rows.py`).
   does not declare it.
 - The retirement of `council-deliberation-worker.yml`. That is the clearing
   repository's act, in the same commit as the host job.
-- The annotated `contract-v3.4` tag. The repository owner's act at the LANDED
-  sha, after `verify-commit` is re-run there.
+- **The contract cut.** `contract_bundle_version` still reads `contract-v3.3`,
+  there is no changelog entry and no release inventory, because `contract-v3.4`
+  is claimed by another lane on the owner's word. The new manifest row records
+  the CHANGE that registered it and reserves no number. research.md § O7.

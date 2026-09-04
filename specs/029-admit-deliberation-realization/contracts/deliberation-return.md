@@ -15,7 +15,7 @@ CONSUMER may rely on and what it may not.
 | `$id` | `https://xforge.us/schemas/openxfactory/clearing/v1/deliberation-return.schema.yaml` |
 | dialect | JSON Schema draft 2020-12 |
 | routing | `KIND_TO_SCHEMA` in `scripts/validate-clearing-dispatch.py` |
-| registered | `contracts/manifest.yaml`, row `clearing-deliberation-return`, at `contract-v3.4` |
+| registered | `contracts/manifest.yaml`, row `clearing-deliberation-return` — AT REALIZATION, reserving no bundle number (research.md § O7) |
 
 **Why the kind is ratified rather than realized.** The verdict scan is DISPATCHED
 ON KIND. A realization free to choose the kind would be free to choose whether
