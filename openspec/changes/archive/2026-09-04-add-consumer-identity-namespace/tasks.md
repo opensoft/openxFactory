@@ -93,14 +93,25 @@ directory; it holds no material.
 - [x] 2.7 `[#511]` The module docstring's `EIGHT consumer-*` becomes NINE, and
   the new behaviour is stated where a reader of the file meets it.
   **EXECUTED.**
-- [ ] 2.8 `[#511]` `MAJOR_RELEASE` reads `contract-v3.0` while
+- [x] 2.8 `[#511]` `MAJOR_RELEASE` reads `contract-v3.0` while
   `docs/contract-versioning-policy.md` has RESTATED the target to
   `contract-v4.0`, so every deprecation message this validator prints names a
-  major already cut without the acts. **NOT DONE, AND DELIBERATELY NOT DONE
-  HERE.** Neither ruling caused it, it predates both, and repairing it would
-  move all eleven messages under a packet nobody read for that purpose. OBSERVED,
-  reported on the PR, and left for its own act — an unticked box with a reason is
-  a better record than a tick that smuggled a fix.
+  major already cut without the acts. **THE REPAIR IS STILL NOT DONE HERE, AND
+  THE TICK DOES NOT CLAIM OTHERWISE.** Neither ruling caused it, it predates
+  both, and repairing it would move all eleven messages under a packet nobody
+  read for that purpose. What this row ever owed was OBSERVE AND REPORT, and
+  that obligation is now **DISCHARGED BY ROUTING RATHER THAN BY A FIX**:
+  openxFactory issue **#634** was filed 2026-09-04 on Brett Heap's word ("file
+  the two candidate issues"), it cites this row and OQ-3 by name as its
+  provenance, and it carries the measurement, the decision it needs (the
+  policy's `contract-v4.0` is the governed text; the constant lagged) and the
+  test that would stop the two drifting again. **THE BOX WAS LEFT UNTICKED
+  WHILE THE OBSERVATION HAD NOWHERE TO GO**; it is ticked at the archive act
+  because the observation now has a home that outlives this packet, which is
+  the only thing an archived packet can offer a defect it did not cause. The
+  earlier note in this row said an unticked box with a reason beats a tick that
+  smuggled a fix, and that is still true — no fix is smuggled here, and the
+  successor is named rather than implied.
 
 ## 3. Packaged fixtures — both directions, and the silent one first
 
@@ -680,3 +691,47 @@ This change carries a CODE SURFACE, so it archives on **merged plus green
 evidence on `main`** per `docs/release-realization-flow.md` § The Archive Gate —
 never with the ratification and never with the cut. It closes openxFactory #511
 and #553.
+
+- [x] 10.1 `[both]` **MERGED.** PR **#622**, squash **`95c2cf6a`**, merged
+  2026-09-04T00:38:55Z, carrying the packet AND its whole code surface in one
+  landing — the schema member, `CONSUMER_MEMBERS`/`_namespace`/
+  `_same_fetch_authority`/`_authority_label`/`_namespace_hint`/
+  `CONSUMER_FREE_STRINGS` in `scripts/validate-credential-contracts.py`, the
+  ninth `consumer-*` deprecation code, five packaged fixtures with their by-name
+  inventory, `major_projection.py`, the twenty tests of
+  `test_consumer_identity_refusals.py`, the recomputed `contracts/manifest.yaml`
+  row, and the two documentation surfaces.
+- [x] 10.2 `[both]` **REALIZED INTO A PUBLISHED RELEASE**, which is what
+  `target_release: THE NEXT ADDITIVE MINOR` names. § 5.3 records the fold: the
+  number was allocated by **PR #628**'s merge order, and **PR #636** (squash
+  **`16b85614`**, merged 2026-09-04T03:35:20Z) amended that same untagged
+  release with this packet's prescribed entry rather than spending a second
+  number on bytes already in the tree. The annotated tag **`contract-v3.3`**
+  (tag object `edb039c8`) now dereferences to **`16b85614`** on `origin`, and
+  `verify-tag` passed on the amended tree — see the comment trail on PR #628.
+  The release this packet's bytes ship in is therefore PUBLISHED, not pending.
+- [x] 10.3 `[both]` **GREEN ON `main`, MEASURED AFTER LANDING AND NOT
+  ASSUMED.** `main`'s own `pytest-suite` at **`92e662cf`** — run
+  **33835343327** — is `completed` / `success`. The gate asks whether the
+  realization is green WHERE IT LANDED, so it is `main`'s run that satisfies it
+  and not any pull request's. This clears § 7.7's recorded red: the six
+  `ModuleNotFoundError: cryptography` failures of openxFactory #620 that this
+  branch INHERITED and caused none of are no longer failing `main`.
+- [x] 10.4 `[both]` **THE ARCHIVE ACT ITSELF** — performed through
+  `python3 scripts/proposal-support.py . archive add-consumer-identity-namespace
+  --date 2026-09-04 --yes`, never a bare `openspec archive`, so the origin gate,
+  the incomplete-task gate and `openspec validate --strict` all run BEFORE the
+  move. Both `## MODIFIED Requirements` blocks are promoted into
+  `openspec/specs/credential-contracts/spec.md` and VERIFIED byte-identical to
+  the delta bodies by `sha256` after the act — `035152aa…bd1581be` for the block
+  requirement (16 scenarios) and `549ea6e1…b195b925` for the lift requirement
+  (15 scenarios). The packet lands at
+  `openspec/changes/archive/2026-09-04-add-consumer-identity-namespace/`.
+- [x] 10.5 `[both]` **§ 4.4a's TWO CARRIAGE-LEDGER SUBJECTS RETIRE ON THE
+  CONDITION THEY WERE WRITTEN WITH** — "both retire when this packet archives
+  and its blocks are promoted". Both halves are verified BEFORE the rows are
+  deleted, not after: the packet is archived and both blocks are promoted
+  byte-identical, so the two units the first finding named as uncarried and the
+  seven the second named are carried by construction rather than by argument.
+  The `modified-block-currency` family reads no archived path, so no finding can
+  name either path this packet ever had.
