@@ -448,6 +448,382 @@ def test_an_unfetched_published_tip_skips_rather_than_reading_no_bundle(tmp_path
     assert "no contract bundle declared" not in out.reason
 
 
+# ================================ the published tip this clone does not hold
+#
+# openxFactory #612. The family reads at the PUBLISHED tip, and `blobs_at`
+# answers a per-path None for TWO facts that are not each other: the path is
+# absent at a commit we hold, and the commit is not in the object store at all.
+# Guessing between them is what the nightly did — nine governed repositories
+# that simply carry no `contracts/` bundle surface were reported, every night,
+# in the words of a checkout that had not fetched their tips, while the
+# workflow's own "Fetch each governed submodule's live origin/main" step had
+# already put every one of those commits in the store. The reasons below are
+# written out as fresh literals rather than imported from the module, so a
+# reworded skip has to be re-agreed here.
+
+_UNFETCHED_WORDS = "could not be read at the published tip"
+_FETCH_TRIED_WORDS = ("a bounded fetch of exactly that commit was attempted "
+                      "and did not obtain it")
+_PRESENT_WORDS = "IS present in this clone and carries no contracts/manifest.yaml"
+_ANSWERED_WORDS = "so no contract bundle is declared there"
+
+# A realistic tip: codexFactory's own published tip on the 2026-09-03 nightly,
+# whose report line this fixture reproduces exactly.
+_TIP = "a79ff008b8004f0e1c2d3e4f5a6b7c8d9e0f1a2b"
+
+
+class _StoreGit(FakeGit):
+    """A fake OBJECT STORE: a blob is readable only at a commit the store holds.
+
+    `FakeGit.blobs_at` answers from a path-keyed dict and never looks at which
+    commit was asked for, so a double built on it CANNOT EXPRESS "the commit is
+    not here" — which is the one fact this whole section turns on. This one
+    gates every read on `commit_present`, so an absent commit answers per-path
+    None exactly as git does, and a fetch that succeeds changes the answer.
+    """
+
+    def blobs_at(self, repo, commit, relpaths):
+        if self.git_unavailable:
+            return None
+        if commit not in self.present_commits:
+            return {p: None for p in relpaths}
+        return {p: self.blobs.get((repo.name, p)) for p in relpaths}
+
+    def ls_tree_paths(self, repo, ref, prefix):
+        return [] if ref in self.present_commits else None
+
+
+def _store(**kwargs):
+    """A store shim declaring a repository that DOES declare `contract-v2.0`,
+    so every arm below differs from its neighbour by the object store alone."""
+    return _StoreGit(
+        remotes={"r": _TIP},
+        blobs={("r", MANIFEST): b"contract_bundle_version: contract-v2.0\n",
+               ("r", CHANGELOG): b"# Contract changelog\n"},
+        tag_refs={(str(Path("r")), "contract-v2.0"): (None, None)},
+        first_parents={(str(Path("r")), _TIP): [_TIP]},
+        **kwargs)
+
+
+def test_a_tip_this_clone_holds_that_carries_no_manifest_is_an_answer():
+    """THE NINE REPOSITORIES, openxFactory #612.
+
+    The commit IS here and it has no `contracts/manifest.yaml`. That is not a
+    read that failed, it is the answer — the same answer the sibling family
+    `release-inventory-drift` already gives these repositories — and reporting
+    it in the unfetched-tip words sent every reader of the nightly to look for
+    a fetch defect the workflow had already ruled out.
+    """
+    git = _StoreGit(remotes={"r": _TIP}, present_commits={_TIP})
+    out = rtp.check_repo("codexFactory", Path("r"), git)
+    assert isinstance(out, Skip)
+    assert _PRESENT_WORDS in out.reason
+    assert _ANSWERED_WORDS in out.reason
+    assert _UNFETCHED_WORDS not in out.reason, (
+        "the commit is in the store — saying otherwise is the #338 conflation "
+        "pointed the other way"
+    )
+    # AND NOTHING WAS FETCHED. A tip already held costs no round trip, which is
+    # what keeps this bounded: one `cat-file -e` per repository, not one fetch.
+    assert git.fetch_calls == []
+
+
+def test_an_absent_tip_that_can_be_fetched_is_fetched_and_then_judged():
+    """The read is retried at the tip once the fetch obtains it, and the
+    repository is JUDGED rather than skipped.
+
+    THE CONTROL IS THE SAME SHIM WITH AN UNSERVABLE ORIGIN, so this test cannot
+    pass by the guard having been deleted: take the fetch away and the ratified
+    skip is what stands.
+    """
+    git = _store(fetchable={_TIP})
+    assert rtp.check_repo("alphaFactory", Path("r"), git) == [], (
+        "the declaring commit is the published tip, so a family that could "
+        "read it is quiet — a skip here means it never got the commit"
+    )
+    # ONE ROUND TRIP, AND IT CARRIES THE WALK'S OWN WINDOW. `distance_from_tip`
+    # walks `threshold + 2` first-parent commits, so a fetch that brought only
+    # the tip would trade the manifest skip for a distance skip.
+    assert git.fetch_calls == [("r", _TIP, rtp.DEFAULT_THRESHOLD + 2)]
+
+    unservable = _store()
+    out = rtp.check_repo("alphaFactory", Path("r"), unservable)
+    assert isinstance(out, Skip)
+    assert _UNFETCHED_WORDS in out.reason
+    assert unservable.fetch_calls == [("r", _TIP, rtp.DEFAULT_THRESHOLD + 2)]
+
+
+def test_the_fetch_window_is_the_walk_window_and_not_one():
+    """PINNED AS A VALUE. A depth of 1 would obtain the tip and no history, and
+    `distance_from_tip` would then answer None for every repository whose cut
+    is not the tip itself — a skip traded for a skip, which is the shape of a
+    fix that reads as one."""
+    git = _store(fetchable={_TIP})
+    rtp.check_repo("alphaFactory", Path("r"), git)
+    assert [depth for _, _, depth in git.fetch_calls] == [7]
+
+
+# ------------------------------------------------- the same seam, on real git
+
+def _has(repo: Path, sha: str) -> bool:
+    return subprocess.run(["git", "-C", str(repo), "cat-file", "-e",
+                           f"{sha}^{{commit}}"], capture_output=True).returncode == 0
+
+
+def _advance_origin(repo: Path, origin: Path, tmp_path: Path, n: int) -> str:
+    """Land `n` commits on the ORIGIN that `repo` does not have.
+
+    A GENUINELY UNFETCHED PUBLISHED TIP, built the only way one exists: a second
+    clone pushes, and the first clone is left behind exactly as the aggregation
+    checkout is left behind by every submodule that lands anything after the
+    pin was taken. Nothing here is mocked — `ls-remote` really answers a commit
+    the working repository really does not hold.
+    """
+    other = tmp_path / f"{repo.name}-elsewhere"
+    subprocess.run(["git", "clone", "-q", str(origin), str(other)],
+                   check=True, capture_output=True)
+    _git(other, "config", "user.email", "t@example.invalid")
+    _git(other, "config", "user.name", "T")
+    _land(other, n)
+    _git(other, "push", "-q", "origin", "main")
+    return _git(other, "rev-parse", "HEAD").stdout.strip()
+
+
+def test_a_real_published_tip_this_clone_lacks_is_obtained_and_graded(tmp_path):
+    """END TO END, over real git and a real origin. Before this seam existed the
+    family answered this repository with a skip; it now answers it with the
+    grading the obligation is owed."""
+    repo, origin = _repo(tmp_path)
+    _declare(repo, "contract-v2.0", "cut v2.0")
+    _push(repo)
+    tip = _advance_origin(repo, origin, tmp_path, 3)
+    assert not _has(repo, tip), (
+        "the fixture has to start from a tip this clone genuinely lacks, or it "
+        "proves nothing about obtaining one"
+    )
+
+    findings = _check(repo)
+    assert not isinstance(findings, Skip)
+    assert len(findings) == 1
+    assert findings[0].severity == WARNING
+    assert "3 first-parent landing(s)" in findings[0].rule
+    assert _has(repo, tip), "the family obtained the commit it judged at"
+
+
+def test_when_the_fetch_cannot_obtain_it_the_ratified_skip_still_stands(tmp_path,
+                                                                       monkeypatch):
+    """THE FAIL-CLOSED FALLBACK, and the mutation proof for the arm above.
+
+    Same fixture, one thing changed: the fetch cannot obtain the commit. The
+    family MUST NOT then read an absent path as an absent declaration — that is
+    the #338 conflation the ratified scenario forbids — and the skip is
+    REPORTED with its reason rather than dropped.
+    """
+    repo, origin = _repo(tmp_path)
+    _declare(repo, "contract-v2.0", "cut v2.0")
+    _push(repo)
+    _advance_origin(repo, origin, tmp_path, 3)
+    monkeypatch.setattr(RealGit, "fetch_commit",
+                        lambda self, repo_path, sha, depth=None: False)
+
+    out = _check(repo)
+    assert isinstance(out, Skip)
+    assert _UNFETCHED_WORDS in out.reason
+    assert _FETCH_TRIED_WORDS in out.reason
+    assert "no contract bundle declared" not in out.reason
+
+
+def test_a_tip_already_held_costs_no_round_trip_on_real_git(tmp_path,
+                                                            monkeypatch):
+    """The ordinary case is the one that must stay free. The tip is local, the
+    tag peels to a local commit, and NOTHING is fetched."""
+    repo, _ = _repo(tmp_path)
+    _declare(repo, "contract-v2.0", "cut v2.0")
+    _git(repo, "tag", "-a", "contract-v2.0", "-m", "publish")
+    _push(repo)
+    attempts: list[str] = []
+    monkeypatch.setattr(RealGit, "fetch_commit",
+                        lambda self, repo_path, sha, depth=None:
+                        attempts.append(sha) or False)
+
+    assert _check(repo) == []
+    assert attempts == []
+
+
+_PEELED = "b17c0de0f00d1a2b3c4d5e6f708192a3b4c5d6e7"
+
+
+def test_a_tag_peeling_to_a_commit_this_clone_lacks_is_obtained_not_unlistable():
+    """THE SAME SEAM AT THE OTHER READ, and it skips the WHOLE repository.
+
+    A tag peels to a commit that is usually OLDER than anything a shallow or
+    freshly-advanced clone holds. Read through `blobs_at` alone that answers
+    per-path None, which this family turns into `unlistable` — "the published
+    refs could not be consulted" — and one unobtainable peel therefore silences
+    every bundle in the repository, not just its own.
+
+    THE CONTROL IS THE SAME SHIM WITH AN UNSERVABLE ORIGIN, so a deleted obtain
+    cannot pass here.
+    """
+    tag = {(str(Path("r")), "contract-v2.0"): ("tag", _PEELED)}
+    git = _store(present_commits={_TIP}, fetchable={_PEELED})
+    git.tag_refs = tag
+    assert rtp._tag_state(git, Path("r"), "contract-v2.0") == ("ok", _PEELED)
+    # DEPTH 1: only the peeled commit's own tree is read, so there is no walk
+    # to fund and no history to pay for.
+    assert git.fetch_calls == [("r", _PEELED, 1)]
+
+    unservable = _store(present_commits={_TIP})
+    unservable.tag_refs = tag
+    assert rtp._tag_state(unservable, Path("r"), "contract-v2.0") \
+        == ("unlistable", None)
+
+
+def test_a_depth_bounded_fetch_never_truncates_a_full_clone(tmp_path):
+    """THE SEAM'S OWN HAZARD, pinned as a measurement rather than a belief.
+
+    Measured 2026-09-04 against a FULL clone of this repository:
+    `git fetch --no-tags --depth=7 origin <sha>` truncated it from 1938 commits
+    reachable from `origin/main` to 74 and wrote `.git/shallow`. The nightly's
+    governed submodules are full clones and other families walk their history,
+    so a depth flag applied unconditionally here would repair one family by
+    breaking several. `fetch_commit` therefore applies `--depth` ONLY to a
+    clone that is already shallow — and BOTH halves are asserted below, because
+    a guard that always declined the depth would pass the first half alone
+    while leaving a shallow clone to pay for the whole history.
+    """
+    origin = tmp_path / "origin.git"
+    subprocess.run(["git", "init", "-q", "--bare", "-b", "main", str(origin)],
+                   check=True, capture_output=True)
+    seed = tmp_path / "seed"
+    subprocess.run(["git", "init", "-q", "-b", "main", str(seed)],
+                   check=True, capture_output=True)
+    _git(seed, "config", "user.email", "t@example.invalid")
+    _git(seed, "config", "user.name", "T")
+    _git(seed, "remote", "add", "origin", str(origin))
+    _land(seed, 8)
+    _git(seed, "push", "-q", "origin", "main")
+
+    full = tmp_path / "full"
+    subprocess.run(["git", "clone", "-q", f"file://{origin}", str(full)],
+                   check=True, capture_output=True)
+    shallow = tmp_path / "shallow"
+    subprocess.run(["git", "clone", "-q", "--depth=1", f"file://{origin}",
+                    str(shallow)], check=True, capture_output=True)
+    _land(seed, 4)
+    _git(seed, "push", "-q", "origin", "main")
+    tip = _git(seed, "rev-parse", "HEAD").stdout.strip()
+
+    def reachable(repo: Path, ref: str) -> int:
+        return int(_git(repo, "rev-list", "--count", ref).stdout.strip())
+
+    before = reachable(full, "origin/main")
+    assert RealGit().fetch_commit(full, tip, 2) is True
+    assert _has(full, tip)
+    assert _git(full, "rev-parse", "--is-shallow-repository").stdout.strip() \
+        == "false", "a full clone must not be made shallow by an object fetch"
+    assert reachable(full, "origin/main") == before
+    assert reachable(full, tip) == before + 4, (
+        "the plain fetch brought the whole new history, which is what a full "
+        "clone can afford and what its other readers need"
+    )
+
+    assert RealGit().fetch_commit(shallow, tip, 2) is True
+    assert _has(shallow, tip)
+    assert reachable(shallow, tip) == 2, (
+        "an already-shallow clone pays for exactly the window it asked for"
+    )
+
+
+# ----------------------------------------------- the self-gate over an estate
+
+def _no_bundle_repo(tmp_path: Path, name: str) -> Path:
+    """A governed repository carrying no `contracts/` surface at all — which is
+    what nine of the aggregation's ten actually are."""
+    repo, _ = _repo(tmp_path, name)
+    (repo / "README.md").write_text(f"# {name}\n")
+    _git(repo, "add", "README.md")
+    _git(repo, "commit", "-q", "-m", "readme")
+    _push(repo)
+    return repo
+
+
+def test_no_repository_is_skipped_for_an_unfetched_tip_when_tips_are_fetchable(
+        tmp_path):
+    """THE SELF-GATE FOR #612, over an aggregation-shaped estate.
+
+    Shaped like the real one: several repositories that declare no bundle at
+    all, one that declares and has published its tag, and one whose published
+    main has advanced past this checkout. ZERO findings may carry the
+    unfetched-tip words — a regression in the fetch coverage reds here instead
+    of emitting nine `info`s a month.
+
+    THE INFOS THEMSELVES ARE NOT ASSERTED AWAY. A repository that declares no
+    bundle is owed a reported reason, never an empty pass, and that is the
+    ratified scenario — what changed is that the reason is now the true one.
+    """
+    repos = {f"quiet{n}Factory": _no_bundle_repo(tmp_path, f"quiet{n}")
+             for n in range(3)}
+    tagged, _ = _repo(tmp_path, "tagged")
+    _declare(tagged, "contract-v2.0", "cut v2.0")
+    _git(tagged, "tag", "-a", "contract-v2.0", "-m", "publish")
+    _push(tagged)
+    repos["taggedFactory"] = tagged
+    advanced, advanced_origin = _repo(tmp_path, "advanced")
+    _declare(advanced, "contract-v2.0", "cut v2.0")
+    _push(advanced)
+    _advance_origin(advanced, advanced_origin, tmp_path, 3)
+    repos["advancedFactory"] = advanced
+
+    class Ctx:
+        repo_paths = dict(repos)
+        git = RealGit()
+
+    out = rtp.fam_release_tag_publication(Ctx())
+    assert not isinstance(out, Skip)
+    assert [f.rule for f in out if _UNFETCHED_WORDS in f.rule] == []
+    # AND THE ADVANCED REPOSITORY IS ACTUALLY JUDGED, not merely un-skipped.
+    graded = [f for f in out if f.repo == "advancedFactory"]
+    assert [f.severity for f in graded] == [WARNING]
+    assert "3 first-parent landing(s)" in graded[0].rule
+    # THE THREE THAT DECLARE NOTHING ARE ANSWERED, in the words of an answer.
+    for name in ("quiet0Factory", "quiet1Factory", "quiet2Factory"):
+        said = [f.rule for f in out if f.repo == name]
+        assert len(said) == 1 and _ANSWERED_WORDS in said[0], said
+
+
+def test_the_self_gate_fires_when_the_tip_cannot_be_obtained(tmp_path,
+                                                             monkeypatch):
+    """THE POSITIVE CONTROL FOR THE GATE ABOVE. Break the fetch over the same
+    estate and exactly the repository whose tip is absent reports the skip — so
+    the gate is measuring fetch coverage rather than reading zero."""
+    advanced, advanced_origin = _repo(tmp_path, "advanced")
+    _declare(advanced, "contract-v2.0", "cut v2.0")
+    _push(advanced)
+    _advance_origin(advanced, advanced_origin, tmp_path, 3)
+    quiet = _no_bundle_repo(tmp_path, "quiet")
+    # A THIRD REPOSITORY THAT IS ACTUALLY JUDGED, so the family returns its
+    # results rather than collapsing to the one family-level `Skip` it keeps
+    # for "nothing in scope was askable at all" — which would hide the very
+    # per-repository reason this control exists to read.
+    tagged, _ = _repo(tmp_path, "tagged")
+    _declare(tagged, "contract-v2.0", "cut v2.0")
+    _git(tagged, "tag", "-a", "contract-v2.0", "-m", "publish")
+    _push(tagged)
+    monkeypatch.setattr(RealGit, "fetch_commit",
+                        lambda self, repo_path, sha, depth=None: False)
+
+    class Ctx:
+        repo_paths = {"advancedFactory": advanced, "quietFactory": quiet,
+                      "taggedFactory": tagged}
+        git = RealGit()
+
+    out = rtp.fam_release_tag_publication(Ctx())
+    fired = [f.rule for f in out if _UNFETCHED_WORDS in f.rule]
+    assert len(fired) == 1 and "advancedFactory" in fired[0], out
+    assert [f.severity for f in out] == [INFO, INFO]
+
+
 # ============================================================ the SPENT state
 #
 # `declare-spent-bundle-state`, ratified 2026-09-02 by Brett Heap; openxFactory
