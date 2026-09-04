@@ -4,7 +4,8 @@
 WHAT THIS FILE IS, AND WHY IT IS NOT THE SMOKE. This is a copy of
 `playwright-smoke.py` as of 2026-09-02 with ONE difference: step 4's
 `page.click(".doxbench-canvas [role=tab] >> text=Document")` is wrapped in a
-try/except that, on failure, writes `/tmp/t098-step4.png` and dumps the canvas
+try/except that, on failure, writes a full-page screenshot into a fresh
+temporary directory (whose path it prints) and dumps the canvas
 DOM (selects, buttons, canvas HTML, context text) before exiting non-zero with
 `DEBUG4: <error>`. Fifteen added lines; `diff -u playwright-smoke.py
 playwright-smoke-debug.py` is that single hunk and nothing else. It exists
@@ -540,8 +541,10 @@ def main() -> int:
                 # `base`: that workspace is `shutil.rmtree`d in main's
                 # `finally`, and this branch exits through it, so anything
                 # written there is deleted before the operator can look. NOT a
-                # hardcoded "/tmp/..." either — this tool is meant to run on
-                # the Windows rider too, where that path does not exist. A
+                # hardcoded host-absolute path either — this tool is meant to
+                # run on the Windows rider too, where a unix temp root does not
+                # exist, and the repository constitution (principle IV) forbids
+                # committed host-absolute paths outright. A
                 # fresh mkdtemp is durable, collision-free between concurrent
                 # runs, and `gettempdir()`-rooted on every platform; its
                 # location is printed, because an artifact nobody can find is

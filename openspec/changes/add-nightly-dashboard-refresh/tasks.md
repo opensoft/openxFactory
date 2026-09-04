@@ -46,7 +46,7 @@ what the served overlay renders beyond the one digest line.
       > GATE OPEN (human/infra). Until the `XFACTORY_APP` installation includes
       > Omnigent-Install, the delivery step's `repos/<recipe>` probe 403s and the
       > pin PR parks fail-soft — the stage is code-complete behind this gate.
-- [x] 1.3 If 1.2 shows the installation cannot be extended, record the
+- [x] 1.3 **N/A — 1.2's condition did not arise.** If 1.2 shows the installation cannot be extended, record the
       contingency ruling and mint a dedicated refresh-lane App instead. Only
       the `expected_author` value in §6.2's envelope entry changes; nothing
       else in this change depends on which App it is.

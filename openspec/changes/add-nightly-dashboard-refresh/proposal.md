@@ -334,6 +334,29 @@ see the PR body).
    repository token, deploy key, credential helper or raw clone on the artifact
    worker.
 
+**DISAMBIGUATION BY THE ADOPTING LANE, 2026-09-04 — the only words of the
+amendment this lane changed, and it changed them because they contradicted
+themselves.** Copilot, reviewing this PR, found that the sentence added at
+item 1 — *"The worker SHALL perform no repository clone, fetch, or push"* —
+**forbids in its closing clause the very act the same sentence requires**: a
+push to `acropensoftxfactoryqa.azurecr.io`. The collision is not hypothetical
+prose-picking: this packet itself calls the push target an *"image
+repository"* (§2 of `tasks.md`, and the authority requirement's own
+"scoped to the single image repository"), so "repository" is genuinely
+overloaded across these very requirements. The same ambiguity sat in the new
+prohibition paragraph at item 4, whose "repository network access on the
+worker are prohibited" would read on the registry too.
+
+Both are now qualified to **GIT** repositories explicitly, and the prohibition
+paragraph closes by saying so and by stating that the worker's push-scoped
+credential for the single `ideation-dashboard` IMAGE repository is neither
+widened nor withdrawn. **NO OBLIGATION MOVES** — this is the reading every
+other sentence in the packet already assumes, and the amendment's whole
+subject is repository credentials rather than registry ones. It is recorded
+here, rather than absorbed silently, because it edits the text put to Brett
+for ratification, and a lane that quietly rewrites what it asks to be ratified
+has broken the thing this section exists to protect.
+
 **Direction of travel.** Every one of the five is a NARROWING or a
 clarification. Nothing the ratified delta forbade becomes permitted; two new
 things the ratified delta permitted only by omission become forbidden.
