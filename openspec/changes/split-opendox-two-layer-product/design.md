@@ -1,0 +1,715 @@
+# Design: split-opendox-two-layer-product
+
+Status: draft
+
+Companion to `proposal.md`. The proposal argues the doctrine, carries the eleven
+2026-09-04 acts as LOCKED constraints and names the wave; this document records
+the topology, the seam's shape, the three-column assignment, the three domain
+mappings the direction demanded, the safety property that replaces byte
+identity, the database and tenancy boundary, Amendment 3's drafted text, the
+re-homing plan for five active changes, the substrate plan, the risks and the
+ordered migration. Every code fact below was measured in the tree at
+`origin/main` `a858e5b0` on 2026-09-04, or is cited to the measurement the
+staging topic and the brainstorm packet took the same day at `bc1bd4ee`.
+
+## R — the ruled basis, in the order it binds
+
+The full text of all eleven acts is in `proposal.md` § Rulings carried as LOCKED
+constraints. This table is the index this document's decisions cite.
+
+| id | time (2026-09-04) | what it fixes | which decisions below rest on it |
+| --- | --- | --- | --- |
+| founding | issue body | two open-source layers, two repositories, descendants below, per-tenant install | D1, D7, D10 |
+| **Q1** | 15:24Z | the database owns identity and coordination; git owns governed artifacts, written back only through the apply lane | D5, D2 (write-back), D9 |
+| **Q2** | 15:31Z | FastAPI + Postgres on the `xFactory-Hermes-Install` pattern, OIDC through the Keycloak broker | D7 |
+| **Q3** | 15:32Z | one instance and one database per tenant, always, both cases | D7, and the `domain-descendant-boundary` delta |
+| **Q4** | 15:34Z | openDox DEFINES the adapter interface, openXdox IMPLEMENTS it, dependency one way | D2, and the `corpus-adapter-seam` capability |
+| **Q5** | 15:48Z | the THREE-LAYER TEST; per-module assignment is design work under it | D3, D4 |
+| **C1** | 17:46Z | the name collision is accepted knowingly; the repository is `opensoft/openDox` | D8 |
+| **C2** | 17:47Z | openXdox is the domain-mapping core, PARAMETERIZED by a domain profile | D1, D3, D4, and `domain-mapping-declaration` |
+| **C3** | 17:48Z | standalone openDox creates a plain local git repository per project | D5, D2 |
+| **Q6** | 17:49Z | freeze the dashboard now and carve immediately; the five re-home | D9 |
+| **Q7** | 17:51Z | `opensoft` owns both; both PUBLIC from day one under Apache-2.0 | D10 |
+
+## Context
+
+**What is being cut, measured.** `scripts/ideation_dashboard/` — 48 modules,
+49,605 LOC. `web/` — 40 files, 30,410 LOC excluding the vendored
+`markdown-it.min.js`. `tests/ideation-dashboard/` — 125 files, 3,927 `def test_`,
+**52% of this repository's 7,612 test functions**, plus a four-file
+`tests/ideation_dashboard/` underscore spelling. `openspec/specs/ideation-dashboard/spec.md`
+— 289,266 bytes, 102 requirements, 472 scenarios, the largest promoted spec in
+the corpus (next is `doc-health` at 243,924 B / 43 requirements). Four contract
+schemas, 142 packaged examples, five governance docs, **30 archived changes** and
+**5 active changes** carrying a delta.
+
+**The coupling, both directions, measured.** OUTBOUND: 12 of 48 modules carry 23
+`scripts/doc_health/` import statements — `authoring` (2), `cli` (1),
+`completeness` (1), `corpus_root` (1), `doxbench_packet` (1), `gate_console` (4),
+`gate_routes` (1), `generator` (3), `round_trip` (1), `serve` (3),
+`snapshot_registry` (1), `workbench` (4) — pulling `corpus`, `corpus.RealGit`,
+`lines.split_keepends`/`join_rows`, `derive_possibles`, `families.FAMILIES`,
+`TAXONOMY`, `DEFAULT_THRESHOLDS`, `staging_seed`, `shared_identity`,
+`pin_sentinels`, `ideation_readiness` and `runner.Context`/`run_suite`. INBOUND:
+**exactly two statements** — `doc_health/derive_possibles.py:857` and
+`doc_health/ideation_readiness.py:1351`, each
+`from ideation_dashboard.boundary import OutputBoundary  # lazy: house guard`.
+Every other `ideation_dashboard` mention inside `doc_health`
+(`corpus.py:193-195`, `lines.py:46-50`, `pin_sentinels.py:56`, `pin_class.py:413`)
+is PROSE recording a co-authoritative reading window, not an import. **The
+back-edge is ONE class, in ONE 377-line module, imported lazily in two places** —
+which is why Q4's neutral module is small, and why the dependency can be made
+one-way before any repository exists.
+
+**The three departures from `split-openxwallet-repo`, and their standing.** R3's
+seam rule and the one-repository shape are departed from BY RULING (the founding
+ruling and C2). The byte-identity floor is departed from BY FORCE: a two-way
+import across a proposed repository boundary is a design change before it is a
+move. An implementer reading only R3 would keep the reader in `openxFactory`,
+which is exactly the wrong place; the proposal states this and this document
+restates it because it is the single most misreadable fact in the packet.
+
+**Consumers running an instance today: zero.** codexFactory holds **0** tracked
+files under `scripts/ideation_dashboard/` or `tests/ideation-dashboard/` at
+`origin/main`, two DRAFT Speckit features (002, 010), and a comment-only doxBench
+digest pin in `stack.yaml` stating a verified fact that is false. The wallet
+precedent's own trigger has therefore NOT fired, and the rulings commission the
+consumer rather than waiting for it. § 7 keeps that honest by making the first
+descendant a task with a ruling checkbox.
+
+**Live runtime state.** `openxdox.opensoft.dev` resolves and returns HTTP 401
+(auth-gated, live). The QA dispatch minter passed 6/6 readiness on 2026-08-15 and
+both readiness results are EXPIRED. `intent-apply.yml` on the aggregation has
+**one run, ever** — 2026-08-15T01:22:04Z, success — which Q1 promotes to the only
+governed write path. The nightly image-refresh worker has **three runs, zero
+successes** and has never produced `refresh-status.json`. The snapshot lane is
+green. OpsxFactory declares the four `dox` workloads at
+`workflows/aks-administration.yaml:412-431`; the `openxdox` DNS A record exists on
+the live zone and is ungoverned.
+
+## Goals
+
+- Fix the shape of everything the proposal names but leaves unspecified: the
+  topology, the adapter's operations, the neutral module, the three-column
+  assignment, the safety property, the schema boundary, the tenancy shape,
+  Amendment 3's text, and each of the five re-homings.
+- Break the two-way import FIRST, inside `openxFactory`, before any repository
+  exists — the one piece of this arc that is worth doing whether or not the carve
+  ever happens.
+- Keep every existing gate at today's strength: doc-health still reads a tree,
+  OpenSpec still validates packets, the PR checks still gate on refs, and the
+  database stays disposable relative to the corpus.
+- Leave every contestable reading contestable: the successor map is per-row, the
+  three-column assignment names the row that would move under the other reading,
+  and four questions go to the ratification read undecided.
+
+## Non-goals
+
+- Deciding the per-requirement map by authority. It is a READING and ratification
+  is over it.
+- Building the model/scenario workbench, the evidence-and-provenance surface or
+  the role-and-authority projection. They are named as openXdox's unbuilt centre
+  of gravity and they are separate features.
+- Any `document-lifecycle`, `doc-health` or `governed-derived-model` delta (§ OQ-3
+  and `proposal.md` § Declared NOT modified).
+- Resolving codexFactory's false `stack.yaml` digest declaration, or the
+  `openxdox` DNS record's ungoverned status, beyond naming them.
+- Reserving a contract bundle number.
+
+## Decisions
+
+### D1 — The topology, and the ONE place C2 leaves two lawful readings
+
+```text
+opensoft/openDox            the app. Defines the corpus-adapter INTERFACE.
+        ^                   Useful ALONE (Q5, C3). Public, Apache-2.0.
+        | pins (commit + digest)
+opensoft/openXdox           the domain-mapping CORE, parameterized by a domain
+        ^                   profile (C2). Implements the interface. Public.
+        | pins (commit + digest)
+  MedxDox  codexDox  LedgerxDox  AdxDox  OpsxDox
+        ^             each: one domain-mapping declaration, deploy config,
+        |             branding. Created LAZILY. Visibility follows its domain.
+   <tenant> instance       one runtime, one database, always (Q3).
+```
+
+The dependency points ONE way at every level (Q4). `openxFactory` consumes the
+products at pins and is NOT in this chain as a layer — it is a CONSUMER, and its
+own corpus is one corpus the adapter can be pointed at.
+
+**THE DESIGN QUESTION THIS DECISION DOES NOT ANSWER (DQ-1, for the ratification
+read).** RULING C2 says engineering vocabulary *"belongs to the engineering
+descendant `codexDox`, **or** stays in openxFactory as its own adapter over the
+corpus-adapter interface"*. That "or" is lawful in two ways and they lead to
+different trees:
+
+- **Reading A — `codexDox` holds it.** The 15 requirements this packet maps to
+  `codexDox` land in a descendant repository, `openxFactory` retains NO reader
+  code at all, and "the code that reads the corpus leaves entirely" is literally
+  true. Cost: a descendant must exist before the carve completes, which collides
+  with `domain-descendant-boundary`'s laziness rule until codexFactory has a
+  profile artifact — and today it has zero tracked dashboard files.
+- **Reading B — `openxFactory` keeps its own adapter.** `openxFactory` retains a
+  small in-tree implementation of openDox's interface over its own corpus (the
+  `corpus-adapter-seam` capability's fourth requirement is written to make that
+  lawful and unprivileged), and `codexDox` is created later, when codexFactory
+  stands an instance up. Cost: "the code leaves entirely" acquires an exception,
+  and the 15 requirements have a different home from the one the map names.
+
+**This packet does not choose.** The successor map's 15 `codexDox` rows are
+written as *"`codexDox`, or openxFactory's own adapter over the corpus-adapter
+interface (RULING C2)"* — the ruling's own disjunction, carried rather than
+resolved — and `tasks.md` § 0.3 puts the choice to the ratification read. The
+choice changes WHERE 15 requirements land and WHETHER `tasks.md` § 7's first
+descendant is a precondition of § 5 or a successor to it; it changes nothing
+else in the packet.
+
+### D2 — The corpus-adapter seam: four operations, one neutral module, one way
+
+**Whose standard.** Q4 gives the INTERFACE to openDox. This packet therefore
+authors `corpus-adapter-seam` over the terms of consumption — the direction of
+the dependency, fail-closed resolution, the governed write path, and no
+privileged route for the home corpus — and NOT over the operation signatures.
+The sketch below is DESIGN, to be ratified in openDox's own instance:
+
+| operation | what it answers | what it must NOT know |
+| --- | --- | --- |
+| **list** | which documents a corpus holds, under a declared scope, with a stable identity per document | that `ideation/staging` or `openspec/changes` are meaningful paths |
+| **read** | the bytes of one document at a declared revision, plus the revision it was read at | what a `Status:` header is |
+| **write back** | a proposed change to one document, dispatched through the corpus's DECLARED governed write path, returning a correlation identifier — never a commit it made itself | that the write path is `intent-apply.yml`, or that a change has a proposal |
+| **check** | the corpus's own verdict on a document or a set: findings with a severity and a subject | doc-health's family names, thresholds or taxonomy |
+
+Two derived operations follow from the four and are named so they are not
+reinvented per implementation: **classify** (what KIND is this document, and
+which fields does its kind require — the operation `authoring.py`'s
+`REQUIRED_HEADER_FIELDS` becomes, instead of a constant co-authoritative with
+`doc_health.corpus.STATUS_SCAN_LINES`), and **resolve** (given a corpus
+reference, which checkout and which revision — the operation `corpus_root.py`
+performs today with a path literal).
+
+**The neutral module, and it lands FIRST.** `OutputBoundary` — one class in
+`ideation_dashboard/boundary.py`, 377 lines, imported lazily by
+`doc_health/derive_possibles.py:857` and `doc_health/ideation_readiness.py:1351`
+— moves to a small module BOTH sides import. It stays INSIDE `openxFactory` when
+it lands (`tasks.md` § 2.1) and travels to openDox with the carve. This is the
+smallest change in the arc and the only one that is unconditionally correct:
+nothing else can start while the two packages import each other, and the
+relocation pays for itself if the carve never happens.
+
+**The 23 outbound imports are NOT a dependency to remove.** Under Q4 they become
+the adapter's openXdox-side IMPLEMENTATION SURFACE — code that legitimately
+imports doc-health, in the repository where importing doc-health is lawful. What
+must not survive is the direction, not the calls.
+
+**`serve.py` is the boundary and it cannot be split last.** 6,733 lines carrying
+the app server AND the corpus server in one file, with three `doc_health`
+imports, and five active changes touching the package. openDox keeps the server,
+static and canvas routes, chat and model routes and `/capabilities`; openXdox
+CONTRIBUTES snapshot, `/source` and projection routes through an EXTENSION POINT
+openDox exposes. Without the extension point the integration layer forks the
+server, which is a fork rather than a profile and breaks the same rule
+`domain-descendant-boundary` applies one level down. `cli.py` (2,456) splits the
+same way, with openXdox contributing subcommands.
+
+### D3 — The three-column assignment, and every row that moves under the other reading
+
+**The test (Q5).** For each module and each requirement: would someone with no
+notion of factories, gates or tenants use it (openDox)? is it the machinery
+COMMON to how Medx, Ledgerx and Adx map onto the workbench (openXdox)? or is it
+one domain's own mapping (a descendant)?
+
+**The 48 modules.** LOC measured; **PULL UP** marks a module Q5 asks to move up.
+
+*openDox — the app a student or a lab assistant would use (~24.9K):*
+editing and canvas — `doxbench_turns` 1,857 · `doxbench_threads` 1,417 ·
+`doxbench_model` 1,343 · `canvas_drafts` 221 · `doxbench_hash` 112; research and
+analysis — `doxbench_knowledge` 1,231 (**PULL UP**) · `doxbench_abstract_store`
+446 (**PULL UP**) plus the abstract-generation surface inside `doxbench_turns`;
+model plane — `doxbench_bridge` 1,605 · `doxbench_provider` 906 ·
+`doxbench_intake` 736 · `doxbench_binding` 557 · `doxbench_mcp` 567 ·
+`doxbench_memory_gateway` 608 · `doxbench_telemetry` 380; git and sessions —
+`branch_session` 5,290 · `session_git` 1,199 · `session_pr` 443; identity and app
+plumbing — `actor_identity` 304 · `boundary` 377 (its `OutputBoundary` is D2's
+neutral module) · `action_errors` 45 · `fixtures` 101 · `doxbench_install` 339 ·
+`__init__` 18; NotebookLM — `notebook_action` 239 (**PULL UP**); set-building —
+the keyword-query half of `lens` 282 (**PULL UP**).
+
+*openXdox — the machinery common to the three mappings (~10.9K, plus what does
+not exist yet):* adapter implementation and projection mechanism — `corpus_root`
+101 · `generator` 912 · `snapshot` 223 · `snapshot_registry` 1,318 · `register`
+185 · `completeness` 543 · `round_trip` 370; the gate and commission loop —
+`gate_console` 2,207 · `gate_routes` 3,552 · `kickoff` 1,006 · `record_binding`
+259 · `register_edit_lane` 337; scope and ownership authority — `doxbench_scope`
+841.
+
+*Descendant (`codexDox`, or D1's Reading B) — one domain's own mapping (~5.0K):*
+`doxbench_packet` 1,375 · `doxbench_contracts` 780 · `human_seen` 476 ·
+`nightly_lane` 589 · `dashboard_refresh_lane` 2,071 · `intent_apply_lane` 744.
+The three lanes are the clearest descendant content in the package: their whole
+subject is thawing `openxFactory`'s git corpus into a served snapshot, one of
+them has never succeeded, and RULING Q1 makes the apply lane a permanent fixture
+of the `openxFactory` mapping specifically.
+
+*The residue that splits BY FUNCTION (10.9K, and this is the real work):*
+`serve.py` 6,733 · `cli.py` 2,456 · `workbench.py` 1,575 (reference-set manifests
+and scratch notebooks are openDox; what a reference set MEANS in a promotion
+funnel is above; four `doc_health` imports) · `authoring.py` 329 (header
+authoring is openDox; its required-field vocabulary comes from the adapter's
+CLASSIFY operation).
+
+24.9K + 10.9K + 5.0K + 10.9K against a measured 49.6K. **Treat the split as three
+columns plus a seam, not four buckets.**
+
+**The 102 requirements, by cluster.** Clusters overlap and the sum is under 102,
+so this is a reading. Full per-requirement rows are the REMOVED delta itself.
+
+| cluster | openDox | openXdox | descendant |
+| --- | --- | --- | --- |
+| doxBench surface and editor (17) | **yes** | | |
+| branch sessions (10) | **yes** | the commit-per-gate-act row | the proposal-state row |
+| abstracts (8) | **yes — PULL UP** | | |
+| provider and broker (6) | **yes** | | |
+| hosted actor and account (4) | **yes** | | |
+| knowledge / compression / chat (4) | **yes — PULL UP** | | |
+| projects (9) | **yes** | the tenant-catalog authority row | |
+| lens (4) | the set-builder | the gate verbs | the candidate-register row |
+| gate console and verbs (17) | | the LOOP | the verb vocabulary |
+| projection and snapshot (8) | | the MECHANISM | the status vocabulary |
+| funnel and wheel (7) | | the SHAPE | the stage names |
+
+Totals: **71 openDox, 16 openXdox, 15 `codexDox`.** The LOC ratio and the
+requirement ratio agree closely enough to be suspicious of both readings, and the
+packet says so rather than presenting the agreement as corroboration.
+
+**The pull-ups, ranked by value to a lab assistant who has never heard of a
+factory.** (1) The knowledge and compression stack — assembling a bounded context
+packet over a set of documents you selected, with declared fidelity, is the core
+research move, and it is filed as governance ONLY because its input set is named
+"the staged set". (2) Abstracts — deterministic abstracts that state their own
+absences, plus a separately invoked model-derived distilled abstract verified
+against the document's declared fields, cached by path-digest-model: a
+literature-review tool living in a governance dashboard. (3) The lens
+set-builder — naming an intensional set the machine clustering missed is how a
+human organizes twenty papers. (4) The NotebookLM connection — named explicitly
+by the direction, 239 lines; what must NOT come up is the stage-to-book mapping,
+because a per-project book is the neutral shape. (5) The editor and chat bound to
+the active buffer — the surface the other four are used through.
+**Deliberately NOT pulled up:** Adx's `calibrated`-tier calibration loop (domain
+machinery, and openDox has no outcome to read) and the gate console (a student
+has nobody to gate against).
+
+**The web tier is where a student-usable openDox is won or lost, and it was not
+measured for this split.** 40 files, 30,410 lines, and NO package boundary at all
+today — so its boundary must be INVENTED rather than discovered. The same three
+columns are visible from the promoted requirements (account menu, canvas, editor,
+chat, docs tile and theme controls are openDox; gate console and drill-in are the
+gate loop; wheel, funnel and lens regions carry stage names that are one domain's
+mapping), and `tasks.md` § 3.4 makes the front-end boundary its own task rather
+than a consequence of the Python one.
+
+### D4 — The three domain mappings, worked, and the seven machineries they share
+
+Q5(b) requires the common core to be EXTRACTED from three mappings rather than
+asserted from one. Sources: `docs/domain-instantiation-pre-run-questionnaire.md`,
+`contracts/policies/layer-vocabulary.yaml`, `docs/governed-derived-model.md`.
+
+| | MedxFactory | LedgerxFactory | AdxFactory | codexFactory |
+| --- | --- | --- | --- | --- |
+| subject layer | Patient Hermes | Engagement Hermes | Advertiser Hermes | Project Hermes |
+| tenant layer | Care Organization Hermes | Firm Hermes | Marketing Organization Hermes | Engineering Organization Hermes |
+| domain objects | patient and care context | ledger, filing, report, transaction, obligation | campaign, audience, offer, channel, account | feature, repo, PR, release, incident |
+| sensitive acts | care-affecting action, patient privacy, clinical authority | money movement, filing accuracy, audit, compliance | brand risk, external send, paid spend, privacy, attribution | merge, deploy, data exposure, production impact |
+| derived-model family | Dream Object / Simulation Scenario — RATIFIED templates, `governed` | Counterparty Health Profile / Financial Scenario — staged | Persona / Campaign Simulation — `calibrated` | — |
+| truth store the model may never write | the patient truth model | the ledger | brand truth | the repository |
+| external enforcement | the clinical chart (openChart via MedxChart) | the ledger | the ad platform | branch protection |
+| lifecycle, in the domain's own words | drafted → attested → filed → immutable-with-addenda | raised → researched → concluded → professionally reviewed → filed | drafted → brand-reviewed → spend-approved → launched → measured → retired | brainstorm → staged → ratified → archived |
+| promoting authority | clinician of record; board for protocols | licensed professional; SoD/budget authority | launch and spend approver | operator authority |
+
+**THE SEVEN MACHINERIES COMMON TO ALL THREE — this is the extraction Q5(b) asked
+for, and it is openXdox's content.** (1) The corpus-adapter IMPLEMENTATION —
+chart, firm document store, campaign repository: listed, read, written back and
+checked. (2) The LIFECYCLE ENGINE — a controlled status vocabulary, legal
+transitions, the authority each requires, and the point of
+immutability-with-addenda; all three have one and only the WORDS differ, which is
+the signature of something that should be data rather than code. (3) The
+GATE-AND-COMMISSION LOOP — `workflow-gate-contract` plus the `workflow-job`
+descriptor and the gate-action record; the dashboard's gate console is the only
+UI for it that exists anywhere. (4) The EVIDENCE-AND-PROVENANCE SURFACE — a chart
+citation, a ledger tie-out and an attribution chain are ONE machinery over
+different nouns; `governed-derived-model` invariant 2 is the contract and nothing
+renders it. (5) The MODEL/SCENARIO WORKBENCH — a `model` member and an optional
+`scenario` member, a declared scope and isolation boundary, a truth store the
+model may never write, output confined to
+`hypothesis_proposed | no_signal | discarded`, and a named human promoting
+authority. **It exists nowhere in the 80,000 lines and it is openXdox's centre of
+gravity** — which changes the character of the work from "carve" to "carve and
+build". (6) The ROLE-AND-AUTHORITY PROJECTION — clinician of record, licensed
+professional, launch approver; the contracts exist and the workbench shows only a
+per-serve console token and a loopback verdict. (7) The REVIEW LANE — a named
+reviewer, a recorded verdict, and a merge that cannot clear without it;
+codexFactory has the only realized instance and every domain needs one.
+
+**Explicitly NOT common, and therefore not openXdox's:** reading
+`ideation/staging/`, parsing `## ADDED Requirements`, running doc-health's check
+families, and rendering the OpenSpec promotion funnel. RULING C2 is what makes
+that list binding rather than an opinion.
+
+**Research analysis is where the test bites hardest, in a good way.** A lab
+assistant reading twenty papers, clustering them, summarizing them, keeping a
+notebook and drafting a protocol is MedxFactory's OWN RESEARCH HALF with no
+domain machinery at all — the strongest confirmation that "a student could use
+openDox" is not a concession to hypothetical users but half of a real domain's
+mapping.
+
+**The domain profile is the artifact.** `domain-mapping-declaration`'s five axes
+(artifact kinds; lifecycle vocabulary with transitions, authorities and the
+immutability point; acts and their gates; evidence classes; promoting
+authorities) are exactly the columns of the table above that differ per domain.
+That is what a `<Domainx>Dox` descendant CONTAINS, and it is what gives "pin and
+profile, never fork" something concrete to mean one level down.
+
+### D5 — The database boundary: identity and coordination, and nothing else
+
+**RULING Q1, restated as a boundary.** IN the openDox database: users, accounts
+and memberships; projects; the project-to-repository mapping; sessions; unsaved
+drafts. NOT in the database, ever: specs, changes, ideation documents, contracts
+— read from repositories and written back ONLY through the apply lane. The
+database is DISPOSABLE relative to the corpus: lose it and you lose coordination
+state, not a governed artifact.
+
+**Why this keeps every gate valid.** doc-health still reads a tree; OpenSpec still
+validates packets; the PR checks still gate on refs; `governed-derived-model` and
+`workflow-gate-contract` still have the reviewable artifact they assume; branch
+protection, merge-gate floors and required checks still see the diff they act on.
+An artifact whose gate verdict cannot be read by a required check on a pull
+request is not enforced, it is advertised — and Q1 is what keeps that from
+happening.
+
+**The one genuinely new object is the USER, and it inverts a promoted rule.** Two
+current requirements say in terms that the dashboard authorizes nothing on the
+hosted actor and that identity presence changes no capability verdict — write
+authority today is a property of WHERE the request came from (a loopback console
+verdict), not WHO sent it. Q1 and Q2 together invert that: an account is a durable
+row, authentication delegates to the Keycloak broker, and authorization stops
+being a property of the request's origin. **This is the largest conceptual change
+in the rulings and the easiest to under-read**, which is why the successor map's
+row for *The dashboard authorizes nothing on the hosted actor* is marked
+SUPERSEDED IN SUBSTANCE and RE-AUTHORED rather than promoted unchanged.
+
+**C3 makes the standalone case real, and it is the same code path.** A student's
+project is a PLAIN LOCAL GIT REPOSITORY openDox creates and manages: documents
+are always git-backed, commits are the write path, a remote can be attached
+later. That is the trivial conformant implementation of the adapter's write-back
+operation — a corpus whose declared governed write path is "commit to this local
+repository" — so the standalone case is not a mode, it is one adapter
+implementation. Moving a project into a governed factory is a PUSH, not a
+migration.
+
+**The origin complaint's remaining half.** Q1 answers *"no good place to store my
+projects"* with its COORDINATION half — projects, members and the
+project-to-repository map live in a database every tenant install has — while the
+specs still land in a repository. So **openDox must be able to CREATE that
+repository as a first-class act**, or the complaint returns one level down.
+Nothing in the rulings says who creates it; `tasks.md` § 3.6 makes it an
+openDox-side task rather than leaving it implied.
+
+**The residual nobody ruled.** The hybrid where ideas live in the database until
+promoted was REJECTED, so an idea is a governed document in git from its first
+save — consistent, and heavier than a lab assistant may want. Whether openDox
+needs a pre-governed scratch space that is NOT "a draft of a document" is a real
+residual, it is not one of the open questions, and it is recorded here rather
+than resolved.
+
+### D6 — What replaces byte identity: a three-part BEHAVIOURAL floor plus the map
+
+The wallet floor was *"a move whose diff is not provably empty cannot be bisected
+against"*. Unavailable here. The replacement has four parts, each with its own
+evidence line, and **none of them is "the tests passed"**.
+
+**(1) THE MAPPING MANIFEST — a source→destination row per moved file, with a
+digest at the cut.** Before any file moves, the carve emits
+`docs/opendox-carve-manifest.yaml` in `openxFactory` naming, for every file under
+the moved paths: its `openxFactory` path, its `sha256` at the NAMED CARVE COMMIT,
+its destination repository, its destination path, and one of exactly three
+dispositions — `moved_verbatim` (bytes identical at the destination),
+`moved_with_declared_edit` (bytes differ; the edit class is named from a CLOSED
+list: import-path rewrite, subject rename, extension-point extraction,
+vocabulary parameterization) or `not_moved` (with the reason). A file in none of
+the three is an undeclared movement and the carve refuses. This is the closest
+available analogue to a provable empty diff for a move that cannot be empty: it
+does not prove the bytes did not change, it proves **every changed byte is inside
+a declared class** and every file has exactly one destination.
+
+**(2) TEST-COUNT ARITHMETIC THAT MUST SUM.** 3,927 `def test_` across 125 files
+leave. Post-split collection counts in openDox plus openXdox plus whatever
+remains in `openxFactory` SHALL SUM to the pre-split count, pinned by test the
+way `pytest-suite.yml` already pins this repository's collection triple. This
+catches the most likely way a 125-file suite loses coverage in a carve: tests
+dropped silently rather than moved.
+
+**(3) A NEUTRAL CONFORMANCE CORPUS FOR openDox**, on the wallet extraction's own
+pattern of positives plus negative confirmations — a corpus with no `openspec/`,
+no `contracts/`, no lifecycle headers, that a descendant AND a student can run
+openDox against. This is what makes openDox verifiable independently rather than
+only against this repository, which Q5's standalone test now requires anyway.
+
+**(4) A NAMED SNAPSHOT-EQUIVALENCE RUN.** The same corpus served by the pre-split
+tree and by the post-split repositories produces the SAME snapshot digests. For a
+system whose output is a projection, this is the closest analogue to "the diff is
+provably empty".
+
+**The cost is that all four must exist before the carve, which is the point.**
+And the SPECIFICATION-side floor is the per-requirement successor map itself:
+instead of proving the bytes did not change, prove every requirement has exactly
+one home.
+
+### D7 — Install and tenancy: the Hermes pattern, one instance per tenant, two Apps
+
+**The shape openDox copies (Q2).** `xFactory-Hermes-Install` runs FastAPI +
+Postgres on AKS serving two hosts, with `migrations/` (ordered SQL, `0001` pinned
+canonical plus additive), per-client instance trees under `config/clients/<client>/`
+validated by `openxFactory`'s validator from a pinned checkout, `deploy/compose/`
+for single-node and `deploy/kubernetes/` for AKS, and one lifecycle CLI with 20
+verbs. Its README states the discipline worth copying verbatim: layer contracts
+are owned by `openxFactory` and *"this repo only installs and configures the
+runtime that implements them."*
+
+**The tenancy shape (Q3).** One instance and one database per tenant, ALWAYS, in
+both cases — Case A, Opensoft operates it under the operator vault; Case B, the
+tenant operates it under its own provider. Brett said *"its own db"*, not "its own
+schema" or "its own rows": the boundary is PHYSICAL, not a row filter. The bill
+is N deployments, N databases, N migration runs per release, N backup-and-restore
+policies and N credential sets — which is exactly why the modified
+`domain-descendant-boundary` requires the operating cost to be DECLARED at
+descendant creation.
+
+**The two GitHub Apps stay two, and that is a SECURITY INVARIANT** — folded from
+the `openxdox-install-app-provisioning` staged topic (staged 2026-08-14, gate met
+2026-08-15, exit unraised). The exposed inbox must NEVER hold a
+contents-write-capable key, so the DISPATCH App and the CONTENT App are separate
+least-privilege bindings. GitHub has no app-creates-app API, so the **App Manifest
+flow** is the mechanism: the installer ships a manifest with permissions
+pre-filled, the tenant names and confirms, GitHub creates the App IN THE TENANT'S
+ORG — which is the structural form of tenant sovereignty — and credentials are
+captured within the hour. App names are globally unique, hence the convention
+`openXdox — <tenant>`. Q3 STRENGTHENS all of it: the manifest flow now runs once
+per tenant by construction. And RULING Q1 settles what that topic left open —
+**the dispatch App does NOT become moot**, because git remains authoritative for
+governed content and the credential-free serving tier still must not hold a
+contents-write key.
+
+**What `domain-descendant-boundary` must grow, and why nothing existing covers
+it.** Every descendant the standard was written for — `MedxAvatar`, `MedxChart`,
+`MedxPractice`, `LedgerxWallet` — is a CONTRACT-FAMILY descendant: YAML profiles
+over pinned YAML contracts, where a fork is a diff and the pin's digests detect
+it. A descendant of a product with a SCHEMA is different in kind: a database
+diverges silently and only at the next upgrade, so an extra `ALTER TABLE` that has
+already run is invisible to every digest. Hence the two MODIFIED requirements: the
+migration set is PINNED CONTENT, domain fields go through a DECLARED EXTENSION
+POINT, and a descendant-authored migration is a fork of the schema. And hence the
+second: a committed TENANT INSTALL is a profile artifact, which is what reconciles
+Q3's commissioned descendants with the standard's own laziness rule — the two
+looked like they disagreed and they do not, once "which fact discharges the gate"
+is stated for a runtime product.
+
+**The folded predecessors.** `ideation/staging/openxdox-install-app-provisioning/`
+STAYS staged and is not deleted or rewritten by this packet; it is named as a
+predecessor and its five open questions are either carried here (its Q1, the
+contract home, is answered by this change, because a per-tenant install
+provisions a DATABASE as well as two Apps) or explicitly left staged.
+**codexFactory issue #89** ("Plan openXdox standalone project migration", open
+since 2026-08-25) is FOLDED, not duplicated — its obligations list reads as a
+checklist for this realization (preserve stable project, repository, subject and
+work-item identities; re-parent openXdox out of xFactory; update repository and
+submodule topology; update dashboard projections and project-register
+relationships; migrate policy, ownership and governance bindings; record a
+complete audit trail and a rollback plan) and it stays open as codexFactory's own
+record of the migration operation. Its topology diagram predates the two-layer
+ruling and needs a third level; and RULING Q1 changes its subject, since the
+project register itself becomes database-held coordination state.
+
+### D8 — Amendment 3, drafted here and APPLIED AT REALIZATION
+
+`docs/openxdox-naming.md` is `Status: ratified` (LOCKED 2026-08-13) and rejected
+`openDox` as "the taken name", building the `openX` + `dox` argument on the
+rejection: *"the splitting `X` distinguishes it from the taken name `openDox`."*
+RULING C1 overrides that. Because the record is `ratified`, the correction is an
+AMENDMENT — the discipline `split-openxwallet-repo` used for Amendment 2 — and it
+travels with the act it describes. **The text below is DRAFTED, NOT APPLIED;
+`tasks.md` § 1.6 applies it in the pull request that creates the repository.**
+
+> ## Amendment 3 — `openDox` is taken knowingly (2026-<MM>-<DD>)
+>
+> **The core repository is `opensoft/openDox`, and the collision is accepted
+> rather than absent.** Brett's ruling of 2026-09-04 (RULING C1 on
+> `opensoft/openxFactory` issue #656, 17:46Z), taken because the
+> document-and-ideation workbench becomes two open-source layers and the neutral
+> core needs the neutral name.
+>
+> **The facts, as measured on 2026-09-04 rather than asserted.** A GitHub
+> ORGANIZATION named `opendox` EXISTS — created 2026-03-20, holding one public
+> repository `opendox/dox` ("Rethinking Amazon Product Performance
+> Intelligence", 357 KB, last pushed 2026-05-31) on an unrelated subject. GitHub
+> search returns SIX repositories named `opendox`: `noitran/opendox` (22 stars, a
+> Laravel/Lumen OpenAPI package, last pushed 2022-02-10 — the largest and
+> dormant), `fum4/opendox` (0 stars, pushed 2026-07-16, "Spec + CLI + skill for
+> agent-written repo docs" — an ACTIVE 2026 project in the ADJACENT
+> agent-written-docs space), `dibinraj2003/opendox` (0 stars, 2026-08-10),
+> `andymadson/opendox` (1 star, 2025-08-27), `mfbmina/opendox` (2023-01-04) and
+> `ritskush1/opendox` (2017-05-22). GitHub namespaces repositories PER OWNER, so
+> none of these blocks `opensoft/openDox`; the ORGANIZATION name is unavailable
+> and **no claim is made on it**. The brand lives under `opensoft`.
+>
+> **What is accepted.** The adjacent-subject overlap with `fum4/opendox` is known
+> and accepted; which specific abandoned repository originally prompted the word
+> "dead" is immaterial to this record. `openXnotes` stays documented as the
+> considered alternative and remains unused.
+>
+> **The record above is amended rather than rewritten.** The sentence "the
+> splitting `X` distinguishes it from the taken name `openDox`" was written on
+> 2026-08-13 against a one-word claim that nobody had measured; the measurement
+> is above and the distinction it drew is now a deliberate two-layer
+> relationship rather than an avoidance. `openXdox` keeps its name, its
+> lowercase wire label, its `dox` handle and its host; what changed is that the
+> neutral layer below it is now also named.
+>
+> **The descendant spelling is unaffected.** The transcript spells the
+> descendants `medXdox` and `CodeXdox`; the ratified `<Domainx><Product>` form
+> governs, so they are `MedxDox`, `codexDox`, `LedgerxDox`, `AdxDox` and
+> `OpsxDox` — registered as NAMES here with no repository created, on the same
+> rule that registered `openXwallet-Install`.
+
+**The contradiction the record has carried since before the ruling, and it is
+worth stating in the amendment's own paragraph:** the promoted `ideation-dashboard`
+requirement *The openDox project-first header* already says the header "SHALL
+brand as 'Opensoft openDox'". So the naming record rejected `openDox` as taken
+while a promoted requirement was already shipping it as the product name. The
+ruling REGULARIZES an existing name rather than introducing one.
+
+### D9 — Re-homing the five frozen changes (RULING Q6), one by one
+
+Q6: the five stop where they stand; their live deltas and open tasks re-home.
+For each, the destination, what happens to its delta, and the bookkeeping.
+
+| change | standing | delta on `ideation-dashboard` | destination | disposition |
+| --- | --- | --- | --- | --- |
+| **`add-nightly-dashboard-refresh`** | ratified 2026-08-25, re-ratified 2026-09-04; archive gate OPEN, **13 open tasks**; cross-repo across three repositories | 1 ADDED + 1 MODIFIED (*Runtime snapshot fetch…*), **plus 7 ADDED on `doc-health`** | **openXdox** (the refresh lane is projection-mechanism work) with the aggregation-side worker staying in the aggregation | CLOSED as re-homed. Its 7 `doc-health` requirements do NOT travel: they were authored on the dashboard's behalf, and Q4 points that dependency one way — the refresh lane in openXdox reads the corpus through the adapter, so the requirements are re-authored against the adapter IN openXdox rather than added to `openxFactory`'s `doc-health`. **This is the one genuine conflict Q6 names, and this is its resolution.** |
+| **`retire-doxbench-chat-turn-v1`** | ratified 2026-09-01; archive gate OPEN, **7 open tasks**; schema bytes ALREADY MOVED at `contract-v3.0` | 2 ADDED + 1 MODIFIED (*The chat-turn contract release…*) | **openDox** (the chat-turn envelope travels with the app) | **NOT simply closed — it is the one that CANNOT be.** Its schema removal is already realized in `openxFactory` bytes and its `contract-v3.0` tag is published, so its remaining 7 tasks are `openxFactory` bookkeeping that must complete HERE. It archives in `openxFactory` on its own evidence, and only its FORWARD half (the surviving `-v2` family's requirements) re-homes to openDox. § 6.2 sequences it BEFORE this change's archive. |
+| **`add-doxchat-model-intake`** | ratified, built 2026-08-26, NOT archived; `target_release: contract-v1.45` | 1 MODIFIED (*doxBench model catalog…*) + 4 ADDED | **openDox** (the model plane) | CLOSED as re-homed; its built code moves with the carve as `moved_with_declared_edit` rows in the manifest, and its four ADDED requirements are re-authored in openDox. Its one additive schema enum member is already `openxFactory` contract bytes and stays. |
+| **`add-composed-view-authoring`** | ratified; `target_release: none` | 1 MODIFIED (*Composed views are read-only…*) | **openDox** (projects and composed views) | CLOSED as re-homed. No contract bytes, no release identity — the cheapest of the five. |
+| **`add-lens-document-selection`** | ratified; `target_release: none` | 5 ADDED | **openDox** (the set-builder half) — EXCEPT its `doc_health.staging_seed` drafter and route, which is `codexDox`/adapter-side under D1 | CLOSED as re-homed, SPLIT across two destinations, which is why it is listed last: it is the only one of the five whose content does not land in one place. |
+
+**`add-ideation-intent-plane` — ratified 2026-07-23, part-realized, and its
+capability `ideation-intent-plane` is ABSENT from `openspec/specs/` for 43 days.**
+It is NOT one of the five and it is NOT re-homed: RULING Q1 makes its apply lane
+the ONLY governed write path, so it stays `openxFactory`'s and its capability
+must reach canon. **A capability that is ratified and absent from canon cannot be
+assigned a successor home**, which is why `tasks.md` § 0.6 makes its promotion —
+or a RECORDED non-promotion under `document-lifecycle`'s deliberate-non-promotion
+scenario — a GATE on the successor map's realization rather than a follow-up.
+
+**The ledger and README consequences of the five.** Each closure moves that
+change's row in `tests/sequenced_after/corpus-ledger.yaml` (`state`, and `class`
+where a partner flips from co-modifier to sole), removes its "Active changes"
+entry from the README "OpenSpec Records" block, and — for the two with contract
+identities — leaves `contracts/CHANGELOG.md` entries that stay true and are not
+rewritten. All five are Rule 7 substrate row 2 and row 3 movements at the time
+they land, claimed then rather than now.
+
+### D10 — Repository bootstrap (Q7): public, Apache-2.0, `opensoft`, from day one
+
+Both repositories are created under `opensoft`, PUBLIC, under Apache-2.0 — the
+patent grant being the reason to prefer it for an organization shipping
+governance tooling, and matching `openChart`, `openPractice` and `openRepoShape`.
+Descendants follow their domain repositories' visibility.
+
+**"Two layers of opensource" has no in-house precedent and that is a real cost.**
+`opensoft/openxFactory` is PRIVATE with NO license, and `opensoft/openXwallet`,
+created days ago under a ruling that called it a neutral open-source product, is
+likewise private and unlicensed. So openDox and openXdox are the first genuinely
+public repositories in this family that were MEANT to be, and public from day one
+means a CONTRIBUTION POSTURE and a SECURITY-REPORT POLICY must exist at creation
+rather than after the first outside issue. `tasks.md` § 1.4 makes both artifacts
+part of the bootstrap, not a follow-up: retro-licensing a repository that has
+taken outside contributions is materially harder than choosing at creation, and
+the family's current posture shows how easily "open" stays nominal by default.
+
+Each repository gets, at bootstrap: `README.md`, `LICENSE` (Apache-2.0),
+`CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, `AGENTS.md`/`CLAUDE.md`,
+`.github/CODEOWNERS`, its own OpenSpec instance, its own `contracts/manifest.yaml`
+and `CHANGELOG.md`, one required check created in EVALUATE mode and promoted to
+ACTIVE once it has reported, and — for openXdox — `contracts/opendox-pin.yaml`.
+
+### D11 — The Rule 7 substrate plan (issue #630)
+
+| row | substrate | claimed when | why |
+| --- | --- | --- | --- |
+| **1** | codexFactory review-authority floor + its openxFactory pin | **AT REALIZATION, not now** | This packet adds and removes NO path under `openspec/specs/`. The archive does BOTH — it removes `openspec/specs/ideation-dashboard/` and adds two capability directories — and the floor is exact-set-equality. Its own runbook says **DE-FLOOR BEFORE YOU REMOVE**: the codexFactory pull request lands FIRST, then the openxFactory pin's five sites in one reviewed diff, then the removal. `tasks.md` § 5.6 and § 8.4. |
+| **2** | `tests/sequenced_after/corpus-ledger.yaml` + the MOVEMENT LOG | **NOW** | This packet adds one change directory, so it adds one ledger row and may flip partners' `class` where its REMOVED block shares requirement keys. Seeded with `--seed-ledger --moved-by '#<PR>'` once the PR number exists. No MOVEMENT LOG entry is owed: a row added is a move the diff itself states. |
+| **3** | README "OpenSpec Records" block | **NOW** | One row under Active changes. Two PRs editing the same lines conflict on merge; Rule 6's landing window is the merge-time half. |
+| **4** | contract cuts | **AT THE CUT** | The MAJOR is claimed by NUMBER at § 5.7, not by this packet. |
+
+## Risks and trade-offs
+
+1. **The successor map is 102 hand-authored rows and it is the highest-risk
+   bookkeeping in the change.** Mitigation: the titles are GENERATED from the
+   promoted spec rather than retyped (one character of drift leaves the promoting
+   writer authoritative and the removal invisible to `promotion_fidelity.py`), and
+   each row carries its own reason so a row can be contested alone.
+2. **Five ratified deltas are frozen mid-flight and one of them is already
+   partly realized in contract bytes.** `retire-doxbench-chat-turn-v1` cannot
+   simply close (§ D9). Mitigation: it archives in `openxFactory` on its own
+   evidence BEFORE this change archives, and § 6.2 sequences it.
+3. **`serve.py` is the critical path and the most-changed module in the package.**
+   Mitigation: the extension point is landed as its own task (§ 3.3) with the
+   route families separated inside `openxFactory` before either repository holds
+   any of it.
+4. **The apply lane has one dispatch in its history and Q1 makes it every
+   tenant's every governed write.** Mitigation: § 2.5 hardens it as a
+   PRECONDITION, and the change does not archive on a lane proven by a dry run —
+   the evidence bar the wallet arc and the nightly-refresh lane both established.
+5. **N tenants is N of everything.** Mitigation: the modified
+   `domain-descendant-boundary` makes the cost DECLARED at creation, and Q2's
+   pattern reuse means the Hermes install's ordered migrations and lifecycle CLI
+   are copied rather than reinvented.
+6. **openXdox may be largely UNBUILT under RULING C2**, since three of its seven
+   machineries do not exist. Mitigation: stated plainly rather than discovered —
+   the character of the work is "carve AND build", § 4 is sized accordingly, and
+   the three unbuilt machineries are named as separate features rather than
+   folded into the carve.
+7. **The front end has no package boundary to discover.** Mitigation: § 3.4 makes
+   inventing one its own task, and names it as where a student-usable openDox is
+   won or lost.
+8. **A named-and-absent repository is a thing people create by hand at 2am.**
+   Mitigation: the descendant names are REGISTERED in the naming record and no
+   repository is created — the wallet arc's own treatment.
+
+## Migration plan
+
+`tasks.md`'s groups, in order, each a Speckit feature on the standing rule that
+OpenSpec ratifies the boundary and Speckit builds it. Rollback per step:
+
+0. **Ratification read + Amendment 3 drafted** — rollback: none needed; nothing
+   outside `openspec/` has moved.
+1. **Repository bootstrap** — rollback: delete two empty repositories.
+2. **The seam, INSIDE `openxFactory`** — the neutral module, the adapter's
+   operations, the `serve.py`/`cli.py` extension points, the apply lane hardened.
+   Rollback: revert; every piece is independently correct.
+3. **The openDox carve**, with the mapping manifest. Rollback: the manifest is the
+   inverse map; `openxFactory` has not shed yet.
+4. **The openXdox mapping core.** Rollback: as above.
+5. **`openxFactory` consumes and sheds; the MAJOR is cut.** BREAKING, one atomic
+   pull request, de-floored first. Rollback: revert the shed; the pins stay valid.
+6. **The five re-homings.** Rollback: per change.
+7. **The first descendant** — gated on a ruling, not on this plan.
+8. **The archive gate.** No rollback: it is a gate, not an act.
+
+## Open questions
+
+Four. Three are `proposal.md`'s OQ-1..OQ-3 (the replacement safety property; may
+a consumer pin openDox directly; does `document-lifecycle`'s taxonomy become one
+instance of a declared shape). The fourth is this document's **DQ-1** (§ D1):
+**where does `openxFactory`'s own engineering adapter live — in `codexDox`
+(Reading A) or in `openxFactory` (Reading B)?** RULING C2 states both as lawful
+in one sentence and this packet does not choose; the choice moves 15 requirements
+and decides whether § 7's first descendant precedes or follows § 5.
