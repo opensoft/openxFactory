@@ -3,10 +3,13 @@
 Status: record
 Kind: evidence
 
-Run from the openxFactory checkout with `openXwallet` materialized. Readings
-taken at the branch head before the catch-up merge to `origin/main`; re-taken
-after the merge, and the after-merge readings are appended at the foot of this
-file.
+Run from the openxFactory checkout with `openXwallet` materialized. **Every
+reading below is taken at the MERGED head `f24ff113`**, after the catch-up merge to
+`origin/main` at `bc1bd4ee` — which was a clean merge with no conflicts, because
+`main`'s 23 commits touched no path this branch touches. The pre-merge readings
+were identical except where `main` itself moved a count, and those are called
+out: the sweep ledger 164 -> 165 rows, and the OpenSpec corpus 89 items (two
+changes archived on `main`, and this branch's own change is one of the 89).
 
 ## The family's own gates
 
@@ -30,7 +33,7 @@ realization: `reader-not-required` and `archival-node-undeclared`.
 | `python3 scripts/proposal-support.py . verify amend-chain-anchoring-readiness-and-durability` | **proposal support verification ok** |
 | `python3 scripts/validate-sequenced-after.py . --ledger-diff` | **ledger consistent with the corpus (165 rows)**; deepest declared chain resolved 2 hops |
 | `python3 -m pytest tests/doc-health -q -p no:cacheprovider` | **1552 passed** (399s) |
-| `python3 scripts/doc-health.py --single-repo .` | 6 critical / 4 error / 27 warning / 16 info — **identical to `origin/main`, zero delta** (see [`doc-health-delta.md`](./doc-health-delta.md)) |
+| `python3 scripts/doc-health.py --single-repo .` | 6 critical / 4 error / 27 warning / 14 info — **identical to `origin/main`, zero delta** (see [`doc-health-delta.md`](./doc-health-delta.md)) |
 
 ## `validate-contract-release.py verify-commit`, compared against the base
 
