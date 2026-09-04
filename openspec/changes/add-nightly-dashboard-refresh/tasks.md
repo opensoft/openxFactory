@@ -195,7 +195,7 @@ an extra field — it needs a schema delta.
       > DONE: the child uses the shared `xfactory-artifact-worker` concurrency
       > group with `cancel-in-progress: false`, and runner group id 5 now allows
       > this child workflow explicitly.
-- [ ] 3.6 (ADDED 2026-09-04 BY THE AMENDMENT, openxFactory) Expose the
+- [x] 3.6 (ADDED 2026-09-04 BY THE AMENDMENT, openxFactory) Expose the
       generation timestamp anchor on the `generate` CLI, because the sealed
       source artifact is not a git checkout and the amended lane cannot derive
       it. MEASURED, not assumed: `ideation_dashboard.cli generate` accepts
@@ -216,8 +216,26 @@ an extra field — it needs a schema delta.
       work the amendment creates; the amendment was RE-RATIFIED 2026-09-04 by
       Brett Heap (see `proposal.md` § AMENDED AFTER RATIFICATION), so this
       task is now REQUIRED realization work on this change's code surface —
-      it is not yet done (still unticked above), and it remains NOT part of
-      what makes the archive gate close (§4.8).
+      it is not yet done (still unticked above — SUPERSEDED 2026-09-04 by the
+      DONE note below, which is where this task's state is now recorded), and
+      it remains NOT part of what makes the archive gate close (§4.8).
+      > DONE 2026-09-04, openxFactory PR #642. `ideation_dashboard.cli`
+      > `generate` and `generate-and-open` now accept `--generated-at
+      > <RFC 3339>` beside `--source-revision`: the value is validated at the
+      > CLI boundary (`generator.is_rfc3339_datetime`, the shape the snapshot
+      > schema's `generation.generated_at` declares), passed to
+      > `generate_snapshot(generated_at=...)`, recorded VERBATIM, and it
+      > overrides the git derivation. A malformed value is REFUSED
+      > (`cli.GeneratedAtRefused` — stderr, exit 1, no snapshot written)
+      > rather than degraded to an absent stamp, which is the defect this task
+      > names. Absence changes nothing: the `git show -s --format=%cI`
+      > derivation still runs and an unresolvable stamp is still omitted.
+      > Pinned by `tests/ideation-dashboard/test_generated_at_anchor.py` (16
+      > cases: the amended recipe's own argv parses, verbatim, override,
+      > absence, seven malformed spellings refused with no file left behind,
+      > and the pinned value passing a real `--strict` validation run). The
+      > task remains NOT part of what closes the archive gate (§4.8) — that
+      > is unchanged.
 
 ## 4. The nightly stage (openxFactory)
 
