@@ -93,6 +93,10 @@ origin:
     flagged for veto in `design.md`: D2 (one requirement, not a family), D3
     (artifact lane only), D5 (`worker_profile: council-deliberation-worker`), D6
     (`token_scopes: [actions:read]` and its spelling), D7 (`data_handling:
-    internal-governance`), D8 (the fixtures re-point to `coding`), D9 (FOUR frozen
-    copies move together, not two), and D10 (the forward retirement obligation on
-    the xFactory realization).
+    internal-governance` and its attribution, corrected at review round 1), D8
+    (the fixtures re-point to `coding`), D9 (FIVE frozen copies move together,
+    not two), D10 (the forward retirement obligation on the xFactory realization,
+    and the reading of the basis's dormant-second-door scenario that permits
+    admitting the entry ahead of it), and D13 (the THREE refusal grounds and the
+    return record kind, named in ratified text at review round 1 so realization
+    cannot widen a closed enumeration on its own authority).

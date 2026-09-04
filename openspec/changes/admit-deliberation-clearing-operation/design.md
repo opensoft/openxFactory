@@ -84,6 +84,15 @@ leaving `output_schema_ref` pointing at the operation report — was rejected as
 plainly false, since the operation report is a different document with different
 required members.
 
+**Its `kind` is `xfactory_clearing_deliberation_return`, named in the ratified
+text and not left to realization.** The family routes a record to the schema it
+is validated against by its top-level `kind`, and the verdict scan is dispatched
+on that same routing (D13 and task 2.5). A realization free to pick the kind
+would therefore be free to pick whether the scan reaches this operation at all,
+which is a policy choice wearing the clothes of an identifier. The form follows
+the five kinds already shipped (`xfactory_clearing_operation_report`,
+`xfactory_clearing_dispatch_record`, …); no new naming convention is minted.
+
 **What the schema must be, minimally** (authored at realization, task 2.2): the
 per-seat outputs as STRUCTURED EVIDENCE — seat identity, that seat's output
 (inline payload or reference), and the run identifiers that bind the return to
@@ -148,18 +157,43 @@ requirement about a different operation.
 ## D7. `data_handling: internal-governance`
 
 The registry instance promised this: *"A bundle-carrying operation will declare
-a stricter class."* The vocabulary is `document-cataloging`'s and the register
-declares none of its own; that capability's handling values are free strings —
-its catalog snapshot carries `handling: {type: [string, "null"]}` — with
-`protected` and `restricted` as source-declared values and `internal-governance`
-as the handling class the estate's own governance corpus already travels under
-(`doc-health-reusable.yml` defaults `worker-handling-class: internal-governance`
-for exactly this material on exactly these hosts).
+a stricter class."*
+
+**THE ATTRIBUTION WAS WRONG IN THE FIRST DRAFT AND IS CORRECTED HERE, MEASURED
+RATHER THAN ASSUMED.** That draft said the class name is `document-cataloging`'s
+vocabulary. It is not, and the distinction matters because a borrowed word
+credited to the wrong family is a word nobody owns and nobody maintains. What is
+true, checked against the shipped text:
+
+- The register's own schema attributes the `data_handling` FIELD's vocabulary to
+  `document-cataloging`, and the instance's `composes_with` repeats it. That
+  attribution is about the FIELD, and this packet does not disturb it.
+- `document-cataloging` defines NO controlled set of handling class names. Its
+  catalog snapshot types the member as a free string
+  (`handling: {type: [string, "null"]}`), its promoted requirement says a
+  document's declared handling classification "SHALL remain mechanical inventory
+  fields and MUST NOT be semantically rewritten" — i.e. it COPIES the source's
+  word — and what it does own is the HANDLING GATE, which decides whether a host
+  is authorized for a class. `protected` reaches it as a source-declared value
+  that BLOCKS dispatch (`doc_health/cataloger.py`'s protected-handling blocker),
+  which is why `protected` would make this operation undispatchable by its own
+  declaration.
+- The class name `internal-governance` occurs nowhere in `document-cataloging`.
+  It is a `Handling:` header value — the `document-lifecycle` / doc-health
+  header family's word, read by `doc_health/inventory.py` and
+  `doc_health/organizer_dispatch.py` off the source document — and it is the
+  handling authorization the doc-health worker dispatch requires by default
+  (`.github/workflows/doc-health-reusable.yml`, `worker-handling-class`), for
+  exactly this material on exactly these hosts.
+
+So the sentence the requirement carries is: the FIELD borrows its vocabulary as
+the register says, and the CLASS NAME is the header value the estate's
+governance corpus already travels under. This entry mints neither.
 
 So `internal-governance` is chosen because it is TRUE and ALREADY IN USE, not
 because it is the strictest word available. `restricted` would over-declare —
 this is governance material, not source-policy-restricted content — and
-`protected` is the class `document-cataloging` never dispatches at all, which
+`protected` is the class the handling gate refuses to dispatch at all, which
 would make the operation undispatchable by its own declaration. The step from
 `public_log_only` is the real one: entry one reports facts already visible in a
 public run log; entry two carries selected source files and a governance packet
@@ -191,9 +225,9 @@ document a refusal that could no longer happen. `tests/clearing/test_dispatch_re
 `test_a_refusal_records_what_was_asked_for` asserts the claimed value literally
 and moves with it.
 
-## D9. FOUR frozen copies move together — the brief said two, and that is a finding
+## D9. FIVE frozen copies move together — the brief said two, and the count is itself the finding
 
-The register's member set is pinned in **four** places, not two, and all four
+The register's member set is pinned in **five** places, not two, and all five
 move in one reviewed diff or the change is red:
 
 1. `scripts/validate-clearing-dispatch.py` — `RATIFIED_OPERATIONS = frozenset({"readiness-diagnostic"})`.
@@ -204,11 +238,34 @@ move in one reviewed diff or the change is red:
    comment says: *"THE LITERAL COUNT IS THE POINT … If this line has to move, the
    change that moved it is a GOVERNED CONTRACT CHANGE with a spec delta and a
    ratifier — not an edit to a grep."*
+5. **`tests/clearing/test_clearing_gate_wiring.py`** —
+   `test_the_assertion_pins_the_registers_literal_member_count` asserts
+   `"1 registered operation" in assertion`, i.e. it pins copy 4's LITERAL from a
+   second file. Moving copy 4 alone turns this test red; moving both is the
+   whole move.
 
-Copy 4 was not in this packet's brief and is recorded here so realization does
-not discover it as a red required-adjacent gate after the fact. It is also the
-one copy that lives in CI configuration rather than in the contract tree, which
-is why it is easy to miss.
+Copies 4 and 5 were not in this packet's brief and are recorded here so
+realization does not discover them as red required-adjacent surfaces after the
+fact. Copy 4 lives in CI configuration rather than in the contract tree, and
+copy 5 is a test ABOUT the CI configuration — two hiding places, in neither of
+which a reader of `contracts/clearing/` would look.
+
+**AND THREE FURTHER PINNED LITERALS MOVE WITH THE NEW SCHEMA**, which are not
+copies of the MEMBER SET but fail exactly as loudly, and each is a numeral
+somebody wrote down on purpose:
+
+- `tests/clearing/test_schemas.py::test_the_family_ships_five_schemas` pins the
+  five schema filenames as an exact list, with the docstring *"A sixth arriving
+  without a change to this line is a shape nobody ratified."* This change is
+  that ratification, and the list becomes six.
+- `tests/clearing/test_clearing_manifest_rows.py::test_the_family_registers_exactly_the_six_members`
+  pins the family's `contracts/manifest.yaml` row count at six; the new schema
+  makes it seven.
+- `tests/clearing/test_clearing_manifest_rows.py::test_the_row_digest_matches_the_artifact_on_disk`
+  pins a per-file digest for every registered artifact, so the register
+  instance's row digest AND the dispatch record schema's row digest both move
+  when their bytes do (D13). A realization that edits the files and not the
+  manifest is red, which is the point.
 
 `tests/clearing/test_register_closure.py::test_deliberation_is_refused_by_name`
 is a fifth surface of the same fact: it builds an unratified member NAMED
@@ -235,6 +292,20 @@ direct route still performs" as leaving a dormant second door. The governed grou
 `council-deliberation-worker.yml`, whose `cpc_jobs` are `deliberate` and
 `smoke-seat` with `allowlist_entry: present` — a live direct route performing
 exactly this work.
+
+**THE BASIS SCENARIO THAT COULD BE READ AGAINST THIS PACKET, NAMED RATHER THAN
+LEFT FOR A RATIFIER TO FIND.** That requirement's second scenario reads: *"WHEN
+a change adds a clearing operation for work an existing direct route still
+performs THEN the change MUST be refused as leaving a dormant second door."* On
+its face that sentence reaches this change. The packet's answer is that the test
+is whether a SECOND DOOR EXISTS, and a register entry with no host job declared
+anywhere is not a door: nothing can be dispatched through it, and the direct
+route remains the only route. The act that opens the second door is the act that
+declares the host job. **That reading is the authoring session's, it is not
+ruled, and if Brett refuses it the remedy is plain: hold this admission until
+the retiring xFactory change is ready to land beside it.** The remedy is
+available at any time and costs this packet nothing but its landing window,
+which is why the reading is offered rather than argued for.
 
 **And that member is in `opensoft/xFactory`, not here.** This packet cannot edit
 xFactory's enumeration, its allowlist, or its clearing workflow. So the honest
@@ -272,7 +343,11 @@ headers (3 archived), deepest declared chain 2 hops. `--ledger-diff`:
 *consistent with the corpus (163 rows)*. RE-TAKEN after merging `origin/main`
 **`963c5b77`** (#640 and #638, two fix packets that add and archive no change
 directory): **identical in every field**, which is why no re-derivation was
-owed for that merge. Every reading here carries the sha it was taken at,
+owed for that merge. RE-CHECKED A THIRD TIME at review round 1 against
+`origin/main` **`73b1b3c1`** (#639, a merge whose only file is
+`tests/doc-health/test_modified_block_currency_self_gate.py`): it adds and
+archives no change directory, so the baseline is unmoved and no re-derivation
+is owed for it either. Every reading here carries the sha it was taken at,
 because a reading without one is the staleness the ledger exists to stop.
 
 **What this packet moves: ONE ROW ADDED, no partner flipped.** The delta is
@@ -283,7 +358,8 @@ REQUIREMENT granularity, not capability granularity — does not engage:
 capability but not this title, and both are already `co-modifier` from other
 partners, so neither row moves.
 
-**Post-state, MEASURED on this branch rather than predicted:** 164 change ids
+**Post-state, MEASURED on this branch rather than predicted, and RE-MEASURED at
+review round 1 with the identical result:** 164 change ids
 (35 active + 129 archived), 113 co-modified, 51 sole, active **22 / 13**;
 declarations, root claims, prose headers and the deepest chain all unchanged.
 The whole movement is `sole_modifiers` 50 → 51 and `active_sole` 12 → 13, which
@@ -320,10 +396,12 @@ explicit no-entry case, and the diff here is one line.
   credential and a return. Every general rule in the basis has to actually hold
   for it, and this packet's scenarios assert only the ones specific to the entry
   — the rest are the basis's and are cited, not re-asserted here.
-- **Four frozen copies (D9) is three chances to move three and miss one.** The
-  mitigation is that each of the four fails loudly and differently, and task 2.6
-  requires all four to be red on a deliberately partial edit before the slice is
-  called done.
+- **Five frozen copies (D9), plus three pinned numerals, is eight chances to
+  move seven and miss one.** The mitigation is that each fails loudly and
+  differently, and task 2.6 requires each to be seen red on a deliberately
+  partial edit before the slice is called done. The count moved from two to four
+  to five over this packet's authoring and its review round, which is the honest
+  evidence that counting them by memory does not work.
 - **The new neutral schema is a new surface with no consumer yet.** Nothing in
   this repository emits a deliberation return; the first real instance comes
   from a host job that does not exist. So its proof is the packaged corpus — one
@@ -333,3 +411,80 @@ explicit no-entry case, and the diff here is one line.
   make it checkable, but they do not make it happen; the estate's controls here
   are the authoring-time guard and the periodic attestation, both of which live
   in the clearing repository.
+
+## D13. The refusal grounds and the return kind are NAMED IN RATIFIED TEXT, because both enumerations are closed
+
+**Found in review round 1, and it is a ratification blocker cured in place
+rather than a nicety.** The first draft's scenario said a return that fails its
+declared schema "MUST be refused … and the ground MUST be a member of the closed
+refusal enumeration, added by a governed change rather than recorded as free
+text" — and then named no ground. That sentence, unnamed, instructs the
+realizer to add a member to a closed enumeration on their own authority, which
+is exactly the self-service widening the closed register exists to end, moved
+one enumeration to the left.
+
+**THE TWO ENUMERATIONS ARE DIFFERENT AND THE SPELLINGS ARE DIFFERENT, WHICH IS
+HOW THIS GETS GOT WRONG.** Measured, not remembered:
+
+| enumeration | where it lives | spelling | today |
+|---|---|---|---|
+| the RECORD'S REFUSAL GROUNDS | `contracts/clearing/dispatch-record.schema.yaml`, `$defs.refusal_ground.enum` | snake_case, unprefixed | TWO: `unregistered_operation`, `unknown_lane_selector` |
+| the VALIDATOR'S FINDING CODES | `scripts/validate-clearing-dispatch.py`, `REFUSAL_CODES` | hyphenated, `clearing-` prefixed | TWENTY-SIX |
+
+The ratified requirement that binds a refusal is about the FIRST of these: *"A
+refusal SHALL be recorded with its ground named FROM A CLOSED, NAMED ENUMERATION
+of refusal grounds"*, and `add-cpc-clearing-boundary`'s scenario adds *"a ground
+absent from that enumeration MUST be added by a governed change rather than
+recorded as free text"*. So the thing this packet owes is grounds, in the
+record's spelling — not codes in the validator's.
+
+**WHICH GROUNDS, AND THE TEST FOR IT.** The dispatch record's own description
+sets the rule and lists the awaited members: *"The requirement text names nine
+further grounds — expiry, hash mismatch, workflow-path contradiction, commit
+mismatch, unreadable API, lane not permitted, output-schema failure,
+origin-scoped credential, committed-data offer — and each becomes a member AS
+THE OPERATION THAT CAN PRODUCE IT LANDS."* Three of those nine become emittable
+at THIS entry's landing and no others do, so this change admits three and seeds
+nothing else. **No concept is coined here — only the spelling, and it follows
+the two seeded members' form.**
+
+1. **`lane_not_permitted`.** Entry one declares BOTH lanes, so no sealed request
+   can name a lane its operation does not permit; the refusal is unreachable
+   today. Entry two declares ONE lane. It is the first entry that can produce
+   the ground, and refusing a coding-lane request is its own scenario.
+2. **`output_schema_failure`.** Entry two is the first entry to declare a return
+   shape a host actually produces, and the scenario that refuses a
+   non-validating return is its own.
+3. **`origin_scoped_credential`.** Entry one's `token_scopes` is EMPTY — no
+   credential of any kind reaches its job, so the condition is structurally
+   impossible for it. Entry two is the first entry whose job carries a token at
+   all, and refusing a producer-scoped credential in that job is its own
+   scenario.
+
+**WHAT IS DELIBERATELY NOT SEEDED, and why the restraint is the same rule.** The
+other six awaited grounds stay absent. The schema's own warning is that
+*"Seeding all eleven now would publish grounds no implementation can emit, which
+is a closed enumeration in name only"*, and a packet that seeded them to be
+helpful would be doing the widening it refuses in the register.
+
+**NO VALIDATOR FINDING CODE IS MINTED EITHER, and that was measured too.** The
+verdict refusal this entry's scenario names is `clearing-report-carries-a-verdict`,
+already a member and already red-proven by
+`examples/negative/operation-report-carrying-a-readiness-verdict.yaml`; the lane
+refusal is `clearing-lane-not-permitted`, likewise already a member with its own
+fixture. And a return that fails JSON Schema is NOT a member and must not become
+one: the closed set's own comment says *"`schema` is the shape refusal and is
+not a member: it is not this family's rule, it is JSON Schema's."* A realizer
+inventing `clearing-return-schema-invalid` would be widening a closed set to
+duplicate a refusal that already fires — so the requirement says so in as many
+words.
+
+**THE RETURN'S `kind`, for the same reason one enumeration to the left.**
+`KIND_TO_SCHEMA` routes a record to the schema it is validated against, and
+`check_operation_report` — which carries the `VERDICT_WORDS` scan — is dispatched
+on `kind == "xfactory_clearing_operation_report"`. The scan therefore does not
+reach a return of a new kind until the kind exists AND is routed. Leaving the
+kind to realization would leave the realizer holding the choice of whether the
+verdict scan reaches this operation at all, so the kind is ratified text:
+**`xfactory_clearing_deliberation_return`**, in the family's existing
+`xfactory_clearing_*` form.

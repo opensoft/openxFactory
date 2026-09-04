@@ -74,9 +74,10 @@ entry's to relax.
 
 **Required worker profile.** `council-deliberation-worker`.
 
-**Lanes.** THE ARTIFACT LANE, AND ONLY THE ARTIFACT LANE: `runner_group`
-`xfactory-artifact-workers`, `dispatch_label` `host-rider-cpc-brett01`,
-`expected_runner` `xfactory-artifact-cpc-brett01`. The entry SHALL NOT permit the
+**Lanes.** THE ARTIFACT LANE, AND ONLY THE ARTIFACT LANE: `lane_key`
+`artifact`, `runner_group` `xfactory-artifact-workers`, `dispatch_label`
+`host-rider-cpc-brett01`, `expected_runner` `xfactory-artifact-cpc-brett01` —
+the four members the register's lane shape requires, none of them optional. The entry SHALL NOT permit the
 coding lane, and a sealed request declaring `xfactory-execution-lane-workers` or
 `host-coding-cpc-brett01` for this operation SHALL be refused with
 `clearing-lane-not-permitted` before any runner is selected. The lane constants
@@ -91,23 +92,85 @@ declared schema SHALL NOT be a path owned by a producing repository: a neutral
 register that pointed at a domain repository's file would make the producer the
 author of the shape its own return is checked against.
 
+THE RETURN IS A FAMILY RECORD AND ITS KIND IS NAMED HERE RATHER THAN COINED AT
+REALIZATION: `xfactory_clearing_deliberation_return`, in the family's existing
+`xfactory_clearing_*` form, admitted BY THIS CHANGE to the routing that maps a
+record's `kind` to the schema it is validated against. The kind is named in the
+ratified text because the verdict scan below is DISPATCHED ON KIND, so a
+realization free to choose the kind would be free to choose whether the scan
+reaches this operation at all.
+
 **Data handling.** `internal-governance` — STRICTER than entry number one's
 `public_log_only`, which the register instance's own comment promised a
 bundle-carrying operation would be. The justification is the difference in what
 crosses: entry number one reports only facts about the runner that are already
 visible in a public run log, while this operation carries SELECTED SOURCE FILES
 AND A GOVERNANCE PACKET across the boundary, and its return carries the seats'
-reasoning about them. The class name is `document-cataloging`'s vocabulary and
-is the class the estate's governance corpus already travels under; this family
-declares no classification of its own.
+reasoning about them. THE ATTRIBUTION IS STATED EXACTLY, because a borrowed word
+credited to the wrong family is a word nobody owns: the `data_handling` FIELD
+borrows its vocabulary as the register's own schema says, from
+`document-cataloging`, which carries a document's handling as a SOURCE-DECLARED
+MECHANICAL INVENTORY FIELD copied verbatim — its catalog snapshot types
+`handling` as a free string — and which decides, in its handling gate, whether a
+host is authorized for a class; it defines no controlled set of class names. THE
+CLASS NAME `internal-governance` IS THE `Handling:` HEADER VALUE THE ESTATE'S
+GOVERNANCE CORPUS ALREADY TRAVELS UNDER, of the `document-lifecycle` /
+doc-health header family, and the handling authorization the doc-health worker
+dispatch requires by default. This entry declares WHICH class its output
+carries; it mints no class and no vocabulary.
+
+**Refusal grounds, named here because the enumeration is closed and this is the
+governed change.** A refusal SHALL be recorded with its ground named from the
+CLOSED, NAMED ENUMERATION the dispatch record carries, and a ground absent from
+that enumeration SHALL be added by a governed change rather than recorded as
+free text. That enumeration holds TWO members today — `unregistered_operation`
+and `unknown_lane_selector` — one per refusal the realization can actually emit,
+and the record's own words are that each further ground "becomes a member AS THE
+OPERATION THAT CAN PRODUCE IT LANDS". THIS ENTRY IS THAT OPERATION FOR THREE OF
+THEM, so this change ADMITS EXACTLY THREE GROUNDS and names them rather than
+leaving a realizer to coin them:
+
+- `lane_not_permitted` — entry number one permits BOTH lanes, so no dispatch
+  could reach this refusal; entry number two is the first entry that permits one
+  lane and refuses the other, and the refusal is this entry's own scenario.
+- `output_schema_failure` — the ground of a return refused whole for failing the
+  declared neutral schema, which entry number two is the first entry to make
+  reachable by declaring a return shape a host actually produces.
+- `origin_scoped_credential` — entry number one's job carries NO token at all,
+  so no credential could be mis-scoped into it; entry number two is the first
+  entry whose job carries a token, and the refusal is this entry's own scenario.
+
+NO OTHER GROUND IS SEEDED. The remaining grounds the record names as awaited
+stay absent until the operation that can produce them lands, an enumeration
+seeded with grounds no implementation can emit being closed in name only. AND
+NO VALIDATOR REFUSAL CODE IS MINTED BY THIS ENTRY: the family's closed
+finding-code set already carries `clearing-lane-not-permitted` and
+`clearing-report-carries-a-verdict`, and a return that fails its schema is
+reported as the family's SHAPE refusal, which that set deliberately excludes
+because it is JSON Schema's rule and not this family's. A widening of the
+finding-code set would be a separate governed change and this entry does not
+make one.
 
 **Repository-affecting output.** `false`. The return is evidence. A change that
 gave this entry a repository effect would need a hosted finalizer and would BE a
 change to this entry, made on the same governed terms as its admission.
 
 ADMITTING THIS ENTRY AUTHORIZES NO HOST JOB BY ITSELF, and the boundary's
-route-retirement requirement SHALL bind the change that declares one. The
-governed group `xfactory-artifact-workers` today carries the grandfathered
+route-retirement requirement SHALL bind the change that declares one. THE
+READING IS STATED RATHER THAN ASSUMED, because that requirement's own scenario
+"A migration leaves the old route in place" refuses a change that "adds a
+clearing operation for work an existing direct route still performs", and a
+reader could take THIS change to be that one. It is not, and the test is whether
+a SECOND DOOR EXISTS: a register entry with no host job declared anywhere is not
+a route, nothing can be dispatched through it, and the direct route is still the
+only door. The act that opens the second door is the act that declares the host
+job, and that act is where the requirement bites — which is why the obligation
+is carried forward onto it below rather than discharged here. This reading is
+the authoring session's and is flagged for the ratifier's veto in design D10; if
+it is refused, the remedy is to hold this entry's admission until the retiring
+change is ready to land with it.
+
+The governed group `xfactory-artifact-workers` today carries the grandfathered
 member `council-deliberation-worker.yml`, whose host jobs perform exactly this
 work by the direct route. THE CHANGE IN THE CLEARING REPOSITORY THAT DECLARES
 THE `deliberation` HOST JOB SHALL, IN THE SAME ACT, remove that workflow's host
@@ -127,6 +190,7 @@ discovered afterwards.
 - **WHEN** a sealed request declaring operation `deliberation` names runner group `xfactory-execution-lane-workers` or dispatch label `host-coding-cpc-brett01`
 - **THEN** the dispatch MUST be refused with `clearing-lane-not-permitted`
 - **AND** no runner MUST be selected
+- **AND** the refusal MUST be recorded with the ground `lane_not_permitted`, admitted to the record's closed enumeration by this change
 - **AND** the refusal MUST NOT be cured by widening the entry's lanes without a governed change
 
 #### Scenario: A change widens the entry's class constraints
@@ -137,17 +201,17 @@ discovered afterwards.
 #### Scenario: The return carries a verdict
 - **WHEN** a return from this operation carries a member whose name reads as a verdict, an eligibility, a decision, a go/no-go, an approval or a recommendation
 - **THEN** it MUST be refused with `clearing-report-carries-a-verdict`
-- **AND** the scan that produces that refusal MUST be applied to THIS operation's declared return shape as well as to the operation report, a refusal that fires only on a kind this operation never emits being no refusal at all for it
+- **AND** the scan that produces that refusal MUST be applied to records of kind `xfactory_clearing_deliberation_return` as well as to the operation report, a refusal that fires only on a kind this operation never emits being no refusal at all for it
 
 #### Scenario: The return does not validate against the declared neutral schema
 - **WHEN** a return from this operation does not validate against `contracts/clearing/deliberation-return.schema.yaml`
 - **THEN** it MUST be refused whole and recorded rather than partially applied
 - **AND** it MUST have no effect on any repository, the return being evidence in the first place
-- **AND** the ground MUST be a member of the closed refusal enumeration, added by a governed change rather than recorded as free text
+- **AND** the ground MUST be `output_schema_failure`, a member this change admits to the record's closed refusal enumeration, rather than free text
 
 #### Scenario: A key or a producer-scoped credential would reach the host
 - **WHEN** a dispatch of this operation would place a seat key, any other signing key, or any credential scoped to the originating repository into the host's job environment
-- **THEN** the dispatch MUST be refused
+- **THEN** the dispatch MUST be refused with the ground `origin_scoped_credential`, a member this change admits to the record's closed refusal enumeration
 - **AND** the return MUST remain UNSIGNED on the host and be signed on return by the originating repository's own hosted signer
 
 #### Scenario: The host job lands while the direct route still stands

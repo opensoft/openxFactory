@@ -509,20 +509,32 @@ Active changes:
   "under its OWN entry's constraints"); `worker_profile:
   council-deliberation-worker`; `data_handling: internal-governance` — the
   STRICTER class the register instance's comment promised a bundle-carrying
-  operation would declare; and `repository_affecting_output: **false**` — the
+  operation would declare, the `data_handling` FIELD borrowing its vocabulary
+  from `document-cataloging` as the register's own schema says while the CLASS
+  NAME is the `Handling:` header value the estate's governance corpus already
+  travels under; and `repository_affecting_output: **false**` — the
   return is EVIDENCE, the verdict is computed by the runtime, and **NO SEAT KEY IS
   EVER ON THE HOST** (sign-on-return, #165 D6). `output_schema_ref` is a **NEW
   NEUTRAL** `contracts/clearing/deliberation-return.schema.yaml`, **ruled by Brett
   Heap 2026-09-04** (*"Ruling OQ1: new neutral deliberation-return schema"*) over
   the rejected alternative of pointing at a codexFactory-owned path, which would
   make the producer the author of the shape its own return is checked against.
-  Two findings the packet records rather than papers over: the member set is
-  frozen in **FOUR** places, not two — the validator's `RATIFIED_OPERATIONS`, the
-  independent copy in `tests/clearing/test_register_closure.py`, the instance, and
+  Three findings the packet records rather than papers over: the member set is
+  frozen in **FIVE** places, not two — the validator's `RATIFIED_OPERATIONS`, the
+  independent copy in `tests/clearing/test_register_closure.py`, the instance,
   `.github/workflows/clearing-dispatch-gate.yml`'s literal
-  `(1 registered operation)` grep — and the `VERDICT_WORDS` scan is dispatched by
+  `(1 registered operation)` grep, and the test in
+  `tests/clearing/test_clearing_gate_wiring.py` that pins that same literal from a
+  second file; the `VERDICT_WORDS` scan is dispatched by
   `kind == xfactory_clearing_operation_report`, so it does **not** reach a return
-  of a new kind until realization routes it there. The two `deliberation` negative
+  of a new kind until realization routes it there, which is why the new record's
+  kind **`xfactory_clearing_deliberation_return`** is ratified text and not a
+  realization choice; and the dispatch record's refusal grounds are a CLOSED
+  enumeration of two, so this change — being the governed change — names the
+  **three** it admits (`lane_not_permitted`, `output_schema_failure`,
+  `origin_scoped_credential`), the three of the record's nine awaited grounds
+  that this entry's landing makes emittable, rather than leaving a realizer to
+  widen a closed set on their own authority. The two `deliberation` negative
   fixtures re-point to **`coding`**, the next real unratified operation (basis
   design D11), so the closure refusal keeps a live probe. **NO CONTRACT BYTE MOVES
   IN THE PROPOSAL PR** — ratification authorizes realization, it does not perform
