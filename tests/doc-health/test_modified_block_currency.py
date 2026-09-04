@@ -1186,20 +1186,29 @@ def test_an_unratified_sibling_creates_no_declaration_obligation():
     assert draft and draft[0].standing == "draft" and draft[0].units
 
 
-def test_a_group_of_three_writers_with_one_declaration_is_evaluated_over_the_group():
-    """Assumption A4. `dh:262` says "two or more", and the delta gives no rule
-    for ordering THREE writers — one declaration orders a pair and leaves the
-    third unstated, and no reader can tell which text canon keeps.
+def test_a_group_of_three_writers_with_one_declaration_is_reported_as_unanchored():
+    """Assumption A4, RE-AIMED BY ISSUE #627 — and the fixture is unmoved.
 
-    So a group of three or more ratified writers is reported as an unstated
-    ordering regardless of how many declarations it carries. Conservative, and
-    honest about a gap in the delta rather than inventing a chain rule. The
-    population in the real corpus is ZERO, which is why the fixture had to be
-    built.
+    The 2026-08-27 reading reported EVERY group of three or more as unstated
+    "whatever they declare", because `dh:262` says "two or more" and then
+    describes a pair, and because the population in the real corpus was ZERO.
+    The population is now five (OpsxFactory `aks-administration-workflow`), and
+    `release-realization`'s "Ordered deltas and branch vocabulary" obligates the
+    declaration from EVERY later writer — so the arm now reads a chain.
+
+    THIS FIXTURE IS NOT A CHAIN AND NEVER WAS: `add-tw-b` declares relative to
+    `add-tw-a`, and `add-tw-c` declares relative to nothing, so two of the three
+    writers are starting points and no single order runs through them. It is
+    still reported against all three blocks, each still measured against canon
+    — the OUTCOME is unchanged and the REASON is now specific.
     """
     hits = _ordering(_in("three-writers"))
     assert len(hits) == 3, [f.rule[:90] for f in hits]
-    assert all("3 active ratified" in f.rule for f in hits)
+    assert all(
+        "3 active ratified changes write it and add-tw-a, add-tw-c each "
+        "declare relative to no other ratified writer of it, so the "
+        "declarations state 2 starting points rather than one chain" in f.rule
+        for f in hits), [f.rule[:200] for f in hits]
 
 
 def test_no_basis_is_synthesized_from_a_siblings_added_block():
@@ -1273,6 +1282,226 @@ def test_no_date_folder_or_created_field_decides_the_ordering():
     # and no date module is imported at all
     assert not re.search(r"^\s*(?:import|from)\s+(?:datetime|time)\b", src,
                          re.M)
+
+
+# ------------------------------------- 4b. N writers, by a chain of declarations
+#
+# ISSUE #627. The arm resolved groups of exactly two and reported every larger
+# group, which cannot read a corpus `release-realization` already obliges to
+# declare. Each capability of `modified-block-currency-chains` is ONE
+# arrangement of N declarations, on the `-two-writers` tree's convention that
+# arrangements must not interfere.
+
+
+def _ch_run():
+    from conftest import make_ctx
+    return mbc.fam_modified_block_currency(
+        make_ctx("modified-block-currency-chains"))
+
+
+def _ch(cap, findings=None):
+    return [f for f in (findings if findings is not None else _ch_run())
+            if f"/{cap}/" in f.path]
+
+
+def test_a_declared_chain_of_three_ratified_writers_resolves_and_says_nothing():
+    """THE POSITIVE CASE, and it is silence.
+
+    Three ratified writers, each declaring its predecessor, state one order —
+    so each is measured against the block before it, each carries that block,
+    and the arm emits nothing. A resolved chain is exactly as quiet as a
+    resolved pair; the ordering finding is what an UNSTATED order costs.
+    """
+    quiet = _ch("chain-three")
+    assert quiet == [], [f.rule[:120] for f in quiet]
+
+
+def test_the_chain_basis_is_the_predecessor_s_block_and_carries_it_transitively():
+    """RULING B3 EXTENDED ALONG THE CHAIN, and the finding names the basis.
+
+    `add-cb-c` declares `add-cb-b`, which declares `add-cb-a`. `MODIFIED`
+    replaces a requirement wholesale, so the outcome the third writer is
+    measured against is the SECOND writer's block — which itself carries the
+    first writer's addition. The third block drops that addition, and what
+    reports it is the LEDGER, against the third delta's own path, naming the
+    SECOND writer's delta as the text it was measured against. Against canon
+    the same block would be clean, so this assertion is what makes the chain's
+    basis substitution falsifiable rather than merely stated.
+    """
+    findings = _ch("chain-basis")
+    hits = _ledger(findings)
+    assert len(hits) == 1, [f.rule[:120] for f in findings]
+    assert "add-cb-c" in hits[0].path, "reported against the LAST writer"
+    assert "openspec/changes/add-cb-b/specs/chain-basis/spec.md" in hits[0].rule
+    assert "The first writer's addition." in hits[0].rule
+    assert _ordering(findings) == []
+
+
+def test_a_redundant_declaration_three_links_back_still_resolves():
+    """THE REAL-CORPUS SHAPE, and the reason the rule is a TOTAL ORDER rather
+    than one predecessor per writer.
+
+    OpsxFactory's five-writer chain has `reanchor-keycloak-broker-to-syscore2`
+    naming both its predecessor `admit-secretproviderclass-to-aks-scope` AND,
+    three links back, `adopt-keycloak-broker-qa` — the change it re-anchors and
+    could hardly discuss without naming. That edge states nothing transitivity
+    does not already state. A rule counting one declaration per writer would
+    report the compliant corpus as forked, which is the defect this test
+    exists to keep out: `add-cr-d` declares `add-cr-c` and `add-cr-a`, and the
+    four writers still state one order.
+    """
+    quiet = _ch("chain-redundant")
+    assert quiet == [], [f.rule[:120] for f in quiet]
+
+
+def test_two_writers_declaring_the_same_predecessor_are_reported_as_a_fork():
+    """A FORK STATES NO ORDER between the two branches, so it is reported.
+
+    `add-fk-b` and `add-fk-c` both declare relative to `add-fk-a` and neither
+    declares relative to the other: whichever archives last is the text canon
+    keeps, and no reader can tell which. Reported against all three blocks —
+    the root included, because the group's order is what is unstated.
+    """
+    hits = _ordering(_ch("fork-branches"))
+    assert {f.path.split("/")[2] for f in hits} == {
+        "add-fk-a", "add-fk-b", "add-fk-c"}
+    assert {f.severity for f in hits} == {WARNING}
+    assert all(
+        "3 active ratified changes write it and the declarations fork at "
+        "add-fk-b, add-fk-c: each is declared later than a writer already "
+        "placed and none is declared later than another" in f.rule
+        for f in hits), [f.rule[:200] for f in hits]
+
+
+def test_declarations_running_in_a_cycle_are_reported_as_a_cycle():
+    """"mutual declaration deciding nothing" AT LENGTH THREE. A cycle of two is
+    the pair path's own case; a cycle of three states no order for the same
+    reason, and the arm says which writers the cycle runs through so a reader
+    does not have to re-derive it from three proposals."""
+    hits = _ordering(_ch("cycle-three"))
+    assert len(hits) == 3, [f.rule[:120] for f in hits]
+    assert all(
+        "3 active ratified changes write it and their declarations run in a "
+        "cycle, leaving add-cy-a, add-cy-b, add-cy-c unplaceable — a cycle "
+        "states no order" in f.rule
+        for f in hits), [f.rule[:200] for f in hits]
+
+
+def test_a_declaration_naming_an_unratified_writer_anchors_nothing_in_the_group():
+    """THE `outside` REFINEMENT OF `unanchored`, and it exists to answer the
+    question the bare defect leaves open.
+
+    `add-oa-c` DID declare — it names `add-oa-d`, which writes this requirement
+    too but is a draft, so `release-realization`'s obligation is not discharged
+    by it and the chain gains no link. The group therefore has two starting
+    points, and reporting only that would send a reader to a proposal that
+    looks compliant. The finding names the declaration and says why it anchors
+    nothing.
+    """
+    hits = _ordering(_ch("outside-anchor"))
+    assert len(hits) == 3, [f.rule[:120] for f in hits]
+    assert "add-oa-d" not in {f.path.split("/")[2] for f in hits}, (
+        "the draft writer is not a ratified writer and takes no finding")
+    assert all(
+        "3 active ratified changes write it and add-oa-c declares relative to "
+        "add-oa-d, which writes it but is not ratified, so that declaration "
+        "anchors nothing inside the ratified group" in f.rule
+        for f in hits), [f.rule[:200] for f in hits]
+
+
+def test_an_unratified_writer_is_no_link_in_the_chain():
+    """`release-realization` scopes the ordering obligation to an active
+    RATIFIED change, and this family does not widen it — the reading scope stays
+    deliberately wider, so the draft block is still derived and its arms still
+    run.
+
+    THE SILENCE IS THE PROOF. All four blocks drop canon's second clause.
+    `add-mx-a` is the chain's root and `add-mx-d` is a draft outside it, so both
+    are measured against CANON and both are reported; `add-mx-b` and `add-mx-c`
+    are measured against their predecessors' blocks, which drop the same clause,
+    and are silent. A draft counted as a link, or a chain not resolved, moves
+    that count immediately.
+    """
+    findings = _ch("mixed-unratified")
+    assert _ordering(findings) == [], [f.rule[:90] for f in findings]
+    assert {f.path.split("/")[2] for f in _ledger(findings)} == {
+        "add-mx-a", "add-mx-d"}
+    blocks = mbc.active_blocks(
+        __import__("conftest").FIXTURES
+        / "modified-block-currency-chains" / "alphaFactory")
+    draft = [b for b in blocks if b.change == "add-mx-d"]
+    assert draft and draft[0].standing == "draft" and draft[0].units
+
+
+def test_the_two_writer_path_never_consults_the_chain_rule():
+    """THE PAIR CASE IS UNMOVED, asserted STRUCTURALLY rather than by re-reading
+    its findings.
+
+    Issue #627 asks for byte-identical behaviour on groups of two, and the tests
+    above this section already read those bytes. What they cannot show is that
+    the pair outcome does not merely AGREE with the chain rule today — a later
+    edit routing pairs through `_chain` would keep them all green and would put
+    the pair case's three ruled outcomes (resolved, mutual, undeclared) at the
+    mercy of a rule ruled for a different population. So the chain rule is made
+    to explode, and every two-ratified-writer group in the `-two-writers` tree
+    is still evaluated.
+    """
+    import pytest
+
+    from conftest import FIXTURES
+
+    root = FIXTURES / "modified-block-currency-two-writers" / "alphaFactory"
+    blocks = mbc.active_blocks(root)
+    declared = mbc.declarations(root, blocks)
+    groups: dict[tuple[str, str], list] = {}
+    for block in blocks:
+        groups.setdefault((block.capability, norm_title(block.title)),
+                          []).append(block)
+
+    def boom(*args, **kwargs):
+        raise AssertionError("the pair path consulted the chain rule")
+
+    seen = 0
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(mbc, "_chain", boom)
+        for key in sorted(groups):
+            group = groups[key]
+            if len([b for b in group if b.standing == "ratified"]) != 2:
+                continue
+            seen += 1
+            mbc._arm_ordering("alphaFactory", group, declared)
+    assert seen >= 4, f"only {seen} two-writer groups — the tree moved"
+
+
+def test_the_chain_rule_is_a_total_order_and_names_where_it_fails():
+    """`_chain` DIRECTLY, over the shapes no fixture should have to be built for.
+
+    The fixtures above are the corpus-shaped evidence; this is the algebra they
+    rest on, and it is asserted apart because a fixture per graph would be seven
+    trees for one function. `(a, b)` means a's proposal names b, so a is the
+    LATER writer and the earliest is the one naming nobody.
+    """
+    chain, defect, blamed = mbc._chain(
+        ["a", "b", "c"], {("b", "a"), ("c", "b")})
+    assert (chain, defect, blamed) == (["a", "b", "c"], "", [])
+
+    # a redundant edge the chain already implies changes nothing
+    chain, defect, _ = mbc._chain(
+        ["a", "b", "c"], {("b", "a"), ("c", "b"), ("c", "a")})
+    assert (chain, defect) == (["a", "b", "c"], "")
+
+    # two starting points, no declaration between them
+    assert mbc._chain(["a", "b", "c"], {("b", "a")}) == (
+        None, "unanchored", ["a", "c"])
+
+    # one root, and the fork is found where the second placement is ambiguous
+    assert mbc._chain(["a", "b", "c"], {("b", "a"), ("c", "a")}) == (
+        None, "forked", ["b", "c"])
+
+    # a cycle blocks the writers downstream of it too, and the finding names
+    # every writer no order could be placed over rather than the cycle alone
+    assert mbc._chain(["a", "b", "c"], {("a", "b"), ("b", "a"), ("c", "a")}) == (
+        None, "cycle", ["a", "b", "c"])
 
 
 # ------------------------------------- 5. dispositions, skip, and determinism
