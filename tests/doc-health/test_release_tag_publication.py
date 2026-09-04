@@ -357,31 +357,45 @@ def test_no_repository_in_scope_is_a_skip_not_an_empty_pass():
     assert isinstance(rtp.fam_release_tag_publication(Ctx()), Skip)
 
 
-# ------------------------------------------------------- the self-gate, with control
+# ---------------------------------------------------- the probe, with control
 
-def test_this_repository_reads_zero_and_the_probe_can_fire(tmp_path):
-    """THE SELF-GATE. Every bundle from `contract-v1.7` is tagged, so the
-    acceptance measurement over this repository is ZERO.
+def test_the_probe_can_fire_over_a_tree_constructed_to_be_untagged(tmp_path):
+    """THE POSITIVE CONTROL, KEPT — and the zero-findings half, DROPPED.
 
-    THE POSITIVE CONTROL IS THE POINT. A probe that only reads zero cannot
-    distinguish a clean corpus from a reader that answers nothing, so the same
-    call is made against a tree constructed to be untagged and MUST fire.
+    **Until `add-release-tag-gate` this test carried BOTH halves under the name
+    `test_this_repository_reads_zero_and_the_probe_can_fire`: that THIS
+    repository reads zero `release-tag-publication` findings, and that the same
+    call fires over a tree built to be untagged. That packet (openxFactory #664,
+    Brett Heap's ruling of 2026-09-04) MOVED the first half and kept the
+    second.**
+
+    WHY THE FIRST HALF HAD TO GO. The tag for a new bundle is published AFTER
+    the cutting pull request merges, by a second actor with tag rights —
+    measured over every `contract-v3.x` cut this repository has made, the
+    annotated tag is created between six and sixty-eight seconds after the merge
+    and points at the merge commit. Between those two acts this repository
+    genuinely carries the finding, so a zero-findings assertion inside the
+    REQUIRED `pytest-suite` turned EVERY open pull request red for the length of
+    the window: PR #628 declared `contract-v3.3` untagged at 22:27Z on
+    2026-09-03 and main plus every lane failed on this one test until the tag was
+    published after PR #636 — five and a half hours, every lane, none of them
+    able to fix it and none of them the cause.
+
+    WHERE IT WENT, BECAUSE IT DID NOT GO AWAY. The same bar — no `error` and no
+    `warning` from this family — is now asserted by `release-tag-gate`
+    (`scripts/validate-release-tag-gate.py`, exercised in
+    `test_release_tag_gate.py`) against the MERGE TREE of any pull request that
+    touches `contracts/manifest.yaml` or `contracts/releases/**`, and by nothing
+    at all against pull requests that do not. The nightly doc-health run goes on
+    reporting the condition at its ratified severity, so a cut merged on admin
+    bypass without a tag stays visible.
+
+    WHAT REMAINS HERE IS THE PROBE, AND IT IS NOT DECORATION. A family that only
+    ever reads zero cannot be distinguished from a reader that answers nothing,
+    so the call this suite makes is shown CAPABLE OF FIRING over a tree
+    constructed to be untagged. The fixtures above prove the rules; this proves
+    the family can still speak at all.
     """
-    class Ctx:
-        repo_paths = {"openxFactory": Path(REPO_ROOT)}
-        git = RealGit()
-
-    over_the_real_tree = rtp.fam_release_tag_publication(Ctx())
-    # A SKIP IS NOT A DEFECT AND IS NOT ASSERTED AWAY. This family reads the
-    # PUBLISHED refs, so its answer depends on whether the checkout has fetched
-    # the tip — an environment fact, not a corpus fact. What must hold over the
-    # real tree is that it invents no defect: no `error`, no `warning`. The
-    # skip path carries `info` and its reason, which is the honest answer when
-    # the question could not be asked.
-    if not isinstance(over_the_real_tree, Skip):
-        assert [f for f in over_the_real_tree
-                if f.severity in (ERROR, WARNING)] == []
-
     control, _ = _repo(tmp_path, "control")
     _declare(control, "contract-v2.0", "cut, never tagged")
     _land(control, 9)
@@ -393,8 +407,8 @@ def test_this_repository_reads_zero_and_the_probe_can_fire(tmp_path):
 
     fired = rtp.fam_release_tag_publication(ControlCtx())
     assert [f.severity for f in fired] == [ERROR], (
-        "the probe read zero over the real tree and must be shown capable of "
-        "firing, or it proves nothing about the corpus")
+        "the probe cannot fire, so nothing this suite reads from this family "
+        "can be trusted to be a reading at all")
 
 
 # ------------------------------------- the recurrence this family exists to catch
