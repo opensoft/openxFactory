@@ -3052,13 +3052,38 @@ contracts:
   # The neutral half of the RATIFIED `clearing-dispatch-boundary` capability
   # (PR #555, squash ab0bb2dd), as MODIFIED by `add-cpc-clearing-boundary`
   # (merged c0270d28). The packaged corpus
-  # (contracts/clearing/examples/, 6 positive examples + 24 intended-invalid
-  # negatives, one per closed refusal code), the canonical validator
+  # (contracts/clearing/examples/, 7 positive examples + 28 intended-invalid
+  # negatives, at least one per closed refusal code), the canonical validator
   # (scripts/validate-clearing-dispatch.py), the family README and its pytest
   # wiring (tests/clearing/) are content-addressed by commit; no per-file digest
   # (the openxWallet, client-identity-roster, identity-brokering, trust-anchor
-  # and signed-execution-chain precedent). The five schemas and the ONE registry
+  # and signed-execution-chain precedent). The SIX schemas and the ONE registry
   # instance below carry per-file sha256 over their bytes.
+  #
+  # THE CORPUS COUNTS ARE MEASURED HERE, NOT INCREMENTED. The second figure read
+  # "24" from the contract-v3.3 registration onward while the disk held 26 —
+  # the validator's own self-test reported the true number on every run and
+  # nobody reconciled the two. It is corrected to the measured value rather than
+  # bumped from the written one (`admit-deliberation-clearing-operation` task
+  # 2.10, which found it), and the qualifier now says AT LEAST ONE per closed
+  # refusal code, because more than one fixture may probe a code and one fixture
+  # declares the family's non-member shape refusal `schema`.
+  #
+  # ENTRY NUMBER TWO AND ITS RETURN SHAPE WERE REGISTERED AT REALIZATION on
+  # 2026-09-04 by `admit-deliberation-clearing-operation` (ratified by Brett
+  # Heap, PR #645, merged 3cf917b7): the register instance gains the member
+  # `deliberation`, its dispatch-record row's refusal enumeration grows from two
+  # to five, and `clearing-deliberation-return` is a NEW SEVENTH ROW.
+  #
+  # NO BUNDLE NUMBER IS RESERVED BY THAT REGISTRATION, and
+  # `contract_bundle_version` at the head of this file is NOT moved by it. The
+  # next additive number is fresh-counted at the tip the cut is taken from, per
+  # docs/contract-versioning-policy.md § Bundle Realization Order, because a
+  # change MUST NOT reserve a minor before merge order is known — the same split
+  # `add-chain-attestation` (#556 rows, #565 cut) and `add-chain-anchoring` (rows
+  # below, cut pending) already use. `contract-v3.4` is held by another lane on
+  # the repository owner's word, so the three rows this registration moves say
+  # WHO registered them and leave the number to the cutting session.
   #
   # THE REGISTRY INSTANCE IS REGISTERED AS A MEMBER, not left as corpus, because
   # its CONTENT is the contract: the closed set of operations a governed host may
@@ -3115,7 +3140,7 @@ contracts:
     source_path: openxFactory/contracts/clearing/permitted-operations.registry.yaml
     type: registry
     schema_version: 1
-    sha256: 763fd0bfd48bc0f8c02c1be9ca4d5ef3ad25987b038c50ae75d677dd3f94e926
+    sha256: 406d79bc360093b50903b000c7b42916f6f625c060a88d46f3c93239aeb5e76b
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -3155,12 +3180,43 @@ contracts:
       Registered at contract-v3.3; consumed through the pinned
       openxFactory checkout with per-file sha256 verified before any copy
       is treated as current.
+  - id: clearing-deliberation-return
+    path: contracts/clearing/deliberation-return.schema.yaml
+    source_path: openxFactory/contracts/clearing/deliberation-return.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d515082851ee6cb7b3ae83ce1338b5dd8e275a432bea7dfd4c490befbc1b6f3e
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The DELIBERATION RETURN — register entry number two's declared output shape: the per-seat outputs as STRUCTURED EVIDENCE, bound to the convening they answer.
+      A NEUTRAL SCHEMA AUTHORED HERE AND NEVER A PRODUCER'S PATH (ruling OQ1,
+      Brett Heap 2026-09-04): a return is validated against the register's
+      DECLARED value and never against a bundle's copy of it, so a declared
+      schema owned by a producing repository would make the producer the author
+      of the shape its own return is checked against. Carries `seats`, keyed by
+      SEAT IDENTITY so a duplicate is unrepresentable, each with that seat's
+      output as a tagged union of an inline string payload or a reference plus a
+      REQUIRED byte hash; and `binding`, all three identifiers required — the
+      convening job id, the VERIFIED subject pin, and the digest of the INBOUND
+      sealed bundle. NO SIGNATURE MEMBER, because the return is UNSIGNED on the
+      host and signed ON RETURN by the originating repository's own hosted
+      signer; NO OUTCOME AND NO VERDICT-SHAPED MEMBER at any depth, the root and
+      every nested object being closed and the canonical validator applying the
+      same name scan it applies to the operation report. THE SEAT'S OUTPUT IS
+      OPAQUE to this contract: the producing estate's per-seat accounting travels
+      inside the payload rather than becoming a neutral member.
+      Registered at realization by `admit-deliberation-clearing-operation`
+      (ratified 2026-09-04 by Brett Heap, PR #645, merged 3cf917b7); the bundle
+      number is the cutting session's and is not reserved here. Consumed through
+      the pinned openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
   - id: clearing-dispatch-record
     path: contracts/clearing/dispatch-record.schema.yaml
     source_path: openxFactory/contracts/clearing/dispatch-record.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 3641618c0e8a34f52a48cc990a1ae6a5ece963ae0b4a2695d9b4e062eef6763f
+    sha256: ce59ab54d4e4963cd044ac5aec3413ccfc6e5cd32381de5e9df59cfbf5ad738d
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-

@@ -7,6 +7,12 @@ merged as PR #555, squash `ab0bb2dd`, 2026-09-02), as MODIFIED by
 add-cpc-clearing-boundary (ratified 2026-09-02, merged `c0270d28`). Registered in
 [`contracts/manifest.yaml`](../manifest.yaml) + [`contracts/CHANGELOG.md`](../CHANGELOG.md)
 at `contract-v3.3`, per [Contract Versioning Policy](../../docs/contract-versioning-policy.md).
+EXTENDED by admit-deliberation-clearing-operation (ratified 2026-09-04 by Brett
+Heap, record
+`openspec/changes/admit-deliberation-clearing-operation/review/ratification-2026-09-04.md`;
+merged as PR #645, `3cf917b7`) — register entry number two, its neutral return
+schema, and three refusal grounds. Those rows are REGISTERED AT REALIZATION and
+reserve no bundle number; the next additive minor is the cutting session's.
 
 The neutral contract for **the clearing and dispatch boundary in front of a
 governed execution estate** — the shapes a clearing implementation validates,
@@ -22,30 +28,34 @@ authoritative provider-side answer is RESOLVED FROM THE PROVIDER and never
 believed because the bundle asserts it; that the set of operations a host may be
 asked to perform is a CLOSED REGISTER; and that every dispatch and every refusal
 is RECORDED, with the single-door claim ATTESTED rather than assumed. This family
-is the machine-readable half of that: five record shapes, one closed register
+is the machine-readable half of that: six record shapes, one closed register
 instance, and a canonical validator that refuses.
 
-## The five shapes
+## The six shapes
 
 | file | kind | what it is |
 |---|---|---|
 | [`sealed-bundle-manifest.schema.yaml`](sealed-bundle-manifest.schema.yaml) | `xfactory_sealed_bundle_manifest` | The sealed bounded request's manifest — the TEN declared fields, its expiry, its per-file byte hashes, and field (10)'s origin attestation. |
 | [`permitted-operations.schema.yaml`](permitted-operations.schema.yaml) + [`permitted-operations.registry.yaml`](permitted-operations.registry.yaml) | `xfactory_clearing_permitted_operations_registry` | The CLOSED register, schema plus its one instance. |
 | [`operation-report.schema.yaml`](operation-report.schema.yaml) | `xfactory_clearing_operation_report` | `readiness-diagnostic`'s COMPOSED report of record — probed facts as data, and no verdict. |
+| [`deliberation-return.schema.yaml`](deliberation-return.schema.yaml) | `xfactory_clearing_deliberation_return` | `deliberation`'s declared return — the per-seat outputs as evidence, bound to the convening job id, the VERIFIED subject pin and the INBOUND bundle digest. No signature, no outcome, no verdict. |
 | [`dispatch-record.schema.yaml`](dispatch-record.schema.yaml) | `xfactory_clearing_dispatch_record` | The ledger entry, written for a cleared dispatch AND for a refusal. |
 | [`single-door-attestation.schema.yaml`](single-door-attestation.schema.yaml) | `xfactory_clearing_single_door_attestation` | The periodic per-group comparison that keeps the ledger's completeness claim honest. |
 
 Canonical validator:
 [`scripts/validate-clearing-dispatch.py`](../../scripts/validate-clearing-dispatch.py).
-Packaged corpus: [`examples/`](examples/) — positives at the top level, one
-intended-invalid fixture per closed refusal code under
-[`examples/negative/`](examples/negative/). Tests: `tests/clearing/`.
+Packaged corpus: [`examples/`](examples/) — 7 positives at the top level and 28
+intended-invalid fixtures under [`examples/negative/`](examples/negative/), at
+least one per closed refusal code. Tests: `tests/clearing/`.
 
 ## THE REGISTER IS CLOSED, and what that costs
 
-`permitted-operations.registry.yaml` holds **exactly one member**,
+`permitted-operations.registry.yaml` holds **exactly two members**:
 `readiness-diagnostic` — the ratified entry #1, a strictly read-only probe that
-asserts only what the host can state about itself.
+asserts only what the host can state about itself — and `deliberation`, the
+ratified entry #2, a bundle-carrying operation on the ARTIFACT LANE ONLY whose
+entire return is evidence. Each arrived with a spec delta and a ratifier, and the
+count is a reading taken at a moment rather than a standing fact.
 
 **Adding an operation is a GOVERNED CONTRACT CHANGE with a spec delta and a
 reviewer. It is not a workflow edit, and it is not an edit to this file alone.**
@@ -67,9 +77,37 @@ rather than overclaimed for the same reason the ratified authoring-time guard
 requires it — a tripwire described as an unforgeable refusal is a control nobody
 checks.
 
-`deliberation` (codexFactory #165) is a LATER governed change and is deliberately
-absent; `examples/negative/register-carrying-an-unratified-operation.yaml` uses it
-as the fixture that proves the refusal fires.
+**AND THE MEMBER SET IS PINNED IN FIVE PLACES, NOT TWO.** Two of the five sit
+outside the contract tree, where a reader of `contracts/clearing/` would never
+look, and both were found while authoring the change that first had to move them:
+
+1. `scripts/validate-clearing-dispatch.py`'s `RATIFIED_OPERATIONS`;
+2. the INDEPENDENT copy in `tests/clearing/test_register_closure.py`;
+3. `permitted-operations.registry.yaml`, the instance itself;
+4. **[`.github/workflows/clearing-dispatch-gate.yml`](../../.github/workflows/clearing-dispatch-gate.yml)'s
+   literal member-count grep**, whose own comment says only a governed contract
+   change may move it;
+5. **`tests/clearing/test_clearing_gate_wiring.py`**, which pins that grep's
+   literal from a SECOND FILE, so moving the grep alone goes red.
+
+All five move in one reviewed diff or the change is red, and each is proven to
+fail alone.
+
+`coding` is the next real LATER governed change and is deliberately absent —
+`add-clearing-dispatch-boundary` design D11 names it, the estate already holds
+its lane (`xfactory-execution-lane-workers` / `host-coding-cpc-brett01`) and its
+grandfathered worker (`execution-lane-coding-worker.yml`, group 7), and
+`examples/negative/register-carrying-an-unratified-operation.yaml` uses it as the
+fixture that proves the refusal fires. `deliberation` (codexFactory #165) held
+that role until 2026-09-04 and vacated it by being RATIFIED, which is the only
+way to vacate it.
+
+**ADMITTING ENTRY TWO AUTHORIZES NO HOST JOB.** The change in the clearing
+repository that declares the `deliberation` host job must, in the same act, retire
+the grandfathered `council-deliberation-worker.yml` route — its host jobs, its
+workflow-allowlist entry on `xfactory-artifact-workers`, and its membership of the
+grandfather enumeration. An entry beside a live direct route is the dormant second
+door the boundary refuses.
 
 ## NO SECOND VOCABULARY
 
@@ -116,10 +154,16 @@ INSTANCE and stop relying on its own choice list as the authority.** That is a
 task of the clearing repository, not a byte of this family, and a green gate here
 does not discharge it.
 
-Likewise, the validator does not contact a provider API, does not evaluate
+Likewise, the validator does not contact a provider API, and does not evaluate
 revocation at the moment of clearing (the factory-identity register declares that
 unrealizable until a projection path exists, and this family does not claim
-otherwise), and does not verify a sealed RETURN — no return shape ships here.
+otherwise). It DOES now validate a deliberation return against
+[`deliberation-return.schema.yaml`](deliberation-return.schema.yaml) and apply the
+verdict name scan to it — the sentence above once read "and does not verify a
+sealed RETURN — no return shape ships here", which was true until entry number two
+declared one on 2026-09-04. What it still does not do is verify a return's
+SIGNATURE: the return is unsigned on the host, and the signature is applied on
+return by the originating repository's own hosted signer, outside this boundary.
 
 ## NOT THIS FAMILY'S SURFACE
 
