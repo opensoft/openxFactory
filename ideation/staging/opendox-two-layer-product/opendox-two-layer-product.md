@@ -17,10 +17,11 @@ the dependency pointing one way. His Q5 direction then replaced the two-way
 module split with a THREE-LAYER TEST — openDox must be useful alone to a student
 or a lab assistant, openXdox holds the machinery common to how Medx, Ledgerx and
 Adx each map onto the workbench, descendants hold the domain-specific mapping —
-making the per-module assignment design work this topic carries. Two questions
-remain for Brett: sequencing against the five active `ideation-dashboard`
-changes, and repository ownership, license and the measured `opendox`
-name collisions.
+making the per-module assignment design work this topic carries. Two further
+questions — sequencing against the five active `ideation-dashboard` changes,
+and repository ownership, license and the measured `opendox` name collisions —
+were RULED the same afternoon (Q6 17:49Z, Q7 17:51Z; see Open questions below
+and RULING C1-C3 under Conflicts), unblocking the exit.
 Topics: opendox, openxdox, medxdox, codexdox, ledgerxdox, adxdox,
 ideation-dashboard, doxbench, repo-split, two-layer-product, three-layer-test,
 domain-mappings, domain-descendant-boundary, neutral-product-pin,
@@ -623,12 +624,16 @@ Added-by: Claude Opus 5 (session, Brett's direction) · 2026-09-04
    imports and five active changes touching the package. Its split — behind an
    app-server extension point, so openXdox contributes routes rather than
    forking the server — is the extraction's critical path.
-5. **The active-change wave has to be resolved, waived or explicitly re-homed —
-   and one of them deepens the coupling.** `add-nightly-dashboard-refresh` ADDS
-   seven requirements to `doc-health` on the dashboard's behalf while Q4 rules
-   the dependency one-way; those two are in tension and the tension is a
-   decision, not a merge conflict. Its lane has three worker runs, no successes,
-   and no status artifact, so "wait for it to archive" is not a plan with a date.
+5. **RULED 2026-09-04 (Q6): the active-change wave is RE-HOMED, not resolved or
+   waived in place.** `add-nightly-dashboard-refresh` ADDS seven requirements
+   to `doc-health` on the dashboard's behalf while Q4 rules the dependency
+   one-way; Brett's ruling ends that tension by re-homing the change itself —
+   along with `add-composed-view-authoring`, `add-doxchat-model-intake`,
+   `add-lens-document-selection` and `retire-doxbench-chat-turn-v1` — into the
+   extraction change and the new repositories as part of the carve, rather
+   than deciding the seven requirements' fate where they stand. Its lane's
+   three worker runs and zero successes no longer gate sequencing: nothing
+   waits for it to archive.
 6. **The three domain mappings are worked before the openXdox boundary is
    fixed.** Q5(b) requires the common core to be EXTRACTED from three mappings
    rather than asserted from one. Fixing openXdox's contents from today's code
@@ -731,6 +736,23 @@ Added-by: Claude Opus 5 (session, Brett's direction) · 2026-09-04
   ruling — and the ruling's own descendant spelling (`medXdox`, `CodeXdox` in
   the transcript) contradicts the `<Domainx><Product>` form claim 4 applies. —
   Added-by: Claude Opus 5 (session, Brett's direction) · 2026-09-04
+  **RESOLVED 2026-09-04 (RULING C1, Brett Heap, in session, on the recorded
+  conflict "which openDox is dead"):** the collision is accepted knowingly and
+  the repository is `opensoft/openDox`. Amendment 3 will record the measured
+  facts — six GitHub repositories carry the name, and the GitHub organization
+  `opendox` belongs to an unrelated Amazon-analytics project — and Brett's
+  acceptance of them; no claim is made on the organization name, and the brand
+  lives under `opensoft`. Which specific abandoned repository originally
+  prompted the word "dead" is immaterial to the record. Rejected: citing a
+  specific dead repo as the basis; reconsidering the name (the `openXnotes`
+  fallback stays documented, unused). Amendment 3 still travels WITH the
+  repository-creating change, not with this topic (claim 6, unchanged) — this
+  ruling settles WHAT it must say, not WHEN it lands. The descendant-spelling
+  half of this conflict (`medXdox`/`CodeXdox` vs the ratified
+  `<Domainx><Product>` form) is unaffected: claim 4 already resolves it in
+  favour of the ratified form. Record: `opensoft/openxFactory` issue #656,
+  RULING C1, 2026-09-04T17:46Z. — Added-by: Claude Sonnet 5 (session, Brett's
+  direction) · 2026-09-04
 - **The wallet precedent's ratified seam rule points the other way.**
   `split-openxwallet-repo` R3 is the house's only ratified answer to "where does
   the integration seam live", and it says: in openxFactory. Claim 7 departs from
@@ -749,6 +771,25 @@ Added-by: Claude Opus 5 (session, Brett's direction) · 2026-09-04
   each descendant reinvents it. Both readings are consistent with the words and
   the packet keeps both. — Added-by: Claude Opus 5 (session, Brett's direction)
   · 2026-09-04
+  **RESOLVED 2026-09-04 (RULING C2, Brett Heap, in session, on the recorded
+  conflict "what is openXdox"):** openXdox is the domain-mapping core,
+  parameterized. It holds what every domain factory shares — typed artifact
+  kinds, a governed lifecycle engine (statuses, gates, roles, evidence) and the
+  dispatch/apply lane — parameterized by a domain profile a descendant
+  supplies. Engineering vocabulary ("requirement", "OpenSpec change", the
+  doc-health check families) belongs to the engineering descendant `codexDox`,
+  or stays in openxFactory as its own adapter over the corpus-adapter
+  interface; a clinician using `MedxDox` never sees the word "requirement".
+  This resolves the founding words "openDox tuned for openxFactory" as tuned
+  for the xFactory FAMILY's way of mapping domains, not for openxFactory's
+  engineering corpus specifically — the FIRST reading in this conflict's own
+  framing. Rejected: openXdox as today's dashboard minus the pull-ups (every
+  descendant would inherit engineering vocabulary); one repo with two packages
+  (a boundary that is only a package line). This also settles "the finding
+  that most needs contesting" under Design work carried under the Q5
+  direction below, and Q11's parameterization question (see its disposition).
+  Record: `opensoft/openxFactory` issue #656, RULING C2, 2026-09-04T17:47Z. —
+  Added-by: Claude Sonnet 5 (session, Brett's direction) · 2026-09-04
 - **`add-nightly-dashboard-refresh` deepens the coupling Q4 rules one-way.** It
   is ratified, cross-repo across three repositories, and ADDS seven requirements
   to `doc-health` on behalf of the dashboard. Its archive gate is correctly open
@@ -780,13 +821,30 @@ Added-by: Claude Opus 5 (session, Brett's direction) · 2026-09-04
   knowledge of OpenSpec or doc-health" implies — or the standalone case is not
   actually served. The rulings compose only under the first reading, and nothing
   states it. — Added-by: Claude Opus 5 (session, Brett's direction) · 2026-09-04
+  **RESOLVED 2026-09-04 (RULING C3, Brett Heap, in session, on the recorded
+  conflict "the standalone student under Q1"):** standalone openDox creates
+  and manages a plain local git repository per project. Documents are always
+  git-backed; commits are the write path; a remote can be attached later. Q1
+  holds unchanged (the database never holds documents), and moving a student
+  or lab-assistant project into a governed factory is a push, not a
+  migration. Rejected: a loose-documents mode with the database holding
+  content until a repository is attached; requiring a repository before the
+  first save. This confirms the FIRST reading this conflict named as the only
+  way the rulings compose. Record: `opensoft/openxFactory` issue #656, RULING
+  C3, 2026-09-04T17:48Z. — Added-by: Claude Sonnet 5 (session, Brett's
+  direction) · 2026-09-04
 
 ## Open questions
 
-Two questions await Brett (Q6, Q7 — the numbering follows the governing record,
-where Q1-Q5 are the rulings above). Four more (Q8-Q11) are secondary: they are
-real, they have recommendations, and they are expected to travel into the change
-rather than be ruled now.
+Q6 and Q7 (the numbering follows the governing record, where Q1-Q5 are the
+rulings above) were RULED by Brett Heap the same afternoon, 2026-09-04, on
+`opensoft/openxFactory` issue #656 — see their dispositions below. Four more
+(Q8-Q11) are secondary: they are real, they have recommendations, and most are
+still expected to travel into the change; where one of Brett's rulings settles
+a secondary question in substance, its disposition says so and cites the
+ruling — Q11 is fully settled by RULING C2; Q8 and Q10 are partially narrowed
+by RULING C2 and RULING C3 respectively but still travel in part; Q9 is
+untouched by any ruling and travels unchanged.
 
 ### Q6. How does this sequence against the five active `ideation-dashboard` changes?
 
@@ -821,7 +879,26 @@ the carve from silently orphaning a ratified delta. The one genuine conflict —
 dashboard while Q4 separates them — needs a decision rather than a merge:
 either its seven requirements are authored against the adapter instead, or the
 split waits for it, and the second option has no date.
-Disposition status: open
+Disposition status: ruled 2026-09-04 — Brett Heap, in session
+Disposition (2026-09-04, RULED BY BRETT HEAP): freeze the dashboard now and
+carve immediately. The five active changes — `add-composed-view-authoring`,
+`add-doxchat-model-intake`, `add-lens-document-selection`,
+`add-nightly-dashboard-refresh`, `retire-doxbench-chat-turn-v1` — stop where
+they stand in openxFactory; their live deltas and open tasks (20 across the
+two with open archive gates) are RE-HOMED into the extraction change and the
+new repositories as part of the carve. No new dashboard change opens in
+openxFactory. The recommended answer's "wait for the wave to clear" half was
+put and NOT taken — the four preparatory slices it also named still stand as
+worth doing regardless, but Brett does not wait for any of the five to
+archive before carving. The cost accepted is re-homing 20 open tasks and the
+never-green nightly-refresh lane mid-flight. The one genuine conflict this
+question named — `add-nightly-dashboard-refresh` adding seven `doc-health`
+requirements while Q4 rules the dependency one-way — is resolved the same
+way: that change stops where it stands and its requirements re-home with
+everything else, rather than being separately authored against the adapter in
+place. Record: `opensoft/openxFactory` issue #656, RULING Q6, 2026-09-04T17:49Z.
+Dispositioned-by: Brett Heap (in-session ruling, encoded by Claude Sonnet 5) ·
+2026-09-04
 Added-by: Claude Opus 5 (session, Brett's direction) · 2026-09-04
 
 ### Q7. Who owns the repositories, under what license, and what do the measured `opendox` collisions require?
@@ -866,7 +943,25 @@ actually taken, and an amendment that repeats the same style of claim would fail
 the same way. Q5's "a student could use openDox" also gives the visibility
 question a product answer rather than only a legal one: a student cannot use a
 private repository.
-Disposition status: open
+Disposition status: ruled 2026-09-04 — Brett Heap, in session
+Disposition (2026-09-04, RULED BY BRETT HEAP): `opensoft` owns both
+repositories; both are PUBLIC from day one under Apache-2.0, matching the
+three public product repos (`openChart`, `openPractice`, `openRepoShape`).
+Descendants (`MedxDox`, `codexDox`, …) follow their domain repositories'
+visibility. Rejected: openXdox private until the descendants prove the
+boundary; MIT or AGPL-3.0. This departs from the recommended answer on one
+point: the recommendation left openXdox's visibility as a separate decision
+that could stay private; the ruling makes both public from day one. The
+recommendation's other elements stand as ruled: `opensoft` ownership (not a
+separate `opendox` organization), and Amendment 3 must state the collision
+facts as measured — the org, the six repositories with the two that matter
+named and dated, and the fact that per-owner namespacing makes the repository
+name available — rather than repeat the bare claim that the name is "taken".
+License and visibility are decided AT this ruling, ahead of repository
+creation, which is exactly what this question's own explanation asked for.
+Record: `opensoft/openxFactory` issue #656, RULING Q7, 2026-09-04T17:51Z.
+Dispositioned-by: Brett Heap (in-session ruling, encoded by Claude Sonnet 5) ·
+2026-09-04
 Added-by: Claude Opus 5 (session, Brett's direction) · 2026-09-04
 
 ### Q8. What happens to the promoted `ideation-dashboard` capability — split by requirement across three destinations, or REMOVED with successors?
@@ -892,6 +987,17 @@ exists to end. The cost is that the map is large and hand-authored, and that 30
 archived changes then cite a capability absent from this corpus — annotation work
 on immutable records, exactly as the wallet arc did.
 Disposition status: open (secondary — expected to travel into the change)
+Note (2026-09-04): RULING C2 (issue #656, 2026-09-04T17:47Z, on the recorded
+conflict "what is openXdox") settles the destination-boundary premise this
+three-way split depends on — engineering vocabulary (OpenSpec, doc-health, the
+change/spec/delta taxonomy) belongs to `codexDox` or to openxFactory's own
+adapter, never to openXdox itself — which resolves "the finding that most
+needs contesting" under Design work carried under the Q5 direction below in
+favour of the FIRST reading there (most of today's reader is `codexDox`-shaped,
+not the common core). That answers WHICH of the three destinations a given
+requirement can land in; it does not rule the REMOVE-with-a-map-vs-keep-a-stub
+mechanics this question actually asks, which still travel into the change as
+recommended.
 Added-by: Claude Opus 5 (session, Brett's direction) · 2026-09-04
 
 ### Q9. What replaces the byte-identical floor as the extraction's safety property?
@@ -922,6 +1028,9 @@ closest available analogue to "the diff is provably empty" for a system whose
 output is a projection. The cost is that all three must be built before the
 carve, which is the point.
 Disposition status: open (secondary — expected to travel into the change)
+Note (2026-09-04): none of Brett's 2026-09-04 rulings (Q1-Q7, C1-C3) address
+the extraction's safety property; this question travels into the change
+unchanged, as recommended above.
 Added-by: Claude Opus 5 (session, Brett's direction) · 2026-09-04
 
 ### Q10. May a consumer pin openDox directly, or is openXdox always the pinned layer?
@@ -946,6 +1055,15 @@ key. It also makes the boundary testable — if nothing can pin openDox alone, t
 boundary is in the wrong place, which is the same check Q5's "would a student
 use it?" applies at module grain.
 Disposition status: open (secondary — expected to travel into the change)
+Note (2026-09-04): RULING C3 (issue #656, 2026-09-04T17:48Z, on the recorded
+conflict "the standalone student under Q1") reinforces this question's premise
+without settling its mechanics — it confirms a standalone openDox has a
+genuine, real consumer (a plain local git repository per project, no openXdox
+anywhere), which is exactly the condition this question's explanation says the
+recommended answer needs to be non-nominal. It does not itself decide the
+pin-declaration mechanism (the one-field addition to
+`domain-descendant-boundary`), which still travels into the change as
+recommended.
 Added-by: Claude Opus 5 (session, Brett's direction) · 2026-09-04
 
 ### Q11. Does the lifecycle vocabulary become parameterized, or does openXdox ship openxFactory's taxonomy?
@@ -976,7 +1094,23 @@ parameterized lifecycle means the reader can no longer pattern-match on
 `document-lifecycle`'s contract grows a level of indirection. The alternative
 cost is worse — openXdox ships one domain's words and the other four
 descendants each fork it.
-Disposition status: open (secondary — expected to travel into the change)
+Disposition status: ruled 2026-09-04 — Brett Heap, in session (via RULING C2)
+Disposition (2026-09-04): RULING C2 (issue #656, 2026-09-04T17:47Z, on the
+recorded conflict "what is openXdox") settles this question in substance,
+though it was not asked by number: "openXdox is the domain-mapping core,
+parameterized... It holds what every domain factory shares — typed artifact
+kinds, a governed lifecycle engine (statuses, gates, roles, evidence) and the
+dispatch/apply lane — parameterized by a domain profile that a descendant
+supplies." The recommended answer stands AS RULED: openXdox carries the
+ENGINE, not a fixed taxonomy, and each descendant declares its own vocabulary
+in the domain-mapping declaration; openxFactory's own nine-word `Status:`
+taxonomy becomes `codexDox`'s declaration, exactly as C2 also rules for
+engineering vocabulary generally ("a clinician using `MedxDox` never sees the
+word 'requirement'"). `document-lifecycle` gains the MODIFIED delta this
+question's recommended answer named: the taxonomy it owns is one instance of
+the declared shape rather than the shape itself.
+Dispositioned-by: Brett Heap (in-session ruling C2, encoded by Claude Sonnet 5)
+· 2026-09-04
 Added-by: Claude Opus 5 (session, Brett's direction) · 2026-09-04
 
 ## Exit
@@ -1017,13 +1151,24 @@ common core. All four are unconditionally correct — they are the debts that ma
 the current code hard to change, and the last one is the direction's own
 homework.
 
-What must be true first: Brett answers Q6 (sequencing against the five active
-changes) and Q7 (ownership, license and the collision facts) — Q7 before either
-repository is CREATED rather than before the proposal is written. Q6's
-active-change wave must be resolved, re-homed or waived by a recorded ruling
-before the carve phase, and the unpromoted `ideation-intent-plane` capability
-must be promoted or its non-promotion recorded before the per-requirement map is
-authored. The four secondary questions carry recommendations and are expected to
-travel into the change as council questions rather than resolve here; Q11 is the
-one whose answer most changes the shape of what gets built, because a fixed
-lifecycle taxonomy and a parameterized one produce different repositories.
+The two preconditions this exit named — Brett's answers to Q6 and Q7 — are now
+MET. Brett ruled Q6 (2026-09-04T17:49Z: freeze the dashboard now and carve
+immediately) and Q7 (2026-09-04T17:51Z:
+`opensoft` owns both repositories, both public under Apache-2.0) the same
+afternoon on issue #656 — see their dispositions under Open questions. Q6's
+ruling changes this exit plainly: the extraction change RE-HOMES the five
+active `ideation-dashboard` changes' live deltas and their 20 open tasks (13
+in `add-nightly-dashboard-refresh`, 7 in `retire-doxbench-chat-turn-v1`) into
+itself and the new repositories as part of the carve, rather than waiting for
+any of the five to archive first. `add-composed-view-authoring`,
+`add-doxchat-model-intake`, `add-lens-document-selection`,
+`add-nightly-dashboard-refresh` and `retire-doxbench-chat-turn-v1` all stop
+where they stand in openxFactory, and no new dashboard change opens here. The
+unpromoted `ideation-intent-plane` capability must still be promoted, or its
+non-promotion recorded, before the per-requirement map is authored — Q6 did
+not rule on it specifically. Of the four secondary questions, Q11 is now
+DISPOSITIONED via RULING C2 (openXdox carries a parameterized lifecycle
+engine, not a fixed taxonomy) — the change can be authored knowing which
+shape it builds. Q8, Q9 and Q10 still carry only recommendations and travel
+into the change as council questions, Q8 and Q10 partially narrowed by RULING
+C2 and RULING C3 respectively (see their dispositions above).
