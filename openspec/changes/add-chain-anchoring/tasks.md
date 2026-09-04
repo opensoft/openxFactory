@@ -539,7 +539,7 @@ contract byte.
 
 ## 4. Realization — the contract family and its validator
 
-- [ ] 4.1 `contracts/chain-anchoring/` — the multi-anchor receipt record (four
+- [x] 4.1 `contracts/chain-anchoring/` — the multi-anchor receipt record (four
       per-chain elements, the declared header source, and the MINT-TIME CONFIGURATION
       BLOCK — the configured witness set, each witness's declared horizon, and
       the submission time they run from — which the ANCHORED DIGEST commits to in
@@ -565,7 +565,25 @@ contract byte.
       consent checkpoint, per-analysis parameter, expiry and revocation, and
       the leaves issuance and use write), and the ANALYSIS RESULT record with
       its OUTCOME DISCRIMINATOR.
-- [ ] 4.2 Packaged POSITIVE and NEGATIVE examples for every named refusal — a
+
+      **DONE — `contracts/chain-anchoring/`, twelve files.** `anchoring-definitions`
+      (the shared vocabulary, declaring no record kind, taking the ONE digest
+      construction by `$ref` and spelling no second witness role, plane name,
+      custody reference, duration or refusal code), then eleven record shapes:
+      `anchor-receipt` (four per-chain elements, the declared header source, and
+      the mint-time configuration block the anchored digest commits to),
+      `verification-result` (mandatory `receipt_only`/`stateful` mode, with the
+      horizon base declared chain-derived or minter-claimed),
+      `anchor-bound-commitment` (declared construction, SALT and KEY custody
+      references, declared salt source and width), `anchor-state` (per-witness,
+      declared horizons, no aggregate boolean),
+      `consent-checkpoint-commitment`, `log-checkpoint-anchor` (carrying its own
+      never-read-as-validation disclaimer), `plane-separation-declaration`,
+      `linkage-derivation-issuance`, `linkage-derivation-use`,
+      `analysis-result` and `conformance-declaration`. Each validates as YAML and
+      as a stock Draft 2020-12 schema; the leaf kinds and digest subjects they
+      need are settled in tranche one's grammar (5.3), not in a second one.
+- [x] 4.2 Packaged POSITIVE and NEGATIVE examples for every named refusal — a
       receipt missing inclusion proof; a receipt missing transaction bytes; a
       receipt missing chain-acceptance evidence; a receipt whose header is
       non-canonical; a verification run against a minter-supplied header source;
@@ -600,16 +618,48 @@ contract byte.
       result missing its correlation with no declared outcome**; a
       domain record kind; an overlay relaxing a neutral refusal. The bolded
       entries are the refusals the 2026-08-30 fix round added.
-- [ ] 4.3 `scripts/validate-chain-anchoring.py` — the canonical refusing
+
+      **DONE — 21 positives and 75 single-fault negatives**, packaged under
+      `contracts/chain-anchoring/examples/` and `examples/negative/`. The
+      positives are adjudicated as ONE coherent scope (a healthy dual-witness
+      receipt, the ordering-only chain reaching `no_determination`, the honest
+      twin accepted inside the skew, the sat-on minter caught by the checkpoint
+      bracket, the served/local pair over one item, the three-state lifecycle,
+      the correction anchored forward, and the declared-shortfall declaration);
+      each negative is NAMED for the code it provokes and pinned further by an
+      `# expected_failure_detail:` substring. Measured by the reader's own
+      self-test: **70/70 closed refusal codes red-proven**, plus five further
+      finding codes probed for the semantic rules whose codes live outside the
+      closed enumeration.
+- [x] 4.3 `scripts/validate-chain-anchoring.py` — the canonical refusing
       validator. The payload refusal is STRUCTURAL (D3); the unsalted-commitment
       refusal is by DECLARED CONSTRUCTION plus salt-custody resolution, KEY-
       custody resolution, and the declared salt source and width against the
       floor (D4, as amended by LS-A6).
-- [ ] 4.4 **The declared residual of D4 is discharged or DECLARED**: establish
+
+      **DONE — `scripts/validate-chain-anchoring.py`.** Run at this branch's head:
+      `0 error(s), 2 warning(s)`, the two warnings being the family's own standing
+      honest declarations (`reader-not-required`, `archival-node-undeclared`) and
+      not defects. The payload refusal is STRUCTURAL — the shape refuses any
+      content-bearing member rather than recognizing what content is about, which
+      is what keeps it neutral — and the unsalted-commitment refusal is by
+      DECLARED CONSTRUCTION plus salt-custody resolution, KEY-custody resolution,
+      and the declared salt source and width against the floor.
+- [x] 4.4 **The declared residual of D4 is discharged or DECLARED**: establish
       that the commitment path is the ONLY path that can mint an anchor-bound
       value, so an undeclared construction is unreachable; a realization that
       cannot establish it declares the shortfall on `add-trust-anchor`'s
       declared-shortfall pattern rather than asserting the property.
+
+      **DONE BY THE SECOND BRANCH — the residual is DECLARED, not asserted
+      closed.** This realization cannot establish that the commitment path is the
+      only path that can mint an anchor-bound value: a reader cannot tell a
+      declared salted keyed commitment from a plain digest by inspection, and it
+      says so in its own docstring. So `CA-R5-COMMITMENT-PATH` is carried as a
+      STRUCTURAL RESIDUAL on `add-trust-anchor`'s declared-shortfall pattern in
+      `examples/conformance-declaration-1-declared-shortfall.example.yaml`, and a
+      declaration recording that obligation `satisfied` is REFUSED by the reader
+      — red-proven by `examples/negative/structural_residual_declared_satisfied.yaml`.
 - [ ] 4.5 **[OPERATOR] The operational witness's ARCHIVAL NODE** — Q3's first
       condition. Evidence is a running node reachable by the anchoring subsystem,
       named by endpoint, not a plan to run one.
@@ -621,9 +671,21 @@ contract byte.
 - [ ] 4.7 **[OPERATOR] Inclusion-proof RETENTION** — Q3's second condition's other
       half. Evidence is a receipt verified AFTER the operational chain has pruned
       the transaction, which is the only test that actually proves retention.
-- [ ] 4.8 **Corroborating-only status is ENFORCED, not stated** — Q3's third
+- [x] 4.8 **Corroborating-only status is ENFORCED, not stated** — Q3's third
       condition. A claim standing on the operational witness alone is refused by
       a check, and a ten-year claim cites the durability witness.
+
+      **DONE — enforced by the reader, not stated in prose.** Two closed refusals
+      carry it, each red-proven by a named fixture:
+      `examples/negative/claim_stands_on_operational_witness_alone.yaml` (a claim
+      standing on the operational witness alone) and
+      `examples/negative/ten_year_claim_on_operational_witness.yaml` (a ten-year
+      claim not citing the durability witness). Selectivity is refused beside
+      them (`witness_selectivity_rule.yaml`), and a third anchor target is refused
+      by name (`third_anchor_target.yaml`). **THE OPERATOR CONDITIONS 4.5-4.7 AND
+      4.9 REMAIN OPEN AND THIS BOX DOES NOT REACH THEM**: what is enforced here is
+      that a realization cannot CLAIM more than its witnesses support, which is a
+      different thing from a witness existing.
 - [ ] 4.9 **[OPERATOR] The durability witness's aggregation path** — public
       calendars or a self-run hourly calendar (study §8: $0 marginal per item, or
       ≈$2.1k/yr self-run). Evidence is a completed upgrade on a real item.
@@ -659,7 +721,7 @@ contract byte.
       and is committed by the anchored digest, so a realization that introduces a
       new timing input settles it here and carries it there, rather than adding
       it beside the block as four rounds of this packet did.
-- [ ] 5.3 Fix the NEW LEAF KINDS against tranche one's leaf grammar. This packet
+- [x] 5.3 Fix the NEW LEAF KINDS against tranche one's leaf grammar. This packet
       adds no second grammar and must not, so tranche one's grammar is where each
       event discriminator and its required fields are settled; requirements 3, 4,
       7 and 8 mandate these leaves and none of them defines a field. **THE LIST IS
@@ -695,6 +757,18 @@ contract byte.
       gap silently. Re-run against every leaf-mandating clause rather than every
       occurrence of one phrase, the table above is now complete at TWELVE
       mandated kinds plus one deliberate exclusion.
+
+      **DONE — twelve kinds, settled inside tranche one's grammar and pinned by
+      test.** `contracts/signed-execution-chain/transparency-log-leaf.schema.yaml`
+      carries them in 5.3's own order, each paired to its own `anchor_event` shape
+      by the file's `allOf` rather than by prose, and the deliberate exclusion is
+      asserted as an absence with a name
+      (`tests/signed_execution_chain/test_anchor_event_settlement.py`, which also
+      holds three commissioned mutation proofs and a healthy control per kind).
+      The one-pass equality against every leaf-mandating clause is what the module
+      re-runs. No second grammar was minted, and the eleven digest subjects went
+      into the single `digest_subject` enumeration on
+      `digest-construction.schema.yaml`'s own written invitation.
 - [ ] 5.4 Select the PERMISSIONED PLANE INSTANCE (D5), unless the council rules it
       should be fixed at ratification instead. The class is Fabric or Besu; the
       instance is not an anchor chain and selecting one re-opens nothing Q3 closed.
@@ -703,7 +777,7 @@ contract byte.
       issuance to its anchored consent checkpoint. Requirement 8 fixes the
       SHAPE and the refusals and deliberately not the construction; the
       domain overlay fixes the OCCASION and the standard.
-- [ ] 5.6 Fix the ANALYSIS-RESULT SHAPE — the CLOSED STATUS ENUMERATION and its
+- [x] 5.6 Fix the ANALYSIS-RESULT SHAPE — the CLOSED STATUS ENUMERATION and its
       members, the fields a correlation-refused result carries (the NAMED omitted
       correlation and its refusal GROUND, itself a named enumeration — revocation
       state unreadable, consent revoked, derivation refused), and how the
@@ -713,6 +787,17 @@ contract byte.
       deliberately not its field names; without this settled before schemas are
       authored, "names the part it could not perform" has no shape a validator
       can check and a silent partial is indistinguishable from a complete run.
+
+      **DONE — `contracts/chain-anchoring/analysis-result.schema.yaml`.** The
+      status discriminator is CLOSED at three members — `complete`,
+      `correlation_refused`, `correlation_not_requested` — so the three shapes are
+      decidable apart by the result itself; a correlation-refused result carries
+      the NAMED omitted correlation and its refusal GROUND from a named
+      enumeration rather than free text; and the per-plane results are carried
+      distinctly from correlated output. Four refusals hold it, each red-proven:
+      `analysis_result_silently_partial`, `analysis_result_status_outside_enumeration`,
+      `analysis_result_refusal_ground_free_text` and
+      `analysis_result_labelled_deidentified`.
 
 ## 6. Successors and dependencies — NAMED, NOT DRAFTED
 
