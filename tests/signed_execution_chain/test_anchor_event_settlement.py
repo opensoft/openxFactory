@@ -455,6 +455,13 @@ def test_the_eleven_anchoring_digest_subjects_are_enumerated_once():
     later tranche introduces is computed under this construction, with its
     subject added to the enumeration below."* Eleven were added, in one place,
     under the one construction — no second construction name exists.
+
+    UPDATED BY THE CATCH-UP MERGE TO MAIN (contract-v3.3): `add-cpc-clearing-
+    boundary` landed on main while this branch carried the eleven above, and
+    widened the SAME enumeration by one further subject
+    (`sealed_bundle_manifest`), under the same construction, per this file's
+    own tranche-widening invitation. The count pin below moves from 27 to 28
+    to match — a union of subjects, never a second construction.
     """
     doc = _load(DIGEST_SCHEMA_PATH)
     subjects = doc["$defs"]["digest_subject"]["enum"]
@@ -462,13 +469,14 @@ def test_the_eleven_anchoring_digest_subjects_are_enumerated_once():
                             "transparency_log_leaf", "traveling_contract",
                             "gate_verdict"]
     assert subjects[5:16] == list(TRANCHE_TWO_SUBJECTS)
-    assert subjects[16:] == [
+    assert subjects[16:27] == [
         "anchor_material", "anchored_commitment", "anchor_receipt",
         "anchor_state", "anchor_bound_commitment", "consent_checkpoint",
         "log_checkpoint", "linkage_derivation", "analysis_result",
         "verification_result", "anchor_event",
     ]
-    assert len(subjects) == len(set(subjects)) == 27
+    assert subjects[27:] == ["sealed_bundle_manifest"]
+    assert len(subjects) == len(set(subjects)) == 28
     assert doc["$defs"]["construction_name"]["const"] == "xfc-jcs-sha256-1"
 
 
