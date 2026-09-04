@@ -75,9 +75,35 @@ origin:
     `proposal.md` § Orchestrator decisions — all six of those were taken by the
     authoring session and ARE FLAGGED THERE FOR VETO, as are the six open
     questions, each of which carries a recommendation and no decision.
-    THE VETO WINDOW IS OPEN. Unlike the sibling packet filed the same day, no
-    second act has closed it: no orchestrator decision here has been ruled and
-    no open question answered. All twelve come back to Brett.
+    THE VETO WINDOW WAS OPEN AS OF 2026-08-28. Unlike the sibling packet filed
+    the same day, no second act had closed it at authoring: no orchestrator
+    decision was ruled and no open question answered. All twelve came back to
+    Brett.
+    THE VETO WINDOW CLOSED, AND THE PACKET IS NOW RATIFIED — BY A SEPARATE AND
+    LATER ACT, 2026-09-04, Brett Heap (repository owner), in session, recorded
+    on PR #491, verbatim: "accept all, recommendations stand". Record at
+    `review/ratification-2026-09-04.md`; `proposal.md` carries `Status:
+    ratified` with its `Ratified:` line extended to cite both acts. All six
+    orchestrator decisions — OD-1 (no schema surface; named successor
+    `add-subject-establishment-contracts`), OD-2 (one capability, two
+    authority classes), OD-3 (the capability name), OD-4 (the cross-factory
+    handoff consumed from `deployment-handoff-boundary` with no MODIFIED
+    block), OD-5 (layer ownership stated, storage not) and OD-6 (the stricter
+    merge-plus-green-plus-ruling-round archive gate) — were ACCEPTED AS
+    PROPOSED. OD-1 was accepted WITH the PR #479 counter-precedent disclosed
+    to the owner and not followed: the identical no-schema-surface call was
+    VETOED in the sibling `add-credential-escrow-checkout` on the same
+    2026-08-28, and the owner accepted OD-1 here anyway. All six open
+    questions — OQ1 (system-of-record vocabulary), OQ2 (the conformance dial),
+    OQ3 (the read-back conformance verdict), OQ4 (a factory's own store as
+    system of record), OQ5 (the consent instrument, left to DTN-016) and OQ6
+    (OpsxFactory as a named third consumer) — were RULED as their stated
+    recommendations, unamended. THIS FIELD STILL RECORDS AUTHORIZATION TO
+    FILE; the ratification is the later act named above and is not this
+    field's. Ratification authorizes promotion of the spec delta and performs
+    no further realization: no schema, no validator and no domain-repository
+    edit lands in the ratifying commit, and the named successor
+    `add-subject-establishment-contracts` remains exactly that.
   approved_on: 2026-08-28
 related:
   - openxFactory:change:add-subject-establishment-contracts  # the named successor (OD-1, if it stands): the two artifact kinds' schemas, the validator, packaged fixtures, and OQ1's system-of-record measurement pass — to be authored against a domain instantiation rather than ahead of one

@@ -193,16 +193,24 @@ been re-measured, never retargeted.
 
 ## Archive gate
 
-- [ ] G.1 **The gate is merge plus green PLUS the ruling round (OD-6), which is
+- [x] G.1 **The gate is merge plus green PLUS the ruling round (OD-6), which is
       deliberately stricter than what `code_surface: none` alone would
       require.** All six § Orchestrator decisions ruled and all six § Open
       Questions answered. The change stays ACTIVE until then, because a
       promoted capability carrying unruled questions is canon with invisible
-      holes in it.
-- [ ] G.2 If OD-1 is VETOED, this gate grows: the schema surface, its
+      holes in it. **DONE 2026-09-04**: Brett Heap, in session, recorded on
+      PR #491, verbatim "accept all, recommendations stand" — all six OD-1 …
+      OD-6 ACCEPTED AS PROPOSED and all six OQ1 … OQ6 RULED as their stated
+      recommendations. Record: `review/ratification-2026-09-04.md`. The
+      change archives on the merge of PR #491, per this estate's standing
+      `code_surface: none` convention, not in this commit.
+- [x] G.2 If OD-1 is VETOED, this gate grows: the schema surface, its
       validator, its packaged fixtures, and the additive contract cut all land
       before archive, and `code_surface` / `target_release` are rewritten to
-      declare them.
+      declare them. **MOOT as of the 2026-09-04 ruling**: OD-1 was ACCEPTED
+      AS PROPOSED, not vetoed — the counter-precedent from PR #479 was
+      disclosed to the owner and he accepted OD-1 anyway. This gate does not
+      fire; `code_surface: none` and `target_release: none` stand unchanged.
 
 ## Open
 
