@@ -1023,7 +1023,7 @@ def _refuse_unsafe_member(name: str, dest: Path) -> None:
         raise SealRefused(
             f"the source archive holds an absolute member path: {name!r}")
     parts = PurePosixPath(name).parts
-    if any(part == ".." for part in parts) or PurePosixPath(name).is_absolute():
+    if ".." in parts or PurePosixPath(name).is_absolute():
         raise SealRefused(
             f"the source archive holds a traversing member path: {name!r}")
     resolved = (dest / name).resolve()
@@ -1055,9 +1055,11 @@ def _extract_seal_archive(archive_path, dest) -> int:
                 archive.extractall(dest)
             return sum(1 for member in members if member.isfile())
     except tarfile.TarError as exc:
-        raise SealRefused(f"the source archive could not be read: {exc}") from exc
+        raise SealRefused(
+            f"the source archive could not be read: {exc}") from exc
     except OSError as exc:
-        raise SealRefused(f"the source archive could not be extracted: {exc}") from exc
+        raise SealRefused(
+            f"the source archive could not be extracted: {exc}") from exc
 
 
 def _decision_field(decision: dict, key: str) -> str:
@@ -1296,9 +1298,10 @@ def verify_seal(seal_dir, *, correlation_id: str | None = None,
             problems.append(
                 f"tree_digest mismatch: recomputed {digest}, manifest records "
                 f"{manifest.get('tree_digest')}")
-    for label, expected, key in (("correlation id", correlation_id, "correlation_id"),
-                                 ("corpus revision", corpus_revision, "corpus_revision"),
-                                 ("recipe revision", recipe_revision, "recipe_revision")):
+    for label, expected, key in (
+            ("correlation id", correlation_id, "correlation_id"),
+            ("corpus revision", corpus_revision, "corpus_revision"),
+            ("recipe revision", recipe_revision, "recipe_revision")):
         if expected and str(manifest.get(key) or "").lower() != str(expected).lower():
             problems.append(
                 f"{label} mismatch: manifest records "
@@ -1757,8 +1760,9 @@ def main(argv: list[str] | None = None) -> None:
     """CLI entry. Void by contract, like the snapshot lane's, but only for a
     VALID phase: every path through the lane's own logic for `decide`, `seal`,
     `pin`, `report` or `record-pr` — including a total failure, reported as
-    SKIPPED (a refused seal included) — falls through and the process exits 0, so the deterministic doc-health
-    results and the delivered report are never affected. A phase argparse
+    SKIPPED (a refused seal included) — falls through and the process exits 0,
+    so the deterministic doc-health results and the delivered report are never
+    affected. A phase argparse
     itself refuses — an unknown value, including the retired `build` — is a
     USAGE error: argparse prints the fixed choice set and exits non-zero
     (`SystemExit(2)`) before any lane logic runs. That exit code is
