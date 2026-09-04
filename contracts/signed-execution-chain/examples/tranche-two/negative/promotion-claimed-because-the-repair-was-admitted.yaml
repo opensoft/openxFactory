@@ -1,0 +1,50 @@
+# expected_failure: release_over_unclosed_chain
+# VIOLATES the boundary between ADMITTING A REPAIR and CLOSING A CHAIN. The
+# remediation was admitted, its work merged — and promotion is claimed on that
+# strength while the repaired chain remains unclosed.
+#
+# ADMISSION OF THE REPAIR IS NEVER READ AS CLOSURE OF THE CHAIN BEING REPAIRED. The
+# unclosed chain stops refusing when ITS failing state is discharged, not when
+# someone repairs NEAR it.
+schema_version: 1
+kind: xfactory_signed_execution_chain_remediation_declaration
+declaration_id: rem-neg-promotion
+chain_ref: sha256:6c9374bc9e66d2ecf084d96c5f0013eaf35eda380ad9cd5069627fa5e7d27baf
+remediates:
+  chain_ref: sha256:0e7ae026745c6e272309b75afa55b155eb20565cc81f3c9d6c80c8432b5d7325
+  failed_closure_ref: clo-unclosed-0001
+  failure_class: failed
+  statement: The governed post-merge test of that chain established a FAILING result, which
+    is this control working.
+covered_by_ratifying_signature: true
+inherits_exemption: false
+promotion_claimed: true
+declared_at: '2026-09-01T14:00:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:6c9374bc9e66d2ecf084d96c5f0013eaf35eda380ad9cd5069627fa5e7d27baf
+leaf_type: remediation_declaration
+recorded_at: '2026-09-01T22:32:00Z'
+payload_ref: rem-neg-promotion
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: remediation_declaration
+  value: sha256:c829afa2638572fa002879061a1d9e6ffe434e839f80714a98999a3d1bc1fc66
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:f698c2fb50ae9d3564d458e61f5becb46178064197d05cca91b02afb5bdcb7c2
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:88d7d737f71354ce8f9195d22d47fc3bbbca8201534ac73708d6fd241e69036c
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: Zao4qfB7-Ej_pVzTTrFsrXa0qUWQSsrwmZUK-tP8tSFxPQ60SU1ej9jyA8ldNsu2CezEHq5zAD81vVLI9WZbBQ

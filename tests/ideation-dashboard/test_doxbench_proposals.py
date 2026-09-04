@@ -39,9 +39,21 @@ const HASHES = { outline: OUTLINE_HASH, document: DOCUMENT_HASH };
 const proposal = (target, base) => ({
   target, base_hash: base, summary: "Rework the " + target,
   content: "# New " + target });
+// Re-expressed in the surviving family at contract-v3.0
+// (retire-doxbench-chat-turn-v1). `outline` and `document` were v1's two fixed
+// `observed_hashes` keys and its two proposal-target enum values; they are
+// RESERVED BUFFER KEYS in this family, so the fixture's shape survives the
+// conversion untouched and the per-target independence these tests measure is
+// measured over the same two targets. `selected_model` and `bound_buffer` are
+// carried because the released record REQUIRES them — the model under test
+// reads neither, and a fixture that omitted a required field would be a record
+// no serve could have produced.
 const successWith = (proposals) => ({
-  schema_version: 1, kind: "workbench-chat-turn-success",
+  schema_version: 1, kind: "workbench-chat-turn-v2-success",
   client_turn_id: "t-1", assistant_turn_id: "a-1", model_id: "model-a",
+  selected_model: { requested_model_id: "model-a", routing_rule: false,
+                    data_handling: "on-tenant" },
+  bound_buffer: "document",
   observed_hashes: { outline: OUTLINE_HASH, document: DOCUMENT_HASH },
   assistant_prose: "with proposals", proposals });
 

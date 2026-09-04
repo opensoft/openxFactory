@@ -1,0 +1,62 @@
+# Example (add-binding-consumer-identity): TWO CONSUMING SYSTEMS REACHING ONE
+# OPERATED IDENTITY — the fixture `add-notebook-hosting-credential-custody` had
+# to DECLINE, because the unsharpened `shared-secret-identity` rule refused this
+# shape and could not tell "two credentials collapsed into one" from "two
+# consumers of one deliberately shared credential".
+#
+# It validates only because ALL SIX lift conditions hold, over EVERY PAIR:
+#   1. both bindings declare a `consumer:` block
+#   2. their `holder_ref`s DIFFER          — two systems, not one wearing two hats
+#   3. their `fetch_identity`s DIFFER      — one identity MAY be shared, one
+#                                            AUTHORITY SHALL NOT
+#   4. both declare `shared_credential_acknowledged: true` — a one-sided
+#                                            declaration exempts a pair on one
+#                                            party's word
+#   5. both name a QUALIFIED `requirement_ref` resolving to EXACTLY ONE
+#      requirement whose `access_mode` is in the declared vocabulary, equal
+#      across the pair, and not `dispatch_only`
+#   6. each reference's `requirement_id` EQUALS ITS OWN BINDING'S MAP KEY — the
+#      condition that makes the other five mean anything, because a precondition
+#      an author satisfies by choosing where to point is not a precondition
+#
+# Delete any one of the six and the default refusal stands; every condition
+# fails closed. What the record buys is REVOCATION READABILITY — which grant to
+# revoke and whose future fetches stop are a lookup rather than an inference. It
+# does NOT un-share the secret: evicting a consumer that has already fetched it
+# still requires ROTATION, which reaches both.
+#
+# SYNTHETIC IDENTIFIERS, ruled 2026-08-29: the live xFactory sync-lane and
+# openXdox fetch identities stay in the consuming installs' own `credentials/`
+# trees. A fixture owes the shape.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+  display_name: Example Client (fixture)
+credential_bindings:
+  projection_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-operated-identity
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-sync-lane
+      fetch_identity: example-sync-lane-workload-identity
+      requirement_ref:
+        requirement_id: projection_sync_lane
+        requirements_document_ref: two-consumer-operated-identity.requirements.example.yaml
+      shared_credential_acknowledged: true
+  projection_editor_surface:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-operated-identity
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-editor-surface
+      fetch_identity: example-editor-surface-workload-identity
+      requirement_ref:
+        requirement_id: projection_editor_surface
+        requirements_document_ref: two-consumer-operated-identity.requirements.example.yaml
+      shared_credential_acknowledged: true

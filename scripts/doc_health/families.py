@@ -40,7 +40,7 @@ from . import (AUTO_FIXABLE, CONTESTED, CRITICAL, ERROR, WARNING, INFO,
 from . import (client_identity_composition, corpus, document_catalog,
                duplicate_packet, family_enumeration, ideation_routing,
                modified_block_currency, promotion_fidelity, proposal_origin,
-               release_inventory)
+               release_inventory, release_tag_publication)
 from .lines import split_keepends
 
 # Per-family resolution class defaults (doc-health contract): contested
@@ -78,18 +78,33 @@ from .lines import split_keepends
 # class, and it moved in the same commit as its severity for the same reason.
 # See `duplicate_packet._LAUNCH_SEVERITY`.
 #
-# "modified-block-currency" is ABSENT at its own launch
+# "modified-block-currency" was ABSENT at its own launch
 # (add-modified-block-currency-check), for the reason its four predecessors were
-# absent at theirs and for one sharper reason of its own: every finding it raises
-# names a block somebody is expected to CORRECT, so a `contested` class would
-# route the first correction into `report.uncited_resolutions` as an ERROR and
-# red the nightly on the run that proved the advisory launch worked. Its arms are
-# `warning` for scenario-title completeness and title resolution and `info` for
-# the carriage ledger and a defective marker. Raising the scenario-completeness
-# arm to `error` and adding the contested class are ONE later decision taken
-# together by ruling; NO flip is proposed for the ledger, whose population is
-# standing by construction because every legitimate MODIFIED block edits
-# something. See `modified_block_currency._LAUNCH_SEVERITY`.
+# absent at theirs and for one sharper reason of its own: every finding it
+# raises names a block somebody is expected to CORRECT, so a `contested` class
+# would have routed the first correction into `report.uncited_resolutions` as
+# an ERROR and red the nightly on the run that proved the advisory launch
+# worked. Its arms are `warning` for scenario-title completeness and title
+# resolution and `info` for the carriage ledger and a defective marker.
+#
+# PRESENT NOW — flipped 2026-08-31 by ruling (issue #357), together with
+# `modified_block_currency._LAUNCH_SEVERITY`'s move to `error`, on the
+# discharge of the measured population (the 2026-08-30 and 2026-08-31 nightly
+# aggregation reports read the scenario-title arm at ZERO across every
+# governed repository). This table has NO PER-CLASS GRAIN — `runner.main`
+# applies it by `Finding.family` alone, one string every arm of that module
+# shares — so the row below reaches every class the family emits (the ledger
+# and the title-resolution/marker/drift classes included), not the
+# scenario-title arm alone. That is the mechanism's own answer, not a
+# widening this change chose: O8 (`specs/019-modified-block-currency-family/
+# plan.md`) reserves the SEVERITY split three ways for exactly this reason —
+# "so § 7.2's flip moves the scenario-title arm alone" — and says nothing
+# about this table, which the family's own severities remain the guard for.
+# The ledger's population stays standing by construction (every legitimate
+# MODIFIED block edits something), so it is `info` as before; what changes for
+# it is only that a divergence which stops being reported now owes a citation
+# under `report.uncited_resolutions` the same way the scenario-title arm's
+# does. See `modified_block_currency._LAUNCH_SEVERITY`.
 FAMILY_RESOLUTION = {
     "location-conformance": CONTESTED,
     "standard-backing": CONTESTED,
@@ -99,6 +114,7 @@ FAMILY_RESOLUTION = {
     "uncited-resolution": CONTESTED,
     "promotion-fidelity": CONTESTED,
     "duplicate-packet": CONTESTED,
+    "modified-block-currency": CONTESTED,
 }
 
 # ---------------------------------------------------------------- helpers
@@ -263,15 +279,66 @@ def _scan_lines(text: str):
         yield i, line, fenced
 
 
+def _is_exit_heading(line: str) -> bool:
+    """Match the `## Exit` heading as a FAMILY, not one exact string.
+
+    `## Exit` is the MINORITY spelling in `ideation/staging/` (12 occurrences,
+    2026-08-29 count) against `## Exit path`'s 20 — an exact `"## exit"`
+    string match (`#453` defect a) never scans the majority of topics' exit
+    sections at all. A `##` heading whose text, lowercased, is `exit` or
+    starts with `exit ` / `exit:` catches both observed spellings and any
+    future variant in the same shape (`## Exit criteria`, `## Exit:`, ...).
+    """
+    if not line.startswith("## "):
+        return False
+    heading = line[3:].strip().lower()
+    return heading == "exit" or heading.startswith(("exit ", "exit:"))
+
+
+# A line inside an Exit-heading section STATES the exit only when it uses
+# one of these phrasings — derived from actual usage across
+# `ideation/staging/**` (2026-08-29): "the topic exits via `<change>`",
+# "This topic exits via its OWN changes", "Exit TAKEN 2026-08-28. Proposed
+# the same day as `<change>`" / the sibling `_EXIT_TAKEN_PREFIX` convention,
+# and INDEX.md's "EXIT 1 IS RAISED as the active change `<change>`".
+_EXIT_STATEMENT_RE = re.compile(
+    r"exits?\s+via|exits?\s+to|exit\s+taken|promoted\s+by|"
+    r"raised\s+as(?:\s+the)?(?:\s+active)?\s+change|→",
+    re.IGNORECASE)
+
+
 def _staged_exit_changes(text: str, change_ids: set[str]) -> list[str]:
-    """Return change ids used as lifecycle exits, not evidence citations."""
+    """Return change ids cited on a line that STATES a lifecycle exit.
+
+    `#453` defect (b): the docstring here promised "change ids used as
+    lifecycle exits, not evidence citations", but every line inside an
+    Exit-heading section counted, regardless of what it said — so a
+    dependency, predecessor, or downstream-descendant mention (`Consumes
+    add-x's realized issuer anchor`, `and add-y to issue the controller
+    certificate`, `The first domain descendant is Z, via add-w`) fired the
+    same as an actual exit statement. `signed-execution-chain` cites four
+    ACTIVE changes purely as sequencing dependencies in its `## Conflicts`
+    section, two of which recur inside its own `## Exit path` section in
+    that same dependency voice — and must not fire either place.
+
+    Rather than blocklist every dependency phrasing (the corpus already
+    uses at least five distinct ones, with more inevitable), this requires
+    the POSITIVE signal instead: a line only qualifies if it is one of the
+    explicit lifecycle-header prefixes (`Proposed by:`, `Proposal:`,
+    `Exit:`, `Exits via:`) or it falls inside a recognized Exit-heading
+    section (`_is_exit_heading`) AND itself states the exit in words (see
+    `_EXIT_STATEMENT_RE`). A citation that names a change for any other
+    reason is evidence/context, not an exit, and is excluded by default —
+    silence rather than a blocklist miss.
+    """
     lifecycle_lines = []
     in_exit = False
     for line in text.splitlines():
         if line.startswith("## "):
-            in_exit = line.strip().lower() == "## exit"
-        if in_exit or line.startswith((
-                "Proposed by:", "Proposal:", "Exit:", "Exits via:")):
+            in_exit = _is_exit_heading(line)
+        prefixed = line.startswith((
+            "Proposed by:", "Proposal:", "Exit:", "Exits via:"))
+        if prefixed or (in_exit and _EXIT_STATEMENT_RE.search(line)):
             lifecycle_lines.append(line)
     lifecycle_text = "\n".join(lifecycle_lines)
     return sorted(change for change in change_ids if change in lifecycle_text)
@@ -1269,6 +1336,20 @@ FAMILIES = {
     # writers declares itself relative to the other.
     "modified-block-currency":
         modified_block_currency.fam_modified_block_currency,
+    # THE TWENTY-THIRD FAMILY (add-release-tag-publication-check). Not
+    # registered `contested`, and the reason is structural rather than a taste
+    # call. Its absent-tag findings are resolved by a TAG PUBLICATION — an owner
+    # act that leaves a new annotated ref behind — so a resolved finding is
+    # evidenced by the ref rather than vanishing unexplained, which is the
+    # condition the uncited-resolution rule exists to re-raise. That is the same
+    # test `release-inventory-drift` applies to itself and answers the other
+    # way: ITS findings vanish on a release cut, so classing it `contested`
+    # would turn every correct cut into a new error. The MISPLACED-tag finding
+    # is the exception and carries `contested` at its own emit site, because a
+    # misplaced tag that stops being reported without a cited change is exactly
+    # what should come back.
+    "release-tag-publication":
+        release_tag_publication.fam_release_tag_publication,
 }
 
 # `family -> (ctx) -> [note line, ...]`, rendered under that family's own

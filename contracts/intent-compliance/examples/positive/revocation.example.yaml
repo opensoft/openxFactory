@@ -1,0 +1,19 @@
+schema_version: 1
+kind: policy_allowance_revocation
+revocation_id: neutral.revocation.1
+registry_id: neutral.registry
+allowance_id: neutral.allowance.1
+approval_digest: "sha256:219383e0dae21b8f703c79bc8ca9062ef152a8748bbc4fabd007562cbf02fae5"
+predecessor_event_digest: null
+predecessor_revision_digest: "sha256:388db5d20feebfa770ded1e5ceaf822bbd9fa4cf9a616e262b8b293383435319"
+revoker:
+  principal_id: neutral.revoker.1
+  authority_role: neutral.allowance_revoker
+  authority_source:
+    repository: example/domain-factory
+    path: governance/intent-compliance-authority.yaml
+    revision: "1111111111111111111111111111111111111111"
+    content_digest: "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+revoked_at: "2026-06-01T00:00:00Z"
+reason_code: neutral.policy_changed
+revocation_digest: "sha256:87fa2a0d74e5bfd00991b675b898f0e4eaa766f9d3bffb38b3ae9d253da9584d"

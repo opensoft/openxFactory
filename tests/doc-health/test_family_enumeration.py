@@ -64,7 +64,7 @@ def test_a_missing_family_name_fires_and_names_it():
     hits = _on(_run("family-enumeration-missing-name"), "omits")
     assert len(hits) == 1
     assert "'family-enumeration'" in hits[0].rule
-    assert "omits 1 of the 22 registered check families" in hits[0].rule
+    assert "omits 1 of the 23 registered check families" in hits[0].rule
     assert hits[0].path == "openspec/specs/doc-health/spec.md"
     # PIN (commissioned 2026-08-27, after `promotion_fidelity._ACTION` was
     # mutated and 85 tests stayed green — no doc-health family's action line
@@ -86,10 +86,10 @@ def test_a_stale_numeral_fires_separately_from_the_names():
     assert _on(findings, "omits") == []
     total = _on(findings, "check families, but")
     assert len(total) == 1
-    assert "'twenty'" in total[0].rule and "22 are registered" in total[0].rule
-    assert "expected 'twenty-two'" in total[0].rule
+    assert "'twenty'" in total[0].rule and "23 are registered" in total[0].rule
+    assert "expected 'twenty-three'" in total[0].rule
     # and the subset sentence carries its own stale total
-    assert len(_on(findings, "of 'twenty', but 22 families")) == 1
+    assert len(_on(findings, "of 'twenty', but 23 families")) == 1
 
 
 def test_an_unregistered_name_is_reported_not_guessed_at():
@@ -126,7 +126,7 @@ def test_a_thin_active_delta_fires_on_its_own_path():
     assert hits[0].path == (
         "openspec/changes/add-something/specs/doc-health/spec.md")
     assert "this active delta's restatement" in hits[0].rule
-    assert "omits 20 of the 22 registered check families" in hits[0].rule
+    assert "omits 21 of the 23 registered check families" in hits[0].rule
     # canon is complete in this fixture and is NOT reported: the delta half is
     # what carries the obligation while a restatement is in flight
     assert all(f.path.startswith("openspec/changes/") for f in findings)
@@ -362,7 +362,15 @@ def test_the_runtime_phantom_check_still_guards_its_direction():
     REPORT can act on, and asserted against a synthetic registry so it does
     not merely restate the invariant."""
     assert fe._check_reporting_list(REPO, list(FAMILIES)) == []
-    assert len(fe._check_reporting_list(REPO, ["only-this-one"])) == 1
+    hits = fe._check_reporting_list(REPO, ["only-this-one"])
+    assert len(hits) == 1
+    # PIN (issue #485). `test_a_missing_family_name_fires_and_names_it`'s pin
+    # above covers the enumeration-drift shapes' shared action; the
+    # phantom-registration shape at `family_enumeration.py:409` uses its OWN
+    # action string and had no assertion on `.action` anywhere in this
+    # suite, so it could be mutated with zero test failures. A fresh
+    # literal, typed independently of the source.
+    assert hits[0].action == "remove the entry, or register the family"
 
 
 def test_every_registered_family_can_render_a_section():

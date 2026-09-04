@@ -126,60 +126,19 @@ _FIXTURE_CATALOG_SCHEMA = {
     },
 }
 
-_FIXTURE_TURN_REQUEST_SCHEMA = {
-    "type": "object",
-    "additionalProperties": False,
-    "required": ["schema_version", "kind", "client_turn_id", "scope",
-                 "active_document_path", "working_subject", "message", "model_id",
-                 "last_assistant_turn_id", "transcript", "buffers"],
-    "properties": {
-        "schema_version": {"const": 1},
-        "kind": {"const": doxbench_contracts.KIND_CHAT_TURN},
-        # Value-level rules are the RELEASE's, not this fixture's; the keys are
-        # declared only so the closed envelope admits them.
-        "client_turn_id": {},
-        "scope": {},
-        "active_document_path": {},
-        "working_subject": {},
-        "message": {},
-        "model_id": {},
-        "last_assistant_turn_id": {},
-        "transcript": {},
-        "buffers": {},
-    },
-}
-
-_FIXTURE_TURN_SUCCESS_SCHEMA = {
-    "type": "object",
-    "additionalProperties": False,
-    "required": ["schema_version", "kind", "client_turn_id", "assistant_turn_id",
-                 "model_id", "observed_hashes", "assistant_prose", "proposals"],
-    "properties": {
-        "schema_version": {"const": 1},
-        "kind": {"const": doxbench_contracts.KIND_CHAT_TURN_SUCCESS},
-        "client_turn_id": {}, "assistant_turn_id": {}, "model_id": {},
-        "observed_hashes": {}, "assistant_prose": {}, "proposals": {},
-    },
-}
-
-_FIXTURE_TURN_FAILURE_SCHEMA = {
-    "type": "object",
-    "additionalProperties": False,
-    "required": ["schema_version", "kind", "client_turn_id", "error", "message"],
-    "properties": {
-        "schema_version": {"const": 1},
-        "kind": {"const": doxbench_contracts.KIND_CHAT_TURN_FAILURE},
-        "client_turn_id": {}, "error": {}, "message": {},
-        "limit": {},
-    },
-}
-
-# The CO-RESIDENT WIDENED family (contract-v1.34,
-# add-doxbench-editing-phase-b §13), fixtured to the same depth and for the same
-# reason: discriminators and closedness only. `bound_buffer` replaces
-# `active_document_path` on the request -- the binding is DECLARED, not inferred
-# from an adjacent field -- and the record gains that key plus the
-# selected-model metadata.
+# THE ONE SERVED TURN FAMILY, fixtured to discriminators and closedness only.
+#
+# Three v1 fixture schemas stood above these until contract-v3.0
+# (retire-doxbench-chat-turn-v1) and are gone with the envelopes they mirrored.
+# They are not merely unused here: `_FIXTURE_SCHEMAS` is what the injected
+# validator seam serves, and `_doxbench_wire_conforms` treats an absent
+# validator for a kind as FALSE — so a fixture that still carried the v1 kinds
+# would let this suite bless a shape the release no longer defines, which is
+# exactly the forking of contract authority the header above refuses.
+#
+# `bound_buffer` is where v1 carried `active_document_path`: the binding is
+# DECLARED, not inferred from an adjacent field, and the record carries that key
+# plus the selected-model metadata.
 _FIXTURE_TURN_V2_REQUEST_SCHEMA = {
     "type": "object",
     "additionalProperties": False,
@@ -238,9 +197,6 @@ _FIXTURE_TURN_V2_FAILURE_SCHEMA = {
 
 _FIXTURE_SCHEMAS = {
     doxbench_contracts.KIND_MODEL_CATALOG: _FIXTURE_CATALOG_SCHEMA,
-    doxbench_contracts.KIND_CHAT_TURN: _FIXTURE_TURN_REQUEST_SCHEMA,
-    doxbench_contracts.KIND_CHAT_TURN_SUCCESS: _FIXTURE_TURN_SUCCESS_SCHEMA,
-    doxbench_contracts.KIND_CHAT_TURN_FAILURE: _FIXTURE_TURN_FAILURE_SCHEMA,
     doxbench_contracts.KIND_CHAT_TURN_V2: _FIXTURE_TURN_V2_REQUEST_SCHEMA,
     doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS: _FIXTURE_TURN_V2_SUCCESS_SCHEMA,
     doxbench_contracts.KIND_CHAT_TURN_V2_FAILURE: _FIXTURE_TURN_V2_FAILURE_SCHEMA,
@@ -783,6 +739,53 @@ def test_success_body_carries_the_released_catalog_envelope(tmp_path):
     assert payload["kind"] == "workbench-model-catalog"
 
 
+def test_a_declared_modality_set_REACHES_THE_WIRE_and_silence_does_not(tmp_path):
+    """contract-v2.2, THE ROUTE-LEVEL PROOF. The pre-ratification bot round
+    found that a declared `modalities` would be validated in process and then
+    silently dropped, because `as_public_dict` emits an explicit key list rather
+    than serializing the dataclass — leaving consumers and the routing successor
+    with nothing to read, which is the entire purpose of the field. So the claim
+    "it reaches the wire" is proved HERE, over a real request through the real
+    route and the real released-schema validation, and not only at the
+    projection.
+
+    The second entry declares nothing, and its served bytes are asserted to be
+    exactly the seven base fields — the additive property, measured at the wire
+    rather than argued."""
+    catalog = ModelCatalog.from_entries([
+        ModelCatalogEntry(
+            model_id="model-vision",
+            label="Available Model A (accepts images)",
+            provider_class="on-tenant",
+            available=True,
+            input_limit_bytes=800_000,
+            output_limit_bytes=900_000,
+            data_handling="Processed in the approved tenant boundary",
+            modalities=("text", "image")),
+        ModelCatalogEntry(
+            model_id="model-silent",
+            label="Available Model B",
+            provider_class="on-tenant",
+            available=True,
+            input_limit_bytes=800_000,
+            output_limit_bytes=900_000,
+            data_handling="Processed in the approved tenant boundary"),
+    ])
+    port = FakeWorkbenchModelPort(catalog)
+    with _serving(tmp_path, model_port_factory=lambda: port) as (httpd, host, p):
+        caps = _capabilities(host, p)
+        status, payload, _headers, _raw = _request(
+            host, p, "GET", ROUTE, headers=_console_headers(caps))
+    assert status == 200, payload
+    declaring, silent = payload["models"]
+    assert declaring["modalities"] == ["text", "image"]
+    assert list(declaring) == list(PUBLIC_ENTRY_FIELDS) + ["modalities"]
+    # SILENCE IS NOT A CLAIM, and it is not a key either.
+    assert "modalities" not in silent
+    assert set(silent) == set(PUBLIC_ENTRY_FIELDS)
+    assert port.calls == ["catalog"]
+
+
 def test_catalog_success_body_is_validated_against_the_released_schema_before_send(tmp_path):
     """The console never serves an unvalidated wire shape: the enveloped
     response is checked against the injected released-schema validator BEFORE
@@ -986,17 +989,27 @@ def _buf(kind, path, content, *, repository="fixture-repo", base_ref="main",
 def _turn(**over):
     """A structurally valid turn body whose document buffer is the
     not-yet-created (null path) carve-out, so the only in-scope editable path
-    used is the outline README."""
+    used is the outline README.
+
+    RE-EXPRESSED IN THE SURVIVING FAMILY at contract-v3.0
+    (retire-doxbench-chat-turn-v1). This built a `workbench-chat-turn` request
+    until the v1 envelopes were removed; every test in this module that posts a
+    turn goes through it, so the whole route surface below now exercises the one
+    family the release defines. Two fields moved and nothing else did: the
+    `kind`, and `active_document_path: None` becoming `bound_buffer: "outline"`
+    — the SAME turn, whose binding is now DECLARED rather than inferred from the
+    absence of a document path. The buffer set is unchanged, so the assertions
+    that read it are unchanged too."""
     body = {
         # PIN EVOLUTION (T051 wire clause): the RELEASED request envelope is
         # closed and requires both discriminators, so the fixture carries them.
         # Every other field is unchanged, and no assertion below was relaxed.
         "schema_version": 1,
-        "kind": doxbench_contracts.KIND_CHAT_TURN,
+        "kind": doxbench_contracts.KIND_CHAT_TURN_V2,
         "client_turn_id": "turn-0001",
         "scope": {"repository": "fixture-repo", "ref": "main",
                   "tile_kind": "staged", "tile_id": "ideation-governance"},
-        "active_document_path": None,
+        "bound_buffer": "outline",
         "working_subject": "Clarify the acceptance boundary " + _S_SUBJECT,
         "message": "Which open question should we close next? " + _S_MESSAGE,
         "model_id": "model-a",
@@ -1053,11 +1066,18 @@ def _post_turn(tmp_path, body, *, port=None, headers=None, snapshot=None,
 def _assert_refusal(status, payload, code, message=None):
     """PIN EVOLUTION (T051 wire clause). Every refusal reached AFTER the turn
     identity has been read and found wire-valid now carries the RELEASED
-    `workbench-chat-turn-failure` envelope, which is CLOSED and admits no `ok`
-    key -- so the `ok is False` assertion this helper used to make is now the
-    wrong pin, not a weakened one. The code and the fixed module-level message
-    are asserted exactly as before, and the key set is asserted EXACTLY, so
-    nothing can be added to a failure body unnoticed.
+    `workbench-chat-turn-v2-failure` envelope, which is CLOSED and admits no
+    `ok` key -- so the `ok is False` assertion this helper used to make is now
+    the wrong pin, not a weakened one. The code and the fixed module-level
+    message are asserted exactly as before, and the key set is asserted EXACTLY,
+    so nothing can be added to a failure body unnoticed.
+
+    ONE ASSERTER, since contract-v3.0 (retire-doxbench-chat-turn-v1). A
+    `_assert_v2_refusal` twin stood beside this while two families were served
+    and differed from it in exactly one clause, the `kind`: a refusal is
+    answered in the family its request arrived in, and asserting the wrong one
+    passed only for a route that answered the wrong one. One family survives, so
+    the distinction it drew no longer exists and its call sites came here.
 
     `client_turn_id` is asserted present and in the released 1..128 bound
     rather than compared to a literal, because callers below use several turn
@@ -1072,7 +1092,7 @@ def _assert_refusal(status, payload, code, message=None):
         expected.add("limit")
     assert set(payload) == expected
     assert payload["schema_version"] == 1
-    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_FAILURE
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_FAILURE
     assert isinstance(payload["client_turn_id"], str)
     assert 1 <= len(payload["client_turn_id"]) <= 128
     assert payload["error"] == code
@@ -1091,24 +1111,6 @@ def _expected_refusal_message(code, message):
     if message is None:
         return serve_mod.DOXBENCH_ERROR_CATALOG[code][1]
     return message
-
-
-def _assert_v2_refusal(status, payload, code, message=None):
-    """`_assert_refusal` for the WIDENED family (contract-v1.34). Identical in
-    every clause but the `kind`: a refusal is answered in the family its request
-    arrived in, and asserting the v1 kind on a v2 turn would pass only for a
-    route that answered the wrong one."""
-    assert status == serve_mod.doxbench_error_status(code)
-    expected = {"schema_version", "kind", "client_turn_id", "error", "message"}
-    if code == serve_mod.DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED:
-        expected.add("limit")
-    assert set(payload) == expected
-    assert payload["schema_version"] == 1
-    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_FAILURE
-    assert isinstance(payload["client_turn_id"], str)
-    assert 1 <= len(payload["client_turn_id"]) <= 128
-    assert payload["error"] == code
-    assert payload["message"] == _expected_refusal_message(code, message)
 
 
 def _assert_preidentity_refusal(status, payload, code):
@@ -1175,8 +1177,8 @@ def test_valid_turn_reaches_the_dispatch_boundary_and_refuses_fixed(tmp_path):
     assert "assistant_prose" not in payload
     assert "proposals" not in payload
     assert "observed_hashes" not in payload
-    assert payload["kind"] == "workbench-chat-turn-failure"
-    assert payload["kind"] != doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    assert payload["kind"] == "workbench-chat-turn-v2-failure"
+    assert payload["kind"] != doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS
     _assert_no_sentinels(payload)
 
 
@@ -1193,27 +1195,94 @@ def test_the_released_failure_envelope_echoes_the_submitted_turn_id(tmp_path):
 
 # ---- released REQUEST validation, before the precondition chain ------------
 
-def test_a_request_missing_the_released_discriminators_refuses_invalid_turn_request(tmp_path):
+# ---- the KIND gate, ahead of the released envelope -------------------------
+#
+# RE-EXPRESSED at contract-v3.0 (retire-doxbench-chat-turn-v1). While two
+# families were served, an unrecognized or absent `kind` was COERCED into the
+# deprecated v1 family and then refused by ITS schema, so both cases below
+# arrived as `invalid_turn_request`. After the removal that default would select
+# a parser and an envelope builder that no longer exist, so the route refuses
+# the kind ITSELF, with its own code, before the envelope is consulted at all.
+# These tests assert the code and the ENVELOPE the refusal arrives in, which is
+# what distinguishes the redesigned arm from the fault it replaced.
+
+def test_a_request_naming_no_kind_at_all_refuses_unrecognized_turn_kind(tmp_path):
     body = _turn()
     del body["kind"]
     status, payload, fake = _post_turn(tmp_path, body)
-    _assert_refusal(status, payload, "invalid_turn_request")
+    _assert_refusal(status, payload, "unrecognized_turn_kind")
+    assert status == 400
     # Refused BEFORE scope, identity, model, or idempotency: the catalog was
-    # never consulted, so nothing downstream of the schema gate ran.
+    # never consulted, so nothing downstream of the kind gate ran.
     assert fake.calls == []
 
 
 def test_a_request_with_the_wrong_schema_version_refuses_invalid_turn_request(tmp_path):
+    """`schema_version` is the OTHER discriminator, and it is still the released
+    envelope's to judge: the kind gate passes a turn that names the served kind,
+    so this refusal comes from the schema exactly as it always did."""
     status, payload, fake = _post_turn(tmp_path, _turn(schema_version=2))
     _assert_refusal(status, payload, "invalid_turn_request")
     assert fake.calls == []
 
 
-def test_a_request_with_the_wrong_kind_refuses_invalid_turn_request(tmp_path):
+def test_a_request_naming_a_response_kind_refuses_unrecognized_turn_kind(tmp_path):
+    """A kind this route knows but does not ACCEPT -- the success envelope's --
+    is not a malformed request, it is a request this route does not serve."""
     status, payload, fake = _post_turn(
-        tmp_path, _turn(kind=doxbench_contracts.KIND_CHAT_TURN_SUCCESS))
-    _assert_refusal(status, payload, "invalid_turn_request")
+        tmp_path, _turn(kind=doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS))
+    _assert_refusal(status, payload, "unrecognized_turn_kind")
     assert fake.calls == []
+
+
+def test_the_retired_v1_request_kind_is_refused_like_any_other_unknown_kind(tmp_path):
+    """THE REMOVAL, ON THE WIRE (retire-doxbench-chat-turn-v1).
+
+    `workbench-chat-turn` was served for thirteen minors and one major and is
+    gone at contract-v3.0. It is spelled as a LITERAL here rather than through a
+    `doxbench_contracts` constant, deliberately: the constant is removed with the
+    kind, and a test that could only be written while the constant existed would
+    not be able to say what this one says. After the removal a retired kind and
+    a kind that never existed are the same fact about the wire, so both arrive
+    at the same refusal -- and the refusal deliberately does NOT tell the client
+    that this kind used to work, because the surviving contract has no vocabulary
+    for "removed at a major" and the changelog is where a consumer crossing it
+    reads that."""
+    status, payload, fake = _post_turn(
+        tmp_path, _turn(kind="workbench-chat-turn"))
+    _assert_refusal(status, payload, "unrecognized_turn_kind")
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_FAILURE
+    assert fake.calls == []
+    _assert_no_sentinels(payload)
+
+
+def test_an_unknown_kind_with_no_usable_turn_id_stays_on_the_fixed_shape(tmp_path):
+    """The kind refusal's SECOND layer, untouched by the redesign: `failure_v2`
+    REQUIRES a `client_turn_id`, and no server may invent one to reach a contract
+    envelope. So an unrecognized kind on a request that also carries no
+    wire-valid identity leaves the contract envelope entirely and answers in
+    `doxbench_error_body`'s fixed pre-identity shape -- same code, same fixed
+    message, no fabricated correlation key."""
+    status, payload, fake = _post_turn(
+        tmp_path, _turn(kind="workbench-chat-turn", client_turn_id=None))
+    _assert_preidentity_refusal(status, payload, "unrecognized_turn_kind")
+    assert fake.calls == []
+
+
+def test_the_unknown_kind_code_is_a_registered_catalog_entry():
+    """`DOXBENCH_ERROR_CATALOG` RAISES on an unregistered code, so an
+    unregistered unknown-kind code would fault the refusal path rather than
+    refuse it. The registration and the arm that answers it are one commit, and
+    this is the assertion that keeps them one."""
+    status, message = serve_mod.DOXBENCH_ERROR_CATALOG[
+        serve_mod.DOXBENCH_ERR_UNRECOGNIZED_TURN_KIND]
+    assert serve_mod.DOXBENCH_ERR_UNRECOGNIZED_TURN_KIND == "unrecognized_turn_kind"
+    assert status == 400
+    # Fixed, module-level, composed from nothing the caller sent -- and it names
+    # the route's posture rather than the kind the caller declared, which would
+    # echo request content into a published refusal.
+    assert message is serve_mod._DOXBENCH_MSG_UNRECOGNIZED_TURN_KIND
+    assert "{" not in message and "}" not in message
 
 
 def test_an_unknown_top_level_request_key_is_now_refused_as_a_schema_violation(tmp_path):
@@ -1380,7 +1449,7 @@ def test_unknown_tile_id_refuses_turn_scope_refused(tmp_path):
 
 def test_readable_but_not_editable_document_path_refuses_turn_scope_refused(tmp_path):
     body = _turn(
-        active_document_path=READABLE_ONLY_PATH,
+        bound_buffer=READABLE_ONLY_PATH,
         buffers=[
             _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
             _buf("document", READABLE_ONLY_PATH, "# Doc\n\n" + _S_DOCUMENT),
@@ -1393,7 +1462,7 @@ def test_readable_but_not_editable_document_path_refuses_turn_scope_refused(tmp_
 
 def test_traversal_shaped_outline_path_refuses_turn_scope_refused(tmp_path):
     body = _turn(
-        active_document_path=None,
+        bound_buffer="outline",
         buffers=[
             _buf("outline", "../secrets.md", "# Outline\n\n" + _S_OUTLINE),
             _buf("document", None, "# Document\n\n" + _S_DOCUMENT),
@@ -1618,7 +1687,7 @@ def test_refusals_before_the_model_step_never_consult_the_catalog(tmp_path):
         _turn(scope={"repository": "fixture-repo", "ref": "main",
                      "tile_kind": "staged", "tile_id": "no-such-tile"}),
         _turn(
-            active_document_path=READABLE_ONLY_PATH,
+            bound_buffer=READABLE_ONLY_PATH,
             buffers=[
                 _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
                 _buf("document", READABLE_ONLY_PATH, "# Doc\n\n" + _S_DOCUMENT),
@@ -2114,7 +2183,7 @@ def _session_turn(document=SESSION_CREATED_PATH, *, branch=SESSION_BRANCH, **ove
     body = _turn(
         scope={"repository": "fixture-repo", "ref": branch,
                "tile_kind": "staged", "tile_id": SESSION_TILE_ID},
-        active_document_path=document,
+        bound_buffer=document,
         buffers=[
             _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE,
                  base_ref=branch),
@@ -2156,7 +2225,7 @@ def test_a_session_created_document_passes_scope_revalidation(tmp_path):
     status, payload, _fake = _post_session_turn(
         tmp_path, _session_turn(), worktree=worktree)
     assert status == 200
-    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS
     _assert_no_sentinels(payload)
 
 
@@ -2168,7 +2237,7 @@ def test_the_tiles_own_material_is_still_editable_inside_a_session(tmp_path):
     # boundary-refusal proxy as the in-scope proof.
     status, payload, _fake = _post_session_turn(tmp_path, body, worktree=worktree)
     assert status == 200
-    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS
 
 
 def test_a_readable_only_document_is_still_refused_inside_a_session(tmp_path):
@@ -2246,7 +2315,7 @@ def test_the_post_partial_save_turn_grounds_the_unlanded_buffer_on_the_session_b
         tmp_path, body, worktree=worktree,
         session_base=("main", "pre-session-rev-1"))
     assert status == 200
-    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS
     _assert_no_sentinels(payload)
 
 
@@ -2293,7 +2362,7 @@ def test_the_post_partial_save_turn_grounds_on_the_snapshots_revision_alias(tmp_
         session_base=("main", "merge-base-at-open"),
         session_base_aliases=("snapshot-rev-at-open",))
     assert status == 200
-    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS
     _assert_no_sentinels(payload)
 
 
@@ -2321,7 +2390,7 @@ def test_a_crlf_bom_session_document_grounds_on_the_session_base(tmp_path):
         tmp_path, body, worktree=worktree,
         session_base=("main", "pre-session-rev-1"))
     assert status == 200
-    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS
     _assert_no_sentinels(payload)
 
 
@@ -2354,7 +2423,7 @@ def test_a_document_moved_and_moved_back_grounds_again_the_content_ruling(tmp_pa
         tmp_path, body, worktree=worktree,
         session_base=("main", "pre-session-rev-1"))
     assert status == 200
-    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS
     _assert_no_sentinels(payload)
 
 
@@ -2414,7 +2483,7 @@ def test_a_request_cannot_declare_a_created_path_with_no_session_at_all(tmp_path
     """On `main` there is no session, so the created set is empty whatever the
     body says."""
     clean = _turn(
-        active_document_path=READABLE_ONLY_PATH,
+        bound_buffer=READABLE_ONLY_PATH,
         buffers=[
             _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
             _buf("document", READABLE_ONLY_PATH, "# Doc\n\n" + _S_DOCUMENT),
@@ -2458,7 +2527,7 @@ def test_a_declared_created_path_does_not_survive_alongside_a_real_one(tmp_path)
     status, payload, _fake = _post_session_turn(
         tmp_path, _session_turn(SESSION_CREATED_PATH), worktree=worktree)
     assert status == 200
-    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS
 
     # ...while the forged one is refused on a clean body by SCOPE...
     status, payload, _fake = _post_session_turn(
@@ -2525,15 +2594,22 @@ def released_validators():
 def _released_turn(**over):
     """A turn body that the RELEASED request schema accepts.
 
-    Two deliberate departures from `_turn()`, both forced by the released
-    envelope rather than chosen: `active_document_path` is a STRING (the release
-    requires one -- see the nullability tripwire below), and the document buffer
-    carries that same path, because `revalidate_scope` requires the two to be
-    equal. The fixture tile's only editable document IS its README, so both
-    buffers name it."""
+    ONE deliberate departure from `_turn()`: the document buffer carries a REAL
+    path -- the fixture tile's only editable document, its README -- and the
+    binding names that buffer's key, which IS that path. `_turn()` binds to the
+    outline beside a not-yet-created document instead, and both shapes are legal;
+    this one is kept distinct so the released rung exercises a path-backed
+    document rather than only the reserved slot.
+
+    Historical note (retire-doxbench-chat-turn-v1): the departure used to be
+    forced rather than chosen. At contract-v1.27 v1's `active_document_path` was
+    non-nullable, so a released-rung turn had to name a string here; v1.28 made
+    it nullable and v3.0 removed the field with its family. `bound_buffer` never
+    had that gap -- a buffer key is always expressible -- so what survives is a
+    choice about coverage, not a constraint."""
     content = "# Outline\n\n" + _S_OUTLINE
     body = _turn(
-        active_document_path=OUTLINE_PATH,
+        bound_buffer=OUTLINE_PATH,
         buffers=[
             _buf("outline", OUTLINE_PATH, content),
             _buf("document", OUTLINE_PATH, content),
@@ -2545,16 +2621,17 @@ def _released_turn(**over):
 
 @released_only
 def test_the_default_validator_factory_loads_every_released_kind(released_validators):
-    """RE-PINNED at contract-v1.34 (add-doxbench-editing-phase-b §13): the file
-    now holds SIX turn envelopes, not three. The v1 kinds stay in the set
-    deliberately -- they are DEPRECATED, not withdrawn, and a factory that
-    stopped loading them would refuse exactly the clients the deprecation exists
-    to keep working."""
+    """RE-PINNED at contract-v3.0 (retire-doxbench-chat-turn-v1): the file holds
+    THREE turn envelopes again, and they are the widened ones.
+
+    It held three at contract-v1.31, six at contract-v1.34 when the widened
+    family arrived beside the deprecated one, and three again now that the
+    deprecated one is removed. The set is asserted EXACTLY rather than by
+    containment, which is what makes this the test that fails if a v1 kind is
+    ever reintroduced by accident -- and what made it fail loudly at the
+    removal instead of quietly continuing to load an envelope nothing serves."""
     assert set(released_validators) == {
         doxbench_contracts.KIND_MODEL_CATALOG,
-        doxbench_contracts.KIND_CHAT_TURN,
-        doxbench_contracts.KIND_CHAT_TURN_SUCCESS,
-        doxbench_contracts.KIND_CHAT_TURN_FAILURE,
         doxbench_contracts.KIND_CHAT_TURN_V2,
         doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS,
         doxbench_contracts.KIND_CHAT_TURN_V2_FAILURE,
@@ -2595,7 +2672,7 @@ def test_a_released_valid_turn_refuses_with_a_conformant_failure_envelope(
         tmp_path, released_validators):
     """A request the RELEASED schema accepts reaches the dispatch boundary and
     is refused there -- and the refusal is itself a conformant released
-    `workbench-chat-turn-failure` instance. PIN EVOLUTION (T051 dispatch
+    `workbench-chat-turn-v2-failure` instance. PIN EVOLUTION (T051 dispatch
     arm): the boundary refusal now requires the catalog-only adapter shape;
     the dispatch-capable success side has its own released-conformance
     test."""
@@ -2667,12 +2744,12 @@ def test_an_unknown_top_level_key_is_refused_by_the_released_closed_envelope(
 # ---- KNOWN CONTRACT GAP: a TRIPWIRE, not a ruling --------------------------
 
 @released_only
-def test_the_released_request_schema_accepts_a_null_active_document_path(
+def test_the_released_request_schema_accepts_a_null_document_buffer_path(
         tmp_path, released_validators):
     """FLIPPED at contract-v1.28 (2026-08-02) — the gap this tripwire guarded
-    is closed.
+    is closed — and RE-POINTED at contract-v3.0 (retire-doxbench-chat-turn-v1).
 
-    History: at contract-v1.27 `buffer_state.path` was nullable but
+    History: at contract-v1.27 `buffer_state.path` was nullable but v1's
     `active_document_path` kept the non-nullable `confined_path`, so a turn
     about a not-yet-created document could not be expressed on the wire. This
     test asserted that REFUSAL so the gap could not be forgotten, and its
@@ -2682,18 +2759,26 @@ def test_the_released_request_schema_accepts_a_null_active_document_path(
     re-verification, reviewer Brett Heap): measured on the real corpus, 16 of
     21 staged topics have exactly ONE editable path — the topic's own primary
     fragment, loaded as the OUTLINE — so requiring a non-null value made a
-    legal turn impossible on ~76% of real topics. contract-v1.28 gives
+    legal turn impossible on ~76% of real topics. contract-v1.28 gave
     `active_document_path` the same nullability `buffer_state.path` has.
 
+    THE FIELD THAT CARRIED THE GAP IS GONE, and the thing it was a gap ABOUT is
+    not: a turn about a not-yet-created document must stay expressible on the
+    wire. In the surviving family that fact lives entirely in the document
+    buffer's own nullable `path` plus the reserved `document` key the binding
+    names, so the tripwire follows it there rather than retiring with the
+    envelope. Kept as its own test beside the hermetic outline-only pair,
+    because only this one runs the shape through the RELEASED validators end to
+    end — schema acceptance and a completed dispatch in one pass.
+
     As the original docstring predicted, the route needed NO change: it only
-    ever delegated the verdict to the pinned schema. This test now asserts
-    ACCEPTANCE of the null pairing — an outline-only turn is legal on the
-    wire and reaches dispatch."""
-    null_document = _turn()  # the hermetic default: null active path, null document path
-    assert null_document["active_document_path"] is None
+    ever delegated the verdict to the pinned schema."""
+    null_document = _turn()  # the hermetic default: the reserved, unbacked slot
+    assert null_document["buffers"][1]["path"] is None
+    assert null_document["bound_buffer"] == "outline"
     errors = doxbench_contracts.validate_instance(null_document)
     assert not errors, (
-        "contract-v1.28 makes active_document_path nullable; a null pairing "
+        "a not-yet-created document rides as a null-path buffer; that pairing "
         f"must validate: {errors}")
 
     fake = _port()
@@ -2707,7 +2792,7 @@ def test_the_released_request_schema_accepts_a_null_active_document_path(
     # pinned schema, so widening the schema was the whole fix — exactly what
     # the pre-flip docstring predicted ("the route needs no change at all").
     assert status == 200, (status, payload)
-    assert payload.get("kind") == "workbench-chat-turn-success", payload
+    assert payload.get("kind") == "workbench-chat-turn-v2-success", payload
     assert doxbench_contracts.validate_instance(payload) == []
     # The port IS consulted now: pre-flip this asserted `== []` because the
     # schema refused before dispatch could ever be reached.
@@ -2743,9 +2828,23 @@ class _CatalogOnlyPort:
         return self._catalog
 
 
+# The released success envelope's exact key set. It held the v1 record's eight
+# keys until contract-v3.0 (retire-doxbench-chat-turn-v1); with one family left
+# it is the widened record's, which a duplicate `_RELEASED_V2_SUCCESS_KEYS`
+# further down used to state separately. One family, one key set, one constant —
+# two of them could disagree about the same envelope, which is the whole reason
+# a key set is pinned in the first place.
 _RELEASED_SUCCESS_KEYS = {
     "schema_version", "kind", "client_turn_id", "assistant_turn_id",
-    "model_id", "observed_hashes", "assistant_prose", "proposals",
+    "model_id", "selected_model", "bound_buffer", "observed_hashes",
+    "assistant_prose", "proposals",
+    # contract-v1.40 (task 10.7): the posture the turn's context packet was
+    # assembled under. OPTIONAL on the WIRE — that is what makes the release
+    # additive — but this producer always states it, so the key set it emits
+    # grew by exactly one and this pin grows with it. A record that omitted it
+    # would be conformant and would also be this server having stopped saying
+    # what it ran on, which is what the pin refuses.
+    "context_packet",
 }
 
 
@@ -2754,7 +2853,7 @@ def test_a_valid_turn_with_a_dispatch_capable_port_returns_the_released_success(
     assert status == 200
     assert set(payload) == _RELEASED_SUCCESS_KEYS
     assert payload["schema_version"] == 1
-    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS
     assert payload["client_turn_id"] == "turn-0001"
     assert payload["model_id"] == "model-a"
     assert payload["assistant_prose"] == "fake grounded answer"
@@ -2780,10 +2879,15 @@ def test_a_valid_turn_with_a_dispatch_capable_port_returns_the_released_success(
 # exactly one editable path, its own README, which the canvas loads as the
 # OUTLINE and which T104 F2 therefore does not offer as a DOCUMENT, so its
 # candidate set is empty. Every `_turn()` in this file is consequently an
-# outline-only turn: `active_document_path` is null and the document buffer
+# outline-only turn: the binding names the OUTLINE and the document buffer
 # carries the not-yet-created null path. These tests SAY that, so the chain
 # derivation -> guard -> route is pinned as the G-1 acceptance case rather than
 # passing by accident, and pin the proposal semantics such a turn carries.
+#
+# The binding used to be spelled `active_document_path: null` and is spelled
+# `bound_buffer: "outline"` since contract-v3.0 (retire-doxbench-chat-turn-v1).
+# The G-1 case is the same case: what changed is that the turn now STATES what
+# it is grounded on instead of leaving it to be read off an absent path.
 # ---------------------------------------------------------------------------
 
 def test_the_fixture_tile_is_the_single_document_shape_g1_measured(tmp_path):
@@ -2797,15 +2901,16 @@ def test_the_fixture_tile_is_the_single_document_shape_g1_measured(tmp_path):
 
 
 def test_an_outline_only_turn_completes_end_to_end(tmp_path):
-    """derivation -> guard -> route, with no document named anywhere: the turn
-    is answered, not refused. This is the case that was impossible before
-    contract-v1.28 made `active_document_path` nullable."""
+    """derivation -> guard -> route, with no document PATH named anywhere: the
+    turn is answered, not refused. This is the case that was impossible before
+    contract-v1.28 made v1's `active_document_path` nullable, and it is stated
+    on the binding rather than in an absent path since contract-v3.0."""
     body = _turn()
-    assert body["active_document_path"] is None
+    assert body["bound_buffer"] == "outline"
     assert body["buffers"][1]["path"] is None
     status, payload, fake = _post_turn(tmp_path, body)
     assert status == 200, payload
-    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS
     assert fake.calls.count("dispatch") == 1
 
 
@@ -2849,7 +2954,8 @@ def test_an_outline_only_turn_refuses_a_document_targeted_proposal(tmp_path):
 def test_the_outline_only_request_conforms_to_the_released_schema(
         tmp_path, released_validators):
     body = _turn()
-    assert body["active_document_path"] is None
+    assert body["bound_buffer"] == "outline"
+    assert body["buffers"][1]["path"] is None
     assert doxbench_contracts.validate_instance(body) == []
 
 
@@ -2878,7 +2984,7 @@ def test_the_completed_success_is_stored_and_replayed_with_exactly_one_dispatch(
         record = _handler_class(httpd).turn_store.snapshot(KEY, "turn-0001")
     assert status1 == status2 == 200
     assert raw1 == raw2
-    assert payload1["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    assert payload1["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS
     assert record.state == doxbench_turns.TURN_STATE_COMPLETED
     assert fake.calls.count("dispatch") == 1
 
@@ -2961,7 +3067,7 @@ def test_the_success_envelope_validates_against_the_released_schema(
             host, prt, "POST", CHAT_ROUTE, body=body,
             headers=_console_headers(caps))
     assert status == 200
-    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS
     assert doxbench_contracts.validate_instance(payload) == []
 
 
@@ -2984,7 +3090,7 @@ def test_a_validated_proposal_flows_into_the_released_success_envelope(tmp_path)
         "assistant_prose": "here is a proposal", "proposals": [proposal]})
     status, payload, _port = _post_turn(tmp_path, _turn(), port=port)
     assert status == 200
-    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS
     assert payload["proposals"] == [proposal]
     assert set(payload["proposals"][0]) == {
         "target", "base_hash", "summary", "content"}
@@ -3085,50 +3191,34 @@ def test_a_wrong_token_bearing_get_still_refuses_on_validity(tmp_path):
 # THE WIDENED FAMILY ON THE ROUTE (contract-v1.34;
 # add-doxbench-editing-phase-b tasks 13.1/13.4/13.5)
 #
-# The route serves BOTH released families and answers a turn in the family it
-# arrived in. The v1 lane above is unchanged and stays exercised by every test
-# in this module; these pin the widened one -- most importantly that the durable
-# RECORD names the binding the REQUEST DECLARED, which is the F2 obligation
-# Phase A deferred against exactly this release.
+# These pin the widened envelope's own claims -- most importantly that the
+# durable RECORD names the binding the REQUEST DECLARED, which is the F2
+# obligation Phase A deferred against exactly this release.
+#
+# They were written as the SECOND lane, beside a v1 lane every other test in the
+# module exercised. There is no second lane since contract-v3.0
+# (retire-doxbench-chat-turn-v1): the module's own `_turn()` builds this
+# envelope, so what these tests still add over the rest of the file is the
+# widened envelope's DISTINCTIVE claims -- the declared binding on the record,
+# many document buffers, buffer-key targets -- rather than a family boundary.
 # ---------------------------------------------------------------------------
 
-_RELEASED_V2_SUCCESS_KEYS = {
-    "schema_version", "kind", "client_turn_id", "assistant_turn_id",
-    "model_id", "selected_model", "bound_buffer", "observed_hashes",
-    "assistant_prose", "proposals",
-    # contract-v1.40 (task 10.7): the posture the turn's context packet was
-    # assembled under. OPTIONAL on the WIRE — that is what makes the release
-    # additive — but this producer always states it, so the key set it emits
-    # grew by exactly one and this pin grows with it. A record that omitted it
-    # would be conformant and would also be this server having stopped saying
-    # what it ran on, which is what the pin refuses.
-    "context_packet",
-}
-
-
 def _turn_v2(**over):
-    """A widened turn over the same fixture tile: the outline plus the reserved
-    not-yet-created document slot, with the binding DECLARED rather than implied
-    by an active-document path (which this envelope does not carry)."""
-    body = {
-        "schema_version": 1,
-        "kind": doxbench_contracts.KIND_CHAT_TURN_V2,
-        "client_turn_id": "turn-v2-0001",
-        "scope": {"repository": "fixture-repo", "ref": "main",
-                  "tile_kind": "staged", "tile_id": "ideation-governance"},
-        "bound_buffer": "outline",
-        "working_subject": "Clarify the acceptance boundary " + _S_SUBJECT,
-        "message": "Which open question should we close next? " + _S_MESSAGE,
-        "model_id": "model-a",
-        "last_assistant_turn_id": None,
-        "transcript": [],
-        "buffers": [
-            _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
-            _buf("document", None, "# Document\n\n" + _S_DOCUMENT),
-        ],
-    }
-    body.update(over)
-    return body
+    """`_turn()` under this section's own turn-id namespace.
+
+    It carried its own copy of the envelope while two families were served, so
+    that the widened lane could be exercised against a `_turn()` that built the
+    deprecated one. `_turn()` builds this envelope itself since contract-v3.0
+    (retire-doxbench-chat-turn-v1), and a second literal would be a second thing
+    to keep in step with the release for no remaining reason.
+
+    THE NAME AND THE DEFAULT ID STAY. Several tests in this section post two
+    turns to one server and rely on the `turn-v2-…` ids being distinct from the
+    `turn-0001` the rest of the module uses, and one of them asserts the echoed
+    id verbatim; sharing a default across the file would silently turn those
+    into idempotent replays of each other."""
+    over.setdefault("client_turn_id", "turn-v2-0001")
+    return _turn(**over)
 
 
 def test_a_widened_turn_returns_the_widened_record_naming_its_declared_binding(
@@ -3141,7 +3231,7 @@ def test_a_widened_turn_returns_the_widened_record_naming_its_declared_binding(
     what the request DECLARED."""
     status, payload, fake = _post_turn(tmp_path, _turn_v2())
     assert status == 200
-    assert set(payload) == _RELEASED_V2_SUCCESS_KEYS
+    assert set(payload) == _RELEASED_SUCCESS_KEYS
     assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS
     assert payload["client_turn_id"] == "turn-v2-0001"
     assert payload["bound_buffer"] == "outline"
@@ -3188,7 +3278,7 @@ def test_a_widened_turn_whose_binding_names_no_supplied_buffer_is_refused(
     status, payload, fake = _post_turn(
         tmp_path, _turn_v2(bound_buffer="ideation/staging/ideation-governance/"
                                         "never-supplied.md"))
-    _assert_v2_refusal(status, payload, "turn_scope_refused")
+    _assert_refusal(status, payload, "turn_scope_refused")
     # Scope revalidation is step 5: no port member is consulted at all.
     assert fake.calls == []
     _assert_no_sentinels(payload)
@@ -3231,29 +3321,31 @@ def test_a_reduced_turn_conforms_to_the_RELEASED_posture_rules_end_to_end(
     _assert_no_sentinels(payload)
 
 
-def test_a_deprecated_v1_turn_is_still_served_in_its_own_family(tmp_path):
-    """The deprecation's whole promise: the older shape keeps working, and it is
-    answered in ITS envelope -- never in the widened one, which carries fields a
-    v1 client has no reader for."""
-    status, payload, _fake = _post_turn(tmp_path, _turn())
-    assert status == 200
-    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
-    assert "bound_buffer" not in payload
-    assert "selected_model" not in payload
+# `test_a_deprecated_v1_turn_is_still_served_in_its_own_family` stood here and
+# asserted the deprecation's whole promise -- that the older shape kept working
+# and was answered in ITS envelope, never in the widened one. It is DELETED
+# rather than re-expressed at contract-v3.0 (retire-doxbench-chat-turn-v1): its
+# subject was the survival of a family that no longer exists, and there is no
+# v2-shaped sentence it could be rewritten into that says anything. What replaced
+# it is the refusal, up beside the kind gate --
+# `test_the_retired_v1_request_kind_is_refused_like_any_other_unknown_kind` --
+# which pins the OPPOSITE fact about the same wire.
 
 
 @released_only
-def test_both_families_conform_to_the_released_schema_on_the_wire(
+def test_the_served_family_conforms_to_the_released_schema_on_the_wire(
         tmp_path, released_validators):
-    """Requests and records from BOTH families validate against the released
-    bytes -- the co-residence claim, executed rather than described."""
-    v2_request = _turn_v2()
-    assert doxbench_contracts.validate_instance(v2_request) == []
-    assert doxbench_contracts.validate_instance(_turn()) == []
-    status, payload, _fake = _post_turn(tmp_path, v2_request)
-    assert status == 200
-    assert doxbench_contracts.validate_instance(payload) == []
-    status, payload, _fake = _post_turn(tmp_path, _turn())
+    """Request and record validate against the released bytes.
+
+    This asserted the CO-RESIDENCE claim -- both families, executed rather than
+    described -- until contract-v3.0 removed one of them. What it still proves is
+    the half that outlived the claim: the shape this suite posts everywhere is a
+    shape the RELEASED validators accept, and so is the record the route answers
+    it with. Without that, the whole hermetic rung above could be internally
+    consistent about an envelope the release does not define."""
+    request = _turn_v2()
+    assert doxbench_contracts.validate_instance(request) == []
+    status, payload, _fake = _post_turn(tmp_path, request)
     assert status == 200
     assert doxbench_contracts.validate_instance(payload) == []
 
@@ -3329,7 +3421,7 @@ def test_the_widened_fixture_tile_really_is_editable_at_every_added_path():
 
 # ---------------------------------------------------------------------------
 # F2 (adversarial review of the §13 slice): A DOCUMENT PATH THAT CLAIMS A
-# RESERVED KEY IS REFUSED ON BOTH LANES, WITH AN ENVELOPE
+# RESERVED KEY IS REFUSED, WITH AN ENVELOPE
 #
 # `buffer_key_for` maps a document buffer at path `outline` onto the reserved
 # outline key; `ordered_document_keys` filters that key OUT of the document
@@ -3346,6 +3438,21 @@ def test_the_widened_fixture_tile_really_is_editable_at_every_added_path():
 # a refusal — and they run against the widened fixture tile, where the claimed
 # path is genuinely in scope and editable, so scope confinement cannot answer
 # first and hide the hole.
+#
+# IT WAS "BOTH LANES" UNTIL contract-v3.0 (retire-doxbench-chat-turn-v1), and two
+# v1-lane tests stood below: one for the `outline` spelling, which was the CRASH
+# class the F2 review found, and one asserting that the `document` spelling kept
+# being SERVED on that lane (CODEX-1 — the v1 envelope carried exactly one
+# document, keyed `document` whether its path was null or literally "document",
+# so it had no collision to guard and refusing it would have been a breaking
+# change wearing an additive release's number). Both are DELETED with the lane.
+# The first is fully covered by the parametrized widened test below, which
+# refuses BOTH spellings and makes the same envelope-not-a-dropped-connection
+# assertion; the second asserted a promise to v1 clients that the removal
+# discharges, and has no v2-shaped sentence to be rewritten into — the widened
+# envelope CAN carry the reserved unbacked slot beside a path-backed document,
+# so on this lane a document at path `document` shadows it and is refused, which
+# is what the parametrized test says.
 # ---------------------------------------------------------------------------
 
 # The reviewer's own repro shape: an oversize buffer whose declared content_hash
@@ -3358,54 +3465,8 @@ _RESERVED_CLAIM_HASH = "f" * 64
 _RESERVED_SNAPSHOT_PATHS = ("outline", "document")
 
 
-def test_a_v1_turn_whose_document_path_claims_the_outline_key_is_refused(tmp_path):
-    """The v1 half of the reserved-key refusal. NARROWED to the `outline`
-    spelling by Codex review CODEX-1: that one is a CRASH class on this lane —
-    reproduced at a4a6f6e as a dropped connection with no response — while the
-    `document` spelling was SERVED there and keeps being served (below)."""
-    body = _turn(active_document_path="outline", buffers=[
-        _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
-        _buf("document", "outline", _RESERVED_CLAIM_CONTENT,
-             content_hash=_RESERVED_CLAIM_HASH),
-    ])
-    status, payload, fake = _post_turn(
-        tmp_path, body,
-        snapshot=_snapshot_with_editable(*_RESERVED_SNAPSHOT_PATHS))
-    assert payload is not None, (
-        "the connection must carry an envelope, never drop: an IndexError here "
-        "stranded the turn-store lease and told the browser nothing")
-    _assert_refusal(status, payload, "invalid_turn_request")
-    # The buffer-set requirement is step 6; the model port is step 7. A malformed
-    # request must reach neither.
-    assert fake.calls == []
-    _assert_no_sentinels(payload)
-
-
-def test_a_v1_turn_whose_document_path_is_literally_document_is_still_served(
-        tmp_path):
-    """CODEX-1, the promise this release makes: a v1 client keeps being served.
-
-    A repository-root file named exactly `document` is a legal editable path, and
-    a v1 turn carrying it was SERVED at a4a6f6e — reproduced in a worktree at that
-    commit: HTTP 200, dispatched. The v1 envelope carries exactly ONE document
-    whose key is `document` whether its path is null or literally "document", so
-    that lane has no collision to guard; refusing it would have been a breaking
-    change wearing an additive release's number."""
-    body = _turn(active_document_path="document", buffers=[
-        _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
-        _buf("document", "document", "# Doc\n\n" + _S_DOCUMENT),
-    ])
-    status, payload, fake = _post_turn(
-        tmp_path, body,
-        snapshot=_snapshot_with_editable(*_RESERVED_SNAPSHOT_PATHS))
-    assert status == 200, payload
-    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
-    assert set(payload["observed_hashes"]) == {"outline", "document"}
-    assert fake.calls.count("dispatch") == 1
-
-
 @pytest.mark.parametrize("reserved", ["outline", "document"])
-def test_a_v2_turn_whose_document_path_claims_a_reserved_key_is_refused(
+def test_a_turn_whose_document_path_claims_a_reserved_key_is_refused(
         tmp_path, reserved):
     body = _turn_v2(bound_buffer="outline", buffers=[
         _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
@@ -3415,12 +3476,15 @@ def test_a_v2_turn_whose_document_path_claims_a_reserved_key_is_refused(
     status, payload, fake = _post_turn(
         tmp_path, body,
         snapshot=_snapshot_with_editable(*_RESERVED_SNAPSHOT_PATHS))
-    assert payload is not None
-    _assert_v2_refusal(status, payload, "invalid_turn_request")
-    # BOTH spellings stay refused on THIS lane (CODEX-1): the widened envelope
-    # can carry the reserved unbacked slot beside a path-backed document, so a
-    # document at path `document` would shadow it — the collision the v1 lane
-    # cannot have.
+    assert payload is not None, (
+        "the connection must carry an envelope, never drop: the IndexError this "
+        "class produced stranded the turn-store lease and told the browser "
+        "nothing")
+    _assert_refusal(status, payload, "invalid_turn_request")
+    # BOTH spellings are refused (CODEX-1): the widened envelope can carry the
+    # reserved unbacked slot beside a path-backed document, so a document at
+    # path `document` would shadow it — the collision the retired v1 lane, with
+    # its single document, could not have.
     #
     # BEFORE the provider, and before the CATALOG: on this lane the buffer used
     # to survive to dispatch and come back as `response_invalid`, which named the
@@ -3503,7 +3567,7 @@ def test_a_widened_turn_verifies_every_documents_identity_not_just_the_first(
         ])
     status, payload, fake = _post_turn(
         tmp_path, body, snapshot=_snapshot_with_editable(DOC_ALPHA, DOC_ZULU))
-    _assert_v2_refusal(status, payload, "content_identity_mismatch")
+    _assert_refusal(status, payload, "content_identity_mismatch")
     # NO PORT TOUCH AT ALL, not merely no dispatch: exact identity is step 6 and
     # the model step is 7, so a loop that verified only the first document and
     # went on to consult the catalog would satisfy "no dispatch" while breaking
@@ -3531,7 +3595,7 @@ def test_the_request_byte_bound_counts_every_loaded_document(tmp_path):
     status, payload, fake = _post_turn(
         tmp_path, body, port=_port(_catalog(input_limit_bytes=20_000)),
         snapshot=_snapshot_with_editable(DOC_ALPHA, DOC_ZULU))
-    _assert_v2_refusal(status, payload, "request_limit_exceeded")
+    _assert_refusal(status, payload, "request_limit_exceeded")
     assert payload["limit"]["dimension"] == "request_body_bytes"
     assert payload["limit"]["maximum"] == 20_000
     assert payload["limit"]["measured"] >= 24_000, (
@@ -3668,7 +3732,7 @@ def test_a_widened_turn_with_changed_content_still_conflicts(tmp_path):
             host, prt, "POST", CHAT_ROUTE, body=changed,
             headers=_console_headers(caps))
     assert first_status == 200
-    _assert_v2_refusal(second_status, second_payload, "turn_id_conflict")
+    _assert_refusal(second_status, second_payload, "turn_id_conflict")
     assert fake.calls.count("dispatch") == 1
 
 
@@ -3720,7 +3784,7 @@ def test_a_v2_turn_unloaded_to_the_outline_alone_names_the_missing_document(
     nothing but the buffer set can be what the route objects to."""
     body = _turn_v2(bound_buffer="outline", buffers=list(_ONLY_OUTLINE))
     status, payload, fake = _post_turn(tmp_path, body)
-    _assert_v2_refusal(status, payload, "invalid_turn_request",
+    _assert_refusal(status, payload, "invalid_turn_request",
                        serve_mod._DOXBENCH_MSG_TURN_HAS_NO_DOCUMENT)
     # The schema gate is before scope, before identity, and before the model.
     assert fake.calls == []
@@ -3761,7 +3825,7 @@ def test_a_v2_turn_carrying_no_buffers_at_all_keeps_the_generic_message(
     would not be."""
     body = _turn_v2(bound_buffer="outline", buffers=[])
     status, payload, fake = _post_turn(tmp_path, body)
-    _assert_v2_refusal(status, payload, "invalid_turn_request")
+    _assert_refusal(status, payload, "invalid_turn_request")
     assert fake.calls == []
 
 
@@ -3773,7 +3837,7 @@ def test_a_v2_turn_carrying_only_a_document_keeps_the_generic_message(tmp_path):
     body = _turn_v2(bound_buffer="document", buffers=[
         _buf("document", None, "# Document\n\n" + _S_DOCUMENT)])
     status, payload, fake = _post_turn(tmp_path, body)
-    _assert_v2_refusal(status, payload, "invalid_turn_request")
+    _assert_refusal(status, payload, "invalid_turn_request")
     assert fake.calls == []
 
 
@@ -3787,7 +3851,7 @@ def test_the_released_floor_itself_names_the_cause(tmp_path):
     body = _turn_v2(bound_buffer="outline", buffers=list(_ONLY_OUTLINE))
     status, payload, fake = _post_turn(
         tmp_path, body, schema_validator_factory=lambda: dict(released))
-    _assert_v2_refusal(status, payload, "invalid_turn_request",
+    _assert_refusal(status, payload, "invalid_turn_request",
                        serve_mod._DOXBENCH_MSG_TURN_HAS_NO_DOCUMENT)
     assert fake.calls == []
 
@@ -3811,7 +3875,7 @@ def test_a_second_violation_beside_the_buffers_floor_keeps_the_generic_message(
                     message="")
     status, payload, fake = _post_turn(
         tmp_path, body, schema_validator_factory=lambda: dict(released))
-    _assert_v2_refusal(status, payload, "invalid_turn_request")
+    _assert_refusal(status, payload, "invalid_turn_request")
     assert fake.calls == []
 
 
@@ -3823,7 +3887,7 @@ def test_the_remedy_the_no_document_refusal_names_actually_makes_it_sendable(
     and not a guess."""
     refused_body = _turn_v2(bound_buffer="outline", buffers=list(_ONLY_OUTLINE))
     status, payload, _fake = _post_turn(tmp_path, refused_body)
-    _assert_v2_refusal(status, payload, "invalid_turn_request",
+    _assert_refusal(status, payload, "invalid_turn_request",
                        serve_mod._DOXBENCH_MSG_TURN_HAS_NO_DOCUMENT)
 
     loaded_body = _turn_v2(bound_buffer="outline", buffers=[
@@ -3851,7 +3915,7 @@ def test_the_no_document_refusal_leaves_the_turn_slot_reusable(tmp_path):
         second_status, second_payload, _h2, _r2 = _request(
             host, prt, "POST", CHAT_ROUTE, body=retried,
             headers=_console_headers(caps))
-    _assert_v2_refusal(first_status, first_payload, "invalid_turn_request",
+    _assert_refusal(first_status, first_payload, "invalid_turn_request",
                        serve_mod._DOXBENCH_MSG_TURN_HAS_NO_DOCUMENT)
     assert second_status == 200, second_payload
     assert second_payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS
@@ -3947,5 +4011,5 @@ def test_the_delegated_validators_own_refusals_keep_the_generic_message(
         _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
         _buf("outline", OUTLINE_PATH, "# Outline again\n\n" + _S_OUTLINE)])
     status, payload, fake = _post_turn(tmp_path, body)
-    _assert_v2_refusal(status, payload, "invalid_turn_request")
+    _assert_refusal(status, payload, "invalid_turn_request")
     assert fake.calls == []

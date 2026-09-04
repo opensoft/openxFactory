@@ -1,0 +1,5 @@
+# expected-failure: scope-outcome
+# requirement: neutral-scope-outcomes
+schema_version: 1
+kind: intent_compliance_negative_fixture
+mutation: indeterminate_scope_as_allow

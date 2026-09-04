@@ -1,0 +1,110 @@
+schema_version: 1
+kind: openxfactory-signed-execution-chain-contract-schema
+name: xfactory_signed_execution_chain_remediation_declaration
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/remediation-declaration.schema.yaml"
+contract_id: signed-execution-chain-remediation-declaration
+contract_schema_version: 1
+title: A remediation chain's declared subject — the one admitted consumer
+description: >-
+  EXACTLY ONE CONSUMER OF AN UNCLOSED CHAIN IS ADMITTED, AND THIS RECORD IS HOW IT
+  SAYS SO (`add-chain-attestation`, requirement "A remediation chain is the one
+  admitted consumer of an unclosed chain"). WITHOUT THE EXEMPTION THE INVARIANT
+  DEADLOCKS: when link 10 fails on an ordinary defect, the corrective or revert
+  change is itself a NEXT CHAIN that builds on the merge; refuse that too and the
+  repository can never repair what it cannot retroactively unmerge. FAIL-CLOSED
+  MEANS THE FAILURE CAN BE REPAIRED, NOT THAT IT IS TRAPPED.
+
+  THE EXEMPTION'S CONDITIONS ARE WHAT KEEP IT FROM BEING A HOLE, AND EACH IS
+  ENFORCED RATHER THAN ASSUMED:
+
+  1. A remediation chain is A FULL CHAIN — ratified and signed like any other, its
+     links 1-6 walked at the gate exactly as for any work. IT IS AN EXEMPT
+     CONSUMER, NEVER AN EXEMPT CHAIN, and one offered with links 4-6 absent on the
+     ground that it exists to repair a failure is REFUSED
+     (`remediation_skips_gate`).
+  2. ITS SUBJECT IS DECLARED, names the unclosed chain BY CHAIN IDENTITY, and
+     falls INSIDE THE BYTES THE RATIFYING SIGNATURE COVERS — which is what
+     `covered_by_ratifying_signature` records and the reader checks. A declaration
+     attachable afterwards is a declaration anyone can attach, and the exemption
+     would then be claimable by relabelling: MENTIONING IS NEVER DECLARING
+     (`remediation_subject_not_declared`).
+  3. PROMOTION AND RELEASE STAY REFUSED until a chain closes over the merge. The
+     exemption admits THE REPAIR, never the thing the repair is for.
+  4. THE EXEMPTION IS NOT INHERITABLE. A chain that builds on a remediation chain
+     is an ORDINARY CONSUMER and stays refused while the original is unclosed
+     (`remediation_exemption_inherited`) — an exemption that descends is an
+     exemption that launders, which this family has already met once as an
+     exemption inheritable by identifier collision.
+  5. A REMEDIATION CHAIN OWES ITS OWN CLOSURE. One that does not close is itself
+     unclosed, refuses its own downstream, and is repairable by this same route
+     rather than exempt from it (`remediation_own_closure_failed`).
+
+  THE RECORD BELONGS TO THE REPAIRING CHAIN AND NAMES THE REPAIRED ONE.
+  `chain_ref` is the REMEDIATION chain's own identity; `remediates` is the
+  unclosed chain it declares as its subject. Reading them the other way round is
+  how an exemption gets claimed by the chain that needed one.
+type: object
+required:
+  - schema_version
+  - kind
+  - declaration_id
+  - chain_ref
+  - remediates
+  - covered_by_ratifying_signature
+  - declared_at
+  - leaf_ref
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_signed_execution_chain_remediation_declaration]
+  declaration_id: {$ref: '#/$defs/identifier'}
+  chain_ref:
+    # THE REMEDIATION CHAIN'S OWN IDENTITY.
+    $ref: '#/$defs/chain_ref'
+  remediates:
+    # THE UNCLOSED CHAIN THIS ONE REPAIRS, BY CHAIN IDENTITY. Naming it in prose is
+    # not naming it here.
+    type: object
+    required: [chain_ref, failed_closure_ref, failure_class]
+    additionalProperties: false
+    properties:
+      chain_ref: {$ref: '#/$defs/chain_ref'}
+      failed_closure_ref: {$ref: '#/$defs/identifier'}
+      failure_class:
+        # WHICH OF THE FOUR REFUSING STATES the repaired chain is in. They are
+        # recorded as four because they differ in what they tell a responder to do
+        # next, and a repair raised against the wrong one is a repair aimed at the
+        # wrong thing.
+        type: string
+        enum: [missing, failed, unsigned, unestablished]
+      statement: {type: string, maxLength: 900}
+  covered_by_ratifying_signature:
+    # NOT a `const: true`. A record declaring `false` is a record saying the
+    # subject was attached outside the bytes the ratifying signature covers, and
+    # that earns the NAMED refusal `remediation_subject_not_declared` — which says
+    # what was actually wrong — rather than a schema error saying a boolean did not
+    # match a constant. The same choice tranche one made for
+    # `performed_out_of_pipeline`.
+    type: boolean
+  inherits_exemption:
+    # A CHAIN THAT CLAIMS THE EXEMPTION DESCENDS SAYS SO HERE AND IS REFUSED BY
+    # NAME. The claim is made representable precisely so that it can be refused
+    # with the reason rather than passing as an unstated assumption.
+    type: boolean
+  promotion_claimed:
+    # A LANE THAT ATTEMPTS PROMOTION OR RELEASE ON THE STRENGTH OF AN ADMITTED
+    # REMEDIATION SAYS SO HERE, and is REFUSED: admission of the repair is never
+    # read as closure of the chain being repaired.
+    type: boolean
+  declared_at: {type: string, format: date-time}
+  leaf_ref: {$ref: '#/$defs/identifier'}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/identifier"
+  chain_ref:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/chain_ref"

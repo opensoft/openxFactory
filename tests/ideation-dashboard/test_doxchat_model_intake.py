@@ -1107,9 +1107,17 @@ def test_a_turn_naming_the_affordance_refuses_through_the_existing_refusal(
 def test_the_closed_catalog_entry_does_not_widen(scratch_repo, tmp_path):
     """Task 3.5, asserted rather than asserted-about. Proposed-versus-approved
     is a SERVER-SIDE distinction and a pending declaration is simply not in the
-    catalog, so the public entry's seven-field shape is untouched — widening it
-    is a separate, already-owed additive release (Phase B task 11.7) and this
-    change does not spend it."""
+    catalog, so the public entry's shape is untouched — widening it is a
+    separate, governed additive release and this change does not spend one.
+
+    THE REFERENT MOVES, THE CLAIM DOES NOT. This docstring said "seven-field"
+    and named Phase B task 11.7 as the owed widening. That widening landed
+    (contract-v1.38's routing declaration), and a second followed
+    (contract-v2.2's `modalities`), so the count is no longer the shape and the
+    named successor is no longer pending. What this test asserts is unchanged
+    and still passes byte-for-byte: an APPROVED plain entry projects exactly
+    `PUBLIC_ENTRY_FIELDS`, because each optional group is emitted only by an
+    entry that declares it."""
     from ideation_dashboard.doxbench_model import (
         PUBLIC_ENTRY_FIELDS, catalog_wire_envelope)
     program, _record = _write_broker(tmp_path)
@@ -1277,9 +1285,16 @@ def test_the_gate_action_enum_gained_exactly_one_additive_member():
 
 
 def test_the_turn_record_gained_the_remint_fact_additively():
-    """Task 3.6's contract half. An OPTIONAL fact on the v2 success envelope
-    ONLY — the v1 envelope is deprecated and its promise is byte-identical
-    stability — carrying the REDACTED fact and nothing more."""
+    """Task 3.6's contract half. An OPTIONAL fact on the SUCCESS envelope only,
+    carrying the REDACTED fact and nothing more.
+
+    The blast-radius clause used to read "and the DEPRECATED v1 envelope is
+    untouched", which was contract-v1.45's way of saying the same thing: at that
+    release the v1 success was the other success in the file, and its promise was
+    byte-identical stability. That envelope is gone at contract-v3.0
+    (retire-doxbench-chat-turn-v1), so the clause is re-expressed against the
+    envelopes that remain — a record-only fact must not appear on a REQUEST or on
+    a FAILURE, which is the claim the v1 clause was one instance of."""
     schema = yaml.safe_load(
         (CONTRACTS / "schemas"
          / "xfactory-workbench-chat-turn.schema.yaml").read_text(
@@ -1288,8 +1303,11 @@ def test_the_turn_record_gained_the_remint_fact_additively():
     assert "provider_retry" in success_v2["properties"]
     assert "provider_retry" not in success_v2["required"], (
         "an OPTIONAL key is what makes this release additive")
-    # the DEPRECATED v1 envelope is untouched
-    assert "provider_retry" not in schema["$defs"]["success"]["properties"]
+    # no OTHER envelope in the family carries it, and each is closed, so a
+    # producer cannot smuggle the fact onto a shape that does not declare it
+    for other in ("request_v2", "failure_v2"):
+        assert "provider_retry" not in schema["$defs"][other]["properties"], other
+        assert schema["$defs"][other]["additionalProperties"] is False, other
     block = schema["$defs"]["provider_retry"]
     assert block["additionalProperties"] is False
     assert block["properties"]["retried"] == {"const": True}

@@ -1,0 +1,93 @@
+# The openRepoShape CONSUMER gate: openxFactory ratifies the project repository
+# schema's DOCTRINE and consumes the standard's MECHANICS at a commit and a set
+# of digests, so this gate resolves the standard's real bytes at the pinned
+# commit and refuses unless `contracts/openreposhape-pin.yaml` verifies against
+# them.
+#
+# SIBLING OF `openxwallet-consumer-gate.yml`, AND DELIBERATELY SIMPLER IN TWO
+# WAYS, each of which is a fact about the product rather than a shortcut.
+#
+#   1. NO APP TOKEN. `opensoft/openRepoShape` is PUBLIC (ruled by Brett Heap on
+#      2026-09-02, "name it openRepoShape and make it public"), so an anonymous
+#      clone succeeds. The wallet gate mints an App token because openXwallet is
+#      a private second repository and `github.token` is scoped to this one; that
+#      reasoning does not reach a public product, and minting a token this gate
+#      does not need would widen its permissions for nothing.
+#   2. NO SUBMODULE INIT. openxFactory does not MOUNT the standard — nothing here
+#      runs out of an openRepoShape checkout — so there is no gitlink and the
+#      bytes are fetched into a scratch path for the duration of the job. The pin
+#      itself says why (`contracts/openreposhape-pin.yaml`, header note "WHY
+#      THERE IS NO `submodule_path:` AND NO GITLINK").
+#
+# NOT A REQUIRED CHECK, and saying so is part of the change rather than an
+# omission from it. Making a check REQUIRED is an operator act on an organisation
+# ruleset; this workflow reports on pull requests from the moment it lands, and
+# an operator may then select the `openreposhape-pin` token — a check is not
+# selectable until a workflow has reported under it once, which is why the
+# reporting has to come first.
+#
+# THE CHECKOUT IS AT THE PINNED COMMIT AND THE JOB DOES NOT LOOK IT UP. The
+# commit is read out of the pin file by the same parser the verifier uses, so
+# there is exactly one place the referent is written. A workflow that hard-coded
+# the sha would be a fourth copy of the pin, and the lockstep defect this whole
+# capability exists to write down is what happens to copies of a pin that move
+# separately.
+name: openreposhape-pin-gate
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: openreposhape-pin-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  openreposhape-pin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # No `pip install`. The verifier is standard-library only, deliberately:
+      # the standard it checks insists on running where nothing can be
+      # installed, and a gate that needed a package to check a package-free
+      # standard would carry the assumption the standard exists to refuse.
+      - name: Read the pinned commit out of the pin file
+        id: pin
+        run: |
+          set -euo pipefail
+          COMMIT="$(python3 -c "
+          import sys
+          sys.path.insert(0, 'scripts')
+          import importlib.util
+          spec = importlib.util.spec_from_file_location(
+              'orspin', 'scripts/validate-openreposhape-pin.py')
+          mod = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(mod)
+          print(mod.pinned_commit(mod.read_pin()))
+          ")"
+          echo "commit=${COMMIT}" >> "$GITHUB_OUTPUT"
+          echo "pinned openRepoShape commit: ${COMMIT}"
+
+      - name: Check out openRepoShape at the pinned commit
+        uses: actions/checkout@v4
+        with:
+          repository: opensoft/openRepoShape
+          ref: ${{ steps.pin.outputs.commit }}
+          path: .openreposhape
+          persist-credentials: false
+
+      # The one invocation. Exit 2 on ANY refusal — a stale pin and an
+      # unresolvable source are the same answer to "may this pull request
+      # proceed", which is why the verifier has no exit 1.
+      - name: Verify the openRepoShape pin
+        run: python3 scripts/validate-openreposhape-pin.py --checkout .openreposhape

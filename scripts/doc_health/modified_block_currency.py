@@ -37,13 +37,14 @@ comparison that can see the loss is between an ACTIVE delta and the canon it has
 not yet replaced: a different document pair, read at a different moment, which
 is why this is a separate family rather than a wider reading of that one.
 
-THREE ARMS, FIVE FINDING CLASSES, AND THE NUMBERS DIFFER ON PURPOSE:
+THREE ARMS, SEVEN FINDING CLASSES, AND THE NUMBERS DIFFER ON PURPOSE:
 
-1. **Scenario-title completeness** (`_LAUNCH_SEVERITY`, `warning`). Every
-   `#### Scenario:` title canon carries must appear as a scenario title in the
-   block. Short titled strings rather than prose, reporting deletion at the
-   granularity the defect occurs at. THIS is the arm that carries the family's
-   gate, and the only arm the flip in `tasks.md` § 7.2 moves.
+1. **Scenario-title completeness** (`_LAUNCH_SEVERITY`, `error` — flipped
+   2026-08-31, issue #357; launched `warning`). Every `#### Scenario:` title
+   canon carries must appear as a scenario title in the block. Short titled
+   strings rather than prose, reporting deletion at the granularity the defect
+   occurs at. THIS is the arm that carries the family's gate, and the only arm
+   the flip in `tasks.md` § 7.2 moves.
 2. **The carriage ledger** (`_LEDGER_SEVERITY`, `info`). Every body unit and
    every scenario bullet the block does not carry, as AT MOST ONE finding per
    requirement. It CANNOT distinguish a deliberate rewording from stale text and
@@ -56,7 +57,27 @@ THREE ARMS, FIVE FINDING CLASSES, AND THE NUMBERS DIFFER ON PURPOSE:
    names a unit the block still carries declares nothing and is reported itself.
    It does NOT inherit the ledger's hedge, because a marker naming a carried
    unit is wrong with certainty.
-5. **Unplaced-finding drift** (`_DRIFT_SEVERITY`, `warning`) — not an arm
+5. **Sibling pairing** (`_PAIRING_SEVERITY`, `warning`) — not an arm either,
+   and it compares NO requirement text. A MODIFIED block whose title resolves
+   to an active sibling's ADDITION (or to the `TO:` half of an active rename)
+   is the shape `resolve` returns as `pending`, and until
+   `govern-sibling-added-modified-deltas` the block was DROPPED before any arm
+   looked at it — so the arms' silence read as clearance when it was
+   uncomparability. This class reads the PAIRING: the block's `Modified over`
+   markers and the set of active additions, in four reported states
+   (self-referential, undeclared, misdeclared, undisclosed) and silent on the
+   fifth. The three comparison arms still do NOT run against such a block; the
+   2026-08-27 ruling against synthesising a basis from the sibling's ADDED text
+   is untouched.
+6. **Added-over-canon collision** (`_COLLISION_SEVERITY`, `warning`) — not an
+   arm, and it reads no MODIFIED block at all. An active `## ADDED
+   Requirements` block, or the `TO:` half of an active `## RENAMED
+   Requirements` block, naming a title the promoted specification ALREADY
+   carries. That is the surviving evidence of the unsafe archive order — the
+   modifying writer archived first and its block promoted text nobody reviewed
+   as an addition — and it is the only backstop that can exist from inside a
+   health run, an archive act being outside what any run can undo.
+7. **Unplaced-finding drift** (`_DRIFT_SEVERITY`, `warning`) — not an arm
    either, and not a comparison between documents at all: it reads THIS MAP's
    own verdict on the findings the arms just emitted. Where the map cannot place
    a rule text, one `warning` per DISTINCT unplaced rule SHAPE says so, names
@@ -76,14 +97,20 @@ reword also passes a clause whose meaning has been REVERSED, and #351's ninth
 item was exactly that. And normalization stops at whitespace — see `normalize`,
 which is deliberately NOT `promotion_fidelity.norm`.
 
-CLASSIFICATION AT LAUNCH IS ADVISORY IN BOTH HALVES: `warning`/`info`
-severities, AND deliberate absence from `families.FAMILY_RESOLUTION`. The second
-half is the one that is easy to lose — `report.uncited_resolutions` turns a
-`contested` finding that VANISHES between reports into an `error`, so a
-`contested` advisory family reds the nightly the first time anyone corrects a
+CLASSIFICATION LAUNCHED ADVISORY IN BOTH HALVES: `warning`/`info` severities,
+AND deliberate absence from `families.FAMILY_RESOLUTION`. The second half was
+the one that is easy to lose — `report.uncited_resolutions` turns a `contested`
+finding that VANISHES between reports into an `error`, so a `contested`
+advisory family would have red the nightly the first time anyone corrected a
 block, which is enforcement through the back door on the run that proves the
-launch worked. Both halves flip together, by ruling, on the discharge of a
-measured population.
+launch worked. Both halves were flipped together, by ruling, on the discharge
+of the measured population: the 2026-08-30 and 2026-08-31 nightly aggregation
+reports read the scenario-title arm's population at ZERO across every governed
+repository, and Brett ordered the flip on 2026-08-31 (issue #357). See
+`_LAUNCH_SEVERITY`'s own comment for the severities, and the `FAMILY_RESOLUTION`
+entry in `families.py` for the one row that carries the second half — which,
+because that table has no per-class grain, reaches every class this family
+emits rather than the scenario-title arm alone.
 
 THREE READINGS THE DELTA DOES NOT SPELL OUT, RULED 2026-08-27 AND RECORDED HERE
 SO A LATER READER FINDS THEM WITHOUT RE-DERIVING THEM:
@@ -129,7 +156,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from . import INFO, SEVERITY_RANK, WARNING, Finding, Skip
+from . import ERROR, INFO, SEVERITY_RANK, WARNING, Finding, Skip
 from . import corpus
 from . import duplicate_packet
 from . import promotion_fidelity
@@ -143,23 +170,23 @@ _mention = duplicate_packet._mention
 
 FAMILY = "modified-block-currency"
 
-# THE SEVERITIES, FOUR OF THEM, NAMED APART ON PURPOSE.
+# THE SEVERITIES, SIX OF THEM, NAMED APART ON PURPOSE.
 #
 # `_LAUNCH_SEVERITY` is the identifier `promotion_fidelity`, `duplicate_packet`
 # and `family_enumeration` all carry, and it is the grep that ties every reader
 # of a launch decision together. Here it belongs to the SCENARIO-TITLE arm,
 # because that is the one arm the flip reserved in
-# `add-modified-block-currency-check` tasks.md § 7.2 moves — raising it to
-# `error` AND adding the `contested` classification, together, in one commit,
-# after the standing population is discharged.
+# `add-modified-block-currency-check` tasks.md § 7.2 moves — raised to `error`
+# AND the family added to `families.FAMILY_RESOLUTION`, together, in one
+# commit, after the standing population was discharged (issue #357).
 #
 # The other two are separate constants precisely so that flip cannot drag them.
 # A single shared constant would take the title-resolution arm to `error` at the
-# same time, which no ruling asked for; and the carriage ledger has NO flip
-# proposed at all, its population being standing by construction — every
+# same time, which no ruling asked for; and the carriage ledger has NO SEVERITY
+# flip proposed at all, its population being standing by construction — every
 # legitimate MODIFIED block edits something, so an editorial band is the honest
-# launch state and a permanent yellow row for a condition nobody should act on
-# is how a report stops being read.
+# state and a permanent yellow row for a condition nobody should act on is how a
+# report stops being read.
 #
 # `_DRIFT_SEVERITY` is the FOURTH, added by `add-unclassified-finding-class` for
 # the fifth finding class, and the same argument applies to it word for word:
@@ -167,16 +194,51 @@ FAMILY = "modified-block-currency"
 # the drag would also be INVISIBLE — `FindingClass.band` reads the constant and
 # the registry pin reads the band off the class, so a shared constant would move
 # the rendered caption and the emitted finding together and no pin would notice.
-# `test_the_reserved_flip_of_the_launch_severity_does_not_drag_the_drift_class`
-# simulates the flip over this module's own source and is what makes that
-# falsifiable rather than merely written down. The class is also DESIGNED to
-# stop being emitted as soon as somebody extends the map, and § 7.2 raises the
-# `contested` classification with the severity — which would turn that
-# disappearance into an `error` under the uncited-resolution rule.
-_LAUNCH_SEVERITY = WARNING
+# `test_the_realized_flip_of_the_launch_severity_did_not_drag_the_drift_class`
+# reads the module's real post-flip state directly and is what makes that
+# falsifiable rather than merely written down.
+#
+# FLIPPED 2026-08-31 by ruling — Brett, "MEASURE FIRST, THEN FLIP" (2026-08-27),
+# discharged by the 2026-08-30 and 2026-08-31 nightly aggregation reports
+# reading the scenario-title arm's population at ZERO across every governed
+# repository, and the flip ordered on 2026-08-31 (issue #357). O8 (research
+# R11, `specs/019-modified-block-currency-family/plan.md`) is why the OTHER
+# three severity constants below are UNCHANGED by this flip — they are
+# separately assignable module attributes for exactly this reason, and O8 says
+# so by name: "so § 7.2's flip moves the scenario-title arm alone. A veto (one
+# constant) drags the title-resolution arm to `error` on a flip nobody asked
+# for." O8 is silent on `families.FAMILY_RESOLUTION`, which has no per-class
+# grain — `runner.main` applies it by `Finding.family` alone, a string every
+# arm of this module shares — so the ONE row the flip adds there necessarily
+# reaches every class this family emits, not the scenario-title arm alone. See
+# that row, in `families.py`, for why that is the mechanism's own answer rather
+# than a widening this change chose.
+_LAUNCH_SEVERITY = ERROR
 _RESOLUTION_SEVERITY = WARNING
 _LEDGER_SEVERITY = INFO
 _DRIFT_SEVERITY = WARNING
+
+# THE FIFTH AND SIXTH, added by `govern-sibling-added-modified-deltas` for the
+# two classes that read a PAIRING and a COLLISION rather than a carriage. They
+# are separate constants for the reason the four above are, and that reason has
+# since been DEMONSTRATED rather than merely reserved: § 7.2's flip landed at
+# `7f656980` (PR #529, 2026-08-31) and moved `_LAUNCH_SEVERITY` ALONE. A shared
+# constant would have taken these two classes to `error` on a flip no ruling
+# asked for — and here the drag would be worse than invisible, because both
+# launch against a population the corpus authored before any rule existed.
+#
+# BOTH ARE `warning` AT LAUNCH, per the two ADDED requirements of this packet's
+# `doc-health` delta. That band is the measure-then-flip posture every family of
+# this group launched under; raising it is one later decision, taken by ruling
+# AFTER the standing population is discharged, and it is not this change's.
+#
+# THE RESOLUTION CLASS IS NOT A SECOND HALF OF THAT CHOICE, and these constants
+# cannot reach it. `families.FAMILY_RESOLUTION` carries this family already
+# (`7f656980`), that table has NO per-class grain — `runner.main` applies it by
+# `Finding.family` alone — so a finding of either new class is `contested` from
+# its first emit. See that row in `families.py`.
+_PAIRING_SEVERITY = WARNING
+_COLLISION_SEVERITY = WARNING
 
 # The two document sets, and there is no third. `archive/` is excluded by the
 # reader rather than by the glob, because a glob that happened to match an
@@ -302,6 +364,26 @@ TEMPLATE_ORDERING = _ArmTemplate("template:ordering", (
     "{why}; each block is meanwhile measured against canon, the only basis a "
     "reader can name"))
 
+# ONE TEMPLATE FOR ALL FOUR REPORTED PAIRING STATES, and MISDECLARED's four
+# grounds inside its own. One template is one SHAPE is one map entry, and the
+# four states share a band and an action and differ only in WHY — so giving any
+# of them fixed prose of its own would claim a second remedy where there is one.
+# The state word and the whole reason go in INTERPOLATED fields, on the
+# `TEMPLATE_UNRESOLVED` precedent, and so does MISDECLARED's marker COUNT: fixed
+# prose carrying a numeral is a shape the mask cannot strip, and a two-marker
+# block and a three-marker one would then read as two remedies.
+TEMPLATE_PAIRING = _ArmTemplate("template:sibling-pairing", (
+    "active MODIFIED block for {title!r} rests on an active sibling's addition "
+    "rather than on canon, and the pairing is {state}: {why}"))
+
+# THE COLLISION CLASS'S TEMPLATE. Its subject is an `## ADDED Requirements`
+# block or a rename's `TO:` half, never a MODIFIED block, so it does NOT open
+# with `_BLOCK_HEAD`'s "active MODIFIED block for" — and its own class pattern
+# is anchored past its title `repr` for the same measured reason that one is.
+TEMPLATE_COLLISION = _ArmTemplate("template:added-over-canon", (
+    "active {block_kind} block for {title!r} writes a requirement title "
+    "{spec_rel} already states: {why}"))
+
 # The fifth class's own rule text is a template like any other, and it is
 # registered like any other: a drift finding the map failed to place must group
 # by template too, or the count that reports drift would itself be split.
@@ -315,7 +397,8 @@ TEMPLATE_DRIFT = _ArmTemplate("template:unplaced-drift", (
 # test says so — but a deterministic order is what makes a future collision a
 # stable wrong answer instead of an unstable one.
 _ARM_TEMPLATES = (TEMPLATE_TITLES, TEMPLATE_LEDGER, TEMPLATE_MARKERS,
-                  TEMPLATE_UNRESOLVED, TEMPLATE_ORDERING, TEMPLATE_DRIFT)
+                  TEMPLATE_UNRESOLVED, TEMPLATE_ORDERING, TEMPLATE_DRIFT,
+                  TEMPLATE_PAIRING, TEMPLATE_COLLISION)
 
 
 BODY = "body"
@@ -517,6 +600,36 @@ _REMOVED_PREFIX = re.compile(
 # destination containing a backtick obeys the same longer-fence rule as a name.
 _MERGED_PREFIX = re.compile(
     rf"^\*\*Merged into (`+.*?`+) by ({_CHANGE_ID}) \(({_ISO})\):\*\*")
+# THE THIRD RESERVED FORM (`govern-sibling-added-modified-deltas`,
+# `document-lifecycle`'s "A MODIFIED block over a requirement no promoted
+# specification carries declares its basis by marker"). Same anchor, same
+# completeness, same reason: this packet's own delta text and
+# `document-lifecycle`'s both set the template out in prose, and both promote.
+#
+# THE BASIS is a code span resolved by `extract_code_spans`, exactly as
+# `Merged into`'s destination is, and never by a nested backtick regex.
+#
+# AND RECOGNITION ENDS AT THE CLOSING COLON. The ` — <reason>` tail
+# `document-lifecycle` REQUIRES is no part of it, and neither is the equality of
+# the `by` identifier to the carrying change. Both are REPORTED STATES rather
+# than parse conditions, and folding either into recognition would drop the
+# paragraph back to an ordinary body unit — so a block plainly carrying a
+# defective declaration would be reported UNDECLARED and its author handed the
+# absent-marker remedy for a marker that is right there.
+_PAIRING_PREFIX = re.compile(
+    rf"^\*\*Modified over (`+.*?`+)'s addition by ({_CHANGE_ID}) "
+    rf"\(({_ISO})\):\*\*")
+# The one form of this module's three that NAMES NO UNITS, and every
+# consequence of that is a consequence of this constant being the `form` of a
+# marker whose `names` list is empty: it suppresses nothing, it can never join
+# `suppression`'s `defective` list (that list is only appended to from inside
+# the per-name loop), and `derive_units` keeps it out of the units on both
+# sides like every other marker.
+_PAIRING_FORM = "pairing"
+# The word `document-lifecycle` reserves for the unratified disclosure, read
+# case-insensitively out of the reason clause — a WORD, never a sentence a
+# checker would have to arbitrate.
+_DISCLOSURE = "unratified"
 
 _FENCE = re.compile(r"^\s{0,3}(`{3,}|~{3,})")
 
@@ -620,10 +733,11 @@ class Marker:
     """
 
     __slots__ = ("form", "change_id", "date", "names", "destination", "reason",
-                 "paragraph")
+                 "paragraph", "basis")
 
     def __init__(self, form: str, change_id: str, date: str, names: list[str],
-                 destination: str | None, reason: str | None, paragraph: str):
+                 destination: str | None, reason: str | None, paragraph: str,
+                 basis: str | None = None):
         self.form = form
         self.change_id = change_id
         self.date = date
@@ -631,6 +745,12 @@ class Marker:
         self.destination = destination
         self.reason = reason
         self.paragraph = paragraph
+        # THE PAIRING FORM'S BASIS — the change whose ADDITION (or whose rename
+        # to the title) this block is written over. `None` for the two
+        # unit-naming forms, which declare a fact about UNITS rather than a
+        # relation between two documents. A LAST parameter with a default, so
+        # every existing positional construction of a `Marker` still reads.
+        self.basis = basis
 
     def __repr__(self) -> str:  # pragma: no cover - diagnostics only
         return f"Marker({self.form!r}, {self.change_id!r}, {self.names!r})"
@@ -648,20 +768,51 @@ def parse_marker(paragraph: str) -> Marker | None:
     """
     text = normalize(paragraph)
     m = _REMOVED_PREFIX.match(text)
-    form, destination = "removed", None
+    form, destination, basis = "removed", None, None
     if m:
         change_id, date = m.group(1), m.group(2)
     else:
         m = _MERGED_PREFIX.match(text)
-        if not m:
-            return None
-        form = "merged"
-        spans = extract_code_spans(m.group(1))
-        if not spans:
-            return None
-        destination = normalize(spans[0][2])
-        change_id, date = m.group(2), m.group(3)
+        if m:
+            form = "merged"
+            spans = extract_code_spans(m.group(1))
+            if not spans:
+                return None
+            destination = normalize(spans[0][2])
+            change_id, date = m.group(2), m.group(3)
+        else:
+            m = _PAIRING_PREFIX.match(text)
+            if not m:
+                return None
+            form = _PAIRING_FORM
+            spans = extract_code_spans(m.group(1))
+            if not spans:
+                return None
+            basis = normalize(spans[0][2])
+            # RESOLVABLE, NOT EXISTENT — decision O7 again, unchanged: a
+            # marker's id must PARSE, because reading it as "names a change
+            # that exists" would rot every marker the moment its basis
+            # archives, which is what a marker of this form is FOR.
+            if not re.fullmatch(_CHANGE_ID, basis):
+                return None
+            change_id, date = m.group(2), m.group(3)
     tail = text[m.end():]
+    if form == _PAIRING_FORM:
+        # THE REASON IS THE WHOLE TAIL AFTER ` — `, HARVESTED ALWAYS AND
+        # NEVER OPTIONALLY. The two unit-naming forms take their reason from
+        # after the LAST code span, and reusing that here would read a code
+        # span an author wrote INSIDE the reason as a named unit and shorten
+        # the reason to nothing. This form names no units, so there is nothing
+        # in the tail to measure it from behind.
+        #
+        # AND AN ABSENT TAIL IS A VALUE, NOT A PARSE OUTCOME: `reason` is
+        # `None` where there is no separator, or one with nothing but
+        # whitespace after it, and `_pairing_state` REPORTS that on its fourth
+        # misdeclared ground. An empty reason declares exactly what an absent
+        # one does, and the disclosure that would have lived in it has no
+        # clause to live in.
+        reason = normalize(tail[3:]) or None if tail.startswith(" — ") else None
+        return Marker(form, change_id, date, [], None, reason, text, basis)
     spans = extract_code_spans(tail)
     names = [normalize(c) for _s, _e, c in spans]
     reason = None
@@ -1122,9 +1273,10 @@ def _arm_marker_defects(repo: str, block: ActiveBlock, defective: list[Marker],
                         ) -> list[Finding]:
     """THE FOURTH FINDING CLASS — a defect in a DECLARATION, not a comparison.
 
-    Three arms, five classes, and the numbers differ on purpose: the arms read
+    Three arms, seven classes, and the numbers differ on purpose: the arms read
     two documents against each other, this reads one paragraph against the block
-    it sits in, and the fifth reads the class map's own verdict. It carries the ledger's `info` band so the advisory launch
+    it sits in, the fifth and sixth read a delta's declarations and the promoted
+    index, and the seventh reads the class map's own verdict. It carries the ledger's `info` band so the advisory launch
     holds in both halves, and it deliberately does NOT carry the ledger's hedge:
     a marker naming a unit the block still restates is wrong with certainty.
     """
@@ -1142,9 +1294,47 @@ def _arm_marker_defects(repo: str, block: ActiveBlock, defective: list[Marker],
 
 _RATIFIED = "ratified"
 
+# The two basis forms, and they are ONE BASIS wherever this corpus reads them:
+# `document-lifecycle`'s marker requirement is owed where "an active change ADDS
+# or RENAMES to that title", and `release-realization`'s ordering obligation
+# reaches both. The discriminator exists for exactly one reading —
+# `_pairing_state`'s SELF-REFERENTIAL state, which is the carrier's own
+# ADDITION alone.
+_BASIS_ADDED = "added"
+_BASIS_RENAMED = "renamed"
 
-def sibling_titles(root: Path) -> set[tuple[str, str]]:
-    """`{(capability, norm(title))}` that some ACTIVE change ADDS or RENAMES to.
+
+class _SiblingBasis:
+    """One active change's ADDITION of a title, or its rename INTO one.
+
+    PRIVATE. `sibling_titles` returns these beside each `(capability, title)`
+    so a pairing can be NAMED in a finding, a self-addition can be told from an
+    own-rename, and an undisclosed unratified basis can be seen at all — three
+    facts the bare title set this function used to return cannot carry.
+
+    `standing` is read through `_standing`, the module's existing
+    `corpus.parse_status` -> `promotion_fidelity.declared_standing` path, and it
+    is read HERE because `active_blocks` never reaches a pure adder or a pure
+    renamer: that reader skips a change carrying no MODIFIED block.
+    """
+
+    __slots__ = ("change", "kind", "standing", "title", "delta_rel")
+
+    def __init__(self, change: str, kind: str, standing: str | None,
+                 title: str, delta_rel: str):
+        self.change = change
+        self.kind = kind
+        self.standing = standing
+        self.title = title
+        self.delta_rel = delta_rel
+
+    def __repr__(self) -> str:  # pragma: no cover - diagnostics only
+        return f"_SiblingBasis({self.change!r}, {self.kind!r})"
+
+
+def sibling_titles(root: Path) -> dict[tuple[str, str], list[_SiblingBasis]]:
+    """`{(capability, norm(title)): [_SiblingBasis, ...]}` — every title some
+    ACTIVE change ADDS or RENAMES to, and WHO puts it there.
 
     A MODIFIED title landing here is PENDING, not absent (`dh:278-280`), and
     pending means there is nothing to compare: the promoted requirement does not
@@ -1152,29 +1342,316 @@ def sibling_titles(root: Path) -> set[tuple[str, str]]:
     2026-08-27 — the earlier reading, which built a basis from the addition,
     would have measured all seven of this corpus's
     MODIFIED-over-a-sibling's-ADDED pairs against text no promoted requirement
-    carries.
+    carries. **THAT RULING IS UNTOUCHED BY THE WIDENING BELOW**, which adds no
+    text to any comparison: what is returned beside each title is the ADDING
+    CHANGE, ITS DECLARED STANDING and WHICH BLOCK PUT THE TITLE THERE — three
+    facts about the DELTA, never a unit of requirement text.
+
+    THE KEYS ARE WHAT THEY WERE. `resolve` asks this only `(capability, key) in
+    siblings`, and a mapping answers that exactly as the set did: both basis
+    forms still make a title `pending`, on the promoted rule's own words, "a
+    requirement an active sibling change ADDS or RENAMES to".
+
+    THE VALUES ARE WHAT `govern-sibling-added-modified-deltas` NEEDED. The bare
+    title set could not name a pairing in a finding, could not see the
+    SELF-REFERENTIAL state (it did not exclude the reading change from its own
+    sources), and could not see the UNDISCLOSED one (the basis change's standing
+    was never read at all). `_collision_findings` reads the same values a second
+    time for the other new class — one parse, two uses, rather than a second
+    reader of one document set.
     """
     changes = root / "openspec" / "changes"
     if not changes.is_dir():
-        return set()
-    out: set[tuple[str, str]] = set()
+        return {}
+    out: dict[tuple[str, str], list[_SiblingBasis]] = {}
+    standings: dict[str, str | None] = {}
     for path in sorted(root.glob(DELTA_GLOB)):
         parts = path.relative_to(root).parts
         if parts[_CHANGE_PART] == _ARCHIVE:
             continue
+        change = parts[_CHANGE_PART]
         capability = parts[-2]
         requirements, renames = parse_delta(
             path.read_text(encoding="utf-8", errors="replace"))
-        for req in requirements:
-            if req.op == "ADDED":
-                out.add((capability, norm(req.title)))
-        for _old, new in renames:
-            out.add((capability, norm(new)))
+        added = [(_BASIS_ADDED, req.title) for req in requirements
+                 if req.op == "ADDED"]
+        # THE `TO:` HALF AND NEVER THE `FROM:` HALF. A rename's SOURCE is a
+        # title canon is expected to carry; its TARGET is the title that
+        # becomes pending, and the one the collision class reads.
+        renamed = [(_BASIS_RENAMED, new) for _old, new in renames]
+        if not added and not renamed:
+            continue
+        if change not in standings:
+            standings[change] = _standing(root, change)
+        delta_rel = path.relative_to(root).as_posix()
+        for kind, title in added + renamed:
+            out.setdefault((capability, norm(title)), []).append(
+                _SiblingBasis(change, kind, standings[change], title,
+                              delta_rel))
+    return out
+
+
+_PAIRING_ACTION = (
+    "declare the basis with ONE `Modified over` marker and no more than one, "
+    "name the change carrying the block as that marker's `by` identifier, give "
+    "the marker the ` — <reason>` tail its form requires, disclose in that "
+    "reason clause where the basis is not ratified, and hold the archive until "
+    "the declared change promotes")
+
+# The four REPORTED states. The fifth — declared and resolving — has no name
+# here on purpose: it is the state this check exists to produce, and a constant
+# for it would be a constant nothing renders.
+_PAIRING_SELF = "self-referential"
+_PAIRING_UNDECLARED = "undeclared"
+_PAIRING_MISDECLARED = "misdeclared"
+_PAIRING_UNDISCLOSED = "undisclosed"
+
+
+def _standing_phrase(standing: str | None) -> str:
+    """How a finding says what a basis change's proposal declares.
+
+    A standing NO reader can resolve is treated as not ratified and SAYS so
+    rather than reading as ratified by silence: the whole point of the
+    disclosure is to warn about text no authority has been shown to accept, and
+    a standing nobody can read is no such showing.
+    """
+    return (f"declared standing `{standing}`" if standing
+            else "no standing its proposal header declares")
+
+
+def _basis_phrase(basis: _SiblingBasis) -> str:
+    """One resolved basis, as a finding names it — with its standing WHERE IT
+    IS NOT RATIFIED, so a reader sees at a glance whether an obligation or only
+    an observation stands behind the row."""
+    kind = ("addition" if basis.kind == _BASIS_ADDED
+            else "rename to the title")
+    if basis.standing == _RATIFIED:
+        return f"{basis.change}'s {kind}"
+    return (f"{basis.change}'s {kind}, carrying {_standing_phrase(basis.standing)} "
+            f"rather than `ratified`")
+
+
+def _pairing_markers(block: ActiveBlock) -> list[Marker]:
+    """Every marker of the reserved `Modified over` form the block carries.
+
+    A LIST, and the classifier is handed the list rather than a member of it.
+    `derive_units` preserves every recognized marker in document order, and
+    reasoning about "the marker" is how a block carrying one valid declaration
+    and one naming a change that adds nothing gets cleared or reported by
+    whichever the loop reached first.
+    """
+    return [m for m in block.markers if m.form == _PAIRING_FORM]
+
+
+def _pairing_state(block: ActiveBlock,
+                   siblings: dict[tuple[str, str], list[_SiblingBasis]]
+                   ) -> tuple[str, str] | None:
+    """`(state, why)` for one PENDING block, or `None` where it is declared and
+    resolving.
+
+    ORDERED, AND EXACTLY ONE STATE PER BLOCK. The five states are mutually
+    exclusive BY CONSTRUCTION rather than by convention: each `return` below
+    excludes every state under it, and each state's own antecedent in the
+    promoted requirement carries the exclusion this order performs. One block
+    yields at most one finding of this class, so a reader is never given a
+    choice between two true descriptions of one defect.
+
+    1. **THE CARRIER'S OWN ADDITION, FIRST**, because it is a fact about the
+       DELTA rather than about the marker. Without the order a self-referential
+       block carrying no marker satisfies UNDECLARED as well, and the run emits
+       two findings with two remedies for one defect — and the remedy here is
+       to withdraw one of the two blocks, which no marker supplies. **READ FROM
+       THE CARRIER'S OWN `## ADDED Requirements` BLOCK AND FROM NOTHING ELSE**:
+       a carrier's own RENAME to the title is the rename-and-amend shape
+       `resolve` settles against canon under the OLD name one step before
+       `pending`, so a block of that shape never reaches this function at all
+       and reading it here would either report a supported shape or sit as a
+       branch no input can reach.
+    2. **THEN THE COUNT.** `document-lifecycle` admits AT MOST ONE marker of
+       this form per block — one pairing, one declaration — so a plurality is
+       placed by a fact about the BLOCK before any single marker's fields are
+       read. Zero markers is UNDECLARED.
+    3. **THEN THE SINGLE MARKER'S FIELDS, IN THE ORDER ITS FORM WRITES THEM**:
+       basis, then `by`, THEN REASON, then disclosure. One finding then names
+       the field a repair actually touches, and a marker wrong in two of them
+       is repaired from the front.
+
+    **AND THE REASON PRECEDES THE DISCLOSURE, which is not a preference but the
+    condition of the disclosure being readable at all.** The disclosure is a
+    WORD LOOKED FOR IN THE REASON CLAUSE, so a marker with no clause offers it
+    nothing to look in. Read the other way, a prefix-only marker over an
+    unratified basis would be told to write `unratified` into a sentence that
+    does not exist, while the identical marker over a ratified basis passed in
+    silence — one defect named two ways at two titles and unnamed at one of
+    them. Reading both would emit two findings for one missing tail.
+    """
+    key = (block.capability, norm(block.title))
+    bases = siblings.get(key, [])
+    if any(b.change == block.change and b.kind == _BASIS_ADDED for b in bases):
+        return (_PAIRING_SELF,
+                "the change carrying the block ALSO ADDS this requirement in "
+                "its own `## ADDED Requirements` block, so one change holds two "
+                "texts for one requirement where the second is simply the "
+                "first; the remedy is to withdraw one of the two blocks, which "
+                "no marker supplies and a marker naming this change itself "
+                "cannot cure")
+    others = [b for b in bases if b.change != block.change]
+    markers = _pairing_markers(block)
+    if not markers:
+        # `others or bases` — AND THE FALLBACK IS NOT DEFENSIVE PADDING. A
+        # carrier whose OWN `## RENAMED Requirements` block names a `FROM:`
+        # title the promoted specification does NOT carry makes the title
+        # pending all by itself: `resolve`'s own-rename precedence requires the
+        # old name to be IN CANON, so it does not fire, and the block reaches
+        # this check with the carrier as the only writer of the title. It is
+        # NOT self-referential — a title pair is no second text — so it is
+        # placed here, and the finding names the rename that put the title
+        # there rather than naming nothing at all.
+        pool = others or bases
+        named = "; ".join(sorted({_basis_phrase(b) for b in pool}))
+        return (_PAIRING_UNDECLARED,
+                f"the block carries no marker of the reserved `Modified over` "
+                f"form, and the title resolves to {named}")
+    if len(markers) > 1:
+        return (_PAIRING_MISDECLARED,
+                f"the block carries {len(markers)} markers of the reserved "
+                f"`Modified over` form, and one pairing admits ONE "
+                f"declaration — a second states a second basis for one text "
+                f"rather than adding to the first; withdraw every declaration "
+                f"but the one that is true")
+    marker = markers[0]
+    if marker.basis == block.change:
+        return (_PAIRING_MISDECLARED,
+                f"the marker names the carrying change `{marker.basis}` as its "
+                f"own basis, and a block's basis is a change OTHER than the "
+                f"one that writes it")
+    declared = [b for b in others if b.change == marker.basis]
+    if not declared:
+        return (_PAIRING_MISDECLARED,
+                f"the marker names `{marker.basis}` as basis, and no active "
+                f"change of that id ADDS this requirement or RENAMES to its "
+                f"title")
+    if marker.change_id != block.change:
+        return (_PAIRING_MISDECLARED,
+                f"the marker's `by` identifier is `{marker.change_id}` and the "
+                f"block is carried by `{block.change}` — a right basis under a "
+                f"wrong author is a FALSE PROVENANCE, sending its next reader "
+                f"to a packet that declared nothing")
+    if not marker.reason:
+        return (_PAIRING_MISDECLARED,
+                "the marker carries its complete prefix and no ` — <reason>` "
+                "tail, so the declaration is one `document-lifecycle` calls "
+                "incomplete rather than one this check passes in silence")
+    basis = declared[0]
+    if (basis.standing != _RATIFIED
+            and _DISCLOSURE not in marker.reason.lower()):
+        return (_PAIRING_UNDISCLOSED,
+                f"the marker declares `{marker.basis}`, which carries "
+                f"{_standing_phrase(basis.standing)} rather than `ratified`, "
+                f"and its reason clause is silent about that standing — the "
+                f"word `{_DISCLOSURE}` that capability reserves is absent from "
+                f"it, so the block rests on text no authority has accepted and "
+                f"says nothing about it")
+    return None
+
+
+def _arm_pairing(repo: str, block: ActiveBlock,
+                 siblings: dict[tuple[str, str], list[_SiblingBasis]]
+                 ) -> list[Finding]:
+    """THE SIXTH FINDING CLASS — the PAIRING, and no comparison at all.
+
+    NOT AN ARM, on the same reading `_arm_marker_defects` is not one: the three
+    arms read two documents against each other, and this reads a delta's own
+    markers against the set of active additions. Its inputs contain NO
+    requirement text, so the 2026-08-27 ruling against synthesising a basis
+    from a sibling's ADDED text is untouched — what changes is only that the
+    block is no longer dropped before anything looks at it, so the arms' silence
+    stops reading as clearance when it is uncomparability.
+    """
+    state = _pairing_state(block, siblings)
+    if state is None:
+        return []
+    name, why = state
+    return [Finding(
+        _PAIRING_SEVERITY, FAMILY, repo, block.delta_rel,
+        TEMPLATE_PAIRING.render(title=block.title, state=name, why=why),
+        _PAIRING_ACTION)]
+
+
+_COLLISION_ACTION = (
+    "promote nothing further until the collision is resolved, and — where the "
+    "requirement genuinely already exists — convert the addition to a "
+    "modification declared against canon, or withdraw or re-target the rename "
+    "whose `TO:` title canon already carries")
+
+_COLLISION_KIND = {
+    _BASIS_ADDED: "`## ADDED Requirements`",
+    _BASIS_RENAMED: "`## RENAMED Requirements` `TO:`",
+}
+
+
+def _collision_findings(repo: str,
+                        siblings: dict[tuple[str, str], list[_SiblingBasis]],
+                        canon_for, dispositions) -> list[Finding]:
+    """THE SEVENTH FINDING CLASS — the archive-ordering backstop.
+
+    An active `## ADDED Requirements` block, or the `TO:` half of an active
+    `## RENAMED Requirements` block, naming a title the promoted specification
+    ALREADY carries. Where a MODIFIED-over-a-sibling's-basis pair archives in
+    the SAFE order the requirement enters canon first and every existing check
+    resumes; where it archives in the UNSAFE order the modifying block promotes
+    text nobody reviewed as an addition, and THIS is the surviving evidence.
+
+    NOTHING IN THE ESTATE READS THAT SHAPE. `promotion-fidelity` compares an
+    ARCHIVED delta to canon, and after the archive act canon IS the delta; this
+    family reads ADDED and RENAMED blocks only to build the pending set, never
+    against canon. Reading it costs one lookup against the promoted index this
+    family already builds and one more pass over the entries `sibling_titles`
+    already parsed — a second use of one parse rather than a second parser.
+
+    THE `FROM:` HALF IS NEVER READ, and the direction is the whole of what makes
+    the check readable: a rename's SOURCE is a title canon is expected to carry,
+    so reading it would report every lawful rename in the corpus.
+
+    NOT LIMITED TO THE PAIR THAT MOTIVATES IT. A title canon already carries is
+    a defect however it arose — a stale packet, a duplicated title, an addition
+    that should have been a modification — and narrowing the check to blocks
+    with a MODIFIED partner would decline to report the same defect for a worse
+    reason.
+    """
+    out: list[Finding] = []
+    for capability, key in sorted(siblings):
+        canon = canon_for(capability)
+        if not canon or key not in canon:
+            continue
+        promoted_requirement = canon[key]
+        for basis in siblings[(capability, key)]:
+            if promotion_fidelity.disposed(dispositions, repo, basis.delta_rel,
+                                           basis.title):
+                continue
+            if basis.kind == _BASIS_ADDED:
+                why = (f"`{basis.change}` is still active and its addition has "
+                       f"not promoted, so the title it writes is one canon "
+                       f"already states — the surviving evidence of an archive "
+                       f"taken in the unsafe order, which no health run can "
+                       f"undo")
+            else:
+                why = (f"`{basis.change}` is still active and renames another "
+                       f"requirement INTO a title canon already states; its "
+                       f"`FROM:` half is not read here, a rename's source "
+                       f"being a title canon is expected to carry")
+            out.append(Finding(
+                _COLLISION_SEVERITY, FAMILY, repo, basis.delta_rel,
+                TEMPLATE_COLLISION.render(
+                    block_kind=_COLLISION_KIND[basis.kind],
+                    title=basis.title,
+                    spec_rel=promoted_requirement.spec_rel, why=why),
+                _COLLISION_ACTION))
     return out
 
 
 def resolve(block: ActiveBlock, canon: dict[str, PromotedRequirement] | None,
-            siblings: set[tuple[str, str]]):
+            siblings: dict[tuple[str, str], list[_SiblingBasis]]):
     """`(basis, status)` for one block. `status` is why, and the caller reports it.
 
     THE ORDER IS THE DELTA'S (`dh:58-64`):
@@ -1342,16 +1819,25 @@ def fam_modified_block_currency(ctx):
     findings: list[Finding] = []
     for repo, root in scoped:
         blocks = active_blocks(root)
-        if not blocks:
-            continue
         siblings = sibling_titles(root)
-        declared = declarations(root, blocks)
         canon_cache: dict[str, dict[str, PromotedRequirement] | None] = {}
 
         def canon_for(capability: str, root=root):
             if capability not in canon_cache:
                 canon_cache[capability] = promoted(root, capability)
             return canon_cache[capability]
+
+        # THE COLLISION CLASS RUNS BEFORE THE `not blocks` GUARD, and the order
+        # is the class's own subject. Its inputs are an ADDED block and a
+        # rename's `TO:` half — a repository carrying NO MODIFIED block at all
+        # can still hold the surviving evidence of an archive taken in the
+        # unsafe order, and the guard below would have hidden exactly that
+        # repository.
+        findings.extend(
+            _collision_findings(repo, siblings, canon_for, dispositions))
+        if not blocks:
+            continue
+        declared = declarations(root, blocks)
 
         groups: dict[tuple[str, str], list[ActiveBlock]] = {}
         for block in blocks:
@@ -1372,6 +1858,14 @@ def fam_modified_block_currency(ctx):
                 basis, status = resolve(block, canon_for(block.capability),
                                         siblings)
                 if status == "pending":
+                    # THE PAIRING EMIT REPLACES THE DROP, AND REPLACES NOTHING
+                    # ELSE (`govern-sibling-added-modified-deltas`). The three
+                    # comparison arms still do NOT run against a pending block —
+                    # the `continue` below is the same `continue` — and
+                    # `resolve` is untouched, so its second step still hands a
+                    # rename-and-amend block to canon under the OLD name one
+                    # place above and that shape never reaches this branch.
+                    findings.extend(_arm_pairing(repo, block, siblings))
                     continue
                 if basis is None:
                     findings.append(_unresolved_finding(repo, block, root))
@@ -1460,7 +1954,7 @@ def _unresolved_finding(repo: str, block: ActiveBlock, root: Path) -> Finding:
 
 
 class FindingClass:
-    """One of this family's five finding classes, as a value.
+    """One of this family's seven finding classes, as a value.
 
     `band` and `action` are read from the module constants rather than
     re-spelled. They are used differently and the difference matters:
@@ -1476,10 +1970,10 @@ class FindingClass:
       keeps `_ACTION` and `_MARKER_ACTION` attached to the classes that use
       them rather than re-spelled in a test.
 
-    `gloss` is the parenthetical a reader gets beside the band. Two of the five
-    carry one and three do not: the scenario-title arm's says it carries the
+    `gloss` is the parenthetical a reader gets beside the band. Two of the seven
+    carry one and five do not: the scenario-title arm's says it carries the
     gate, and the ledger's repeats the hedge every one of its findings already
-    states. Adding a gloss to the other three would pad a line whose whole value
+    states. Adding a gloss to the other five would pad a line whose whole value
     is being short enough to read at a glance.
     """
 
@@ -1498,6 +1992,10 @@ CLASS_TITLES = "scenario-titles"
 CLASS_LEDGER = "carriage-ledger"
 CLASS_RESOLUTION = "title-resolution"
 CLASS_MARKERS = "marker-defects"
+# THE TWO `govern-sibling-added-modified-deltas` ADDS. Neither may contain
+# `unclassified`, on the rule the fifth class's comment states below.
+CLASS_PAIRING = "sibling-pairing"
+CLASS_COLLISION = "added-over-canon"
 # THE FIFTH, AND NEITHER THE ID NOR THE LABEL MAY CONTAIN `unclassified`.
 # `test_a_finding_the_map_cannot_place_is_counted_and_named` asserts that
 # string's ABSENCE from a fully-classified summary, and a class label renders
@@ -1528,13 +2026,17 @@ UNCLASSIFIED = "unclassified"
 # reserves must be the arm a reader meets first, or the precise signal is buried
 # in the editorial ones — the exact failure the delta split the arms to avoid.
 #
-# FIVE ENTRIES FOR SIX RULE SHAPES. The delta's third arm is "Title resolution
-# and ordering": a block resolving to nothing and an ordering no declaration
-# settles are two shapes of ONE arm, sharing a severity and an action, named
-# together in the requirement. Splitting them here would claim a class the delta
-# does not define; merging any other pair would hide a severity difference. The
-# sixth shape is the fifth class's own finding, which the map must place or the
-# count would name itself.
+# SEVEN ENTRIES FOR EIGHT RULE SHAPES. The delta's third arm is "Title
+# resolution and ordering": a block resolving to nothing and an ordering no
+# declaration settles are two shapes of ONE arm, sharing a severity and an
+# action, named together in the requirement. Splitting them here would claim a
+# class the delta does not define; merging any other pair would hide a severity
+# difference. The sixth shape is the fifth class's own finding, which the map
+# must place or the count would name itself. The seventh and eighth are the two
+# `govern-sibling-added-modified-deltas` adds — one template each, so one shape
+# each: the pairing class's FOUR reported states share a band, an action and a
+# template and differ only in an interpolated clause, which is what makes them
+# one shape rather than four.
 CLASSES = (
     FindingClass(CLASS_TITLES, "scenario-title completeness",
                  _LAUNCH_SEVERITY, _ACTION,
@@ -1546,6 +2048,16 @@ CLASSES = (
                  _RESOLUTION_SEVERITY, _ACTION),
     FindingClass(CLASS_MARKERS, "marker defects",
                  _LEDGER_SEVERITY, _MARKER_ACTION),
+    # INSERTED BEFORE `unplaced`, NOT APPENDED, so BOTH standing ordering claims
+    # stay true: the gate-bearing arm reads FIRST, and the drift class — which
+    # reads this map's own verdict on everything above it — reads LAST.
+    # NO GLOSS on either, on the rule `FindingClass` states: the labels already
+    # say what they are, and two more parentheticals would pad the one block
+    # whose whole value is being short enough to read at a glance.
+    FindingClass(CLASS_PAIRING, "sibling-pairing declaration",
+                 _PAIRING_SEVERITY, _PAIRING_ACTION),
+    FindingClass(CLASS_COLLISION, "added-over-canon collision",
+                 _COLLISION_SEVERITY, _COLLISION_ACTION),
     # LAST, because it is not an arm and the ordering comment above is about the
     # arms: "the gate-bearing arm reads FIRST" is unchanged by appending here.
     # NO GLOSS, on the rule stated in `FindingClass` — the label already says
@@ -1583,6 +2095,19 @@ _CLASS_PATTERNS = (
     (CLASS_RESOLUTION, re.compile(
         r"^the ordering of MODIFIED blocks for " + _TITLE_REPR
         + r" is undecided: ")),
+    # THE SIXTH AND SEVENTH, ANCHORED PAST THE TITLE'S `repr` LIKE EVERY OTHER
+    # ENTRY. The pairing class shares `_BLOCK_HEAD` because its subject IS a
+    # MODIFIED block; the collision class cannot, its subject being an ADDED
+    # block or a rename's `TO:` half, so it spells its own anchor to the same
+    # depth — from the start of the rule and past the closing quote of the
+    # title — for the same measured reason: titles come from the corpus and may
+    # contain any phrase, including another class's.
+    (CLASS_PAIRING, re.compile(
+        _BLOCK_HEAD + r"rests on an active sibling's addition rather than on "
+                      r"canon, and the pairing is ")),
+    (CLASS_COLLISION, re.compile(
+        r"^active (?:`## ADDED Requirements`|`## RENAMED Requirements` `TO:`) "
+        r"block for " + _TITLE_REPR + r" writes a requirement title ")),
     # THE FIFTH CLASS, AND ITS ANCHOR IS LOAD-BEARING TWICE OVER. This finding
     # QUOTES a rule text the map could not place, and that quotation may itself
     # begin in the shape of an arm's — so an unanchored probe would file the
@@ -1611,7 +2136,7 @@ def classify(finding) -> str:
     line a reader is being asked to trust instead of counting.
 
     Read off the RULE TEXT rather than off a field of `Finding`, because
-    `Finding` is shared by twenty-two families and the semantic lanes: a field
+    `Finding` is shared by twenty-three families and the semantic lanes: a field
     added for one family's report line would be a change to a shared grammar for
     a local need. The drift that reading costs is made loud two ways —
     `test_every_finding_over_the_fixture_corpus_lands_in_exactly_one_class` over

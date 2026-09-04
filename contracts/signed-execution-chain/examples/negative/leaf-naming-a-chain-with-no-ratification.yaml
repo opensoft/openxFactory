@@ -1,0 +1,34 @@
+# expected_failure: orphan_chain_identity
+# VIOLATES requirement 3's second scenario. A chain identity resolves to NO
+# SIGNED RATIFICATION.
+#
+# It is refused as a FRAUD SIGNAL and never treated as an incomplete record
+# awaiting completion — the chain identity IS the digest of a signed
+# ratification, so an identity with nothing behind it is not a record that has
+# not caught up; it is a value somebody made up.
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-n11
+leaf_index: 4
+tree_size: 5
+chain_ref: sha256:f3451ff33721818042d2e04f9e68cfb2a4d0a1ea1de13f80e5b39165853f69d1
+leaf_type: chain_inception
+recorded_at: '2026-08-30T10:04:00Z'
+payload_ref: inc-n11
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: signed_ratification
+  value: sha256:f3451ff33721818042d2e04f9e68cfb2a4d0a1ea1de13f80e5b39165853f69d1
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:59ddc48363d52263e1a96586876ce5ab36e446e1ac0b7adf38b16cbbe8dc6127
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:01929b507858ca849c2988cf57c51e52321fcb1246a0fab976283a0d39cb7538
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-0001
+  signed_over: leaf_content
+  signature: dwMkCtIYUM62bJjJdFEn0KjywueoNwMLvTq9e9KYtWoVL1oI_HYES11ddNOFyxIbDneF4ItD0B0p2vuA2rSRAg

@@ -1,0 +1,49 @@
+schema: spec-driven
+created: 2026-08-29
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-29-govern-sibling-added-modified-deltas
+  reason: >-
+    Filed on Brett's ruling of 2026-08-29, verbatim "file the successor now",
+    taken in session out of the §7.4 council sitting on PR #497
+    (`add-binding-consumer-identity`) and recorded in that PR's ratification
+    comment under "P-3 — FILED: openxFactory issue #502". Two seats raised the
+    gap and both attached the same condition. `lead-architect` under
+    `cross_cutting_design`, LA-C2, verbatim: "The MODIFIED-over-a-sibling's-ADDED
+    gap is recorded as the estate's, not this packet's. Four blocks, zero
+    markers, no governing requirement, no evaluating arm. I raise it under
+    `cross_cutting_design` as an issue owed a home of its own. This change must
+    not be asked to close it and must not be delayed for it." `lead-quality`
+    concurring, LQ-C5, verbatim: "neither the normative rule nor the checker
+    reaches the shape ... that gap deserves its own successor rather than another
+    per-packet manual obligation." The condensing council record carries the same
+    disposition twice, in §8.5 and §10. THE ISSUE IS THE COMMISSION AND ITS
+    CONTENT: openxFactory #502 states three measured holes and four questions a
+    successor must settle, and this packet answers them in that order. NO STAGING
+    ORIGIN IS CLAIMED: none exists, searched across `ideation/staging/` and its
+    INDEX. Authored here because `release-realization`, `document-lifecycle` and
+    `doc-health` are all openxFactory capabilities and the obligation being
+    governed is the neutral corpus's own delta-authoring rule.
+  approved_by: >-
+    Brett — in session on 2026-08-29, for the DECISION TO FILE THE SUCCESSOR and
+    for nothing further. The ruling is quoted in PR #497's ratification comment
+    ("Ruled: file the successor now") and repeated in issue #502's own closing
+    line. THIS FIELD IS NOT THE RATIFICATION AND MUST NOT BE READ AS ONE: it
+    records approval to FILE, taken two days before the content existed in the
+    form that was ratified, which is the state issue #318 describes — an `ad_hoc`
+    origin owes `approved_on`, and its vocabulary has no kind meaning "proposed,
+    not approved" — and it is recorded as such rather than dressed up.
+    THE PACKET IS NOW RATIFIED, BY A SEPARATE AND LATER ACT — 2026-08-31, Brett
+    Heap (repository owner), in session via an explicit multi-choice put,
+    verbatim "Direct — accept D1–D5 (Recommended)"; record at
+    `review/ratification-2026-08-31.md`, and `proposal.md` carries
+    `Status: ratified` with the record-citing `Ratified:` line. All five
+    decisions in the proposal's § Orchestrator Decisions were ACCEPTED AS DRAFTED
+    as they stand at tip `3d776c67`, after nine adversarial review rounds. THE
+    §7.4 COUNCIL SITTING THE PACKET PRESCRIBED FOR ITSELF WAS DECLINED by that
+    same choice — no seat sat, and nothing in this packet may be cited as a
+    council disposition. The five open questions OQ-1..OQ-5 REMAIN OPEN: they
+    were routed to that sitting, and the direct ruling took the decisions without
+    reaching the questions. Ratification authorizes realization and performs
+    none of it.
+  approved_on: 2026-08-29

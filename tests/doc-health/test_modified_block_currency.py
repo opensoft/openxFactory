@@ -48,7 +48,7 @@ whole file wait for another change to land.
 
 from __future__ import annotations
 
-from doc_health import INFO, WARNING
+from doc_health import ERROR, INFO, WARNING
 from doc_health import modified_block_currency as mbc
 from doc_health.promotion_fidelity import norm as norm_title
 
@@ -62,10 +62,12 @@ def test_the_three_launch_severities_are_named_apart():
     `_LAUNCH_SEVERITY` is the identifier `promotion_fidelity`,
     `duplicate_packet` and `family_enumeration` all use, and it is the grep that
     ties every reader of a launch decision together. It carries the
-    SCENARIO-TITLE arm here, because that is the arm § 7.2's flip moves. The
-    other two arms have their own constants so the flip cannot drag them.
+    SCENARIO-TITLE arm here, because that is the arm § 7.2's flip moves — and
+    which it MOVED, on 2026-08-31 (issue #357), once the measured population
+    read zero. The other two arms have their own constants precisely so the
+    flip could not drag them, and O8 is why they still read as launched.
     """
-    assert mbc._LAUNCH_SEVERITY == WARNING
+    assert mbc._LAUNCH_SEVERITY == ERROR
     assert mbc._RESOLUTION_SEVERITY == WARNING
     assert mbc._LEDGER_SEVERITY == INFO
     # ...and they are three SEPARATELY ASSIGNABLE module attributes, which is
@@ -85,56 +87,47 @@ def test_the_three_launch_severities_are_named_apart():
             setattr(mbc, name, before[name])
 
 
-def test_the_reserved_flip_of_the_launch_severity_does_not_drag_the_drift_class():
+def test_the_realized_flip_of_the_launch_severity_did_not_drag_the_drift_class():
     """THE FOURTH CONSTANT, AND THE ONLY PIN THAT CAN SEE WHY IT EXISTS.
 
-    `_DRIFT_SEVERITY = WARNING` and `_DRIFT_SEVERITY = _LAUNCH_SEVERITY` are
-    VALUE-IDENTICAL today, so every assertion about the constants' values passes
-    under both — and so does the separately-assignable check above, because
-    rebinding one module attribute never moves another even when both were bound
-    from the same expression. The difference appears only AFTER
-    `add-modified-block-currency-check` § 7.2 flips `_LAUNCH_SEVERITY` to
-    `error`, at which point a shared constant would move the fifth class's
-    rendered caption AND its findings together, and no pin in this suite would
-    notice. The module's own § 2.1 note calls that drag "INVISIBLE"; the remedy
-    for an invisible drag is a test, not a comment.
+    `_DRIFT_SEVERITY = WARNING` and `_LAUNCH_SEVERITY = WARNING` were
+    VALUE-IDENTICAL before the flip, so every assertion about the constants'
+    values passed under either — and so did the separately-assignable check
+    above, because rebinding one module attribute never moves another even
+    when both were bound from the same expression. The module's own § 2.1
+    note called an accidental merge of the two "INVISIBLE" for exactly that
+    reason: a shared constant would move the fifth class's rendered caption
+    AND its findings together, and no VALUE-based pin taken before the flip
+    could tell the difference.
 
-    SO THE FLIP IS SIMULATED, over the module's REAL SOURCE. One line is
-    substituted, the source is executed as a module in this package's namespace,
-    and the two bands are read off the resulting class registry: the
-    scenario-title arm moved and the drift class did not. Added by the mutation
-    round of `026-unplaced-finding-drift`, which is where
-    `add-unclassified-finding-class` tasks.md § 2.14(e) says this pin is owed if
-    it is missing. It was missing.
-
-    § 7.2 itself is neither advanced nor blocked by this test: it asserts only
-    that the two constants are independent, which is the whole reason the fourth
-    one has its own name.
+    UNTIL THE FLIP LANDED FOR REAL. `add-modified-block-currency-check` § 7.2
+    flipped `_LAUNCH_SEVERITY` to `error` on 2026-08-31 (issue #357), which is
+    when `_LAUNCH_SEVERITY` and `_DRIFT_SEVERITY` stopped being
+    value-identical — so the guard this test now needs is a DIRECT read of the
+    module's real, POST-FLIP state, not a simulation of a flip that already
+    happened. (Before the flip this test simulated it over `inspect.getsource`,
+    substituting one line and executing the result as a module in this
+    package's namespace — a mechanism the flip itself retires: there is no
+    more "before" state in the real source to substitute out of.) Added by
+    the mutation round of `026-unplaced-finding-drift`, which is where
+    `add-unclassified-finding-class` tasks.md § 2.14(e) says this pin is owed
+    if it is missing. It was missing.
     """
-    import inspect
+    # the arm the flip reserved moved
+    assert mbc._LAUNCH_SEVERITY == ERROR
+    # ...and the fifth class did NOT ride it — the property this test exists
+    # to hold, now falsifiable by a plain value comparison because the two are
+    # no longer value-identical
+    assert mbc._DRIFT_SEVERITY == WARNING
+    assert mbc._DRIFT_SEVERITY != mbc._LAUNCH_SEVERITY
 
-    from doc_health import ERROR
-
-    source = inspect.getsource(mbc)
-    assert source.count("_LAUNCH_SEVERITY = WARNING") == 1, (
-        "the constant is not assigned where this test thinks it is, so the "
-        "substitution below would silently do nothing")
-    flipped = source.replace("_LAUNCH_SEVERITY = WARNING",
-                             f"_LAUNCH_SEVERITY = {ERROR!r}", 1)
-
-    namespace = {"__name__": "doc_health._flip_simulation",
-                 "__package__": "doc_health", "__file__": mbc.__file__}
-    exec(compile(flipped, mbc.__file__, "exec"), namespace)
-
-    bands = {klass.id: klass.band for klass in namespace["CLASSES"]}
-    # the arm the flip reserves moved, so the simulation really flipped something
+    bands = {klass.id: klass.band for klass in mbc.CLASSES}
     assert bands[mbc.CLASS_TITLES] == ERROR, bands
-    # ...and the fifth class did NOT ride it
     assert bands[mbc.CLASS_DRIFT] == WARNING, bands
-    assert namespace["_DRIFT_SEVERITY"] == WARNING
     # the other two arms are untouched too, which is what the split has always
     # been for
     assert bands[mbc.CLASS_RESOLUTION] == WARNING, bands
+    assert bands[mbc.CLASS_LEDGER] == INFO, bands
     assert bands[mbc.CLASS_LEDGER] == INFO, bands
 
 
@@ -752,8 +745,10 @@ def test_the_finding_lands_on_the_active_delta_s_own_path():
     assert {f.repo for f in _run()} == {FIXTURE_REPO}
 
 
-def test_the_scenario_arm_is_a_warning():
-    assert {f.severity for f in _titles(_run())} == {WARNING}
+def test_the_scenario_arm_is_an_error():
+    """FLIPPED 2026-08-31 (issue #357); launched `warning`. See
+    `_LAUNCH_SEVERITY`."""
+    assert {f.severity for f in _titles(_run())} == {ERROR}
 
 
 def test_a_scenario_complete_block_that_rewraps_every_paragraph_is_quiet():
@@ -778,15 +773,26 @@ def test_a_scenario_complete_block_that_rewraps_every_paragraph_is_quiet():
     assert mbc.carried(canon.units, units) == []
 
 
-def test_a_run_configured_fail_on_error_is_unaffected():
-    """N4: assert the finding list is NON-EMPTY FIRST. On an empty list the
-    severity assertion is vacuous — and an empty list is exactly what a broken
-    discovery returns, so the vacuous version would pass over the one build that
-    matters."""
+def test_a_run_configured_fail_on_error_now_catches_the_scenario_arm():
+    """N4, RE-AIMED BY THE FLIP (2026-08-31, issue #357). Through the advisory
+    launch this test was named `..._is_unaffected` and asserted the opposite of
+    what it asserts now: that NOTHING here reached `error`, so `--fail-on
+    error` never reddened on this family. That was the whole point of an
+    advisory launch and is no longer true BY DESIGN — the scenario-title arm
+    is gate-bearing now, and this fixture's lossy block is exactly the shape
+    it exists to catch.
+
+    What SC-009 still guarantees, and what O8 reserves, is that the OTHER
+    classes did not ride the flip: assert the finding list is NON-EMPTY FIRST,
+    then split by arm rather than asserting one band over the whole list.
+    """
     findings = _run()
     assert findings, "a vacuous pass is not a pass"
-    assert {f.severity for f in findings} <= {WARNING, INFO}
-    assert not [f for f in findings if f.severity in ("critical", "error")]
+    titles = _titles(findings)
+    others = [f for f in findings if f not in titles]
+    assert {f.severity for f in titles} == {ERROR}
+    assert {f.severity for f in others} <= {WARNING, INFO}
+    assert not [f for f in others if f.severity in ("critical", "error")]
 
 
 def test_the_file_level_scenario_count_is_not_what_the_family_reads():
@@ -1043,10 +1049,37 @@ def test_a_change_s_own_rename_resolves_first_and_the_arms_compare_the_old_name(
     assert "openspec/specs/res-cap/spec.md" in hits[0].rule
 
 
-def test_a_title_pending_on_a_sibling_s_addition_is_quiet():
+def test_a_title_pending_on_a_sibling_s_addition_compares_nothing_and_reports_its_pairing():
     """`dh:278-280`: "the promoted requirement being pending rather than
-    absent". Nothing is compared, and nothing is reported."""
-    assert [f for f in _res_run() if "add-pending-title" in f.path] == []
+    absent". NOTHING IS COMPARED — and that half is unchanged.
+
+    **MOVED BY `govern-sibling-added-modified-deltas`, 2026-09-01, AND RENAMED
+    WITH THE CLAIM IT MAKES.** As written this was
+    `test_a_title_pending_on_a_sibling_s_addition_is_quiet` and asserted the
+    EMPTY LIST. That second half is exactly what the packet's § Why calls the
+    defect: the block was dropped before ANY check looked at it, so the arms'
+    silence read as clearance when it was uncomparability. What replaces the
+    empty list is ONE finding of the pairing class and no other — the three
+    comparison arms still do not run, the 2026-08-27 ruling against
+    synthesising a basis from the sibling's ADDED text is untouched, and no
+    requirement text is compared anywhere in this path.
+
+    `add-pending-title` carries no marker, so its state is UNDECLARED: the
+    corpus's own standing shape before the § 6 sweep declared the four live
+    pairs.
+    """
+    mine = [f for f in _res_run() if "add-pending-title" in f.path]
+    assert len(mine) == 1, [f.rule[:120] for f in mine]
+    assert mbc.classify(mine[0]) == mbc.CLASS_PAIRING
+    assert mine[0].severity == WARNING
+    assert "the pairing is undeclared" in mine[0].rule
+    assert "add-the-sibling" in mine[0].rule
+
+    # ...and NOT ONE COMPARISON. Named apart from the count above, because a
+    # count of one would also pass over a build that emitted a ledger finding
+    # and no pairing one.
+    assert _ledger(mine) == [] and _titles(mine) == []
+    assert _unresolved(mine) == [] and _ordering(mine) == []
 
 
 def test_a_title_resolving_to_nothing_is_reported():
@@ -1177,8 +1210,33 @@ def test_no_basis_is_synthesized_from_a_siblings_added_block():
     The deleted clause this pins would have measured all seven of the real
     corpus's MODIFIED-over-a-sibling's-ADDED pairs and invented roughly six
     `info` findings against text no promoted requirement carries.
+
+    **MOVED BY `govern-sibling-added-modified-deltas`, 2026-09-01, AND THE
+    RULING IT PINS IS UNCHANGED.** The assertion was `_in("pending-cap") == []`
+    and is now "no COMPARISON finding, and one PAIRING finding". The ruling is
+    about SYNTHESISING A BASIS; the packet adds a check whose inputs are the
+    delta's own markers and the set of active additions, and which compares no
+    requirement text at all. Keeping the empty list would have pinned the drop
+    rather than the ruling.
+
+    **AND THIS BLOCK IS THE ONE THAT PROVES THE PROPOSAL CROSS-REFERENCE IS NOT
+    THE MARKER.** `add-mo-modifier`'s proposal DOES name `add-mo-adder` — that
+    is what the two-writers arm reads for its ordering — and the pairing is
+    still UNDECLARED, because a change-level mention cannot say which
+    requirement rests on which sibling.
     """
-    assert _in("pending-cap") == []
+    mine = _in("pending-cap")
+    assert _ledger(mine) == [] and _titles(mine) == []
+    assert _unresolved(mine) == [] and _ordering(mine) == []
+
+    assert len(mine) == 1, [f.rule[:120] for f in mine]
+    assert mbc.classify(mine[0]) == mbc.CLASS_PAIRING
+    assert "the pairing is undeclared" in mine[0].rule
+    # the cross-reference the arm above reads, and the marker it is not
+    from conftest import FIXTURES
+    proposal = (FIXTURES / "modified-block-currency-two-writers" / "alphaFactory"
+                / "openspec" / "changes" / "add-mo-modifier" / "proposal.md")
+    assert "add-mo-adder" in proposal.read_text(encoding="utf-8")
 
 
 def test_no_date_folder_or_created_field_decides_the_ordering():
@@ -1353,10 +1411,13 @@ def test_the_family_returns_its_findings_sorted_severity_first():
                 for f in findings]
         assert keys == sorted(keys)
 
-    # ...and on the real shape — one warning among many info rows — the warning
-    # is FIRST, which is the property the ruling actually bought.
+    # ...and on the real shape — one gate-bearing finding among many info rows
+    # — that finding is FIRST, which is the property the ruling actually
+    # bought. WARNING through the advisory launch; ERROR since the flip
+    # (2026-08-31, issue #357) — SEVERITY_RANK still ranks it ahead of INFO
+    # either way, so this is the flip's own severity, not a re-derivation.
     findings = _run()
-    assert findings[0].severity == WARNING
+    assert findings[0].severity == mbc._LAUNCH_SEVERITY == ERROR
     assert [f.severity for f in findings].count(INFO) > 1
 
 
@@ -1376,29 +1437,34 @@ def test_the_family_is_registered_and_reachable_through_the_registry():
     assert FAMILIES[mbc.FAMILY](make_ctx("modified-block-currency"))
 
 
-def test_the_family_is_absent_from_family_resolution_at_launch():
-    """THE SECOND HALF OF THE ADVISORY LAUNCH, and the half that is easy to lose.
+def test_the_family_joined_family_resolution_on_the_flip():
+    """THE SECOND HALF, PINNED AT BOTH ENDS OF THE FLIP.
 
-    `report.uncited_resolutions` turns a `contested` finding that VANISHES
-    between reports into an `error`. Every finding this family raises names a
-    block somebody is expected to CORRECT — so a `contested` class would red the
-    nightly on the first correction, which is enforcement arriving through the
-    back door on the very run that proves the advisory launch worked.
+    Through the advisory launch this test was named `..._is_absent_from_
+    family_resolution_at_launch` and pinned the opposite: `report.
+    uncited_resolutions` turns a `contested` finding that VANISHES between
+    reports into an `error`, so a `contested` class at launch would have red
+    the nightly on the first correction — enforcement arriving through the
+    back door on the run that proves the advisory launch worked.
 
-    ADDED BY THE MUTATION ROUND: inserting this family into `FAMILY_RESOLUTION`
-    SURVIVED every other test in this file. The absence was documented in three
-    places and asserted in none.
+    FLIPPED 2026-08-31 by ruling, together with `_LAUNCH_SEVERITY` (issue
+    #357). `families.FAMILY_RESOLUTION` has no per-class grain — `runner.main`
+    applies it by `Finding.family` alone — so the one row the flip adds
+    reaches every class this family emits, the ledger included: a finding that
+    vanishes now owes a citation the same way `promotion-fidelity`'s and
+    `duplicate-packet`'s do. See the `FAMILY_RESOLUTION` entry in `families.py`
+    for the reading in full.
 
     NON-VACUOUS BY CONSTRUCTION: membership in `FAMILIES` is asserted in the
-    same test, so this cannot pass against an empty or misspelled registry —
-    which is exactly how an "absent from" assertion lies.
+    same test, so this cannot pass against an empty or misspelled registry.
     """
+    from doc_health import CONTESTED
     from doc_health.families import FAMILIES, FAMILY_RESOLUTION
 
-    assert mbc.FAMILY in FAMILIES, "the absence below means nothing otherwise"
-    assert mbc.FAMILY not in FAMILY_RESOLUTION
-    # and the severities that make up the other half
-    assert mbc._LAUNCH_SEVERITY == WARNING
+    assert mbc.FAMILY in FAMILIES, "the membership below means nothing otherwise"
+    assert FAMILY_RESOLUTION.get(mbc.FAMILY) == CONTESTED
+    # and the severities that make up the other half — one moved, two did not
+    assert mbc._LAUNCH_SEVERITY == ERROR
     assert mbc._LEDGER_SEVERITY == INFO
 
 
@@ -1411,7 +1477,7 @@ def test_the_reporting_list_mirrors_the_registry():
     from doc_health.families import FAMILIES
 
     assert set(FAMILY_IDS) == set(FAMILIES)
-    assert len(FAMILY_IDS) == len(set(FAMILY_IDS)) == len(FAMILIES) == 22
+    assert len(FAMILY_IDS) == len(set(FAMILY_IDS)) == len(FAMILIES) == 23
     assert mbc.FAMILY in FAMILY_IDS
 
 
@@ -1464,3 +1530,410 @@ def test_a_marker_whose_author_is_not_a_change_id_is_not_a_marker():
     # ...and the real spelling still parses
     assert mbc.parse_marker(
         "**Removed from canon by add-a-change (2026-08-27):** `A unit.`")
+
+
+# ============================================================================
+# THE PAIRING CLASS AND THE COLLISION CLASS
+# (`govern-sibling-added-modified-deltas`, Speckit F1 § 2 and F2 § 3)
+# ============================================================================
+#
+# TWO TREES, AND EACH ASSERTION BELOW NAMES ITS SUBJECT. `-pairing` carries
+# every reported state of the pairing class plus BOTH silent ones plus the
+# own-rename carve; `-collision` carries the unsafe archive order in both basis
+# forms plus the lawful-rename negative control. Their READMEs carry the table.
+#
+# NOTHING HERE COMPARES REQUIREMENT TEXT, which is the whole of what the
+# 2026-08-27 ruling protects: the pairing check's inputs are a delta's own
+# markers and the set of active additions.
+
+def _pair_run():
+    from conftest import make_ctx
+    return mbc.fam_modified_block_currency(
+        make_ctx("modified-block-currency-pairing"))
+
+
+def _coll_run():
+    from conftest import make_ctx
+    return mbc.fam_modified_block_currency(
+        make_ctx("modified-block-currency-collision"))
+
+
+def _pairing(findings):
+    return [f for f in findings if mbc.classify(f) == mbc.CLASS_PAIRING]
+
+
+def _pair_for(change, findings=None):
+    """The pairing findings against ONE change's delta path.
+
+    Keyed on the PATH the family put on the finding, never on a re-read of the
+    fixture: this file asserts what the family wrote.
+    """
+    return [f for f in _pairing(findings if findings is not None
+                                else _pair_run())
+            if f"/changes/{change}/" in f.path]
+
+
+def _state(finding):
+    """The state word the finding renders, read out of the rendered rule."""
+    return finding.rule.split(" and the pairing is ")[1].split(":")[0]
+
+
+def test_the_third_reserved_form_is_recognized_by_its_complete_prefix():
+    """§ 2.1. The anchor is load-bearing for the reason it is on the other two
+    forms: this packet's own delta text and `document-lifecycle`'s both set the
+    template out in prose, and both promote into canon."""
+    good = ("**Modified over `add-a-basis`'s addition by add-a-carrier "
+            "(2026-09-01):** — because the basis is still active")
+    marker = mbc.parse_marker(good)
+    assert marker is not None
+    assert (marker.form, marker.basis, marker.change_id, marker.date) == (
+        "pairing", "add-a-basis", "add-a-carrier", "2026-09-01")
+    assert marker.reason == "because the basis is still active"
+
+    # THE QUOTED TEMPLATE IS NOT A MARKER, which is why the prefix is complete:
+    # `document-lifecycle` prints this exact line in prose that promotes.
+    assert mbc.parse_marker(
+        "**Modified over `<basis change-id>`'s addition by <change-id> "
+        "(<YYYY-MM-DD>):**") is None
+    # ...nor is a prefix missing any one of its parts
+    for bad in (
+        "**Modified over `add-a-basis` addition by add-a-carrier (2026-09-01):**",
+        "**Modified over `add-a-basis`'s addition by add-a-carrier:**",
+        "**Modified over add-a-basis's addition by add-a-carrier (2026-09-01):**",
+        "**Modified over `add-a-basis`'s addition by ADD-UPPER (2026-09-01):**",
+        "**Modified over `Not A Change Id`'s addition by add-a-carrier "
+        "(2026-09-01):**",
+    ):
+        assert mbc.parse_marker(bad) is None, bad
+
+
+def test_the_third_form_names_no_units_and_is_no_carriage_declaration():
+    """§ 2.2, and every consequence of it is a consequence of ONE fact: the
+    marker's `names` list is empty.
+
+    It therefore suppresses nothing, can never reach the marker-defect class
+    (that list is only appended to from inside the per-name loop), and — like
+    every marker — is no unit of the block or of canon.
+    """
+    marker = mbc.parse_marker(
+        "**Modified over `add-a-basis`'s addition by add-a-carrier "
+        "(2026-09-01):** — the reason names `a code span` inside itself")
+    assert marker.names == []
+    # THE WHOLE TAIL, not what follows the last code span: this form names no
+    # units, so there is nothing in the tail to measure the reason from behind.
+    assert marker.reason == "the reason names `a code span` inside itself"
+
+    canon_units = [mbc.Unit(mbc.BODY, "A unit.")]
+    suppressed, defective = mbc.suppression([marker], canon_units, [])
+    assert suppressed == set() and defective == []
+
+    # ...and it is no unit on either side of a comparison
+    units, markers = mbc.derive_units([
+        "**Modified over `add-a-basis`'s addition by add-a-carrier "
+        "(2026-09-01):** — a reason.",
+        "",
+        "A body sentence.",
+    ])
+    assert [u.text for u in units] == ["A body sentence."]
+    assert [m.form for m in markers] == ["pairing"]
+
+
+def test_the_reason_is_harvested_always_and_an_absent_tail_is_a_value():
+    """§ 2.2's second half. Recognition ENDS AT THE CLOSING COLON, so a
+    prefix-only paragraph is a MARKER OF THIS FORM whose declaration is
+    defective — never a non-marker, which would return it to the body units and
+    hand its author the absent-marker remedy for a marker the block carries."""
+    prefix_only = mbc.parse_marker(
+        "**Modified over `add-a-basis`'s addition by add-a-carrier "
+        "(2026-09-01):**")
+    assert prefix_only is not None and prefix_only.form == "pairing"
+    assert prefix_only.reason is None
+    # an empty reason declares exactly what an absent one does
+    empty = mbc.parse_marker(
+        "**Modified over `add-a-basis`'s addition by add-a-carrier "
+        "(2026-09-01):** —   ")
+    assert empty is not None and empty.reason is None
+
+
+def test_the_sibling_set_carries_the_adder_its_standing_and_its_block_kind():
+    """§ 2.3. The TITLE CONTENT is unchanged — both basis forms still make a
+    title pending — and what is added is three facts about the DELTA: who adds
+    it, what that change's own proposal declares, and whether the title arrived
+    by an addition or by a rename's `TO:` half.
+
+    Read through the module's own `_standing` path, never a private regex: the
+    fact that qualifies a finding's wording and the fact the UNDISCLOSED state
+    turns on are ONE fact read once.
+    """
+    from conftest import FIXTURES
+    root = FIXTURES / "modified-block-currency-pairing" / "alphaFactory"
+    siblings = mbc.sibling_titles(root)
+
+    ratified = siblings[("pair-cap", "declared and resolving")]
+    assert [(b.change, b.kind, b.standing) for b in ratified] == [
+        ("add-basis-ratified", "added", "ratified")]
+    draft = siblings[("pair-cap", "undisclosed basis")]
+    assert [(b.change, b.kind, b.standing) for b in draft] == [
+        ("add-basis-draft", "added", "draft")]
+    headerless = siblings[("pair-cap", "headerless basis")]
+    assert [(b.change, b.kind, b.standing) for b in headerless] == [
+        ("add-basis-headerless", "added", None)]
+    # the rename's `TO:` half, and the discriminator that tells it from an
+    # addition — which is what the self-referential state is defined by
+    rename = siblings[("pair-cap", "promoted new name")]
+    assert [(b.change, b.kind) for b in rename] == [
+        ("mod-rename-amend", "renamed")]
+
+
+def test_every_reported_state_is_reached_and_each_block_carries_exactly_one():
+    """§ 2.5. FOUR REPORTED STATES, ONE FINDING PER BLOCK, AND THE ORDER IS
+    WHAT MAKES THEM EXCLUSIVE.
+
+    Asserted as a MAP from change to state rather than as a count: a count
+    passes over a build that reported the right number of findings in the wrong
+    states, and the words a reader is given are the deliverable.
+    """
+    findings = _pair_run()
+    states = {}
+    for f in _pairing(findings):
+        change = f.path.split("/changes/")[1].split("/")[0]
+        assert change not in states, (change, "two findings for one block")
+        states[change] = _state(f)
+
+    assert states == {
+        "mod-undeclared": "undeclared",
+        "mod-self": "self-referential",
+        "mod-self-marked": "self-referential",
+        "mod-wrong-basis": "misdeclared",
+        "mod-carrier-basis": "misdeclared",
+        "mod-wrong-by": "misdeclared",
+        "mod-two-markers": "misdeclared",
+        "mod-no-reason": "misdeclared",
+        "mod-empty-reason": "misdeclared",
+        "mod-no-reason-unratified": "misdeclared",
+        "mod-undisclosed": "undisclosed",
+        "mod-headerless": "undisclosed",
+        # THE CARVE'S OTHER SIDE. The carrier's OWN rename made this title
+        # pending — its `FROM:` half is a title canon does not carry, so
+        # `resolve`'s own-rename precedence never fired — and it is UNDECLARED,
+        # not self-referential: a title pair is no second text. This row is what
+        # a widening of the self-addition condition to renames fails on.
+        "mod-own-rename-unpromoted": "undeclared",
+    }
+    # ...and the three silent ones are silent
+    for silent in ("mod-one-marker", "mod-declared", "mod-disclosed",
+                   "mod-rename-amend"):
+        assert _pair_for(silent, findings) == [], silent
+
+
+def test_the_self_referential_state_is_examined_first_and_excludes_the_others():
+    """§ 2.5's ordering, at the one place it changes an answer. A
+    self-referential block carrying NO marker satisfies UNDECLARED as well, so
+    without the order the run emits two findings with two remedies for one
+    defect — and this state's remedy, withdrawing one of the two blocks, is one
+    no marker supplies.
+
+    READ FROM THE CARRIER'S OWN `## ADDED Requirements` BLOCK AND FROM NOTHING
+    ELSE: `mod-rename-amend` renames a PROMOTED requirement to the title it also
+    modifies, and that is the rename-and-amend shape canon resolves under the
+    OLD name one step before `pending`.
+    """
+    findings = _pair_run()
+    no_marker = _pair_for("mod-self", findings)
+    assert len(no_marker) == 1 and _state(no_marker[0]) == "self-referential"
+    # ...and the UNDECLARED remedy is not what it names. Asserted on the
+    # undeclared state's own wording rather than on the phrase "no marker",
+    # which this state's text uses to say that no marker CAN cure it.
+    assert "carries no marker of the reserved" not in no_marker[0].rule
+
+    # ...and a marker naming the change ITSELF does not move it either
+    marked = _pair_for("mod-self-marked", findings)
+    assert len(marked) == 1 and _state(marked[0]) == "self-referential"
+
+    # ...AND THE CONDITION IS THE CARRIER'S OWN ADDITION AND NOTHING ELSE.
+    # `mod-own-rename-unpromoted` is the carrier's OWN rename to the title, with
+    # a `FROM:` half canon does not carry — so `resolve`'s own-rename precedence
+    # does not fire and the block reaches this check with the carrier as the
+    # only writer of the title. Widening the condition to renames reports the
+    # supported shape as a defect, and this is the row that says so.
+    own_rename = _pair_for("mod-own-rename-unpromoted", findings)
+    assert len(own_rename) == 1 and _state(own_rename[0]) == "undeclared"
+    assert "rename to the title" in own_rename[0].rule
+
+
+def test_the_own_rename_carve_never_reaches_this_check_and_the_arms_run():
+    """§ 2.4. `resolve()` IS NOT TOUCHED, and its second step is why: the
+    carrying change's own `## RENAMED Requirements` block is examined BEFORE the
+    set of titles active changes add, so a rename-and-amend block resolves
+    against canon under the OLD name and never reaches the classifier.
+
+    ASSERTED POSITIVELY, not as a silence. A silence assertion passes over a
+    build that resolved the rename and then compared nothing — so the ONE
+    dropped clause is what proves the comparison arms RAN.
+    """
+    findings = _pair_run()
+    assert _pair_for("mod-rename-amend", findings) == []
+    ledger = [f for f in findings if "/changes/mod-rename-amend/" in f.path]
+    assert len(ledger) == 1, [f.rule[:120] for f in ledger]
+    assert "A second clause holds too." in ledger[0].rule
+    assert "openspec/specs/pair-cap/spec.md" in ledger[0].rule
+
+
+def test_the_misdeclared_grounds_are_named_apart_in_the_finding():
+    """§ 2.5. FOUR GROUNDS, ONE STATE, ONE ACTION — and the finding SHALL say
+    which ground it names, because more than one marker, a wrong basis, a wrong
+    author and an absent reason are repaired by four different edits.
+
+    THE COUNT IS READ FIRST, so a block carrying a good marker and a bad one is
+    placed by a fact about the BLOCK rather than by which marker a loop reached.
+    `mod-one-marker` is that block's PAIR — the same valid marker, alone — and
+    it is silent.
+    """
+    findings = _pair_run()
+
+    count = _pair_for("mod-two-markers", findings)
+    assert len(count) == 1
+    assert "carries 2 markers of the reserved" in count[0].rule
+    assert _pair_for("mod-one-marker", findings) == []
+
+    basis = _pair_for("mod-wrong-basis", findings)
+    assert "names `mod-undeclared` as basis" in basis[0].rule
+    assert "no active change of that id ADDS" in basis[0].rule
+
+    carrier = _pair_for("mod-carrier-basis", findings)
+    assert "names the carrying change `mod-carrier-basis` as its own basis" \
+        in carrier[0].rule
+
+    author = _pair_for("mod-wrong-by", findings)
+    assert "`by` identifier is `mod-undeclared`" in author[0].rule
+    assert "carried by `mod-wrong-by`" in author[0].rule
+
+    for change in ("mod-no-reason", "mod-empty-reason"):
+        reason = _pair_for(change, findings)
+        assert "no ` — <reason>` tail" in reason[0].rule, change
+
+
+def test_the_reason_is_read_before_the_disclosure():
+    """§ 2.5's fifth ordering claim, and the fixture that fails a classifier
+    reading them the other way round.
+
+    `mod-no-reason-unratified` carries a right basis, a right `by` and NO tail
+    at all, over a `draft` basis. Read disclosure-first it would be told to
+    write `unratified` into a sentence that does not exist, while the identical
+    marker over a RATIFIED basis (`mod-no-reason`) passed in silence — one
+    defect named two ways at two titles.
+    """
+    findings = _pair_run()
+    ordered = _pair_for("mod-no-reason-unratified", findings)
+    assert len(ordered) == 1
+    assert _state(ordered[0]) == "misdeclared"
+    assert "no ` — <reason>` tail" in ordered[0].rule
+    assert "unratified" not in ordered[0].rule.split(": ", 1)[1]
+
+    # ...and the identical marker over a RATIFIED basis is reported on the SAME
+    # ground, so the finding does not depend on the basis's standing
+    ratified = _pair_for("mod-no-reason", findings)
+    assert _state(ratified[0]) == "misdeclared"
+    assert "no ` — <reason>` tail" in ratified[0].rule
+
+
+def test_the_undisclosed_state_names_the_basis_and_its_standing():
+    """§ 2.5's fourth state — the one that gives `document-lifecycle`'s
+    disclosure obligation an enforcer at all.
+
+    A basis whose header declares NO standing this reader can resolve is treated
+    as not ratified, the whole point of the disclosure being to warn about text
+    no authority has been shown to accept.
+    """
+    findings = _pair_run()
+    draft = _pair_for("mod-undisclosed", findings)
+    assert "`add-basis-draft`" in draft[0].rule
+    assert "declared standing `draft`" in draft[0].rule
+
+    headerless = _pair_for("mod-headerless", findings)
+    assert "no standing its proposal header declares" in headerless[0].rule
+
+    # ...and the disclosure is read as a WORD, so the disclosed pair is silent
+    assert _pair_for("mod-disclosed", findings) == []
+
+
+def test_the_pairing_class_carries_its_own_band_and_action():
+    """The band is `warning` at launch, from a constant of its own — NOT
+    `_LAUNCH_SEVERITY`, whose § 7.2 flip moved it alone at `7f656980`.
+
+    The action states EVERY half of the remedy, and it is spelled out here
+    rather than compared with the module's constant: a test asserting
+    `f.action == mbc._PAIRING_ACTION` passes whatever that constant is mutated
+    to.
+    """
+    findings = _pairing(_pair_run())
+    assert findings
+    assert {f.severity for f in findings} == {WARNING}
+    assert {f.action for f in findings} == {
+        "declare the basis with ONE `Modified over` marker and no more than "
+        "one, name the change carrying the block as that marker's `by` "
+        "identifier, give the marker the ` — <reason>` tail its form requires, "
+        "disclose in that reason clause where the basis is not ratified, and "
+        "hold the archive until the declared change promotes"}
+    # THE TWO CONSTANTS ARE APART, AND THE FLIP IS THE PROOF: `_LAUNCH_SEVERITY`
+    # moved to `error` at `7f656980` and this class launches at `warning`, so a
+    # shared constant is falsified by their current values rather than by an
+    # argument about them.
+    assert mbc._PAIRING_SEVERITY == WARNING and mbc._LAUNCH_SEVERITY == ERROR
+
+
+def test_the_collision_class_reports_both_basis_forms_and_never_the_from_half():
+    """F2 § 3.1. The `TO:` half is the collision shape; the `FROM:` half is a
+    title canon is EXPECTED to carry, so reading it would report every lawful
+    rename in the corpus.
+
+    The negative control is `lawful-rename`, whose `FROM:` title canon carries
+    and whose `TO:` title it does not.
+    """
+    findings = _coll_run()
+    assert {mbc.classify(f) for f in findings} == {mbc.CLASS_COLLISION}
+    by_change = {f.path.split("/changes/")[1].split("/")[0]: f
+                 for f in findings}
+    assert sorted(by_change) == ["add-the-basis", "rename-the-basis"]
+
+    added = by_change["add-the-basis"]
+    assert added.severity == WARNING
+    assert "`## ADDED Requirements` block for" in added.rule
+    assert "'Promoted by the unsafe order'" in added.rule
+    assert "openspec/specs/coll-cap/spec.md already states" in added.rule
+
+    renamed = by_change["rename-the-basis"]
+    assert "`## RENAMED Requirements` `TO:` block for" in renamed.rule
+    assert "'Promoted by the unsafe rename order'" in renamed.rule
+    # the NEGATIVE control: a lawful rename is silent, and its FROM: title is
+    # one canon carries
+    assert "lawful-rename" not in {f.path for f in findings}
+    assert "Lawful rename source" not in " ".join(f.rule for f in findings)
+
+
+def test_the_collision_class_reads_a_repository_carrying_no_modified_block():
+    """F2 § 3.1's placement, and it is not tidying. The repository most likely
+    to hold this evidence is one whose MODIFYING packet has already archived —
+    which may leave it with no active `## MODIFIED Requirements` block at all.
+
+    The `-collision` tree is exactly that repository, so the family's
+    `if not blocks: continue` guard must not stand in front of this class.
+    """
+    from conftest import FIXTURES
+    root = FIXTURES / "modified-block-currency-collision" / "alphaFactory"
+    assert mbc.active_blocks(root) == []
+    assert len(_coll_run()) == 2
+
+
+def test_the_collision_class_carries_its_own_band_and_action():
+    """`warning` at launch from its own constant, and an action naming BOTH
+    remedies. The action is spelled out rather than compared with the module's
+    own copy of it."""
+    findings = _coll_run()
+    assert {f.severity for f in findings} == {WARNING}
+    assert {f.action for f in findings} == {
+        "promote nothing further until the collision is resolved, and — where "
+        "the requirement genuinely already exists — convert the addition to a "
+        "modification declared against canon, or withdraw or re-target the "
+        "rename whose `TO:` title canon already carries"}
+    assert mbc._COLLISION_SEVERITY == WARNING

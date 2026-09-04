@@ -917,18 +917,36 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     # see an uncommitted manifest — `pc.verify` reads the committed tree — so a
     # promotion's own pre-commit run passes and CI is where the count lands.
     #
-    # 67 -> 68, `add-subject-establishment`: the same mechanism, one branch later.
-    # The FULL promotion of the `subject-establishment` staged topic wrote
-    # `openspec/changes/add-subject-establishment/supporting-docs/manifest.yaml`,
-    # and the two packets merged into each other rather than one overwriting the
-    # other's number. Enumerated rather than inferred at the merge: both manifests
-    # are present and the census reads 68.
+    # 67 -> 69, AND THAT ONE MOVE IS TWO SITES FROM ONE CHANGE, arriving by the two
+    # different routes this census distinguishes. `add-project-repo-schema`
+    # (2026-09-02) is a FULL PROMOTION, so it writes the 68th by the mechanism
+    # the paragraph above already describes — its `supporting-docs/manifest.yaml`
+    # `source_revision`. The 69th is new in kind: `contracts/openreposhape-pin.yaml`
+    # `commit`, the second neutral-product pin this repository carries, which is
+    # ALSO the one move that takes the MEMBER count off 23 — every promotion
+    # before it joined a class that already existed, and this one declares
+    # `openreposhape-pin-product-commit`.
     #
-    # Only the SITE count moves in either step. The member count is unchanged
-    # because both manifests join a class that already held twenty-four others,
-    # and `lost` / `uncovered` / `vanished` / `arrived` are untouched.
-    assert len(report.results) == 68
-    assert len({r.site.member_id for r in report.results}) == 23
+    # IT ANNOUNCED ITSELF AS `uncovered`, WHICH IS THE COVERAGE HALF WORKING.
+    # The key `commit` was already in `PIN_KEY_VOCABULARY` from
+    # `openxwallet-pin-product-commit`, so the scanner FOUND the site; no member
+    # declared that PATH, so nothing covered it. That is the intended failure
+    # shape for a new pin artifact — found, not covered, reported — and it is
+    # why the member had to be declared rather than the count merely bumped.
+    #
+    # 69 -> 70, `add-subject-establishment`: the same FULL-PROMOTION mechanism as
+    # the 67th and the 68th, one branch later. The promotion of the
+    # `subject-establishment` staged topic wrote
+    # `openspec/changes/add-subject-establishment/supporting-docs/manifest.yaml`,
+    # whose `source_revision` is the 70th site. It joins the EXISTING
+    # `proposal-support-manifest` member, so the member count does NOT move and
+    # holds at main's 24 — the 24th was `openreposhape-pin-product-commit`, not
+    # anything this packet writes. ENUMERATED WITH `pin_class.verify()` ON THE
+    # MERGED TREE rather than obtained by adding one: every manifest main carries
+    # and this packet's own are present together, and the census reads 70.
+    # `lost` / `uncovered` / `vanished` / `arrived` are untouched by the step.
+    assert len(report.results) == 70
+    assert len({r.site.member_id for r in report.results}) == 24
     assert len(report.lost) == 1
     assert len(report.lost_awaiting_record) == 0
     assert report.uncovered == ()

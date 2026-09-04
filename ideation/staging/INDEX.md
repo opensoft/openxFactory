@@ -46,7 +46,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [hermes-stack-topology-per-client](#hermes-stack-topology-per-client) | ADDED neutral `request-intake-and-admission` + MODIFIED topology contract (per-client stack-vs-layer rule made explicit) | 1 | Ready to iterate — cardinality verified against the runtime spec and the live stack; RESOLVED 2026-08-08: each client gets its own stack (client = Tenant), so onboarding is a stack install; the ledgerx fixture + its bound HCS-002-S03 scenario are stale and owe an OpenSpec correction. BLOCKED on the (a) realize-intake-at-Tenant-Hermes vs (b) stand-up-an-Opsx-stack fork; cross-repo input 2026-08-09: OpsxFactory staged its governance trilogy (tenant-request-intake → hermes-approval-envelopes → tenant-operating-postures) designing the fork's intake/approval side; update 2026-08-10: trilogy exit 1 promoted and RATIFIED as OpsxFactory `add-request-intake-boundary` (intake realized at the Tenant layer — fork branch (a) side), Speckit implementation in flight |
 | [mobile-dashboard-surface](#mobile-dashboard-surface) | `avatar-first-ui` realization (possibly a small ADDED requirement) | 1 | Ready to iterate — the layer defaults are already ratified; main forks: shell platform vs the frozen AVC ports, sequencing vs `avatar-pilot-hardening` |
 | [workstation-app-shell](#workstation-app-shell) | `avatar-first-ui` realization (possibly a small ADDED requirement for the workstation shell) + MODIFIED `ideation-dashboard` (the local serve becomes app-managed) | 1 | Ready to iterate — layer defaults already ratified and the motivating defect verified; load-bearing content is the Worker Host App boundary (two OS principals, one shell) and codexFactory's missing subject surface; 5 open questions, the shell-platform fork blocks implementation |
-| [signed-execution-chain](#signed-execution-chain) | ADDED a NEUTRAL signed-execution-chain family in openxFactory (the chain from a wallet-presented ratification through atomic enrollment, the traveling contract, harness + runner attestations, the signed PR-open decision, council review of the signed brief, and a CHAIN-VALIDATING MERGE GATE) — composing with `openxwallet`, `trust-anchor`, `identity-brokering` and `roles-authority-model`; plus the ON-CHAIN anchoring/consent layer Brett ruled 2026-08-27 | 2 | Registered 2026-08-27 from Brett's expansion ruling. **A broken chain is a FRAUD SIGNAL and there is no merge** — the chain is a PRECONDITION the omnigent layer enforces (it refuses to build an unverified chain), not an audit trail written afterwards. TIER MODEL forced by a ratified constraint: authority credentials stay HUMAN-HELD because omnigent workers carry `access_secrets: false`, so runners sign only EPHEMERAL PER-TASK attestations issued by the harness controller under its own cert — and the KEY NEVER ENTERS THE WORKER (the controller signs on the runner's request; `access_secrets: false` holds in every configuration and a short lifetime does not make a key non-secret, so "issued to the runner" would breach the same constraint the split honours — Q7 asks which signing mechanism). Tier 1 answers *who permitted this*, tier 2 *what actually ran*, and neither may stand in for the other. ON CHAIN: **salted keyed commitments** (never plain hashes — EDPB Guidelines 02/2025 v2.0 hold that a hash of personal data IS personal data, so erasure is by SALT DESTRUCTION), commitments to consent-log **checkpoints** (consent STATE stays in the governed permissioned layer, which is publicly unlinkable), and anchors — **raw PHI never**, on HIPAA grounds a public chain is append-only, world-readable and permanent; records stay in encrypted off-chain custody with patient-held keys, and hospitals/insurers verify through presentations. **The evidence plane is OFF chain and IS the record** — a signed RFC-6962-style transparency log; anchoring only makes it externally undeniable. DOMAIN MAPPING is the neutral-layer proof — MedxFactory→**HealthLinc** (treatment plan ratified→simulated→reviewed→"merge" = pushed to the patient app or printed as signed orders) and LedgerxFactory→**LedgerLinc** (analysis/review plans, "merge" = published to the ledger app) run the SAME chain, differing in payload and regulator, not in shape. Sequences BEHIND four ACTIVE changes (not staged topics): `add-wallet-carried-review-authority` (S2 issuer anchor REALIZED — the direct predecessor and link 1's instrument), `add-trust-anchor` (certificates + chain custody, realized at contract-v1.37), `add-identity-brokering` (who a signer is), `implement-openxpki-install-repo` (the CA that issues the controller cert). 7 open questions, none blocks tranche one (Q3/Q6 gate tranche 3, Q7 gates tranche 2). Q3 chain selection is **ANSWERED BY A VENDORED STUDY** (`chain-selection-study.md`, 2026-08-27, sourced + date-checked): transparency log as the evidence plane, **Bitcoin (OpenTimestamps aggregation) primary anchor**, **Kaspa optional secondary** under three conditions (archival node, inclusion proofs retained AT ANCHOR TIME, corroborating-only — Kaspa L1 **prunes tx data after ~3 days**), consent logic in the permissioned layer with anchored state roots, **NOT smart contracts on the anchoring chain and NOT Kasplex/Igra in 2026**; a chain-agnostic MULTI-ANCHOR RECEIPT is the 10-year exit path. Brett's three priors came back **QUALIFIED** (Kaspa "non-captured"), **REFUTED for anchoring** ("Bitcoin too expensive" — aggregation makes it ~$0 marginal), **CONFIRMED** (KAS sub-penny fees). **Q6 is the one needing a ruling**: the ruling's "patients put PHI portions on chain" is read as COMMITMENTS, a narrowing the topic raises rather than assumes. Q7 (added from the review round) asks where an attestation signature physically happens. EXIT: tranche 1 (signed ratification + atomic enrollment + the transparency log) is composable TODAY; tranche 2 attestation needs the omnigent layer + the PKI plane; tranche 3 on-chain anchoring needs rulings on Q3 and Q6, not more analysis |
+| [signed-execution-chain](#signed-execution-chain) | ADDED a NEUTRAL signed-execution-chain family in openxFactory (the chain from a wallet-presented ratification through atomic enrollment, the traveling contract, harness + runner attestations, the signed PR-open decision, council review of the signed brief, and a CHAIN-VALIDATING MERGE GATE) — composing with `openxwallet`, `trust-anchor`, `identity-brokering` and `roles-authority-model`; plus the ON-CHAIN anchoring/consent layer Brett ruled 2026-08-27 | 2 | Registered 2026-08-27 from Brett's expansion ruling. **A broken chain is a FRAUD SIGNAL and there is no merge** — the chain is a PRECONDITION the omnigent layer enforces (it refuses to build an unverified chain), not an audit trail written afterwards. TIER MODEL forced by a ratified constraint: authority credentials stay HUMAN-HELD because omnigent workers carry `access_secrets: false`, so runners sign only EPHEMERAL PER-TASK attestations issued by the harness controller under its own cert — and the KEY NEVER ENTERS THE WORKER (the controller signs on the runner's request; `access_secrets: false` holds in every configuration and a short lifetime does not make a key non-secret, so "issued to the runner" would breach the same constraint the split honours — Q7 asked which signing mechanism and was RULED 2026-08-29: remote signing served by the harness controller). Tier 1 answers *who permitted this*, tier 2 *what actually ran*, and neither may stand in for the other. ON CHAIN: **salted keyed commitments** (never plain hashes — EDPB Guidelines 02/2025 v2.0 hold that a hash of personal data IS personal data, so erasure is by SALT DESTRUCTION), commitments to consent-log **checkpoints** (consent STATE stays in the governed permissioned layer, which is publicly unlinkable), and anchors — **raw PHI never**, on HIPAA grounds a public chain is append-only, world-readable and permanent; records stay in encrypted off-chain custody with patient-held keys, and hospitals/insurers verify through presentations. **The evidence plane is OFF chain and IS the record** — a signed RFC-6962-style transparency log; anchoring only makes it externally undeniable. DOMAIN MAPPING is the neutral-layer proof — MedxFactory→**HealthLinc** (treatment plan ratified→simulated→reviewed→"merge" = pushed to the patient app or printed as signed orders) and LedgerxFactory→**LedgerLinc** (analysis/review plans, "merge" = published to the ledger app) run the SAME chain, differing in payload and regulator, not in shape. Sequences BEHIND four ACTIVE changes (not staged topics): `add-wallet-carried-review-authority` (S2 issuer anchor REALIZED — the direct predecessor and link 1's instrument), `add-trust-anchor` (certificates + chain custody, realized at contract-v1.37), `add-identity-brokering` (who a signer is), `implement-openxpki-install-repo` (the CA that issues the controller cert). **ALL SEVEN QUESTIONS RULED 2026-08-29 by Brett Heap in a clarify sitting** — Q1/Q2/Q4/Q7 as recommended, Q6 CONFIRMED as recommended, and **TWO DIVERGENCES (Q3, Q5)**. Every gate they held is OPEN: Q3/Q6 gated tranche 3, Q7 gated tranche 2's contract text, tranche 1 was never gated. Q3's research input was a **VENDORED STUDY** (`chain-selection-study.md`, 2026-08-27, sourced + date-checked) recommending transparency log as the evidence plane, **Bitcoin (OpenTimestamps aggregation) primary anchor**, **Kaspa optional secondary** under three conditions (archival node, inclusion proofs retained AT ANCHOR TIME, corroborating-only — Kaspa L1 **prunes tx data after ~3 days**), consent logic in the permissioned layer with anchored state roots, **NOT smart contracts on the anchoring chain and NOT Kasplex/Igra in 2026**; a chain-agnostic MULTI-ANCHOR RECEIPT is the 10-year exit path. **Q3's RULING DIVERGES from that ordering, in TWO ROUNDS**: round 1, verbatim — "lets [sic] use Kaspa as primary and bitcoin as secondary" — then, after the cost facts (Kaspa ~$0.000001/tx; Bitcoin-via-OTS $0 marginal per item on public calendars, ~$2.1k/yr self-run hourly; raw BTC tx $0.12–0.36 with spike history; a cheaper sidechain adds federation trust and saves nothing), round 2: **"Bitcoin-via-OTS on everything"** — BOTH witnesses on EVERY anchored item, **Kaspa FIRST** as the primary/OPERATIONAL witness under the three unchanged conditions and **Bitcoin batched via OTS as the DURABILITY witness — TEN-YEAR CLAIMS CITE BITCOIN** — with no selectivity and no third chain; receipts stay chain-agnostic multi-anchor carrying BOTH proofs. "Primary" is order of arrival, never evidentiary weight. The vendored study is **NOT edited** — a research record rewritten to agree with a later ruling stops being evidence. Brett's three priors came back **QUALIFIED** (Kaspa "non-captured"), **REFUTED for anchoring** ("Bitcoin too expensive" — aggregation makes it ~$0 marginal), **CONFIRMED** (KAS sub-penny fees). **Q6 CONFIRMED 2026-08-29 and it is the ruling's OPERATIVE FORM**: "patients put PHI portions on chain" means SALTED KEYED COMMITMENTS — a verifiable public handle, the portion itself disclosed off-chain under an anchored consent checkpoint, salt destruction as the erasure mechanism; literal raw/encrypted/plain-hashed PHI on chain stays REFUSED and **no later change re-litigates it**. **Q7 RULED as recommended**: REMOTE SIGNING SERVED BY THE HARNESS CONTROLLER, the runner's signing REQUEST recorded beside the signature it received, the controller corroborating the payload against its own link-4 setup attestation; an HSM is a later hardening of the same shape. **Q5 is the second divergence — RULED AGAINST THE RECOMMENDATION**: "allow contract code later" — evidence-only remains today's posture and no tranche now planned puts contract code on any chain, but the change MUST NOT constitutionalize "no contract code ever" nor gate a future adoption on the recommendation's stated trigger; the study's EDPB/HIPAA posture, unaudited-stack risk and irrevocable-deployment class are RECORDED AS ADVISORY CONTEXT for that future change, not as a gate on it. EXIT: tranche 1 (signed ratification + atomic enrollment + the transparency log) is composable TODAY and UNGATED; tranche 2's question-gate is open and what remains is machinery (the omnigent layer + the PKI plane); tranche 3's two question-gates are open and it builds to the RULED configuration, waiting on the PKI plane rather than on a ruling. **The topic is FULLY RULED and EXIT 1 IS RAISED** as the active change `add-signed-execution-chain` (links 1–3 + the transparency log + the short-chain gate, nine ADDED requirements), amended to all seven rulings. Drafting was NOT green-lit in the sitting and was GREEN-LIT SEPARATELY by Brett Heap on 2026-08-29 in session, in the same ruling that collapsed the two parallel packets onto `#495` and ADOPTED NARROWING A — tier 1 is RATIFYING authority, agent-held REVIEW wallets stay lawful. The packet was RATIFIED by him the same day (`review/ratification-2026-08-29.md`); ratification authorizes tranche one ONLY and performs no realization — and **THE REALIZATION HAS SINCE BEEN CARRIED OUT** in its own pull request: the four record kinds, the one digest construction `xfc-jcs-sha256-1`, the packaged corpus, the NAMED READER and the running `signed-execution-chain-gate`. It confers nothing yet — making the check REQUIRED is an operator act, and the capability's own conformance declaration says so in the present tense |
 | [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
 | [ideation-action-plane](#ideation-action-plane) | ADDED `ideation-intent-plane`; MODIFIED `document-lifecycle` (gates happen on main); fragment 2: MODIFIED `lifecycle-notebook-projection` (Drive membrane) | 2 | Exit 1 raised at this gate (`add-ideation-intent-plane`); fragment 2 blocked on the Drive↔NLM markdown-ingestion spike; **RECONCILED 2026-08-28** (`settle-aging-staging-topics`): fragment 1's exit `add-ideation-intent-plane` is ACTIVE — ratified 2026-07-23, 13 of 17 tasks ticked — not merely "raised"; fragment 2 (`drive-membrane.md`) is DEFERRED WITH ITS GATE NAMED, the unowned Drive↔NLM markdown-ingestion spike. A deferral is a schedule, not a standing — the folder keeps ageing on fragment 1's account too |
 | [client-credential-escrow-registry](#client-credential-escrow-registry) | ADDED to `credential-contracts` — SPLIT INTO TWO PACKETS by Brett 2026-08-28: exit 1 = the break-glass CHECKOUT path (`add-credential-escrow-checkout`, proposed 2026-08-28), exit 2 = the REGISTRY itself (`add-credential-escrow-registry`, the ruled successor: ruling C's home and grandfathered exception, inventory completeness, the readiness binding and the decryption-free lint — NO LONGER the schema, which the OD-2 veto moved into exit 1); touches `client-infrastructure-liaison` | 1 | **EXIT 1 RAISED 2026-08-28** as `add-credential-escrow-checkout`, and **RULED THE SAME DAY over PR #479**: OD-2 VETOED (ruling A's `escrow:` block and the sixth record kind `xfactory_credential_escrow_entry` come into exit 1, so its realization now owes the additive contract cut at the next additive minor, numbered at realization by merge order and not spent in the packet), OD-4 approved as authored, the rest cleared, and all five of exit 1's own open questions ruled — four on its recommendations, one against (the drill must also prove a live refusal). Delta went 7 ADDED / 28 scenarios to **9 ADDED + 1 MODIFIED / 46 scenarios**. All 6 of the topic's ORIGINAL open questions are now closed or carried as obligations: 4 ruled at the split, the master-key rotation runbook and the registry validator remaining as the successor's work rather than as questions. The topic doc stays staged for exit 2. Forcing fact re-verified at the gate: the QA install has read `execution_binding.mode: opsxfactory_executed` at `status: completed` since 2026-07-20 and `config/clients/opensoft/credentials/` does not exist |
@@ -70,12 +70,13 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [openxdox-install-app-provisioning](#openxdox-install-app-provisioning) | MODIFIED `credential-contracts` (or a new `install-app-provisioning` capability: two-App manifest provisioning + naming convention + apply-repo home); realization in Omnigent-Install (installer) + codexFactory (manifests + install docs) | 1 | Ready to iterate — named by Brett 2026-08-14 from the openXdox dispatch-migration's manual App toil; GitHub-capability verified (no app-creates-app API; the App Manifest flow is the mechanism, Apps tenant-owned); 6 claims settled (two Apps stay two, manifest flow, tenant-owned, globally-unique-name convention, small apply-workflow repo, tenant only sets the content-App scope); 5 open questions (contract home + managed-vs-self-hosted flow hardest); gated on the QA dispatch migration completing |
 | [substantive-review-lane-questions](#substantive-review-lane-questions) | tracks `roles-authority-model` (MODIFIED by `add-substantive-review-lane`, PR #178 — RATIFIED 2026-08-22) — no capability delta of its own | 1 | Registered 2026-08-15 — origin is Brett's direction to track the ad-hoc-authored proposal's five declared-open, not-decided questions (this topic is post-proposal tracking, NOT the proposal's origin; the proposal's own `.openspec.yaml` records `kind: ad_hoc`); six decided principles carried as settled context, not reopened; 5 open questions (rollout order, non-engineering persona home, company-policy-lead per-PR seating, per-repo ruleset shape, risk-tier taxonomy), none blocking the pilot; SEQUENCED after the doxBench UI sprint (Brett 2026-08-15) — after `doxbench-editing-model` Phase A, `staged-topic-outline-template`, and Phase B, so the review lane catches the workbench's steady state rather than blocking the sprint. **CLOSED AND RETIRED FROM STAGING 2026-08-22** — all five questions ruled by Brett Heap in-session that day and encoded into the tracked proposal, which Brett then RATIFIED the same day in a separate ratification read (record `openspec/changes/add-substantive-review-lane/review/ratification-2026-08-22.md`): Q1 rollout order deferred to a named follow-up change on pilot evidence with the evidence bar and the engineering-before-domain ordering principle decided now; Q2 persona home ruled AGAINST the recommendation — codexFactory reviews every governed repo, zero new persona homes; Q3 company-policy-lead seating ruled as a bounded THIRD option — rules-council-only default plus a per-class declared pull-in defined by the gate-rules council at class-definition time, fail-closed for those classes; Q4 ruleset shape ruled as the proven shape everywhere; Q5 risk tiers ruled as a constitutional floor now with the tier vocabulary deferred to the same follow-up path as Q1. The topic met its own closing condition (all five dispositioned) and the folder is retired. Unlike the two prior exited topics, it could NOT exit into a `supporting-docs/` move — the tracked proposal's origin is `ad_hoc` and `proposal-support.py transition` refuses to restate an immutable origin as `staged` — so the fragment's final state is named, not linked; three conflicts are recorded as NOT resolved by the closure — see the detail section |
 | [staged-topic-outline-template](#staged-topic-outline-template) | MODIFIED `document-lifecycle` (the primary-fragment template contract: required sections, round-trip-on-demote refresh rule, section provenance, marker usage) and MODIFIED `ideation-dashboard` (the doxBench outline tab renders the template + gains an add-section affordance) | 1 | **PROPOSED 2026-08-15 as `add-staged-topic-outline-template`, RATIFIED the same day** (all 5 open questions accepted as recommended, closing the parallel decision track) — exited staging the same day, material moved to the change's `supporting-docs/` (see detail section below); Q4 corrected by Amendment 1 to `edit-document` (ratified text named `edit-apply`, the gate console's redline verb, which cannot reach a session branch). Sections 1-4 realized (contract text, doc-health's warning-tier nudge, the outline tab + tests) and bookkeeping 6.1-6.3 discharged (this row, the exit record, and the `doxbench-editing-model` Q4 handoff). **CHANGE ARCHIVED 2026-08-21** — all 22 tasks discharged, gates 5.1-5.3 green and task 5.4's live browser proof driven for real (one commit through `edit-document` on a session branch, the verb evidenced three ways); both ADDED requirements promoted, and the topic's material now sits in the archived change's `supporting-docs.tar.gz` bundle rather than a loose folder |
-| [notebook-projection-identity](#notebook-projection-identity) | MODIFIED `lifecycle-notebook-projection` (declared hosting-account field + share-out roster) and MODIFIED `credential-contracts` (two-case account-custody rule: company service account normal case, personal hosting the other legitimate case) | 1 | Registered 2026-08-15 — origin is Brett hitting a live "request access" wall on the personal-Gmail-hosted NotebookLM projection, the same disease as the just-retired openXdox personal PAT; 6 claims settled (company account is the normal case, hosting is a declared install-time intake decision, personal hosting stays legitimate as the other case, company account shares out to users, company-policy Hermes monitors + approves share requests, and this mirrors the ratified openXdox dispatch two-case precedent); first fresh conformer of `staged-topic-outline-template` carrying LIVE `xspec:candidate` markers (verified against the checker: no rejection found, only `record`-status docs are excluded); 5 open questions (contract home, company-account type, share-roster reuse of `add-client-identity-roster`, monitor/approve mechanics with no share API, and opensoft's own migration sequencing), none blocking; SEQUENCED last of today's four topics (Brett 2026-08-15) — behind `doxbench-editing-model` (both phases), the template, and the review-lane topic — since Q3's share-roster reuse waits on the in-flight `add-client-identity-roster` proposal. **DISPOSITIONED 2026-08-23 — all five questions now carry a disposition, none `open`**: Q2 and the account timing RULED BY BRETT HEAP in session (a Google Workspace USER account in the operating tenant's own domain, working name `xfactory-books@opensoft.one`, created now/soon — reinforced by the platform fact that a GCP service account cannot drive NotebookLM at all), and Q1/Q3/Q4/Q5 adjudicated against executed evidence. Q1 CORRECTED its own context (the two-case fork is ALREADY a promoted `credential-contracts` requirement, not merely runbook prose beside one) and closed the one-vs-two-changes fork to ONE COMBINED change. Q3 RAN the mapping against the realized client-identity-roster schema and validator — 11 errors when the share-out facts are stated honestly; the force-fit variant passes with one grantee and FAILS with two on `duplicate-identity-key`, because the grantee is not in the uniqueness tuple — proving the two shapes are transposed (one principal / many scopes vs one scope / many principals) and ruling a DISTINCT small share-out roster. Q4 kept the governed manual lane and unified the approval record WITH that roster entry (one artifact, not an audit trail beside it). Q5 adopted the `split-ideation-book-per-repo` retirement runbook, parity reconciled against the corpus scan rather than the legacy books. The 2026-08-15 sequencing rationale is spent — `add-client-identity-roster` archived, and its shape was tested and found structurally unable to carry this. **ACCOUNT CONFIRMED the same day (Brett, 2026-08-23): `xFactor001@opensoft.one`** — a Google Workspace user in `opensoft.one`, exactly Q2's ruled shape (the earlier `xfactory-books@opensoft.one` was a working name, never created). The exit precondition is MET and Brett authorized raising the combined change, so the topic exits via `add-notebook-projection-identity` rather than waiting; Opensoft's own install is the declared Case A instance its migration path applies to |
+| [notebook-projection-identity](#notebook-projection-identity) | MODIFIED `lifecycle-notebook-projection` (declared hosting-account field + share-out roster) and MODIFIED `credential-contracts` (two-case account-custody rule: company service account normal case, personal hosting the other legitimate case) | 1 | Registered 2026-08-15 — origin is Brett hitting a live "request access" wall on the personal-Gmail-hosted NotebookLM projection, the same disease as the just-retired openXdox personal PAT; 6 claims settled (company account is the normal case, hosting is a declared install-time intake decision, personal hosting stays legitimate as the other case, company account shares out to users, company-policy Hermes monitors + approves share requests, and this mirrors the ratified openXdox dispatch two-case precedent); first fresh conformer of `staged-topic-outline-template` carrying LIVE `xspec:candidate` markers (verified against the checker: no rejection found, only `record`-status docs are excluded); 5 open questions (contract home, company-account type, share-roster reuse of `add-client-identity-roster`, monitor/approve mechanics with no share API, and opensoft's own migration sequencing), none blocking; SEQUENCED last of today's four topics (Brett 2026-08-15) — behind `doxbench-editing-model` (both phases), the template, and the review-lane topic — since Q3's share-roster reuse waits on the in-flight `add-client-identity-roster` proposal. **DISPOSITIONED 2026-08-23 — all five questions now carry a disposition, none `open`**: Q2 and the account timing RULED BY BRETT HEAP in session (a Google Workspace USER account in the operating tenant's own domain, working name `xfactory-books@opensoft.one`, created now/soon — reinforced by the platform fact that a GCP service account cannot drive NotebookLM at all), and Q1/Q3/Q4/Q5 adjudicated against executed evidence. Q1 CORRECTED its own context (the two-case fork is ALREADY a promoted `credential-contracts` requirement, not merely runbook prose beside one) and closed the one-vs-two-changes fork to ONE COMBINED change. Q3 RAN the mapping against the realized client-identity-roster schema and validator — 11 errors when the share-out facts are stated honestly; the force-fit variant passes with one grantee and FAILS with two on `duplicate-identity-key`, because the grantee is not in the uniqueness tuple — proving the two shapes are transposed (one principal / many scopes vs one scope / many principals) and ruling a DISTINCT small share-out roster. Q4 kept the governed manual lane and unified the approval record WITH that roster entry (one artifact, not an audit trail beside it). Q5 adopted the `split-ideation-book-per-repo` retirement runbook, parity reconciled against the corpus scan rather than the legacy books. The 2026-08-15 sequencing rationale is spent — `add-client-identity-roster` archived, and its shape was tested and found structurally unable to carry this. **ACCOUNT CONFIRMED the same day (Brett, 2026-08-23): `xFactor001@opensoft.one`** — a Google Workspace user in `opensoft.one`, exactly Q2's ruled shape (the earlier `xfactory-books@opensoft.one` was a working name, never created). The exit precondition is MET and Brett authorized raising the combined change, so the topic exits via `add-notebook-projection-identity` rather than waiting; Opensoft's own install is the declared Case A instance its migration path applies to. **CHANGE ARCHIVED 2026-08-31 — TOPIC RETIRED FROM STAGING** as `openspec/changes/archive/2026-08-31-add-notebook-projection-identity`; both MODIFIED deltas are now PROMOTED (`lifecycle-notebook-projection` +3 added / ~2 modified, `credential-contracts` ~1 modified; 6 requirements in, 6 out, all six bodies byte-identical). The topic met its exit on its own terms — five dispositions, the combined change raised, ratified 2026-08-23, realized at squash `40b33845` (PR #277), the migration run (PR #289) and the legacy books retired by rename 2026-08-26. **IT DID NOT ARCHIVE CLEAN, AND THE ROW SAYS SO:** § 4.7 was RE-SCOPED TO 7 OF 7 by Brett Heap's ruling of 2026-08-31 (the Gmail grantee DROPPED, the second reader not wanted — consistent with his 2026-08-27 wind-down-by-owner-deletion and his 2026-08-24 sole-grantor posture; the provider's account-level refusal survives as a finding, not a debt), and § 5.1 archives STANDING AS A DISPOSITION rather than ticked, because unattended re-authentication is unmeetable today (interactive Google sign-in, `nlm login` broken upstream by the notebook.google.com rebrand, and custody ratified as not delivering automation) — carried to successor **#537**, with `docs/notebooklm-sync-open-item.md` left OPEN and pointing there. § 4.3's code gap (`ensure_workspace_record()` returns without registering a replacement) is filed at **#536**. The topic FOLDER is retained as provenance, not deleted |
 | [doxbench-editing-model](#doxbench-editing-model) | MODIFIED `ideation-dashboard` (left-panel dynamic document tabs generalizing the outline/document buffer pair to N document buffers; chat-context binding to the active left-panel selection; docs-wheel tile edit verb + dirty-tile marker; right-panel Editor/Preview tab redesign with Save/Cancel) | 1 | Registered 2026-08-15 — origin is Brett's direction settling the general doxBench interaction model: left panel selects the working document (docs/lens/outline plus dynamic numbered tabs per open edit), center chat binds to whatever is selected, right panel shows the result via Editor/Preview tabs with Save/Cancel (replacing today's split md/preview layout); 26 claims settled (includes the ruled two-plane chat memory design, Claims 13-21, and its 2026-08-18 second-pass addendum settling memory-gateway conformance, the three-layer compression stack with shake v1, and Headroom watch-listed not adopted, Claims 22-26); verified live that `BUFFER_KINDS`, the turn-assembly buffer requirement, and the save order are all hard-coded to exactly outline+document today, so the N-buffer generalization is the load-bearing engineering question; 7 open questions (tab overflow, Save/Cancel semantics, dirty-tile storage, chat-binding rule, Editor/Preview default, concurrent-edit safety, and the chat memory system — ruled 2026-08-18), none blocking; sibling of `staged-topic-outline-template` Open question 4 (content-contract vs. interaction-model halves of the same AI-edit act); SEQUENCED first, in two phases (Brett 2026-08-15) — Phase A (chat-on-outline + Editor/Preview tabs + Save/Cancel on the existing two-buffer machinery) built before the other three topics, Phase B (N-buffer generalization) following `staged-topic-outline-template`'s ratification. **EXITED STAGING 2026-08-21** — both phases raised and realized; `add-doxbench-editing-phase-a` ARCHIVED 2026-08-21 and its spec text promoted, `add-doxbench-editing-phase-b` carried the whole remainder (§4–§11 + §13 realized across PRs #207/#210/#216/#223, `contract-v1.34`) and remains ACTIVE pending §12 share-session, which Brett ruled 2026-08-21 trails as its own slice. The fragment moved to Phase B's `supporting-docs/`; two items are PARKED, not adopted — see the detail section |
 | [doxchat-auto-fit-routing](#doxchat-auto-fit-routing) | MODIFIED `ideation-dashboard` (per-turn fit-aware `auto` resolution; the no-fit warn/ask surface and its session-sticky consent; compress-to-fit as a turn outcome) + a likely ADDITIVE model-catalog release (capability dimensions beyond byte limits, at minimum modality) + a likely additive chat-turn release (the recorded fit decision) | 1 | Registered 2026-08-21 — origin is Brett's direction given at the `contract-v1.38` rule-5 ruling, quoted VERBATIM in the fragment; 6 claims settled (per-turn fit-aware resolution, filter out models too small for the turn, no-fit is a human decision, session-sticky continue-all consent, compress-to-fit on continue, and fit is multi-dimensional with raw size only one axis); 6 open questions, none blocking. **DISPOSITIONED 2026-08-24 — all six resolved**, architect adjudications on verified evidence anchored in Brett's rulings, with TWO of the fragment's own recommendations CORRECTED by recon. Q1: the ROUTE decides, upheld, but at the ASSEMBLY POINT INSIDE STEP 9 — not at precondition 7, because the packet does not exist there (steps: 5 scope, 6 identity, 7 model+limits, 8 idempotency, 9 dispatch, with assembly at `serve.py:2926`); the route's `error` is free-form `^[a-z][a-z0-9_]{2,63}$`, not an enum, so a no-fit code costs no contract act. A review-found CONSTRAINT rides with it: request bytes are bounded EARLIER against the selected entry (`:2677`/`:2730`), so exit (b) must also move or redefine that pre-assembly guard or a request sized for a wider `routes_to` member is refused before routing runs. Q2: `resolved_model_id` STAYS as the declared default, naming debt accepted explicitly, removal rejected. Q3: one closed additive `modalities`, PLUS a batching obligation — the release must decide, not silently pass, the type-side `models.maxItems` question and the `model_id` bounds gap (N7). Q4: turn-record self-description plus a RECORDED arm, adjudicated under Brett's own intake-lane OQ-3 test (a recorded gate action suffices on the single-operator loopback; an instrument is required only on tenant/shared installs), with the consent scoped to session identity/rekey/generation and NEVER a wall clock, honoring his arm-and-reconfirm ruling. Q5: three sequenced exits, with (c) REDEFINED — a fit-reducing act ALREADY happens silently under `posture: full` (`serve.py:2935-2956`; `dropped_evidence` reaches no wire field), so (c) discloses it via a third `reduced_reason` constant on the RELEASED v1.40 field with zero contract change; a third posture VALUE is rejected. Corrected on review: what already runs is LAYER-1 SELECTION (lossless by reference, and it REFUSES when mandatory threads alone overflow), so (c) also owes the real LAYER-2 compaction Claim 5 needs — the module's own `assert_fidelity` refuses conflating the two. Q6: union badge unchanged and non-negotiable; the record carries both badges. **SEQUENCING GATE CLEARED** — Phase B archived 2026-08-22 and 10.7 shipped as `contract-v1.40`; the remaining sequencing fact is the model-intake lane's collision with exit (b), which exit (a) avoids |
-| [notebook-access-wallet-governance](#notebook-access-wallet-governance) | MODIFIED `lifecycle-notebook-projection` (the ratified share-out roster entry becomes a wallet-governed record; the grant lane's provider act and revocation semantics) and possibly MODIFIED `openxwallet` (though the grant's closed scope and wallet-only audience already answer the interesting half) | 1 | Registered 2026-08-24 — origin is Brett's direction: sharing happens THROUGH THE APP, so if the books were opened org-wide in the Google machinery the access would still sit on the user, and he asked whether this can go in the wallet and be controlled per repo or finer. Two rulings the same day: the Google-side posture is **RESTRICTED with the app as the sole grantor** (org-visible REJECTED), and the topic is staged rather than proposed. 7 claims settled — sharing through the app; restricted posture; **Google's ACLs are the OUTER enforcement**, so an org-visible book is provider-granted access no app record can subtract; deny-by-default with every grant through the governed lane; the provider's enforcement atom is per-notebook/per-user/viewer-editor; per-repo control maps to per-book because `split-ideation-book-per-repo` already made the books per-repo; and finer-than-book is NOT provider-enforceable, a named non-goal of the Google half. The org-visible rejection rests on `client-identity-roster`'s promoted doctrine — where a provider-enforced principal IS available it must be used, and recording a bound as provider-enforced when none exists is a finding — so org-visibility would downgrade an available provider-enforced bound to a logic-enforced one. 7 open questions (whether a wallet grant can scope an external resource at all — checked against the schema: its `audience` must be a wallet and its `scope` has no property for a provider or a provider-side role, so the wallet holds the AUTHORITY to perform a granting act, narrowed to books via free-form `scope.objects` — while the GRANTEE, holding no wallet, cannot appear in a grant at all; one record or two; what revocation means provider-side, contrasted with #282's bearer-secret lesson; who approves and whether this closes task 2.4; whether a repo may declare its own book's policy as a derived input; where finer-than-book lives; and how a grantee is NAMED, since a persona's subject pattern admits no `@` while `nlm share invite` needs exactly an email). **SEQUENCED AFTER the migration thread's held steps clear** — nothing to grant access to under the declared account until the books are re-derived there (migration in flight as PR #289), and both `add-notebook-projection-identity` and `add-notebook-hosting-credential-custody` are ACTIVE with ratified-but-unpromoted deltas this topic would amend |
+| [notebook-access-wallet-governance](#notebook-access-wallet-governance) | MODIFIED `lifecycle-notebook-projection` (the ratified share-out roster entry becomes a wallet-governed record; the grant lane's provider act and revocation semantics) and possibly MODIFIED `openxwallet` (though the grant's closed scope and wallet-only audience already answer the interesting half) | 1 | Registered 2026-08-24 — origin is Brett's direction: sharing happens THROUGH THE APP, so if the books were opened org-wide in the Google machinery the access would still sit on the user, and he asked whether this can go in the wallet and be controlled per repo or finer. Two rulings the same day: the Google-side posture is **RESTRICTED with the app as the sole grantor** (org-visible REJECTED), and the topic is staged rather than proposed. 7 claims settled — sharing through the app; restricted posture; **Google's ACLs are the OUTER enforcement**, so an org-visible book is provider-granted access no app record can subtract; deny-by-default with every grant through the governed lane; the provider's enforcement atom is per-notebook/per-user/viewer-editor; per-repo control maps to per-book because `split-ideation-book-per-repo` already made the books per-repo; and finer-than-book is NOT provider-enforceable, a named non-goal of the Google half. The org-visible rejection rests on `client-identity-roster`'s promoted doctrine — where a provider-enforced principal IS available it must be used, and recording a bound as provider-enforced when none exists is a finding — so org-visibility would downgrade an available provider-enforced bound to a logic-enforced one. 7 open questions (whether a wallet grant can scope an external resource at all — checked against the schema: its `audience` must be a wallet and its `scope` has no property for a provider or a provider-side role, so the wallet holds the AUTHORITY to perform a granting act, narrowed to books via free-form `scope.objects` — while the GRANTEE, holding no wallet, cannot appear in a grant at all; one record or two; what revocation means provider-side, contrasted with #282's bearer-secret lesson; who approves and whether this closes task 2.4; whether a repo may declare its own book's policy as a derived input; where finer-than-book lives; and how a grantee is NAMED, since a persona's subject pattern admits no `@` while `nlm share invite` needs exactly an email). **SEQUENCED AFTER the migration thread's held steps clear** — nothing to grant access to under the declared account until the books are re-derived there (migration in flight as PR #289), and both `add-notebook-projection-identity` and `add-notebook-hosting-credential-custody` are ACTIVE with ratified-but-unpromoted deltas this topic would amend. **HALF OF THAT SENTENCE IS NOW FALSE, and only that half is corrected (2026-08-31): `add-notebook-projection-identity` is ARCHIVED and its deltas are PROMOTED** (`openspec/changes/archive/2026-08-31-add-notebook-projection-identity`), so the share-out roster this topic would amend is CANON rather than pending. **AND THE CUSTODY HALF FELL THE SAME DAY, IN A PEER LANE RATHER THAN THIS ONE, SO IT IS CORRECTED HERE TOO (2026-08-31):** `add-notebook-hosting-credential-custody` ARCHIVED 2026-08-31 at `openspec/changes/archive/2026-08-31-add-notebook-hosting-credential-custody` and its dependent `add-binding-consumer-identity` at `openspec/changes/archive/2026-08-31-add-binding-consumer-identity`, both by **PR #541** on Brett Heap's ROUTE-1 ruling (basis first, dependent second). Their blocks are PROMOTED, so NO half of the original sentence survives: this topic has no ratified-but-unpromoted delta left to wait on, and every capability it would amend is canon. The custody half is corrected here rather than at custody's own archive only because that archive landed in another lane while this one was in review. The other named gate also cleared: the migration thread's held steps are done (books re-derived under the declared account, legacy books retired 2026-08-26), so there IS now something to grant access to |
 | [treatment-options-engine](#treatment-options-engine) | MODIFIED `governed-derived-model` (a `role: recommendation` member emitting ranked, cited, non-authoritative options; a declared `evidence_floor` dial with labelled, structurally non-mixable relaxed modes; an `editorial_weights` declaration for ranking inputs no truth store supplies) — with the realized half MedxFactory-owned across `root-truth-grounding` (adverse-reaction and mechanism-of-action backfill), `terminology-normalization` (drug-class and indication mapping tables) and `treatment-plan-generation` (the engine itself) | 1 | Registered 2026-08-26 — Brett's build decision ("we will build this"), six steps: indicated → minus contraindicated → minus interacting → weighed by adverse reactions → rebalance on a charted non-response → off-label mode with the evidence floor lowered and mechanism similarity as the candidate generator. 7 claims settled, the governance boundary among them and NOT a dial: the engine PROPOSES and a clinician decides, `execute_final_action: false` holds, the plan gate stays human-reviewed, and the rebalance trigger is a chart observation rather than a timer. **Corpus recon 2026-08-26 corrected the described shape in four ways that change the deltas**: (a) `adverse_effect` is ALREADY in the closed ten-member claim-type enum with 3 records, so §6 work is a BACKFILL, not a new claim type; (b) the drug→condition edge is effectively ABSENT — 5 of 6,510 grounded pairs are `condition_*` — so "list all drugs indicated for X" is unanswerable today rather than merely slow; (c) the condition namespace already carries TWO id conventions (generated `condition_<icd10>` vs curated readable slugs, curated silently winning), which `indicated_for` must settle before writing a row; (d) evidence_grade is already multi-valued (6,499 regulatory_label + 7 across three lower grades), so the off-label floor has grades to drop to. Corpus measured at 6,506 records / 1,302 medication concepts / 1,298 custody SPLs (≈22% of the 5,803-row prescribable RxNorm set). 10 open questions, all `open`; three are hard blockers — Q7 (MoA as an eleventh enum member vs overloading `target`) fixes every backfilled record id, Q9 (no Medx policy authorizes `person_modeling: identified_persons_under_policy`, and the Medx conformance file declares `synthetic_only`) blocks declaring the family at all, and Q10 (WHO ATC's licence commit rule) is a structural validate gate with FDA-EPC-alone as the fallback. Q8 asks whether the engine is a MODIFIED `treatment-plan-generation` rather than a new capability — its nine promoted requirements already cover the entry point, the citation obligation, the closed worker plane, consent, the model pin and the plan-G1 gate. Exits NEUTRAL-FIRST: the `governed-derived-model` delta once Q7/Q8/Q9 dispose, then the Medx corpus+engine change once Q10 clears and the extractor-model policy re-pin (a governed version bump of `medx.domain.policy.plan_authoring_models` v1, recommended on cost) is made or declined |
 | [openxwallet-neutral-home](#openxwallet-neutral-home) | REMOVED `openxwallet` + REMOVED `openxwallet-agent-profile` from the openxFactory corpus (moved to `opensoft/openXwallet`); ADDED `domain-descendant-boundary` (the general standard: a domain consumes a neutral open* product through a `<Domainx><Product>` pin-and-profile descendant) + ADDED `neutral-product-pin` (commit + per-file sha256 + `pinned_by_commit_only`, tag-only refused, fail closed on an uninitialized submodule or digest drift); MODIFIED `trust-anchor` (custody registry resolved from the pin) + MODIFIED `review-authority-intake` (the reader is the pinned tool inside a REQUIRED consumer check) | 1 | **PROPOSED 2026-08-26 as `split-openxwallet-repo`** (PR opensoft/openxFactory#391) and **RATIFIED 2026-08-26** by Brett Heap in session, AS PROPOSED — R1-R8 standing unchanged, Q1-Q5 carried at the design's dispositions (Q1/Q2/Q3 travel, Q4/Q5 decided); realization proceeds through Speckit features, one per `tasks.md` group, not `/opsx:apply`. Registered 2026-08-26 — origin is Brett's two questions (is openXwallet a repo or features in another repo; do domains integrate the neutral product directly or through a `<Domain>Wallet` that pins it) and his ruling the same day, verbatim: "approve R1-R8 as recommended, stage the topic and propose". **ALL EIGHT RULINGS SETTLED** — R1 `opensoft/openXwallet` on the house `openX<type>` form (which owes `docs/openxdox-naming.md` an Amendment 2, since that ratified record currently names `openxWallet` as a family EXCEPTION); R2 machine keys FROZEN in v1 (paths, capability ids, the `xfactory_wallet_*` kind prefix, the envelope kind, finding codes — a rename in the same change as the move is unbisectable, and LedgerxFactory pins five kinds and several finding-code strings by name); R3 the new repo owns the wallet's own standard (both contract families + corpus, validator, syntax gate, CI workflow, the two promoted specs, Speckit 006/010/012, the `2026-08-08-add-openxwallet` archive) while openxFactory keeps the SEAM (`governance/review-authority/`, Speckit 013/014, the trust-anchor / identity-brokering / roles-authority-model compositions, all ideation provenance) — which amends the aggregation's working rule #1; R4 the pin is BIDIRECTIONAL and acyclic (openxFactory pins openXwallet by commit + per-file sha256 + `pinned_by_commit_only`; openXwallet vendors exactly ONE openxFactory artifact, `contracts/schemas/hermes-job-envelope.schema.yaml`, because validator rule (g) reads it); R5 root-level `openXwallet/` submodule in the aggregation, on the DTN-022 precedent; R6 the register STAYS (codexFactory's merge-gate floor pins `governance/review-authority/register.yaml` in `opensoft/openxFactory` and refuses wildcards) while its READER travels with the validator as a generic authority-register mode; R7 descendants are `MedxWallet` / `LedgerxWallet` / `codexWallet` / `OpsxWallet` / `AdxWallet`, the `<Domainx><Product>` form all four existing descendants use; R8 `LedgerxWallet` first, at extraction time, because LedgerxFactory is the only live consumer. The load-bearing FINDING is that the descendant repo is already the house standard with **no counter-example** — openChart -> MedxChart, openPractice -> MedxPractice, openAvatar -> MedxAvatar/LedgerxAvatar — so this topic ratifies the pattern ONCE as a general standard instead of paying for a fourth bespoke boundary change. First release is a **byte-identical pure move**: the eight artifact sha256s must equal openxFactory HEAD's manifest rows before `wallet-v1.0` is tagged. 5 open questions, none blocking the move — Q1 (promote the register as a wallet primitive vs split the reader back) is expected to TRAVEL to the council rather than resolve, since either answer converts a provably-empty diff into a design change. Hard sequencing: LedgerxFactory's forward-compatible finder lands BEFORE openxFactory sheds (its `validate_wallet_estate.py::find_openxfactory()` fails loudly, never skips), `wallet-v1.0` exists before openxFactory changes, and consume-and-shed is ONE atomic PR because `validate-trust-anchor.py` hard-exits without the custody registry. Verified NOT affected: hermes-install reseed (wallet content is not in `CONTENT_KINDS`) and codexFactory (the register does not move). **EXIT TAKEN — the change is ARCHIVED 2026-08-28** as `openspec/changes/archive/2026-08-28-split-openxwallet-repo/`, on merged-plus-green realization evidence across six repositories (openXwallet at `wallet-v1.0` then `wallet-v1.1`; openxFactory at `contract-v1.47` then `contract-v2.0`, which shed 92 local copies; codexFactory #117; xFactory #161; LedgerxFactory #25/#29/#30/#31; OpsxFactory #129) plus the first descendant LedgerxWallet at `lxw-v1.0`. **The row and the fragment are KEPT ON DISK as provenance**, on the `agent-wallet-identity` precedent above — that topic's change archived 2026-08-08 and its row stayed because the staged fragment remains on disk carrying the deferred material, which is the same reason here. **The topic is NOT fully exited**: it still carries a LIVE successor exit, `create-ledgerxwallet-overlay-boundary`, ratified and realized but an ACTIVE change still |
+| [wallet-carried-work-authority](#wallet-carried-work-authority) | MODIFIED `openxwallet` (openXwallet-owned — `scope.objects` extended BELOW REPOSITORY GRANULARITY as ordered literal path prefixes, with PREFIX CONTAINMENT added to the attenuation rule beside its set-subset test; `author` and `merge` given named readers and declared constraints the way `review` has them); ADDED `work-authority-intake` in openxFactory (sibling of `review-authority-intake` — a required check reading AUTHOR grants at pull-request open and MERGE grants at the merge gate, exercise recorded); MODIFIED `neutral-product-pin` realization (the digest pin bumps to the openXwallet release carrying the extension) | 1 | Registered 2026-09-02 from **Brett Heap's ruling in session that same day**, choosing option 2 (extend the grant schema) over option 1 (make the three-repo schema the default wherever spec and code authority diverge) — verbatim reasoning: option 2 matches the ratified doctrine that layout confers nothing; option 1 quietly re-imports layout as an authority carrier. **THE CLAIM THAT MAKES IT WORTH RAISING:** `add-wallet-carried-review-authority` demoted the SPEC/CODE/ASSEMBLY three-repository schema to a human election that "changes no gate, no floor, no grant, and no clearance eligibility" — and that demotion is TRUE IN THE PROSE AND FALSE IN THE MACHINERY. Grant objects are repo-granular in practice (the live `grant-mrc-0001` scopes `review` to `opensoft/openxFactory`), the schema carries NO path or branch narrowing, and only `review` is an act with a reader, so the ONLY way to seat spec authority and code authority separately over one project today is to put spec and code in different repositories. The confers-nothing schema is therefore SILENTLY LOAD-BEARING, and this topic makes it genuinely optional by removing the coupling from the AUTHORITY side rather than the layout side. Three verified substrate facts shrink the delta and shape it: the `identifier` pattern `^[A-Za-z0-9][A-Za-z0-9._:/-]*$` ALREADY admits `opensoft/openxFactory:openspec/`, so the path form is a SEMANTIC delta to attenuation and not a grammar one; there is NO closed act enumeration anywhere in openXwallet (`REVIEW_ACT_TOKEN = "review"` is the one token with a reader), so the act work is READER-and-constraint work; and `xfactory_wallet_distinct_holder_constraint` already takes `object_kind` + `acts.prior`/`acts.subsequent`, so author-versus-review is a new INSTANCE, not a new shape. **A CORPUS HOLE FOUND WHILE CHECKING Q2 AND RECORDED AS A CONFLICT:** `review-authority-intake` carries a ratified requirement about "the approval act", but NO `approve` act token exists in openXwallet — approval is an `approval_posture`, not an act — so `merge` is recommended as a DISTINCT ACT rather than `approve` at a higher custody tier. 7 falsifiable claims (layout confers nothing; prefix containment is the narrowing test; author and review over one object cannot be one holder; a worker NEVER holds an author grant as key access — `access_secrets: false` is a schema-level `const`, so the act is exercised under tier-1 human authority with a tier-2 attestation per `signed-execution-chain`; branch protection and CODEOWNERS stay layout-bound external enforcement and cannot be the carrier). 7 open questions, all `open`, each carrying a real recommendation: Q1 ordered literal path prefixes with NO globs and NO negation (a glob's cover is not decidable by inspection; `A but not A/b` is not narrower than `A` under any containment test); Q2 `merge` as a distinct act; Q3 TWO SEQUENCED CHANGES — `extend-openxwallet-object-scope` in openXwallet first, then `add-wallet-carried-work-authority` here carrying the pin bump as its own first task; Q4 one required status check, with any ruleset or CODEOWNERS a drift-checked PROJECTION of the register and never read back as the authority fact; Q5 PR-open plus merge gate rather than per commit (intra-branch commits covered by chain attestations); Q6 ASSEMBLY as another path prefix, no ASSEMBLY-specific object kind; Q7 its own register beside the review one, sharing the reader but not the file (the staleness bound is per-surface and merge needs a tighter one than convening). EXPLICITLY NOT CHANGED: `shared-contract-ownership` co-residence, `adopt-neutral-tooling-home`, and the SPEC/CODE/ASSEMBLY schema itself, which stays human-elected and is now DECOUPLED from authority legibility. BLOCKED ON THE PREDECESSOR'S UNBUILT HALVES: S3 exercise recording is half-merged (6.1 merged at `401da4f` 2026-08-27; 6.2–6.8 unchecked, 6.4 has not decided where exercise records are stored) and S5 revocation lifecycle is four pull requests, NONE MERGED — and `register.yaml` says in its own header it is not a revocation surface (`revocation_staleness_bound: P7D`), which bites harder at a merge gate than at a convening because merge is irreversible |
 
 ## hermes-stack-topology-per-client
 
@@ -1295,8 +1296,10 @@ repo scope.
   one-off.
 - Files:
   - [notebook-projection-identity.md](notebook-projection-identity/notebook-projection-identity.md)
-    — primary: 6 claims, live `xspec:candidate` Why/What changes/Impact
-    sections (first fresh conformer of `staged-topic-outline-template`),
+    — primary: 6 claims, Why/What changes/Impact sections (first fresh
+    conformer of `staged-topic-outline-template`) whose `xspec:candidate`
+    markers were LIVE until the archive and are now CONVERTED, 2026-08-31,
+    to `xspec:supersedes ... change=add-notebook-projection-identity`,
     4 idea notes, 3 conflicts, 5 questions each with
     Context/Recommended answer/Explanation/Disposition status — all five
     DISPOSITIONED 2026-08-23, each carrying a dated disposition paragraph
@@ -1399,6 +1402,56 @@ repo scope.
   raising the change, so the topic exits via `add-notebook-projection-identity`
   rather than waiting. Opensoft's install is the declared Case A instance
   the change's migration path applies to.
+- **RETIRED FROM STAGING 2026-08-31 — the exit was TAKEN and the change is
+  ARCHIVED** at `openspec/changes/archive/2026-08-31-add-notebook-projection-identity`.
+  The exit above described one combined change; that is exactly what ran.
+  Both MODIFIED deltas are PROMOTED into canon —
+  `lifecycle-notebook-projection` (+3 added, ~2 modified) and
+  `credential-contracts` (~1 modified) — measured rather than assumed: 6 delta
+  requirements in, 6 out, **all six bodies byte-identical**, 32 delta scenarios
+  carried. Ratified 2026-08-23, realized at squash `40b33845` (PR #277), the
+  migration run 2026-08-24 (PR #289: 7 books, 626 managed sources), parity
+  PROVEN against the corpus scan under the amended
+  `add-projection-title-uniqueness` rule 2026-08-25, and the seven legacy books
+  retired BY RENAME 2026-08-26 with nothing deleted.
+  **TWO THINGS THE ARCHIVE DID NOT CLOSE, named here rather than left in the
+  packet alone:**
+  - **§ 4.7 was RE-SCOPED, not completed.** Brett Heap ruled 2026-08-31 (in
+    session, by explicit multi-choice) that the **Gmail grantee is DROPPED and
+    the second reader is not wanted**, so the task's satisfying set is the seven
+    verified `brett.heap@farheap.com` editor grants — **7 of 7**. The ruling is
+    consistent with two prior ones rather than new: the 2026-08-27 wind-down of
+    the legacy books **by owner deletion** and the 2026-08-24 **sole-grantor**
+    posture (RESTRICTED, org-visible rejected). The provider's account-level
+    refusal of `brett.heap@gmail.com` — both spellings, `API error (code 7)`,
+    isolated against the farheap address succeeding on all seven in the same
+    session — stands as a **finding**, and nobody is owed the act it blocked.
+  - **§ 5.1 archives STANDING AS A DISPOSITION, deliberately unticked.**
+    Unattended re-authentication does not exist: Google's sign-in for
+    `xFactor001@opensoft.one` is interactive, `nlm login` is broken UPSTREAM by
+    the notebook.google.com rebrand (the CLI's `_is_notebooklm_url()` allow-list
+    excludes the new host, so `is_logged_in()` reports false for a browser that
+    IS signed in), and `add-notebook-hosting-credential-custody` states in
+    ratified text that custody **does not deliver automation**. Carried to the
+    named successor **opensoft/openxFactory#537**;
+    `docs/notebooklm-sync-open-item.md` stays OPEN and points there. § 4.3's
+    code gap (`ensure_workspace_record()` returns without registering a
+    replacement `provider_notebook_id`) is filed at
+    **opensoft/openxFactory#536**.
+  **The topic folder `ideation/staging/notebook-projection-identity/` is
+  RETAINED as provenance, not deleted** — unlike
+  `substantive-review-lane-questions`, which was named-not-linked because its
+  tracked proposal's origin was `ad_hoc`. This topic's origin IS `staged` and
+  the fragment remains readable in place; deleting staged source is a separate
+  disposition nobody has ruled. This row and section are KEPT as the topic's
+  index entry and its exit record. **The fragment itself was brought into line
+  2026-08-31**, which "retired from staging" above had asserted but the file had
+  not yet said: it now reads `Status: superseded` with `Superseded by:` and
+  `Exit taken:` naming the archived change, and its four `xspec:candidate`
+  fences are CONVERTED to `xspec:supersedes` markers carrying
+  `change=add-notebook-projection-identity` — nothing deleted, so the blocks
+  leave the conversion queue by having been converted rather than by being
+  dropped out of it.
 
 ## doxbench-editing-model
 
@@ -1685,7 +1738,49 @@ repo scope.
   and the expansion includes patients putting PHI portions on chain and working
   with hospitals and insurers through it — which this topic architects honestly
   as salted keyed commitments and anchored consent CHECKPOINTS on chain, records
-  never, raising the narrowing as Q6 rather than assuming it.
+  never, raising the narrowing as Q6 rather than assuming it. **Brett CONFIRMED
+  that reading on 2026-08-29**, so the architected form IS the ruling's operative
+  form rather than a topic's interpretation of one.
+- **DISPOSITIONED 2026-08-29 — all seven open questions ruled by Brett Heap in a
+  clarify sitting.** Q1 (wallet presentation in the shipped grant vocabulary plus
+  proof-of-possession, recorded in the ratification record, no new artifact), Q2
+  (the on-chain boundary as contract text with a validator refusing
+  payload-shaped records AND unsalted commitments), Q4 (tranche one = links 1–3
+  only; the transparency log is a tranche-1 artifact; the gate exists from
+  tranche one) and Q7 (remote signing served by the harness controller, the
+  runner's REQUEST recorded beside the signature, the controller corroborating
+  against its own link-4 setup attestation; HSM a later hardening) were ruled AS
+  RECOMMENDED. Q6 was CONFIRMED as recommended. **Q3 and Q5 DIVERGE**, and the
+  divergences are labelled where they land in the fragment. Every gate is open:
+  Q3/Q6 gated tranche 3, Q7 gated tranche 2's contract text, tranche 1 was never
+  gated.
+- **Q3's divergence, in two rounds and recorded as such.** Round 1, verbatim:
+  "lets [sic] use Kaspa as primary and bitcoin as secondary" — inverting the
+  study's ordering. It is kept in the record because a two-round ruling is only
+  honest if the first round survives inside it. Cost facts were then put to him
+  (Kaspa ~$0.000001/tx; Bitcoin-via-OTS $0 marginal per item on public calendars
+  and ~$2.1k/yr for a self-run hourly calendar; a raw BTC transaction
+  $0.12–0.36 with a spike history; a cheaper sidechain adds federation trust and
+  saves nothing), and round 2 is the operative configuration:
+  **"Bitcoin-via-OTS on
+  everything"** — BOTH witnesses on EVERY anchored item, **Kaspa FIRST** as the
+  primary/OPERATIONAL witness under the study's three unchanged conditions,
+  **Bitcoin batched via OpenTimestamps as the DURABILITY witness with ten-year
+  claims citing Bitcoin**, no selectivity and no third chain, receipts
+  chain-agnostic and multi-anchor carrying BOTH proofs. "Primary" is order of
+  arrival, never evidentiary weight — the ~3-day pruning finding is carried
+  forward untouched. The vendored study is NOT edited: it is a dated research
+  record, and one rewritten to agree with a later ruling stops being evidence.
+- **Q5's divergence: RULED AGAINST THE RECOMMENDATION.** "Allow contract code
+  later." Today's posture is preserved exactly as recommended — the anchoring
+  chains are evidence-only and no tranche now planned puts contract code on any
+  of them — but the change MUST NOT constitutionalize "no contract code ever" and
+  MUST NOT gate a future adoption on the recommendation's stated trigger. A
+  future change MAY adopt on-chain contract code on its own merits. The study's
+  regulatory caution (EDPB/HIPAA posture, unaudited-stack risk, the
+  irrevocable-deployment class) is RECORDED AS ADVISORY CONTEXT for that future
+  change, not as a gate on it. Encoding a "not now" as a "never" would be the
+  quiet-narrowing defect this topic already refused at Q6, run in reverse.
 - Files: `signed-execution-chain.md` (primary fragment, template-conformant);
   `chain-selection-study.md` (vendored research input, 2026-08-27 — the
   chain-selection study answering Q3, carried verbatim below a relabelled header;
@@ -1707,8 +1802,9 @@ repo scope.
   The constraint reaches the attestation key as well, which the first draft
   missed and the review round caught: the runner never holds it either, so the
   controller SIGNS on the runner's request and no key bytes cross into a worker
-  — "ephemeral" is a lifetime, not a relaxation of custody (Q7 names the
-  mechanism).
+  — "ephemeral" is a lifetime, not a relaxation of custody. **Q7 RULED the
+  mechanism 2026-08-29**: remote signing served by the harness controller, with
+  the runner's signing REQUEST recorded alongside the signature it received.
 - The PHI architecture is the part that must not be hand-waved: **raw PHI never
   goes on a public chain**, because append-only + world-readable + permanent are
   each individually incompatible with HIPAA, and "encrypted on chain" only makes
@@ -1738,20 +1834,25 @@ repo scope.
   attestation that reaches the chain is permanent. That argues for anchoring LATE
   — committing only what has been validated — and is a design constraint on
   tranche three.
-- 7 open questions, none blocking tranche one — Q3 and Q6 are tranche-three
-  blockers, Q7 gates tranche two's contract text: wallet-presentation mechanics; the exact
+- 7 questions, ALL RULED 2026-08-29 — they were the topic's open set and are
+  kept here as the record each disposition is read against. None ever blocked
+  tranche one; Q3 and Q6 were the tranche-three blockers and Q7 gated tranche
+  two's contract text, and all three gates are now open. The set:
+  wallet-presentation mechanics; the exact
   on-chain boundary (recommended as a REFUSING validator rather than prose,
   mirroring how the hosting record refuses secret-shaped fields by name — and now
-  refusing UNSALTED commitments too); chain selection — **the research fan-out is
-  COMPLETE and vendored as `chain-selection-study.md`**, so Q3 cites its
+  refusing UNSALTED commitments too); chain selection — **the research fan-out
+  COMPLETED and is vendored as `chain-selection-study.md`**, so Q3 carried its
   recommendation (Bitcoin primary anchor via OpenTimestamps aggregation, Kaspa
   optional secondary under three conditions, consent logic in the permissioned
-  layer, no contracts on the anchoring chain) and awaits a RULING rather than more
-  analysis; tranche boundaries; whether smart contracts or an L2 are in scope
-  (evidence-only confirmed, with Ethereum L2 + EAS as the answer IF public
-  programmability is ever forced); and **Q6 — whether the ruling's "patients put
-  PHI portions on chain" means COMMITMENTS**, the one place the topic interprets a
-  ruling rather than applying it, raised for Brett rather than assumed; and
+  layer, no contracts on the anchoring chain) into a ruling that **inverted its
+  ordering and dropped its optionality**; tranche boundaries; whether smart
+  contracts or an L2 are in scope (evidence-only for today, but the "never" was
+  **overruled** — Ethereum L2 + EAS remains the study's answer IF public
+  programmability is ever forced, as advice rather than as the only door); and
+  **Q6 — whether the ruling's "patients put PHI portions on chain" means
+  COMMITMENTS**, the one place the topic interpreted a ruling rather than
+  applying it, raised for Brett rather than assumed and **CONFIRMED by him**; and
   **Q7 — where an attestation signature physically happens**, added by the
   review round on this topic's own PR, which correctly read the draft's per-task
   key as runner-held custody.
@@ -1760,22 +1861,178 @@ repo scope.
   fairness holds; operational capture — pool concentration, a miner targeting ~16%
   of hashrate, VC-funded L2s absorbing core devs — does not support the absolute);
   "Bitcoin is just too expensive" **REFUTED for anchoring** (Merkle aggregation
-  makes it ~$0 marginal, ~$2.1k/yr even self-anchoring hourly) — this refutation is
-  what moved Bitcoin into the primary-anchor seat; "KAS is fractions of a penny"
+  makes it ~$0 marginal, ~$2.1k/yr even self-anchoring hourly) — this refutation
+  is what moved Bitcoin into an anchor seat at all, the study's primary one and,
+  after the ruling, the durability witness on every anchored item; it is also
+  what turned Q3's round one into round two; "KAS is fractions of a penny"
   **CONFIRMED and understated** (~$0.000001–0.000003), with the honest caveat that
   it partly reflects low demand and an unfunded security budget.
-- Exit path: OpenSpec change(s) in three tranches. **Tranche 1 — signed
+- Exit path: OpenSpec change(s) in three tranches, and **no tranche is held by a
+  question any more** after the 2026-08-29 sitting. **Tranche 1 — signed
   ratification + atomic enrollment, plus the off-chain signed transparency log
-  that IS the record — is composable TODAY** and needs no omnigent layer and no
-  chain. Tranche 2 (harness + runner attestation) needs the omnigent
-  layer and the PKI plane. Tranche 3 (on-chain anchoring) needs rulings on Q3 and
-  Q6, and builds the chain-agnostic MULTI-ANCHOR RECEIPT first — the receipt is
-  what keeps the anchor choice reversible over a 10-year horizon, and it carries
-  the anchor transaction and its inclusion proof rather than a block header and
-  a transaction reference, which prove nothing once the transaction is pruned.
-  The chain-validating gate should exist FROM TRANCHE ONE validating a short
-  chain, so the refusal path is exercised from the start rather than first tested
-  when it matters most.
+  that IS the record — is composable TODAY and was never gated**; it needs no
+  omnigent layer and no chain, and Q4 fixed its boundary at links 1–3. Tranche 2
+  (harness + runner attestation) had its question-gate opened by Q7 and may now
+  name the signing mechanism in contract text; what remains for it is machinery,
+  the omnigent layer and the PKI plane. Tranche 3 (on-chain anchoring) had both
+  its question-gates opened by Q3 and Q6; it builds to the RULED configuration
+  (Kaspa first, Bitcoin-via-OTS on everything), builds the chain-agnostic
+  MULTI-ANCHOR RECEIPT first — the receipt is what keeps the anchor choice
+  reversible over a 10-year horizon, and it carries the anchor transaction and
+  its inclusion proof rather than a block header and a transaction reference,
+  which prove nothing once the transaction is pruned — and waits on the PKI plane
+  rather than on a ruling. The chain-validating gate should exist FROM TRANCHE
+  ONE validating a short chain, so the refusal path is exercised from the start
+  rather than first tested when it matters most; Q4 ruled that sequencing.
+- **EXIT 1 IS RAISED, 2026-08-29 — the active change `add-signed-execution-chain`**
+  (`openspec/changes/add-signed-execution-chain/proposal.md`), carrying links 1–3
+  plus the transparency log plus the short-chain gate, with a NEW neutral
+  `signed-execution-chain` capability of nine ADDED requirements. **NOT recorded
+  as `Exit taken:`, deliberately**: that record silences `staged-candidate-aging`
+  only when it names an ARCHIVED change, and this topic must keep ageing while
+  tranches two and three are unraised. The packet renames link 2's act **`chain
+  inception`** — `specs/025-openxfactory-review-lane-caller/spec.md` FR-008
+  already owns "enrollment" here for the entry of a candidate class into a
+  `merge-approval-envelope`, and a second adjacent sense on the same pull
+  requests is the collision the 2026-08-28 seats named as the live risk.
+- **The packet is AMENDED TO THE SEVEN RULINGS** (`#499`, squash `9c501df6`) and
+  no longer carries a clarify round of its own: Q1's answer is encoded as ruled
+  rather than flagged, Q4's two sequencing facts are met by the transparency-log
+  and short-chain-gate requirements, and Q5 is restated so that **no trigger
+  condition is written here in advance**. Q2, Q3, Q6 and Q7 govern the later
+  tranches and are recorded, never pre-encoded — the packet names no chain, no
+  anchor and no contract-code posture.
+- **NARROWING A IS ADOPTED — ruled by Brett Heap, 2026-08-29, in session.** Tier 1
+  is **RATIFYING** authority. Agent-held **REVIEW** wallets stay lawful, so the
+  realized `wal-agent-mrc-0001` is untouched; what the gate refuses is an
+  agent-held wallet performing the **ratifying** act. The literal tier-model
+  sentence would have refused an artifact this repository already runs, and the
+  ruling narrows the tier rather than the artifact. Narrowing B — Q1's "rather
+  than a new artifact" read as *invent no new artifact* — is carried by Q1's own
+  ruling, which says no new artifact is created for the presentation.
+- **THE COLLAPSE, ruled by Brett Heap 2026-08-29 in session.** Two parallel
+  sessions raised this same tranche into the same change directory within three
+  minutes (`#494` and `#495`). He ruled `#495` the surviving base and closed
+  `#494`, whose four hardenings are carried into this packet by harvest rather
+  than discarded: the actor-to-wallet attestation binding, per-ratification
+  uniqueness, one digest construction for every digest, and the named-reader
+  required-check rule.
+- **EXIT 2 IS RAISED, 2026-08-29 — the change `add-chain-attestation`**
+  (`openspec/changes/add-chain-attestation/proposal.md`), carrying **links 4–6 and
+  10** with **nine ADDED requirements over 108 scenarios**, plus TWO `## MODIFIED
+  Requirements` — 2 requirements over 17 scenarios, each scenario-complete: tranche
+  one's gate requirement, and its ratification/chain-inception record extended
+  with the three amendment-lineage fields closure reads. **THE §7.4 COUNCIL REVIEW IS HELD — 2026-08-30,
+  THIRTEEN blocking amendments, all discharged — AND BRETT HEAP RATIFIED IT ON
+  2026-09-01 at `f54cb5bc`, RE-RATIFYING the amended head `6d7ef17b` the same day**, in that order, on `add-binding-consumer-identity`'s pattern.
+  **RATIFICATION AUTHORIZES REALIZATION AND DOES NOT PERFORM IT**; the change stays
+  ACTIVE until merged code, green evidence and the contract cut exist. **NOT recorded as `Exit taken:`**, on
+  the same ground tranche one recorded: that record silences
+  `staged-candidate-aging` only when it names an ARCHIVED change, and this topic
+  must keep ageing while tranche three is unraised. The packet realizes tranche
+  one's declaration that the **signed hash-link rule takes effect at link 4** —
+  the first link with a signer of its own — and extends the short-chain gate's
+  walk from links 1–3 to links 1–6, the same required check walking further.
+  **Q7 is encoded as ruled**: remote signing served by the harness controller,
+  the signing REQUEST recorded beside the signature, the controller CORROBORATING
+  against its own link-4 setup attestation — with the half a mechanism cannot
+  discharge carried as a per-FACT evidence class, because Q7 settles where the
+  key lives and never whether the claims are checked.
+- **THREE PULLS THE TRANCHE-TWO PACKET RECORDS RATHER THAN SMOOTHS, AND THE
+  2026-08-30 SITTING DISCHARGED THE FIRST TWO**: **(1) Q4's re-derivation
+  instruction** — later boundaries are re-derived "when the omnigent layer and the
+  PKI plane are real", and NEITHER IS — versus raising tranche two now. **RULED
+  NOT PREMATURE BUT NARROWED**: the round did not end, and the re-derivation
+  tranche one's ratified `tasks.md:5.3` owes *"when each is raised"* is now
+  PERFORMED, dated and measured, confirming links 4–6 and 10 with no link moved.
+  **(2) Tranche one's gate scope note** — "SHALL NOT report the absence of a later
+  tranche's link as a break" — read by the packet as SELF-LIMITING and spent.
+  **RESOLVED AGAINST THAT READING**: `lead-architect` built the promoted canon and
+  found the scope note's SCENARIO still standing beside this tranche's refusal —
+  same antecedent, opposite consequent, both normative — so prose in one
+  requirement cannot repeal a scenario in another, and the packet now carries the
+  scenario-complete MODIFIED restatement it had named only as an alternative. **(3) The topic's
+  hash-link rule is SINGULAR and its link 5 is PLURAL** — "each runner attests" —
+  so "the link that precedes it" has no referent for link 6; the packet resolves
+  this one by ADDITION (an ordered, deduplicated enumeration of every predecessor,
+  a subset commitment refused), because otherwise a lane drops the attestation it
+  dislikes and still presents a continuous chain — the mix-and-match attack
+  arriving as subtraction WITHIN one execution rather than assembly across two.
+- **State: FULLY RULED, DRAFTING GREEN-LIT, and the packet is RATIFIED.** Brett
+  Heap gave the drafting green-light on **2026-08-29, in session** — the
+  authorization the clarify sitting deliberately did not give — and **RATIFIED
+  the packet the same day** (record:
+  `openspec/changes/add-signed-execution-chain/review/ratification-2026-08-29.md`).
+  Ratification authorizes tranche one only and **performs no realization** —
+  that sentence is about the RATIFYING ACT and it stands. **THE LATER COMMISSION
+  IT NAMED HAS SINCE BEEN CARRIED OUT**, in its own pull request and by its own
+  act: `contracts/signed-execution-chain/` (the four record kinds plus the one
+  digest construction, `xfc-jcs-sha256-1`), the packaged corpus (7 positives, 26
+  negatives, every closed refusal code red-proven), the NAMED READER
+  `scripts/validate-signed-execution-chain.py`, and the running
+  `signed-execution-chain-gate` check. **AND THE PART THAT CONFERS ANYTHING IS
+  NOW DONE TOO, 2026-08-31**: the check is REQUIRED in the branch ruleset
+  (opensoft org ruleset **21957695** — the operator act, task 4.5), and a
+  deliberately broken chain was seen failing a real pull request before the
+  packet was allowed to say so (canary **#549**, run `33455808456`, one named
+  refusal, PR BLOCKED, closed unmerged — task 4.6). The conformance declaration
+  records `is_required_in_ruleset: true`, requirement 9 is MET rather than
+  partially met, and the standing `reader-not-required` warning no longer fires.
+  `target_release` was
+  re-counted at the realization tip — and **re-counted AGAIN when
+  `add-binding-consumer-identity` cut and tagged `contract-v2.4` alone (#526,
+  `afdf0e88`), whose inventory carries none of this family's members**. Both
+  v2.3 and v2.4 are SPENT; the next additive number was `contract-v2.5`.
+  Registration rode that cut rather than reserving it, which is why a number
+  that had moved twice was written into no contract byte. **THE CUT IS TAKEN**:
+  `contract-v2.5` registers all five schemas with per-file `sha256` in
+  `contracts/manifest.yaml`, and 4.7 is closed. **4.5 and 4.6 are closed too, as
+  of 2026-08-31** — they were the ones that decided whether the family confers
+  anything, and they were performed by separate acts after the archive, carried
+  at **issue #534**, where both the live ruleset read and the canary's four
+  conjuncts are quoted verbatim — as they are again under §§ 4.5/4.6 of the
+  archived `tasks.md` and in PR #549's closing comment.
+- **EXIT 3 IS RAISED, 2026-08-29 — the DRAFT change `add-chain-anchoring`**
+  (`openspec/changes/add-chain-anchoring/proposal.md`), the public anchoring layer
+  plus the permissioned consent plane, as a NEW neutral `chain-anchoring`
+  capability of **nine ADDED requirements over 89 SCENARIOS** (52 scenarios at
+  the head its council judged; its 2026-08-30 fix round and nine bot rounds
+  added thirty-seven scenarios and no new requirement). It builds to the
+  RULED configuration — Kaspa first as the operational witness under its three
+  unchanged conditions, Bitcoin via OpenTimestamps on every anchored item as the
+  durability witness, no selectivity, no third chain — with the **multi-anchor
+  receipt built FIRST** in its corrected form (transaction bytes and inclusion
+  proof captured whole, refused at capture time if missing), Q2's boundary as
+  contract text with a refusing validator, Q6's commitment reading as its
+  operative form, and anchor-late. **`Status: draft` — ratification is NOT sought
+  by its landing**: a §7.4-shaped council reviews it OUTSIDE the clearance
+  pipeline and Brett's ratification follows, on
+  `add-binding-consumer-identity`'s pattern. The packet's own largest decision —
+  the semantics of a missing witness, which nothing ruled answers — is **put to
+  the council** rather than presented as settled: what fails closed is the CLAIM,
+  not the factory. The change id and capability **diverge from the ratified
+  working id** `add-signed-execution-chain-anchoring`, recorded in the packet.
+  Three obligations are carried from Brett Heap's own 2024 MedxChain notes
+  (`ideation/brainstorm/medxchain-blockchain-medical-records.md`, vendored by
+  PR #509, IN FLIGHT) — verification-attempt auditing, the meta-analysis lane, and
+  the domain-instantiation boundary — plus one CORRECTION to them, the cross-plane
+  join key. **ITS §7.4 COUNCIL SAT 2026-08-30** (combined over PRs #510, #513 and
+  #509 — an instrument the disposition rules WRONG at item 9, future sittings
+  split): four seats, one ACCEPT and three ACCEPT AS AMENDED, **three blocking
+  amendments plus one folded bot finding, all discharged in the fix round**, the
+  sitting carried in `openspec/changes/add-chain-anchoring/review/`. **RATIFIED
+  2026-08-30** (record `openspec/changes/add-chain-anchoring/review/ratification-2026-08-30.md`,
+  ruling *"2 yes with note"* — the note being an unreviewed tail from `fd7c1ca7`
+  on a bot quota refusal), together with the frozen-header normalization, the
+  blessing of LS-A9, and the timing-model consolidation. **EXIT 3 IS THEREFORE
+  RATIFIED AND NOT REALIZED**; the contract family and its validator are a later
+  commission.
+  **A ruling of that sitting reaches THIS TOPIC**: its anchor-late constraint sits
+  in `## Conflicts` with no disposition stamp and is reached by none of the seven
+  Q-dispositions, so it was **NOT ruled by the topic being ruled** — the packet
+  narrowing it had to ROUTE the narrowing to its council, and the resulting rule
+  binds future packets (disposition §3.1). **The topic is still not `Exit
+  taken:`**: tranche two is in flight and no tranche is archived.
 
 ## notebook-access-wallet-governance
 
@@ -2144,3 +2401,64 @@ repo scope.
   before tagging; consume and shed in one atomic PR; aggregate the root submodule;
   repoint consumers), and the first domain descendant is `LedgerxWallet` via
   `create-ledgerxwallet-overlay-boundary` on the standard this change ratifies.
+
+## wallet-carried-work-authority
+
+- Staging ID: `openxFactory:staging:wallet-carried-work-authority`
+- Repository context: SPLIT ACROSS TWO HOMES, which is the sequencing problem.
+  `opensoft/openXwallet` owns the grant schema, the custody registry, the
+  distinct-holder constraint schema and `scripts/validate-openxwallet.py` — the
+  object grammar and the act readers are ITS deltas and cannot be authored here.
+  `openxFactory` owns the seam: `governance/review-authority/`, the consuming
+  capability `work-authority-intake` and its required check, and
+  `contracts/openxwallet-pin.yaml`, which consumes openXwallet at a commit plus
+  eight per-file `sha256`s under `neutral-product-pin` (tag-only refused; the
+  `contract_bundle_tag: wallet-v1.3` line is a label beside the commit, never the
+  referent).
+- Source: Brett Heap's ruling of 2026-09-02, in session with Claude. Two coherent
+  options were put to him — (1) keep grants repo-granular and make the three-repo
+  schema the default wherever spec and code authority diverge, which requires
+  revisiting co-residence; (2) keep co-residence and extend the grant schema with
+  path-scoped objects plus `author` and `merge` acts, then let the staged
+  `signed-execution-chain` topic carry the enrollment-to-merge gate. **He chose
+  option 2 and said "stage it as a topic".** Reasoning recorded by the session:
+  option 2 matches the ratified doctrine that layout confers nothing; option 1
+  quietly re-imports layout as an authority carrier. Origin context is the
+  ratified `add-wallet-carried-review-authority` — its "recommended project
+  schema" section and its design D1 — plus the live grant and register under
+  `governance/review-authority/`.
+- Files: 1 — `wallet-carried-work-authority.md` (the primary fragment; conforms
+  to the staged-topic outline template, with the three required sections, seven
+  open questions each carrying Context / Recommended answer / Explanation /
+  Disposition status, and `xspec:candidate` fences on Why / What changes /
+  Impact targeting `roles-authority-model`, `review-authority-intake` and
+  `neutral-product-pin`. `openxwallet` and `work-authority-intake` are
+  deliberately NOT fenced, on `openxwallet-neutral-home`'s recorded precedent:
+  neither resolves as a capability in this repository, so fencing them would emit
+  tag-hygiene unresolved-target findings).
+- The claim that makes it worth raising: the ratified demotion of the
+  SPEC/CODE/ASSEMBLY three-repository schema — adoption is a human's per-project
+  decision and "changes no gate, no floor, no grant, and no clearance
+  eligibility" — is TRUE IN THE PROSE AND FALSE IN THE MACHINERY. Grant objects
+  are repository-granular in practice, the schema has no path or branch
+  narrowing, and `review` is the only act with a reader, so the only way to give
+  one holder spec authority and another code authority over the same project is
+  to put spec and code in different repositories. The schema that confers nothing
+  is therefore the sole carrier of a distinction the doctrine calls essential,
+  and a project that declines it cannot express that distinction at all. The
+  topic fixes this on the AUTHORITY side — path-prefix objects, `author` and
+  `merge` readers, an openxFactory intake — rather than on the layout side, which
+  is exactly the difference between the two options Brett ruled on.
+- Exit: two sequenced OpenSpec changes, in this order —
+  `extend-openxwallet-object-scope` in openXwallet (object grammar, prefix
+  containment in the attenuation rule, the `author` and `merge` readers, negative
+  fixtures for a widening prefix / a glob / a negation, and a contract release),
+  then `add-wallet-carried-work-authority` in openxFactory (the capability, its
+  register, its reader, its required check, the exercise record, the
+  drift-checked projection into branch protection, and the digest-pin bump as its
+  own first task). What must be true before the FIRST is proposed: the
+  predecessor's S3 exercise recording and S5 revocation lifecycle have landed, or
+  the first change is explicitly lockstepped to them with the dependency declared
+  in its own tasks. Every open question must carry a disposition other than
+  `open`; Q1/Q2/Q6 gate change one's contract text, Q3 gates the shape of both,
+  and Q4/Q5/Q7 gate change two only.

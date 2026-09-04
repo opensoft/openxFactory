@@ -1,0 +1,59 @@
+schema_version: 1
+kind: openxfactory-intent-compliance-contract-schema
+name: policy_allowance_revocation
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/intent-compliance/v1/policy-allowance-revocation.schema.yaml"
+contract_id: intent-compliance
+contract_schema_version: 1
+title: Append-only policy-allowance revocation event
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - revocation_id
+  - registry_id
+  - allowance_id
+  - approval_digest
+  - predecessor_event_digest
+  - predecessor_revision_digest
+  - revoker
+  - revoked_at
+  - reason_code
+  - revocation_digest
+properties:
+  schema_version: {const: 1}
+  kind: {const: policy_allowance_revocation}
+  revocation_id: {$ref: "#/$defs/identifier"}
+  registry_id: {$ref: "#/$defs/identifier"}
+  allowance_id: {$ref: "#/$defs/identifier"}
+  approval_digest: {$ref: "#/$defs/digest"}
+  predecessor_event_digest:
+    oneOf:
+      - {$ref: "#/$defs/digest"}
+      - {type: "null"}
+  predecessor_revision_digest: {$ref: "#/$defs/digest"}
+  revoker: {$ref: "#/$defs/authority_proof"}
+  revoked_at: {type: string, format: date-time}
+  reason_code: {$ref: "#/$defs/identifier"}
+  revocation_digest: {$ref: "#/$defs/digest"}
+$defs:
+  identifier: {type: string, pattern: "^[a-z][a-z0-9_.:-]{2,127}$"}
+  digest: {type: string, pattern: "^sha256:[0-9a-f]{64}$"}
+  authority_proof:
+    type: object
+    additionalProperties: false
+    required: [principal_id, authority_role, authority_source]
+    properties:
+      principal_id: {$ref: "#/$defs/identifier"}
+      authority_role: {$ref: "#/$defs/identifier"}
+      authority_source: {$ref: "#/$defs/authority_source"}
+  authority_source:
+    type: object
+    additionalProperties: false
+    required: [repository, path, revision, content_digest]
+    properties:
+      repository: {type: string, pattern: "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"}
+      path: {type: string, minLength: 1, maxLength: 512, pattern: '^(?!\.{1,2}(?:/|$))[A-Za-z0-9._-]+(?:/(?!\.{1,2}(?:/|$))[A-Za-z0-9._-]+)*(?![\s\S])'}
+      revision: {type: string, pattern: "^[0-9a-f]{40}$"}
+      content_digest: {$ref: "#/$defs/digest"}

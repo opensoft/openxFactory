@@ -1,0 +1,29 @@
+# THE GENESIS LEAF — the wallet-presented ratification, position 0, carrying no
+# predecessor because there is nothing before it.
+#
+# Its payload digest is taken over the RATIFIED SUBJECT: this leaf records the
+# presentation that proved the ratification OF THAT SUBJECT, so the content
+# digest is what it commits to. The inception leaf beside it commits to the chain
+# identity instead — one construction, two subjects, each named.
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0000
+leaf_index: 0
+tree_size: 1
+chain_ref: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+leaf_type: wallet_presented_ratification
+recorded_at: '2026-08-30T10:00:00Z'
+payload_ref: exr-ratify-0001
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: ratified_subject
+  value: sha256:dfedf73b9f4b91683dfa36ef6ae363c23a7e65315d507d3f094f0ad45bdbdb84
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:39b9bc5b50b565b41e6ffc35a94f51a9f354b80cbd56c3fc95315f23cbd50bdf
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-0001
+  signed_over: leaf_content
+  signature: DJ7mD1vtp_W2pkoez4bTR07ZiNWmYpMAwPBIXXYzAwYE1QHA2JBxB5P8Tcbc8WurDoYCHsEjZvPdyk-wfpXiBA

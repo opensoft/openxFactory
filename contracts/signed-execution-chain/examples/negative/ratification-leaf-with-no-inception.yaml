@@ -1,0 +1,35 @@
+# expected_failure: ratified_but_uninscribed
+# expected_failure_detail: wallet-presented ratification and no chain inception
+# VIOLATES requirement 3's atomicity. The log records that a ratification was
+# PRESENTED and records no inception for it — the two halves of ONE signed act,
+# one written and the other not.
+#
+# Either both stand or neither does. A ratified-but-uninscribed half-state is
+# refused rather than read as a record awaiting completion, because a later
+# reader would otherwise mistake it for a ratification.
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-n10
+leaf_index: 4
+tree_size: 5
+chain_ref: sha256:f3451ff33721818042d2e04f9e68cfb2a4d0a1ea1de13f80e5b39165853f69d1
+leaf_type: wallet_presented_ratification
+recorded_at: '2026-08-30T10:04:00Z'
+payload_ref: exr-n10
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: ratified_subject
+  value: sha256:dfedf73b9f4b91683dfa36ef6ae363c23a7e65315d507d3f094f0ad45bdbdb84
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:59ddc48363d52263e1a96586876ce5ab36e446e1ac0b7adf38b16cbbe8dc6127
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:2ae73dbb0f736811632c2967ac326b4fad9c7507cff34aa02c106747d33edaf8
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-0001
+  signed_over: leaf_content
+  signature: nX8BXzO1yuXVQz_nGwZSeYoy3DoRW3z_awxXoRQm9WoSDRnlQ4wg6IqKQ6e4wjsMhVLr48UIavaO3muTLuUBCg

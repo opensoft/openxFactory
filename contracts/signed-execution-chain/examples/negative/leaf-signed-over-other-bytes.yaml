@@ -1,0 +1,57 @@
+# expected_failure: leaf_signature_invalid
+# VIOLATES requirement 6's "record every act as a SIGNED LEAF". The leaf's
+# digest, index, tree size and hash link are all correct, and its SIGNATURE is
+# over other bytes.
+#
+# The reader verifies a leaf signature wherever the leaf's key resolves to a key
+# a carried wallet declares — as it does here — and refuses a leaf whose
+# signature does not verify. Where the key does NOT resolve, an operator's store
+# signing identity this tranche defines no custody for, the reader reports the
+# signature UNVERIFIED rather than treating an unresolvable key as a pass; that
+# bound is recorded in SEC-R6 of the packaged conformance declaration.
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-n25
+leaf_index: 4
+tree_size: 5
+chain_ref: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+leaf_type: gate_verdict
+recorded_at: '2026-08-30T10:04:00Z'
+payload_ref: vdt-n25
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: gate_verdict
+  value: sha256:383c4e64c593eb5ec44137eaddedaa3bf5b1eb64264a55a8c9196f895c23d7e4
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:59ddc48363d52263e1a96586876ce5ab36e446e1ac0b7adf38b16cbbe8dc6127
+verdict:
+  outcome: permitted
+  scope: links_1_3
+  checks:
+  - check: ratification_signature_verifies
+    outcome: pass
+  - check: chain_identity_recomputes
+    outcome: pass
+  - check: exercise_object_ref_is_content_digest
+    outcome: pass
+  - check: inception_leaf_commits_to_chain_identity
+    outcome: pass
+  - check: traveling_contract_carries_established_values
+    outcome: pass
+  - check: actor_bound_to_signing_wallet
+    outcome: pass
+  - check: proof_of_possession_supplied_and_verified
+    outcome: pass
+  - check: standing_and_holder_class_at_exercise
+    outcome: pass
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:e24af7b408e15e5c93f969a8a6d9df4015c4259c0a2a717daad2f4e3f800d194
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-0001
+  signed_over: leaf_content
+  signature: Y_t1846xtw36SqxqlrRMLklk3F_N1v3Zvt8aKnZ3rXkcc97FG9woOPgE5cnAHWo7XLFwbUvvD0DMi9AIJnWmAA

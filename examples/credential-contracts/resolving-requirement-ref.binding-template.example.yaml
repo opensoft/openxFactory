@@ -1,0 +1,58 @@
+# POSITIVE (add-requirement-ref-resolution-integrity § 4.3, OQ-4): THE SILENT
+# DIRECTION, AS ITS OWN FILE.
+#
+# Two bindings, DISTINCT secret references, and a qualified `requirement_ref` on
+# each resolving to EXACTLY ONE requirement of the document it names. Nothing is
+# reported: no error, no warning, and in particular neither
+# `requirement-ref-unresolved` nor `requirement-ref-ambiguous`.
+#
+# THIS IS THE FIXTURE THAT DISTINGUISHES A WORKING CHECK FROM ONE THAT FIRES ON
+# EVERYTHING. A corpus holding only the failing direction cannot tell the two
+# apart — a resolution arm that reported on every declared reference would pass
+# both `warning/requirement-ref-unresolved.yaml` and
+# `warning/requirement-ref-ambiguous.yaml` and would be caught only here. It is
+# ITS OWN FILE rather than a third binding on an existing positive so that a
+# regression in the silent direction NAMES ITSELF: the self-test's failure line
+# carries this filename instead of one that probes something else.
+#
+# NO SECRET IS SHARED, which is the second half of what it proves. The lift is
+# never reached, so the silence is the resolution arm's own and not the lift
+# path declining to speak. `holder_ref` and `fetch_identity` differ across the
+# two bindings, so `shared-authority-identity` has nothing to say either.
+#
+# The requirements half is `two-consumer-operated-identity.requirements.example.yaml`,
+# shared with the two-consumer positive beside it; in the self-test the corpus
+# directory stands in for the repository root, so the reference is relative to
+# it. SYNTHETIC IDENTIFIERS, on the 2026-08-29 ruling: live fetch identities stay
+# in the consuming installs' own `credentials/` trees, and a fixture owes the
+# shape.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+  display_name: Example Client (resolving-reference fixture)
+credential_bindings:
+  projection_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-sync-lane-own-secret
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-sync-lane
+      fetch_identity: example-sync-lane-workload-identity
+      requirement_ref:
+        requirement_id: projection_sync_lane
+        requirements_document_ref: two-consumer-operated-identity.requirements.example.yaml
+  projection_editor_surface:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-editor-surface-own-secret
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-editor-surface
+      fetch_identity: example-editor-surface-workload-identity
+      requirement_ref:
+        requirement_id: projection_editor_surface
+        requirements_document_ref: two-consumer-operated-identity.requirements.example.yaml

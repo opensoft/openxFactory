@@ -239,16 +239,6 @@ hermes:
     - role: domain
       display_name: {ctx.domain_layer_name}
       overlay: hermes/domain
-  # Deprecated flat keys (removal at contract-v2.0); kept for older tooling.
-  domain_layer_name: {ctx.domain_layer_name}
-  domain_overlay: hermes/domain
-  domain_agent_mixes: hermes/domain/agent-mixes.yaml
-  client_layer_name: {ctx.client_layer_name}
-  client_overlay: hermes/client
-  client_agent_mixes_template: hermes/client/agent-mixes.template.yaml
-  customer_layer_name: {ctx.customer_layer_name}
-  customer_overlay: hermes/customer
-  customer_agent_mixes_template: hermes/customer/agent-mixes.template.yaml
 
 omnigent:
   domain_overlay: omnigent
@@ -2100,6 +2090,27 @@ credential_bindings:
     secret_ref: <secret-reference-name>
     owner: <client-or-opensoft>
     rotation_policy: client_managed
+    # THIS FILE IS A STUB, AND IT SAYS SO. `consumer:` declares who holds a
+    # binding and what identity that system authenticates to the secret store
+    # with; a template written before any install, vault or fetch identity
+    # exists can declare neither, so it declares the const-true
+    # `instantiation_stub` token instead. That is the ONLY exemption from the
+    # omission warning now and from the requirement at the next major — a
+    # `*.template.yaml` FILENAME exempts nothing, because a filename is
+    # author-chosen and invisible in the bytes a pinned consumer validates.
+    #
+    # AN INSTANTIATOR REPLACES THE TOKEN, never keeps it beside live values:
+    #   consumer:
+    #     holder_ref: <the consuming system, e.g. opsx:service-subject:...>
+    #     fetch_identity: <the identity it authenticates to the store with>
+    #
+    # A placeholder here would be worse than this token, not better: it fails
+    # the identifier grammar, and a grammar-passing sentinel would read as an
+    # authority declaration while naming nothing. Scaffolding that manufactures
+    # conformance is worse than scaffolding that omits it — and scaffolding that
+    # declares its own status is better than either.
+    consumer:
+      instantiation_stub: true
 """,
         "credentials/grants.template.yaml": yaml_header(ctx) + f"""schema_version: 1
 kind: xfactory_runtime_capability_grant_template
@@ -2203,12 +2214,7 @@ schema:
     - domain.id
     - domain.product_name
     - xfactory.contract_repo
-    - hermes.domain_overlay
-    - hermes.domain_agent_mixes
-    - hermes.client_overlay
-    - hermes.client_agent_mixes_template
-    - hermes.customer_overlay
-    - hermes.customer_agent_mixes_template
+    - hermes.layers
     - omnigent.domain_overlay
     - credentials.requirements
     - credentials.broker_contract
@@ -2910,13 +2916,17 @@ def main() -> int:
 
     if not errors:
         stack = load_yaml("stack.yaml")
+        # hermes.layers is REQUIRED and must be a list: the legacy flat-key
+        # fallback read was removed at contract-v3.0, and a non-list here must
+        # be an error rather than an empty iteration that skips every overlay
+        # check and reports OK.
+        hermes_layers = stack.get("hermes", {}).get("layers")
+        if not isinstance(hermes_layers, list):
+            errors.append("stack.yaml: hermes.layers must be a list of layer mappings "
+                          "(canonical roles customer/client/domain)")
+            hermes_layers = []
         for rel in [
-            stack.get("hermes", {}).get("domain_overlay"),
-            stack.get("hermes", {}).get("domain_agent_mixes"),
-            stack.get("hermes", {}).get("client_overlay"),
-            stack.get("hermes", {}).get("client_agent_mixes_template"),
-            stack.get("hermes", {}).get("customer_overlay"),
-            stack.get("hermes", {}).get("customer_agent_mixes_template"),
+            *[layer.get("overlay") for layer in hermes_layers if isinstance(layer, dict)],
             stack.get("omnigent", {}).get("domain_overlay"),
             stack.get("credentials", {}).get("requirements"),
             stack.get("credentials", {}).get("broker_contract"),

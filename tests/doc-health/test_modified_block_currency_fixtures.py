@@ -65,7 +65,7 @@ from pathlib import Path
 
 import pytest
 
-from doc_health import INFO, WARNING, Skip
+from doc_health import ERROR, INFO, WARNING, Skip
 from doc_health import modified_block_currency as mbc
 from doc_health.promotion_fidelity import norm as norm_title
 
@@ -125,7 +125,7 @@ def _texts(units):
     return [u.text for u in units]
 
 
-# THE FIVE FINDING CLASSIFIERS.
+# THE EIGHT FINDING CLASSIFIERS.
 #
 # Each key is a fragment of ONE arm's own f-string and of no other's, and the
 # set is verified to partition every finding over every tree
@@ -165,6 +165,20 @@ CLASSIFIERS = {
     "ordering": _arm(lambda r: "the ordering of MODIFIED blocks" in r),
     "resolution": _arm(lambda r: "resolves to no promoted requirement" in r),
     "drift": lambda r: r.startswith(_DRIFT_OPENING),
+    # **THE SEVENTH AND EIGHTH KEYS** — added 2026-09-01 with
+    # `govern-sibling-added-modified-deltas`'s two classes, and both take the
+    # `_arm` guard for the reason the first five do: a drift finding QUOTES the
+    # rule text its map could not place, so an unanchored probe would match one
+    # of these through that quotation.
+    #
+    # **THE PAIRING KEY IS THE WHOLE CLAUSE AND NOT "sibling's addition".** That
+    # shorter fragment is also in `TEMPLATE_UNRESOLVED`'s fixed prose ("no
+    # active sibling's addition:"), so it would match the resolution class too
+    # and the partition below would read two hits for one finding.
+    "pairing": _arm(lambda r: "rests on an active sibling's addition rather "
+                              "than on canon" in r),
+    "collision": _arm(lambda r: "writes a requirement title" in r
+                      and "already states" in r),
 }
 
 
@@ -392,15 +406,21 @@ def test_the_351_widened_bullet_is_reported_although_the_block_contains_it():
 
 def test_the_351_findings_land_on_the_delta_path_at_the_right_severities():
     """F-CLASS. Non-empty FIRST: on an empty list every assertion below is
-    vacuous, and an empty list is exactly what a broken discovery returns."""
+    vacuous, and an empty list is exactly what a broken discovery returns.
+
+    The titles severity FLIPPED to `error` 2026-08-31 (issue #357); it was
+    `warning` through the advisory launch. The ledger arm is untouched by
+    that flip (O8), so it is still the one class this fixture's `not
+    critical` sweep excludes."""
     findings = _tree(T351)
     assert findings, "a vacuous pass is not a pass"
     assert {f.path for f in findings} == {DELTA351}
     assert {f.repo for f in findings} == {R351}
     assert {f.family for f in findings} == {mbc.FAMILY}
-    assert {f.severity for f in _of(findings, "titles")} == {WARNING}
+    assert {f.severity for f in _of(findings, "titles")} == {ERROR}
+    assert mbc._LAUNCH_SEVERITY == ERROR
     assert {f.severity for f in _of(findings, "ledger")} == {INFO}
-    assert not [f for f in findings if f.severity in ("error", "critical")]
+    assert not [f for f in findings if f.severity == "critical"]
 
 
 # ============================================================================
@@ -1134,9 +1154,17 @@ def test_two_runs_agree_byte_for_byte_on_every_tree():
     assert total > 20, f"only {total} findings — determinism over nothing"
 
 
-def test_no_new_tree_reports_an_error_or_critical_finding():
-    """F1's SC-009 says no `--fail-on` run reds on this family "on any tree".
-    Seven new trees are seven new chances to break that by accident.
+def test_no_new_tree_reports_an_unexpected_error_or_a_critical_finding():
+    """F1's SC-009 said no `--fail-on` run reds on this family "on any tree" —
+    true while the whole family launched advisory. FLIPPED 2026-08-31 (issue
+    #357): the scenario-title arm is gate-bearing now, and two of these seven
+    trees (`-history-351`, `-history-329`) reconstruct exactly the shape that
+    arm exists to catch, so they NOW legitimately red a `--fail-on error` run
+    — that is the flip working, not a regression this sweep should catch.
+
+    What SC-009 still guarantees, and what O8 reserves, is that no OTHER class
+    ever reaches `error` or `critical` on any of these seven trees. Split by
+    arm rather than asserting one band over the whole collected list.
 
     Non-empty first: "no finding is `error`" is vacuously true of no findings.
     """
@@ -1146,8 +1174,12 @@ def test_no_new_tree_reports_an_error_or_critical_finding():
         assert not isinstance(out, Skip), tree
         collected += out
     assert collected, "a vacuous pass is not a pass"
-    assert {f.severity for f in collected} <= {WARNING, INFO}
-    assert not [f for f in collected if f.severity in ("error", "critical")]
+    titles = _of(collected, "titles")
+    others = [f for f in collected if f not in titles]
+    assert {f.severity for f in titles} <= {WARNING, ERROR}
+    assert {f.severity for f in others} <= {WARNING, INFO}
+    assert not [f for f in others if f.severity in ("error", "critical")]
+    assert not [f for f in collected if f.severity == "critical"]
 
 
 # ============================================================================
@@ -1189,10 +1221,18 @@ def test_this_feature_touches_no_production_module():
     *F2* adds no behaviour is untouched. The update is recorded as F4's task T040
     and named in F4's PR body, which is exactly the handling the paragraph above
     asks for.
+
+    **AMENDED BY THE § 7.2 FLIP, 2026-08-31 (issue #357), AND NAMED AS THE
+    DEFECT IT IS: A DELIBERATE BEHAVIOUR CHANGE, RED ON PURPOSE.** The flip
+    moves `_LAUNCH_SEVERITY` from `warning` to `error` — precisely the
+    "behaviour changed" case this docstring's own rule anticipates — and
+    touches nothing else this snapshot pins: `_RESOLUTION_SEVERITY`,
+    `_LEDGER_SEVERITY` and `_DRIFT_SEVERITY` are unmoved (O8), and the public
+    callable list below gained nothing.
     """
     assert (mbc.FAMILY, mbc._LAUNCH_SEVERITY, mbc._RESOLUTION_SEVERITY,
             mbc._LEDGER_SEVERITY, mbc._DRIFT_SEVERITY) == (
-                "modified-block-currency", WARNING, WARNING, INFO, WARNING)
+                "modified-block-currency", ERROR, WARNING, INFO, WARNING)
     assert mbc.DELTA_GLOB == "openspec/changes/*/specs/*/spec.md"
     assert mbc.CANON_TEMPLATE == "openspec/specs/{capability}/spec.md"
     assert (mbc.BODY, mbc.SCENARIO_TITLE, mbc.SCENARIO_BULLET) == (

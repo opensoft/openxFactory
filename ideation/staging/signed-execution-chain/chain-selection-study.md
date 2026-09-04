@@ -23,8 +23,8 @@ the epistemic status. One citation in §1.2 labels a live price page as a
 `2026-08-28 snapshot` where every other source line reads `checked 2026-08-27`;
 the original meta line's *unless noted* clause covers exactly that case, and
 the body is not edited to reconcile it. The same policy covers a second
-citation defect, from Copilot's suppressed note: the §2 Bitcoin fee line cites
-a link labeled `Coinbase ETH/BTC price pages` that points at the Ethereum
+citation defect, recorded during the staging review: the §2 Bitcoin fee line
+cites a link labeled `Coinbase ETH/BTC price pages` that points at the Ethereum
 page — mislabeled at research time, recorded here, body left unedited. And a
 third: the Layer-1 receipt sketch (digest → Merkle path → {chain, block
 header, tx ref}) is superseded — the fragment's corrected receipt format
@@ -36,8 +36,6 @@ Original meta lines, verbatim:
 **Date:** 2026-08-27 (all prices/fees/network figures are snapshots as of this date unless noted)
 **Scope:** Deep review of Kaspa as the named candidate; comparison set (Bitcoin, Ethereum+L2, Algorand, Hedera, Cardano, Ergo, permissioned/hybrid); architecture recommendation; cost model.
 **Method note:** Every load-bearing claim carries a source and a date-check. Where sources conflict or could not be verified, that is stated inline and collected in §9.
-
----
 
 ---
 

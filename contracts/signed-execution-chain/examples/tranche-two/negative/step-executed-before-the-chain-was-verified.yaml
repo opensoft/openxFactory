@@ -1,0 +1,274 @@
+# expected_failure: step_executed_without_verified_chain
+# VIOLATES requirement 9's ordering: the executing layer runs the step first and
+# verifies the inbound chain after.
+#
+# THE WEAK VERSION YIELDS AN AUDIT TRAIL a compromised or careless lane can write
+# falsely; the strong version yields a REFUSAL, and the record becomes a by-product
+# of a control rather than a substitute for one. A record written after the fact is
+# never accepted as a precondition.
+schema_version: 1
+kind: xfactory_signed_execution_chain_conformance_declaration
+declaration_id: secd-negative-0001
+capability: signed-execution-chain
+realization:
+  realization_id: sec-realization-openxfactory-tranche-two
+  statement: 'openxFactory''s own realization of tranche two: the seven record kinds, the
+    three field disciplines, the additive extension of the shipped inception schema with the
+    four amendment-lineage fields, the packaged tranche-two corpus, and the SAME required
+    check walking links 1-6. It creates no certificate authority, mints no attestation identity,
+    holds no key and places nothing on any chain (tranche three).'
+  reader_required_check:
+    check_name: signed-execution-chain-gate
+    validator_path: scripts/validate-signed-execution-chain.py
+    is_required_in_ruleset: true
+    ruleset_ref: 'opensoft org ruleset 21957695 "openxFactory chain-gate (require signed-execution-chain-gate)":
+      target branch ~DEFAULT_BRANCH of openxFactory, enforcement active'
+    ruleset_evidence_ref: 'live ruleset read recorded on openxFactory issue #534; canary PR
+      #549 red at run 33455808456'
+declared_at: '2026-09-01T18:00:00Z'
+obligations:
+- entry_id: sec-ob-r1
+  obligation: SEC-R1
+  obligation_statement: Ratification presents wallet-carried authority, proven by possession
+    and BOUND to the exact ratification.
+  satisfaction: partial
+  reason: 'Unchanged from tranche one: the presentation is expressed entirely in the shipped
+    `openxwallet` vocabulary, and the step from `the record names this ratification` to `the
+    signature covers this ratification` is not assertable from the pinned record.'
+  declared_at: '2026-09-01T18:00:00Z'
+  declared_residual:
+    statement: '`signed_over` is an ENUM SELECTOR and the pinned schema carries no field holding
+      the signed digest VALUE.'
+    closed_by: an additive OPTIONAL signed-subject-digest field on `xfactory_wallet_grant_exercise`,
+      belonging to opensoft/openXwallet as a NAMED SUCCESSOR
+- entry_id: sec-ob-r2
+  obligation: SEC-R2
+  obligation_statement: The actor a chain records is bound to the wallet that signed.
+  satisfaction: satisfied
+  reason: 'The reader compares the actor''s carried wallet attestation against the wallet
+    whose key made the exercise, refuses a mismatch as `actor_wallet_mismatch`, and refuses
+    an actor resolved THROUGH a wallet. Tranche two adds one refusal on the same axis: a recorded
+    actor that IS a tier-2 attestation identity is refused, because a workload is not a persona.'
+  declared_at: '2026-09-01T18:00:00Z'
+- entry_id: sec-ob-r3
+  obligation: SEC-R3
+  obligation_statement: Ratification and chain inception are one signed act.
+  satisfaction: satisfied
+  reason: Atomicity is refused at inception; the per-act value's uniqueness is enforced here
+    rather than taken on trust from the pinned schema. Tranche two extends the SIGNED BLOCK
+    of this act with the four amendment-lineage fields, additively.
+  declared_at: '2026-09-01T18:00:00Z'
+- entry_id: sec-ob-r4
+  obligation: SEC-R4
+  obligation_statement: One digest construction governs every digest this capability computes.
+  satisfaction: satisfied
+  reason: '`xfc-jcs-sha256-1` is declared once and taken by `$ref` everywhere. Tranche two
+    adds ELEVEN DIGEST SUBJECTS to the enumeration and NO second construction, which is the
+    one way that file is meant to move.'
+  declared_at: '2026-09-01T18:00:00Z'
+- entry_id: sec-ob-r5
+  obligation: SEC-R5
+  obligation_statement: The ratification travels with the work as a self-contained traveling
+    contract.
+  satisfaction: satisfied
+  reason: Unchanged. The point-of-use check runs over the contract alone, and tranche two's
+    governed-test naming rides inside the signed block it already carries.
+  declared_at: '2026-09-01T18:00:00Z'
+- entry_id: sec-ob-r6
+  obligation: SEC-R6
+  obligation_statement: The append-only signed transparency log is the record.
+  satisfaction: partial
+  reason: 'Unchanged from tranche one, and tranche two writes SEVEN further leaf types into
+    the same store: one per record kind it defines, so the continuity walk is over the records
+    the log holds in the order it holds them.'
+  declared_at: '2026-09-01T18:00:00Z'
+  declared_residual:
+    statement: Suffix truncation no party has observed is invisible to a log with no external
+      witness.
+    closed_by: tranche three's anchoring (`add-chain-anchoring`), which makes a head externally
+      witnessed
+- entry_id: sec-ob-r7
+  obligation: SEC-R7
+  obligation_statement: A gate validates the chain as a hash-linked chain.
+  satisfaction: partial
+  reason: 'THE GATE''S SCOPE GREW WITH THE TRANCHE: links 1-3 at tranche one, LINKS 1-6 from
+    tranche two, walked by the SAME required check. The eight ordered checks are unchanged
+    and three legs are added at their own positions. What is refused is a NEW verdict claiming
+    the shorter scope over a chain carrying tranche-two records (`gate_scope_understated`)
+    and a links_1_6 verdict recording only the shorter walk (`gate_walk_incomplete`).'
+  declared_at: '2026-09-01T18:00:00Z'
+  declared_residual:
+    statement: A PERMITTED `links_1_3` verdict recorded BEFORE this tranche is not retroactively
+      refused. It is the record of the walk that gate actually performed, and the family's
+      own two-horizon doctrine is that nothing reaches back through an act already permitted.
+      The packaged tranche-one reference chain carries exactly such a verdict and is preserved
+      as shipped evidence.
+    closed_by: 'nothing, and deliberately: the alternative is a reader that rewrites history.
+      A NEW chain presented after this tranche is refused by the scope rules above'
+- entry_id: sec-ob-r8
+  obligation: SEC-R8
+  obligation_statement: Ratifying authority is human-held.
+  satisfaction: satisfied
+  reason: 'Unchanged: the holder class is read from the carried wallet record and `agent`
+    and `organisation` are refused for a ratifying act.'
+  declared_at: '2026-09-01T18:00:00Z'
+- entry_id: sec-ob-r9
+  obligation: SEC-R9
+  obligation_statement: A named reader runs as a required check.
+  satisfaction: satisfied
+  reason: '`signed-execution-chain-gate` has been REQUIRED on `main` since 2026-08-31 (opensoft
+    org ruleset 21957695), and the extended walk is THE SAME CHECK reading further — not a
+    second gate.'
+  declared_at: '2026-09-01T18:00:00Z'
+  evidence_ref: 'openxFactory issue #534; canary PR #549'
+- entry_id: sec-ob-r10
+  obligation: SEC-R10
+  obligation_statement: The harness controller attests the environment it prepared, and commits
+    to the expected attestation set.
+  satisfaction: satisfied
+  reason: '`setup-attestation.schema.yaml` carries the provisioned environment AND the committed
+    expected attestation set INSIDE the controller-signed block; `commitment-extension.schema.yaml`
+    serves a dynamic fan-out with the deadline at DISPATCH; the reader refuses an extension
+    written after dispatch, an attestation for an uncommitted task, an extension signed away
+    from the controller, an anchor the gate does not hold, an unchecked or revoked standing
+    at signing, and a certificate revoked AFTER signing as a DIFFERENT outcome. The under-committing
+    controller is declared out of scope in the requirement itself: it is the trust boundary
+    the tier split already draws.'
+  declared_at: '2026-09-01T18:00:00Z'
+- entry_id: sec-ob-r11
+  obligation: SEC-R11
+  obligation_statement: A runner attestation is produced at the controller, on a recorded
+    request, under a tier-2 identity whose issuance is composed and verified.
+  satisfaction: satisfied
+  reason: The signing request is REQUIRED inside the signed block, so its absence is unrepresentable;
+    the reader refuses a self-reported requester, a request the controller cannot attribute,
+    a subject it provisioned nothing for, an identity missing any of the three composed records,
+    a binding naming another chain, a record kind outside its own binding's closed enumeration,
+    a scope mismatch in either direction, more than one chain-scoped identity per chain, a
+    per-task identity reused across tasks, a consumed certificate with no `subject.public_key_fingerprint`,
+    and a supplied key whose computed fingerprint does not EQUAL it.
+  declared_at: '2026-09-01T18:00:00Z'
+- entry_id: sec-ob-r12
+  obligation: SEC-R12
+  obligation_statement: The controller corroborates what it signs and never notarizes self-report;
+    every attested fact carries its evidence class.
+  satisfaction: satisfied
+  reason: The class is REQUIRED on every fact, so an unclassed fact is unrepresentable; the
+    reader refuses a payload disagreeing with link 4, a `runner_claimed` fact re-carried at
+    a stronger class, an `independently_observed` fact naming no independent observer, and
+    a fact classed above the CUSTODY CEILING of the certificate that signed it — the composition
+    with the ratified custody registry, read from that registry's own file rather than restated.
+  declared_at: '2026-09-01T18:00:00Z'
+- entry_id: sec-ob-r13
+  obligation: SEC-R13
+  obligation_statement: A tier-2 attestation key never enters a worker, in every configuration.
+  satisfaction: partial
+  reason: 'This is a DESIGN and REALIZATION-CONFORMANCE obligation and the gate''s own mapping
+    says so: a gate sees signatures and never where a key lived or what could read it. `attestation_design`
+    is where a realization declares it, and the reader refuses a declared breach by name —
+    key in worker (crossing, destroyed-after, or a handle that dereferences), a controller
+    co-located inside the runner''s trust boundary, hardware custody REACHABLE from the runner''s
+    scope, a reusable signing delegation, and a one-task lifetime offered as making a key
+    non-secret.'
+  declared_at: '2026-09-01T18:00:00Z'
+  declared_residual:
+    statement: A DECLARATION IS NOT AN INSPECTION. What this reader establishes is that the
+      realization DECLARED a conforming design, never that its running estate matches the
+      declaration. No artifact a chain carries can establish the second.
+    closed_by: an attested runtime measurement of the signing boundary, which needs the PKI
+      plane and the omnigent layer this tranche's §5 gates name
+- entry_id: sec-ob-r14
+  obligation: SEC-R14
+  obligation_statement: Opening a pull request is a signed decision, bound to the chain and
+    to the pull request.
+  satisfaction: satisfied
+  reason: The decision is signed under the CHAIN-SCOPED identity, carries the PR identifier
+    and head revision inside its signed bytes, and the reader refuses a mismatch against the
+    merge, a chain-name mismatch, an enumeration that is not EQUAL to the committed expectation
+    in either direction, an absent decision on a chain presented for the terminal act, and
+    the record offered as permission to merge.
+  declared_at: '2026-09-01T18:00:00Z'
+- entry_id: sec-ob-r15
+  obligation: SEC-R15
+  obligation_statement: The signed hash-link rule takes effect at link 4 and the gate walks
+    the extended chain.
+  satisfaction: satisfied
+  reason: The predecessor of every signed record is THE ACTUAL NEAREST PRIOR IN-FORCE SIGNED
+    RECORD of its chain, resolved from the log's own order rather than from the record's kind;
+    the reader refuses a record chaining from anything else, a predecessor digest naming the
+    wrong subject, a link-5 leaf deferred past its successor's, and a signed record the log
+    holds no leaf for. The interleaved order is walked as it stands, which is what the two
+    packaged fan-out chains demonstrate in both directions.
+  declared_at: '2026-09-01T18:00:00Z'
+- entry_id: sec-ob-r16
+  obligation: SEC-R16
+  obligation_statement: The chain completes at CLOSURE, and the governed post-merge test is
+    what closes it.
+  satisfaction: partial
+  reason: Closure verifies the THREE LINEAGE LIMBS over the four fields the ratifying signature
+    now covers, the governed test's IDENTITY, the authenticated execution, the exact tested
+    revision and a PASSING result; the reader refuses a lane-claimed outcome, a failing or
+    unsigned or unestablished one, a revision mismatch, a declared shortfall offered as grounds,
+    a fabricated or replayed review record, a revoked or stale review authority, an absent
+    or unsupported lineage, and a merged-but-never-closed chain.
+  declared_at: '2026-09-01T18:00:00Z'
+  declared_residual:
+    statement: 'THREE RESIDUALS, AND THE FIRST TWO ARE DECLARED IN THE REQUIREMENT ITSELF.
+      Closure establishes PROVEN REVIEW AUTHORITY and NOT that every seat signed — link 7''s
+      seat signatures are outside this tranche''s gate scope. And REVOCATION-AT-EXERCISE IS
+      NOT SERVED BY A FILE: the shipped intake register says in terms that it is an issuance-time
+      snapshot, so what is established is standing as of a projection no older than its own
+      declared bound. AND THE FOUR LINEAGE FIELDS ARE OPTIONAL IN THE SHAPE AND REQUIRED BY
+      THE READER: the reader can only refuse their absence for a chain that CARRIES a tranche-two
+      record, so an inception written after this tranche that never reaches link 4 is not
+      refused AT THE RECORD for a missing lineage. Nothing is permitted by that gap - such
+      a chain is refused AT THE GATE by the links 1-6 scope rule - and making the fields `required`
+      would have refused every inception the shipped bundle already accepts, which `docs/contract-versioning-policy.md`
+      classes BREAKING.'
+    closed_by: a walked link-7 check for the first; the LIVE LOOKUP ON THE HERMES RUNTIME
+      the register itself names for the second; and for the third, a major bundle version
+      behind a full minor of deprecation warnings per that policy, or the packaged tranche-one
+      reference chain being re-minted under this tranche
+- entry_id: sec-ob-r17
+  obligation: SEC-R17
+  obligation_statement: A remediation chain is the one admitted consumer of an unclosed chain.
+  satisfaction: satisfied
+  reason: The declaration names the unclosed chain BY CHAIN IDENTITY and records whether the
+    subject falls inside the ratifying signature's bytes; the reader refuses a subject merely
+    mentioned, an exemption claimed by inheritance, a remediation offered with its own links
+    4-6 absent, promotion claimed on the strength of an admitted repair, and a remediation
+    chain whose OWN closure did not pass. The packaged positive is a full chain that closes
+    on a PASS while declaring an unclosed chain outside this corpus as its subject, because
+    a failed closure inside the positive corpus would be a refusal the corpus must not carry.
+  declared_at: '2026-09-01T18:00:00Z'
+- entry_id: sec-ob-r18
+  obligation: SEC-R18
+  obligation_statement: The executing layer refuses a step whose inbound chain does not verify.
+  satisfaction: cannot
+  reason: UNMET RATHER THAN PARTIALLY MET, on this capability's own named-reader rule. The
+    contract surface is realized — `attestation_design.execution_layer_ordering` makes the
+    ordering declarable and `execute_then_verify` refusable by name, and the omnigent matrix
+    is untouched — but NO RUNNING LAYER HAS REFUSED ANYTHING, and this realization claims
+    no enforcement it cannot name a check for.
+  declared_at: '2026-09-01T18:00:00Z'
+  declared_residual:
+    statement: The omnigent execution layer does not exist as a running plane, so requirement
+      9's precondition has never been enforced by anything. `not_enforced` is the honest declared
+      value.
+    closed_by: '`tasks.md` 5.3 — a running omnigent layer recorded REFUSING TO EXECUTE a step
+      whose inbound chain does not verify, by run id and refusing component'
+attestation_design:
+  tier2_key_custody: signing_oracle_at_controller
+  controller_placement: outside_every_runner_scope
+  signing_delegation: per_request_only
+  request_attribution: per_task_attribution_established
+  verification_material: public_material_only
+  execution_layer_ordering: execute_then_verify
+  omnigent_matrix_unchanged: true
+  commitment_extension_trigger: dispatch
+  ephemeral_lifetime_claimed_non_secret: false
+  persona_issued_to_workload: false
+  statement: '`execution_layer_ordering` is `not_enforced` because no omnigent layer runs;
+    declaring `verify_before_execute` would be the claim SEC-R18 refuses to make.'
+supersedes_declaration_ref: secd-openxfactory-0001
+record_version: 1

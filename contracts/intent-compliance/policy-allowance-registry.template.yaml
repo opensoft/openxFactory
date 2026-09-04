@@ -1,0 +1,11 @@
+schema_version: 1
+kind: policy_allowance_registry
+registry_id: example.registry
+revision_id: example.revision.1
+revision_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+predecessor_revision_digest: null
+published_at: "2026-01-01T00:00:00Z"
+allowances:
+  - allowance_id: example.allowance
+    approval_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    revocation_digests: []

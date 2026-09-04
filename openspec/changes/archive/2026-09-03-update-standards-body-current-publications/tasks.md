@@ -1,0 +1,301 @@
+## 1. Evidence and source verification
+
+- [x] 1.1 **DONE 2026-09-01 —** captured in `evidence/current-publications-2026-09-01.md` with primary URLs, publication/version, steward, term kind, verification date, and confidence.
+- [x] 1.2 **DONE 2026-09-01 —** captured the SFIA licensing conflict and Brett's explicit operator override as separate facts; the official source finding remains unchanged in the evidence record.
+- [x] 1.3 **DONE 2026-09-01 —** captured APQC PCF 8.0's attribution condition and separated PCF hierarchy reuse from process-definition reuse.
+
+## 2. Registry implementation
+
+- [x] 2.1 **DONE 2026-09-01 —** added distinct `itil5` while preserving the existing `itil4` record.
+- [x] 2.2 **DONE 2026-09-01 —** updated SFIA to current SFIA 9 and added the explicit unverified operator override selected by Brett.
+- [x] 2.3 **DONE 2026-09-01 —** reconciled APQC PCF 8.0 metadata and added the IT-process crosswalk scope plus attribution requirement.
+- [x] 2.4 **DONE 2026-09-01 —** retained descriptive-only semantics; no framework hierarchy, practice text, skill definitions, or process definitions were copied.
+
+## 3. Validation and regression coverage
+
+- [x] 3.1 **DONE 2026-09-01, SCOPE CORRECTED 2026-09-03 —** `scripts/standards_body_registry.py` checks current-publication metadata completeness for **every body that claims primary-source verification**, plus the three amended entries as a floor. The correction is D5, forced by Copilot review round 2: the requirement said "every body marked current" while the checker used a three-id allowlist, and MEASURED against the registry — 45 bodies, **32 `status: current`, 3 carrying a verification date** — the requirement was false of 29 records. Backfilling 29 dates nobody performed is the fabrication the registry's own header forbids; demoting 29 records would misstate their currency. The obligation is now keyed to `verified_on`, which IS the claim.
+- [x] 3.2 **DONE 2026-09-01 —** validator checks override completeness and requires the explicit unverified status.
+- [x] 3.3 **DONE 2026-09-01 —** registry regression tests and the existing unknown-body negative fixture cover the selected positive and negative paths.
+- [x] 3.4 **DONE 2026-09-01, RE-RUN 2026-09-03 —** registry tests (5 passed at
+      authoring, **9 passed** after the review round below) and
+      `scripts/validate-omnigent-contracts.py` both pass with zero findings.
+- [x] 3.5 **DONE 2026-09-03 — THE DUPLICATE-KEY DEFECT, FOUND BY REVIEW AND
+      CLOSED AS A CLASS.** The `sfia` entry carried `source_url` TWICE — the
+      licensing page written 2026-08-09 and the SFIA-9 publication page added by
+      this change — and `yaml.safe_load` takes the last silently, so every
+      reader saw the publication URL and **the licensing evidence D2 exists to
+      preserve was gone from the parsed document while both lines sat visibly in
+      the file**. `registry_errors` could not have caught it and no post-parse
+      check can: by then there is one key. The licensing URL moved to
+      `licence_page` (the field APQC and IAB Tech Lab already use for exactly
+      this), and `scripts/standards_body_registry.py` gained `load_registry()`,
+      a `SafeLoader` subclass that **refuses a repeated key at any mapping
+      level** — the rule `scripts/frontmatter_strict.py` applies to proposal
+      front matter, applied here, though not that module reused (its
+      65,536-byte ceiling sits below this registry's ~77,000). The validator and
+      the tests both read through it; `yaml.safe_load` on the registry is now a
+      defect in the caller. Four new tests, one asserting that the permissive
+      loader is GREEN on the same bytes, which is the whole point.
+
+- [x] 3.6 **DONE 2026-09-03 — the checker under-enforced its own requirement,
+      and the new loader could crash on the shape it exists to refuse.** Two
+      findings, Copilot review round 3, both taken. (a)
+      `CURRENT_PUBLICATION_FIELDS` omitted **`steward`** and **`names`**, two of
+      the seven things the requirement names, so a body could claim verification
+      while saying nothing about who stewards it or what KIND of term it names —
+      and `names` is the registry's own load-bearing field, the one its header
+      says exists because "a crosswalk that maps a worker class to a PROCESS is
+      making a different claim than one mapping it to a ROLE". Added; all three
+      verified bodies already carry both, so nothing reddens. (b) the duplicate
+      scan called `set.add` on a YAML **structural key** (`? [a, b]`, constructed
+      as an unhashable `list`), raising a bare `TypeError` out of the scan —
+      the wrong exception type, past callers that catch `DuplicateRegistryKey`,
+      and before any duplicate could be seen. Keys are now compared through a
+      hashable token. A single structural key is still refused, by PyYAML's own
+      `ConstructorError`, exactly as `yaml.safe_load` refuses it; a REPEATED one
+      is now caught as the duplicate it is.
+
+- [x] 3.7 **DONE 2026-09-03 — the claim trigger let the likeliest mistake
+      through, and the OTHER reader of the registry still used the permissive
+      loader.** Two findings, Copilot review round 4, both taken. (a) the
+      claim-scoping condition tested `body.get("verified_on")` for TRUTHINESS,
+      so `verified_on: ""` and `verified_on:` (null) read as *makes no claim* —
+      a half-written record escaped validation entirely while a record that
+      never mentioned verification was held to nothing. **Presence of the key is
+      the claim.** (b) `standards_body_ids()` in
+      `scripts/validate-omnigent-contracts.py` still read the registry through
+      `yaml.safe_load`, re-opening the exact duplicate-key collapse
+      `load_registry` was added to close — and worse there than anywhere,
+      because that set decides which crosswalk ids RESOLVE: a duplicated `id`
+      would silently change the resolved set and a crosswalk would be accepted
+      or rejected on a document nobody wrote. It now reads through
+      `load_registry`, reports a duplicate once and degrades to an empty set,
+      matching its own absent-file arm. Cached with `lru_cache` while there:
+      it is called once per example, fixture and repo argument, so without it
+      the same refusal printed eighteen times and 77 KB of YAML was re-parsed
+      for each.
+
+- [x] 3.8 **DONE 2026-09-03 — a registry that does not PARSE is a validator
+      finding, never a traceback.** Copilot review round 5: both call sites
+      caught `DuplicateRegistryKey` alone, and that class is a `ValueError`
+      while a syntax error or an unhashable key arrives as `yaml.YAMLError`, so
+      neither `except` covered the other. Both arms added. THE TWO SITES ARE NOT
+      THE SAME CASE, and the disposition says so rather than levelling them:
+      in `standards_body_ids()` the crash PREDATES this change — `yaml.safe_load`
+      raised identically there on `main` — so the arm makes the "degrades to a
+      no-op" its docstring already promised actually true; in `main()` the read
+      is NEW, so without the arm this change would have introduced a traceback
+      where the validator used to report findings. Probed with a real syntax
+      error and a real unhashable key injected into the registry: exit 1, **no
+      traceback**, `FAIL standards-body registry does not parse: ...` both times.
+
+## 4. Consumer handoff
+
+- [x] 4.1 **DONE 2026-09-01 —** published `handoff/opsx-overlay-current-standards.md` naming `itil5`, SFIA 9's
+      unverified status, and APQC PCF 8.0 as the only current-body inputs.
+- [x] 4.2 **DONE 2026-09-01 —** authorized the separate OpsxFactory change to evaluate all nine worker
+      classes against APQC IT-process terms without forcing a match.
+- [x] 4.3 **DONE 2026-09-01 —** recorded the missing SFIA written permission as an explicit follow-up
+      owned by the operator/legal-review seat.
+
+## 5. Release and archive
+
+- [x] 5.1 **DONE 2026-09-01, RE-MEASURED 2026-09-03 —** no contract release
+      bundle is owed. The re-measurement is the part that was previously
+      asserted rather than checked, and it is the release-inventory question in
+      its own terms: `contracts/policies/standards-bodies.yaml` is a member of
+      NEITHER `contracts/manifest.yaml` (which lists three policies —
+      `hermes-governance-agents.yaml`, `merge-risk-policy.yaml`,
+      `layer-vocabulary.yaml` — and not this one) NOR
+      `contracts/releases/contract-v3.0.digests.yaml` (283 entries, zero under
+      `contracts/policies/`). `scripts/doc_health/release_inventory.py` compares
+      only the DECLARED bundle's members, so a non-member edit raises no
+      `release-inventory-drift` finding at any severity and needs no editorial
+      allowance. **THE POLICY EDIT THEREFORE RIDES THIS PR AND DOES NOT WAIT FOR
+      THE NEXT CUT**, and no follow-up commit is split out for it.
+- [x] 5.2 **DONE LOCALLY 2026-09-01 —** the registry amendment is integrated in
+      the working tree and the required registry and Omnigent validations pass.
+      Publication as a Git commit/merge remains an operator action; no commit or
+      push was performed by the authoring session.
+- [x] 5.3 **SUPERSEDED 2026-09-03 — THE PACKET WAS NOT READY TO ARCHIVE AND WAS
+      NOT ARCHIVABLE.** The authoring session wrote the packet directly into
+      `openspec/changes/archive/2026-09-01-.../` and promoted its delta into
+      `openspec/specs/standards-body-registry/spec.md`, both of which are the
+      ARCHIVE STEP's acts and neither of which this packet had earned: it had
+      never landed on `main`, was never ratified, and carries a code surface,
+      which under `docs/release-realization-flow.md` § The Archive Gate cannot
+      archive until its code is merged on the implemented target with a green
+      run. Archiving an unrealized code-surface change is a contested-class act
+      there. The adopting lane moved the directory to
+      `openspec/changes/update-standards-body-current-publications/` (ACTIVE)
+      and REMOVED the pre-promoted copy, which duplicated the change's own
+      delta verbatim under a `TBD - created by archiving` purpose line.
+- [x] 5.4 **OWED — RATIFICATION.** `Status: draft`. Brett Heap ratifies, or
+      vetoes, D1 … D4 — D2 (the SFIA unverified operator override) and D3 (the
+      scope of the later APQC crosswalk authorization) in particular, both
+      being the authoring session's decisions and neither covered by the
+      commissioning citation in `.openspec.yaml`.
+      **RATIFIED 2026-09-03** — Brett Heap, in-session, verbatim "merge 210
+      and ratify and merge 593"; D1–D4 adopted as written; header flipped to
+      Status: ratified with a Ratified: citation in the same commit (lane
+      openxfactory-f2, PR #593).
+- [x] 5.5 **DONE 2026-09-03 — REALIZATION EVIDENCE ON `main`, READ OFF `main`
+      AND NOT OFF A PR PAGE.** The code surface landed with the packet: **PR
+      #593**, squash **`3c237cd0`** (`3c237cd013301678f7765e6cec2e04701dac3084`,
+      2026-09-03 ~05:05Z), carrying `scripts/standards_body_registry.py`, the
+      import plus the `main()` loop in `scripts/validate-omnigent-contracts.py`,
+      `tests/test_standards_body_registry.py`,
+      `tests/fixtures-standards-body-registry-unqualified-override.yaml` and the
+      `contracts/policies/standards-bodies.yaml` refresh — the whole
+      `code_surface:` declaration and nothing outside it. **GREEN AT THAT
+      COMMIT**: `pytest-suite` run **33717394896** (2026-09-03 05:26Z,
+      conclusion `success`) and `signed-execution-chain-gate` `success` on
+      `3c237cd0`. `target_release: implemented` is the openxFactory main line,
+      so merged-plus-green on `main` IS the gate
+      (`docs/release-realization-flow.md` § The Archive Gate) and no bundle cut
+      stands between realization and this act — § 5.1 measured why.
+- [x] 5.6 **DONE 2026-09-03 — THE ARCHIVE ACT, SEPARATELY AND THROUGH
+      `scripts/proposal-support.py`.** Run as
+      `python3 scripts/proposal-support.py . archive update-standards-body-current-publications --date 2026-09-03 --yes`
+      from the repository root — **never bare `openspec archive`**, which drops the
+      origin gate, the incomplete-task refusal and the supporting-docs
+      bookkeeping the wrapper carries (the `F0` lesson: always archive via
+      `proposal-support`). The packet moved to
+      `openspec/changes/archive/2026-09-03-update-standards-body-current-publications/`
+      and its delta promoted into
+      `openspec/specs/standards-body-registry/spec.md` — with a REAL `## Purpose`
+      written from `proposal.md`, replacing the archiver's
+      `TBD - created by archiving` line, which is the one thing the wrapper
+      cannot write for itself. The act carries no content change: the four
+      promoted requirements and their ten scenarios are byte-identical to the
+      delta this packet ratified, which is what `promotion-fidelity` reads.
+- [x] 5.7 **DONE 2026-09-03 — OPENED AS PR #615, NOT YET MERGED.** The archive
+      act (§5.6) ran uncommitted, on disk, in an isolated clone after the
+      authoring session was killed twice by provider errors; lane
+      `openxfactory-f2` finished it, took THREE catch-up merges of
+      `origin/main` while doing so — `declare-spent-bundle-state`'s own
+      archive (PR #611, `7af2725c`); five further commits (`#603 #599 #601
+      #614 #602`, tip `1c3e744f`); and one more (`#604`, `2b0615da`) after PR
+      #615 was already open — re-measured every gate in this section and in
+      the README entry against each merged base in turn rather than the stale
+      `6da1e1f5`, and opened **PR #615** to carry the moved files, the
+      promoted spec, and the `sequenced_after` pin correction
+      (`tests/sequenced_after/test_sweep.py`) to `main`. This lane does not
+      merge; PR #615 is open, awaiting review and Brett's or a reviewer's
+      merge. **NOT YET TRUE, AND NAMED SO IT STAYS FALSE UNTIL IT ISN'T**:
+      `main` does not yet carry this archive. A follow-up line — squash SHA
+      and merge date — gets added here once PR #615 actually merges; until
+      then this task records only that the PR exists and is open, not that
+      it landed.
+
+      **FILED FORWARD 2026-09-03 — THE FOURTH CATCH-UP MERGE, AND THE
+      REPOSITORY-GATE-FLOOR REPAIR THIS PACKET'S OWN PROMOTION FORCED.** PR
+      #615's REQUIRED `pytest-suite` went red on a cause this packet CREATED
+      and which no gate in §5 could have caught before the promotion existed:
+      promoting `standards-body-registry` adds a path under `openspec/specs/`,
+      and codexFactory's `repository_gate_floor` for this repository
+      ENUMERATES that surface exactly, so the new spec arrived OFF the floor
+      and `tests/review_lane_pin/test_floor_snapshot.py`'s LQ-A7 coverage
+      assertion failed. THAT IS THE GUARD WORKING: a spec the floor does not
+      carry is a spec the floor does not protect, and the assertion exists
+      precisely so the addition is red rather than silent.
+      **THE REPAIR IS TWO PULL REQUESTS IN TWO REPOSITORIES IN A FORCED
+      ORDER** (the pinned core's `docs/repository-gate-floor-repair-runbook.md`,
+      and the ordered repair the assertion prints on failure): codexFactory
+      regenerates the floor block at an openxFactory commit that ALREADY
+      carries the new path, and only then may openxFactory advance its pin
+      onto it — a pin cannot name a document that does not yet exist.
+      **The codexFactory half LANDED**: PR **#184**, merge **`8cb17373`**
+      (`8cb173738ebecd773eadd1b77b11d29029b37382`, 2026-09-03T19:53:55Z),
+      regenerated by `scripts/merge_master/generate_specs_floor_block.py` at
+      **this branch's own head `c9928846`** — the only tree carrying the new
+      path — taking the floor from 57 entries to **58** (the same four
+      hand-reasoned chokepoints, and 54 spec paths rather than 53). Measured,
+      not assumed: the new document is the old one plus exactly
+      `openspec/specs/standards-body-registry/spec.md`, nothing removed, no
+      dead entry introduced.
+      **The openxFactory half IS IN THIS PULL REQUEST**, by lane
+      `openxfactory-f2`: a FOURTH catch-up merge of `origin/main`
+      (**`ea117d4e`**, after #608/#609/#610) and the pin advance across all
+      five sites in one logical change — `contracts/review-lane-pin.yaml`
+      `core_commit`, `merge-master-approval.yml`'s `PINNED_CORE_COMMIT` and
+      its checkout `ref:`, `pytest-suite.yml`'s core-checkout `ref:`, and the
+      vendored byte copy `contracts/review-lane-floor-snapshot.yaml` with its
+      `sha256` (`22993960…`) and `entry_count` 57 → 58. The copy is
+      GIT-VERIFIED byte-identical to the pinned core's blob (`cdb08cd6`, 9219
+      bytes), not merely equal by a digest this repository computed itself.
+      That merge also re-measured the `sequenced_after` corpus pin a fourth
+      time: `main`'s ratification of `create-medxchart-overlay-boundary` and
+      this packet's archive lower `active_sole` from 13 by ONE EACH and
+      COMPOUND rather than cancel, so `active_sole - 1` falls 11 → 10, with
+      the by-exclusion control recorded in that test's MOVEMENT LOG.
+      **AS OF THIS NOTE'S WRITING — 2026-09-03, branch head `0d17d1be` — THIS
+      PACKET HAD NOT MERGED**, and that claim is ANCHORED TO THAT INSTANT
+      rather than written in the present tense, so it stays TRUE after the
+      merge instead of going stale: at that head, `main` did not carry this
+      archive. The squash SHA is deliberately NOT written here and NOT
+      invented — it is filled in at landing by the merge-provenance comment,
+      by whoever merges, from the merge GitHub actually performs. A reader
+      wanting the LANDED state should read that comment and the packet's merge
+      provenance, never this line, which speaks only for the moment it was
+      written.
+
+      **FILED FORWARD 2026-09-03 (LATER THE SAME DAY) — THE FLOOR REPAIR
+      COMPLETED, AS THE SECOND LANDER OF A TWO-PACKET COLLISION.** The
+      paragraph above records the repair's codexFactory half as PR **#184**
+      (`8cb17373`, 58 entries). That half was CORRECT FOR THE TREE IT READ AND
+      NEVERTHELESS INSUFFICIENT, and the reason is worth the record: two
+      openxFactory packets each promoted a new capability on 2026-09-03, and
+      regeneration ENUMERATES A TREE rather than editing a list.
+      `add-project-repo-schema` (PR **#616**, merged 20:49Z as `19d00872`)
+      landed FIRST and codexFactory PR **#183** (`605d48ac`) regenerated for
+      it; codexFactory **#184** then regenerated for THIS packet at
+      `c9928846` — PR #615's PRE-MERGE branch head, which did not yet carry
+      #616's promotion — so its block went 54 -> 54 rather than 54 -> 55 and
+      **silently dropped `openspec/specs/project-repo-schema/spec.md`**, the
+      entry #183 had just landed. Neither pull request is defective; this is
+      the failure mode a two-lander collision has, and the pinned core's
+      `docs/repository-gate-floor-repair-runbook.md` already answers it by
+      making the SECOND LANDER regenerate once at its OWN POST-MAIN-MERGE
+      head. Also true and worth stating so nobody hunts an incident that did
+      not happen: **`main` was never broken in the interval** — its pin named
+      `605d48ac`, whose 58-entry floor covers `main`'s 54-spec tree including
+      `project-repo-schema`; the gap becomes reachable only when THIS packet's
+      fifty-fifth spec lands.
+      **THE SECOND-LANDER REGENERATION LANDED**: codexFactory PR **#186**,
+      merge (not squash) **`8f770afb`**
+      (`8f770afbf86043ee0f5494ded0f12f51c2a9b45e`, 2026-09-03T21:55:35Z),
+      regenerated at openxFactory **`8d893a0f`** — this branch's merge of
+      `main` `19d00872`, and the FIRST COMMIT ANYWHERE carrying fifty-five
+      tracked paths under `openspec/specs` — restoring `project-repo-schema`
+      BESIDE `standards-body-registry`.
+      **THE OPENXFACTORY HALF IS THIS COMMIT**, by lane `openxfactory-f2`: a
+      FIFTH catch-up merge of `origin/main` (`9a773a31`, the `contract-v3.2`
+      cut) and the pin advance across all five sites in one logical change —
+      `contracts/review-lane-pin.yaml` `core_commit`,
+      `merge-master-approval.yml`'s `PINNED_CORE_COMMIT` and its checkout
+      `ref:`, `pytest-suite.yml`'s core-checkout `ref:`, and the vendored byte
+      copy `contracts/review-lane-floor-snapshot.yaml` with its `sha256`
+      (`b8f95136…`) and `entry_count` 58 -> **63**. The copy is GIT-VERIFIED
+      byte-identical to the pinned core's blob (`351c47fb`, 12492 bytes), not
+      merely equal by a digest this repository computed itself.
+      **THE FLOOR GREW BY FIVE, AND ONLY ONE IS A SPEC** — measured on the
+      merged tree rather than inferred from the proposal. The spec is
+      `standards-body-registry` (55 generated paths, all 55 tracked paths
+      covered, zero uncovered, zero dead). The other FOUR are CHOKEPOINTS from
+      codexFactory PR **#182** (merge `e5534552`, 20:51:52Z — authored before
+      #183/#184 but merged after both, which is why they surface here for the
+      first time at an advance whose stated object is a spec): the sibling
+      factory-identity register family — `governance/factory-identity/`'s
+      register, wallet, grant and custody attestation — floored BY NAME,
+      realizing THIS repository's ratified `add-cpc-clearing-boundary` task
+      2.7. All four exist on this tree, verified path by path, so the advisory
+      lane gains four reachable floor paths and no dead entry.
+      **THE LOCKSTEP WAS RE-MEASURED, NOT CARRIED OVER**: both xFactory
+      judging surfaces still name `f4702f64` (read from xFactory `main`
+      2026-09-03), so `lockstep.status` stays `diverged` and the obligation to
+      converge at a future re-point ceremony stands.
+      **STILL NOT MERGED AS OF THIS NOTE** — anchored to the instant, as
+      above: written at branch head `45ab834b`+1, before any merge of PR #615.
+      The squash SHA remains deliberately unwritten and uninvented; it is
+      filled in at landing by the merge-provenance comment, by whoever merges.

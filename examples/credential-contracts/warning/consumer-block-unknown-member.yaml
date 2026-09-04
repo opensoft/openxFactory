@@ -1,0 +1,30 @@
+# WARNING (expect: consumer-block-unknown-member). A `consumer:` block carrying a
+# member outside the declared set.
+#
+# The block is CLOSED at the major (`additionalProperties: false`) and open here,
+# because the binding object it sits on has never been closed: a `consumer:` key
+# of any shape passed the pinned schema before this change declared the block, so
+# a domain may already hold extra members and closing them in a minor would
+# refuse a shape the current major accepts.
+#
+# WHAT THE CLOSURE IS FOR is worth stating on the fixture that probes it: the
+# same defect this schema's `issuance_preconditions` names one record kind over —
+# "the mechanism existed as a domain-local extra key riding a neutral schema that
+# neither declared nor forbade it, so a refusal had no neutral home to be
+# declared against". Declaring the block gives the hole a name; closing it is
+# what makes an undeclared member answerable.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+credential_bindings:
+  projection_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-sync-secret
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-sync-lane
+      fetch_identity: example-sync-lane-workload-identity
+      totally: unchecked

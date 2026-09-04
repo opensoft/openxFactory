@@ -49,6 +49,29 @@ from the same snapshot.
 ### Requirement: Project grouping hierarchy
 The dashboard SHALL support a two-level grouping hierarchy over repositories — repositories belong to named projects (a project is a set of repositories) and projects belong to project groups — declared in one schema-versioned project register (`kind: project-register`, neutral schema, instance owned by the aggregation/workspace layer), resolved by the generator into `project` and `project_group` snapshot fields, and surfaced through the project-first header (the project dropdown and the repository filter) — the former header-level roll-up strip is retired (Brett's 2026-08-06 ruling), with the pure grouping model remaining available to any view wanting a roll-up. Repository membership SHALL be multi-parent: a repository MAY live in any number of projects (a project is a named view over repositories, not an owner), the snapshot's singular `project` field SHALL carry the PRIMARY project (the first project in register order declaring the repository, so grouped roll-ups render each repository under exactly one heading), and the snapshot SHALL additionally carry the full membership as an additive `projects` list whose first element is that primary. A project SHALL belong to at most one project group. Grouping is descriptive navigation only: it confers no lifecycle state or authority, and renderers read grouping from the snapshot, never from the register directly.
 
+**ADDED BY `add-project-repo-schema`, and additive in every direction.** The
+register SHALL additionally carry an OPTIONAL per-project `schema` election, an
+OPTIONAL per-project `reference` recording the document that election followed,
+and an OPTIONAL per-project `repository_roles` list assigning each named
+repository a `role` of `spec`, `code` or `assembly`. All three SHALL be optional
+and additive: a project declaring none of them is legal, renders identically and
+is reviewed identically, and `repositories` remains the single membership answer
+every existing consumer reads — a repository named in `repository_roles` SHALL
+also appear in that project's `repositories`, and at most one repository per
+project SHALL carry `role: assembly`. Where an electing project carries its own
+assembly-root manifest, the register row SHALL be DERIVABLE FROM that manifest
+and the manifest is the SOURCE; the register stays descriptive and is never the
+origin of the election. Register writes continue to reach the file only through
+the recorded `project-register-edit` commission.
+
+**THE EXISTING POSTURE GOVERNS THE NEW FIELDS UNCHANGED.** Neither `schema`, nor
+`reference`, nor a `role` SHALL confer lifecycle state, authority, gate standing
+or clearance eligibility over any repository, project or group it names, and a
+consumer deriving any permission from one is DEFECTIVE. These are exactly the
+fields a later consumer reads as permission, which is why the posture is restated
+here rather than left to the sentence above it — and why it is restated a third
+and fourth time, in the schema's own description and in the instance header.
+
 #### Scenario: A project spans several repositories
 - **WHEN** the project register maps more than one repository to a project
 - **THEN** the project roll-up MUST aggregate those repositories' snapshot entries under one project heading
@@ -70,6 +93,34 @@ The dashboard SHALL support a two-level grouping hierarchy over repositories —
 #### Scenario: The register changes
 - **WHEN** the project register is edited
 - **THEN** grouping updates only through snapshot regeneration — rendered grouping is never hand-edited
+
+#### Scenario: A project records a schema election and leg roles
+- **WHEN** a register row declares `schema: project-repo-schema`, a `reference`, and a `repository_roles` list naming one assembly, one spec and one code repository
+- **THEN** the row is valid and the election is machine-readable by the instrument that already names the group
+- **AND** the election confers no lifecycle state, authority, gate standing or clearance eligibility over any repository it names
+
+#### Scenario: A project declares neither field
+- **WHEN** a register row carries no `schema`, no `reference` and no `repository_roles`
+- **THEN** the row is valid, renders identically and is reviewed identically
+- **AND** nothing is owed by a project that declined the schema
+
+#### Scenario: A role names a repository the project does not list
+- **WHEN** a `repository_roles` entry names a repository absent from that project's `repositories`
+- **THEN** the register is refused, `repositories` being the single membership answer every existing consumer reads
+
+#### Scenario: A project names two assembly roots
+- **WHEN** a project assigns `role: assembly` to more than one repository
+- **THEN** the register is refused, an electing project having exactly one per-project root
+
+#### Scenario: A consumer reads authority out of a role
+- **WHEN** a tool treats `role: spec` as evidence that spec authority lives in that repository
+- **THEN** that consumer is defective and its reading MUST NOT be honoured
+- **AND** the register has not thereby become a governance boundary, which the ratified prose forbids
+
+#### Scenario: A row disagrees with the project's own manifest
+- **WHEN** an electing project's assembly-root manifest and its register row disagree
+- **THEN** the manifest is the source and the row is derivable from it
+- **AND** the disagreement is reported as drift rather than silently reconciled
 
 ### Requirement: Cluster canvas working surface
 Each cluster SHALL open a canvas working surface rendered from the snapshot: a member pane listing exactly the cluster's `Topics:`-derived document edges (downstream artifacts — staged picks, proposals, realizations — render in a lineage strip, never as members), an evidence board whose pinned passages carry section reference and passage hash, gap prompts rendered as actionable slots (member documents unclaimed by any possible; possibles without document support), and a possibles rail with option-set grouping and a composer that drafts possibles-register entries for human commit; canvas machinery mutates no source document and AI-derived suggestions enter only as pending-review items.
@@ -2457,4 +2508,65 @@ The drafting SHALL write nothing. The register is never opened for writing and a
 #### Scenario: A plane that cannot compose has no candidates
 - WHEN the drafting route is asked about a project with no composed view
 - THEN it refuses and names the project, rather than drafting from a single repository's documents
+
+### Requirement: A catalog entry declares the input modalities it accepts, from a closed vocabulary
+A workbench model catalog entry's INPUT MODALITIES SHALL be declarable from a CLOSED vocabulary whose members are exactly `text` and `image`, and the declaration SHALL be optional. It exists so that a routing decision can ask whether a candidate can carry what a turn actually contains, rather than inferring capability from a model's name or from its byte limits — which describe how MUCH a model accepts, never WHAT KIND.
+
+Its ABSENCE SHALL NOT be read as a capability claim in either direction: an entry that declares nothing is a producer that predates this vocabulary, and a reader SHALL treat it as text-only for routing purposes while recording that the entry made no declaration. This mirrors the handling-posture rule the chat-turn family already promotes, where absence means "a producer older than the field" rather than a stated posture. Requiring the field instead would break every catalog released before it, which an additive growth must not do.
+
+Where declared, the set SHALL be non-empty and SHALL contain `text`. A model that cannot accept text is not a model this catalog can route a chat turn to, so an image-only declaration describes something the surface has no use for and SHALL be refused rather than stored.
+
+THE VOCABULARY IS CLOSED, AND EXTENDED ONLY BY THE CHANGE THAT GOVERNS A NEW MEMBER. A modality enters when a real consumer needs it — the same rule this family already applies to the client-identity roster's admission surfaces, where a member enters with the ratified change that governs it rather than because a capability is imaginable. `image` enters here because a turn carrying an image is the named near-term consumer; audio, video, tool-calling, structured output, latency class and cost class do NOT enter, because nothing consumes them yet and a vocabulary guessed ahead of its consumers is one nothing validates against.
+
+The declaration SHALL describe INPUT acceptance only. Output modality, tool-calling and structured-output support are different questions with different consumers, and folding them into one set would produce a field whose members mean different things to different readers.
+
+#### Scenario: An entry declares that it accepts images
+- **WHEN** a catalog entry declares modalities `text` and `image`
+- **THEN** the declaration is valid and a router may treat the model as a candidate for a turn carrying an image
+
+#### Scenario: An entry declares nothing
+- **WHEN** a catalog entry carries no modality declaration
+- **THEN** the entry is valid, is treated as text-only for routing, and is recorded as having made no declaration
+- **AND** its silence is not reported as a claim that it rejects images
+
+#### Scenario: A modality outside the vocabulary is declared
+- **WHEN** an entry declares a modality that is not `text` or `image`
+- **THEN** the catalog is refused, naming the closed vocabulary
+- **AND** the remedy is the change that governs the new modality, not a wider field
+
+#### Scenario: An entry declares images but not text
+- **WHEN** an entry declares a modality set that omits `text`
+- **THEN** it is refused: a chat turn always carries text, so a model that cannot accept text is not routable here
+
+#### Scenario: A consumer needs a modality the vocabulary lacks
+- **WHEN** a real consumer requires a modality outside the closed set
+- **THEN** the vocabulary is extended by the change that governs that consumer, additively
+- **AND** the extension names the consumer, rather than enumerating capabilities that might one day be wanted
+
+### Requirement: The catalog type enforces every bound the released schema enforces
+The server-side catalog type SHALL refuse every catalog the RELEASED SCHEMA would refuse on a bound it declares. A type gate weaker than the wire gate lets a catalog be constructed and dispatched in-process that `GET /workbench/model-catalog` then refuses to serve, because the route validates the projected envelope against the released schema — a divergence this capability has already had to close once, for a routing rule's target list.
+
+EVERY STRING BOUND THE RELEASED SCHEMA DECLARES SHALL BE ENFORCED AT CONSTRUCTION, with no residue. The schema bounds five string-valued fields — `model_id`, `label`, `provider_class`, `data_handling` and `resolved_model_id` — by maximum length, and two of them (`model_id` and `resolved_model_id`) additionally by character pattern. All five SHALL be held to those bounds by the type. The catalog's ENTRY COUNT SHALL likewise not exceed the released maximum.
+
+Partial parity SHALL NOT be claimed as parity. A capability that enforces some of its released bounds and not others leaves a reader unable to tell which construction failures are real, and leaves the type gate weaker than the wire gate in exactly the places nobody checked. Where a bound is restated in the type rather than read from the schema, the restatement SHALL name the released bound it mirrors, so a later reader can see the two are meant to agree and can find the other one.
+
+#### Scenario: A catalog exceeds the released entry maximum
+- **WHEN** a catalog is constructed with more entries than the released schema permits
+- **THEN** construction is refused, naming the measured count and the released maximum
+- **AND** the refusal happens at construction rather than at the moment the route declines to serve it
+
+#### Scenario: An identifier exceeds the released bounds
+- **WHEN** an entry is constructed with a `model_id` longer than the released maximum, or outside the released character pattern
+- **THEN** construction is refused on the same bounds the released schema states
+- **AND** the refusal matches what the reference-bearing fields already enforce for the same values
+
+#### Scenario: A descriptive string field exceeds its released maximum
+- **WHEN** an entry is constructed with a `label`, `provider_class` or `data_handling` longer than the released schema permits
+- **THEN** construction is refused, naming the measured length and the released maximum for that field
+- **AND** no such field is left checked for blankness alone
+
+#### Scenario: Every declared string bound is covered
+- **WHEN** the released schema declares a maximum length or a character pattern on any catalog string field
+- **THEN** the type refuses a value violating it at construction
+- **AND** a field the schema bounds but the type does not is a defect in this requirement, not an accepted residue
 

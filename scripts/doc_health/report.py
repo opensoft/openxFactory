@@ -113,6 +113,34 @@ UNPARSED_PLAN_ROW_TOTAL_MARKER = "[ranked-plan] unparsed-row total"
 # A path `plan_line` had to repair to keep the row readable (see `plan_line`).
 SANITIZED_PATH_MARKER = "[ranked-plan] sanitized path"
 
+# ISSUE #342: the repo identity a report was PRODUCED under, stamped in the
+# header beside `Status:`/`Kind:` so a `--previous-report` comparison can
+# refuse a baseline built under a different one.
+#
+# THE MECHANISM THIS CLOSES. Finding identity is `(family, repo, path)`
+# (`Finding.match_key`), and `repo` for a `--single-repo <path>` run is the
+# directory BASENAME (`runner.build_context`) — nothing a written report ever
+# recorded and nothing a read-back ever checked. Point `--previous-report` at
+# a baseline built in a worktree named `base-wt` and diff it against a run
+# named `openxFactory`: every key misses, so `regressions()` reads every
+# current critical/error finding as new and `uncited_resolutions()` reads
+# every baseline contested finding as vanished-without-citation — 36 phantom
+# "regressions" and 23 phantom `uncited-resolution` errors in the issue's own
+# reproduction, with exit code 0 throughout. A benign operator path slip
+# reported in the vocabulary of the family's most serious findings.
+#
+# THE STAMP IS THE REPO-SLUG SET THE RUN COVERED, not a single name — an
+# aggregation run covers many. One line, `key: value` like `Status:`/`Kind:`
+# immediately above it in `render()`, sorted so the line is deterministic and
+# comma-separated so it reads like the "scope limited to single repo X"
+# deviation line already beside it. `(none)` is the explicit empty-set
+# spelling — never an absent line, which is reserved for "not stamped at
+# all" (see `parse_repo_identity`).
+REPO_IDENTITY_PREFIX = "Repo-Identity: "
+REPO_IDENTITY_NONE = "(none)"
+REPO_IDENTITY_RE = re.compile(
+    r"^" + re.escape(REPO_IDENTITY_PREFIX) + r"(.*)$", re.MULTILINE)
+
 # What a whitespace run in a path becomes, and what an empty path becomes.
 _WHITESPACE_RUN = re.compile(r"\s+")
 EMPTY_PATH_PLACEHOLDER = "(empty-path)"
@@ -267,6 +295,60 @@ def _announce_unparsed_plan_rows(rows: list[tuple[int, str]]) -> None:
           file=sys.stderr)
 
 
+# The family `uncited_resolutions` itself emits. Not a member of `FAMILY_IDS`
+# / `families.FAMILIES` — doc-health.md's "Check Families" table runs exactly
+# twenty-three named families over the corpus, and this is not one of them. It
+# is the ENFORCEMENT of the contested-finding rule (doc-health spec
+# "Requirement: Finding severity and regression handling", scenario "A
+# contested finding is resolved") for THOSE families, stamped
+# `resolution="contested"` below because the two-value taxonomy has no third
+# option and an uncited-resolution finding plainly is not a mechanical
+# `auto-fixable` defect.
+#
+# ISSUE #515: that `contested` stamp must NOT make `parse_previous` fold a
+# vanished uncited-resolution LINE into `previous_contested`, or the finding
+# audits its own disappearance forever. The ORIGINAL finding's key (e.g.
+# `(location-conformance, alpha, docs/reg.md)`) already carries the citation
+# obligation under its own family's line — that is what this rule exists to
+# police. The DERIVED echo's key
+# (`(uncited-resolution, alpha, docs/reg.md)`) names no corpus state a human
+# ever deliberately set; it exists only to demand a citation for the
+# original's disappearance, and once emitted it has done its job — there is
+# no second citation to give for an accountability marker resolving itself.
+# Treating it as its own contested subject produced exactly the loop the
+# nightly of 2026-08-30 observed: 25 of 41 `uncited-resolution` errors were
+# the 25 `uncited-resolution` findings of the 2026-08-26 baseline, echoing
+# themselves, with no document behind any of them.
+UNCITED_RESOLUTION_FAMILY = "uncited-resolution"
+
+
+def parse_repo_identity(text: str) -> frozenset[str] | None:
+    """The repo-slug set a report was stamped with (issue #342), read back
+    from the FIRST `Repo-Identity:` header line.
+
+    `None` means UNSTAMPED — a report written before this change, including
+    every report in `health/reports/*.md` as of 2026-08-31 — and is the one
+    return value a caller MUST treat as "identity unknown", never as "empty
+    set". An empty but STAMPED set (a run that covered zero repos) reads back
+    as `frozenset()`, which is falsy but not `None`; callers comparing
+    against this MUST use `is None`, never bare truthiness, or the two
+    collapse into the same branch.
+
+    Deliberately NOT folded into `parse_previous`: that function's
+    `(keys, contested)` pair is unpacked by ~30 call sites across this
+    package's tests, and widening it to a triple would touch every one of
+    them for a concern most of those callers do not have. A caller that wants
+    both calls this and `parse_previous` separately, over the same text.
+    """
+    m = REPO_IDENTITY_RE.search(text)
+    if not m:
+        return None
+    value = m.group(1).strip()
+    if value == REPO_IDENTITY_NONE:
+        return frozenset()
+    return frozenset(s.strip() for s in value.split(",") if s.strip())
+
+
 def parse_previous(text: str, *, announce=_announce_unparsed_plan_rows):
     """(error_keys, contested_keys) from a prior report's ranked plan.
     Reports predating resolution classes yield an empty contested set.
@@ -279,6 +361,15 @@ def parse_previous(text: str, *, announce=_announce_unparsed_plan_rows):
     DO parse are unaffected — the returned key sets are byte-for-byte what they
     always were — and `announce=None` silences the diagnostic for a caller that
     wants the sets alone.
+
+    A `uncited-resolution` LINE NEVER JOINS `contested` (issue #515), even
+    though it is written with `class="contested"`. See `UNCITED_RESOLUTION_
+    FAMILY` above for why: it is the enforcement of the rule for OTHER
+    families, not a subject of the rule itself, and folding it in here is
+    the entire mechanism of the infinite echo. It still joins `keys` like any
+    other `error`/`critical` row, so a genuinely persisting uncited-resolution
+    finding is recognized as persisting rather than misread as a fresh
+    regression.
     """
     keys, contested = set(), set()
     for line in text.splitlines():
@@ -288,7 +379,7 @@ def parse_previous(text: str, *, announce=_announce_unparsed_plan_rows):
         key = (m.group(2), m.group(3), m.group(4))
         if m.group(1) in (CRITICAL, ERROR):
             keys.add(key)
-        if m.group(7) == "contested":
+        if m.group(7) == "contested" and m.group(2) != UNCITED_RESOLUTION_FAMILY:
             contested.add(key)
     # ONE SOURCE FOR "WHICH ROWS ARE UNREADABLE": `unparsed_plan_rows`, not a
     # second copy of its predicate inlined in the loop above. The inlined copy
@@ -302,22 +393,44 @@ def parse_previous(text: str, *, announce=_announce_unparsed_plan_rows):
 
 def uncited_resolutions(findings: list[Finding], previous_contested,
                         dispositions,
-                        unavailable_families: set[str] | None = None
+                        unavailable_families: set[str] | None = None,
+                        unavailable_repos: set[str] | None = None
                         ) -> list[Finding]:
     """Contested findings from the previous report that vanished without a
     recorded disposition become new error findings (doc-health contract:
-    contested resolutions require a cited change or human disposition)."""
+    contested resolutions require a cited change or human disposition).
+
+    `previous_contested` never carries a `uncited-resolution` key — see
+    `UNCITED_RESOLUTION_FAMILY` and `parse_previous` — so this can iterate it
+    with no self-exclusion of its own and still never re-audit its own prior
+    output (issue #515).
+
+    `unavailable_repos` (issue #342 fix shape item 3) is the same exclusion
+    as `unavailable_families`, one axis over: a repo the baseline covered but
+    THIS run's scope does not never got a chance to re-confirm or refute that
+    repo's contested findings, so their absence from `findings` must never
+    read as "resolved". This is the residual gap a `--previous-report` whose
+    stamped identity is a proper SUPERSET of the current run's still carries
+    even after the identity refusal in `runner.main` (which requires the
+    current scope to be a SUBSET of the baseline's, not equal to it) — e.g. a
+    `--single-repo` self-gate diffed against last night's full aggregation
+    baseline. Callers that cannot determine the baseline's identity (an
+    unstamped, pre-#342 report) MUST pass `None` or an empty set here rather
+    than guess one, preserving exactly today's behaviour for that case.
+    """
     current = {f.match_key() for f in findings}
     out = []
     for family, repo, path in sorted(previous_contested or ()):
         if family in (unavailable_families or set()):
+            continue
+        if repo in (unavailable_repos or set()):
             continue
         if (family, repo, path) in current:
             continue
         if (family, repo, path) in dispositions:
             continue
         out.append(Finding(
-            ERROR, "uncited-resolution", repo, path,
+            ERROR, UNCITED_RESOLUTION_FAMILY, repo, path,
             f"contested {family} finding resolved without citation",
             "record a disposition (health/dispositions.yaml) citing the "
             "OpenSpec change or human decision, or restore the prior state",
@@ -355,7 +468,8 @@ def render(run_date: date, findings: list[Finding], skips, preflight_log,
            docs, spec_words: int, deviations: list[str],
            new_regressions: list[Finding], semantic_meta=None,
            catalog_meta=None, organizer_meta=None,
-           family_notes: dict | None = None) -> str:
+           family_notes: dict | None = None,
+           repo_slugs: frozenset[str] | set[str] | None = None) -> str:
     findings = sorted(findings, key=Finding.sort_key)
     share, canon, total, by_stage = canon_stats(docs, spec_words)
     out = []
@@ -363,6 +477,19 @@ def render(run_date: date, findings: list[Finding], skips, preflight_log,
     out.append("")
     out.append("Status: record")
     out.append("Kind: report")
+    # ISSUE #342. `repo_slugs=None` renders NO line — byte-identical output
+    # for every caller that has not adopted the stamp (this package's own
+    # unit tests included, most of which build a report to exercise one
+    # unrelated field and pass no repo scope at all). `runner.main` is the
+    # one production caller and always passes the run's real scope, even
+    # when it is a single repo, so every report it writes from here on is
+    # stamped — `frozenset()` (a run somehow covering zero repos) still
+    # renders the explicit `(none)` line rather than being mistaken for "not
+    # stamped" on read-back (see `parse_repo_identity`).
+    if repo_slugs is not None:
+        stamp = (", ".join(sorted(repo_slugs))
+                 if repo_slugs else REPO_IDENTITY_NONE)
+        out.append(f"{REPO_IDENTITY_PREFIX}{stamp}")
     out.append("")
     out.append("## Headline")
     out.append("")

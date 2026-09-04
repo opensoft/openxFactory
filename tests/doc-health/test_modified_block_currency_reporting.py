@@ -66,7 +66,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from doc_health import INFO, WARNING, Finding, Skip
+from doc_health import ERROR, INFO, WARNING, Finding, Skip
 from doc_health import modified_block_currency as mbc
 from doc_health import report, runner
 
@@ -98,6 +98,12 @@ TREE_NOSCOPE = "modified-block-currency-noscope"    # the family's own Skip
 # finding and the pin passes either way. A mutation round proved that — the
 # earlier one-directory tree let "emit before the first sort" survive.
 TREE_UNPLACED = "modified-block-currency-unplaced"
+# `govern-sibling-added-modified-deltas`: one tree per new class.
+# `-pairing` carries every reported state of the pairing class AND both silent
+# ones; `-collision` carries the unsafe archive order in both basis forms plus
+# the lawful-rename negative control.
+TREE_PAIRING = "modified-block-currency-pairing"
+TREE_COLLISION = "modified-block-currency-collision"
 
 ALL_TREES = tuple(sorted(
     p.name for p in FIXTURES.iterdir()
@@ -128,10 +134,18 @@ def _fixture_findings(tree):
 # ============================================================================
 
 def test_the_class_registry_is_closed_ordered_and_states_a_band_per_class():
-    """FIVE CLASSES, and the module's own docstring already says so: "THREE
-    ARMS, FIVE FINDING CLASSES, AND THE NUMBERS DIFFER ON PURPOSE". The fifth,
+    """SEVEN CLASSES, and the module's own docstring already says so: "THREE
+    ARMS, SEVEN FINDING CLASSES, AND THE NUMBERS DIFFER ON PURPOSE". The fifth,
     `unplaced`, is `add-unclassified-finding-class`'s: not an arm, and not a
     comparison between documents — it reads this map's own verdict.
+
+    **MOVED BY `govern-sibling-added-modified-deltas`, 2026-09-01: FIVE ->
+    SEVEN, AND THE TWO NEW ROWS ARE INSERTED RATHER THAN APPENDED.**
+    `sibling-pairing` and `added-over-canon` sit BEFORE `unplaced` so that BOTH
+    standing ordering claims below stay true — the gate-bearing arm reads FIRST,
+    and the drift class, which reads this map's verdict on everything above it,
+    reads LAST. Appending them after it would have left the drift row rendering
+    in the middle of the block it is about.
 
     Ordered, because the rendered block's order is part of its contract — the
     gate-bearing arm reads first, for the same reason the family sorts its own
@@ -144,17 +158,26 @@ def test_the_class_registry_is_closed_ordered_and_states_a_band_per_class():
     """
     ids = [c.id for c in mbc.CLASSES]
     assert ids == ["scenario-titles", "carriage-ledger",
-                   "title-resolution", "marker-defects", "unplaced"]
+                   "title-resolution", "marker-defects",
+                   "sibling-pairing", "added-over-canon", "unplaced"]
     bands = {c.id: c.band for c in mbc.CLASSES}
     assert bands == {
         "scenario-titles": mbc._LAUNCH_SEVERITY,
         "carriage-ledger": mbc._LEDGER_SEVERITY,
         "title-resolution": mbc._RESOLUTION_SEVERITY,
         "marker-defects": mbc._LEDGER_SEVERITY,
-        # ITS OWN CONSTANT, not `_LAUNCH_SEVERITY`. They are value-identical
-        # today, so this line cannot tell them apart — that is what
+        # THEIR OWN CONSTANTS, not `_LAUNCH_SEVERITY` and not each other's, on
+        # the module's own stated reason: § 7.2's flip moved `_LAUNCH_SEVERITY`
+        # ALONE at `7f656980`, which is the demonstration that separately
+        # assignable constants are what keep a later flip from dragging a class
+        # no ruling named.
+        "sibling-pairing": mbc._PAIRING_SEVERITY,
+        "added-over-canon": mbc._COLLISION_SEVERITY,
+        # ITS OWN CONSTANT, not `_LAUNCH_SEVERITY`. They were value-identical
+        # before the § 7.2 flip (2026-08-31, issue #357), so this line alone
+        # could not tell them apart pre-flip — that is what
         # `test_modified_block_currency.py::
-        # test_the_reserved_flip_of_the_launch_severity_does_not_drag_the_drift_class`
+        # test_the_realized_flip_of_the_launch_severity_did_not_drag_the_drift_class`
         # is for. This line's job is that the band is read from the MODULE and
         # never re-spelled as a literal.
         "unplaced": mbc._DRIFT_SEVERITY,
@@ -165,11 +188,35 @@ def test_the_class_registry_is_closed_ordered_and_states_a_band_per_class():
         "carriage-ledger": mbc._ACTION,
         "title-resolution": mbc._ACTION,
         "marker-defects": mbc._MARKER_ACTION,
-        "unplaced": mbc._DRIFT_ACTION,
+        # A FRESH LITERAL, TYPED INDEPENDENTLY OF `mbc._DRIFT_ACTION` — the
+        # same tautology `_MARKER_ACTION` had here until #448's review caught
+        # it (see `_MARKER_ACTION_TEXT` below): comparing a finding's action
+        # to the constant it was BUILT from passes whatever that constant had
+        # been mutated to, because `mbc.CLASSES` reads `_DRIFT_ACTION` at
+        # import time too — both sides move together. Issue #485.
+        "unplaced": ("extend the class map in "
+                     "`scripts/doc_health/modified_block_currency.py`, or "
+                     "fix the drifted rule text the finding names"),
+        # FRESH LITERALS, TYPED INDEPENDENTLY of `mbc._PAIRING_ACTION` and
+        # `mbc._COLLISION_ACTION`, on the same rule the `unplaced` row above
+        # states: comparing a class's action to the constant it was BUILT from
+        # passes whatever that constant was mutated to.
+        "sibling-pairing": (
+            "declare the basis with ONE `Modified over` marker and no more "
+            "than one, name the change carrying the block as that marker's "
+            "`by` identifier, give the marker the ` — <reason>` tail its form "
+            "requires, disclose in that reason clause where the basis is not "
+            "ratified, and hold the archive until the declared change "
+            "promotes"),
+        "added-over-canon": (
+            "promote nothing further until the collision is resolved, and — "
+            "where the requirement genuinely already exists — convert the "
+            "addition to a modification declared against canon, or withdraw "
+            "or re-target the rename whose `TO:` title canon already carries"),
     }
     # every class carries a rendered label, and no two share one
     labels = [c.label for c in mbc.CLASSES]
-    assert len(set(labels)) == 5, labels
+    assert len(set(labels)) == 7, labels
     # NEITHER THE FIFTH ID NOR ITS LABEL MAY CONTAIN `unclassified`:
     # `test_a_finding_the_map_cannot_place_is_counted_and_named` asserts that
     # string's absence from a fully-classified summary, and a class label
@@ -179,11 +226,19 @@ def test_the_class_registry_is_closed_ordered_and_states_a_band_per_class():
         (c.id, c.label) for c in mbc.CLASSES)[mbc.CLASS_DRIFT]
     # ...and the fifth carries NO gloss, on the module's own stated rule
     assert dict((c.id, c.gloss) for c in mbc.CLASSES)[mbc.CLASS_DRIFT] == ""
+    # ...and neither do the two `govern-sibling-added-modified-deltas` inserts,
+    # on that same rule: the labels already say what they are, and the block's
+    # whole value is being short enough to read at a glance.
+    glosses = dict((c.id, c.gloss) for c in mbc.CLASSES)
+    assert glosses[mbc.CLASS_PAIRING] == ""
+    assert glosses[mbc.CLASS_COLLISION] == ""
+    assert "unclassified" not in mbc.CLASS_PAIRING
+    assert "unclassified" not in mbc.CLASS_COLLISION
 
 
-def test_each_of_the_six_rule_shapes_classifies_into_its_own_class(monkeypatch):
-    """SIX SHAPES, FIVE CLASSES. The delta's third arm is "Title resolution and
-    ordering" — one arm, two shapes (a block resolving to nothing, and an
+def test_each_of_the_eight_rule_shapes_classifies_into_its_own_class(monkeypatch):
+    """EIGHT SHAPES, SEVEN CLASSES. The delta's third arm is "Title resolution
+    and ordering" — one arm, two shapes (a block resolving to nothing, and an
     ordering no declaration settles). They share a severity and an action and
     the delta names them together, so splitting them in the report would claim a
     class the delta does not define.
@@ -193,6 +248,13 @@ def test_each_of_the_six_rule_shapes_classifies_into_its_own_class(monkeypatch):
     prefixes and the drift emit builds a sixth. A count in a FUNCTION NAME that
     the code contradicts is the same defect the numeral sweep exists to remove
     from the prose, so the name moved with the numbers.
+
+    **RENAMED AGAIN BY `govern-sibling-added-modified-deltas`, 2026-09-01:
+    `..._six_rule_shapes_...` -> `..._eight_...`.** Two classes, two templates,
+    two shapes — and the pairing class's FOUR reported states are ONE of them,
+    which is the assertion the `-resolution` line below carries: they differ
+    only in an interpolated clause, so a second shape among them would mean a
+    state had been given fixed prose the mask cannot strip.
 
     Driven by fixture trees rather than by hand-written rule text: a hand-copied
     rule text in this file could drift from the arms and the test would keep
@@ -204,9 +266,38 @@ def test_each_of_the_six_rule_shapes_classifies_into_its_own_class(monkeypatch):
 
     assert classes_over(TREE_TITLES) == {"scenario-titles", "carriage-ledger"}
     assert classes_over(TREE_MARKERS) == {"marker-defects", "carriage-ledger"}
+    # MOVED 2026-09-01: the `-resolution` tree's `add-pending-title` block
+    # carries the corpus's oldest pending pair and no marker, so it is now the
+    # UNDECLARED state rather than a silence. That is the whole change this
+    # class makes to an existing fixture, and it is a change of REPORTING and
+    # not of comparison — the three arms still do not run against it.
     assert classes_over(TREE_RESOLUTION) == {"title-resolution",
-                                             "carriage-ledger"}
-    assert classes_over(TREE_RICH) == {"title-resolution", "carriage-ledger"}
+                                             "carriage-ledger",
+                                             "sibling-pairing"}
+    # MOVED 2026-09-01 for the same reason `-resolution` moved, and this tree's
+    # pairing row says something the other's does not: `add-mo-modifier` DOES
+    # name `add-mo-adder` in its own proposal, and it is still UNDECLARED. The
+    # proposal cross-reference is a fact about two CHANGES; the marker is a fact
+    # about two BLOCKS, and neither substitutes for the other.
+    assert classes_over(TREE_RICH) == {"title-resolution", "carriage-ledger",
+                                       "sibling-pairing"}
+    # ...and the two `govern-sibling-added-modified-deltas` adds, each reached
+    # from the tree written for it. The pairing tree's `carriage-ledger` row is
+    # NOT incidental: it is the own-rename carve's, and it is what proves the
+    # three comparison arms RAN against a rename-and-amend block under the OLD
+    # name rather than that the pairing check merely stayed quiet about it.
+    assert classes_over(TREE_PAIRING) == {"sibling-pairing", "carriage-ledger"}
+    assert classes_over(TREE_COLLISION) == {"added-over-canon"}
+    # ...and the pairing class's FOUR reported states are ONE shape: over the
+    # tree that carries all four, every finding lands in that one class and
+    # matches exactly one template.
+    pairing = [f for f in _fixture_findings(TREE_PAIRING)
+               if mbc.classify(f) == mbc.CLASS_PAIRING]
+    assert {mbc._shape(f.rule) for f in pairing} == {"template:sibling-pairing"}
+    assert {f.rule.split(" and the pairing is ")[1].split(":")[0]
+            for f in pairing} == {"undeclared", "misdeclared",
+                                  "self-referential", "undisclosed"}, (
+        [f.rule[:160] for f in pairing])
     # ...and the two shapes of the third arm really are two shapes, not one
     # fixture reached twice: their rule texts differ in their opening phrase.
     opens = {f.rule.split(" for ")[0] if " for " in f.rule else f.rule
@@ -327,17 +418,31 @@ _LEAD = ("Finding classes, counted apart so the gate-bearing arm is never read "
 
 def test_the_summary_states_every_class_with_its_count_and_band():
     """The contract of `contracts/report-section.md` § 1, over a real fixture
-    tree so the counts are measured rather than asserted about themselves."""
+    tree so the counts are measured rather than asserted about themselves.
+
+    The scenario-title band FLIPPED to `error` 2026-08-31 (issue #357);
+    `FindingClass.band` reads `_LAUNCH_SEVERITY` directly, so the rendered
+    caption moved with it, per `_LAUNCH_SEVERITY`'s own comment. Every other
+    band is unmoved (O8).
+
+    **TWO ROWS ADDED 2026-09-01 BY `govern-sibling-added-modified-deltas`**, in
+    the position the registry puts them — before the drift row, so the row that
+    ENDS this block is still the one that reads this map's verdict on the rows
+    above it. Both read 0 over this tree, which is the point of rendering a
+    class at zero: a reader can tell a quiet corpus from a class that was never
+    measured."""
     findings = _fixture_findings(TREE_MARKERS)
     lines = mbc.class_summary(findings)
     assert lines[0] == _LEAD
     assert lines[1:] == [
-        "- scenario-title completeness: 0 (`warning` — the arm carrying this "
+        "- scenario-title completeness: 0 (`error` — the arm carrying this "
         "family's gate)",
         "- carriage ledger: 3 (`info` — editorial, and the arm says so in "
         "every finding)",
         "- title resolution and ordering: 0 (`warning`)",
         "- marker defects: 1 (`info`)",
+        "- sibling-pairing declaration: 0 (`warning`)",
+        "- added-over-canon collision: 0 (`warning`)",
         "- unplaced-finding drift: 0 (`warning`)",
     ]
 
@@ -484,7 +589,8 @@ def test_the_block_renders_on_a_run_that_found_nothing():
     assert result.findings == [] and result.skips == []
     section = _section(_render(result))
     assert _LEAD in section
-    assert "- scenario-title completeness: 0 (`warning`" in section
+    # `error` since the 2026-08-31 flip (issue #357); `warning` at launch.
+    assert "- scenario-title completeness: 0 (`error`" in section
     assert "No findings." in section
     assert section.index(_LEAD) < section.index("No findings.")
 
@@ -831,7 +937,9 @@ def test_the_block_is_not_a_finding_and_cannot_become_one(monkeypatch):
     block = [line for line in section.splitlines()
              if line == _LEAD or (line.startswith("- ")
                                   and not line.startswith("- ["))]
-    assert len(block) == 6, block          # the lead plus five class rows
+    # MOVED 2026-09-01 by `govern-sibling-added-modified-deltas`: the lead plus
+    # SEVEN class rows, the two new classes rendering at zero like every other.
+    assert len(block) == 8, block          # the lead plus seven class rows
     for line in block:
         assert report.PLAN_RE.match(line) is None, line
     plan = with_summary[with_summary.index("## Ranked Plan"):]
@@ -1447,11 +1555,14 @@ def test_extending_the_map_removes_both_the_finding_and_the_residual_row(
 
     This finding is DESIGNED to stop being emitted the moment somebody extends
     the map. `report.uncited_resolutions` turns a `contested` finding that
-    VANISHES between reports into an `error`, so a `contested` classification
-    here would red the nightly on the very run that proves the remedy landed.
-    The family's deliberate absence from `FAMILY_RESOLUTION` is what prevents
-    that, and it is asserted here rather than assumed.
+    VANISHES between reports into an `error` — through the advisory launch
+    the family's deliberate absence from `FAMILY_RESOLUTION` is what prevented
+    that. FLIPPED 2026-08-31 (issue #357): the family is CONTESTED now, this
+    fixture's remedy included, so the drift finding vanishing here would owe a
+    citation the same way every other class's does — the discipline the
+    flip's second half exists to buy, asserted rather than assumed.
     """
+    from doc_health import CONTESTED
     from doc_health.families import FAMILIES, FAMILY_RESOLUTION
 
     drifted, unplaced = _drifted(monkeypatch, mbc.CLASS_LEDGER)
@@ -1465,11 +1576,11 @@ def test_extending_the_map_removes_both_the_finding_and_the_residual_row(
     assert not any("unclassified" in line
                    for line in mbc.class_summary(restored))
 
-    assert mbc.FAMILY in FAMILIES, "the absence below means nothing otherwise"
-    assert mbc.FAMILY not in FAMILY_RESOLUTION
+    assert mbc.FAMILY in FAMILIES, "the membership below means nothing otherwise"
+    assert FAMILY_RESOLUTION.get(mbc.FAMILY) == CONTESTED
 
 
-def test_the_new_fixture_tree_declares_its_provenance_and_stays_advisory():
+def test_the_new_fixture_tree_declares_its_provenance_and_the_other_classes_stay_advisory():
     """F2's convention, checked for a tree F2's own checker cannot reach.
 
     `test_every_fixture_tree_this_feature_adds_carries_a_provenance_note`
@@ -1481,8 +1592,15 @@ def test_the_new_fixture_tree_declares_its_provenance_and_stays_advisory():
     catch. The convention is kept and pinned HERE instead (plan § O5).
 
     The band sweep rides along for the same reason: F2's
-    `test_no_new_tree_reports_an_error_or_critical_finding` also iterates
-    `NEW_TREES`, so nothing else asserts that this tree stays advisory.
+    `test_no_new_tree_reports_an_unexpected_error_or_a_critical_finding` also
+    iterates `NEW_TREES`, so nothing else asserts about this tree's bands.
+
+    THIS TREE CARRIES 1 titles + 3 ledger, so it is exactly where the flip
+    (2026-08-31, issue #357) changes what "stays advisory" means: the ONE
+    scenario-title finding is `error` now, by design — that arm is
+    gate-bearing. What still "stays advisory" is everything else, checked
+    apart from it the same way `test_no_new_tree_reports_an_unexpected_error_
+    or_a_critical_finding` splits `NEW_TREES`.
     """
     note = FIXTURES / TREE_UNPLACED / "README.md"
     assert note.is_file()
@@ -1494,7 +1612,10 @@ def test_the_new_fixture_tree_declares_its_provenance_and_stays_advisory():
 
     findings = _fixture_findings(TREE_UNPLACED)
     assert findings, "a vacuous pass is not a pass"
-    assert {f.severity for f in findings} <= {WARNING, INFO}
+    titles = [f for f in findings if mbc.classify(f) == mbc.CLASS_TITLES]
+    others = [f for f in findings if f not in titles]
+    assert {f.severity for f in titles} == {ERROR}
+    assert {f.severity for f in others} <= {WARNING, INFO}
 
 
 # ============================================================================
@@ -1538,6 +1659,14 @@ _TEMPLATE_PROBES = {
     "unresolved": " resolves to no promoted requirement, ",
     "ordering": "the ordering of MODIFIED blocks for ",
     "drift": "this family's own class map has no pattern for ",
+    # THE TWO `govern-sibling-added-modified-deltas` ADDS. The pairing probe is
+    # deliberately the WHOLE clause and not "sibling's addition": that shorter
+    # fragment appears in `TEMPLATE_UNRESOLVED`'s fixed prose too ("no active
+    # sibling's addition:"), so it would match two templates and this
+    # independent reading would assert against itself rather than against the
+    # module.
+    "pairing": " rests on an active sibling's addition rather than on canon, ",
+    "collision": " writes a requirement title ",
 }
 
 
@@ -1640,7 +1769,10 @@ def test_every_finding_matches_exactly_one_arm_template():
         assert hits[0].endswith(
             {"titles": "scenario-titles", "ledger": "carriage-ledger",
              "markers": "marker-defects", "unresolved": "title-resolution",
-             "ordering": "ordering", "drift": "unplaced-drift"}[
+             "ordering": "ordering", "drift": "unplaced-drift",
+             # MOVED BY `govern-sibling-added-modified-deltas`: two more
+             # templates, two more rows, and the property is unchanged.
+             "pairing": "sibling-pairing", "collision": "added-over-canon"}[
                  _independent_template_of(f.rule)]), f.rule[:140]
 
     # every registered template exercised at least once, or the sweep above
@@ -1745,8 +1877,15 @@ def test_the_arm_templates_are_the_only_place_the_prose_lives():
         assert opening not in source, (
             f"an arm is building a rule text inline again ({opening!r}); it must "
             f"render through an `_ArmTemplate` or the shape mask cannot see it")
-    assert len(mbc._ARM_TEMPLATES) == 6
-    assert len({t.id for t in mbc._ARM_TEMPLATES}) == 6
+    # MOVED BY `govern-sibling-added-modified-deltas`, 2026-09-01: SIX -> EIGHT.
+    # The packet registers `TEMPLATE_PAIRING` and `TEMPLATE_COLLISION`, and the
+    # count moves with the registry rather than the registry being trimmed to
+    # the count. The pairing class's FOUR reported states share ONE template on
+    # purpose — one shape, one map entry, one remedy — so the two new classes
+    # bring exactly two, and a third would mean a state had been given fixed
+    # prose of its own.
+    assert len(mbc._ARM_TEMPLATES) == 8
+    assert len({t.id for t in mbc._ARM_TEMPLATES}) == 8
 
 
 def test_two_findings_of_one_template_differing_in_an_unquoted_field_are_one_shape():
@@ -1867,3 +2006,50 @@ def test_two_unresolved_blocks_differing_only_in_capability_are_one_shape():
         # fallback and split the two capabilities apart again.
         assert "sibling's addition" in masked, masked
     assert mbc._mask_repr_spans(a.rule) == mbc._mask_repr_spans(b.rule)
+
+
+def test_dropping_either_new_class_s_pattern_makes_the_fifth_class_name_it(
+        monkeypatch):
+    """§ 2.8's NEGATIVE, VERIFIED FIRST AND THEN KEPT.
+
+    A class whose pattern is registered can only be shown to be NEEDED by
+    removing it: with the arm template registered and the `_CLASS_PATTERNS`
+    entry absent, the fifth class must fire and QUOTE the new rule text. That is
+    the fifth class working, and it is also the proof that the two new entries
+    are load-bearing rather than decorative — an entry nothing would notice the
+    absence of is an entry no test covers.
+
+    ONE DRIFT FINDING PER CLASS, whatever the unplaced count: the grain is one
+    per ARM TEMPLATE, which is one per REMEDY, and both new classes render
+    through exactly one template each. Thirteen unplaced pairing findings and
+    two unplaced collision ones each collapse to ONE — which is also what says
+    the pairing class's four reported states are one shape.
+    """
+    for class_id, tree, phrase in (
+        (mbc.CLASS_PAIRING, TREE_PAIRING,
+         "rests on an active sibling's addition rather than on canon"),
+        (mbc.CLASS_COLLISION, TREE_COLLISION,
+         "writes a requirement title"),
+    ):
+        with pytest.MonkeyPatch.context() as patch:
+            findings, unplaced = _drifted(patch, class_id, tree=tree)
+            assert unplaced, class_id
+            drift = _drift_findings(findings)
+            assert len(drift) == 1, (class_id, [f.rule[:120] for f in drift])
+            assert phrase in drift[0].rule, class_id
+            assert f"no pattern for {len(unplaced)} findings" in drift[0].rule
+            # ...and the residual row says so on the artifact too
+            residual = [line for line in mbc.class_summary(findings)
+                        if line.startswith("- unclassified: ")]
+            assert residual == [
+                f"- unclassified: {len(unplaced)} — findings this family "
+                f"emitted that its own class map does not place; the map has "
+                f"drifted from the arms and the counts above are short by this "
+                f"many"], (class_id, residual)
+
+    # ...and with BOTH patterns present the map places everything on both trees
+    for tree in (TREE_PAIRING, TREE_COLLISION):
+        findings = _fixture_findings(tree)
+        assert [f for f in findings
+                if mbc.classify(f) == mbc.UNCLASSIFIED] == [], tree
+        assert _drift_findings(findings) == [], tree

@@ -672,8 +672,13 @@ def test_a_builder_refusal_answers_on_the_routes_fixed_400_shape(
     """Force the builder to raise and assert the wire answer is the SAME fixed
     `invalid_turn_request` every other structural packet refusal uses — not a
     500, and not a new code."""
+    # `_assert_refusal` was `_assert_v2_refusal` until contract-v3.0
+    # (retire-doxbench-chat-turn-v1). Two asserters existed because a refusal is
+    # answered in the family its request arrived in, and they differed in exactly
+    # one clause -- the `kind`. One family survives, so the distinction is gone
+    # and the twins merged under the unqualified name.
     from test_doxbench_routes import (  # noqa: E402
-        _assert_v2_refusal, _post_turn, _turn_v2,
+        _assert_refusal, _post_turn, _turn_v2,
     )
 
     def _raising(**_kwargs):
@@ -685,10 +690,10 @@ def test_a_builder_refusal_answers_on_the_routes_fixed_400_shape(
     status, payload, _port = _post_turn(tmp_path, _turn_v2())
 
     assert status == 400, (status, payload)
-    # The V2 assertion, because a refusal is answered in the family its request
-    # arrived in — asserting the v1 kind here would pass only for a route
-    # answering the wrong one.
-    _assert_v2_refusal(status, payload, "invalid_turn_request")
+    # The asserter pins the surviving family's `kind` exactly, which is what
+    # makes this a real check rather than a status comparison: a route answering
+    # in some other envelope fails here.
+    _assert_refusal(status, payload, "invalid_turn_request")
 
 
 def test_the_builder_call_site_is_inside_a_packet_error_handler():
