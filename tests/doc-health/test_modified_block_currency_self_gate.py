@@ -1859,13 +1859,17 @@ def _repo_with_a_published_main(tmp_path: Path) -> Path:
     return repo
 
 
-def _land_on_published_main(tmp_path: Path, repo: Path) -> str:
-    """One landing on `origin/main` that `repo` has NOT fetched, as a sha.
+def _land_on_published_main(tmp_path: Path) -> str:
+    """One landing on `origin/main` that the repository under test has NOT
+    fetched, as a sha.
 
-    Committed in a second clone and pushed from there, because a commit made in
-    `repo` would put the object in `repo`'s own store — which is the whole
-    condition under test. The working tree of `repo` is untouched: what moves is
-    the published reference, not this checkout.
+    IT TAKES THE ORIGIN, NOT THAT REPOSITORY, and the asymmetry is the point
+    (Copilot, this PR): a commit made in the repository under test would put the
+    object in ITS OWN store, which is the whole condition being created, so this
+    helper never touches it. Its working tree is untouched too — what moves is
+    the published reference, not the checkout. The caller asserts the object
+    really is absent, so a helper that quietly stopped creating the condition
+    would red rather than pass vacuously.
     """
     elsewhere = tmp_path / "elsewhere"
     subprocess.run(["git", "clone", "-q", str(tmp_path / "origin.git"),
@@ -1918,7 +1922,7 @@ def test_the_measured_pair_survives_a_landing_on_main(tmp_path):
     control_warm = _pre_626_report(repo, tmp_path / "control-warm" / "r.md")
     pinned_warm = _report(repo, tmp_path / "pinned-warm", skip=False)
 
-    landed = _land_on_published_main(tmp_path, repo)
+    landed = _land_on_published_main(tmp_path)
     assert subprocess.run(["git", "-C", str(repo), "cat-file", "-e", landed],
                           capture_output=True).returncode != 0, (
         f"{landed[:9]} is already in this checkout's object store, so the "
