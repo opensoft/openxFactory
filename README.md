@@ -541,7 +541,14 @@ Active changes:
   it. `target_release:` is the next ADDITIVE minor, allocated at realization by
   merge order (the policy forbids reserving one). Archives AFTER
   `add-clearing-dispatch-boundary`, on merged-plus-green realization evidence.
-  Lane `hermes-wallet-exercise`.
+  Two adversarial review rounds are recorded in the packet
+  (`review/adversarial-round-1-2026-09-04.md`, `-round-2-`), and **TWO QUESTIONS
+  ARE PUT FOR THE RATIFIER** with both readings and the cost of each, under a
+  `THE QUESTION, PUT FOR RULING` heading in `design.md`: **D10** — does the
+  basis's dormant-second-door scenario reach THIS admission, or only the act that
+  declares the host job (refusing the packet's reading is coherent only if the two
+  land as ONE act, #165 D13 making the alternative circular)? — and **D13** —
+  three refusal grounds now, or two? Lane `hermes-wallet-exercise`.
 - [add-consumer-identity-namespace](openspec/changes/add-consumer-identity-namespace/proposal.md)
   — authored 2026-09-03, **RATIFIED 2026-09-03 by Brett Heap, in session**
   (verbatim "implement your recommendations on all these", over written

@@ -127,12 +127,15 @@ carries; it mints no class and no vocabulary.
 governed change.** A refusal SHALL be recorded with its ground named from the
 CLOSED, NAMED ENUMERATION the dispatch record carries, and a ground absent from
 that enumeration SHALL be added by a governed change rather than recorded as
-free text. That enumeration holds TWO members today — `unregistered_operation`
-and `unknown_lane_selector` — one per refusal the realization can actually emit,
-and the record's own words are that each further ground "becomes a member AS THE
-OPERATION THAT CAN PRODUCE IT LANDS". THIS ENTRY IS THAT OPERATION FOR THREE OF
-THEM, so this change ADMITS EXACTLY THREE GROUNDS and names them rather than
-leaving a realizer to coin them:
+free text. That enumeration HELD TWO MEMBERS AT THIS CHANGE'S AUTHORING —
+`unregistered_operation` and `unknown_lane_selector` — one per refusal the
+realization can actually emit, and the record's own words are that each further
+ground "becomes a member AS THE OPERATION THAT CAN PRODUCE IT LANDS". THIS ENTRY
+IS THAT OPERATION FOR THREE OF THEM, so this change ADMITS EXACTLY THREE FURTHER
+GROUNDS — carrying the enumeration to FIVE — and names them rather than leaving a
+realizer to coin them. The count is written as a reading TAKEN AT A MOMENT rather
+than as a standing fact, because a ratified sentence that its own realization
+falsifies is a sentence a later reader cannot rely on:
 
 - `lane_not_permitted` — entry number one permits BOTH lanes, so no dispatch
   could reach this refusal; entry number two is the first entry that permits one
@@ -143,17 +146,65 @@ leaving a realizer to coin them:
 - `origin_scoped_credential` — entry number one's job carries NO token at all,
   so no credential could be mis-scoped into it; entry number two is the first
   entry whose job carries a token, and the refusal is this entry's own scenario.
+  ONE GROUND COVERS THE WHOLE CLASS of material scoped to the originating
+  repository that must never reach the host, A SEAT KEY INCLUDED. The record's
+  awaited list names no separate signing-key ground, and coining one here would
+  be minting a CONCEPT rather than rendering a NAME — which is the line this
+  entry holds. `origin` in this identifier carries the meaning the dispatch
+  record already fixes for it in its own field names, THE ORIGINATING REPOSITORY
+  (`origin_repository`, `origin_signature`), and not "the origin signing key":
+  the ground is a credential SCOPED TO the originating repository, wherever it
+  came from.
+
+THE THREE ENGLISH NAMES ARE THE RECORD'S OWN; THE THREE IDENTIFIERS ARE THIS
+CHANGE'S, MECHANICALLY DERIVED, AND THE ENUMERATION MOVES AT REALIZATION BY THIS
+TEXT. The dispatch record names its awaited grounds IN PROSE and not in
+identifiers — "lane not permitted", "output-schema failure" and "origin-scoped
+credential" are three of the nine it lists, in those words — so there is no
+identifier anywhere to copy and a realizer would have had to invent one. This
+change invents no CONCEPT. It renders each of those three names into the
+identifier form the two seeded members already carry, by the single rule those
+two follow: lower case, words joined by underscores, no `clearing-` prefix, and
+a hyphen inside a compound becoming an underscore. The rendering is ratified here
+precisely so that the enumeration moves BY THIS TEXT rather than by a realizer's
+ear. Applying the same rule to the six grounds that stay absent is not
+authorization to seed them.
 
 NO OTHER GROUND IS SEEDED. The remaining grounds the record names as awaited
 stay absent until the operation that can produce them lands, an enumeration
-seeded with grounds no implementation can emit being closed in name only. AND
-NO VALIDATOR REFUSAL CODE IS MINTED BY THIS ENTRY: the family's closed
-finding-code set already carries `clearing-lane-not-permitted` and
-`clearing-report-carries-a-verdict`, and a return that fails its schema is
-reported as the family's SHAPE refusal, which that set deliberately excludes
-because it is JSON Schema's rule and not this family's. A widening of the
-finding-code set would be a separate governed change and this entry does not
-make one.
+seeded with grounds no implementation can emit being closed in name only.
+
+AND NO VALIDATOR REFUSAL CODE IS MINTED BY THIS ENTRY. The grounds above are
+members of the RECORD's enumeration and are not members of the canonical
+validator's closed finding-code set; the two are different sets with different
+spellings, so this requirement states WHICH COMPONENT EMITS WHICH rather than
+leaving realization to decide it:
+
+- The two finding codes this entry's refusals need ALREADY EXIST —
+  `clearing-lane-not-permitted` and `clearing-report-carries-a-verdict` — and
+  this entry uses them unchanged.
+- A return that FAILS ITS DECLARED SCHEMA is reported BY THE CANONICAL VALIDATOR
+  as the family's SHAPE refusal, `schema`, which the closed finding-code set
+  deliberately excludes because it is JSON Schema's rule and not this family's.
+  That reporting begins only once the new `kind` is ROUTED to its schema: an
+  unrouted kind is not validated at all rather than validated loosely, which is
+  why the routing is a named realization task and not an assumption.
+- The dispatch record's ground `output_schema_failure` is written BY THE CLEARING
+  WORKFLOW'S HOSTED FINALIZER at dispatch time — where the basis already places
+  that refusal — and NOT by the canonical validator, which never writes a
+  dispatch record at all. `origin_scoped_credential` is likewise a property of a
+  dispatch ATTEMPT rather than of any packaged shape, so no fixture can make it
+  fire and none is owed: the family's "every closed refusal code is red-proven"
+  rule binds the validator's finding CODES, not this enumeration's MEMBERS, whose
+  proof is that a packaged record naming them validates clean.
+- The validator's only duty over these members is the one it already performs.
+  `clearing-record-refusal-ground-unknown` reads the enumeration OUT OF THE
+  SCHEMA at run time, so admitting the three members requires no validator code
+  and grants no new refusal.
+
+ASSIGNING AN EXISTING REFUSAL TO AN EXISTING COMPONENT IS NOT A WIDENING. A
+widening of the finding-code set would be a separate governed change and this
+entry does not make one.
 
 **Repository-affecting output.** `false`. The return is evidence. A change that
 gave this entry a repository effect would need a hosted finalizer and would BE a
@@ -171,9 +222,9 @@ only door. The act that opens the second door is the act that declares the host
 job, and that act is where the requirement bites — which is why the obligation
 is carried forward onto it below rather than discharged here.
 
-The governed group `xfactory-artifact-workers` today carries the grandfathered
-member `council-deliberation-worker.yml`, whose host jobs perform exactly this
-work by the direct route. THE CHANGE IN THE CLEARING REPOSITORY THAT DECLARES
+The governed group `xfactory-artifact-workers` carries, AT THIS CHANGE'S
+RATIFICATION, the grandfathered member `council-deliberation-worker.yml`, whose
+host jobs perform exactly this work by the direct route. THE CHANGE IN THE CLEARING REPOSITORY THAT DECLARES
 THE `deliberation` HOST JOB SHALL, IN THE SAME ACT, remove that workflow's host
 jobs, remove its workflow-allowlist entry on that group, and shrink the
 grandfather enumeration by that member. This entry existing beside a live direct

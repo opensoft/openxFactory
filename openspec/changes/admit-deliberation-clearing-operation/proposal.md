@@ -69,7 +69,7 @@ declaring every fact the closure requirement demands — and it fixes:
 | `writes` | `false` |
 | `may_reference_secrets` | `false` |
 | `token_scopes` | exactly `actions:read` — the CLEARING side's own scoped, short-lived read-only admission credential, enough to read the clearing repository's own run artifacts and no more |
-| refusal grounds admitted | `lane_not_permitted`, `output_schema_failure`, `origin_scoped_credential` — THREE, named here because the record's ground enumeration is closed and this is the governed change (design D13) |
+| refusal grounds admitted | `lane_not_permitted`, `output_schema_failure`, `origin_scoped_credential` — THREE, named here because the record's ground enumeration is closed and this is the governed change (design D13). Each is a RENDERING of one of the nine names the dispatch record's own description already awaits in prose ("lane not permitted", "output-schema failure", "origin-scoped credential"), in the identifier form the two seeded members carry; no concept is coined, and the requirement writes the rule down so the remaining six render the same way |
 | `timeout_minutes` | bounded |
 | `worker_profile` | `council-deliberation-worker` |
 | lanes | **ARTIFACT ONLY** — `lane_key` `artifact` / `xfactory-artifact-workers` / `host-rider-cpc-brett01` / `xfactory-artifact-cpc-brett01`; a coding-lane request is refused `clearing-lane-not-permitted` |
@@ -82,6 +82,23 @@ refusable (an unpermitted lane; a widening of the class constraints), the
 verdict-word refusal, the schema-validation refusal, the no-key-on-the-host
 refusal, and the route-retirement refusal that stops this entry from becoming a
 second door beside the grandfathered `council-deliberation-worker.yml`.
+
+The requirement also states **which component emits which refusal**, so that no
+part of it is left for a realizer to settle: the canonical validator reports a
+shape failure as the family's non-member `schema` refusal and only once the new
+`kind` is routed to its schema; the dispatch record's ground
+`output_schema_failure` is written by the clearing workflow's hosted finalizer,
+where the basis already places that refusal; `origin_scoped_credential` is a
+property of a dispatch attempt and owes no fixture; and the validator's only duty
+over the new members is the one it already performs, reading the enumeration out
+of the schema at run time. **NO FINDING CODE IS MINTED** (design D13).
+
+**TWO QUESTIONS ARE PUT FOR THE RATIFIER'S RULING**, each with both readings and
+the cost of each, under a `THE QUESTION, PUT FOR RULING` heading in `design.md`:
+**D10** — does the basis's dormant-second-door scenario reach THIS admission, or
+only the act that declares the host job? — and **D13** — three refusal grounds
+now, or two? Everything else in the packet beyond the two dated rulings is
+flagged for veto in the ordinary way.
 
 ## What this proposal does NOT do
 

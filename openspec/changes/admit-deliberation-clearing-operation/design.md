@@ -22,7 +22,11 @@ targeting lane `hermes-wallet-exercise`'s claim
 (https://github.com/opensoft/codexFactory/pull/165#issuecomment-5535747335) on
 the `deliberation` register member. See D4.
 
-**NOT RULED:** everything else here — D2, D3, D5, D6, D7, D8, D9, D10, D11.
+**NOT RULED:** everything else here — D2, D3, D5, D6, D7, D8, D9, D10, D11 and
+D13. Two of them are put as explicit questions with both readings and the cost of
+each, under a `THE QUESTION, PUT FOR RULING` heading: **D10** (does the basis's
+dormant-second-door scenario reach this admission?) and **D13** (three refusal
+grounds now, or two?).
 
 ## D2. ONE requirement, and it mirrors entry number one
 
@@ -325,6 +329,29 @@ copy, not codexFactory's local one, and the codexFactory copy is what retires in
 #165's own phase 6. This packet takes no position on that beyond naming which
 enumeration member is the one this entry displaces.
 
+### THE QUESTION, PUT FOR RULING
+
+**Does the basis scenario "A migration leaves the old route in place" reach THIS
+change?** *Reading A, which the packet takes:* it does not. The scenario refuses
+"adding a clearing operation for work an existing direct route still performs",
+and the test is whether a SECOND DOOR EXISTS — a register entry with no host job
+declared in any repository is not a door, nothing can be dispatched through it,
+and the direct route stays the only route; the obligation is therefore bound
+FORWARD, onto the act that declares the host job, as a clause of the entry and as
+this requirement's seventh scenario. **Its cost:** between ratification and the
+xFactory retirement the estate holds a ratified entry with no route, and the
+retirement is enforced only by a scenario written in a repository that cannot
+execute it. *Reading B:* it does reach this change, and the remedy is to HOLD the
+admission until the retiring xFactory change is ready to land beside it. **Its
+cost:** a landing window — and, more than that, a CIRCULARITY. codexFactory #165
+design D13 says leg 3 "has no legal home" until this entry exists, so the
+xFactory change that declares the host job cannot lawfully be authored ahead of
+the admission it depends on. Reading B is coherent only if the two land as ONE
+ACT across two repositories in one reviewed window; that is a real option, and a
+refusal of Reading A should be read as choosing it rather than as an accident of
+refusing. **Both are defensible. The packet takes A. The ruling is Brett's, and
+either answer costs this packet only its landing window.**
+
 ## D11. RESOLVED (OQ2) — the `sequenced_after` live pin DOES move, by exactly one row
 
 **Measured, not assumed, at `origin/main` `9ef151ad`.**
@@ -361,14 +388,30 @@ REQUIREMENT granularity, not capability granularity — does not engage:
 capability but not this title, and both are already `co-modifier` from other
 partners, so neither row moves.
 
-**Post-state, MEASURED on this branch rather than predicted, and RE-MEASURED at
-review round 1 with the identical result:** 164 change ids
-(35 active + 129 archived), 113 co-modified, 51 sole, active **22 / 13**;
-declarations, root claims, prose headers and the deepest chain all unchanged.
-The whole movement is `sole_modifiers` 50 → 51 and `active_sole` 12 → 13, which
-is the signature of one added SOLE row and nothing else — `co_modified` holding
-flat is the check on that reading, since a partner flip would have moved it in
-the opposite direction. (An earlier draft of this section PREDICTED
+**RE-MEASURED A FOURTH TIME AT REVIEW ROUND 2, AND THIS TIME THE BASELINE MOVED.**
+`origin/main` **`342bee51`** (#644) ARCHIVES `add-drafted-proposal-origin` — the
+first main commit since this branch was cut that moves a change directory — so
+the SPLIT figures move with it and the TOTALS do not. Baseline at `342bee51`,
+measured on an extracted tree rather than inferred: **163 change ids
+(33 active + 130 archived), 113 co-modified, 50 sole, active 21 / 12**, 2
+declarations, 0 root claims, 3 prose headers (3 archived), deepest declared chain
+2 hops; `--ledger-diff` *consistent with the corpus (163 rows)*. The row that
+moved was `co-modifier` and `active`, so `active_co_modified` fell 22 → 21 while
+`active_sole` held at 12, and `change ids`, `co_modified` and `sole` are all
+unmoved — an archive RELOCATES a row between corpora, it does not create or
+destroy one.
+
+**Post-state, MEASURED on this branch after the round-2 catch-up merge rather
+than predicted:** 164 change ids (**34 active + 130 archived**), 113 co-modified,
+51 sole, active **21 / 13**; declarations, root claims, prose headers and the
+deepest chain all unchanged, and `--ledger-diff` *consistent with the corpus
+(164 rows)*. **THIS PACKET'S OWN SIGNATURE IS UNCHANGED BY THE BASELINE SHIFT,
+which is the point of re-measuring against the moved baseline rather than
+against the old one:** the whole delta this packet contributes is `sole`
+50 → 51 and `active_sole` 12 → 13, with `co_modified` holding flat — a partner
+flip would have moved it in the opposite direction. The round-1 reading
+("35 active + 129 archived, active 22 / 13") was correct at ITS baseline
+`73b1b3c1` and is SUPERSEDED by this one, not contradicted by it. (An earlier draft of this section PREDICTED
 "active 23 / 12" and was wrong: it moved the co-modified half of the pair
 instead of the sole half. The measurement is recorded here rather than the
 prediction quietly corrected, because a pin whose author guessed and did not
@@ -451,6 +494,59 @@ at THIS entry's landing and no others do, so this change admits three and seeds
 nothing else. **No concept is coined here — only the spelling, and it follows
 the two seeded members' form.**
 
+**WHERE THE AWAITED NAMES LIVE, AND THEREFORE WHAT KIND OF ACT THE SPELLING IS
+— checked byte-for-byte at review round 2.** The awaited nine are named in PROSE
+and nowhere in an identifier: the phrases *"lane not permitted"*,
+*"output-schema failure"* and *"origin-scoped credential"* appear verbatim in the
+shipped `contracts/clearing/dispatch-record.schema.yaml` description (line 65)
+and, in the same words, in the ratified basis's own `tasks.md` items 6.4 and 6.6.
+So there is NO identifier anywhere to copy — the schema's `enum` holds two
+members and neither is one of the nine — and a realizer left to it would have had
+to invent three. What this change performs is therefore a RENDERING and not a
+coinage: the three English names are taken VERBATIM from the record's own list,
+and each is put into the identifier form the two seeded members already carry, by
+the single rule those two follow (`unregistered_operation` ← "unregistered
+operation"; `unknown_lane_selector` ← "unknown lane selector") — lower case,
+words joined by underscores, no `clearing-` prefix, a hyphen inside a compound
+becoming an underscore. Applied to the three: `lane_not_permitted`,
+`output_schema_failure`, `origin_scoped_credential`. The rule is written into the
+ratified text so that a later change admitting one of the remaining six lands on
+the same answer, and so that this packet's rendering is what MOVES the
+enumeration at realization rather than a realizer's ear.
+
+**THE NAME `origin_scoped_credential` WAS CHALLENGED AT ROUND 2 AS A COLLISION
+WITH THE ORIGIN-SIGNATURE VOCABULARY. THE CHALLENGE DOES NOT HOLD, AND THE CHECK
+IS RECORDED RATHER THAN THE CONCLUSION.** The worry is real in shape:
+openxFactory #560's origin-identity family gives this estate `origin_signature`,
+`clearing-origin-signature-missing`, `clearing-origin-row-expired` and a factory
+ORIGIN SIGNING KEY, so a reader could take `origin_scoped_credential` for "the
+origin key's credential". Measured inside the very file the member lands in, it
+does not read that way: that schema's provider-verified field list is
+`origin_repository`, `origin_workflow_path`, `source_commit`,
+`dispatching_identity`, `sealed_object_run` — so `origin` in this shape ALREADY
+MEANS the originating repository, and `origin_signature` is read the same way, as
+*the originating repository's* signature. The two uses share a referent rather
+than colliding over one. The alternative spelling
+`originating_repository_credential` was considered and REFUSED on two grounds: it
+departs from the record's own awaited-list name, which is the entire basis of the
+rendering rule above; and it would be the only member of the enumeration not
+derived from that list, which is exactly the ear-over-text drift the rule exists
+to stop. What the challenge DID earn is a sentence in the ratified text fixing
+the reading, so the question is answered where a later reader meets it rather
+than only here.
+
+**ONE GROUND, NOT TWO, FOR SCENARIO SIX — recorded because it is a real choice
+and not an oversight.** Scenario six's WHEN covers a seat key, any other signing
+key, AND any credential scoped to the originating repository, and its THEN names
+ONE ground. A seat key is not, in ordinary speech, a "credential"; the ground is
+read here as covering the whole class of MATERIAL SCOPED TO THE ORIGINATING
+REPOSITORY THAT MUST NEVER BE ON THE HOST. The alternative was a fourth member —
+something like `signing_key_on_host` — and it is REFUSED, because the record's
+awaited nine names no such ground and minting one would be coining a CONCEPT
+where every other member of this enumeration is the rendering of a name the
+record already carries. A later change that needs the two apart can split them on
+the same governed terms.
+
 1. **`lane_not_permitted`.** Entry one declares BOTH lanes, so no sealed request
    can name a lane its operation does not permit; the refusal is unreachable
    today. Entry two declares ONE lane. It is the first entry that can produce
@@ -481,6 +577,49 @@ not a member: it is not this family's rule, it is JSON Schema's."* A realizer
 inventing `clearing-return-schema-invalid` would be widening a closed set to
 duplicate a refusal that already fires — so the requirement says so in as many
 words.
+
+**WHICH COMPONENT EMITS WHICH — round 2 would not accept "the realization
+decides", so the requirement now says it.** Four separate mechanisms were being
+run together in one sentence, and a realizer holding all four at once is how a
+finding code gets minted by accident:
+
+| the thing | who emits it | measured where |
+|---|---|---|
+| finding code `schema` on a PACKAGED artifact of the new kind | the canonical validator, but ONLY once the kind is routed | `scripts/validate-clearing-dispatch.py:879` — `KIND_TO_SCHEMA.get(kind)` followed by `if schema_name is None: return`. An unrouted kind is not validated AT ALL, rather than validated loosely. Task 2.5 is that routing, and this is why it is a task. |
+| record ground `output_schema_failure` on a LIVE dispatch | the clearing workflow's HOSTED FINALIZER | the basis's own `tasks.md` 6.6, verbatim: *"OUTPUT FAILING ITS DECLARED SCHEMA belongs to the hosted finalizer, which this slice deliberately does not ship."* The neutral validator never writes a dispatch record at all. |
+| record ground `origin_scoped_credential` | the clearing workflow, at dispatch | basis `tasks.md` 6.6 again: it and the committed-data offer are *"properties of a dispatch attempt rather than of a record: neither is expressible as an invalid instance of any shape shipped here"* — so NO negative fixture is owed for it and none can exist. The `26/26 red-proven` rule binds `REFUSAL_CODES`, not this enumeration's members, whose proof is that a packaged record naming them validates CLEAN (task 2.9's assertion). |
+| refusal of an UNKNOWN ground | the canonical validator, unchanged | `clearing-record-refusal-ground-unknown` calls `_refusal_grounds(schema)` and reads the enumeration OUT OF THE SCHEMA at run time, so the three members become acceptable with no validator edit whatsoever. |
+
+Assigning an existing refusal to an existing component is not a widening, and
+saying so in ratified text costs a realizer one decision they should never have
+been holding. It also removes the last route by which task 2.5's negative fixture
+could tempt a realizer into a code: a fixture that fails only for `schema` is
+LAWFUL, because `test_no_fixture_declares_a_code_outside_the_closed_set`
+explicitly excepts `schema` from the closed-set membership check.
+
+### THE QUESTION, PUT FOR RULING
+
+**Three grounds now, or two?** The packet admits three. *Reading A, which the
+packet takes:* admit `lane_not_permitted`, `output_schema_failure` and
+`origin_scoped_credential` together, because each is made emittable by THIS
+entry's landing and no earlier one, and because scenario six's refusal is
+otherwise UNRECORDABLE — the requirement would name a refusal with no lawful way
+to write it down, which is the free-text hole the closed enumeration exists to
+close. **Its cost:** two of the three (`output_schema_failure`,
+`origin_scoped_credential`) are emitted by a component that does not exist yet,
+the clearing workflow's host job, so between this realization and that one the
+enumeration carries two members nothing can emit — which is the exact defect the
+schema's own "closed in name only" warning names, admitted here at three-ninths
+scale rather than at nine. *Reading B:* admit only `lane_not_permitted` and
+`output_schema_failure` — the two the packet's own scenarios force through the
+validator and the finalizer — and leave `origin_scoped_credential` to the change
+that declares the host job. **Its cost:** scenario six then ratifies a refusal
+whose ground is unnamed until a later change, a milder version of the P1-1 defect
+round 1 caught; and the later change owes a governed schema edit that this one
+could have carried. **Both are defensible. The packet takes A. The ruling is
+Brett's, and a ruling for B is executed by striking one bullet from the
+requirement, one member from task 2.9, and one row from the proposal's fact
+table — nothing else in the packet moves.**
 
 **THE RETURN'S `kind`, for the same reason one enumeration to the left.**
 `KIND_TO_SCHEMA` routes a record to the schema it is validated against, and

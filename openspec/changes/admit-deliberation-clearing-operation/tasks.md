@@ -20,8 +20,12 @@ no `contracts/` byte moves before task 1.1 is done.
       gains a `Ratified:` line naming the record.
 - [x] 1.2 **Duplicate check across FOUR surfaces, recorded in `.openspec.yaml`'s
       origin reason.** Active changes, open pull requests, remote branches, and
-      same-day merges to `main` — run 2026-09-04T04:40Z and re-run 05:05Z at
-      `origin/main` `9ef151ad`. Result: no sibling, no successor, no duplicate.
+      same-day merges to `main` — run 2026-09-04T04:40Z, re-run 05:05Z at
+      `origin/main` `9ef151ad` / `963c5b77`, a third time at `73b1b3c1` (review
+      round 1, recorded in design D11), and a FOURTH time at `342bee51` after the
+      round-2 catch-up merge, with the newly opened #646/#647/#648 checked file by
+      file for a clearing surface. Result unchanged every time: no sibling, no
+      successor, no duplicate.
 - [x] 1.3 **Rule 1 claim on the governing record**, codexFactory PR #165:
       https://github.com/opensoft/codexFactory/pull/165#issuecomment-5535747335
 - [x] 1.4 **Rule 7 shared-substrate claim** for the README OpenSpec Records
@@ -93,7 +97,13 @@ must be green at the end, and so must `python3 scripts/validate-clearing-dispatc
       and `test_every_schema_closes_its_root_to_unknown_members` pass on it; the
       schema validates its own example and refuses its own fixture; and the
       clearing gate's `N/N closed refusal codes red-proven` line still reads
-      `N/N`.
+      `N/N`. **THE NEGATIVE FIXTURE MINTS NO CODE, and the corpus already allows
+      that:** a fixture whose `# expected_failure:` header declares the family's
+      shape refusal `schema` is LAWFUL —
+      `tests/clearing/test_validator_refusals.py::test_no_fixture_declares_a_code_outside_the_closed_set`
+      excepts `schema` by name from the closed-set membership check — and it adds
+      nothing to the probed set, so `26/26` is arithmetically untouched. Do not
+      reach for a new `clearing-…` code to give the fixture something to declare.
 - [ ] 2.3 **FIVE frozen copies move in ONE reviewed diff** (design D9):
       (a) `scripts/validate-clearing-dispatch.py` `RATIFIED_OPERATIONS`;
       (b) `tests/clearing/test_register_closure.py` `RATIFIED` (the INDEPENDENT
@@ -134,11 +144,18 @@ must be green at the end, and so must `python3 scripts/validate-clearing-dispatc
       — measured, not assumed. Register the ratified kind
       **`xfactory_clearing_deliberation_return`** in `KIND_TO_SCHEMA` and route it
       through the verdict scan (extracting the shared check rather than copying
-      it). **NO NEW FINDING CODE:** the refusal is the existing
+      it). **THE `KIND_TO_SCHEMA` ROW IS NOT OPTIONAL POLISH — IT IS WHAT MAKES
+      THE SHAPE CHECK EXIST AT ALL:** `validate-clearing-dispatch.py:879` does
+      `KIND_TO_SCHEMA.get(kind)` and returns immediately on `None`, so an
+      unrouted kind is not validated LOOSELY, it is not validated at all, and the
+      requirement's claim that a shape failure surfaces as `schema` is false until
+      this row exists. **NO NEW FINDING CODE:** the refusal is the existing
       `clearing-report-carries-a-verdict`; the family's closed finding-code set
       is NOT widened by this change, and a return that fails JSON Schema is
       reported as the family's `schema` refusal, which that set deliberately
-      excludes. **Assertion:** a negative fixture carrying a verdict-named member
+      excludes. The dispatch-record GROUND `output_schema_failure` is a different
+      thing from that finding code and is written by the clearing workflow's
+      hosted finalizer, not here (design D13's emitter table). **Assertion:** a negative fixture carrying a verdict-named member
       in a deliberation return is refused `clearing-report-carries-a-verdict`, and
       `test_no_fixture_declares_a_code_outside_the_closed_set` still passes.
 - [ ] 2.6 **Prove each frozen copy fails ALONE.** Before the slice is called done,
@@ -165,7 +182,13 @@ must be green at the end, and so must `python3 scripts/validate-clearing-dispatc
       awaited grounds stay absent until the operation that can emit them lands).
       Rewrite that `$defs`' description and the schema's header paragraph: "Two
       members today" becomes five, and the nine-awaited list shrinks to six, each
-      naming the change that admitted it. The schema's `contracts/manifest.yaml`
+      naming the change that admitted it. **Carry the RENDERING RULE into that
+      description** (design D13): the awaited grounds are named in the schema's
+      own prose, and an identifier is produced from a name by lower-casing,
+      joining words with underscores, dropping any `clearing-` prefix and turning
+      a compound's hyphen into an underscore — written down so the six that remain
+      are rendered the same way by whoever admits them, and so that the rule is
+      not re-derived from three examples. The schema's `contracts/manifest.yaml`
       row DIGEST moves with the bytes
       (`test_the_row_digest_matches_the_artifact_on_disk`). **Assertion:** a
       packaged refused-dispatch record naming each of the three grounds validates

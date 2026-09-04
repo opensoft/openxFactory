@@ -58,6 +58,24 @@ origin:
     fix packets (#640, #638): both are doc-health and archive-gate repairs, add
     and archive no change directory, and touch no clearing artifact. The result is
     unchanged.
+    RE-CHECKED A THIRD TIME at review round 1, at `origin/main` `73b1b3c1`, whose
+    only merge is a doc-health self-gate test file: unchanged. That reading is
+    recorded in design D11 rather than restated here.
+    RE-CHECKED A FOURTH TIME at review round 2, at `origin/main` `342bee51`, after
+    the round-2 catch-up merge, and this run is recorded HERE because the surface
+    counts moved under it. (1) ACTIVE changes: 34, of which 33 are main's and one
+    is this packet — main's #644 ARCHIVED `add-drafted-proposal-origin`, which is
+    the first change directory to move since this branch was cut; no active change
+    admits an operation to the register. (2) OPEN PULL REQUESTS: nine besides this
+    one (#648, #647, #646, #643, #641, #594, #548, #518, #176). #644, #642, #640,
+    #639 and #638 merged in the interval and #646/#647/#648 opened in it; EVERY
+    one of the nine was checked FILE BY FILE (`gh pr view --json files`) against
+    `contracts/clearing/`, `scripts/validate-clearing-dispatch.py`,
+    `tests/clearing/`, `.github/workflows/clearing-dispatch-gate.yml` and
+    `openspec/changes/add-clearing-dispatch-boundary/`, and NONE touches any of
+    them. (3) REMOTE BRANCHES: still no `delib*` or `*permitted*` head; the only
+    `admit-` heads are this branch and the unrelated `change/admit-install-repos`.
+    (4) MERGES TO `main`: the five above, none touching a clearing artifact.
     CONCLUSION: no sibling, no successor, no duplicate. This packet is the first
     and only change on the object.
     WHY `kind: ad_hoc` AND NOT `kind: staged`, checked rather than assumed. No
@@ -100,3 +118,10 @@ origin:
     admitting the entry ahead of it), and D13 (the THREE refusal grounds and the
     return record kind, named in ratified text at review round 1 so realization
     cannot widen a closed enumeration on its own authority).
+    TWO OF THOSE ARE PUT AS EXPLICIT QUESTIONS rather than only flagged, each with
+    both readings and the cost of each, under a `THE QUESTION, PUT FOR RULING`
+    heading added at review round 2: D10 (does the basis's dormant-second-door
+    scenario reach this admission, or only the act that declares the host job?)
+    and D13 (three refusal grounds now, or two?). Review records:
+    `review/adversarial-round-1-2026-09-04.md`,
+    `review/adversarial-round-2-2026-09-04.md`.
