@@ -16,8 +16,13 @@ The lane's contract, and what each block here pins:
     prose survives. That comment is load-bearing state now.
   * §5.3 the produced diff is envelope-shaped: the `digest:` line and its
     adjacent comment inside the one `images:` entry, and nothing else.
-  * §5.4 the snapshot `source_revision` and the baked corpus revision are
-    asserted EQUAL by the lane, so the two-revision trap is detectable.
+  * §5.4 the snapshot `source_revision` and the baked corpus revision must be
+    ONE commit, so the two-revision trap is detectable. The PREDICATE
+    (`verify_one_revision`) is unit-tested here; the assertion itself is made
+    where the build is — on the worker child.
+  * the module holds NO build recipe. It clones nothing, runs no container
+    build and no registry login, and exposes no CLI phase that would; the
+    recipe lives in exactly one place, the worker child's own workflow.
   * §5.1 the refresh-status artifact: every outcome class, bounded detail, and
     the invariant that a status-write failure does not fail the lane.
 
@@ -28,6 +33,7 @@ function the tests call directly.
 
 from __future__ import annotations
 
+import ast
 import inspect
 import json
 from pathlib import Path
@@ -477,96 +483,66 @@ def test_verify_one_revision_rejects_a_two_revision_image():
         lane.verify_one_revision(None, HEAD_A)
 
 
-class FakeBuildWorld:
-    """git/docker/az, faked. Records every argv so the tests can assert what
-    the build did and — more importantly — what it did NOT do."""
+def _code_string_literals(module) -> set[str]:
+    """Every WHITESPACE-SPLIT TOKEN of `module`'s non-docstring string
+    constants, plus each whole literal itself — i.e. the tokens and strings
+    the CODE uses, with the prose that merely describes them removed. Both
+    forms are kept because the forbidden recipe could be spelled either as an
+    argv-list element ("clone") or as one shell-style string ("git clone
+    --filter=blob:none ..."); a whole-literal-only check would miss the
+    second shape, matching only an EXACT string equal to a bare command name.
 
-    def __init__(self, *, head: str, snapshot_revision: str | None,
-                 strict_ok: bool = True, snapshot_path: Path | None = None) -> None:
-        self.head = head
-        self.snapshot_revision = snapshot_revision
-        self.strict_ok = strict_ok
-        self.snapshot_path = snapshot_path
-        self.argvs: list[tuple[str, ...]] = []
-
-    def __call__(self, argv, *, cwd=None, env=None):
-        argv = tuple(str(a) for a in argv)
-        self.argvs.append(argv)
-        joined = " ".join(argv)
-        if argv[0] == "git" and "rev-parse" in argv:
-            return lane.CommandResult(argv, 0, self.head + "\n", "")
-        if argv[0] == "git" and "log" in argv:
-            return lane.CommandResult(argv, 0, CORPUS_B + "\n", "")
-        if argv[0] == "git":
-            return lane.CommandResult(argv, 0, "", "")
-        if "ideation_dashboard.cli" in joined:
-            if not self.strict_ok:
-                return lane.CommandResult(argv, 1, "",
-                                          "validation FAILED — 1 warning(s)")
-            out = Path(argv[argv.index("--output") + 1])
-            out.parent.mkdir(parents=True, exist_ok=True)
-            out.write_text(json.dumps({
-                "generation": {"source_revision": self.snapshot_revision}}),
-                encoding="utf-8")
-            return lane.CommandResult(argv, 0, "validation: 0 error(s)", "")
-        if argv[0] == "docker" and argv[1] == "push":
-            return lane.CommandResult(argv, 0, f"latest: digest: {DIGEST_NEW} size: 1",
-                                      "")
-        if argv[0] in ("docker", "az"):
-            return lane.CommandResult(argv, 0, "", "")
-        raise AssertionError(f"unexpected command: {joined}")
-
-    def ran(self, *needles) -> bool:
-        return any(all(n in " ".join(a) for n in needles) for a in self.argvs)
+    Docstrings are excluded by AST POSITION — the first statement of a
+    module/class/function body, if it is a bare string expression — not by
+    VALUE, so a non-docstring literal that happens to equal some docstring's
+    text elsewhere in the module is never dropped by mistake."""
+    tree = ast.parse(inspect.getsource(module))
+    docstring_ids: set[int] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef,
+                             ast.AsyncFunctionDef)):
+            body = node.body
+            if (body and isinstance(body[0], ast.Expr)
+                    and isinstance(body[0].value, ast.Constant)
+                    and isinstance(body[0].value.value, str)):
+                docstring_ids.add(id(body[0].value))
+    literals: set[str] = set()
+    for n in ast.walk(tree):
+        if (isinstance(n, ast.Constant) and isinstance(n.value, str)
+                and id(n) not in docstring_ids):
+            literals.add(n.value)
+            literals.update(n.value.split())
+    return literals
 
 
-def _plan(tmp_path: Path) -> lane.BuildPlan:
-    return lane.BuildPlan(context_root=tmp_path / "ctx",
-                          dockerfile=tmp_path / "Dockerfile",
-                          corpus_url="https://example.invalid/openxFactory.git")
+def test_the_module_holds_no_build_recipe_and_no_clone():
+    """The lane module carried a SECOND, independent realization of the
+    pre-amendment recipe (`build_and_push`, reached by `--phase build`): a raw
+    `git clone` of the corpus onto the worker, followed by a container build
+    and a registry push. The re-ratified requirement prohibits the worker from
+    holding a Git credential at all, so that path contradicts the contract even
+    though the live lane never reached it — the child does the work in its own
+    workflow. Asserted on the SOURCE rather than on behaviour, because the
+    property being held is the ABSENCE of a code path: a behavioural test
+    cannot distinguish "never called" from "cannot be called"."""
+    assert not hasattr(lane, "build_and_push")
+    assert not hasattr(lane, "BuildPlan")
+    literals = _code_string_literals(lane)
+    for command_token in ("clone", "sparse-checkout", "docker", "az",
+                          "--filter=blob:none"):
+        assert command_token not in literals, command_token
 
 
-def test_the_build_asserts_one_revision_before_it_builds(tmp_path):
-    """A mismatch between the snapshot's source_revision and the checkout HEAD
-    the corpus was baked from stops the build — the image is never produced."""
-    world = FakeBuildWorld(head=HEAD_A, snapshot_revision=CORPUS_A)
-    result = lane.build_and_push(_plan(tmp_path), runner=world)
-    assert result.ok is False
-    assert "one-revision assertion failed" in result.reason
-    assert not world.ran("docker", "build")
-    assert not world.ran("docker", "push")
-
-
-def test_the_build_publishes_when_the_two_revisions_are_one(tmp_path):
-    world = FakeBuildWorld(head=HEAD_A, snapshot_revision=HEAD_A)
-    result = lane.build_and_push(_plan(tmp_path), runner=world)
-    assert result.ok is True
-    assert result.digest == DIGEST_NEW
-    assert result.source_revision == HEAD_A
-    assert result.corpus_revision == CORPUS_B
-    # the recipe: a FRESH sparse checkout, --strict generation from THAT
-    # checkout, then the build — in that order.
-    assert world.ran("git", "clone", "--filter=blob:none")
-    assert world.ran("sparse-checkout", "set", "scripts/ideation_dashboard")
-    assert world.ran("ideation_dashboard.cli", "generate", "--strict")
-    assert world.ran("docker", "build")
-    assert world.ran("docker", "push")
-    order = [i for i, argv in enumerate(world.argvs)
-             if "--strict" in argv or (argv[0] == "docker" and argv[1] == "build")]
-    generate_at = next(i for i, argv in enumerate(world.argvs) if "--strict" in argv)
-    build_at = next(i for i, argv in enumerate(world.argvs)
-                    if argv[0] == "docker" and argv[1] == "build")
-    assert generate_at < build_at, order
-
-
-def test_strict_failure_publishes_nothing(tmp_path):
-    world = FakeBuildWorld(head=HEAD_A, snapshot_revision=HEAD_A, strict_ok=False)
-    result = lane.build_and_push(_plan(tmp_path), runner=world)
-    assert result.ok is False
-    assert result.strict_failed is True
-    assert not world.ran("docker", "build")
-    assert not world.ran("docker", "push")
-    assert not world.ran("az", "acr")
+def test_the_cli_refuses_a_build_phase(tmp_path):
+    """And the operator-facing surface refuses it loudly rather than silently
+    skipping: argparse rejects the choice outright, so an operator or a
+    workflow still spelling it gets a non-zero exit naming the phases that
+    remain — not a run that quietly does nothing."""
+    with pytest.raises(SystemExit):
+        lane.main(["--repo-root", str(tmp_path), "--phase", "build"])
+    # The injected-build SEAM survives: it is how `--phase pin` adapts the
+    # digest record the child returned, and nothing behind it clones.
+    assert "build" in inspect.signature(lane.run_refresh_lane).parameters
 
 
 # ---------------------------------------------------------------------------
