@@ -557,65 +557,6 @@ Active changes:
   second door and the retirement binds FORWARD onto the act that declares the
   host job, and EXACTLY THREE record grounds are admitted. Nothing in the packet
   moved. Lane `hermes-wallet-exercise`.
-- [add-consumer-identity-namespace](openspec/changes/add-consumer-identity-namespace/proposal.md)
-  — authored 2026-09-03, **RATIFIED 2026-09-03 by Brett Heap, in session**
-  (verbatim "implement your recommendations on all these", over written
-  recommendations for five queued items). **IT CARRIES TWO RULINGS OF THAT ONE
-  WORD, openxFactory #511 AND #553, IN ONE `## MODIFIED Requirements` BLOCK** —
-  because a MODIFIED block replaces a requirement WHOLESALE and both rulings
-  write the same one (*"Two bindings on one secret are refused unless every pair
-  declares distinct consumers…"*), so two live blocks could not both survive: the
-  second to archive would silently revert the first. The lane holding #553 stood
-  down before authoring and its branch is deleted; issue #553 records this packet
-  as its vehicle. **#511** declares `consumer.identity_namespace` — the issuing
-  directory, account or tenant WITHIN the provider — as an ADDITIVE OPTIONAL
-  member, and rescopes `shared-authority-identity` from a BARE STRING to the PAIR
-  `(identity_namespace, fetch_identity)`. The finding fired on two tenants of one
-  provider whose principals share a name, and **the only escape was to rename a
-  fetch identity in the record while the principal kept its real name in the
-  provider** — a refusal whose only escape is a lie. THE FALLBACK REPORTS RATHER
-  THAN CLEARS: where either side declares no namespace, or one outside the
-  identifier grammar, the comparison returns to the bare identity, because an
-  estate able to silence a real shared authority by OMITTING a member on one side
-  would hold a rule it can turn off without writing anything false. ONE predicate
-  serves both the named finding and the lift's THIRD condition — canon states the
-  comparison once, and the first draft that rescoped only the finding was caught
-  by execution, refusing a two-tenant pair under `shared-secret-identity` and
-  sending a reader to split a secret instead of reading a namespace. The member
-  lands under the block's declared-at-the-minor / constrained-at-the-major
-  phasing as the **NINTH `consumer-*` shape code**,
-  `consumer-identity-namespace-grammar` — its own code rather than a widening of
-  `consumer-member-grammar`, because an unreadable namespace ALSO un-scopes the
-  comparison — **and its deprecation window opens at ITS OWN minor, not at
-  `contract-v2.4`**, a row that borrowed a window it never served being the exact
-  defect that policy entry exists to prevent. **#553** amends the promoted
-  scenario *"The requirement reference resolves to more than one record"* to the
-  PER-DOCUMENT scope `resolve_requirement` actually enforces, and rescopes the
-  six-conditions sentence with it — **exactly two edits**, no code, no status, no
-  severity; the resolver, its `ambiguous` verdict and
-  `add-requirement-ref-resolution-integrity` § 3.4's freeze are CITED AND NOT
-  EDITED, and that packet's § 9.4 obligation is discharged by the AMEND branch it
-  names. Ids stay namespaced by their document; repository-wide uniqueness is not
-  a rule. **PROPOSAL AND REALIZATION LAND IN ONE PR** — schema member, shared
-  predicate, ninth code, five packaged fixtures in BOTH directions (the CLEARING
-  one first, a corpus holding only the reporting direction being unable to tell a
-  working check from one that fires on everything), nineteen tests, the
-  `contracts/manifest.yaml` digest recomputed from the bytes, and the policy
-  entry — **and NO CUT**, which is the ruling's own exclusion: no tag, no digest
-  inventory, no version-headed CHANGELOG entry, that entry prescribed verbatim in
-  `tasks.md` § 5.3 so the cut invents nothing. NOTHING NARROWS EXCEPT ONE NAMED
-  SCREEN — `baked-secret` over the third free string, under
-  `add-binding-consumer-identity` § 2.6's own precedent — the comparison change
-  being a SUBTRACTION that can only make a reported pair go silent. Carriage
-  measured: titles byte-identical, 12 scenarios in and 16 out on the block
-  requirement, 12 in and 15 out on the lift requirement, **zero units lost**. No
-  `Modified over` marker is owed and that was CHECKED against
-  `govern-sibling-added-modified-deltas`: both requirements are PROMOTED canon.
-  Two `release-inventory-drift` findings are raised and are the CUT's to
-  discharge — the family's own remedy line forbids hand-editing an inventory to
-  make the comparison pass. **NO COUNCIL SAT AND NONE WAS PRESCRIBED**, and the
-  ratification record says in terms that the ruling reached the SUBSTANCE and is
-  not a read of this text.
 - [add-cpc-clearing-boundary](openspec/changes/add-cpc-clearing-boundary/proposal.md)
   — authored 2026-09-01, RE-SCOPED the same day after adversarial review,
   **`Status: ratified`** (2026-09-02, Brett Heap, in-session, on the recorded
@@ -2211,6 +2152,81 @@ Archived changes:
   **THE SIBLING `create-medxpractice-overlay-boundary` ARCHIVES SECOND**, from
   the `main` this act makes, because its R3 cites this delta and the amendment
   must be in canon before the packet citing it archives against it.
+- [add-consumer-identity-namespace](openspec/changes/archive/2026-09-04-add-consumer-identity-namespace/proposal.md)
+  — **ARCHIVED 2026-09-04 on merged-and-green realization evidence read off
+  `main`**, on Brett Heap's word of that day (*"do the two archive acts"*).
+  Authored and **RATIFIED 2026-09-03** by Brett Heap in session, verbatim
+  *"implement your recommendations on all these"* — a single word over written
+  recommendations for five queued items, of which **TWO** land here
+  (openxFactory **#511** and **#553**); record
+  `review/ratification-2026-09-03.md`, archived with the packet, which quotes
+  each ruling under its own heading so neither rides on the other's authority.
+  **REALIZED IN ONE PR WITH ITS PROPOSAL** — PR **#622**, squash **`95c2cf6a`**
+  (2026-09-04T00:38:55Z) — carrying the schema member, the shared predicate, the
+  ninth deprecation code, five packaged fixtures, twenty tests, the recomputed
+  `contracts/manifest.yaml` row and the two documentation surfaces in one
+  landing; **GREEN AT `main`**'s own `pytest-suite` **`92e662cf`**, run
+  **33835343327**, `success` — the gate asks whether the realization is green
+  WHERE IT LANDED, so it is `main`'s run that satisfies it and not the pull
+  request's. **AND ITS `target_release` RESOLVED, WHICH IS THE HALF THE PACKET
+  DELIBERATELY REFUSED TO WRITE DOWN**: the proposal declined to name a number
+  because a number written in advance is a number the next packet to cut must
+  renumber — and it was right twice over, `contract-v3.1` being spent by #616
+  and then found defective and superseded by #624's `contract-v3.2` while this
+  packet sat open. The number was finally allocated by SOMEONE ELSE'S merge
+  order: **PR #628** cut `contract-v3.3` from a tree that already carried this
+  packet's bytes, and **PR #636** (squash **`16b85614`**) amended that same
+  UNTAGGED release with the entry `tasks.md` § 5.3 prescribes verbatim rather
+  than spending a second number on bytes already published in-tree. The
+  annotated tag **`contract-v3.3`** now dereferences to `16b85614` and
+  `verify-tag` passed on the amended tree.
+  **WHAT IT LEAVES IN CANON**: TWO requirements of `credential-contracts`
+  promoted **byte-identically** — *"A credential binding declares the consuming
+  system that holds it and the identity it fetches with"* (12 scenarios in, **16
+  out**) and *"Two bindings on one secret are refused unless every pair declares
+  distinct consumers, acknowledges the sharing, and names a requirement bound to
+  the binding"* (12 in, **15 out**), **zero units lost on either**, verified by
+  `sha256` after the act rather than asserted.
+  **#511 — A FETCH IDENTITY IS A NAME, AND A NAME IS UNIQUE ONLY INSIDE THE
+  DIRECTORY THAT ISSUED IT.** `consumer.identity_namespace` is declared as an
+  ADDITIVE OPTIONAL member naming the issuing directory, account or tenant
+  WITHIN the provider, and `shared-authority-identity` is rescoped from a BARE
+  STRING to the PAIR `(identity_namespace, fetch_identity)`. The finding fired
+  on two tenants of one provider whose principals share a name, and the only
+  escape was to rename a fetch identity in the record while the principal kept
+  its real name in the provider — **a refusal whose only escape is a lie**. THE
+  FALLBACK REPORTS RATHER THAN CLEARS, which is a security property and not a
+  default: an estate able to silence a real shared authority by OMITTING a
+  member on one side would hold a rule it can turn off without writing anything
+  false, and an ungrammatical namespace behaves exactly like an absent one for
+  the same reason. ONE predicate serves both the named finding and the lift's
+  THIRD condition, because canon states the comparison once — the first draft
+  that rescoped only the finding was caught BY EXECUTION, refusing a two-tenant
+  pair under `shared-secret-identity` and sending a reader to split a secret
+  instead of reading a namespace.
+  **#553 — TWO EDITS AND NO MORE.** The promoted scenario *"The requirement
+  reference resolves to more than one record"* is amended to the PER-DOCUMENT
+  scope `resolve_requirement` actually enforces, and the six-conditions
+  sentence's *"in the repository under validation"* is rescoped with it. No
+  code, no status, no severity: the resolver, its `ambiguous` verdict and
+  `add-requirement-ref-resolution-integrity` § 3.4's freeze are CITED AND NOT
+  EDITED, and that packet's § 9.4 obligation is discharged by the AMEND branch
+  § 9.4 itself names. Repository-wide uniqueness of a requirement id is still
+  not a rule.
+  **THE FOLD IS WHY ONE PACKET CARRIES TWO RULINGS**: a `## MODIFIED
+  Requirements` block replaces a requirement WHOLESALE and #553's target sits
+  INSIDE the requirement #511 must modify, so two live blocks could not both
+  survive — the second to archive would silently revert the first, and neither
+  packet's review would have shown it.
+  **THE ARCHIVE ACT RETIRED THE TWO CARRIAGE-LEDGER SUBJECTS § 4.4a OPENED**,
+  on the condition those rows were written with, both halves verified before the
+  rows were deleted: the packet archived and both blocks promoted
+  byte-identical, so the nine units the two INFO findings named as uncarried are
+  carried by construction rather than by argument. **ONE BOX IS TICKED BY
+  ROUTING RATHER THAN BY A FIX AND SAYS SO** — § 2.8's `MAJOR_RELEASE` drift,
+  which this packet observed, did not cause and deliberately did not repair, is
+  now openxFactory **#634**, filed 2026-09-04 and citing that row and OQ-3 as
+  its provenance.
 - [add-subject-establishment](openspec/changes/archive/2026-09-04-add-subject-establishment/proposal.md)
   — **ARCHIVED 2026-09-04 on the gate its own OD-6 made STRICTER than
   `code_surface: none` required: merge PLUS green PLUS the ruling round.** All
