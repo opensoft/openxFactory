@@ -1553,6 +1553,61 @@ _PREAMBLE = "(preamble)"
 # once at import, ahead of either call, and handed to both.
 _AS_OF = datetime.now(timezone.utc).date().isoformat()
 
+# THE SECOND OBJECT STORE (#626), AND IT IS THE SAME SHAPE ONE REFERENCE OVER.
+# `release-tag-publication` is the ONE family a `--single-repo` run reads the
+# NETWORK for: `check_repo` resolves the published tip with `git ls-remote
+# origin refs/heads/main` on every invocation
+# (`release_tag_publication.py:1110` → `corpus.py:628`) and then reads
+# `contracts/manifest.yaml` at that tip out of the LOCAL object store
+# (`corpus.py:518`, `cat-file --batch`). A tip the store does not hold is
+# `missing`, which the family answers with a skip naming the read
+# (`release_tag_publication.py:1127-1136`) — and in a single-repo run that skip
+# is the WHOLE family (`fam_release_tag_publication`: one repository in scope,
+# so `len(skips) == len(scoped)` returns a family-level `Skip` at :1342), so
+# every finding it would otherwise contribute leaves the bands.
+#
+# So a render pair straddling a landing on `main` measures TWO DIFFERENT
+# PUBLISHED TIPS: the first resolves the tip the checkout holds and counts this
+# family's findings, the second resolves the tip that just landed, cannot read
+# it, and counts none. That is the +1 `info` charged to `modified-block-currency`
+# in #626 (PR #623, run 33813439587: movement `(0, 0, 0, 9)` against a family
+# reporting 8) — and the same straddle over a superseded-and-untagged bundle
+# moves the `error` band, which this test says must never move.
+#
+# NOT A WARMING SIDE EFFECT, which is what #626 conjectured. MEASURED: no code
+# path under `scripts/` runs `git fetch`, and two renders over a checkout whose
+# published tip is absent leave it absent — the store is exactly as cold after
+# the second render as before the first. What moves is the REFERENCE, not the
+# store, so priming cannot fix it and pinning must.
+#
+# PINNED THE ONLY WAY A TEST CAN PIN IT: the family is skipped in BOTH
+# renderings, so its contribution is 0 on both sides by construction rather
+# than equal by luck. It is not a term the comparison can use anyway — its
+# output is a function of what `origin` advertises at the instant it runs, not
+# of this tree — and `test_the_measured_pair_survives_a_landing_on_main`
+# below reproduces the defect against a throwaway repository and proves this
+# line is what closes it.
+_LIVE_REMOTE_FAMILY = "release-tag-publication"
+
+
+def _render_cmd(root: Path, out: Path, skip: bool) -> list[str]:
+    """The argv BOTH measured renderings are built from — one spelling, so a
+    reference pinned for one of them is pinned for the other by construction.
+
+    Read `_report`'s docstring for what each pin is for. Split out from
+    `_report` so `test_the_measured_pair_survives_a_landing_on_main` can render
+    a throwaway repository through the very command the measured pair uses:
+    take `--skip-family release-tag-publication` out of here and that test
+    reds.
+    """
+    cmd = [sys.executable, "scripts/doc-health.py",
+           "--single-repo", str(root), "--report-out", str(out),
+           "--as-of", _AS_OF,
+           "--skip-family", _LIVE_REMOTE_FAMILY]
+    if skip:
+        cmd += ["--skip-family", mbc.FAMILY]
+    return cmd
+
 
 def _report(root: Path, out_dir: Path, skip: bool) -> str:
     """One single-repo report rendering of `root`, with or without this family.
@@ -1575,14 +1630,23 @@ def _report(root: Path, out_dir: Path, skip: bool) -> str:
     straddle still moved `staged-candidate-aging` between the two calls. Both
     renderings are pinned to `_AS_OF`, computed once before either runs, so
     they share their aging reference by construction rather than by luck.
+
+    ONE OBJECT STORE, NOT TWO (#626), which is the same fault one moving
+    reference over: `release-tag-publication` re-resolves `origin/main`'s
+    published tip per invocation and reads it out of the local object store, so
+    a pair straddling a landing counts that family's findings on one side and
+    its skip on the other. Skipped in BOTH renderings — see `_LIVE_REMOTE_FAMILY`
+    above for the mechanism and for why priming cannot stand in for pinning.
+
+    `cwd` IS THIS CHECKOUT, NOT `root`. It only locates
+    `scripts/doc-health.py`; `--single-repo` names the tree to render. They are
+    the same directory for the measured pair and different ones for the
+    regression fixture, which renders a throwaway repository through this same
+    argv.
     """
     out = out_dir / ("without.md" if skip else "with.md")
-    cmd = [sys.executable, "scripts/doc-health.py",
-           "--single-repo", str(root), "--report-out", str(out),
-           "--as-of", _AS_OF]
-    if skip:
-        cmd += ["--skip-family", mbc.FAMILY]
-    proc = subprocess.run(cmd, cwd=str(root), capture_output=True, text=True)
+    cmd = _render_cmd(root, out, skip)
+    proc = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True)
     assert proc.returncode == 0, (
         f"{' '.join(cmd)} exited {proc.returncode}\n{proc.stderr[-2000:]}")
     return out.read_text(encoding="utf-8")
@@ -1689,6 +1753,19 @@ def test_the_report_moves_only_in_this_family_s_lines(tmp_path):
             f"`_sections` dropped nothing and its flake guard is now hiding a "
             f"real change in the report preamble")
 
+    # THE #626 PIN TOOK EFFECT, asserted the same way and for the same reason:
+    # a family skipped by run configuration says so in its own section, and if
+    # that notice is not in BOTH reports then the live-remote family ran in at
+    # least one of them and the movement below is being measured across two
+    # published tips again.
+    for label, text in (("without", without), ("with", with_family)):
+        section = _sections(text).get(f"### {_LIVE_REMOTE_FAMILY}", [])
+        assert any("skipped by run configuration" in line
+                   for line in section), (
+            f"the {label} report does not show {_LIVE_REMOTE_FAMILY} skipped by "
+            f"run configuration, so the one family that reads `origin` live is "
+            f"back inside the measurement (#626). Its section read: {section}")
+
     left, right = _sections(without), _sections(with_family)
     assert set(left) == set(right), (
         f"the report's section set moved: "
@@ -1721,6 +1798,154 @@ def test_the_report_moves_only_in_this_family_s_lines(tmp_path):
     for line in plan_moved:
         assert f"family={mbc.FAMILY}" in line, (
             f"a ranked-plan row not belonging to this family moved: {line!r}")
+
+
+# ------------------------------------------------------- #626, and its fixture
+#
+# THE DEFECT REPRODUCED RATHER THAN DESCRIBED. The straddle the pin above closes
+# needs `main` to land between two renderings of a live checkout, which no test
+# can arrange over THIS repository — so it is arranged over a throwaway one:
+# a repository with an `origin` this test can push to, rendered once while its
+# published tip is in its own object store and once after a landing it has not
+# fetched. That is exactly the CI condition (#626: PR #623's run began while
+# #617 was merging), reduced to two `git push`es and no network.
+
+_FIXTURE_BUNDLE = "contract-v2.1"
+_FIXTURE_SUPERSEDED = "contract-v2.0"
+_UNREADABLE_TIP = "could not be read at the published tip"
+
+
+def _git(repo: Path, *args: str) -> str:
+    return subprocess.run(["git", "-C", str(repo), *args], check=True,
+                          capture_output=True, text=True).stdout
+
+
+def _repo_with_a_published_main(tmp_path: Path) -> Path:
+    """A throwaway repository `release-tag-publication` has something to say about.
+
+    IT MUST HAVE SOMETHING TO SAY, or the fixture proves nothing: a repository
+    whose tag obligation is met contributes no finding whether the family runs
+    or skips, and the two renderings would match for the wrong reason. So the
+    manifest declares `contract-v2.1` over a cut, never-tagged
+    `contract-v2.0` — SUPERSEDED WITHOUT PUBLICATION, the family's one arm that
+    is reported without distance grading, so it fires on the first commit and
+    needs no landing window built under it.
+    """
+    origin = tmp_path / "origin.git"
+    subprocess.run(["git", "init", "-q", "--bare", "-b", "main", str(origin)],
+                   check=True, capture_output=True)
+    repo = tmp_path / "work"
+    subprocess.run(["git", "init", "-q", "-b", "main", str(repo)],
+                   check=True, capture_output=True)
+    _git(repo, "config", "user.email", "self-gate@example.invalid")
+    _git(repo, "config", "user.name", "Self Gate")
+    _git(repo, "remote", "add", "origin", str(origin))
+    (repo / "contracts" / "releases").mkdir(parents=True)
+    (repo / "contracts" / "manifest.yaml").write_text(
+        f"contract_bundle_version: {_FIXTURE_BUNDLE}\n", encoding="utf-8")
+    (repo / "contracts" / "CHANGELOG.md").write_text(
+        "# Contract changelog\n", encoding="utf-8")
+    for bundle in (_FIXTURE_SUPERSEDED, _FIXTURE_BUNDLE):
+        (repo / "contracts" / "releases" / f"{bundle}.digests.yaml").write_text(
+            f"bundle: {bundle}\n", encoding="utf-8")
+    _git(repo, "add", "contracts")
+    _git(repo, "commit", "-q", "-m", f"cut {_FIXTURE_BUNDLE}")
+    _git(repo, "push", "-q", "origin", "main")
+    return repo
+
+
+def _land_on_published_main(tmp_path: Path, repo: Path) -> str:
+    """One landing on `origin/main` that `repo` has NOT fetched, as a sha.
+
+    Committed in a second clone and pushed from there, because a commit made in
+    `repo` would put the object in `repo`'s own store — which is the whole
+    condition under test. The working tree of `repo` is untouched: what moves is
+    the published reference, not this checkout.
+    """
+    elsewhere = tmp_path / "elsewhere"
+    subprocess.run(["git", "clone", "-q", str(tmp_path / "origin.git"),
+                    str(elsewhere)], check=True, capture_output=True)
+    _git(elsewhere, "config", "user.email", "other@example.invalid")
+    _git(elsewhere, "config", "user.name", "Another Lane")
+    (elsewhere / "landed.md").write_text("a landing\n", encoding="utf-8")
+    _git(elsewhere, "add", "landed.md")
+    _git(elsewhere, "commit", "-q", "-m", "a landing this checkout lacks")
+    _git(elsewhere, "push", "-q", "origin", "main")
+    return _git(elsewhere, "rev-parse", "HEAD").strip()
+
+
+def _pre_626_report(root: Path, out: Path) -> str:
+    """The rendering as it was spelled BEFORE #626 — the control, kept honest.
+
+    Deliberately not built from `_render_cmd`: its whole job is to show what the
+    measured pair does WITHOUT the pin, and a control that inherits the pin
+    would pass no matter what.
+    """
+    cmd = [sys.executable, "scripts/doc-health.py",
+           "--single-repo", str(root), "--report-out", str(out),
+           "--as-of", _AS_OF]
+    proc = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True)
+    assert proc.returncode == 0, (
+        f"{' '.join(cmd)} exited {proc.returncode}\n{proc.stderr[-2000:]}")
+    return out.read_text(encoding="utf-8")
+
+
+def test_the_measured_pair_survives_a_landing_on_main(tmp_path):
+    """#626: TWO RENDERINGS, ONE PUBLISHED TIP — proved on a moving one.
+
+    Four renderings of ONE unchanged working tree, in two pairs that straddle a
+    landing on `origin/main`:
+
+    * the CONTROL pair, spelled as the measured pair was before this fix, MOVES
+      — which is the defect, reproduced rather than asserted from the issue;
+    * the pair spelled as `_report` spells it does NOT move.
+
+    So this test fails in two directions, both of them useful. Take
+    `--skip-family release-tag-publication` out of `_render_cmd` and the second
+    pair moves like the first. Let the family stop reporting the superseded
+    bundle and the CONTROL stops moving, which says the fixture has gone vacuous
+    and the pin is no longer being proved by anything.
+    """
+    repo = _repo_with_a_published_main(tmp_path)
+    for name in ("control-warm", "control-cold", "pinned-warm", "pinned-cold"):
+        (tmp_path / name).mkdir()
+
+    control_warm = _pre_626_report(repo, tmp_path / "control-warm" / "r.md")
+    pinned_warm = _report(repo, tmp_path / "pinned-warm", skip=False)
+
+    landed = _land_on_published_main(tmp_path, repo)
+    assert subprocess.run(["git", "-C", str(repo), "cat-file", "-e", landed],
+                          capture_output=True).returncode != 0, (
+        f"{landed[:9]} is already in this checkout's object store, so the "
+        f"'published tip the store does not hold' condition #626 is about was "
+        f"never created and this fixture proves nothing")
+
+    control_cold = _pre_626_report(repo, tmp_path / "control-cold" / "r.md")
+    pinned_cold = _report(repo, tmp_path / "pinned-cold", skip=False)
+
+    # 1. THE DEFECT IS REAL, and it moves a band this gate says never moves.
+    assert _UNREADABLE_TIP in control_cold and _UNREADABLE_TIP not in control_warm, (
+        "the control pair did not straddle the landing: the second rendering "
+        "was expected to report the published tip as unreadable and the first "
+        "was not")
+    assert _bands(control_warm) != _bands(control_cold), (
+        f"the unpinned pair did not move across a landing on `main` "
+        f"({_bands(control_warm)} then {_bands(control_cold)}), so #626's "
+        f"mechanism no longer reproduces and the pin below is being proved by "
+        f"nothing. Check whether `release-tag-publication` still reports a "
+        f"cut-and-superseded bundle, and re-aim this fixture at whatever it "
+        f"reports now — do not delete it.")
+
+    # 2. THE PIN CLOSES IT, over the same tree and the same landing.
+    assert _UNREADABLE_TIP not in pinned_warm + pinned_cold, (
+        "a pinned rendering still reached `origin` for the published tip, so "
+        "`--skip-family release-tag-publication` did not take effect")
+    assert _bands(pinned_warm) == _bands(pinned_cold), (
+        f"two renderings of ONE unchanged tree still moved across a landing on "
+        f"`main`: {_bands(pinned_warm)} then {_bands(pinned_cold)}. Some family "
+        f"other than {_LIVE_REMOTE_FAMILY} now reads the live remote, and the "
+        f"movement pin above is measuring across two published tips again "
+        f"(#626).")
 
 
 # ============================================================================
