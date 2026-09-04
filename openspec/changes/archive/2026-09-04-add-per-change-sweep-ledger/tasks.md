@@ -275,8 +275,25 @@ measurement is carried per subject, never as a shared total"
 
 ## Group 7 — Archive preflight (after ratification)
 
-- [ ] 7.1 Under `release-realization`'s realization archive gate, this packet
-  archives on MERGED-PLUS-GREEN, measured after landing and never assumed.
-- [ ] 7.2 Archiving moves this change's own ledger row `state: active` →
-  `archived` — the row diff states it, so NO MOVEMENT LOG entry is owed for it,
-  which is this change's own rule applied to itself.
+- [x] 7.1 **MERGED-PLUS-GREEN, MEASURED AFTER LANDING AND NOT ASSUMED — DONE
+  2026-09-04.** MERGED: PR #623 squashed to `56e12278` on `main`
+  (2026-09-04T01:07:29Z). GREEN: `main`'s own `pytest-suite` at that commit,
+  run `33824532924`, **completed success** — polled to completion before this
+  archive branch was cut, which is the order the gate requires. The gate is
+  satisfied by `main`'s run and not by the pull request's, because what the
+  rule asks is whether the realization is green WHERE IT LANDED.
+- [x] 7.2 **Archiving moves this change's own ledger row `state: active` →
+  `archived`, and NOTHING ELSE — DONE, and confirmed rather than predicted.**
+  Exactly one row moved, `class` held at `sole`, `declares` and `depth`
+  unchanged, no partner flipped, so NO MOVEMENT LOG entry is owed — this
+  change's own rule applied to itself, on the first archive ever performed
+  under the pin it introduces. The row diff is quoted in the archive pull
+  request body and in its commit message.
+- [x] 7.3 **THE LANDING ACT.** This archive is performed by the pull request
+  carrying this tick — branch `change/archive-add-per-change-sweep-ledger`, cut
+  from `main` at `56e12278` after that commit's own suite went green. The move
+  ran through `scripts/proposal-support.py . archive`, never bare
+  `openspec archive`, and the parent-declaration RETENTION gate
+  (`--archive-gate` against the ratified ref `68f73e1d`) passes: the
+  `sequenced_after: [add-sequenced-after-substrate]` declaration is byte-
+  unchanged between ratification and archive.

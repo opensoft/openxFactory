@@ -482,73 +482,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-per-change-sweep-ledger](openspec/changes/add-per-change-sweep-ledger/proposal.md)
-  — proposed 2026-09-03 on Brett Heap's in-session ruling of the same day (lane
-  `openxfactory-max001`, verbatim *"do 1 and 3, keep the log in one place"*)
-  given on openxFactory issue **#618** — **admission into the proposal queue,
-  NOT a ratification.** **`Status: ratified`** (2026-09-04, Brett Heap the
-  operator authority, in the working session, verbatim *"ratify 623"*, given
-  after a presentation carrying `design.md` D1 as the reading most worth a veto
-  — **D1 was not vetoed**; record
-  `openspec/changes/add-per-change-sweep-ledger/review/ratification-2026-09-04.md`,
-  verification beside it at `review/verification-2026-09-04.md`).
-  **RATIFIED AND STILL ACTIVE**: `code_surface` is non-empty and
-  `target_release: implemented`, so under `release-realization`'s realization
-  archive gate it archives on MERGED-PLUS-GREEN, measured after landing and
-  never assumed (`tasks.md` Group 7).
-  **WHAT RATIFICATION SETTLED INCLUDES A KNOWN DEPARTURE FROM #618.** That
-  issue's shape paragraph specified a `## MODIFIED Requirements` block making
-  both changes co-modifiers with the declaration *owed*; this packet delivers
-  ALL-ADDED, both rows `class: sole`, the declaration ELECTIVE. The departure
-  was recorded in D1 **before** the act so that ratifying would ratify it
-  knowingly rather than by omission.
-  **THE CORPUS-SWEEP PIN NOW MOVES PER ROW, NEVER PER TOTAL.** The measurement
-  that discharges `add-sequenced-after-substrate`'s *"…bound SHALL be measured"*
-  requirement is unchanged; what changes is how it is pinned. Five corpus-wide
-  totals asserted as literals in `tests/sequenced_after/test_sweep.py` are
-  replaced by `tests/sequenced_after/corpus-ledger.yaml` — **one row per change
-  id** over the active and archived corpora both, sorted, one line each, carrying
-  that change's `state`, `class`, `declares`, `depth` and `prose` plus the pull
-  request that last moved it — from which **every one of the sweep's fourteen
-  fields is DERIVED**. A pull request now edits ITS OWN ROW, and a partner's row
-  when its own `## MODIFIED Requirements` block flips that partner from sole to
-  co-modifier; two disjoint changes insert two non-adjacent lines and merge
-  clean — **with one measured residue: two NEW ids that sort with no row
-  between them share one insertion point and still conflict**, so the ordering
-  shrinks the collision surface from "every change-dir PR" to "two adjacent
-  ids" rather than removing it, and that remainder stays with the landing
-  window. **WHY: a total is a shared mutable every change-dir PR writes to.**
-  Authoring, adopting, ratifying or archiving a change each move at least one,
-  so two PRs that look disjoint collide and the loser owes a merge-from-main, a
-  re-derived pin, a log entry and re-derived record files — one CI window per
-  round. Recorded, not argued: PR #608 took three such rounds on 2026-09-03,
-  #616 went CONFLICTING the moment #608/#609 landed, and thirteen commits moved
-  the pin between 2026-08-20 and 2026-09-03. **THE DERIVATION IS DELIBERATELY
-  INDEPENDENT of `corpus_sweep`**, which is not refactored, so
-  `sweep_from_readings(classify_corpus(root)) == corpus_sweep(root)` is a
-  field-by-field cross-check rather than a tautology. **THE DELTA IS ALL-ADDED
-  and that is a reading, not a preference**: the measured-bound requirement's
-  text binds *measured, recorded, re-runnable* and never the pin MECHANISM, so a
-  `## MODIFIED` block would restate it unchanged (`design.md` D1). It declares
-  `sequenced_after: [add-sequenced-after-substrate]` anyway — the packet is a
-  SOLE modifier and owes no declaration, but the relation is real and *declaring
-  must never be worth less than omitting*; that takes the deepest declared chain
-  from 1 hop to 2. **`Status: record` FILES NOW CITE THEIR OWN ROW** and
-  "ledger ⇔ corpus consistent at `<sha>`" — where `<sha>` is the head
-  `--ledger-diff` last ran CLEAN on, never the file's `seeded_from` stamp (the
-  ledger is provably inconsistent at that commit: 11 findings, measured) and
-  never a total — so a merge from main no longer forces record re-derivation;
-  records already written are historical and are not rewritten. **THE MOVEMENT LOG STAYS ONE HAND-WRITTEN LEDGER IN ONE
-  PLACE** — the convener's constraint — retained verbatim in `test_sweep.py`,
-  with a new rule: an entry is owed only where a move is NOT explained by the row
-  diff (a counting-method change, a partner's flip, a non-per-change reading, a
-  re-seeding). `validate-sequenced-after.py` gains `--ledger-diff` (report and
-  gate) and `--seed-ledger --moved-by '#PR'` (rewrite, stamping only the rows
-  that actually moved); `--sweep`'s output is byte-unchanged. **RESIDUAL, and
-  left to the landing window** (issue #618's item 1): this README block itself,
-  and the rare narrative append. Option 2 of that issue — a GitHub merge queue —
-  was assessed and rejected on its own: it serializes merges and does not resolve
-  a textual conflict.
 - [add-consumer-identity-namespace](openspec/changes/add-consumer-identity-namespace/proposal.md)
   — authored 2026-09-03, **RATIFIED 2026-09-03 by Brett Heap, in session**
   (verbatim "implement your recommendations on all these", over written
@@ -2120,6 +2053,52 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-per-change-sweep-ledger](openspec/changes/archive/2026-09-04-add-per-change-sweep-ledger/proposal.md)
+  — **ARCHIVED 2026-09-04 on merged-and-green realization evidence read off
+  `main`, and it is THE FIRST ARCHIVE PERFORMED UNDER THE PIN IT INTRODUCES.**
+  Proposed 2026-09-03 on Brett Heap's ruling *"do 1 and 3, keep the log in one
+  place"* (issue **#618**); **ratified 2026-09-04** by Brett Heap in-session,
+  verbatim *"ratify 623"*, given after a presentation carrying `design.md` D1 as
+  the reading most worth a veto — **D1 was not vetoed** (records
+  `review/ratification-2026-09-04.md` and `review/verification-2026-09-04.md`,
+  archived with the packet). **REALIZED by PR #623**, squash **`56e12278`**
+  (2026-09-04T01:07:29Z), which carried the packet AND its whole code surface in
+  one landing — the per-change classifier, ledger reader/renderer and
+  field-naming comparator in `scripts/sequenced_after.py`, `--ledger-diff` and
+  `--seed-ledger` in `scripts/validate-sequenced-after.py`,
+  `tests/sequenced_after/corpus-ledger.yaml`, and the rewritten
+  `tests/sequenced_after/test_sweep.py`. **GREEN AT THAT COMMIT**: `main`'s own
+  `pytest-suite` run **33824532924**, `success`, polled to completion BEFORE the
+  archive branch was cut — the gate asks whether the realization is green WHERE
+  IT LANDED, so it is `main`'s run that satisfies it and not the pull request's.
+  `target_release: implemented` names the openxFactory main line, so
+  merged-plus-green on `main` IS the gate
+  (`docs/release-realization-flow.md` § The Archive Gate); the archive act is
+  separate from the realization and ran through `scripts/proposal-support.py`,
+  never bare `openspec archive`.
+  **WHAT IT LEAVES IN CANON**: ONE requirement promoted byte-identically into
+  `openspec/specs/release-realization/spec.md` — *"A pinned corpus measurement
+  is carried per subject, never as a shared total"*. A pinned corpus measurement
+  is carried one row per measured subject and every total a check asserts is
+  DERIVED from those rows; failures name the subject; the derivation is
+  cross-checked against the measurement by an INDEPENDENT computation; records
+  cite their own subject's row and the head the check last ran clean on, never a
+  corpus-wide total nor the ledger's `seeded_from` stamp; and a dated
+  hand-written narrative is kept in exactly ONE place, appended only where a
+  move is NOT explained by the row diff.
+  **THE DELTA WAS ALL-ADDED, WHICH DEPARTS FROM #618'S OWN SHAPE PARAGRAPH** —
+  that issue specified a `## MODIFIED Requirements` block making both changes
+  co-modifiers with the `sequenced_after:` declaration *owed*; the packet
+  delivers ALL-ADDED, both rows `class: sole`, the declaration ELECTIVE and made
+  anyway on the substrate's *declaring must never be worth less than omitting*
+  doctrine. The departure was recorded in D1 BEFORE ratification so the act
+  would settle it knowingly.
+  **THE ARCHIVE ITSELF MOVED EXACTLY ONE LEDGER ROW** — `state: active` ->
+  `archived`, with `class: sole`, `declares` and `depth` unchanged and no
+  partner flipped, so no MOVEMENT LOG entry was owed. Under the pin this packet
+  replaces, the same act would have moved several shared totals and required a
+  re-derivation; that one-line diff is the change's own thesis, measured on
+  itself.
 - [amend-owner-layer-severity](openspec/changes/archive/2026-09-03-amend-owner-layer-severity/proposal.md)
   — **ARCHIVED 2026-09-03 IN ITS OWN LANDING COMMIT**, the shape
   `2026-08-25-reconcile-lifecycle-books-count` set for a doc-only packet:
