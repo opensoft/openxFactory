@@ -201,7 +201,7 @@ directory; it holds no material.
   ITS OWN minor rather than at `contract-v2.4`. **EXECUTED.** That last is the
   half a reader at the major needs: a row that borrowed a window it never served
   is exactly the defect this entry exists to prevent.
-- [ ] 5.3 `[#511]` **THE CUT — NOT THIS CHANGE.** The ruling excludes it in
+- [x] 5.3 `[#511]` **THE CUT — NOT THIS CHANGE.** The ruling excludes it in
   terms. Whoever cuts owes, in one act: the number (allocated by merge order —
   `contract-v3.1` was being spent by PR #616 when this was written, was CUT by
   it, and was then found DEFECTIVE and SUPERSEDED by `contract-v3.2` (PR #624);
@@ -222,7 +222,35 @@ directory; it holds no material.
   § 2.6's precedent; and that nothing else narrows — the member being optional,
   the schema constraining nothing about the block, and the comparison only
   ceasing to refuse.
-- [ ] 5.4 `[#511]` Two `release-inventory-drift` findings — `contracts/manifest.yaml`
+  **EXECUTED BY THE CUT, PR #632 (lane `openxfactory-smalls`), 2026-09-04**, on
+  the convener's own word — Brett Heap, 2026-09-04, verbatim *"cut v3.3"*.
+  `contract-v3.3` was the next available number, fresh-counted at the cut:
+  `contracts/manifest.yaml:3` read `contract-v3.2`, `contracts/releases/` held
+  inventories through `contract-v3.2.digests.yaml`, and the published tags on
+  `origin` ran `contract-v3.0`, `contract-v3.1`, `contract-v3.2`. The cut moved
+  `contract_bundle_version` to `contract-v3.3`, wrote
+  `contracts/CHANGELOG.md` § `contract-v3.3 — 2026-09-04` carrying every
+  statement this task prescribes and nothing invented beside them, wired
+  `FEATURE_SUCCESSOR_7 = "contract-v3.3"` into
+  `tests/intent-compliance/test_release_boundary.py`'s enum and both `match`
+  arms with the by-hand membership statement that tripwire requires, and built
+  `contracts/releases/contract-v3.3.digests.yaml` LAST at the final tree with
+  the repository's own builder. **MEASURED SURFACE**: intersecting
+  `git diff --name-only contract-v3.2 HEAD` at the branch point `b1d492a3`
+  (71 paths) with the 283 registered
+  members of `contract-v3.2.digests.yaml` leaves EXACTLY TWO —
+  `contracts/manifest.yaml` and `docs/contract-versioning-policy.md` — and
+  `git log contract-v3.2..HEAD` over each names only `95c2cf6a` (#622), so
+  BOTH are this packet's own. Membership is **283 rows in both inventories,
+  zero added and zero removed**; FOUR digests move (those two plus the cut's
+  own changelog and release-boundary test). Class **ADDITIVE (minor)**,
+  measured against § *Change Classes* rather than asserted. The annotated tag
+  is the one part of this task the cut's PR does NOT perform: it is a
+  post-merge act, taken only after
+  `verify-commit --commit <squash-sha>` passes at the squash commit — § *Bundle
+  Realization Order* step 4 before step 5, the step whose omission made
+  `contract-v3.1` defective.
+- [x] 5.4 `[#511]` Two `release-inventory-drift` findings — `contracts/manifest.yaml`
   and `docs/contract-versioning-policy.md`, both members of the standing
   release inventory (`contract-v3.0` when this was written, **`contract-v3.2`
   since PR #624 cut the superseding release for a defective `contract-v3.1`**)
@@ -236,6 +264,17 @@ directory; it holds no material.
   order; never hand-edit an inventory or `contract_bundle_version` to make this
   comparison pass"*, and `add-binding-consumer-identity` § 6.3 took exactly these
   two findings for exactly this reason.
+  **DISCHARGED BY THE CUT, PR #632, AND NOT BY A HAND-EDIT — VERIFIED BY
+  MEASUREMENT.** Neither the inventory nor `contract_bundle_version` was
+  adjusted to make a comparison pass: the bundle number advanced through the
+  realization order and the inventory was REBUILT from the bytes on disk by
+  `python3 scripts/validate-contract-release.py build --tag contract-v3.3`.
+  On `origin/main` `b1d492a3` the two findings stand — `[error]
+  docs/contract-versioning-policy.md — bytes differ from the digest
+  'contract-v3.2' records` and `[info] contracts/manifest.yaml — bytes differ
+  from the digest 'contract-v3.2' records (editorial member — expected between
+  cuts)`. On the cut's tip BOTH are GONE and the family reports nothing.
+  Figures and the both-directions set difference are in § 8.1.
 
 ## 6. The delta — two rulings, one block
 
@@ -296,7 +335,7 @@ directory; it holds no material.
 - [x] 7.4 `python3 -m pytest tests/credential_contracts tests/manifest_digests -q`.
   **EXECUTED**: **239 passed**, and **247 passed** after § 8.3's round and
   § 4.2a.
-- [ ] 7.5 doc-health, branch against a same-clock `origin/main` baseline from an
+- [x] 7.5 doc-health, branch against a same-clock `origin/main` baseline from an
   IDENTICALLY-NAMED checkout (the finding identity is `(family, repo, path)` and
   the repo is the basename, so a differently-named baseline manufactures
   phantoms). **EXECUTED AND NOT ZERO AT THE CURRENT BASELINE — UNTICKED
@@ -305,6 +344,12 @@ directory; it holds no material.
   #624 cut, plus three INFO. It is § 5.3's to discharge and § 5.4's to refuse to
   hand-edit; figures, both-directions set difference and the reason the answer
   changed are in § 8.1.
+  **NOW TICKED, AND ONLY BECAUSE THE CUT DISCHARGED IT.** At `contract-v3.3`
+  (PR #632) the `release-inventory-drift` ERROR on
+  `docs/contract-versioning-policy.md` and the INFO on
+  `contracts/manifest.yaml` are BOTH absent from the tip report while both
+  stand on the `origin/main` `b1d492a3` baseline, and the cut's tip adds ZERO
+  new critical, error or warning. Re-measured figures in § 8.1.
 - [x] 7.6 `python3 -m pytest tests/doc-health -q`. **EXECUTED**: 1500 passed
   after § 4.4a; the first run's single failure was the corpus-movement gate and
   is recorded in § 8.2 rather than smoothed away.
@@ -335,6 +380,48 @@ evidence.
 
 Both sides run with `--single-repo`, both checkouts named exactly `openxFactory`,
 both `--as-of 2026-09-03`.
+
+**DISCHARGED AT THE CUT — RE-MEASURED 2026-09-04 OVER `contract-v3.3` (PR #632),
+BOTH CHECKOUTS NAMED `openxFactory`, both `--as-of 2026-09-04`.** This packet had
+already MERGED as #622 (`95c2cf6a`) when the cut was taken, so the comparison is
+no longer branch-against-`main`: it is `origin/main` `b1d492a3` — carrying this
+packet's landing and the `contract-v3.2` inventory it drifted — against the cut's
+tip on `chore/cut-contract-v3.3` (PR #632's head).
+
+| | critical | error | warning | info | total |
+| --- | --- | --- | --- | --- | --- |
+| baseline `origin/main` `b1d492a3` | 6 | **5** | 39 | 17 | 67 |
+| cut tip (PR #632 head) | 6 | **4** | 39 | 16 | 65 |
+
+**THE DELTA IS TWO REMOVALS AND ZERO ADDITIONS**, taken as a set difference over
+the machine block in BOTH directions:
+
+* REMOVED: `severity=error family=release-inventory-drift
+  path=docs/contract-versioning-policy.md rule="bytes differ from the digest
+  'contract-v3.2' records"` — the ERROR § 7.5 refused to tick and § 5.4 refused
+  to hand-fix.
+* REMOVED: `severity=info family=release-inventory-drift
+  path=contracts/manifest.yaml rule="bytes differ from the digest 'contract-v3.2'
+  records (editorial member — expected between cuts)"`.
+* ADDED: **nothing.** Zero new critical, error, warning or info.
+
+Family counts are identical on both sides except `release-inventory-drift`
+**2 → 0**: document-catalog 1/1, ideation-routing 1/1, modified-block-currency
+12/12, ratified-provenance 2/2, record-immutability 4/4,
+register-lifecycle-consistency 10/10, release-tag-publication 1/1,
+staged-candidate-aging 4/4, staged-topic-template 26/26, tag-hygiene 4/4.
+
+**AND IT WAS DISCHARGED BY A CUT, NOT BY AN EDIT.** The bundle advanced through
+the realization order and
+`python3 scripts/validate-contract-release.py build --tag contract-v3.3` rebuilt
+the inventory from the bytes on disk; neither an inventory nor
+`contract_bundle_version` was adjusted to make a comparison pass. The three
+`modified-block-currency` INFO this packet's MODIFIED blocks raise remain, on
+both sides, named in `_LEDGER_SUBJECTS` per § 4.4a — they are a contested class
+and are not this cut's to clear.
+
+**EARLIER BRANCH-AGAINST-`main` READINGS, kept as the record of what was true
+then**, follow below.
 
 **RE-MEASURED 2026-09-03 AT `origin/main` `6a39d2ab`, AFTER #617 AND #624, AND
 THE ANSWER CHANGED — IT IS NO LONGER ZERO-NEW-ERROR.** The earlier reading below

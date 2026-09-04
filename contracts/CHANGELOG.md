@@ -9,6 +9,182 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v3.3 — 2026-09-04 (additive; `consumer.identity_namespace` is declared and unconstrained, and the shared-authority comparison reads the PAIR)
+
+Realizes `add-consumer-identity-namespace`, merged as PR **#622**
+(`95c2cf6ae530e6cd0570dd766dd98269d06a75fa`) and ratified 2026-09-03 by Brett
+Heap, the convener, in session, verbatim *"implement your recommendations on all
+these"* (record:
+`openspec/changes/add-consumer-identity-namespace/review/ratification-2026-09-03.md`).
+**That ruling EXCLUDED the cut in terms**, and the packet's `tasks.md` § 5.3
+prescribed the contents of this entry so that the cutting session invents
+nothing. The cut is taken on the convener's own word — Brett Heap, 2026-09-04,
+verbatim: *"cut v3.3"*. The packet also carries openxFactory **#553**'s ruling in
+the same MODIFIED block; that ruling narrows a resolution scenario's scope in
+canon and moves no registered release member, so it is named here and claims
+nothing of this bundle.
+
+### Change class: ADDITIVE (minor)
+
+MEASURED, against
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+§ *Change Classes* — *"new optional fields, new contracts, new validator
+warnings"*:
+
+* **`consumer.identity_namespace` is DECLARED AND UNCONSTRAINED at this
+  release.** It joins the `consumer:` block's DESCRIBED member set in
+  [`contracts/schemas/xfactory-credential-contracts.schema.yaml`](schemas/xfactory-credential-contracts.schema.yaml)
+  exactly as every other member of that block stands at this minor: no `type`,
+  no `pattern`, no `required:`, no `additionalProperties: false`. The
+  constraining acts are queued at the major and are NOT taken here.
+* **The shared-authority comparison reads the PAIR where both sides declare a
+  grammatical namespace, and the BARE identity everywhere else, so absence and
+  malformedness REPORT rather than clear.** `shared-authority-identity`
+  compares `(identity_namespace, fetch_identity)` only when BOTH bindings
+  declare a namespace matching the identifier grammar; in every other case —
+  neither declares one, one declares one, a declared value is ungrammatical, a
+  declared value is null — the comparison falls back to the bare fetch identity
+  and behaves exactly as the shipped validator behaves. An estate able to
+  silence a real shared authority by OMITTING a member on one side would hold a
+  rule it could switch off without writing anything false; this release does
+  not give it one.
+* **ONE predicate serves BOTH the named finding and the lift's third
+  condition.** `_same_fetch_authority` in
+  `scripts/validate-credential-contracts.py` is called from both places the
+  promoted text states the comparison — the named `shared-authority-identity`
+  finding, and the THIRD condition of the six-condition lift — because two
+  implementations of one sentence drift.
+* **The `consumer:` block's SHAPE codes go from EIGHT to NINE**, the ninth being
+  `consumer-identity-namespace-grammar`, a WARNING over a declared value outside
+  the identifier grammar. **Its deprecation window OPENS AT THIS RELEASE rather
+  than at `contract-v2.4`** — stated in § *Deprecations Currently In Force*'s
+  ninth row and in a paragraph of its own there, because a row that borrowed a
+  window it never served is exactly the defect that entry exists to prevent.
+* **THE ONE NARROWING IS `baked-secret` OVER THE THIRD FREE STRING**, taken
+  deliberately under `add-binding-consumer-identity` § 2.6's own precedent: that
+  task extended this error-level screen to the two free-string members it
+  declared, in the release that declared them, on the ground that a new
+  free-string sink on the record kind whose invariant is *"never bake a
+  secret"* is a gap rather than a permission. Declaring a sink at one release
+  and screening it at the next is how the gap § 2.6 closed reopens.
+* **NOTHING ELSE NARROWS.** The member is optional; the schema constrains
+  nothing about the block; and the comparison only ceases to refuse — it can
+  make a pair that is reported today go silent, and only when both sides declare
+  a grammatical namespace and the two differ. `identity_namespace` joining
+  `CONSUMER_MEMBERS` likewise only REMOVES a warning: a block carrying that key
+  draws `consumer-block-unknown-member` today and stops. No consumer pinned at
+  `contract-v3.2` is made non-conformant by this release.
+
+**NOT `contract-v3.2.1` OR ANY OTHER SUB-MINOR**: § *Version Identity*'s tag
+form is `contract-v<major>.<minor>` exactly, with no third component.
+
+### The number, fresh-counted at the cut
+
+`contracts/manifest.yaml:3` declared `contract-v3.2`; `contracts/releases/` held
+inventories through `contract-v3.2.digests.yaml`; the annotated tags published on
+`origin` run `contract-v3.0`, `contract-v3.1`, `contract-v3.2`; this changelog
+headed at `contract-v3.2` with no `Unreleased` block pending. The next available
+additive number is **`contract-v3.3`**, taken here. The packet deliberately
+declined to write a number in advance — its `target_release` reads *"THE NEXT
+ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE"* — and the figure moved TWICE
+under it while it was in review, which is the argument rather than an anecdote.
+
+### What moved, over the registered release surface
+
+MEASURED, not assumed: intersecting `git diff --name-only contract-v3.2 HEAD`
+taken at this cut's branch point `b1d492a3` (71 paths) with the **283**
+registered members of
+[`contract-v3.2.digests.yaml`](releases/contract-v3.2.digests.yaml) leaves
+**EXACTLY TWO**, and `git log contract-v3.2..HEAD` over each shows both are
+PR #622's alone:
+
+* [`contracts/manifest.yaml`](manifest.yaml) — the `credential-contracts` row's
+  `sha256` recomputed from the schema bytes on disk (`d0e936fc7377…` →
+  `b8aa4c77e937…`) and its `consumption_rule` extended with the member and the
+  comparison, FORCED rather than chosen: `test_manifest_row_digest.py` reds at
+  the commit on any schema move that leaves the row behind, so a consumer never
+  verifies a digest for bytes nobody shipped. Also carries this cut's
+  `contract_bundle_version: contract-v3.2` → `contract-v3.3`.
+* [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+  — a `NORMATIVE_DOCS` release member. § *Deprecations Currently In Force* gains
+  the NINTH table row, the member in the entry's own enumeration, the act count
+  SEVEN → EIGHT, the reconciliation paragraph's corrected ordinal, and the new
+  paragraph stating that the ninth row's window opens at ITS OWN minor.
+
+**FOUR other pull requests landed on `main` between `contract-v3.2` and this
+cut's branch point and moved NO registered member** — `#617` (`6a39d2ab`),
+`#623` (`56e12278`), `#619` (`d611666c`) and `#631` (`b1d492a3`). Their bytes are
+in this tree and none of them is in this bundle's digest surface; the statement
+is the intersection above, taken over all 71 moved paths at once rather than
+per pull request.
+
+### What this release realizes that is NOT a registered release member
+
+Disclosed rather than left implicit, and measured the same way — zero
+occurrences of any of these paths in
+[`contract-v3.2.digests.yaml`](releases/contract-v3.2.digests.yaml):
+
+* [`contracts/schemas/xfactory-credential-contracts.schema.yaml`](schemas/xfactory-credential-contracts.schema.yaml)
+  — the schema carrying `identity_namespace`. It is pinned by its
+  `contracts/manifest.yaml` row's `sha256`, which IS a registered member and
+  moved with it, so the bundle pins these bytes through the manifest rather
+  than through an inventory row of their own.
+* `scripts/validate-credential-contracts.py` — the predicate, the ninth code and
+  the third screened free string. It is not one of the four `NAMED_VALIDATORS`
+  the inventory registers.
+* The five packaged fixtures under `examples/credential-contracts/` — one
+  positive (two tenants of one provider, one principal name, two namespaces),
+  three negative, one warning probe for the ninth code.
+* [`docs/credential-access-model.md`](../docs/credential-access-model.md) and
+  [`docs/domain-factory-starter-pack.md`](../docs/domain-factory-starter-pack.md)
+  — governance documents, not members of `NORMATIVE_DOCS`.
+
+### Also moved by this cut, and by nothing else
+
+`tests/intent-compliance/test_release_boundary.py` gains
+`FEATURE_SUCCESSOR_7 = "contract-v3.3"`, wired into both `match` arms, and the
+by-hand statement its `ReleaseState` tripwire requires of every cut past the
+floor: **this bundle touches NO intent-compliance member and the membership that
+file asserts is UNCHANGED** — the only registered rows whose bytes differ are
+`contracts/manifest.yaml` and `docs/contract-versioning-policy.md`. Said by
+hand, as every advance above it is, because "unchanged" is the one thing the
+library cannot tell from "unnoticed". Membership is **283 rows in both
+inventories, unchanged — zero added, zero removed** — and **FOUR digests move**:
+the two registered members #622 moved, plus this cut's own
+[`contracts/CHANGELOG.md`](CHANGELOG.md) and
+`tests/intent-compliance/test_release_boundary.py`
+(`contracts/manifest.yaml` is in both sets).
+
+### Migration guidance
+
+* **A consumer pinned at `contract-v3.2` re-pins to `contract-v3.3`.** Move
+  `xfactory.contract_ref` to this bundle's published commit, record the tag
+  `contract-v3.3`, and re-run the per-file digest checks under § *Domain Upgrade
+  Runbook*. There is no shape work owed: the new member is optional and
+  unconstrained, and a binding that declares nothing is accepted exactly as
+  before.
+* **An estate that DOES declare `consumer.identity_namespace` should declare it
+  on BOTH sides of any pair it expects the comparison to distinguish.** One-sided
+  and ungrammatical declarations fall back to the bare fetch identity and keep
+  reporting; that is the designed behaviour, not a defect to work around.
+* **`consumer-identity-namespace-grammar` is a WARNING and reddens nothing at
+  this release.** Its window opens here and it serves an act at the major.
+* **The one new refusal is `baked-secret` over `identity_namespace`.** A binding
+  that bakes a secret into the namespace is refused at error level from this
+  release, on the same screen that already governs the other free strings of
+  this record kind.
+
+### Publication
+
+The annotated tag `contract-v3.3` is published at the exact commit this cut
+lands on `origin/main`, and **NOT before
+`python3 scripts/validate-contract-release.py verify-commit --commit <squash-sha>`
+passes there.** That is § *Bundle Realization Order* step 4 performed before
+step 5 — the pair whose separation produced `contract-v3.1`'s defect, recorded
+in the `contract-v3.2` entry immediately below. The inventory in this cut is
+built LAST at the candidate tree and rebuilt at the squash commit if promotion
+creates a different one.
+
 ## contract-v3.2 — 2026-09-03 (additive; the SUPERSEDING release for defective `contract-v3.1`, whose published inventory records two stale digests)
 
 **THIS CUT EXISTS TO CORRECT A DEFECTIVE PUBLISHED RELEASE AND DOES NOTHING
