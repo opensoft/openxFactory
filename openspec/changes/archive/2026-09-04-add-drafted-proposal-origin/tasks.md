@@ -188,14 +188,32 @@ FIXED.**
 
 ## 5. Archive
 
-- [ ] 5.1 ARCHIVE ON MERGED-PLUS-GREEN, never on landing. This packet carries
-      a code surface, so under `docs/release-realization-flow.md` § The
-      Archive Gate it archives only after the PR merges with green
-      realization evidence on `main`: `python3 -m pytest tests/doc-health`,
-      `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`, and a
-      doc-health single-repo run moving by the predicted amount and no other
-      line. Archived via `proposal-support.py archive`, never bare
-      `openspec`.
+- [x] 5.1 **ARCHIVED ON MERGED-PLUS-GREEN, MEASURED AFTER LANDING AND NEVER
+      ASSUMED — DONE 2026-09-04.** This packet carries a code surface, so
+      under `docs/release-realization-flow.md` § The Archive Gate it archives
+      only after the PR merges with green realization evidence on `main`.
+      **MERGED**: PR #619 squashed to `d611666c` on `main`
+      (2026-09-04T01:51:13Z), carrying the packet AND its whole code surface
+      in one landing — the three-state `ad_hoc` arm, `_declared_standing` and
+      the two new finding classes in `scripts/doc_health/proposal_origin.py`;
+      the matching gate arm, the copied field pairs, `write_origin_block`'s
+      new arms and `declare-adhoc`'s two new options in
+      `scripts/proposal-support.py`; and the fixtures in
+      `tests/doc-health/test_proposal_origin.py`,
+      `tests/doc-health/test_lifecycle_scan_set.py` and
+      `tests/doc-health/test_modified_block_currency_self_gate.py`.
+      **GREEN WHERE IT LANDED**: `main`'s own `pytest-suite` run
+      **33835343327** at `92e662cf` — `completed success`, with the
+      realization in that tree (`DRAFTING_FIELDS` reads at
+      `scripts/doc_health/proposal_origin.py:110` and
+      `scripts/proposal-support.py:292` on `92e662cf`) — polled to completion
+      BEFORE this archive branch was cut. It is `main`'s run that satisfies
+      the gate and not this pull request's, because what the rule asks is
+      whether the realization is green WHERE IT LANDED.
+      `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` and the
+      doc-health single-repo comparison are recorded in § 6 below. The move
+      ran through `python3 scripts/proposal-support.py . archive
+      add-drafted-proposal-origin`, never bare `openspec archive`.
 
 ## 6. Executed
 
