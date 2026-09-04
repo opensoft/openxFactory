@@ -988,6 +988,15 @@ Active changes:
   remains a consumer/runtime-owner boundary. `Status: draft`; one SHARED Speckit
   realization with `add-chain-anchoring`, basis archive first and amendment
   second, then one additive new-family release.
+  **[REQUIREMENT 1 DROPPED, owner's ruling 2026-09-04: "bring 548 forward after
+  629 lands, drop requirement 1."]** The first of the three gaps above — the
+  realization-gate/PKI prerequisite and its shared-feature linkage — is removed
+  from `specs/chain-anchoring/spec.md`; `add-chain-anchoring` realized without
+  it at PR #629 (squash `11feff75`). Requirements 2 (fixed-UTC durability) and 3
+  (submitted-versus-confirmed witness state) are re-presented on their own
+  merits; see `proposal.md`'s "Requirement 1 removed" and "Realization cost if
+  ratified" sections for the reasoning and the measured follow-on cost against
+  #629's already-landed schemas.
 - [add-chain-anchoring](openspec/changes/add-chain-anchoring/proposal.md)
   — authored 2026-08-29, **`Status: draft` — RATIFICATION IS NOT SOUGHT BY THIS
   PACKET'S LANDING.** Exit 3 of three of the staged topic
