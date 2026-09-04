@@ -14,7 +14,7 @@ Kind: evidence
 | | positives | negatives | closed codes red-proven | further findings probed | errors | warnings |
 | --- | --- | --- | --- | --- | --- | --- |
 | basis (`11feff75`) | 21 | 75 | 70/70 | 5 | 0 | 2 |
-| this feature | **41** | **126** | **118/118** | **8** | **0** | **2** |
+| this feature | **41** | **127** | **118/118** | **9** | **0** | **2** |
 
 Both warnings are the standing honest pair and neither is this feature's to
 close: `reader-not-required` (the canonical reader is not yet a REQUIRED check

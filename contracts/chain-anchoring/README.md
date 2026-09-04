@@ -175,7 +175,7 @@ is COMPUTED under the released construction rather than written by hand**, so th
 reader's recomputation has something real to disagree with — plus, under
 [`examples/negative/`](examples/negative/), **one single-fault fixture per
 refusal code, its FILENAME the code it provokes**: 118/118 closed codes
-red-proven, plus eight finding codes outside the closed enumeration
+red-proven, plus nine finding codes outside the closed enumeration
 (`ordering-only-correspondence`, `delay-check-arithmetic`,
 `checkpoint-anchor-mismatch`, `record-digest-mismatch`,
 `residual-not-declared`, `admission-window-acceptance-mismatch`,

@@ -177,7 +177,7 @@ noted, and each traceable to a scenario of the ratified delta:
      and a gap between consecutive windows is refused because a chain of daily
      items with holes proves nothing about the days in the holes.
 
-EIGHT FINDINGS CARRY KEBAB-CASE CODES because the closed enumeration has no member
+NINE FINDINGS CARRY KEBAB-CASE CODES because the closed enumeration has no member
 for them and inventing one would be a contract change made by a reader:
 `ordering-only-correspondence` (a null header time under a time-bearing rule, or a
 time under an ordering-only rule — the same defect pointing opposite ways),

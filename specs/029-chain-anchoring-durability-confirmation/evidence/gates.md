@@ -12,7 +12,7 @@ file.
 
 | Gate | Result |
 | --- | --- |
-| `python3 scripts/validate-chain-anchoring.py .` | **0 error(s), 2 warning(s)** — self-test: 41 packaged records as ONE coherent corpus, 126 negatives invalid for their intended reason, **118/118 closed refusal codes red-proven**, 8 further finding codes probed; repo scan 0 artifacts checked / 2150 skipped |
+| `python3 scripts/validate-chain-anchoring.py .` | **0 error(s), 2 warning(s)** — self-test: 41 packaged records as ONE coherent corpus, 127 negatives invalid for their intended reason, **118/118 closed refusal codes red-proven**, 9 further finding codes probed; repo scan 0 artifacts checked / 2150 skipped |
 | `python3 scripts/validate-signed-execution-chain.py . --require-pinned-wallet-vocabulary` | **0 error(s), 0 warning(s)** |
 | `python3 scripts/validate-manifest-digests.py .` | **OK — 187/187 per-file digest(s) verify** |
 | `python3 -m pytest tests/chain_anchoring -q` | **59 passed** (138s) |
@@ -28,7 +28,7 @@ realization: `reader-not-required` and `archival-node-undeclared`.
 | `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` | **89 passed, 0 failed** (89 items; the ratification commit saw 90 because `add-subject-establishment` archived in between) |
 | `OPENSPEC_TELEMETRY=0 openspec validate amend-chain-anchoring-readiness-and-durability --strict` | **valid** |
 | `python3 scripts/proposal-support.py . verify amend-chain-anchoring-readiness-and-durability` | **proposal support verification ok** |
-| `python3 scripts/validate-sequenced-after.py . --ledger-diff` | **ledger consistent with the corpus (164 rows)**; deepest declared chain resolved 2 hops |
+| `python3 scripts/validate-sequenced-after.py . --ledger-diff` | **ledger consistent with the corpus (165 rows)**; deepest declared chain resolved 2 hops |
 | `python3 -m pytest tests/doc-health -q -p no:cacheprovider` | **1552 passed** (399s) |
 | `python3 scripts/doc-health.py --single-repo .` | 6 critical / 4 error / 27 warning / 16 info — **identical to `origin/main`, zero delta** (see [`doc-health-delta.md`](./doc-health-delta.md)) |
 
