@@ -413,3 +413,70 @@ CHECKOUT SHAPE, not to who performs it. If that is still the shape on
 follow-up realization is owed. **This was not assessed here — the aggregation
 is outside this repository and outside this PR's diff** — and it is the reason
 the lane's archive gate stays open regardless of how the delta is ruled.
+
+### REALIZED 2026-09-04 — the follow-up realization the paragraph above owed
+
+**The disagreement the section above declined to assess was real, and it is
+now closed.** It was assessed on `opensoft/xFactory` `main` immediately after
+re-ratification: the child workflow still declared two repository-scoped
+**SSH deploy keys** and ran two `git clone --filter=blob:none` fetches, exactly
+the shape PR #179 had corrected without moving. That contradicted the lane's
+own readiness gate — the AGGREGATION's `scripts/worker_readiness.py` fails it
+closed with `repository_credentials_present` unless the host heartbeat attests
+`repository_credentials_absent: true` — so the lane could be READY or it could
+FETCH, never both. That module and the `scripts/check-worker-readiness.py` CLI
+which imports it BOTH live in `opensoft/xFactory`, never in this repository:
+`doc-health-reusable.yml` is a REUSABLE workflow, so its
+`python3 scripts/check-worker-readiness.py` resolves in the CALLER's checkout.
+They are one CLI-plus-module pair, not two competing entrypoints, and this
+paragraph names the module because the gate's predicate lives there. Brett ordered the re-realization in-session, verbatim:
+"go S2 to S7", then "lets go". Five pull requests landed it, each verified
+merged at the gate rather than read out of a handoff:
+
+- **openxFactory #642** (squash `bbc21e41`) — `--generated-at <RFC 3339>` on
+  `ideation_dashboard.cli generate` / `generate-and-open`, validated at the CLI
+  boundary and REFUSED when malformed. Discharges `tasks.md` § 3.6, the one
+  realization task the amendment itself created.
+- **openxFactory #641** (squash `19a777d8`) — retires
+  `dashboard_refresh_lane.py`'s own raw-clone `--phase build` recipe, a second
+  and unreached realization of the pre-amendment recipe that the amended delta
+  now forbade whether or not a caller existed.
+- **openxFactory #648** (squash `96aa61a3`; path containment hardened in its
+  branch commit `5628fab1`, folded into the squash) — the credentialed parent
+  SEALS: `--phase seal`, a `manifest.json` carrying the source HEAD, the source
+  committer timestamp, both path-scoped input revisions, a per-file sha256
+  index and a `tree_digest` over it; the `git archive` pax-header revision
+  assertion; `dfr-seal` / `dfr-upload` steps in `finalize`; the dispatch gated
+  on `sealed == 'true'` and the upload's `outcome`.
+- **opensoft/xFactory #243** (squash `84dbbb24`) — the child CONSUMES: a
+  cross-run `actions/download-artifact@v4`, then eight ordered verification
+  steps ALL BEFORE the ACR login, which is literally what the new scenario's
+  "fail before strict generation and before any registry credential is used"
+  requires. The deploy keys, the clones, and every `git` invocation, `GIT_*`
+  env, `ssh://` URL and credential helper are gone from the file; the job id
+  `build-and-push` and the frozen grandfather enumeration are untouched, so no
+  second door is opened. The ACR push is unchanged, per the amendment's own
+  GIT qualification.
+- **Omnigent-Install #211** (`cdfe3152`) — the worker profile's `description`,
+  `capabilities` and `prerequisites` now describe the sealed intake; the raw
+  `git clone` prerequisite is gone, so the profile stops contradicting its own
+  `repository_credentials_absent` attestation and
+  `repository_tokens_allowed: false`. `profile_version` deliberately stays 1 —
+  the attested heartbeat keys did not move, so
+  `--required-profile-version 1` needs no lockstep edit.
+
+**THE ARCHIVE GATE STAYS OPEN, and nothing above is evidence that it should
+not.** These five acts remove a code/spec disagreement and a deadlock;
+they make the lane exercisable, which is not the same as exercised. What is
+still owed is S7 — the operator's host acts and the first real nightly. Act
+**D**, provisioning the SSH deploy-key Git substrate, is DELETED rather than
+deferred (there is nothing left on the worker to provision it for); acts
+**(A)** the heartbeat publisher advertising label `dashboard-image` and profile
+`dashboard-image-refresh` v1, **(B)** `XFW_ACR_PUSH_USER` /
+`XFW_ACR_PUSH_TOKEN` in the runner service environment, **(C)** Docker with
+Linux containers on the rider — which still carries a RULING, not merely an
+act — and **(E)** `python3` + PyYAML for the service account remain. Then the
+first real nightly, in both directions: one digest-only pin PR merged and
+reconciled, PLUS one deliberately wider diff refused and parked. That is this
+change's own `target_release` bar and it is unmoved. Recorded in full at
+`tasks.md` § 9a.

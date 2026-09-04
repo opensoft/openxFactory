@@ -1526,9 +1526,15 @@ Active changes:
 - [add-nightly-dashboard-refresh](openspec/changes/add-nightly-dashboard-refresh/proposal.md)
   — authored 2026-08-22, **RATIFIED 2026-08-25** against its realized system
   (Brett, in-session: "ratify add-nightly-dashboard-refresh against its
-  realized system"). Its code is MERGED AND WIRED across all three
-  repositories — openxFactory #260/#261, aggregation opensoft/xFactory #141,
-  Omnigent-Install #123/#126/#129/#143/#146/#153 — with required-check ruleset
+  realized system"), amended 2026-09-01, reaching this repository 2026-09-04
+  by rescue (PR #595) and re-ratified that same day, then
+  **RE-REALIZED 2026-09-04 (S1–S5 landed; awaiting the first real nightly and
+  the operator's host acts before archive)** — openxFactory #642 `bbc21e41`,
+  #641 `19a777d8`, #648 `96aa61a3`; aggregation opensoft/xFactory #243
+  `84dbbb24`; Omnigent-Install #211 `cdfe3152`. Its code is MERGED AND WIRED
+  across all three repositories — openxFactory #260/#261, aggregation
+  opensoft/xFactory #141, Omnigent-Install
+  #123/#126/#129/#143/#146/#153 — with required-check ruleset
   21294850 live on Omnigent-Install's default branch. **The ARCHIVE gate stays
   OPEN**: this change's own `target_release` requires one real nightly pin PR
   merged and reconciled PLUS one wider diff refused and parked, and NEITHER has
@@ -1581,9 +1587,12 @@ Active changes:
   exactly, and RECORDS the standing conformance gap that the hosted image
   performs no runtime fetch today, so its baked artifacts are its data).
   `target_release: implementation_pending`.
-  **AN AMENDMENT TO THE RATIFIED `doc-health` DELTA WAS AMENDED 2026-09-04
-  AND RE-RATIFIED THE SAME DAY** (Brett Heap, in-session, verbatim "re-ratify
-  and merge 595"). Everything described above is the design as RATIFIED
+  **AN AMENDMENT TO THE RATIFIED `doc-health` DELTA WAS RULED 2026-09-01,
+  REACHED THIS REPOSITORY 2026-09-04 BY RESCUE, AND WAS RE-RATIFIED THAT SAME
+  DAY** (Brett Heap, in-session, verbatim "re-ratify and merge 595"). The
+  2026-09-04 date is the rescue and the re-ratification, not the amendment's
+  own: `proposal.md`'s front-matter `Amended:` line is authoritative and reads
+  2026-09-01. Everything described above is the design as RATIFIED
   2026-08-25 and is what still governs. The amendment, authored 2026-09-01 on
   Brett's host ruling ("the runner design intentionally requires
   `repository_credentials_absent`; source is delivered as sealed job artifacts
@@ -1597,7 +1606,21 @@ Active changes:
   introduced. It reached this repository by rescue (PR #595, issue #591) after
   being stranded uncommitted in the shared checkout, and it is recorded in
   `proposal.md` § AMENDED AFTER RATIFICATION, 2026-09-04. The archive gate is
-  unmoved either way.
+  unmoved either way. **The re-realization the amendment owed LANDED
+  2026-09-04**
+  (the five PRs named at the top of this entry, recorded in `proposal.md`
+  § REALIZED and `tasks.md` § 9a): the parent now seals a bounded source
+  artifact with a manifest and a `tree_digest`, the child verifies and consumes
+  it before any registry credential is used, the two SSH deploy keys and every
+  `git` invocation are gone from the worker, the module's own raw-clone
+  `--phase build` recipe is retired, and the Omnigent-Install worker profile
+  stops contradicting its own `repository_credentials_absent` attestation. The
+  sealed source measures **3511 files / ~35.1 MB**, not the design's ~8 MB
+  estimate. That closes the code/spec disagreement and makes the lane
+  exercisable; **the ARCHIVE gate is still OPEN** on the same evidence, now
+  owed only by S7 — the operator's four remaining host acts (the SSH deploy-key
+  act is DELETED, not deferred) and the first real nightly in both
+  directions.
 - [add-roster-directory-admission-surface](openspec/changes/add-roster-directory-admission-surface/proposal.md)
   — authored 2026-08-22, **NOT YET RATIFIED** (`Status: draft`). Admits the
   single `directory` (service-discovery) admission surface into the closed
