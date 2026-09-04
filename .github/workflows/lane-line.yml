@@ -9,8 +9,9 @@ permissions:
 
 jobs:
   lane-line:
-    # Bots are exempt by ACTOR, never by body. `gh pr list --json author`
-    # renders these as `app/dependabot`, `app/openxfactory`.
+    # Bots are exempt by PR AUTHOR type (`github.event.pull_request.user.type`),
+    # never by body. `gh pr list --json author` renders these as
+    # `app/dependabot`, `app/openxfactory`.
     if: github.event.pull_request.user.type != 'Bot'
     runs-on: ubuntu-latest
     steps:
@@ -24,5 +25,6 @@ jobs:
             echo "lane-line OK: $first"
             exit 0
           fi
-          echo "::error title=lane-line::PR body must open with 'Lane: <name>' (lane-collision-protocol Rule 5). First non-empty line was: ${first:-<empty>}"
+          echo "lane-line: first non-empty body line was: ${first:-<empty>}"
+          echo "::error title=lane-line::PR body must open with 'Lane: <name>' (lane-collision-protocol Rule 5)."
           exit 1
