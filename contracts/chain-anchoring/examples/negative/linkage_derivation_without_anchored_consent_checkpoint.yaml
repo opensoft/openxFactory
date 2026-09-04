@@ -1,0 +1,29 @@
+# expected_failure: linkage_derivation_without_anchored_consent_checkpoint
+# expected_failure_detail: consent_checkpoint_anchored=False
+# A derivation issued under a consent checkpoint nobody witnessed: the
+# authorization rests on the issuer's own word, which is the thing the
+# anchoring exists to replace. The off-chain disclosure boundary and this one
+# are the same footing.
+schema_version: 1
+kind: xfactory_chain_anchoring_linkage_derivation_issuance
+derivation_id: ld-negative-0060
+issuing_plane: identity
+consent_checkpoint_ref: ccc-example-0001
+consent_checkpoint_anchored: false
+per_analysis_parameter: scope-90e30f4e13a2d67984e66b08b974dea5abd7f1ca
+analysis_ref: ana-negative-0060
+expires_at: '2026-09-30T00:00:00Z'
+revocation_surface_ref: rvs-example-identity-plane-0001
+issuance_leaf_ref: leaf-example-derivation-issued-0700
+issued_at: '2026-08-30T13:00:00Z'
+correlating_planes:
+- record
+- demographic
+record_version: 1
+notes: 'every adjective is load-bearing: issued by the identity plane, under an
+  anchored consent checkpoint, per-analysis and never stable, expiring and revocable,
+  usable only within the one analysis it names, written as a leaf at issuance'
+derivation_digest:
+  construction: xfc-jcs-sha256-1
+  subject: linkage_derivation
+  value: sha256:3afc1c55ae294785d1cbf7172c6d913f15ccd4527f0e07f94b340276ff4f988a

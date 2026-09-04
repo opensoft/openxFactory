@@ -1,0 +1,45 @@
+# expected_failure: delay-check-arithmetic
+# expected_failure_detail: is not a_first - cp_in
+# A bound that is not the difference it claims to be: bound_seconds is a_first
+# minus cp_in or it is a number beside two timestamps, and every consumer of
+# the delay check reads the number.
+schema_version: 1
+kind: xfactory_chain_anchoring_verification_result
+result_id: vr-negative-0072
+subject_ref: item-example-0004-correction-checkpoint-652
+verification_mode: stateful
+status: anchor_incomplete
+incomplete_cause: horizon_breach
+horizon_base:
+  kind: chain_derived
+  chain_id: chain-example-operational
+  chain_accepted_time: '2026-08-30T08:00:00Z'
+witness_shortfall:
+  configured:
+  - w-example-op-0004
+  - w-example-dur-0004
+  present:
+  - w-example-op-0004
+  missing:
+  - w-example-dur-0004
+terminal_failure_distinguished: true
+delay_check:
+  cp_in: '2026-08-30T06:00:00Z'
+  cp_out: '2026-08-30T05:45:00Z'
+  a_first: '2026-08-30T08:00:00Z'
+  bound_seconds: 60
+  outcome: breach_proven
+  cp_in_ref: leaf-example-checkpoint-anchored-0630
+  cp_out_ref: leaf-example-checkpoint-anchored-0629
+receipt_ref: rcp-example-0004
+anchor_state_ref: as-example-0003
+header_source_ref: hs-example-verifier-own-0001
+evaluated_at: '2026-08-30T16:00:00Z'
+verification_leaf_ref: leaf-example-served-verification-0655
+record_version: 1
+notes: 'the sat-on minter, exposed by cadence: the minter DECLARED submission at
+  07:55, but the anchored checkpoint bracket shows the submission leaf was in the
+  log by cp_in 06:00 — so a_first minus cp_in is a LOWER bound of 7200s on the true
+  delay, over the declared maximum plus tolerance (4200s): breach PROVEN. cp_out
+  is reported beside it so the bracket''s width is visible. Falling under the bound
+  would have proven nothing — not-provably-breached is not compliant'

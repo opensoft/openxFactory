@@ -1,0 +1,23 @@
+# expected_failure: checkpoint-anchor-mismatch
+# expected_failure_detail: is not the material_digest
+# A checkpoint anchor committing to a digest its own receipt does not carry:
+# without the equality between this record's checkpoint digest and the
+# receipt's material digest, the record names an anchor of nothing in
+# particular.
+schema_version: 1
+kind: xfactory_chain_anchoring_log_checkpoint_anchor
+anchor_id: lca-negative-0073
+checkpoint_ref: leaf-example-checkpoint-head-0640
+checkpoint_digest:
+  construction: xfc-jcs-sha256-1
+  subject: log_checkpoint
+  value: sha256:cac6ac6f384993ee33e5a22effeed05d1f7dea1c9dd47b02c30fb7fae5171037
+tree_size: 640
+receipt_ref: rcp-example-0001
+validation_disclaimer: Inclusion in an anchored checkpoint witnesses that the log
+  said something at a time. It is NEVER validation of any leaf inside it.
+presented_as_validation: false
+previous_checkpoint_anchor_ref: lca-example-0000
+covers_refused_leaves: true
+anchored_at_tree_size_leaf_ref: leaf-example-checkpoint-anchored-0641
+record_version: 1

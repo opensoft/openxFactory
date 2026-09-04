@@ -1,0 +1,222 @@
+schema_version: 1
+kind: openxfactory-chain-anchoring-contract-schema
+name: xfactory_chain_anchoring_anchor_bound_commitment
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchor-bound-commitment.schema.yaml"
+contract_id: chain-anchoring-anchor-bound-commitment
+contract_schema_version: 1
+title: Anchor-bound commitment with its declared construction
+description: >-
+  THE ONLY KIND OF VALUE THIS CAPABILITY PUTS ON A CHAIN, AND IT DECLARES WHAT IT
+  IS (add-chain-anchoring, capability `chain-anchoring`, requirement "The on-chain
+  boundary is contract text carrying a refusing validator"). ON CHAIN: salted
+  keyed commitments, commitments to consent-log checkpoints, and the chain
+  anchors. OFF CHAIN: every payload without exception, plus consent state and the
+  salts. Prose about where regulated content may not go erodes; a refusal holds.
+
+  THE PAYLOAD REFUSAL IS STRUCTURAL, NOT SEMANTIC, AND THAT MAKES IT BOTH NEUTRAL
+  AND STRICTER. This record refuses any member holding record content — cleartext,
+  ciphertext, or any content-bearing blob — BY THE SHAPE OF THE MEMBER rather than
+  by recognizing what the content is about. A validator that refused one domain's
+  protected content by name would need that domain's semantics to do it, which
+  this capability is forbidden to carry; a validator that refuses EVERY payload
+  needs none, and refuses the regulated ones without having to detect them. Raw
+  content, ENCRYPTED content and PLAIN-HASHED content are all outside the
+  boundary, and one structural refusal reaches all three
+  (`payload_bearing_field`). Ciphertext is refused on its own ground as well: a
+  public chain is permanent, and key management would become the only thing
+  standing between a subject and irreversible disclosure.
+
+  THIS RECORD CARRIES NO FREE-TEXT MEMBER, AND THE OMISSION IS THE POINT. Every
+  other record in this family carries `notes`; the one record whose value reaches
+  a chain does not, because an unbounded prose member on it is the smuggling
+  channel the structural refusal exists to close. `additionalProperties: false`
+  keeps out members this shape does not name; dropping the free-text member keeps
+  out the one it would otherwise have named itself.
+
+  THE UNSALTED-COMMITMENT REFUSAL IS BY DECLARED CONSTRUCTION, BECAUSE THE BYTES
+  CANNOT TELL YOU. A salted keyed commitment and a plain digest of the same
+  material are INDISTINGUISHABLE BY INSPECTION — both are opaque values of the
+  same width — so every anchor-bound commitment DECLARES its construction, and
+  the declaration is refused where it is absent
+  (`commitment_construction_absent`), where it is not both keyed and salted
+  (`commitment_not_keyed_and_salted`), and where a custody reference resolves
+  onto a chain or into the anchored record itself
+  (`salt_custody_reference_reachable_from_anchor`,
+  `key_custody_reference_reachable_from_anchor`). This is the half an implementer
+  is most likely to get wrong, because a plain digest of a record looks like
+  exactly the right thing to anchor — and an HONEST declaration of a plain digest
+  is refused too, since the boundary refuses the CONSTRUCTION and not the
+  disclosure.
+
+  THE KEY IS CUSTODIED ON THE SAME FOOTING AS THE SALT, BECAUSE A KEYED
+  COMMITMENT HAS TWO SECRETS AND ONLY ONE OF THEM WAS GOVERNED. The erasure
+  property this boundary rests on is destroyed by a reachable KEY exactly as it
+  is by a reachable salt, and a key common to two planes is a join key whatever
+  their salts do (`commitment_key_shared_across_planes`). Nothing here is a
+  second custody vocabulary: it is the salt's own rule, applied to the parameter
+  that was left out of it, which is why both take ONE `custody_reference` shape.
+
+  AND "SALTED" WITHOUT A WIDTH IS NOT A PROPERTY. The construction names the
+  salt's SOURCE and declares its WIDTH IN BITS, and salts are per-record rather
+  than shared; a declaration omitting either is refused
+  (`salt_entropy_declaration_absent`) and a declared width BELOW 128 BITS is
+  refused (`salt_width_below_floor`). The ground is the reading requirement 5
+  cites — EDPB Guidelines 02/2025 — that what makes a hash of personal data
+  personal data is that the INPUT SPACE CAN BE SEARCHED. An eight-bit salt
+  satisfies every other check written here while leaving that search trivial, so
+  the floor is what keeps the mechanism from being asserted against the precise
+  attack its own ground names. A domain overlay MAY raise the floor; on the
+  neutrality requirement's rule it SHALL NOT lower it
+  (`overlay_relaxes_neutral_refusal`).
+
+  THE RESIDUAL IS RAISED AS AN EXPLICIT GAP RATHER THAN CLAIMED AS CLOSED. A
+  record that DECLARES a salted keyed construction while anchoring a plain digest
+  is NOT DETECTABLE FROM THE RECORD, and this contract does not pretend
+  otherwise. The declaration and the custody references are enforceable today;
+  the step from "the record declares a salted keyed commitment" to "the anchored
+  value IS one" rests on the realization making this path the ONLY path that can
+  mint an anchor-bound value, so an undeclared construction is UNREACHABLE rather
+  than merely refused. A realization that cannot establish that DECLARES the
+  shortfall in the conformance declaration's structural residual rather than
+  asserting the property.
+
+  SALT DESTRUCTION IS THE ERASURE MECHANISM AND ITS CONSEQUENCE IS STATED RATHER
+  THAN SOFTENED. Destroying a record's salt renders the anchored residue
+  effectively anonymous — which is the erasure — and the SAME act makes the
+  handle PERMANENTLY UNVERIFIABLE: no later party, the subject included, can ever
+  again prove that a held copy matches the anchored value. That is not a defect
+  of the mechanism, it IS the mechanism, and any surface offering erasure states
+  the loss before performing it.
+type: object
+required:
+  - schema_version
+  - kind
+  - commitment_id
+  - commitment_value
+  - declared_construction
+  - plane
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_chain_anchoring_anchor_bound_commitment]
+  commitment_id: {$ref: '#/$defs/identifier'}
+  commitment_value:
+    # THE ANCHOR-BOUND VALUE, ALGORITHM-TAGGED AND OPAQUE. The tag says which
+    # algorithm produced the bytes and NOTHING about keying or salting — that is
+    # what the declaration beside it is for, and a reader who takes the tag for
+    # the property has made exactly the mistake the declaration exists to
+    # prevent.
+    $ref: '#/$defs/commitment_value'
+  declared_construction:
+    # THE DECLARATION, AND EVERY MEMBER OF IT IS A FACT A VALIDATOR CAN CHECK
+    # AGAINST A NAMED REFUSAL.
+    #
+    # `salt_source` AND `salt_width_bits` ARE NOT IN `required`, DELIBERATELY.
+    # A construction that declares it is salted and names NEITHER a secure
+    # source NOR a width is exactly the commissioned negative, and it must be
+    # WRITABLE for that negative to exist: it is refused BY NAME
+    # (`salt_entropy_declaration_absent`) with the ground stated, rather than by
+    # a schema error reporting an absent property, because "salted" without a
+    # declared width is not a property a validator or a reader can judge.
+    type: object
+    required: [algorithm, keyed, salted, salt_custody, key_custody]
+    additionalProperties: false
+    properties:
+      algorithm:
+        # NAMED BY THE REALIZATION rather than drawn from an enumeration here.
+        # This capability fixes that the construction is DECLARED and that it is
+        # keyed and salted; the primitive is the realization's, and an
+        # enumeration written here would go stale against the one thing this
+        # record is not trying to standardize.
+        type: string
+        minLength: 1
+        maxLength: 120
+      keyed:
+        # NOT A `const: true`. A record declaring `false` is a record declaring
+        # an unkeyed construction, and it earns the named refusal
+        # `commitment_not_keyed_and_salted` — which says what was actually
+        # wrong — rather than a schema error saying a boolean did not match a
+        # constant. An honestly declared plain digest is refused on this member,
+        # and the honesty is not accepted as a defence.
+        type: boolean
+      salted:
+        # On the same footing as `keyed`, and for the same reason.
+        type: boolean
+      salt_custody:
+        # RESOLVING INTO THE GOVERNED LAYER. A salt reachable from the anchor
+        # destroys the erasure property the salting exists to provide, so
+        # `anchoring_chain` and `anchored_record` are refused by name — and are
+        # EXPRESSIBLE so the negative example can be written.
+        $ref: '#/$defs/custody_reference'
+      key_custody:
+        # ON THE SALT'S OWN FOOTING. A keyed commitment whose key is public is
+        # an unkeyed one, and a key shared across planes is a join key whatever
+        # the salts do — which is the plane-separation requirement applied where
+        # it also bites, not a second rule.
+        $ref: '#/$defs/custody_reference'
+      salt_source:
+        # THE WRONG VALUES ARE MEMBERS OF THIS ENUMERATION ON PURPOSE. A salt
+        # from a non-cryptographic source, or from an unspecified one, is
+        # refused by name with the ground stated; an enumeration holding only
+        # the right answer could carry no negative example and would prove
+        # nothing.
+        type: string
+        enum: [csprng, unspecified, non_cryptographic]
+      salt_width_bits:
+        # THE FLOOR IS 128 AND IT IS NOT WRITTEN AS `minimum: 128`. A narrower
+        # width must stay WRITABLE so the refusal is `salt_width_below_floor`
+        # with its ground cited, rather than a schema range error that reports a
+        # number out of bounds and says nothing about a searchable input space.
+        # `minimum: 0` bounds only what is arithmetically meaningful.
+        type: integer
+        minimum: 0
+      salt_scope:
+        # PER-RECORD RATHER THAN SHARED. A salt shared across records restores
+        # the correlation the per-record salt exists to break, and it is a
+        # declaration this shape can carry so a reader and a validator can both
+        # see which was done.
+        type: string
+        enum: [per_record, shared]
+  plane:
+    # WHICH PLANE'S CUSTODY THIS COMMITMENT WAS DERIVED UNDER. The per-plane key
+    # under the per-plane salt is what makes the plane segregation STRUCTURAL,
+    # and this member is what lets a validator see that one key reference has
+    # been used under two planes.
+    $ref: '#/$defs/plane_name'
+  receipt_ref:
+    # The multi-anchor receipt this commitment was anchored by, where it has
+    # been anchored. Absent before the anchor, and its absence is not a status
+    # field: per-witness status lives in the anchor-state record.
+    $ref: '#/$defs/identifier'
+  commitment_digest:
+    # The digest of THIS RECORD under the one construction in force, for the
+    # leaf that records it. It is a digest of the record and never of the
+    # material the commitment stands over — the material never enters this
+    # family at all.
+    allOf:
+      - {$ref: '#/$defs/digest'}
+      - properties: {subject: {const: anchor_bound_commitment}}
+        required: [subject]
+  named_gate_ref:
+    # THE GOVERNING GATE THIS MATERIAL PASSED. Only gate-passed material gets an
+    # ITEM ANCHOR, and no configuration, operator flag or urgency argument
+    # admits unvalidated material to that path — the resulting item anchor would
+    # be PERMANENT, and a broken chain is a fraud signal. A commitment offered
+    # for item anchoring over ungated material is refused
+    # (`item_anchor_over_ungated_material`).
+    $ref: '#/$defs/identifier'
+  record_version: {type: integer, minimum: 1}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"
+  custody_reference:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/custody_reference"
+  plane_name:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/plane_name"
+  commitment_value:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/commitment_value"

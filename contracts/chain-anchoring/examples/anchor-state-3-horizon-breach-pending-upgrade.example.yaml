@@ -1,0 +1,56 @@
+# A HORIZON BREACH BEYOND THE ONE-DIRECTIONAL MARGIN, with the pending
+# durability proof held HERE awaiting upgrade. The proof completes by UPGRADE
+# and APPEND against the digest the receipt already commits to — re-anchoring
+# would mint a second transaction for the same digest and leave two proofs to
+# keep where one was owed, and the negative corpus proves that refusal fires.
+schema_version: 1
+kind: xfactory_chain_anchoring_anchor_state
+state_id: as-example-0003
+item_ref: item-example-0004-correction-checkpoint-652
+state: anchor_incomplete
+per_witness:
+- witness_id: w-example-op-0004
+  role: operational
+  chain_id: chain-example-operational
+  status: landed
+  completion_horizon_seconds: 14400
+  horizon_base:
+    kind: chain_derived
+    chain_id: chain-example-operational
+    value: '2026-08-30T08:00:00Z'
+  inclusion_proof_captured_at_anchor_time: true
+  landed_receipt_entry_chain_id: chain-example-operational
+- witness_id: w-example-dur-0004
+  role: durability
+  chain_id: chain-example-durability
+  status: in_flight
+  completion_horizon_seconds: 14400
+  horizon_base:
+    kind: chain_derived
+    chain_id: chain-example-operational
+    value: '2026-08-30T08:00:00Z'
+  pending_durability_proof:
+    proof_ref: pdp-example-0004
+    awaiting_upgrade: true
+    aggregation_calendar_ref: agg-example-calendar-0001
+  transition_leaf_ref: leaf-example-horizon-breach-0653
+transitions:
+- transition: pending_entry
+  leaf_ref: leaf-example-anchor-pending-entry-0650
+  occurred_at: '2026-08-30T08:01:00Z'
+- transition: horizon_breach
+  witness_id: w-example-dur-0004
+  leaf_ref: leaf-example-horizon-breach-0653
+  occurred_at: '2026-08-30T14:00:00Z'
+  operator_obligation_raised: true
+  statement: the durability witness's declared horizon expired beyond the one-directional
+    margin (horizon + skew + tolerance) measured from the earliest chain-accepted
+    time; the breach is written as its own leaf and the operator obligation is raised
+    at the transition, not on every sound item
+receipt_ref: rcp-example-0004
+configured_witness_count: 2
+recorded_at: '2026-08-30T14:00:00Z'
+record_version: 1
+notes: 'a horizon breach beyond the margin: the pending durability proof is held
+  HERE awaiting upgrade — it will be upgraded and APPENDED to the captured receipt
+  when the aggregation calendar returns, never re-anchored'

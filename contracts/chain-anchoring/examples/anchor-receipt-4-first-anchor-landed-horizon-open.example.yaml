@@ -1,0 +1,86 @@
+# THE RECEIPT UNDER WHICH THE HARD CASES RUN: one witness landed, the
+# durability witness owed and past its horizon, and a declared submission the
+# log will contradict — the anchored checkpoint bracket shows the submission
+# leaf in the log two hours before the declared instant, which the stateful
+# verification's delay check turns into a PROVEN breach. The receipt itself is
+# capture-valid: its own declared values are self-consistent, and it is the
+# evidence around it that convicts the minter.
+schema_version: 1
+kind: xfactory_chain_anchoring_receipt
+receipt_id: rcp-example-0004
+material_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_material
+  value: sha256:e303b6591b58e41ac2a104bf1e533368c5165c682bcda98dd035f177961b3585
+anchored_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchored_commitment
+  value: sha256:f14ce12416196f27c437acad5a8d15bb354236c9fa11a28d6da59b1af0bafc0d
+mint_time_configuration:
+  configured_witnesses:
+  - witness_id: w-example-op-0004
+    role: operational
+    chain_id: chain-example-operational
+    completion_horizon_seconds: 14400
+    chain_accepted_time_rule:
+      rule_id: rule-example-linear-mpt-tight
+      basis: linear_block_header_time_field
+      consensus_rule_citation: 'consensus rule: a block timestamp exceeds the median
+        of the previous eleven and sits within the declared band of network-adjusted
+        time; the worst legal case is declared here in both directions'
+      skew_seconds: 3600
+      tolerance_seconds: 600
+      ordering_only: false
+  - witness_id: w-example-dur-0004
+    role: durability
+    chain_id: chain-example-durability
+    completion_horizon_seconds: 14400
+    chain_accepted_time_rule:
+      rule_id: rule-example-dag-accepting
+      basis: dag_accepting_block_header_timestamp
+      consensus_rule_citation: 'consensus rule: an accepting block''s header timestamp
+        is bounded by its parents'' past cone and the declared future band; the
+        worst legal case is declared here in both directions'
+      skew_seconds: 3600
+      tolerance_seconds: 600
+      ordering_only: false
+  submission_time: '2026-08-30T07:55:00Z'
+  max_submission_to_first_anchor_delay_seconds: 3600
+  checkpoint_cadence_seconds: 900
+aggregation_merkle_path:
+- position: right
+  sibling_digest:
+    construction: xfc-jcs-sha256-1
+    subject: anchored_commitment
+    value: sha256:44ba5baa14766d87f30daec59ab7965eaa83ef37b00846466406108e91d03605
+per_chain_anchors:
+- chain_id: chain-example-operational
+  witness_id: w-example-op-0004
+  anchor_transaction_bytes: 2Hyq5zk_qy1IVbIEyxtI9n6ebnZPRUq18y0AGjq-TepqylO6luD2Ep2Txk_3vdUmIlQEV0N-AVNbxBAO9pGlm0qhOvIkKGxNbLE7PDO8z0Z3quc-J3hlVP-90XBJcTOA
+  inclusion_proof:
+    proof_kind: merkle_transaction_root
+    path:
+    - position: left
+      sibling_value: txmerkle:41a91d454bae196183b2be4ddea2e0e04e1a2d9ef19aeaeefe0f2f2d2b96d3ab
+    - position: right
+      sibling_value: txmerkle:c1c23e32fc7861b69564fa252f3e6f3daa1cbb08b4de39fef75e97e44076fc93
+  block_header:
+    header_bytes: dk_ocWjYQzJJVZWyIdmyHgOhw-MYO7rwV2iCwOsy6s-E0Tfl53ZNegZqpsRKV-63AJICdmefOZmL08a4KTaPqniQBQyF6wjy2fDXXeodKLI
+    header_digest: blockhash:5f705918479aa86ef394fa9e6348afe70963fae9f1563b6df4924bfedb46fcd0
+    time_field: '2026-08-30T08:00:00Z'
+  chain_acceptance_evidence:
+    evidence_kind: linear_chain
+    header_source_ref: hs-example-public-headers
+    linear:
+      block_height: 4102844
+      header_chain_linkage:
+      - blockhash:2f89b45ba87853b01169f8994ee99211c3f6cf0b639514064ce9711d87c660c1
+      - blockhash:5f705918479aa86ef394fa9e6348afe70963fae9f1563b6df4924bfedb46fcd0
+      - blockhash:49e05f05a40f27d14ee750030ca4d04f29a5c1cc617ae2e282759d698b0bf0a2
+declared_header_source:
+  source_id: hs-example-public-headers
+  obtainable_independently: true
+  supplied_by_minter: false
+  source_statement: a public header set any verifier can obtain for itself; the
+    trust root is the chain, never this realization
+record_version: 1

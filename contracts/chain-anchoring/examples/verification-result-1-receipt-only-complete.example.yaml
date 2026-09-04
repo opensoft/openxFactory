@@ -1,0 +1,33 @@
+# A RECEIPT-ONLY VERIFICATION A HOLDER RAN ON ITS OWN MACHINE, against a header
+# set it obtained for itself: shortfall computed from the receipt alone,
+# horizon base read from the earliest chain-accepted time, terminal failures
+# NOT distinguished — this mode cannot, structurally — and no verification
+# leaf, because this factory has no knowledge of the event. That absence is the
+# receipt's self-sufficiency working as designed, and imposing a reporting
+# obligation to close it is refused for what it would cost.
+schema_version: 1
+kind: xfactory_chain_anchoring_verification_result
+result_id: vr-example-0001
+subject_ref: item-example-0001-log-checkpoint-640
+verification_mode: receipt_only
+status: anchor_complete
+horizon_base:
+  kind: chain_derived
+  chain_id: chain-example-operational
+  chain_accepted_time: '2026-08-30T10:05:00Z'
+witness_shortfall:
+  configured:
+  - w-example-op-0001
+  - w-example-dur-0001
+  present:
+  - w-example-op-0001
+  - w-example-dur-0001
+  missing: []
+terminal_failure_distinguished: false
+receipt_ref: rcp-example-0001
+header_source_ref: hs-example-verifier-own-0001
+evaluated_at: '2026-08-31T09:00:00Z'
+record_version: 1
+notes: 'a receipt-only verification a holder ran on its own machine against a header
+  set it obtained for itself: no verification_leaf_ref, and that absence is the
+  receipt''s self-sufficiency working as designed, not non-conformance'

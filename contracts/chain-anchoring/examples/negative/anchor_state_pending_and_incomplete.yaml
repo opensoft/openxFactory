@@ -1,0 +1,52 @@
+# expected_failure: anchor_state_pending_and_incomplete
+# expected_failure_detail: terminally failed
+# anchor_pending over a terminally failed witness: the two states are disjoint
+# by definition, and a terminal failure moves the item out of pending
+# IMMEDIATELY — waiting out a horizon that cannot now be met reports a sound
+# pending item over a known-dead witness.
+schema_version: 1
+kind: xfactory_chain_anchoring_anchor_state
+state_id: as-negative-0026
+item_ref: item-example-0002-consent-checkpoint-128
+state: anchor_pending
+per_witness:
+- witness_id: w-example-op-0002
+  role: operational
+  chain_id: chain-example-operational
+  status: terminally_failed
+  completion_horizon_seconds: 14400
+  horizon_base:
+    kind: minter_claimed
+  terminal_failure_ground: target_withdrawn
+  transition_leaf_ref: leaf-example-terminal-witness-failure-0513
+- witness_id: w-example-ord-0002
+  role: durability
+  chain_id: chain-example-ordering-only
+  status: landed
+  completion_horizon_seconds: 86400
+  horizon_base:
+    kind: minter_claimed
+  landed_receipt_entry_chain_id: chain-example-ordering-only
+  inclusion_proof_captured_at_anchor_time: true
+transitions:
+- transition: pending_entry
+  leaf_ref: leaf-example-anchor-pending-entry-0511
+  occurred_at: '2026-08-30T09:01:00Z'
+- transition: terminal_witness_failure
+  witness_id: w-example-op-0002
+  ground: target_withdrawn
+  leaf_ref: leaf-example-terminal-witness-failure-0513
+  occurred_at: '2026-08-30T09:40:00Z'
+  operator_obligation_raised: true
+  statement: the configured target was withdrawn under this item; waiting out a
+    horizon that cannot now be met would report a sound pending item over a known-dead
+    witness
+receipt_ref: rcp-example-0002
+configured_witness_count: 2
+recorded_at: '2026-08-30T09:40:00Z'
+record_version: 1
+notes: 'the fail-closed state with the missing witness NAMED: while this record
+  stands, a verification of the item returns anchor_incomplete naming w-example-op-0002
+  — never a bare pass and never a bare fail, because the record supports neither.
+  The horizon bases are minter_claimed honestly: the one landed witness is ordering-only
+  and not eligible as a base'

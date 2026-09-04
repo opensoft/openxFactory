@@ -1,0 +1,35 @@
+# THE SERVED-VERSUS-LOCAL PAIR'S OTHER HALF: the same item as the stateful
+# result beside it, verified receipt-only. Same status, weaker knowledge — the
+# incomplete cause is undistinguished_receipt_only, SAID rather than omitted
+# silently, because a terminally failed item's receipt is byte-identical to a
+# sound one's. The mode member is what makes the weaker answer distinguishable
+# to a CALLER, who branches on a value and never on a paragraph.
+schema_version: 1
+kind: xfactory_chain_anchoring_verification_result
+result_id: vr-example-0004
+subject_ref: item-example-0004-correction-checkpoint-652
+verification_mode: receipt_only
+status: anchor_incomplete
+incomplete_cause: undistinguished_receipt_only
+horizon_base:
+  kind: chain_derived
+  chain_id: chain-example-operational
+  chain_accepted_time: '2026-08-30T08:00:00Z'
+witness_shortfall:
+  configured:
+  - w-example-op-0004
+  - w-example-dur-0004
+  present:
+  - w-example-op-0004
+  missing:
+  - w-example-dur-0004
+terminal_failure_distinguished: false
+receipt_ref: rcp-example-0004
+header_source_ref: hs-example-verifier-own-0001
+evaluated_at: '2026-08-30T16:00:00Z'
+record_version: 1
+notes: 'the SAME item as the stateful result beside it, verified receipt-only: same
+  status, weaker knowledge — this mode cannot distinguish a terminal failure from
+  a horizon breach (incomplete_cause: undistinguished_receipt_only, said rather
+  than omitted silently) and cannot prove a delay breach. The mode member is what
+  lets a caller tell the two answers apart'

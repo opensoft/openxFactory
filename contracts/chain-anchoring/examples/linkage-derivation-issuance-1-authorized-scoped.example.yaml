@@ -1,0 +1,30 @@
+# THE ONE LAWFUL CROSS-PLANE CORRELATION PATH, AT ISSUANCE — every adjective
+# load-bearing and each a refusal: issued by the identity plane, under an
+# ANCHORED consent checkpoint, per-analysis and never stable (the parameter is
+# unique to this analysis across the corpus), expiring, revocable at a named
+# surface every use must consult, and written as a leaf. The correspondence is
+# DEFINED rather than left impossible, because an impossible requirement is one
+# an implementer satisfies by inventing the shared key back.
+schema_version: 1
+kind: xfactory_chain_anchoring_linkage_derivation_issuance
+derivation_id: ld-example-0001
+issuing_plane: identity
+consent_checkpoint_ref: ccc-example-0001
+consent_checkpoint_anchored: true
+per_analysis_parameter: scope-e1352ceedcc552edea51ffccdf9dd05a0d262987
+analysis_ref: ana-example-0001
+expires_at: '2026-09-30T00:00:00Z'
+revocation_surface_ref: rvs-example-identity-plane-0001
+issuance_leaf_ref: leaf-example-derivation-issued-0700
+issued_at: '2026-08-30T13:00:00Z'
+correlating_planes:
+- record
+- demographic
+derivation_digest:
+  construction: xfc-jcs-sha256-1
+  subject: linkage_derivation
+  value: sha256:218f36cd5cd77697bf0bfc09a41331a744e1a0a554bbcb79ae654b8e7f7d9a70
+record_version: 1
+notes: 'every adjective is load-bearing: issued by the identity plane, under an
+  anchored consent checkpoint, per-analysis and never stable, expiring and revocable,
+  usable only within the one analysis it names, written as a leaf at issuance'

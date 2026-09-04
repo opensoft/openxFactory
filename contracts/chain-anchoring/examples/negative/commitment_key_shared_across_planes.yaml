@@ -1,0 +1,71 @@
+# expected_failure: commitment_key_shared_across_planes
+# expected_failure_detail: key custody reference
+# One key under two planes, for convenience: a key common to two planes is a
+# join key whatever their salts do — anyone deriving under it can match values
+# across the boundary. The segregation is only structural if the keys are.
+schema_version: 1
+kind: xfactory_chain_anchoring_plane_separation_declaration
+declaration_id: psd-negative-0041
+planes:
+- record
+- demographic
+- identity
+per_plane_keys:
+- plane: record
+  key_custody:
+    reference_id: key-example-record-plane
+    resolves_into: governed_layer
+    plane: record
+- plane: demographic
+  key_custody:
+    reference_id: key-example-record-plane
+    resolves_into: governed_layer
+    plane: demographic
+- plane: identity
+  key_custody:
+    reference_id: key-example-identity-plane
+    resolves_into: governed_layer
+    plane: identity
+per_plane_salts:
+- plane: record
+  salt_custody:
+    reference_id: salt-example-record-0001
+    resolves_into: governed_layer
+    plane: record
+- plane: demographic
+  salt_custody:
+    reference_id: salt-example-demographic-0001
+    resolves_into: governed_layer
+    plane: demographic
+- plane: identity
+  salt_custody:
+    reference_id: salt-example-identity-0001
+    resolves_into: governed_layer
+    plane: identity
+identifier_policy:
+- plane: record
+  direct_identifier_present: false
+  resolution_statement: no member of the record plane resolves a person; there is
+    nothing to expose
+- plane: demographic
+  direct_identifier_present: false
+  resolution_statement: attributes only; no direct identifier exists in this plane
+    by construction
+- plane: identity
+  direct_identifier_present: true
+  resolution_statement: 'the one place linkage lives: governed, permissioned, and
+    never read by an analysis'
+cross_plane_correlation:
+  mechanism: authorized_scoped_derivation
+  derivation_issuer_plane: identity
+  statement: 'the lane still needs a join, so the join is defined: an authorized,
+    scoped, per-analysis, expiring, revocable derivation issued by the identity
+    plane — a shared stable key and a shared record digest are the same key wearing
+    a different name, and both are refused'
+anchored_commitment_usable_as_join_key: false
+identity_plane_read_by_analysis: false
+deidentification_claimed_from_separation: false
+record_version: 1
+notes: 'the segregation is only structural if the keys are: one commitment key per
+  plane, each under that plane''s own salt, every custody reference resolving into
+  the governed layer'

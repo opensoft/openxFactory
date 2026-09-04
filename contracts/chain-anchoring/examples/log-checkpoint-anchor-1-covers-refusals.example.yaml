@@ -1,0 +1,25 @@
+# A LOG CHECKPOINT ANCHOR, WITH THE COST STATED: the checkpoint commits to the
+# log's WHOLE PREFIX, refusals and later-invalidated events included —
+# covers_refused_leaves is declared true because that is EXPECTED, an anchored
+# refusal being evidence the refusal happened. The disclaimer is contract text
+# carried as a constant: inclusion witnesses that the log said something at a
+# time and is NEVER validation of any leaf inside it. The checkpoint digest is
+# the referenced receipt's material digest, and the validator compares the two
+# rather than assuming they agree.
+schema_version: 1
+kind: xfactory_chain_anchoring_log_checkpoint_anchor
+anchor_id: lca-example-0001
+checkpoint_ref: leaf-example-checkpoint-head-0640
+checkpoint_digest:
+  construction: xfc-jcs-sha256-1
+  subject: log_checkpoint
+  value: sha256:e3984376d1bc890294ec52dbe3f70f302b9fd2cc02f9839b18264517df384dd0
+tree_size: 640
+receipt_ref: rcp-example-0001
+validation_disclaimer: Inclusion in an anchored checkpoint witnesses that the log
+  said something at a time. It is NEVER validation of any leaf inside it.
+presented_as_validation: false
+previous_checkpoint_anchor_ref: lca-example-0000
+covers_refused_leaves: true
+anchored_at_tree_size_leaf_ref: leaf-example-checkpoint-anchored-0641
+record_version: 1

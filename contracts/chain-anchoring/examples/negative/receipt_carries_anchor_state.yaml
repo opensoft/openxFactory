@@ -1,0 +1,106 @@
+# expected_failure: receipt_carries_anchor_state
+# expected_failure_detail: 'anchor_status'
+# State vocabulary on a receipt: the receipt holds proof material and never
+# state, gains an entry when the four elements are captured whole, and carries
+# no field describing what has not happened yet. Per-witness status lives in
+# the anchor-state record, where every surface reads it.
+schema_version: 1
+kind: xfactory_chain_anchoring_receipt
+receipt_id: rcp-negative-0015
+material_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_material
+  value: sha256:e3984376d1bc890294ec52dbe3f70f302b9fd2cc02f9839b18264517df384dd0
+anchored_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchored_commitment
+  value: sha256:8a410d2caae44ec2998da4be66c85e5d4428b2456218bb724476f3119f24d550
+mint_time_configuration:
+  configured_witnesses:
+  - witness_id: w-example-op-0001
+    role: operational
+    chain_id: chain-example-operational
+    completion_horizon_seconds: 14400
+    chain_accepted_time_rule:
+      rule_id: rule-example-linear-mpt
+      basis: linear_block_header_time_field
+      consensus_rule_citation: 'consensus rule: a block timestamp exceeds the median
+        of the previous eleven and sits within the declared band of network-adjusted
+        time; the worst legal case is declared here in both directions'
+      skew_seconds: 7200
+      tolerance_seconds: 600
+      ordering_only: false
+  - witness_id: w-example-dur-0001
+    role: durability
+    chain_id: chain-example-durability
+    completion_horizon_seconds: 86400
+    chain_accepted_time_rule:
+      rule_id: rule-example-dag-accepting
+      basis: dag_accepting_block_header_timestamp
+      consensus_rule_citation: 'consensus rule: an accepting block''s header timestamp
+        is bounded by its parents'' past cone and the declared future band; the
+        worst legal case is declared here in both directions'
+      skew_seconds: 3600
+      tolerance_seconds: 600
+      ordering_only: false
+  submission_time: '2026-08-30T10:00:00Z'
+  max_submission_to_first_anchor_delay_seconds: 3600
+  checkpoint_cadence_seconds: 900
+aggregation_merkle_path:
+- position: right
+  sibling_digest:
+    construction: xfc-jcs-sha256-1
+    subject: anchored_commitment
+    value: sha256:1a9af5c3b9941c89fdd0c3ad84b006925566bc0ece70674ec09e7a07ebff35df
+per_chain_anchors:
+- chain_id: chain-example-operational
+  witness_id: w-example-op-0001
+  anchor_transaction_bytes: aODpclGtrlNctHmfSd3vRKwc5GX1TFnEVPKwsSg5k8Fi6JAJGCuUaoRcV71792SlAQVpQFvgejYMUKM0eIx5DwVsGPKzdnp2sB0M2YlBzR2jzSjUL_62_hbA1UX3jwwp
+  inclusion_proof:
+    proof_kind: merkle_transaction_root
+    path:
+    - position: left
+      sibling_value: txmerkle:cf88d669cec7f4658943d204010329482ca4538cdf3c27a3e35e44bf24dc45be
+    - position: right
+      sibling_value: txmerkle:af2918f2c35c49cf2a95d9d9ebf8d980769301422d2f4fba3e213b811d961d77
+  block_header:
+    header_bytes: 4Q_xhiU8Q8NBAGm-msClG2fG_R-KP2TR8VQ7fpKN-HObyn85AZ6IKOA1NgFJlLBRWeMz9Ae98fsmsjz0Trw9bY7TfIS17Wz4brKgMBjjXHI
+    header_digest: blockhash:b3e7cd6679d7db010eb0e172dc3ce4357e0b36f80c5d30fec5123e8ec45c3894
+    time_field: '2026-08-30T10:05:00Z'
+  chain_acceptance_evidence:
+    evidence_kind: linear_chain
+    header_source_ref: hs-example-public-headers
+    linear:
+      block_height: 4102931
+      header_chain_linkage:
+      - blockhash:4c591d97a9f3d1f7dcadf783ce5c51995273660247c4ed6abdff3b24292b2ada
+      - blockhash:b3e7cd6679d7db010eb0e172dc3ce4357e0b36f80c5d30fec5123e8ec45c3894
+      - blockhash:ccec2236160570ce81647b443a4beb141ce9d14278c759f0b47fe64dfde47234
+- chain_id: chain-example-durability
+  witness_id: w-example-dur-0001
+  anchor_transaction_bytes: WTCRBFX7PXuXVlx9WrfJgXztsb-8YxX_QRVawfybw1qZHPVtgdIjRGNPC_DJq-CSjM-l5UypPHSLfp037Hz8tdufyNO8tWkD9cLbDkM7cuj7DA-sMMKYVYMlmMs2pS1JIdrxssoESiDHFNUemRcacrXyAnqCCdWr
+  inclusion_proof:
+    proof_kind: dag_inclusion
+    path:
+    - position: left
+      sibling_value: dagmerkle:5177c3b84eefe1b6558495ed22ceeeeb3e24dba5a160face613d2bf7b628d820
+  block_header:
+    header_bytes: P4wQz2Gp3JRgEC3Q_oW1p24C-WVJVARSyyZwaGGzWrV12hv0NZtjZaQftBxbfDyGEtOHEpQLhHXMrd6fbcRftp1ot86jT38PHQbmpR5E9PAt2xD3nrxzQA
+    header_digest: dagblock:942989241e0d24327d9b2610cde3f09a06cb2f64554dbbf39f64d24b4a5634b0
+    time_field: '2026-08-30T10:20:00Z'
+  chain_acceptance_evidence:
+    evidence_kind: dag
+    header_source_ref: hs-example-public-headers
+    dag:
+      accepting_block_value: dagblock:942989241e0d24327d9b2610cde3f09a06cb2f64554dbbf39f64d24b4a5634b0
+      acceptance_path:
+      - dagblock:68dca30e529cbcf96619022fc07a48c3df55598fa1b46a770e2a20ae0a8a4e22
+      - dagblock:321365f0afd6956efd5ff34f4523bc4a7e2a32b152ca07fd3acd515111c3247e
+declared_header_source:
+  source_id: hs-example-public-headers
+  obtainable_independently: true
+  supplied_by_minter: false
+  source_statement: a public header set any verifier can obtain for itself; the
+    trust root is the chain, never this realization
+record_version: 1
+anchor_status: complete
