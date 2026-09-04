@@ -75,6 +75,28 @@ class ReleaseState(StrEnum):
     seven is an intent-compliance member, so the membership this file asserts is
     again UNCHANGED. Stated by hand, like every advance above it, because
     "unchanged" is the one fact the library cannot tell from "unnoticed".
+    Advanced again at the ``contract-v3.4`` cut, which registers DIFFERENT
+    families again and carries more between two cuts than any release before it:
+    ``add-chain-anchoring``'s eighteen ``contracts/chain-anchoring/`` schemas
+    (twelve from #629, six more from #657's realization of the ratified
+    readiness-and-durability amendment, which the owner's ruling required to land
+    BEFORE this family shipped in a tagged bundle), the seventh
+    ``contracts/clearing/`` row from #652's ``deliberation`` register entry, the
+    ``openRepoShape`` consumption pin advance (#650), lane
+    ``openxfactory-1d``'s three decision-core re-pins (#647, #654, #660) and one
+    prose correction to the manifest's registration comment (#658). NOT ONE of
+    them touches an intent-compliance member. MEASURED against
+    ``contract-v3.3``'s 283-entry inventory rather than assumed: the only
+    registered rows whose bytes differ at this cut are ``contracts/manifest.yaml``
+    and ``contracts/README.md`` — both EDITORIAL members, and both already moved
+    on ``main`` before this cut touched them — while every chain-anchoring schema,
+    every clearing path, ``contracts/openreposhape-pin.yaml``, both ``review-lane``
+    files and all three ``contracts/signed-execution-chain/`` paths are registered
+    rows of NEITHER inventory. So the membership this file asserts is again
+    UNCHANGED — stated by hand, like every advance above it, because "unchanged"
+    is the one fact the library cannot tell from "unnoticed", and worth stating
+    carefully here because a cut carrying two whole families is exactly the kind a
+    reader assumes MUST have moved this one.
     ``contract-v2.6`` stays named above although it was never published: its
     number is spent, and a value this enum has been told how to classify costs
     nothing to keep while removing it would make a historical manifest
@@ -90,6 +112,7 @@ class ReleaseState(StrEnum):
     FEATURE_SUCCESSOR_5 = "contract-v3.1"
     FEATURE_SUCCESSOR_6 = "contract-v3.2"
     FEATURE_SUCCESSOR_7 = "contract-v3.3"
+    FEATURE_SUCCESSOR_8 = "contract-v3.4"
 
 
 def _release_state() -> ReleaseState:
@@ -181,6 +204,7 @@ def test_release_membership_when_registration_changes_then_transition_is_atomic(
             | ReleaseState.FEATURE_SUCCESSOR_5
             | ReleaseState.FEATURE_SUCCESSOR_6
             | ReleaseState.FEATURE_SUCCESSOR_7
+            | ReleaseState.FEATURE_SUCCESSOR_8
         ):
             assert feature_members | {"scripts/__init__.py"} <= members
         case unreachable:
@@ -217,6 +241,7 @@ def test_release_inventory_when_registration_changes_then_schema_pins_are_atomic
             | ReleaseState.FEATURE_SUCCESSOR_5
             | ReleaseState.FEATURE_SUCCESSOR_6
             | ReleaseState.FEATURE_SUCCESSOR_7
+            | ReleaseState.FEATURE_SUCCESSOR_8
         ):
             for path in schema_paths:
                 assert entries[path]["schema_id"].startswith("intent-compliance-")
