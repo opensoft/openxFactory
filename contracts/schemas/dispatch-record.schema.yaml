@@ -16,6 +16,18 @@ description: >-
   carries a cause from the six-value taxonomy; postconditions-required and
   provenance-required on the crystallized path). Canonical validator:
   scripts/validate-capability-steward.py.
+
+  NOT THE CLEARING LEDGER, WHICH SHARES ONE ENGLISH WORD AND NOTHING ELSE.
+  `contracts/clearing/dispatch-record.schema.yaml`
+  (kind `xfactory_clearing_dispatch_record`, registered at contract-v3.3) records
+  what was CLEARED to a governed execution host and what was refused. This file
+  records which execution PATH served a capability request. Different subject,
+  different owning capability, different `$id`, and the only required members
+  they share are `schema_version`, `kind` and the NAME `dispatch_id` — whose
+  values are unrelated grammars (`disp:`-prefixed junction ids here, clearing-run
+  ids there). Neither file is the other's successor and neither replaces the
+  other; the cross-reference is recorded in BOTH so a reader who greps the
+  filename lands on the distinction rather than on a coincidence.
 type: object
 additionalProperties: false
 required:

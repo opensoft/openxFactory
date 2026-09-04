@@ -1,0 +1,39 @@
+# expected_failure: clearing-manifest-expired
+# expected_failure_detail: EXPIRY refusal
+# VIOLATES "A request whose expiration has passed is refused rather than served",
+# and its scenario's second clause: "the refusal MUST be recorded as an EXPIRY
+# refusal rather than a transient failure".
+#
+# The distinction is the whole point of field (3). A transient failure invites a
+# retry; an expiry is a decided outcome, and a replayed handle must hit a wall
+# rather than a queue.
+schema_version: 1
+kind: xfactory_sealed_bundle_manifest
+origin:
+  repository: opensoft/example-unregistered-producer
+  workflow_path: .github/workflows/package-sealed-bundle.yml
+source_commit: 4f1c0d9a7b2e8c3d5a6f0b1e2c4d6a8b0c2e4f60
+job:
+  job_id: sbm-example-expired
+  issued_at: '2026-09-01T10:00:00Z'
+  expires_at: '2026-09-01T11:00:00Z'
+selected_files:
+- path: src/example/module.py
+  content_hash: sha256:9f2c3a1b4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8
+  size_bytes: 2048
+- path: tests/example/test_module.py
+  content_hash: sha256:1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f809
+  size_bytes: 1024
+operation: readiness-diagnostic
+worker_profile: cpc-readonly-probe
+lane:
+  runner_group: xfactory-execution-lane-workers
+  dispatch_label: host-coding-cpc-brett01
+output_schema_ref: contracts/clearing/operation-report.schema.yaml
+data_handling: public_log_only
+origin_attestation:
+  attestation_type: hosted_workflow_provenance
+  provider: github-actions
+  run_id: '33999000111'
+  run_attempt: 1
+  run_url: https://github.com/opensoft/example-unregistered-producer/actions/runs/33999000111

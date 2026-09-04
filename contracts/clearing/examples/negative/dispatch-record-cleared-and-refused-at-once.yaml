@@ -1,0 +1,72 @@
+# expected_failure: clearing-record-cleared-with-refusal
+# VIOLATES the record's own coherence, which the requirement assumes throughout:
+# a dispatch is either ADMITTED and dispatched, or REFUSED and recorded with its
+# ground. A record asserting both evidences neither, and an auditor counting
+# refusals would count this one while an auditor counting dispatches would count
+# it too.
+#
+# The realistic path to this state is a copy-paste from a previous refusal, which
+# is why it is checked mechanically rather than assumed away.
+schema_version: 1
+kind: xfactory_clearing_dispatch_record
+dispatch_id: cd-33999123456-1
+dispatched_at: '2026-09-03T11:03:58Z'
+actor: brettheap
+actor_id: '1513478'
+clearing_repository: opensoft/xFactory
+clearing_workflow_ref: opensoft/xFactory/.github/workflows/clearing-dispatch.yml@refs/heads/main
+run_id: '33999123456'
+run_attempt: 1
+run_url: https://github.com/opensoft/xFactory/actions/runs/33999123456
+cleared: true
+operation:
+  claimed: readiness-diagnostic
+  resolved: readiness-diagnostic
+bundle_present: false
+verification:
+  provider_verified:
+  - field: origin_repository
+    claimed: opensoft/xFactory
+    resolved: opensoft/xFactory
+    agrees: true
+  - field: dispatching_identity
+    claimed: brettheap
+    resolved: brettheap
+    agrees: true
+  policy_checked:
+  - field: operation
+    claimed: readiness-diagnostic
+    resolved_from_register: readiness-diagnostic
+    agrees: true
+  - field: worker_profile
+    claimed: null
+    resolved_from_register: cpc-readonly-probe
+    agrees: true
+  - field: data_handling
+    claimed: null
+    resolved_from_register: public_log_only
+    agrees: true
+  origin_signature:
+    performed: false
+    outcome: not_required
+    register_row_id: null
+    key_id: null
+lane_declarations:
+- lane: coding
+  declared_runner_group: xfactory-execution-lane-workers
+  declared_dispatch_label: host-coding-cpc-brett01
+- lane: artifact
+  declared_runner_group: xfactory-artifact-workers
+  declared_dispatch_label: host-rider-cpc-brett01
+declared_data_handling: public_log_only
+refusal:
+  ground: unregistered_operation
+  detail: left over from an earlier attempt
+workspace_disposal:
+  disposed: true
+  disposed_at: '2026-09-03T11:09:02Z'
+  method: runner temp accumulator removed at job teardown; no workspace was created because
+    the operation performs no checkout
+  evidence_ref: https://github.com/opensoft/xFactory/actions/runs/33999123456#step:6
+chain_ref: null
+outcome: success

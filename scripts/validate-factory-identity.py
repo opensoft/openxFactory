@@ -449,6 +449,43 @@ def check_register(f: Findings, root: Path, pinned) -> dict:
             f.error("factory-identity-row-malformed",
                     f"{label}: state {state!r} is not one of {sorted(ROW_STATES)}")
         if state == "active":
+            # HAS THE MOMENT PASSED? `state` records what a human last wrote;
+            # `expires_at` records what time has since done, and the two are not
+            # the same fact. Everything else this reader does with an expiry
+            # COMPARES it — the row against its grant, character for character —
+            # or CAPS the window at MAX_GRANT_DAYS. Neither asks the question a
+            # consumer actually needs answered.
+            #
+            # IT BELONGS HERE, AND AS AN ERROR, on this file's own reasoning:
+            # the expiry-window rule below says in as many words that "no
+            # projection path can revoke an origin row at clearing ... so a
+            # short unconditional expiry is the only propagation mechanism that
+            # works today". A propagation mechanism nothing enforces is not a
+            # mechanism, and a register still recording `state: active` past
+            # that moment is asserting an authority that has lapsed — a stale
+            # claim in the bytes, which is exactly what this reader adjudicates.
+            #
+            # THE CONSEQUENCE IS CHOSEN, NOT OVERLOOKED. This reader runs inside
+            # the REQUIRED `wallet-validation` check, which asserts that no
+            # `factory-identity-*` code appears at all, so on the day a row
+            # lapses that check goes RED for every pull request until the row is
+            # superseded or marked revoked. That is the forcing function, and it
+            # is affordable precisely because the 90-day ceiling is deliberately
+            # short and the remedy is a one-row governed edit. The alternative —
+            # inventing a warning tier this family does not have, so the finding
+            # could be printed and ignored — would be adding a severity in order
+            # to avoid the consequence the rule exists to produce.
+            expires_at = _parse_dt(row.get("expires_at"))
+            if expires_at is not None and expires_at <= _now():
+                f.error("factory-identity-row-expired",
+                        f"{label}: the row is recorded `state: active` but its "
+                        f"declared expiry {row.get('expires_at')!r} has PASSED. "
+                        f"Nothing revokes an origin row at clearing, so this "
+                        f"expiry is the only revocation that propagates and it "
+                        f"has propagated: the key it points at may no longer "
+                        f"evidence that this repository acted. Supersede the "
+                        f"row with a new one naming it, or mark it revoked — a "
+                        f"revoked row never returns to active")
             if holder in active_holders:
                 f.error("factory-identity-second-active-row",
                         f"{label}: a SECOND active origin row for {holder!r} "
@@ -648,6 +685,12 @@ def _attestation_for(attestations: dict[str, dict], wallet_ref: str) -> bool:
             return False
         return True
     return False
+
+
+def _now():
+    """The evaluation instant, in one place so a test can hold it still."""
+    from datetime import datetime, timezone
+    return datetime.now(timezone.utc)
 
 
 def _parse_dt(value: Any):

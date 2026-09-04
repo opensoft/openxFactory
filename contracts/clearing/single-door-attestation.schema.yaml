@@ -1,0 +1,237 @@
+schema_version: 1
+kind: openxfactory-clearing-contract-schema
+name: xfactory_clearing_single_door_attestation
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/clearing/v1/single-door-attestation.schema.yaml"
+contract_id: clearing-single-door-attestation
+contract_schema_version: 1
+title: The periodic single-door attestation
+description: >-
+  THE LEDGER'S COMPLETENESS CLAIM IS TRUE ONLY WHILE THE DOOR IS SINGLE, SO THE
+  DOOR IS ATTESTED RATHER THAN ASSUMED (add-clearing-dispatch-boundary,
+  capability `clearing-dispatch-boundary`, requirement "Every dispatch is
+  recorded, and the single door is attested rather than assumed"; tasks.md 6.5).
+  An attestation reads each governed runner group's ADMITTED REPOSITORIES and
+  WORKFLOW ALLOWLIST from the provider's API and compares them against an
+  expected set.
+
+  THE EXPECTED SET IS COMPUTED PER GROUP, AND THE SHAPE ENFORCES IT. For each
+  governed runner group the expected allowlist is: THE CLEARING WORKFLOW'S PATH,
+  UNION the grandfather members enumerated FOR THAT GROUP whose declared
+  allowlist-entry status is `present`. There is deliberately no estate-wide
+  `expected_allowlist` member at the top level: computing one set for the whole
+  estate would report every group as diverging from every other group's members,
+  which is a definition that cannot be green while more than one group exists.
+  The canonical validator additionally refuses a record whose per-group expected
+  sets are all one shared estate set wearing per-group clothing.
+
+  THREE FINDING CLASSES, AND CONFLATING THEM IS THE FAILURE THIS SHAPE PREVENTS:
+
+    * `widening` — an OBSERVED allowlist entry that the group's expected set does
+      not derive, or an admitted repository other than the clearing repository.
+      This IS a single-door breach: something can reach the host that the
+      enumeration does not account for.
+    * `dark_lane` — an ENUMERATED member holding NO observed allowlist entry.
+      This is NOT a breach. That member is ALREADY FAILING CLOSED, nothing
+      reaches the host through it, and it is a DISPOSITION ITEM — retire it into
+      an operation, or remove the reference. Treating an unreachable lane as a
+      breach would make the attestation red for a condition strictly safer than
+      the expectation, which is how an attestation goes red on day one over two
+      lanes that cannot reach the host at all.
+    * `convergence_not_yet_reached` — the clearing workflow's path ABSENT from a
+      group before the operator has admitted it. CONVERGENCE IS A TERMINAL STATE,
+      NOT AN ENTRY CONDITION: between ratification and that one console act the
+      path is not there by construction, and reporting it as a widening would
+      report the contract's own starting position as a breach.
+
+  THE COMPLETENESS CLAIM IS STATED AT THE STRENGTH THE ATTESTATION SUPPORTS, and
+  that strength CHANGES at the operator acts, so the two states are distinct
+  values rather than one adjective. BEFORE the clearing path is admitted to every
+  governed group and every non-clearing admitted repository is removed, a green
+  attestation supports the NARROWER claim: no allowlist entry outside each
+  group's expected set exists, so nothing reaches the host by a path the
+  enumeration does not account for — while the ledger itself is complete only for
+  dispatches that came THROUGH THE DOOR, because the door is not yet the only way
+  in and is not yet open. AFTER those acts a green attestation supports the FULL
+  claim. The canonical validator refuses `full_post_admission` on a record
+  carrying any `convergence_not_yet_reached` finding.
+
+  THE RESIDUAL IS DECLARED RATHER THAN IMPLIED. Runner-group membership and
+  workflow allowlists are provider-side configuration outside version control,
+  changeable by an administrator with no pull request. This contract does not make
+  that configuration versioned and does not claim to; it makes a change to it
+  OBSERVABLE within one attestation cycle, and `residual_statement` is where the
+  record says so in its own bytes rather than in a document beside it.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - attestation_id
+  - attested_at
+  - provider
+  - clearing_repository
+  - clearing_workflow_path
+  - groups
+  - completeness_claim
+  - residual_statement
+
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'
+
+  workflow_path:
+    type: string
+    minLength: 1
+    maxLength: 400
+
+  repository:
+    type: string
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*$'
+
+  finding:
+    type: object
+    additionalProperties: false
+    required: [finding_class, runner_group, subject, expected_set, detail]
+    properties:
+      finding_class:
+        type: string
+        enum: [widening, dark_lane, convergence_not_yet_reached]
+      runner_group:
+        description: >-
+          Every finding names its group. A finding without one could not be acted
+          on, because the expected set it diverges from is a per-group value.
+        $ref: '#/$defs/identifier'
+      subject:
+        description: >-
+          The unexpected allowlist path, the admitted repository, or the
+          enumerated member with no entry — whichever the class is about.
+        type: string
+        minLength: 1
+        maxLength: 400
+      expected_set:
+        description: >-
+          THE EXPECTED SET THIS FINDING IS MEASURED AGAINST, carried in the
+          finding itself. A finding that named only the divergence would send its
+          reader back to recompute the comparison.
+        type: array
+        items: {$ref: '#/$defs/workflow_path'}
+      detail:
+        type: string
+        minLength: 1
+        maxLength: 2000
+
+  group_attestation:
+    type: object
+    additionalProperties: false
+    required:
+      - runner_group
+      - expected_allowlist
+      - observed_allowlist
+      - expected_repositories
+      - observed_repositories
+      - clearing_path_admitted
+      - findings
+    properties:
+      runner_group: {$ref: '#/$defs/identifier'}
+      expected_allowlist:
+        description: >-
+          THE CLEARING WORKFLOW'S PATH, UNION this group's enumerated members
+          whose declared allowlist status is `present`. Computed for THIS group.
+        type: array
+        items: {$ref: '#/$defs/workflow_path'}
+        uniqueItems: true
+      observed_allowlist:
+        description: What the provider's API reported for this group.
+        type: array
+        items: {$ref: '#/$defs/workflow_path'}
+        uniqueItems: true
+      expected_repositories:
+        description: >-
+          The clearing repository, and nothing else. An estate mid-convergence
+          may still observe more; that difference is a widening finding, not a
+          different expectation.
+        type: array
+        items: {$ref: '#/$defs/repository'}
+        uniqueItems: true
+      observed_repositories:
+        type: array
+        items: {$ref: '#/$defs/repository'}
+        uniqueItems: true
+      clearing_path_admitted:
+        description: >-
+          Whether the operator's one console act has happened for THIS group.
+          False is the not-yet-converged state, never a breach.
+        type: boolean
+      enumerated_members:
+        description: >-
+          The grandfather members attributed to this group, with the
+          allowlist-entry status each DECLARES. The status is what keeps a dark
+          lane from reading as a breach, and a disagreement between a declared
+          status and the observed allowlist is itself a finding.
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [workflow, declared_allowlist_status]
+          properties:
+            workflow: {$ref: '#/$defs/workflow_path'}
+            declared_allowlist_status: {type: string, enum: [present, absent]}
+      findings:
+        type: array
+        items: {$ref: '#/$defs/finding'}
+
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_clearing_single_door_attestation}
+  attestation_id: {$ref: '#/$defs/identifier'}
+  attested_at: {type: string, format: date-time}
+  provider:
+    description: >-
+      The provider whose API was read. Named as data so the neutral contract
+      binds no particular provider.
+    $ref: '#/$defs/identifier'
+  clearing_repository: {$ref: '#/$defs/repository'}
+  clearing_workflow_path: {$ref: '#/$defs/workflow_path'}
+  enumeration_source:
+    description: >-
+      Where the grandfather enumeration was read from. ONE list, read by both the
+      authoring-time guard and this attestation — two copies of a closed set is
+      the failure mode a closed set exists to prevent.
+    type: string
+    minLength: 1
+    maxLength: 400
+  groups:
+    type: array
+    minItems: 1
+    items: {$ref: '#/$defs/group_attestation'}
+  completeness_claim:
+    type: object
+    additionalProperties: false
+    required: [strength, statement]
+    properties:
+      strength:
+        type: string
+        enum: [narrower_pre_admission, full_post_admission]
+      cites_attestation:
+        description: >-
+          The attestation a presentation of the ledger cites. A completeness
+          claim made without a current, green attestation is refused; this member
+          is where the citation lives when the claim is made elsewhere.
+        oneOf: [{$ref: '#/$defs/identifier'}, {type: 'null'}]
+      statement:
+        type: string
+        minLength: 1
+        maxLength: 2000
+  residual_statement:
+    description: >-
+      The declared residual: provider-side configuration is outside version
+      control and changeable without a pull request. Required, because a residual
+      stated in a document beside the record is a residual a reader of the record
+      does not see.
+    type: string
+    minLength: 1
+    maxLength: 2000

@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v3.2
+contract_bundle_version: contract-v3.3
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1245,7 +1245,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/dispatch-record.schema.yaml
     type: schema
     schema_version: 1
-    sha256: b5f30c3b01f8097f62eaf4ee30df086df72dad84d05609f52a3402771428376d  # contract-v1.21 (add-capability-steward)
+    sha256: a900da74a87a704fb37a65a39a69e9627c7dad9c640eb67179ea53c6bf32d310  # contract-v1.21 (add-capability-steward)
     intended_consumers:
       - hermes-install dispatch junction (D9 first realization)
       - codexFactory steward and accounting lanes
@@ -2705,7 +2705,7 @@ contracts:
     source_path: openxFactory/contracts/signed-execution-chain/digest-construction.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 7a9752a8c2c59a6309a0d5c1e7dad81ffaf83ffda4605d10faa740dcdee7d297
+    sha256: 407d77fd78504ca720c257c3ccd07e410db5c48a0630e36a76cc6824e48d4566
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -3023,5 +3023,159 @@ contracts:
       repair was admitted, and a remediation whose own closure did not
       pass.
       Registered at contract-v2.6; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+
+  # ---- clearing contract family — contract-v3.3 registration (add-clearing-dispatch-boundary tasks.md 6.8) ----
+  # The neutral half of the RATIFIED `clearing-dispatch-boundary` capability
+  # (PR #555, squash ab0bb2dd), as MODIFIED by `add-cpc-clearing-boundary`
+  # (merged c0270d28). The packaged corpus
+  # (contracts/clearing/examples/, 6 positive examples + 24 intended-invalid
+  # negatives, one per closed refusal code), the canonical validator
+  # (scripts/validate-clearing-dispatch.py), the family README and its pytest
+  # wiring (tests/clearing/) are content-addressed by commit; no per-file digest
+  # (the openxWallet, client-identity-roster, identity-brokering, trust-anchor
+  # and signed-execution-chain precedent). The five schemas and the ONE registry
+  # instance below carry per-file sha256 over their bytes.
+  #
+  # THE REGISTRY INSTANCE IS REGISTERED AS A MEMBER, not left as corpus, because
+  # its CONTENT is the contract: the closed set of operations a governed host may
+  # be asked to perform. A consumer that verified the schema and not the instance
+  # would have verified the shape of a decision without verifying the decision.
+  - id: clearing-sealed-bundle-manifest
+    path: contracts/clearing/sealed-bundle-manifest.schema.yaml
+    source_path: openxFactory/contracts/clearing/sealed-bundle-manifest.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 435e07c5d61d7078a9975eb181ed4f6d015205d4ca1099a2d500a2b810b2846c
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The SEALED BOUNDED REQUEST, as a record: the TEN declared fields a producer presents at the boundary, with the expiration required and a byte-tagged hash per selected file.
+      A SHORT-LIVED SEALED JOB OBJECT and never a committed path of copied
+      data — an expiring object is a REQUEST, while a committed copy is a
+      MIRROR that outlives the work and carries the source's handling class
+      into a second repository's permanent history. Field (10) is a tagged
+      union: an ORIGIN SIGNATURE where the originating repository holds an
+      active row in `governance/factory-identity/`, and trusted
+      hosted-workflow provenance only where it does not — so registering an
+      identity TIGHTENS a producer and never loosens one. The manifest
+      digest is `signed-execution-chain`'s `xfc-jcs-sha256-1` over the
+      `sealed_bundle_manifest` subject; per-file content hashes are plain
+      algorithm-tagged SHA-256 over file BYTES, and a canonical-JSON
+      construction applied to them is refused as a category error.
+      Registered at contract-v3.3; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: clearing-permitted-operations-registry-schema
+    path: contracts/clearing/permitted-operations.schema.yaml
+    source_path: openxFactory/contracts/clearing/permitted-operations.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 51d3f23eb701483f1b441a02e38a54ffb840d561c65f79401eb0defd45755906
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The SHAPE of the closed permitted-operations register: what a registered operation must declare before a governed execution host may be asked to perform it.
+      Each entry declares its operation id, what it MAY and MAY NOT do, its
+      class constraints (checkout, writes, secret reference, token scopes,
+      timeout), its required worker profile, the lanes — runner group and
+      dispatch label — it may be dispatched to, its declared output schema,
+      and whether it returns repository-affecting output. CLOSURE ITSELF IS
+      NOT EXPRESSIBLE HERE: a schema constrains a document, not a decision,
+      so the canonical validator carries the ratified member set and refuses
+      an instance member outside it.
+      Registered at contract-v3.3; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: clearing-permitted-operations-registry
+    path: contracts/clearing/permitted-operations.registry.yaml
+    source_path: openxFactory/contracts/clearing/permitted-operations.registry.yaml
+    type: registry
+    schema_version: 1
+    sha256: 763fd0bfd48bc0f8c02c1be9ca4d5ef3ad25987b038c50ae75d677dd3f94e926
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The CLOSED permitted-operations register itself, holding EXACTLY ONE member: `readiness-diagnostic`, the ratified entry number one.
+      ADDING AN OPERATION IS A GOVERNED CONTRACT CHANGE with a spec delta and
+      a reviewer, never a workflow edit and never an edit to this file alone
+      — an operation set any lane author may extend is a self-service
+      widening of what the estate's hosts do, reviewed only as workflow
+      configuration. The closed register, not the producer's dispatch
+      credential, is what the ratified text names as the containment against
+      a compromised producer. The refusal is a TRIPWIRE that makes an
+      addition visible and costly, backed by review of any diff touching it,
+      and it is not an unforgeable refusal.
+      Registered at contract-v3.3; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: clearing-operation-report
+    path: contracts/clearing/operation-report.schema.yaml
+    source_path: openxFactory/contracts/clearing/operation-report.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: ee8fc8471407b11a7a57eef7e12b81feea4770b2785ae7677aeb78b8ec87a653
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The COMPOSED operation report for `readiness-diagnostic`: one report of record per dispatch, across however many lanes were probed, with per-lane facts as a keyed collection.
+      EVIDENCE, NEVER A DECISION. Each lane's group and label are typed as
+      DECLARED — the provider exposes no runner-group context to a running
+      job, and observed membership is established only by the single-door
+      attestation — and the environment echo is restricted by
+      `propertyNames` to a NAME ALLOWLIST, so a wholesale dump is
+      unrepresentable rather than merely discouraged. It is deliberately NOT
+      the neutral infrastructure-readiness result the promoted
+      `document-cataloging` and `ideation-routing` preflights await, which
+      is a decision input consulted BEFORE dispatch; it is a candidate INPUT
+      to that contract when that contract is proposed.
+      Registered at contract-v3.3; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: clearing-dispatch-record
+    path: contracts/clearing/dispatch-record.schema.yaml
+    source_path: openxFactory/contracts/clearing/dispatch-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 3641618c0e8a34f52a48cc990a1ae6a5ece963ae0b4a2695d9b4e062eef6763f
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The clearing DISPATCH LEDGER: one record per cleared dispatch AND per refusal, because a boundary that logs only successes cannot evidence what it stopped.
+      DISTINCT FROM `contracts/schemas/dispatch-record.schema.yaml`, which is
+      `add-capability-steward`'s dispatch-JUNCTION decision — same English
+      word, different subject, different owning capability, different `$id`.
+      Carries resolved values BESIDE claimed ones, keeps THREE verification
+      classes apart (provider-verified, policy-checked-against-the-register,
+      and the origin signature's own outcome), types every lane value as
+      DECLARED, requires WORKSPACE DISPOSAL evidence as a field, and names a
+      refusal ground from a CLOSED enumeration seeded with exactly the two
+      grounds the current realization emits. It REFERENCES a signed
+      execution chain rather than defining a second log.
+      Registered at contract-v3.3; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: clearing-single-door-attestation
+    path: contracts/clearing/single-door-attestation.schema.yaml
+    source_path: openxFactory/contracts/clearing/single-door-attestation.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: c57a2aee5385312192a95d42bca3391961ec3268878ac66ccc34c23cea6ac789
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The periodic SINGLE-DOOR ATTESTATION that keeps the ledger's completeness claim honest, comparing each governed runner group's admitted repositories and workflow allowlist against an expected set.
+      THE EXPECTED SET IS A PER-GROUP MEMBER and there is no estate-wide twin
+      — one set for the estate would report every group as diverging from
+      every other group's members. THREE FINDING CLASSES stay apart: a
+      WIDENING is a breach; a DARK LANE (an enumerated member with no
+      allowlist entry) is ALREADY FAILING CLOSED and is a disposition item;
+      and the clearing path's absence before the operator's console act is
+      CONVERGENCE NOT YET REACHED. The completeness claim carries its own
+      strength, pre- or post-admission, and the residual — provider-side
+      configuration outside version control — is a required field rather
+      than a note elsewhere.
+      Registered at contract-v3.3; consumed through the pinned
       openxFactory checkout with per-file sha256 verified before any copy
       is treated as current.

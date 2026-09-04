@@ -1,0 +1,33 @@
+# expected_failure: clearing-artifact-unparseable
+# expected_failure_detail: not an artifact this sweep cleared
+# VIOLATES nothing in the ratified text, and that is the point: this fixture is
+# not a malformed RECORD, it is an unreadable FILE, and the two used to be
+# indistinguishable from the outside.
+#
+# THE BUG IT PINS. The whole-tree sweep caught `yaml.YAMLError` and moved on. A
+# file carrying one of this family's kinds, broken badly enough not to parse, was
+# therefore reported as "0 artifact(s) checked" and the run exited 0 — a green
+# sweep whose greenness came from the file being UNREADABLE rather than from it
+# being conformant.
+#
+# IT IS THE SAME ERROR THE CAPABILITY REFUSES BY NAME EVERYWHERE ELSE, moved onto
+# the local disk: "A verification that cannot be performed SHALL refuse: an
+# unreadable or erroring provider API is not a verification that passed." An
+# unreadable FILE is not an adjudication that passed either.
+#
+# WHY THE FIXTURE ITSELF IS BROKEN. `clearing-artifact-unparseable` can only fire
+# on a file that does not parse, so the only fixture that can red-prove it is one
+# that does not parse. The `# expected_failure:` header above still reads,
+# because that header is parsed from raw lines rather than from YAML — which is
+# what makes a deliberately-unparseable fixture possible at all.
+#
+# The unbalanced bracket below is the whole defect. The `kind:` line above it is
+# what makes this file a FAMILY artifact rather than a stray broken YAML the
+# reader would rightly ignore.
+schema_version: 1
+kind: xfactory_clearing_dispatch_record
+dispatch_id: cd-unparseable-0001
+lane_declarations: [
+  - lane: coding
+    declared_runner_group: xfactory-execution-lane-workers
+  : : :
