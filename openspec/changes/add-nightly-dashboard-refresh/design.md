@@ -340,7 +340,7 @@ reads as follows; step 5 is unchanged and is not repeated.
    `PYTHONPATH=scripts python3 -m ideation_dashboard.cli generate
    --repo-root . --repository openxFactory --strict
    --source-revision <manifest source HEAD>
-   --generated-at <manifest source committer timestamp>
+   --generated-at <manifest source committer timestamp>  # requires task 3.6 — flag not yet implemented
    --output <ctx>/health/ideation-dashboard/openxFactory-snapshot.json`,
    run from `<ctx>/openxFactory`. The two explicit generation anchors preserve
    the deterministic stamp the fresh checkout supplied; `--strict` is the gate.

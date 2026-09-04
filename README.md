@@ -1593,10 +1593,11 @@ Active changes:
   exactly, and RECORDS the standing conformance gap that the hosted image
   performs no runtime fetch today, so its baked artifacts are its data).
   `target_release: implementation_pending`.
-  **AN AMENDMENT TO THE RATIFIED `doc-health` DELTA IS PENDING BRETT'S
-  RE-RATIFICATION (2026-09-04).** Everything described above is the design as
-  RATIFIED 2026-08-25 and is what still governs. The amendment, authored
-  2026-09-01 on Brett's host ruling ("the runner design intentionally requires
+  **AN AMENDMENT TO THE RATIFIED `doc-health` DELTA WAS AMENDED 2026-09-04
+  AND RE-RATIFIED THE SAME DAY** (Brett Heap, in-session, verbatim "re-ratify
+  and merge 595"). Everything described above is the design as RATIFIED
+  2026-08-25 and is what still governs. The amendment, authored 2026-09-01 on
+  Brett's host ruling ("the runner design intentionally requires
   `repository_credentials_absent`; source is delivered as sealed job artifacts
   and the runners do not clone or push repositories"), moves the
   fresh-checkout act OFF the credential-free artifact worker and ONTO the

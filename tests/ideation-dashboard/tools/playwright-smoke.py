@@ -147,8 +147,9 @@ def _scratch_checkout(base: Path) -> tuple[Path, Path]:
     )
     # The checkout's OWN git identity must authenticate the smoke's actor
     # claim (actor_identity trust gap, 72b9c48f): a `-c user.name=...` flag
-    # scopes to ONE command and never persists, so `git config user.name`
-    # here would fall through to the operator's global identity and the
+    # scopes to ONE command and never persists, so WITHOUT the local
+    # `user.name`/`user.email` set here, later commits in this checkout
+    # would fall back to the operator's global git config and the
     # "t098" claim would resolve to NOBODY — fail-closed, and the plane
     # comes up read-only with the canvas never offered.
     _run(["git", "config", "user.name", "T098"], cwd=checkout)
