@@ -50,7 +50,9 @@ from ideation_dashboard.boundary import (  # noqa: E402
 from ideation_dashboard.corpus_root import (  # noqa: E402
     SCANNED_ROOTS, corpus_root_refusal,
 )
-from ideation_dashboard.generator import generate_snapshot  # noqa: E402
+from ideation_dashboard.generator import (  # noqa: E402
+    generate_snapshot, is_rfc3339_datetime,
+)
 
 WEB_DIR = Path(__file__).resolve().parent / "web"
 
@@ -81,6 +83,40 @@ def _refuse_non_corpus_repo_root(args: argparse.Namespace) -> None:
         raise RepoRootRefused(refusal)
 
 
+class GeneratedAtRefused(Exception):
+    """`--generated-at` was given something that is not an RFC 3339 date-time.
+
+    REFUSED, not degraded — deliberately unlike every other timestamp path in
+    this package. `RealGitDates.commit_date` returns None on any failure and the
+    stamp is simply omitted, which is right for a value the run tried to
+    DISCOVER. This one was TYPED, and the only reason to type it is that the
+    scanned tree cannot supply it (the sealed source artifact
+    `add-nightly-dashboard-refresh` hands the child is not a git checkout). So
+    degrading here would drop the anchor in silence and produce the very
+    snapshot the flag exists to prevent: `generated_at` is OPTIONAL in
+    `contracts/schemas/ideation-dashboard-snapshot.schema.yaml`, so even
+    `--strict` would pass, the image would ship, and the served plane would lose
+    its freshness stamp with nothing anywhere saying why."""
+
+
+def _refuse_malformed_generated_at(args: argparse.Namespace) -> None:
+    """Raise `GeneratedAtRefused` unless `--generated-at`, when given, is an
+    RFC 3339 date-time (`generator.is_rfc3339_datetime` — the shape the snapshot
+    schema declares for `generation.generated_at`)."""
+    value = getattr(args, "generated_at", None)
+    if value is None or is_rfc3339_datetime(value):
+        return
+    raise GeneratedAtRefused(
+        f"--generated-at is not an RFC 3339 date-time: {value!r}\n"
+        f"  required: a full date, an explicit time and an explicit offset — "
+        f"e.g. 2026-09-04T01:23:45Z or 2026-09-04T01:23:45+00:00\n"
+        f"  the value is recorded in the snapshot EXACTLY as given (it is an "
+        f"anchor copied from elsewhere, never normalised), which is why a "
+        f"malformed one is refused here instead of repaired\n"
+        f"  a sealed-source run passes its manifest's source committer "
+        f"timestamp, the `git show -s --format=%cI` of the sealed revision")
+
+
 def _generate_and_write(args: argparse.Namespace, output: Path) -> tuple[dict, Path]:
     """Generate the deterministic snapshot from the working tree and write it
     through the interactivity boundary (the output file is the whole declared
@@ -90,13 +126,17 @@ def _generate_and_write(args: argparse.Namespace, output: Path) -> tuple[dict, P
     A `--repo-root` that cannot be a corpus checkout is REFUSED here — the ONE
     guard both verbs pass through, ahead of the generation and the write, because
     an empty snapshot that exits 0 is indistinguishable from an honest one (T092;
-    see `corpus_root.corpus_scan_defect`)."""
+    see `corpus_root.corpus_scan_defect`). A malformed `--generated-at` is
+    refused in the same place and for the same reason, one anchor over: both
+    verbs, ahead of the write, so no snapshot file can survive a refused run."""
     _refuse_non_corpus_repo_root(args)
+    _refuse_malformed_generated_at(args)
     repo_root = Path(args.repo_root).resolve()
     snapshot = generate_snapshot(
         repo_root,
         args.repository,
         source_revision=args.source_revision,
+        generated_at=args.generated_at,
         project_register_source=Path(args.project_register).resolve() if args.project_register else None,
         possibles_source=Path(args.possibles).resolve() if args.possibles else None,
     )
@@ -112,6 +152,10 @@ def _report(snapshot: dict, written: Path, repo_root: Path) -> None:
           f"project={snapshot.get('project', '<ungrouped>')} "
           f"project_group={snapshot.get('project_group', '<none>')}")
     print(f"  source_revision={snapshot['generation']['source_revision']}")
+    # Printed even when absent: a missing freshness stamp used to be invisible
+    # (the schema makes it optional, so nothing downstream complains), and a run
+    # that meant to pin one needs to see whether it landed.
+    print(f"  generated_at={snapshot['generation'].get('generated_at', '<absent>')}")
     print(f"  documents={stats['documents']} clusters={stats['clusters']} "
           f"possibles={stats['possibles']} staged_topics={stats['staged_topics']} "
           f"changes={stats['changes']} keywords={stats['keyword_index']}")
@@ -281,8 +325,9 @@ def cmd_generate_and_open(args: argparse.Namespace, *, opener=webbrowser.open) -
     blocking (used by tests). `opener` is injectable for testing."""
     # Ahead of minting the run dir, so a refused root leaves not even an empty
     # temp directory behind. `_generate_and_write` is still the guard that MATTERS
-    # (it is the one no caller can skip); this is the same check, earlier.
+    # (it is the one no caller can skip); these are the same checks, earlier.
     _refuse_non_corpus_repo_root(args)
+    _refuse_malformed_generated_at(args)
     run_dir = Path(args.run_dir).resolve() if args.run_dir else Path(
         tempfile.mkdtemp(prefix="ideation-dashboard-"))
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -1599,6 +1644,17 @@ def _add_generate_args(sub: argparse.ArgumentParser) -> None:
     sub.add_argument("--repository", required=True, help="canonical repository id for the snapshot")
     sub.add_argument("--source-revision", default=None,
                      help="pin the source_revision anchor (default: the repo's git HEAD)")
+    # The SECOND generation anchor, at the same altitude as the first because
+    # the two are pinned together or not at all. Without it the only source of
+    # `generated_at` is `git show -s --format=%cI` run inside the scanned tree,
+    # which yields nothing when that tree is not a checkout — a sealed source
+    # artifact, an export, a copied context — and the snapshot then ships with
+    # the stamp silently missing (add-nightly-dashboard-refresh task 3.6).
+    sub.add_argument("--generated-at", default=None, metavar="RFC3339",
+                     help="pin the generated_at anchor, recorded verbatim "
+                          "(default: --source-revision's committer date read "
+                          "from the scanned tree's git, omitted when that tree "
+                          "is not a checkout)")
     sub.add_argument("--project-register", default=None,
                      help="override the project-register source (default: discovered under repo-root)")
     sub.add_argument("--possibles", default=None,
@@ -2381,6 +2437,12 @@ def main(argv: list[str] | None = None) -> int:
         # One catch site rather than a return code at nine gate constructions, so
         # no future gate verb can be added that forgets to check.
         print(f"{_command_label(args)} refused: {exc}", file=sys.stderr)
+        return 1
+    except GeneratedAtRefused as exc:
+        # Same altitude and same exit status as the `--repo-root` refusal below:
+        # a generation anchor that was TYPED and is malformed ends the run on
+        # stderr, rather than degrading to a stamp that is quietly absent.
+        print(str(exc), file=sys.stderr)
         return 1
     except RepoRootRefused as exc:
         # The refusal is the whole message (`corpus_root.corpus_root_refusal`);
