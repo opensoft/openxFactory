@@ -150,13 +150,26 @@ DECLARED_FIELDS = (
     "origin_attestation",
 )
 
-#: THE RATIFIED MEMBER SET of the closed permitted-operations register. ONE
-#: member: `readiness-diagnostic`, register entry number one.
+#: THE RATIFIED MEMBER SET of the closed permitted-operations register. TWO
+#: members: `readiness-diagnostic`, register entry number one
+#: (`add-clearing-dispatch-boundary`, ratified 2026-09-01), and `deliberation`,
+#: register entry number two (`admit-deliberation-clearing-operation`, ratified
+#: 2026-09-04, merged `3cf917b7`).
 #:
-#: `deliberation` (codexFactory #165) is a LATER GOVERNED CHANGE and is
-#: deliberately absent. Adding a name here without the spec delta that ratifies
-#: it is the self-service widening the closed register exists to end.
-RATIFIED_OPERATIONS = frozenset({"readiness-diagnostic"})
+#: `coding` is the next real LATER GOVERNED CHANGE and is deliberately absent —
+#: `add-clearing-dispatch-boundary` design D11 names it, the estate already holds
+#: its lane and its grandfathered worker, and
+#: `examples/negative/register-carrying-an-unratified-operation.yaml` uses it as
+#: the fixture that proves this refusal fires. Adding a name here without the
+#: spec delta that ratifies it is the self-service widening the closed register
+#: exists to end.
+#:
+#: THIS IS COPY 1 OF FIVE. The others are the INDEPENDENT constant in
+#: `tests/clearing/test_register_closure.py`, the register instance itself,
+#: `.github/workflows/clearing-dispatch-gate.yml`'s literal member-count grep,
+#: and the test that pins that grep from a second file. Do not import one from
+#: another: the independence is the control.
+RATIFIED_OPERATIONS = frozenset({"readiness-diagnostic", "deliberation"})
 
 #: The digest subject this family's manifest is admitted under, in
 #: `signed-execution-chain`'s closed enumeration.
@@ -1109,9 +1122,14 @@ def main(argv: list[str] | None = None) -> int:
     validate_record(f, register_doc, "permitted-operations.registry.yaml",
                     registry, docs, {}, {}, NOW_SENTINEL)
     entries = check_register(f, register_doc, "permitted-operations.registry.yaml")
+    # THE COUNT IS A LITERAL THE CI GATE GREPS FOR, and the plural agrees with it.
+    # `clearing-dispatch-gate.yml` pins the exact sentence this line prints, so a
+    # register that gained a member and a reader that still said "1 registered
+    # operation" would disagree in the one place the gate is looking.
+    plural = "" if len(entries) == 1 else "s"
     f.note(f"permitted-operations register read: "
            f"{REGISTRY_INSTANCE.relative_to(ROOT)} "
-           f"({len(entries)} registered operation)")
+           f"({len(entries)} registered operation{plural})")
 
     try:
         fixture_origins = read_origin_register(f, FIXTURE_IDENTITY, pinned)

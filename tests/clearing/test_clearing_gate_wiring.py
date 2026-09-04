@@ -144,11 +144,17 @@ def test_the_assertion_step_is_positive_and_not_merely_absence(runs) -> None:
 def test_the_assertion_pins_the_registers_literal_member_count(runs) -> None:
     """THE COUNT IS THE POINT.
 
-    The register is closed at one member. If a change makes this grep fail, the
+    The register is closed at two members. If a change makes this grep fail, the
     correct response is a ratifier, not a wider pattern.
+
+    THIS IS COPY FIVE OF FIVE, and it is the one a reader of the contract tree
+    would never see: it pins the CI grep's literal from a second file, so moving
+    the grep alone turns this red. The count moved 1 -> 2 on 2026-09-04 by
+    `admit-deliberation-clearing-operation` (PR #645, merged `3cf917b7`), which
+    is what moving it costs.
     """
     assertion = next(r for r in runs if "clearing-gate.log" in r and "grep" in r)
-    assert "1 registered operation" in assertion
+    assert "2 registered operations" in assertion
 
 
 def test_the_refusal_coverage_assertion_demands_all_of_them(runs) -> None:

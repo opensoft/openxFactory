@@ -131,7 +131,7 @@ def test_a_refusal_records_what_was_asked_for() -> None:
     question an auditor actually has after a refusal.
     """
     assert REFUSED["cleared"] is False
-    assert REFUSED["operation"]["claimed"] == "deliberation"
+    assert REFUSED["operation"]["claimed"] == "coding"
     assert REFUSED["operation"]["resolved"] is None
     assert REFUSED["refusal"]["ground"] == "unregistered_operation"
     assert REFUSED["outcome"] == "refused"

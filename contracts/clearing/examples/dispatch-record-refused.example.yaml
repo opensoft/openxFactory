@@ -2,11 +2,17 @@
 # convenience: "a boundary that logs only successes cannot evidence what it
 # stopped".
 #
-# THE OPERATION IS RECORDED AS CLAIMED. `operation.claimed` is `deliberation`
-# and `operation.resolved` is null. A record that dropped the claim would leave
-# the ledger unable to answer what was ASKED FOR — the question an auditor
-# actually has after a refusal — and a record that put the claim in `resolved`
-# would present a refused claim as a cleared one.
+# THE OPERATION IS RECORDED AS CLAIMED. `operation.claimed` is `coding` and
+# `operation.resolved` is null. A record that dropped the claim would leave the
+# ledger unable to answer what was ASKED FOR — the question an auditor actually
+# has after a refusal — and a record that put the claim in `resolved` would
+# present a refused claim as a cleared one.
+#
+# THE CLAIM WAS `deliberation` UNTIL 2026-09-04. That operation was admitted as
+# register entry number two (`admit-deliberation-clearing-operation`, PR #645,
+# merged `3cf917b7`), so this example would have documented a refusal that can no
+# longer happen. It moved to `coding` — still unregistered, still wanted, still
+# the honest name — in the same diff as the admission.
 #
 # THE GROUND COMES FROM THE CLOSED ENUMERATION. `unregistered_operation` is one
 # of exactly two members today, and the other is `unknown_lane_selector`. Those
@@ -33,7 +39,7 @@ run_attempt: 1
 run_url: https://github.com/opensoft/xFactory/actions/runs/33999123999
 cleared: false
 operation:
-  claimed: deliberation
+  claimed: coding
   resolved: null
 bundle_present: false
 verification:
@@ -48,7 +54,7 @@ verification:
     agrees: true
   policy_checked:
   - field: operation
-    claimed: deliberation
+    claimed: coding
     resolved_from_register: null
     agrees: false
   origin_signature:
@@ -60,7 +66,7 @@ lane_declarations: []
 declared_data_handling: public_log_only
 refusal:
   ground: unregistered_operation
-  detail: the dispatch named operation 'deliberation', which has no entry in the closed permitted-operations
+  detail: the dispatch named operation 'coding', which has no entry in the closed permitted-operations
     register; no lane job was reached
 workspace_disposal:
   disposed: true
