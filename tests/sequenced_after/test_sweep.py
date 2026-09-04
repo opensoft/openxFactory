@@ -238,10 +238,9 @@ def test_the_LIVE_corpus_and_the_LEDGER_agree_row_by_row():
     non-adjacent lines and merge without a conflict — UNLESS their ids sort
     with no row between them, where they share one insertion point and collide
     like any other adjacent insertion; that residue is the landing window's
-    (issue #618 item 1), not something the row shape removes. Proposed by
-    `add-per-change-sweep-ledger`, admitted on the convener's ruling of
-    2026-09-03 (issue #618): *"do 1 and 3, keep the log in one place"*;
-    `Status: draft` until ratified.
+    (issue #618 item 1), not something the row shape removes. Ratified by Brett
+    Heap 2026-09-04 (*"ratify 623"*), on the convener's ruling of 2026-09-03
+    (issue #618): *"do 1 and 3, keep the log in one place"*.
 
     Move your row with
 

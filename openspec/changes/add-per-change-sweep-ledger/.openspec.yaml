@@ -32,9 +32,12 @@ origin:
     lane-collision-protocol amendment outside this repository. THIS IS AN
     ADMISSION INTO THE PROPOSAL QUEUE AND NOT A RATIFICATION OF CONTENT: it
     supplies the origin and approval pair the proposal-origin contract
-    requires and nothing more. The packet remains `Status: draft`, carries no
-    ratification citation, and owes none — the promoted lifecycle rule
-    requires one only for `Status: ratified`.
+    requires and nothing more. AT THE TIME IT WAS GIVEN the packet carried no
+    ratification citation and owed none, the promoted lifecycle rule requiring
+    one only for `Status: ratified`. Ratification followed as a SEPARATE act on
+    2026-09-04 ("ratify 623"), recorded at
+    `review/ratification-2026-09-04.md`; this field records the authorization to
+    AUTHOR and is not that ratification.
     THREE THINGS THE RULING DID SETTLE, and they are carried as LOCKED
     constraints rather than as decisions this packet takes: the pin becomes a
     per-change ledger keyed by change id; the totals are DERIVED from the rows

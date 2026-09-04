@@ -1,6 +1,7 @@
 # Design: add-per-change-sweep-ledger
 
-Status: draft
+Status: ratified
+Ratified by: add-per-change-sweep-ledger — 2026-09-04, Brett Heap, "ratify 623" (record `review/ratification-2026-09-04.md`)
 
 ## 0. The convener brief
 

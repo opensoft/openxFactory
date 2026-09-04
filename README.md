@@ -483,10 +483,25 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-per-change-sweep-ledger](openspec/changes/add-per-change-sweep-ledger/proposal.md)
-  — proposed 2026-09-03, `Status: draft`, on Brett Heap's in-session ruling of
-  the same day (lane `openxfactory-max001`, verbatim *"do 1 and 3, keep the log
-  in one place"*) given on openxFactory issue **#618** — **admission into the
-  proposal queue, NOT a ratification.**
+  — proposed 2026-09-03 on Brett Heap's in-session ruling of the same day (lane
+  `openxfactory-max001`, verbatim *"do 1 and 3, keep the log in one place"*)
+  given on openxFactory issue **#618** — **admission into the proposal queue,
+  NOT a ratification.** **`Status: ratified`** (2026-09-04, Brett Heap the
+  operator authority, in the working session, verbatim *"ratify 623"*, given
+  after a presentation carrying `design.md` D1 as the reading most worth a veto
+  — **D1 was not vetoed**; record
+  `openspec/changes/add-per-change-sweep-ledger/review/ratification-2026-09-04.md`,
+  verification beside it at `review/verification-2026-09-04.md`).
+  **RATIFIED AND STILL ACTIVE**: `code_surface` is non-empty and
+  `target_release: implemented`, so under `release-realization`'s realization
+  archive gate it archives on MERGED-PLUS-GREEN, measured after landing and
+  never assumed (`tasks.md` Group 7).
+  **WHAT RATIFICATION SETTLED INCLUDES A KNOWN DEPARTURE FROM #618.** That
+  issue's shape paragraph specified a `## MODIFIED Requirements` block making
+  both changes co-modifiers with the declaration *owed*; this packet delivers
+  ALL-ADDED, both rows `class: sole`, the declaration ELECTIVE. The departure
+  was recorded in D1 **before** the act so that ratifying would ratify it
+  knowingly rather than by omission.
   **THE CORPUS-SWEEP PIN NOW MOVES PER ROW, NEVER PER TOTAL.** The measurement
   that discharges `add-sequenced-after-substrate`'s *"…bound SHALL be measured"*
   requirement is unchanged; what changes is how it is pinned. Five corpus-wide

@@ -6,11 +6,16 @@ measurement is carried per subject, never as a shared total"
 
 ## Group 0 — Convener gate
 
-- [ ] 0.1 **RATIFICATION.** `Status: draft` until the convener ratifies. The
-  2026-09-03 ruling admitted the packet and settled its shape; it did not
-  ratify this text. The reading most worth a veto is `design.md` D1: that this
-  delta is honestly ALL-ADDED rather than a `## MODIFIED` restatement of
-  `add-sequenced-after-substrate`'s measured-bound requirement.
+- [x] 0.1 **RATIFICATION — DONE 2026-09-04.** Brett Heap (openxFactory operator
+  authority), in session, verbatim: *"ratify 623"*. Record:
+  `review/ratification-2026-09-04.md`; verification beside it at
+  `review/verification-2026-09-04.md`. The 2026-09-03 ruling had admitted the
+  packet and settled its shape; this is the separate act on its CONTENT. **The
+  reading most worth a veto was put in front of the ratifier and was NOT
+  vetoed** — `design.md` D1, that this delta is honestly ALL-ADDED rather than a
+  `## MODIFIED` restatement of `add-sequenced-after-substrate`'s measured-bound
+  requirement, which departs from issue #618's own shape paragraph. That
+  departure is ratified knowingly.
 
 ## Group 1 — The per-change derivation (Speckit feature `per-change-sweep-ledger`)
 

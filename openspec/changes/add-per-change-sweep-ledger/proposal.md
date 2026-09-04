@@ -2,21 +2,24 @@
 code_surface: openxFactory — FOUR artifacts, all under this repository's own tooling and test tree, none of them a neutral contract any consumer pins. (1) `scripts/sequenced_after.py` GAINS a per-change classifier (`classify_corpus`, `Reading`), a fold from those readings back to the existing `Sweep` (`sweep_from_readings`), a field-naming comparator (`sweep_mismatches`), and the ledger's strict reader/renderer (`load_ledger`, `ledger_problems`, `render_ledger`) — the existing `corpus_sweep` is NOT refactored and NOT touched, deliberately, so the two computations stay independent and their agreement is a cross-check rather than a tautology. (2) `scripts/validate-sequenced-after.py` gains `--ledger-diff` (report, exit 1 when stale) and `--seed-ledger` (rewrite, preserving unmoved rows' provenance); `--sweep` output is unchanged. (3) `tests/sequenced_after/corpus-ledger.yaml` is NEW — one row per change id in the active and archived corpora both. (4) `tests/sequenced_after/test_sweep.py` replaces its five live scalar assertions with row-wise ones and keeps its MOVEMENT LOG, verbatim, in the one place it has always lived. NO spec is promoted, no contract bundle member moves, no domain repository is touched, and the measurement itself — what the sweep counts and how — is not changed by one line.
 target_release: implemented (the affected repository's main line — openxFactory. Realization = the ledger exists, the pytest gate derives the totals from it and asserts them row by row against the live corpus on every pull request, and `--ledger-diff` re-runs the same check from the CLI. The change archives on merged-plus-green per `release-realization`'s realization archive gate. There is no aggregation-repo release bundle: nothing here is a member of `contracts/manifest.yaml` or of any `contracts/releases/*.digests.yaml` inventory.)
 sequenced_after: [add-sequenced-after-substrate]
-Status: draft
+Status: ratified
 Proposed: 2026-09-03
-Origin: openxFactory issue #618, and Brett Heap's ruling on it the same day, in session, lane `openxfactory-max001`, verbatim: *"do 1 and 3, keep the log in one place"*. Item 3 is this packet; item 1 is a lane-collision-protocol amendment outside this repository. THAT INSTRUCTION IS AN ADMISSION INTO THE PROPOSAL QUEUE AND NOT A RATIFICATION OF CONTENT.
+Ratified: 2026-09-04 by Brett Heap (openxFactory operator authority) — "ratify 623"; record at review/ratification-2026-09-04.md
+Origin: openxFactory issue #618, and Brett Heap's ruling on it the same day, in session, lane `openxfactory-max001`, verbatim: *"do 1 and 3, keep the log in one place"*. Item 3 is this packet; item 1 is a lane-collision-protocol amendment outside this repository. THAT INSTRUCTION WAS AN ADMISSION INTO THE PROPOSAL QUEUE AND NOT A RATIFICATION OF CONTENT; ratification followed as a separate act on 2026-09-04.
 ---
 
 # Proposal: add-per-change-sweep-ledger
 
-Status: draft
+Status: ratified
 Proposed: 2026-09-03, on Brett Heap's in-session ruling of the same day — lane
 `openxfactory-max001`, verbatim *"do 1 and 3, keep the log in one place"* —
 given on openxFactory issue **#618**, which states the problem and rules the
-remedy. That instruction supplies the origin and approval pair the
-proposal-origin contract requires and nothing more: this packet carries no
-ratification citation and owes none, the promoted lifecycle rule requiring one
-only for `Status: ratified`.
+remedy. **That instruction supplied the origin and approval pair the
+proposal-origin contract requires and nothing more — it ADMITTED the packet to
+the queue and did not ratify its content.** Ratification was a separate act on
+2026-09-04 and it has now happened; the front matter carries its citation — ONE
+citation line for the document, which is what `ratified-provenance` requires —
+and § Ratification records the act, its verbatim word and what it settled.
 
 ## Why
 
@@ -163,7 +166,21 @@ this reason while itself being sole.
 
 ## Ratification
 
-**NOT RATIFIED.** `Status: draft`. Ratification is the convener's separate act
-and has not happened. The 2026-09-03 ruling admitted the packet to the queue and
-settled its SHAPE (one ledger, per-change rows, the log kept in one place); it
-did not ratify this text.
+**RATIFIED 2026-09-04 by Brett Heap (openxFactory operator authority)**, in
+session, verbatim: *"ratify 623"*. Record:
+`review/ratification-2026-09-04.md`.
+
+**TWO ACTS, A DAY APART, AND THEY ARE NOT THE SAME ACT.** The 2026-09-03 ruling
+(*"do 1 and 3, keep the log in one place"*) admitted the packet to the queue and
+settled its SHAPE — one ledger, per-change rows, the log kept in one place. It
+did not ratify this text, and while it stood alone this section said so. The
+2026-09-04 word ratifies the CONTENT.
+
+**WHAT WAS RATIFIED INCLUDES A KNOWN DEPARTURE FROM THE ISSUE.** Issue #618's
+"Shape of the packet" paragraph specified a `## MODIFIED Requirements` block
+against `add-sequenced-after-substrate`'s measured-bound requirement, making both
+changes co-modifiers and the `sequenced_after:` declaration OWED. This packet
+delivers ALL-ADDED, both rows read `class: sole`, and the declaration is
+ELECTIVE — the reading recorded in `design.md` D1, which was put in front of the
+ratifier rather than left implicit, and was NOT vetoed. Ratifying this packet
+ratifies that departure knowingly.
