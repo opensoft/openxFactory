@@ -300,10 +300,18 @@ The new row sorts between `add-xfactory-installer-repository` and
 gap is the residual the ledger does not remove, and it is the landing window's
 (Rule 6), not this packet's.
 
+**THE ROW, AS SEEDED** — written by
+`python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#645'`
+rather than hand-edited, which reported *"164 rows, 1 moved by #645"* and named
+exactly this change:
+
+```yaml
+  admit-deliberation-clearing-operation: {state: active, class: sole, declares: absent, prose: false, moved_by: "#645", moved_on: "2026-09-04"}
+```
+
 **NO MOVEMENT LOG ENTRY IS OWED.** The ledger's rule: an entry is owed only where
 a move is NOT explained by the row diff itself. A row ADDED is the rule's
-explicit no-entry case. The row is stamped by
-`--seed-ledger --moved-by '#<PR>'` rather than hand-edited.
+explicit no-entry case, and the diff here is one line.
 
 ## D12. What could go wrong, honestly
 
