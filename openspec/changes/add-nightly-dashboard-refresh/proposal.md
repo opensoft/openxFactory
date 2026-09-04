@@ -421,10 +421,15 @@ now closed.** It was assessed on `opensoft/xFactory` `main` immediately after
 re-ratification: the child workflow still declared two repository-scoped
 **SSH deploy keys** and ran two `git clone --filter=blob:none` fetches, exactly
 the shape PR #179 had corrected without moving. That contradicted the lane's
-own readiness gate — `scripts/worker_readiness.py` fails it closed with
-`repository_credentials_present` unless the host heartbeat attests
+own readiness gate — the AGGREGATION's `scripts/worker_readiness.py` fails it
+closed with `repository_credentials_present` unless the host heartbeat attests
 `repository_credentials_absent: true` — so the lane could be READY or it could
-FETCH, never both. Brett ordered the re-realization in-session, verbatim:
+FETCH, never both. That module and the `scripts/check-worker-readiness.py` CLI
+which imports it BOTH live in `opensoft/xFactory`, never in this repository:
+`doc-health-reusable.yml` is a REUSABLE workflow, so its
+`python3 scripts/check-worker-readiness.py` resolves in the CALLER's checkout.
+They are one CLI-plus-module pair, not two competing entrypoints, and this
+paragraph names the module because the gate's predicate lives there. Brett ordered the re-realization in-session, verbatim:
 "go S2 to S7", then "lets go". Five pull requests landed it, each verified
 merged at the gate rather than read out of a handoff:
 
@@ -460,8 +465,8 @@ merged at the gate rather than read out of a handoff:
   the attested heartbeat keys did not move, so
   `--required-profile-version 1` needs no lockstep edit.
 
-**THE ARCHIVE GATE STILL STAYS OPEN, and nothing above is evidence that it
-should not.** These five acts remove a code/spec disagreement and a deadlock;
+**THE ARCHIVE GATE STAYS OPEN, and nothing above is evidence that it should
+not.** These five acts remove a code/spec disagreement and a deadlock;
 they make the lane exercisable, which is not the same as exercised. What is
 still owed is S7 — the operator's host acts and the first real nightly. Act
 **D**, provisioning the SSH deploy-key Git substrate, is DELETED rather than

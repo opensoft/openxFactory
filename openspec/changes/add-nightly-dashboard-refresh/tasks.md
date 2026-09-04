@@ -746,10 +746,15 @@ disagreement the amendment itself declined to discharge: `proposal.md`
 § "The consequence this amendment does NOT discharge" said the landed
 realization "may now disagree with the amended delta", and it did — the child
 still held two SSH deploy keys and cloned two private repositories, while
-`worker_readiness.py` failed the lane's readiness gate closed with
-`repository_credentials_present` unless the heartbeat attested
-`repository_credentials_absent: true`. **The lane could be READY or it could
-FETCH, never both.** Brett ordered the re-realization in-session, verbatim:
+the AGGREGATION's `scripts/worker_readiness.py` failed the lane's readiness
+gate closed with `repository_credentials_present` unless the heartbeat attested
+`repository_credentials_absent: true`. (That module and the
+`scripts/check-worker-readiness.py` CLI that imports it BOTH live in
+`opensoft/xFactory`, not here — `doc-health-reusable.yml` is a reusable
+workflow, so its `python3 scripts/check-worker-readiness.py` resolves in the
+CALLER's checkout. One CLI-plus-module pair, not two competing entrypoints.)
+**The lane could be READY or it could FETCH, never both.** Brett ordered the
+re-realization in-session, verbatim:
 "go S2 to S7", then "lets go". These are the acts, each verified merged at the
 gate rather than read out of a handoff.
 

@@ -1562,7 +1562,8 @@ Active changes:
 - [add-nightly-dashboard-refresh](openspec/changes/add-nightly-dashboard-refresh/proposal.md)
   — authored 2026-08-22, **RATIFIED 2026-08-25** against its realized system
   (Brett, in-session: "ratify add-nightly-dashboard-refresh against its
-  realized system"), amended 2026-09-01 and re-ratified 2026-09-04, then
+  realized system"), amended 2026-09-01, reaching this repository 2026-09-04
+  by rescue (PR #595) and re-ratified that same day, then
   **RE-REALIZED 2026-09-04 (S1–S5 landed; awaiting the first real nightly and
   the operator's host acts before archive)** — openxFactory #642 `bbc21e41`,
   #641 `19a777d8`, #648 `96aa61a3`; aggregation opensoft/xFactory #243
@@ -1622,9 +1623,12 @@ Active changes:
   exactly, and RECORDS the standing conformance gap that the hosted image
   performs no runtime fetch today, so its baked artifacts are its data).
   `target_release: implementation_pending`.
-  **AN AMENDMENT TO THE RATIFIED `doc-health` DELTA WAS AMENDED 2026-09-04
-  AND RE-RATIFIED THE SAME DAY** (Brett Heap, in-session, verbatim "re-ratify
-  and merge 595"). Everything described above is the design as RATIFIED
+  **AN AMENDMENT TO THE RATIFIED `doc-health` DELTA WAS RULED 2026-09-01,
+  REACHED THIS REPOSITORY 2026-09-04 BY RESCUE, AND WAS RE-RATIFIED THAT SAME
+  DAY** (Brett Heap, in-session, verbatim "re-ratify and merge 595"). The
+  2026-09-04 date is the rescue and the re-ratification, not the amendment's
+  own: `proposal.md`'s front-matter `Amended:` line is authoritative and reads
+  2026-09-01. Everything described above is the design as RATIFIED
   2026-08-25 and is what still governs. The amendment, authored 2026-09-01 on
   Brett's host ruling ("the runner design intentionally requires
   `repository_credentials_absent`; source is delivered as sealed job artifacts
