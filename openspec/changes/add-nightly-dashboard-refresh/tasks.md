@@ -602,3 +602,9 @@ being honest, and none is taken on trust by anything that has landed.
 amendment, `target_release` stays `implementation_pending`, and the lane has
 still never run. Whatever is ruled on the amendment, the archive gate stays
 open.
+
+**2026-09-04 — RULED (Brett Heap, verbatim "delete the debug tool"):
+`playwright-smoke-debug.py` deleted in PR #595; its ~15 lines of DOM capture
+are recoverable from the rescue commit 2ffe1807 if ever needed.
+Re-ratification of the amended delta recorded in proposal.md § AMENDED AFTER
+RATIFICATION.**
