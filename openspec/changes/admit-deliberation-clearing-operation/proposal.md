@@ -1,14 +1,18 @@
 ---
 code_surface: openxFactory — `contracts/clearing/permitted-operations.registry.yaml` gains ENTRY NUMBER TWO; `scripts/validate-clearing-dispatch.py`'s `RATIFIED_OPERATIONS` frozen set, the INDEPENDENT copy in `tests/clearing/test_register_closure.py` (`RATIFIED`), the LITERAL member-count assertion in `.github/workflows/clearing-dispatch-gate.yml` ("1 registered operation"), and `tests/clearing/test_clearing_gate_wiring.py`'s assertion pinning that same literal from a second file all move in the SAME reviewed diff — FIVE frozen copies, not two, the fourth and fifth being real findings of this packet's authoring and its review round and recorded in design D9, together with three further pinned numerals the new schema moves (the five-schema filename list in `tests/clearing/test_schemas.py`, the six-row family count in `tests/clearing/test_clearing_manifest_rows.py`, and the per-file row digests); a NEW neutral `contracts/clearing/deliberation-return.schema.yaml` (Brett Heap's OQ1 ruling of 2026-09-04) of the ratified kind `xfactory_clearing_deliberation_return`, with a positive example and at least one negative fixture, registered in the validator's `SCHEMA_FILENAMES` and `KIND_TO_SCHEMA`, and the verdict scan extended to reach that kind; `contracts/clearing/dispatch-record.schema.yaml`'s CLOSED `refusal_ground` enumeration gains EXACTLY THREE members named in the ratified text — `lane_not_permitted`, `output_schema_failure`, `origin_scoped_credential` — the three of the record's nine awaited grounds that this entry's landing makes emittable, and no others; the two `deliberation`-named negative fixtures (`examples/negative/register-carrying-an-unratified-operation.yaml`, `examples/negative/manifest-naming-an-unregistered-operation.yaml`) RE-POINTED to another honest unratified operation name — `coding`, which `add-clearing-dispatch-boundary` design D11 names as the next real later operation — so the closure refusal keeps a live probe; `examples/dispatch-record-refused.example.yaml` and `tests/clearing/test_dispatch_record.py`'s refused-claim assertion follow the fixture re-point; `contracts/clearing/README.md`, `contracts/manifest.yaml`, `contracts/CHANGELOG.md`, and the repository README doc index. NO xFactory or codexFactory byte is this change's surface — those are dependent realizations named in the impact map.
 target_release: the NEXT ADDITIVE MINOR of the contract bundle, ALLOCATED AT REALIZATION BY MERGE ORDER AND DELIBERATELY NOT NUMBERED HERE. `docs/contract-versioning-policy.md`, verbatim: *"A proposed change MUST NOT reserve a minor number before merge order is known, and a bundle is not published until its tag exists."* The class is ADDITIVE (minor) — *"new optional fields, new contracts, new validator warnings; domain repos on the same major version remain conformant without changes"* — because a register gaining a member and a new schema arriving add shapes and remove none. The archive gate is `release-realization`'s merged-plus-green realization evidence, and it is ORDERED AFTER `add-clearing-dispatch-boundary` archives, this packet's addition resting on that packet's unarchived one.
-Status: draft
+Status: ratified
 Proposed: 2026-09-04
+Ratified: 2026-09-04 by Brett Heap (repository owner) — in-session at
+12:37Z, on the recorded word *"D10 A, D13 A, ratify #645"*, ratified head
+`22afb198`; record at
+`openspec/changes/admit-deliberation-clearing-operation/review/ratification-2026-09-04.md`.
 Origin: codexFactory PR #165 (`adopt-bundle-shaped-deliberation`, head `b9714e2183d2e26a0f8023e47e3d00d8afc4245a`) tasks.md 1.6 / design D13 — the DEPENDENCY task that names this change and states that "leg 3 has no legal home until this lands"; standing on Brett Heap's clearing-boundary ruling of 2026-09-01 (operator workspace `cpc-clearing-boundary-ruling-2026-09-01.md`; `opensoft/codexFactory` issue #156) which #165 encodes, and on his ruling of 2026-09-04 settling this packet's OQ1 ("Ruling OQ1: new neutral deliberation-return schema").
 ---
 
 # Proposal: admit-deliberation-clearing-operation
 
-Status: draft
+Status: ratified
 
 ## Standing: this is the change the ratified basis asks for by name
 
@@ -93,12 +97,15 @@ property of a dispatch attempt and owes no fixture; and the validator's only dut
 over the new members is the one it already performs, reading the enumeration out
 of the schema at run time. **NO FINDING CODE IS MINTED** (design D13).
 
-**TWO QUESTIONS ARE PUT FOR THE RATIFIER'S RULING**, each with both readings and
+**TWO QUESTIONS WERE PUT FOR THE RATIFIER'S RULING**, each with both readings and
 the cost of each, under a `THE QUESTION, PUT FOR RULING` heading in `design.md`:
 **D10** — does the basis's dormant-second-door scenario reach THIS admission, or
 only the act that declares the host job? — and **D13** — three refusal grounds
-now, or two? Everything else in the packet beyond the two dated rulings is
-flagged for veto in the ordinary way.
+now, or two? **BOTH WERE RULED A, the packet's reading, on 2026-09-04** by Brett
+Heap, verbatim *"D10 A, D13 A, ratify #645"*; nothing in the packet moved as a
+result, and the record is
+`review/ratification-2026-09-04.md`. Everything else in the packet beyond the
+two dated rulings was flagged for veto in the ordinary way and none was vetoed.
 
 ## What this proposal does NOT do
 

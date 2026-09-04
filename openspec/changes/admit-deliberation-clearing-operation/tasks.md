@@ -8,16 +8,21 @@ no `contracts/` byte moves before task 1.1 is done.
 
 ## Phase 1 — Governance (this pull request)
 
-- [ ] 1.1 **RATIFICATION by Brett Heap (repository owner).** The basis requires
-      "a spec delta and a reviewer" for an admission, so this is the task that
-      makes the entry lawful. Record the act at
-      `openspec/changes/admit-deliberation-clearing-operation/review/ratification-<YYYY-MM-DD>.md`
+- [x] 1.1 **RATIFICATION by Brett Heap (repository owner) — DONE 2026-09-04.**
+      The basis requires "a spec delta and a reviewer" for an admission, so this
+      is the task that makes the entry lawful. Ratified in-session at
+      2026-09-04T12:37Z, verbatim *"D10 A, D13 A, ratify #645"*, at head
+      `22afb198049652ab30afd74eee62ce3c308da930`, the word recorded on PR #645
+      (https://github.com/opensoft/openxFactory/pull/645#issuecomment-5540528358)
+      and naming lane `hermes-wallet-exercise` (Lane Collision Protocol Rule 2:
+      a ruling that names no lane, no PR and no head sha authorizes nothing).
+      The act is recorded at
+      `openspec/changes/admit-deliberation-clearing-operation/review/ratification-2026-09-04.md`
       — the record placement `add-clearing-dispatch-boundary` and
-      `add-cpc-clearing-boundary` both use — carrying the verbatim word, the
-      ratified head sha, and the lane the ruling targets (Lane Collision Protocol
-      Rule 2: a ruling that names no lane, no PR and no head sha authorizes
-      nothing). On ratification, `Status:` moves to `ratified` and the proposal
-      gains a `Ratified:` line naming the record.
+      `add-cpc-clearing-boundary` both use — `Status:` has moved to `ratified`,
+      and the proposal carries a `Ratified:` line naming the record. The same
+      word ruled D10 A and D13 A; nothing in the packet moved. **Merge is a
+      separate word and was not given.**
 - [x] 1.2 **Duplicate check across FOUR surfaces, recorded in `.openspec.yaml`'s
       origin reason.** Active changes, open pull requests, remote branches, and
       same-day merges to `main` — run 2026-09-04T04:40Z, re-run 05:05Z at

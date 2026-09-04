@@ -2,8 +2,9 @@
 
 Status: draft
 
-Every decision below beyond D1's two ruled inputs was the authoring session's
-and is flagged for the ratifier's veto.
+Every decision below beyond D1's ruled inputs was the authoring session's
+and is flagged for the ratifier's veto. D10 and D13 have since been RULED A
+(2026-09-04); see D1.
 
 ## D1. What is ruled, and what is not
 
@@ -22,11 +23,16 @@ targeting lane `hermes-wallet-exercise`'s claim
 (https://github.com/opensoft/codexFactory/pull/165#issuecomment-5535747335) on
 the `deliberation` register member. See D4.
 
-**NOT RULED:** everything else here — D2, D3, D5, D6, D7, D8, D9, D10, D11 and
-D13. Two of them are put as explicit questions with both readings and the cost of
-each, under a `THE QUESTION, PUT FOR RULING` heading: **D10** (does the basis's
-dormant-second-door scenario reach this admission?) and **D13** (three refusal
-grounds now, or two?).
+**RULED (c), 2026-09-04 — D10 and D13.** Verbatim: *"D10 A, D13 A, ratify
+#645"*. Both were put as explicit questions with both readings and the cost of
+each, under a `THE QUESTION, PUT FOR RULING` heading, and both were **RULED A**,
+the packet's reading: **D10** (the dormant-second-door scenario does not reach
+this admission; the retirement binds forward onto the act that declares the host
+job) and **D13** (exactly three record grounds are admitted). Nothing in the
+packet moved. Record: `review/ratification-2026-09-04.md`.
+
+**NOT RULED:** everything else here — D2, D3, D5, D6, D7, D8, D9 and D11. Each
+is flagged for veto in the ordinary way; none was vetoed at ratification.
 
 ## D2. ONE requirement, and it mirrors entry number one
 
@@ -331,6 +337,9 @@ enumeration member is the one this entry displaces.
 
 ### THE QUESTION, PUT FOR RULING
 
+**RULED A — 2026-09-04, Brett Heap, *"D10 A, D13 A, ratify #645"*; record
+`review/ratification-2026-09-04.md`.**
+
 **Does the basis scenario "A migration leaves the old route in place" reach THIS
 change?** *Reading A, which the packet takes:* it does not. The scenario refuses
 "adding a clearing operation for work an existing direct route still performs",
@@ -608,6 +617,9 @@ verdict scan reaches this operation at all, so the kind is ratified text:
 `xfactory_clearing_*` form.
 
 ### THE QUESTION, PUT FOR RULING
+
+**RULED A — 2026-09-04, Brett Heap, *"D10 A, D13 A, ratify #645"*; record
+`review/ratification-2026-09-04.md`.**
 
 **Three grounds now, or two?** The packet admits three. *Reading A, which the
 packet takes:* admit `lane_not_permitted`, `output_schema_failure` and

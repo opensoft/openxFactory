@@ -105,8 +105,9 @@ origin:
     on the `deliberation` register member. It settles this packet's OQ1 and is
     authorization to author this packet.
     THIS FIELD RECORDS AUTHORIZATION TO AUTHOR AND THE RULED INPUTS, NOT
-    RATIFICATION OF CONTENT, AND MUST NOT BE READ AS ONE. `Status: draft` stands
-    and Phase 1 task 1.1 is the ratification this packet awaits.
+    RATIFICATION OF CONTENT, AND MUST NOT BE READ AS ONE. Ratification is the
+    separate, later act recorded below and at
+    `review/ratification-2026-09-04.md`.
     EVERY DECISION BEYOND THOSE TWO ACTS WAS THE AUTHORING SESSION'S and is
     flagged for veto in `design.md`: D2 (one requirement, not a family), D3
     (artifact lane only), D5 (`worker_profile: council-deliberation-worker`), D6
@@ -118,10 +119,24 @@ origin:
     admitting the entry ahead of it), and D13 (the THREE refusal grounds and the
     return record kind, named in ratified text at review round 1 so realization
     cannot widen a closed enumeration on its own authority).
-    TWO OF THOSE ARE PUT AS EXPLICIT QUESTIONS rather than only flagged, each with
-    both readings and the cost of each, under a `THE QUESTION, PUT FOR RULING`
-    heading added at review round 2: D10 (does the basis's dormant-second-door
-    scenario reach this admission, or only the act that declares the host job?)
-    and D13 (three refusal grounds now, or two?). Review records:
-    `review/adversarial-round-1-2026-09-04.md`,
+    TWO OF THOSE WERE PUT AS EXPLICIT QUESTIONS rather than only flagged, each
+    with both readings and the cost of each, under a `THE QUESTION, PUT FOR
+    RULING` heading added at review round 2: D10 (does the basis's
+    dormant-second-door scenario reach this admission, or only the act that
+    declares the host job?) and D13 (three refusal grounds now, or two?). BOTH
+    WERE RULED A on 2026-09-04 — the packet's own reading in each case — so
+    NOTHING IN THE PACKET MOVED, and no other flagged decision was vetoed.
+    Review records: `review/adversarial-round-1-2026-09-04.md`,
     `review/adversarial-round-2-2026-09-04.md`.
+    THE PACKET IS NOW RATIFIED. Phase 1 task 1.1, RATIFICATION, is DONE: Brett
+    Heap ratified in-session 2026-09-04 at 12:37Z on the recorded word "D10 A,
+    D13 A, ratify #645" (ratified head
+    `22afb198049652ab30afd74eee62ce3c308da930`; the word recorded on
+    `opensoft/openxFactory` PR #645, comment `5540528358`, naming lane
+    `hermes-wallet-exercise`; record `review/ratification-2026-09-04.md`),
+    `Status: ratified` now stands, and NO register entry, schema, enumeration
+    member, fixture or manifest row is created by this change — those are the
+    realization named in `tasks.md` Phases 2-4, authorized but not performed
+    here. MERGE IS A SEPARATE WORD AND WAS NOT GIVEN. Its archive is ORDERED
+    AFTER `add-clearing-dispatch-boundary` archives AND after this packet's own
+    realization evidence is green.

@@ -483,7 +483,11 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [admit-deliberation-clearing-operation](openspec/changes/admit-deliberation-clearing-operation/proposal.md)
-  — authored 2026-09-04, `Status: draft`, **awaiting Brett's ratification word**.
+  — authored 2026-09-04, **`Status: ratified`** (2026-09-04, Brett Heap,
+  in-session at 12:37Z, on the recorded word *"D10 A, D13 A, ratify #645"*;
+  ratified head `22afb198`; record
+  `openspec/changes/admit-deliberation-clearing-operation/review/ratification-2026-09-04.md`).
+  **Not merged — merge is a separate word.**
   **THE GOVERNED CONTRACT CHANGE THE CLOSED REGISTER ASKS FOR BY NAME.**
   `add-clearing-dispatch-boundary`'s requirement *"The permitted-operations
   register is closed"* says admission "SHALL BE A GOVERNED CONTRACT CHANGE with a
@@ -543,12 +547,16 @@ Active changes:
   `add-clearing-dispatch-boundary`, on merged-plus-green realization evidence.
   Two adversarial review rounds are recorded in the packet
   (`review/adversarial-round-1-2026-09-04.md`, `-round-2-`), and **TWO QUESTIONS
-  ARE PUT FOR THE RATIFIER** with both readings and the cost of each, under a
+  WERE PUT FOR THE RATIFIER** with both readings and the cost of each, under a
   `THE QUESTION, PUT FOR RULING` heading in `design.md`: **D10** — does the
   basis's dormant-second-door scenario reach THIS admission, or only the act that
   declares the host job (refusing the packet's reading is coherent only if the two
   land as ONE act, #165 D13 making the alternative circular)? — and **D13** —
-  three refusal grounds now, or two? Lane `hermes-wallet-exercise`.
+  three refusal grounds now, or two? **BOTH WERE RULED A** on 2026-09-04, the
+  packet's reading in each case: the register entry with no host job is not a
+  second door and the retirement binds FORWARD onto the act that declares the
+  host job, and EXACTLY THREE record grounds are admitted. Nothing in the packet
+  moved. Lane `hermes-wallet-exercise`.
 - [add-consumer-identity-namespace](openspec/changes/add-consumer-identity-namespace/proposal.md)
   — authored 2026-09-03, **RATIFIED 2026-09-03 by Brett Heap, in session**
   (verbatim "implement your recommendations on all these", over written
