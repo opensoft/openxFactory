@@ -551,6 +551,22 @@ def test_verify_reports_a_seal_that_is_not_the_dispatch(corpus, tmp_path):
     assert any("recipe revision mismatch" in problem for problem in problems)
 
 
+def test_the_digest_check_is_not_suppressed_by_an_unrelated_problem(corpus, tmp_path):
+    """`verify_seal` reports ALL of what is wrong in one pass, so an unrelated
+    manifest problem must not swallow the whole-tree disagreement — the most
+    useful line in the list (Copilot round 2, PR #648)."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    manifest["kind"] = "something-else"
+    manifest["tree_digest"] = "0" * 64
+    (seal / lane.SEAL_MANIFEST_NAME).write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    problems = lane.verify_seal(seal, correlation_id="dashboard-refresh-9-9")
+    assert any("manifest kind is" in problem for problem in problems)
+    assert any("correlation id mismatch" in problem for problem in problems)
+    assert any("tree_digest mismatch" in problem for problem in problems)
+
+
 @pytest.mark.parametrize("text", ["", "not json", "[]", '{"kind": "other"}'])
 def test_verify_refuses_a_malformed_manifest(tmp_path, text):
     seal = tmp_path / "seal"

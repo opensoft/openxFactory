@@ -1283,7 +1283,14 @@ def verify_seal(seal_dir, *, correlation_id: str | None = None,
         recomputed[relpath] = actual
         if actual != files[relpath]:
             problems.append(f"sha256 mismatch: {relpath}")
-    if len(recomputed) == len(files) and not problems:
+    if len(recomputed) == len(files):
+        # Recomputed whenever every indexed path WAS hashed, and deliberately
+        # NOT suppressed by an unrelated problem above (a wrong `kind`, a
+        # correlation-id disagreement): this function's contract is to report
+        # all of what is wrong in one pass, and the whole-tree disagreement is
+        # the most useful line in the list. A per-file mismatch will also show
+        # up here, which is one cause reported twice — the right side of that
+        # trade for a diagnosis a human reads once.
         digest = tree_digest(recomputed)
         if digest != manifest.get("tree_digest"):
             problems.append(
