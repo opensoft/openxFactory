@@ -15,7 +15,7 @@ material_digest:
 anchored_digest:
   construction: xfc-jcs-sha256-1
   subject: anchored_commitment
-  value: sha256:f8d2108546998f4f5f2868049a617ab8ffc2c82e4a181772cb64a7a9b45d02b9
+  value: sha256:50b1bc62c49823a646e5ae29f48b17a1bace90eab092ce1ac6d25cc122c72abb
 mint_time_configuration:
   configured_witnesses:
   - witness_id: w-example-op-0002
@@ -25,12 +25,24 @@ mint_time_configuration:
     chain_accepted_time_rule:
       rule_id: rule-example-linear-mpt
       basis: linear_block_header_time_field
-      consensus_rule_citation: 'consensus rule: a block timestamp exceeds the median
-        of the previous eleven and sits within the declared band of network-adjusted
-        time; the worst legal case is declared here in both directions'
+      consensus_rule_citation: 'consensus rule: a block timestamp exceeds the median of the
+        previous eleven and sits within the declared band of network-adjusted time; the worst
+        legal case is declared here in both directions'
       skew_seconds: 7200
       tolerance_seconds: 600
       ordering_only: false
+    confirmation_profile:
+      chain_id: chain-example-operational
+      profile_id: cp-example-operational
+      version: 2
+      canonical_digest:
+        construction: xfc-jcs-sha256-1
+        subject: confirmation_profile_terms
+        value: sha256:90c3d4f763e5dc6691ba596f91ef00e8aeb7d21b611b9e3df6030f95dffc7207
+      activation:
+        log_sequence: 618
+        checkpoint_ref: cp-log-checkpoint-0618
+      standing: active
   - witness_id: w-example-ord-0002
     role: durability
     chain_id: chain-example-ordering-only
@@ -38,12 +50,24 @@ mint_time_configuration:
     chain_accepted_time_rule:
       rule_id: rule-example-ordering-only
       basis: ordering_and_inclusion_only
-      consensus_rule_citation: this chain's header carries no usable time field;
-        the honest rule is ordering and inclusion only, and this witness is not
-        eligible as a horizon base
+      consensus_rule_citation: this chain's header carries no usable time field; the honest
+        rule is ordering and inclusion only, and this witness is not eligible as a horizon
+        base
       skew_seconds: 0
       tolerance_seconds: 0
       ordering_only: true
+    confirmation_profile:
+      chain_id: chain-example-ordering-only
+      profile_id: cp-example-ordering-only
+      version: 1
+      canonical_digest:
+        construction: xfc-jcs-sha256-1
+        subject: confirmation_profile_terms
+        value: sha256:ecf00aa0455846defa6764b77e3835ebc3f86cc056538e9cedfea1ca8d0b37f9
+      activation:
+        log_sequence: 610
+        checkpoint_ref: cp-log-checkpoint-0610
+      standing: active
   submission_time: '2026-08-30T09:00:00Z'
   max_submission_to_first_anchor_delay_seconds: 3600
   checkpoint_cadence_seconds: 900
@@ -77,10 +101,26 @@ per_chain_anchors:
       - blockhash:fc80983ab6f64555f300d32a7529a8a8fdbef5d643b5874c8371ba56541485d1
       - blockhash:255025f76b0c83f67cf3d88f034b0e500a6bafe9466086f23425432660d00052
       - blockhash:a0cd0a8bdaaa418c6254b90cbb823b455caae679f864caf823194286ef657ee7
+  commitment_derivation:
+    source_aggregation_root:
+      construction: xfc-jcs-sha256-1
+      subject: anchored_commitment
+      value: sha256:07f90e1aad950ada8c5df74e107ff53eb170b08abc8aa23da8cf85640594fff1
+    path_present: true
+    proof_over: aggregation_root
+    path_ref: path-rcp-negative-0071-chain-example-ordering-only
+  confirmed_under_profile:
+    profile_id: cp-example-ordering-only
+    version: 1
+    canonical_digest:
+      construction: xfc-jcs-sha256-1
+      subject: confirmation_profile_terms
+      value: sha256:ecf00aa0455846defa6764b77e3835ebc3f86cc056538e9cedfea1ca8d0b37f9
+    as_of_token: confirmed_under_v1_at_cp-log-checkpoint-0610
 declared_header_source:
   source_id: hs-example-public-headers
   obtainable_independently: true
   supplied_by_minter: false
-  source_statement: a public header set any verifier can obtain for itself; the
-    trust root is the chain, never this realization
+  source_statement: a public header set any verifier can obtain for itself; the trust root
+    is the chain, never this realization
 record_version: 1

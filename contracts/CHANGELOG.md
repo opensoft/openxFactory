@@ -9,106 +9,130 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
-## contract-v3.4 — 2026-09-04 (additive; the chain-anchoring family's twelve schemas reach a bundle, and the openRepoShape consumption pin advances to `122d729b`)
+## contract-v3.4 — 2026-09-04 (additive; the chain-anchoring family reaches its first bundle WITH the ratified readiness-and-durability amendment already realized in it, `deliberation` becomes clearing register entry two, and the openRepoShape consumption pin advances to `122d729b`)
 
 Cut on the repository owner's word — Brett Heap, 2026-09-04, in session, lane
-repo-shape, verbatim: *"cut contract-v3.4"*. One candidate commit, per
+repo-shape, verbatim: *"cut contract-v3.4"* — and cut a second time, at a later
+tip, on the owner's RULING of 2026-09-04T14:50Z that HELD the first candidate
+until one named change had landed. **The whole release surface is derived in ONE
+act over ONE integration point**, per
 [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
-§ *Bundle Realization Order* step 2.
+§ *Bundle Realization Order* step 2, at the final integration point required by
+step 1 and RE-MEASURED there rather than re-asserted. The integration is a MERGE
+of `main` into the cutting branch rather than a rebase of the branch: opensoft
+org ruleset **8981805** forbids non-fast-forward updates on every branch, so a
+held candidate can only be advanced by integrating forward. The resulting tree is
+byte-identical to the rebase that ruleset refuses, and step 4 re-verifies at the
+landed commit in either case.
 
-**THE CUT WAS ORDERED FOR THE PIN AND MEASURED TO CARRY MORE, AND THE
+**THE CUT WAS ORDERED FOR THE PIN AND MEASURED TO CARRY FAR MORE, AND THE
 MEASUREMENT GOVERNS.** The bump that occasioned it is
 `contracts/openreposhape-pin.yaml`'s advance (PR **#650**, squash
 `48dc9b67c87377cdad31d2840666c7028a212cf7`, issue **#649**). But a bundle is a
 commit's whole tree, not a session's intention, and `contract-v3.3` peels to
 `16b85614` — a commit that PREDATES `add-chain-anchoring`'s realization
-(`11feff75`, PR **#629**) by twenty minutes. So the twelve `contracts/chain-anchoring/`
-schemas, their packaged corpus and the two signed-execution-chain widenings that
-came with them are inside this bundle whether or not the cutting session went
-looking for them, and this entry names them first for that reason. § *Version
-Identity* requires one entry per release *"listing every contract added, changed,
-or deprecated"*; an entry naming only the pin would have been a false record of
-what the tag points at.
+(`11feff75`, PR **#629**) by twenty minutes. So an entire neutral contract
+family, its amendment's realization and a second clearing register entry are
+inside this bundle whether or not the cutting session went looking for them, and
+this entry names them first for that reason. § *Version Identity* requires one
+entry per release *"listing every contract added, changed, or deprecated"*; an
+entry naming only the pin would have been a false record of what the tag points
+at.
 
-### READ THIS BEFORE THE TAG IS PUBLISHED: a ratified amendment says this cut is early
+### The ordering constraint the owner set, and how this bundle satisfies it
 
 `amend-chain-anchoring-readiness-and-durability` was **ratified 2026-09-04** by
 Brett Heap (repository owner) — requirements 2 and 3 as written, requirement 1
-withdrawn — and merged as PR **#548** (`471d3361`), five hours before this cut.
-Its `code_surface` states that ratification *"AUTHORIZES PROMOTION OF THE SPEC
-DELTA AND PERFORMS NO REALIZATION"*, and it names a follow-on realization pass as
-its successor with an explicit ordering constraint. **The owner queued that
-successor in the same breath as the ratification, verbatim:** *"Queued as the
-realization cost, ahead of the next contract cut … must land BEFORE those schemas
-ship in a tagged bundle, or the enum change becomes a breaking change on a
-published bundle."*
+withdrawn — and merged as PR **#548** (`471d3361`). The owner queued its
+realization in the same breath, verbatim:
 
-That pass has NOT landed. Measured on this tree, exactly as the amendment
-measured it: `grep -rniE "confirmation|profile" contracts/chain-anchoring/*.schema.yaml
-scripts/validate-chain-anchoring.py` returns **zero matches**, and
-`anchor-state.schema.yaml`'s `witness_status_row` still carries the closed
-three-member `status` enum `[in_flight, landed, terminally_failed]` — not
-requirement 3's submitted-versus-independently-confirmed distinction. The
-amendment's own § *Realization cost* calls the widening of that closed enum
-**breaking** *"as currently shipped"*, and its `tasks.md` § 2.4 makes the first
-act of the successor a check for exactly this situation: *"verify, immediately
-before touching any schema, that no bundle cut the family in between — and if one
-has, STOP and govern the compatibility and version class rather than discovering
-the break at a consumer."*
+> *"Queued as the realization cost, ahead of the next contract cut … must land
+> BEFORE those schemas ship in a tagged bundle, or the enum change becomes a
+> breaking change on a published bundle."*
 
-**THIS ENTRY DOES NOT RESOLVE THAT AND MUST NOT.** The cut is the owner's order
-and the cutting session takes it; the TAG is a separate act at a later step
-(§ *Bundle Realization Order* step 5), and the sentence quoted above bites at the
-tag. What the cutting session owes is that the collision be **recorded where the
-tagging session cannot miss it** rather than discovered afterwards by a consumer.
-Two facts bound it, and both are measured rather than assumed: the follow-on pass
-is now a change against a **published** bundle rather than an unpublished one,
-which is what the owner's sentence was protecting against; and nothing in THIS
-bundle is itself breaking — the class below is ADDITIVE on its own measurement,
-and the cost lands on the successor, not on any consumer pinned at
-`contract-v3.3`.
+**THAT REALIZATION HAS LANDED, AND IT LANDED FIRST.** PR **#657**
+(`e65dcc48`, lane `openxfactory-1d`) merged to `main` at 2026-09-04T18:25:33Z,
+realizing requirements 2 and 3 against the schemas `add-chain-anchoring` had
+landed. The first candidate for this cut (`422474eb`, 14:06Z) was HELD on the
+owner's ruling precisely so that this ordering would hold — *"this PR stays open
+and unmerged; `contract-v3.4` is cut only after
+`amend-chain-anchoring-readiness-and-durability`'s follow-on pass is on `main`,
+and then carries both"* — and this candidate is the re-cut at the tip that
+carries both.
+
+**So the sentence the owner was protecting against never comes due.** The
+per-witness `status` enumeration of `anchor-state.schema.yaml` is REPLACED in
+these bytes rather than widened later against them: `[in_flight, landed,
+terminally_failed]` becomes `[pending, submitted, confirmed, invalid,
+unevaluable, terminally_failed]`, because `in_flight` had one word for "no
+accepted submission evidence" and "submission accepted, the approved confirmation
+condition unmet", and one word for both is what lets interface acceptance read as
+progress toward confirmation. **Replacing a closed enumeration is free before
+publication and a compatibility break after it, and this is before.** Measured,
+not assumed: `git tag --contains 11feff75` is empty, and
+[`contract-v3.3.digests.yaml`](releases/contract-v3.3.digests.yaml) carries zero
+rows for any path under `contracts/chain-anchoring/`. **`contract-v3.4` is the
+FIRST tagged bundle to carry this family, and the shape it carries is the amended
+one.** No published bundle ever carried the retired spelling, so no consumer can
+have written a record against it, and the amendment's own `tasks.md` § 2.4
+stop-condition — *"verify … that no bundle cut the family in between"* — is
+answered in the affirmative direction: none did.
 
 ### Change class: ADDITIVE (minor)
 
-MEASURED, not claimed. `git diff --name-status contract-v3.3 HEAD -- contracts/`
-at this candidate commit reports **110 additions and 9 modifications**. Of the
-additions, 109 are the new family and ONE is this cut's own rebuilt inventory.
-Every path, with the pull request and lane that moved it:
+MEASURED at this candidate, not claimed. `git diff --name-status contract-v3.3
+HEAD -- contracts/` reports **187 additions and 15 modifications**. Every path,
+with the pull request and lane that moved it:
 
 | path(s) | moved by |
 |---|---|
-| 109 A — all of `contracts/chain-anchoring/` (12 schemas, a family README, 21 positive examples, 75 indexed negatives) | **#629** `11feff75`, lane `openxfactory-1d` — `add-chain-anchoring`'s realization |
+| 113 A — `contracts/chain-anchoring/` as first landed (12 schemas, the family README, 21 positive examples, 75 indexed negatives) | **#629** `11feff75`, lane `openxfactory-1d` — `add-chain-anchoring`'s realization |
 | M `contracts/signed-execution-chain/digest-construction.schema.yaml`, `transparency-log-leaf.schema.yaml`, `README.md` | **#629**, same commit |
-| M `contracts/manifest.yaml` | **#629** (twelve registration rows plus the two moved signed-execution-chain digests) AND **THIS CUT** (the `contract_bundle_version` line, and nothing else) |
-| M `contracts/CHANGELOG.md`, M `contracts/README.md`, A `contracts/releases/contract-v3.4.digests.yaml` | **THIS CUT** — this entry, the two chain-anchoring contract-index rows, and the rebuilt inventory |
+| 73 A + 66 M inside `contracts/chain-anchoring/` — SIX further schemas (`confirmation-profile`, `confirmation-profile-registry`, `daily-merkle-profile`, `durability-eligibility-registry`, `durability-batch-admission`, `durability-batch-manifest`), 15 new positives, 52 new negatives, and the amendment's edits to five of the original schemas plus the family README | **#657** `e65dcc48`, lane `openxfactory-1d` — `amend-chain-anchoring-readiness-and-durability` requirements 2 and 3, **the change this cut was held for** |
+| M `contracts/signed-execution-chain/digest-construction.schema.yaml`, `README.md` (again) | **#657**, same commit — six further digest subjects under the ONE construction |
+| 10 files under `contracts/clearing/` (A `deliberation-return.schema.yaml` + its example and two negative fixtures; M `permitted-operations.registry.yaml`, `dispatch-record.schema.yaml`, three re-pointed fixtures, the family README) | **#652** `0df522eb`, lane `hermes-wallet-exercise` — `admit-deliberation-clearing-operation`'s realization |
+| M `contracts/manifest.yaml` | **#629** (twelve registration rows plus two moved signed-execution-chain digests), **#652** (the `clearing-deliberation-return` row and a count fix), **#657** (six chain-anchoring rows), **#658** `2ba666ee`, lane `repo-shape` (a stale registration comment corrected), AND **THIS CUT** (the `contract_bundle_version` line, and nothing else) |
+| M `contracts/README.md` | **#652** (the clearing family's two contract-index rows rewritten for entry two) AND **THIS CUT** (the two chain-anchoring contract-index rows appended) |
+| M `contracts/CHANGELOG.md`, A `contracts/releases/contract-v3.4.digests.yaml` | **THIS CUT** — this entry and the rebuilt inventory |
 | M `contracts/openreposhape-pin.yaml` | **#650** `48dc9b67`, lane `repo-shape` |
-| M `contracts/review-lane-pin.yaml`, `contracts/review-lane-floor-snapshot.yaml` | **#647** `e4ff4fb3`, lane `openxfactory-1d` — the decision-core re-pin `8f770afb` → `79198ac4` that `add-subject-establishment`'s promotion forced (floor 63 → 64). **NOT this cut's**, named here so a reader intersecting the diff with this entry does not attribute them to either family above |
+| M `contracts/review-lane-pin.yaml`, `contracts/review-lane-floor-snapshot.yaml` | **#647** `e4ff4fb3`, **#654** `bc1bd4ee` and **#660** `dda5bd3a` — three archive-driven decision-core re-pins, net `8f770afb` → `6d35c4fe`, floor 63 → 66. **NOT this cut's**, named here so a reader intersecting the diff with this entry does not attribute them to any family above |
 
-Under [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
-§ *Change Classes*, *"Additive (minor) — new optional fields, new contracts, new
-validator warnings. Domain repos on the same major version remain conformant
-without changes."* Argued against that text, clause by clause:
+Under § *Change Classes*, *"Additive (minor) — new optional fields, new contracts,
+new validator warnings. Domain repos on the same major version remain conformant
+without changes."* Argued against that text, clause by clause, and **every edit to
+a schema that WAS published at `contract-v3.3` was checked for narrowing
+individually**:
 
-* **The twelve `chain-anchoring` schemas are NEW contracts.** Nothing existed at
-  `contract-v3.3` that they replace.
-* **Both edits to shipped schemas WIDEN enumerations and narrow nothing a
-  consumer could already have written.** `digest_subject` in
-  `digest-construction.schema.yaml` gains eleven subjects, on that file's own
-  written invitation that a later tranche add its subjects there rather than
-  declare a second construction. `transparency-log-leaf.schema.yaml`'s
-  `leaf_type` gains twelve members and the shape gains **ONE OPTIONAL member**,
-  `anchor_event`. The one movement in the refusing direction is that shape's
-  `anchor_event` complement — the conditional refusing an anchoring block on a
-  NON-anchoring leaf — widening to cover tranche two's seven kinds; **it can
-  refuse no record that was valid at `contract-v3.3`, because `anchor_event`
-  did not exist there**, so there is no leaf a v3.3-conformant producer could
-  have written that this bundle now rejects.
-* **No required field is added, no shape is removed, and no
-  `contract_schema_version` moves.** Every new schema and both edited ones stay
-  at `schema_version: 1`.
+* **The eighteen `chain-anchoring` schemas are NEW contracts.** Nothing existed at
+  `contract-v3.3` that they replace, and none of them appears in that bundle's
+  inventory or in its manifest rows.
+* **THE ONE REPLACEMENT IS INSIDE THE NEW FAMILY AND THEREFORE FREE.**
+  `anchor-state.schema.yaml`'s per-witness `status` enumeration is replaced, not
+  widened (section above). It narrows nothing published, because the schema
+  carrying it is published for the FIRST TIME here. Had this cut been taken before
+  #657 landed, the identical edit would have been breaking against a published
+  bundle — which is exactly why the owner's ruling held it.
+* **Every edit to a SHIPPED schema WIDENS.** `digest_subject` in
+  `digest-construction.schema.yaml` gains eleven subjects from #629 and six more
+  from #657 — seventeen in total, on that file's own written invitation that a
+  later tranche add its subjects there rather than declare a second construction.
+  `transparency-log-leaf.schema.yaml`'s `leaf_type` gains twelve members and the
+  shape gains **ONE OPTIONAL member**, `anchor_event`. `dispatch-record.schema.yaml`'s
+  closed `refusal_ground` enumeration goes from two members to five
+  (`lane_not_permitted`, `output_schema_failure`, `origin_scoped_credential`), and
+  `permitted-operations.registry.yaml` gains a second member with
+  `registry_version` advancing 1 → 2. **No enumeration published at
+  `contract-v3.3` lost a member, no required field was added to a published
+  schema, no shape was removed, and no `contract_schema_version` moved.**
+* **The one movement in the refusing direction refuses nothing that was ever
+  valid.** `transparency-log-leaf.schema.yaml`'s `anchor_event` complement — the
+  conditional refusing an anchoring block on a NON-anchoring leaf — widens to
+  cover tranche two's seven kinds; **it can refuse no record that was valid at
+  `contract-v3.3`, because `anchor_event` did not exist there**.
 * **No role or vocabulary semantics change.** The anchoring kinds are settled
-  inside tranche one's ratified leaf grammar precisely so that no second
-  vocabulary is minted.
+  inside tranche one's ratified leaf grammar, and the six new digest subjects are
+  taken under the ONE construction, precisely so that no second vocabulary is
+  minted.
 
 **AND A CONSUMPTION PIN ADVANCED — a movement § *Change Classes* does not name.**
 Said plainly rather than argued into a class it does not mention: the three
@@ -124,10 +148,10 @@ the minor.
 
 **MEASURED against `contract-v3.3`'s own inventory**, whose 283 entries were
 searched for each moved path: `contracts/chain-anchoring/*` (zero hits),
-`contracts/openreposhape-pin.yaml`, `contracts/review-lane-pin.yaml`,
-`contracts/review-lane-floor-snapshot.yaml` and all three
-`contracts/signed-execution-chain/` paths are **not release-inventory members**.
-Membership is closed over the surface
+`contracts/clearing/*` (zero hits), `contracts/openreposhape-pin.yaml`,
+`contracts/review-lane-pin.yaml`, `contracts/review-lane-floor-snapshot.yaml` and
+all three `contracts/signed-execution-chain/` paths are **not release-inventory
+members**. Membership is closed over the surface
 [`scripts/hermes_runtime_validation/release.py`](../scripts/hermes_runtime_validation/release.py)
 enumerates — the `contracts/hermes-runtime/` family and its indexed fixtures, the
 intent-compliance contracts, implementation, tests and validator, the four
@@ -137,13 +161,17 @@ changelog and README) and the three `NORMATIVE_DOCS` — and a new neutral famil
 belongs to none of them, exactly as `clearing/` did not at `contract-v3.3` and
 `signed-execution-chain/` did not at `contract-v2.5`. Their identity travels by
 manifest-row `sha256`, verified by `scripts/validate-manifest-digests.py`:
-**169 rows at `contract-v3.3`, 181 here**, the twelve added.
+**169 rows at `contract-v3.3`, 188 here** — twelve from #629, six from #657, one
+from #652.
 
 So [`contract-v3.4.digests.yaml`](releases/contract-v3.4.digests.yaml) carries the
 same **283 members** and re-baselines four of them, all editorial:
 [`manifest.yaml`](manifest.yaml), [`CHANGELOG.md`](CHANGELOG.md),
 [`README.md`](README.md) and
-`tests/intent-compliance/test_release_boundary.py`.
+`tests/intent-compliance/test_release_boundary.py`. Two of those four had already
+moved on `main` before this cut touched them — `README.md` by #652 and
+`manifest.yaml` by four separate pull requests — which is the whole content of the
+red measured at the pre-cut tip below.
 
 **The pin is verified by its own gate, not by this inventory.**
 `openreposhape-pin-gate` checks out `opensoft/openRepoShape` at the commit read
@@ -153,24 +181,24 @@ out of the pin file and re-verifies every digest against the real bytes — run
 
 ### The pre-cut measurement, recorded verbatim
 
-`python3 scripts/validate-contract-release.py verify-commit --commit HEAD` at
-`48dc9b67`, before any edit of this cut, reported exactly one finding and exited
-1. **Re-run at `b4216821`** — the final integration point this cut then rebased
-onto per § *Bundle Realization Order* step 1, `main` having advanced by one
-commit (#651) that touches only `.github/workflows/doc-health-reusable.yml` and
-no member of any kind — it reports the SAME one finding, verbatim:
+`python3 scripts/validate-contract-release.py verify-commit --commit origin/main`
+at `a858e5b0` — the final integration point this candidate is built over, and
+the tip AFTER #657, #652, #658 and the three archive re-pins had all landed —
+reports exactly two findings and no others:
 
 ```text
+HGR-RELEASE-DIGEST-MISMATCH error path=contracts/README.md: digest does not match the raw Git blob at the pinned commit
 HGR-RELEASE-DIGEST-MISMATCH error path=contracts/manifest.yaml: digest does not match the raw Git blob at the pinned commit
 ```
 
 That is the bounded, expected state § *Release Digest Inventory* → *What a red
-`verify-commit` at HEAD means* describes: a red confined to the editorial members
+`verify-commit` at HEAD means* describes: a red confined to the EDITORIAL members
 between cuts is **NOT a defect**, and *"THE REMEDY IS A RELEASE CUT, NEVER A
-HAND-EDIT."* One member and no other moved, which is the whole content of the
-claim above that nothing outside the editorial set is a registered row. No digest
-in any file under [`releases/`](releases/) was edited by hand; this cut's
-inventory is BUILT by
+HAND-EDIT."* Two members and no other moved, which is the whole content of the
+claim above that nothing outside the editorial set is a registered row — an entire
+contract family, its amendment and a clearing register entry landed between the
+two cuts and moved no inventory member at all. No digest in any file under
+[`releases/`](releases/) was edited by hand; this cut's inventory is BUILT by
 [`scripts/validate-contract-release.py`](../scripts/validate-contract-release.py)
 `build`, last, after every other edit was final.
 
@@ -188,10 +216,13 @@ reused. This bundle supersedes nothing and declares nothing spent.
 the signed execution chain, realizing the RATIFIED `add-chain-anchoring` (ratified
 2026-08-30 by Brett Heap, repository owner, record
 [`openspec/changes/add-chain-anchoring/review/ratification-2026-08-30.md`](../openspec/changes/add-chain-anchoring/review/ratification-2026-08-30.md),
-realized by PR #629). Twelve schemas carry per-file `sha256` in
-[`manifest.yaml`](manifest.yaml); the family README, the packaged corpus, the
-canonical reader `scripts/validate-chain-anchoring.py` and its pytest wiring are
-content-addressed BY COMMIT, on tranche one's and tranche two's precedent.
+realized by PR #629) **AS AMENDED by the RATIFIED
+`amend-chain-anchoring-readiness-and-durability` requirements 2 and 3** (ratified
+2026-09-04, PR #548, realized by PR #657). **Eighteen schemas** carry a per-file
+`sha256` in [`manifest.yaml`](manifest.yaml); the family README, the packaged
+corpus, the canonical reader `scripts/validate-chain-anchoring.py` and its pytest
+wiring are content-addressed BY COMMIT, on tranche one's and tranche two's
+precedent.
 
 - **`anchoring-definitions.schema.yaml`** — the shared vocabulary declaring NO
   record kind: two witness roles, three plane names, the custody reference, the
@@ -200,9 +231,29 @@ content-addressed BY COMMIT, on tranche one's and tranche two's precedent.
 - **`anchor-receipt.schema.yaml`** — the chain-agnostic MULTI-ANCHOR receipt, with
   the format defined first and the targets in a list inside it, so adding or
   dropping a chain moves nothing else. It carries no state member.
-- **`anchor-state.schema.yaml`** — per-witness state, three disjoint states and
-  two explicit transitions out of pending. A missing witness is a declared,
-  fail-closed state; the aggregate `anchored` boolean is refused by name.
+- **`anchor-state.schema.yaml`** — per-witness state. **SUBMITTED IS NOT
+  CONFIRMED**: `pending` and `submitted` split what one word used to cover,
+  `confirmed` is bound to a NAMED PROFILE's objective condition rather than to a
+  word, `invalid` and `unevaluable` are reportable because the amendment's refusal
+  scenario obliges a verifier to report them, and `terminally_failed` is
+  unchanged. A missing witness is a declared, fail-closed state; the aggregate
+  `anchored` boolean is refused by name.
+- **`confirmation-profile.schema.yaml`** and
+  **`confirmation-profile-registry.schema.yaml`** — an operator-approved
+  confirmation condition, and the APPEND-ONLY registry that binds each version's
+  terms to a canonical digest, so a `confirmed` label always names the rule it was
+  confirmed under and a profile cannot be silently substituted beneath a receipt
+  already minted.
+- **`daily-merkle-profile.schema.yaml`**,
+  **`durability-eligibility-registry.schema.yaml`**,
+  **`durability-batch-admission.schema.yaml`** and
+  **`durability-batch-manifest.schema.yaml`** — the FIXED-UTC durability batch:
+  an immutable released Merkle construction (leaf encoding, algorithm, two domain
+  separators, ordering, tree shape, odd-node handling, deterministic empty root)
+  bound by digest to every admission and manifest; an append-only eligibility
+  register; atomic per-window admission that cannot select by event; and a
+  day-linked manifest whose continuity link is over the previous item's anchored
+  digest, so two consecutive empty windows cannot be confused for one.
 - **`verification-result.schema.yaml`** — one verification's answer with its
   MANDATORY verification mode, so the answer says what knowledge stands behind it.
 - **`anchor-bound-commitment.schema.yaml`** — the only value this capability puts
@@ -223,17 +274,37 @@ content-addressed BY COMMIT, on tranche one's and tranche two's precedent.
 - **`conformance-declaration.schema.yaml`** — where a realization says what it has
   NOT done, over `CA-R1 … CA-R9`, on `add-trust-anchor`'s ratified
   declared-shortfall pattern.
-- **The packaged corpus and its canonical reader** — 21 positive examples and 75
+- **The packaged corpus and its canonical reader** — 41 positive examples and 127
   intended-invalid negatives, each declaring its own expected refusal, read by
-  `scripts/validate-chain-anchoring.py`. Measured at this tree: *"21 packaged
-  record(s) validated as ONE coherent corpus, 75 negative fixture(s) confirmed
-  invalid for their intended reason, 70/70 closed refusal codes red-proven"*,
+  `scripts/validate-chain-anchoring.py`. Measured at this tree: *"41 packaged
+  record(s) validated as ONE coherent corpus, 127 negative fixture(s) confirmed
+  invalid for their intended reason, 118/118 closed refusal codes red-proven"*,
   exit 0, with two standing warnings that are DECLARED shortfalls rather than
   defects — `reader-not-required` and `archival-node-undeclared`.
 - **The tranche-three widenings of tranche one's grammar**, described under the
-  class above: `digest_subject` by eleven subjects, `leaf_type` by twelve members
-  and one optional `anchor_event` block. **No second grammar and no second digest
-  construction** — `add-chain-anchoring` `tasks.md` 5.3's own rule.
+  class above: `digest_subject` by seventeen subjects across two commits,
+  `leaf_type` by twelve members and one optional `anchor_event` block. **No second
+  grammar and no second digest construction** — `add-chain-anchoring` `tasks.md`
+  5.3's own rule, kept by the amendment's realization as well as by the basis.
+
+**`deliberation` becomes clearing register ENTRY NUMBER TWO** — the realization of
+the RATIFIED `admit-deliberation-clearing-operation` (ratified 2026-09-04 by
+Brett Heap, proposal merged `3cf917b7` as PR #645, realized by PR **#652**,
+`0df522eb`, lane `hermes-wallet-exercise`). A bundle-carrying, EVIDENCE-ONLY
+operation on the ARTIFACT LANE ONLY, with `checks_out_code`, `writes`,
+`may_reference_secrets` and `repository_affecting_output` all false, `token_scopes`
+exactly `[actions:read]`, and NO key of any kind, because the return is signed ON
+RETURN by the originating repository. It brings the neutral
+[`deliberation-return.schema.yaml`](clearing/deliberation-return.schema.yaml)
+(kind `xfactory_clearing_deliberation_return`) as the family's SEVENTH registered
+row, carries `dispatch-record.schema.yaml`'s closed `refusal_ground` enumeration
+from two members to five, and advances the register instance's `registry_version`
+1 → 2 in the same act, because a governed change to a closed set that left the
+version alone would make two different registers indistinguishable by their own
+declaration. **Those rows reserved no bundle number** — they were registered at
+realization and left the minor to this cutting session, which is § *Version
+Identity*'s rule; lane `hermes-wallet-exercise` said so in its row-4 notice on
+issue #630 and asked only that this entry name the change, which it does here.
 
 **The `openRepoShape` consumption pin advances**
 `deacbdcce4f52af427bcb4edd075fcc992e3dabe` → `122d729bc0c2f2e0ded0bb61b6b97f49512f613e`
@@ -254,10 +325,8 @@ pin header's own rule rather than by the release it arrived in, and **no member
 declared at `deacbdcc` changed list**. `deacbdcc` stays the commit
 `add-project-repo-schema` was RATIFIED against — a historical fact that does not
 move with the pin, and
-[`docs/project-repo-schema.md`](../docs/project-repo-schema.md) now carries a
-dated amendment note saying exactly that: the doctrine's present-tense sentence
-was corrected, the pin file rather than the prose is where the commit in force is
-read, and **nothing in the doctrine moves with the bump**.
+[`docs/project-repo-schema.md`](../docs/project-repo-schema.md) carries a dated
+amendment note saying exactly that.
 
 **The editorial re-baseline** — [`manifest.yaml`](manifest.yaml),
 [`README.md`](README.md), this file, and
@@ -272,21 +341,22 @@ the repository holding these records, everything registered here confers and
 refuses exactly nothing — tranche one's own distinction, which took it from
 realization on 2026-08-29 to a required check on 2026-08-31 (opensoft org ruleset
 **21957695**). Making a check required is an operator act on a ruleset and no
-cut performs it.
+cut performs it. The same is true of `clearing-dispatch-gate`, which REPORTS
+rather than GATES until an operator makes it required.
 
 **NOTHING IS ANCHORED BY THIS BUNDLE.** No witness is configured, no receipt is
-captured, nothing is placed on any chain, and this repository operates no
-anchoring subsystem. What ships is the EVENT-RECORDING grammar for those acts.
+captured, no confirmation profile is approved, no durability window is opened,
+nothing is placed on any chain, and this repository operates no anchoring
+subsystem. What ships is the EVENT-RECORDING grammar for those acts.
 `add-chain-anchoring`'s operator conditions — its tasks 4.9 and 4.10, and its § 5
 settlements — are UNGATED AND UNTICKED, `SEC-R6` stays declared and open until an
-anchor actually lands, and the change does not archive with this cut.
+anchor actually lands, and neither `add-chain-anchoring` nor its amendment
+archives with this cut.
 
-**THE AMENDMENT'S REQUIREMENTS 2 AND 3 ARE NOT IN THESE BYTES.** Restated here
-under this heading because it is the fact a reader of a published bundle will
-need: the fixed-UTC durability batch machinery and the
-submitted-versus-confirmed witness distinction are RATIFIED and UNREALIZED, and
-the schemas this bundle publishes predate both. See the section at the head of
-this entry.
+**ADMITTING `deliberation` AUTHORIZES NO HOST JOB.** The register entry is the
+shape and the permission grammar; the act that declares a host job must, in the
+same act, retire the grandfathered `council-deliberation-worker.yml` route, and
+that act is `opensoft/xFactory`'s, not this bundle's.
 
 ### A guard repaired by this cut, because this cut is where it could first fire
 
@@ -298,41 +368,44 @@ The clearing rows' `Registered at contract-v3.3` is HISTORY — the bundle whose
 bytes first carried that family, which never moves — while
 `contract_bundle_version` names what the repository declares TODAY and advances
 at every cut. The two were the same number for exactly one release and the test
-pinned them to each other, so it reds the REQUIRED `pytest-suite` here, over a
-family this cut does not touch at all.
+pinned them to each other, so it reds the REQUIRED `pytest-suite` here.
 
 **Repaired rather than re-pinned**, because re-pinning it to `contract-v3.4`
 would only move the failure to `contract-v3.5`. The guard's stated purpose — *"a
 cut that moved one and not the other would publish rows claiming a release the
 bundle does not declare"* — survives whole: the test now reads the registering
-release OUT OF the rows, requires all six to name ONE release, requires an
-inventory beside both that release and the declared bundle, and requires the
-declared bundle never to be BEHIND the release the rows advertise. Renamed to
+release OUT OF the rows, requires them to name ONE release, requires an inventory
+beside both that release and the declared bundle, and requires the declared bundle
+never to be BEHIND the release the rows advertise. Renamed to
 `test_the_declared_bundle_has_an_inventory_and_is_not_behind_the_rows` to say
-what it checks. Measured: `pytest tests/clearing/test_clearing_manifest_rows.py`
-— **16 passed**. The file is not a release-inventory member (measured: no
-`tests/clearing/` path appears in either inventory), so this repair moves no
-digest of its own.
+what it checks. **It composes with #652's own edit to the same file** — that PR
+added a per-row `REGISTRATION` map so `clearing-deliberation-return`, registered
+at realization rather than at a cut, names its CHANGE instead of a bundle
+number — and both intents survive together: the row registered at realization
+names no release, so the "one registering release" set stays a singleton, and the
+per-row provenance check is untouched. The file is not a release-inventory member
+(measured: no `tests/clearing/` path appears in either inventory), so this repair
+moves no digest of its own.
 
-### The bundle number, FRESH-COUNTED at the cut
+### The bundle number, FRESH-COUNTED at the re-cut
 
-Measured at this branch's tip rather than trusted:
+Measured at the rebased tip rather than trusted:
 
 - [`manifest.yaml`](manifest.yaml) declared `contract_bundle_version:
   contract-v3.3` before this edit.
 - [`releases/`](releases/) held inventories through
   [`contract-v3.3.digests.yaml`](releases/contract-v3.3.digests.yaml).
 - `git ls-remote --tags origin` publishes annotated tags through
-  `contract-v3.3`; `contract-v3.4` is free.
-- No open pull request cuts a bundle (`gh pr list --state open`, six open, none a
-  cut).
+  `contract-v3.3`; `contract-v3.4` is free, and `verify-promotion` reports no
+  `HGR-RELEASE-TAG-EXISTS` and no version-not-next finding.
 - There is no `Unreleased` block pending in this file.
 
 `contract-v3.4` is taken here. No proposal reserved it: `add-chain-anchoring`'s
-`tasks.md` 4.11 and the twelve manifest rows it wrote both say in terms that **no
-bundle number is taken or reserved by that registration**, which is § *Version
-Identity*'s rule that a proposed change MUST NOT reserve a minor before merge
-order is known.
+`tasks.md` 4.11, the eighteen chain-anchoring manifest rows and
+`admit-deliberation-clearing-operation`'s seventh clearing row all say in terms
+that **no bundle number is taken or reserved by that registration**, which is
+§ *Version Identity*'s rule that a proposed change MUST NOT reserve a minor
+before merge order is known.
 
 ### Also carried into this cut: `add-chain-anchoring`'s cut half (task 4.12)
 
@@ -354,15 +427,18 @@ claimed here.
   `xfactory.contract_ref` to this bundle's published commit, recording the tag,
   and re-running the per-file digest checks under § *Domain Upgrade Runbook*.
   **There is no shape work.** Nothing this bundle carries refuses anything
-  `contract-v3.3` accepted; both edited schemas only widen; and the twelve new
-  schemas describe records no existing consumer writes.
-* **A consumer intending to WRITE `chain-anchoring` records should read the
-  amendment first.** `anchor-state.schema.yaml`'s per-witness `status` enum is
-  closed at `[in_flight, landed, terminally_failed]` in this bundle, and
-  `amend-chain-anchoring-readiness-and-durability` — ratified, unrealized — will
-  split `landed` into a submitted/confirmed pair. That successor's own § names
-  the change **breaking** against these shipped bytes, so a `landed` value
-  written against this bundle is a value that will need re-evaluating.
+  `contract-v3.3` accepted; every edit to a published schema only widens; and the
+  eighteen new chain-anchoring schemas plus the new clearing return shape describe
+  records no existing consumer writes.
+* **A consumer intending to WRITE `chain-anchoring` records reads THIS bundle and
+  no earlier draft of the family.** The per-witness `status` vocabulary published
+  here is `[pending, submitted, confirmed, invalid, unevaluable,
+  terminally_failed]`; `in_flight` and `landed` were never published in any tagged
+  bundle and must not be written. A `confirmed` row without the named profile and
+  the condition it satisfied is refused.
+* **A clearing producer may now emit three further refusal grounds**
+  (`lane_not_permitted`, `output_schema_failure`, `origin_scoped_credential`) and
+  a `deliberation` operation id. Nothing already emitted becomes invalid.
 * **The `openRepoShape` pin is not a consumer-facing surface.** A domain repo
   neither reads nor pins `contracts/openreposhape-pin.yaml`, and no upgrade work
   follows from its advance.

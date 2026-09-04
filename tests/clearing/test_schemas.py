@@ -1,4 +1,4 @@
-"""The five family schemas, and the packaged positive corpus they admit.
+"""The six family schemas, and the packaged positive corpus they admit.
 
 Layer one of the family's proof: every schema is meta-valid and self-identifying,
 and every positive example validates against the schema its own `kind` names. A
@@ -20,15 +20,23 @@ SCHEMAS = sorted(FAMILY_DIR.glob("*.schema.yaml"))
 POSITIVES = sorted(EXAMPLES.glob("*.example.yaml"))
 
 
-def test_the_family_ships_five_schemas() -> None:
+def test_the_family_ships_six_schemas() -> None:
     """Pinned as a NUMBER, not as a glob's length.
 
-    The ratified `code_surface` names five neutral record shapes. A sixth
-    arriving without a change to this line is a shape nobody ratified; a fifth
-    disappearing is a shape somebody deleted. Both should be a red test rather
-    than a silently different family.
+    `add-clearing-dispatch-boundary`'s `code_surface` named five neutral record
+    shapes and this line said so. Its own docstring said what a sixth would mean:
+    "a sixth arriving without a change to this line is a shape nobody ratified".
+    `admit-deliberation-clearing-operation` (ratified 2026-09-04 by Brett Heap,
+    PR #645, merged `3cf917b7`) IS that ratification, and
+    `deliberation-return.schema.yaml` is the sixth — the neutral return shape
+    register entry number two declares, ruled a NEW NEUTRAL SCHEMA by OQ1 rather
+    than borrowed from a producing repository.
+
+    A SEVENTH arriving without a change to this line is still a shape nobody
+    ratified, and a sixth disappearing is still a shape somebody deleted.
     """
     assert [p.name for p in SCHEMAS] == [
+        "deliberation-return.schema.yaml",
         "dispatch-record.schema.yaml",
         "operation-report.schema.yaml",
         "permitted-operations.schema.yaml",
@@ -91,6 +99,7 @@ def test_the_corpus_covers_every_shipped_kind() -> None:
     assert kinds == {
         "xfactory_sealed_bundle_manifest",
         "xfactory_clearing_operation_report",
+        "xfactory_clearing_deliberation_return",
         "xfactory_clearing_dispatch_record",
         "xfactory_clearing_single_door_attestation",
     }

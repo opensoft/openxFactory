@@ -25,12 +25,24 @@ mint_time_configuration:
     chain_accepted_time_rule:
       rule_id: rule-example-linear-mpt
       basis: linear_block_header_time_field
-      consensus_rule_citation: 'consensus rule: a block timestamp exceeds the median
-        of the previous eleven and sits within the declared band of network-adjusted
-        time; the worst legal case is declared here in both directions'
+      consensus_rule_citation: 'consensus rule: a block timestamp exceeds the median of the
+        previous eleven and sits within the declared band of network-adjusted time; the worst
+        legal case is declared here in both directions'
       skew_seconds: 7200
       tolerance_seconds: 600
       ordering_only: false
+    confirmation_profile:
+      chain_id: chain-example-operational
+      profile_id: cp-example-operational
+      version: 2
+      canonical_digest:
+        construction: xfc-jcs-sha256-1
+        subject: confirmation_profile_terms
+        value: sha256:90c3d4f763e5dc6691ba596f91ef00e8aeb7d21b611b9e3df6030f95dffc7207
+      activation:
+        log_sequence: 618
+        checkpoint_ref: cp-log-checkpoint-0618
+      standing: active
   submission_time: '2026-08-30T10:00:00Z'
   max_submission_to_first_anchor_delay_seconds: 3600
   checkpoint_cadence_seconds: 900
@@ -64,6 +76,22 @@ per_chain_anchors:
       - blockhash:4c591d97a9f3d1f7dcadf783ce5c51995273660247c4ed6abdff3b24292b2ada
       - blockhash:b3e7cd6679d7db010eb0e172dc3ce4357e0b36f80c5d30fec5123e8ec45c3894
       - blockhash:ccec2236160570ce81647b443a4beb141ce9d14278c759f0b47fe64dfde47234
+  commitment_derivation:
+    source_aggregation_root:
+      construction: xfc-jcs-sha256-1
+      subject: anchored_commitment
+      value: sha256:59299e86110d7b86c6b5c434561703ac0990b23351cdc1e6f16f8b7a63ac125c
+    path_present: true
+    proof_over: aggregation_root
+    path_ref: path-rcp-negative-0009-chain-example-operational
+  confirmed_under_profile:
+    profile_id: cp-example-operational
+    version: 2
+    canonical_digest:
+      construction: xfc-jcs-sha256-1
+      subject: confirmation_profile_terms
+      value: sha256:90c3d4f763e5dc6691ba596f91ef00e8aeb7d21b611b9e3df6030f95dffc7207
+    as_of_token: confirmed_under_v2_at_cp-log-checkpoint-0618
 - chain_id: chain-example-durability
   witness_id: w-example-dur-0001
   anchor_transaction_bytes: WTCRBFX7PXuXVlx9WrfJgXztsb-8YxX_QRVawfybw1qZHPVtgdIjRGNPC_DJq-CSjM-l5UypPHSLfp037Hz8tdufyNO8tWkD9cLbDkM7cuj7DA-sMMKYVYMlmMs2pS1JIdrxssoESiDHFNUemRcacrXyAnqCCdWr
@@ -84,10 +112,26 @@ per_chain_anchors:
       acceptance_path:
       - dagblock:68dca30e529cbcf96619022fc07a48c3df55598fa1b46a770e2a20ae0a8a4e22
       - dagblock:321365f0afd6956efd5ff34f4523bc4a7e2a32b152ca07fd3acd515111c3247e
+  commitment_derivation:
+    source_aggregation_root:
+      construction: xfc-jcs-sha256-1
+      subject: anchored_commitment
+      value: sha256:59299e86110d7b86c6b5c434561703ac0990b23351cdc1e6f16f8b7a63ac125c
+    path_present: true
+    proof_over: aggregation_root
+    path_ref: path-rcp-negative-0009-chain-example-durability
+  confirmed_under_profile:
+    profile_id: cp-example-durability
+    version: 1
+    canonical_digest:
+      construction: xfc-jcs-sha256-1
+      subject: confirmation_profile_terms
+      value: sha256:0cbf3cf8b7484f38415d55c5ac3d9b142f59a543d2d94b9ad24cfc144ea94469
+    as_of_token: confirmed_under_v1_at_cp-log-checkpoint-0610
 declared_header_source:
   source_id: hs-example-public-headers
   obtainable_independently: true
   supplied_by_minter: false
-  source_statement: a public header set any verifier can obtain for itself; the
-    trust root is the chain, never this realization
+  source_statement: a public header set any verifier can obtain for itself; the trust root
+    is the chain, never this realization
 record_version: 1

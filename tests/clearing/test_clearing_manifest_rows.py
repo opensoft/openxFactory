@@ -38,11 +38,61 @@ EXPECTED_ROWS = {
         "contracts/clearing/permitted-operations.registry.yaml",
     "clearing-operation-report":
         "contracts/clearing/operation-report.schema.yaml",
+    "clearing-deliberation-return":
+        "contracts/clearing/deliberation-return.schema.yaml",
     "clearing-dispatch-record":
         "contracts/clearing/dispatch-record.schema.yaml",
     "clearing-single-door-attestation":
         "contracts/clearing/single-door-attestation.schema.yaml",
 }
+
+
+#: WHAT EACH ROW MUST RECORD ABOUT ITS OWN PROVENANCE, per row rather than per
+#: family — which is what the assertion was always about: "each row records the
+#: release that registered it, so a consumer reading one row knows which bundle
+#: to pin". Six rows were registered AT the `contract-v3.3` cut and say so. The
+#: seventh was registered AT REALIZATION, ahead of any cut, and says WHICH
+#: GOVERNED CHANGE registered it instead — the form `add-chain-attestation` and
+#: `add-chain-anchoring` already use in this manifest, and the form
+#: `docs/contract-versioning-policy.md` requires of a change that must not
+#: reserve a minor before merge order is known.
+#:
+#: A ROW CLAIMING A BUNDLE IT WAS NOT CUT IN IS THE DEFECT THIS GUARDS, in both
+#: directions: a realization row that named a number would reserve one, and a cut
+#: row that named none would leave a consumer nothing to pin.
+REGISTRATION = {
+    "clearing-sealed-bundle-manifest": "contract-v3.3",
+    "clearing-permitted-operations-registry-schema": "contract-v3.3",
+    "clearing-permitted-operations-registry": "contract-v3.3",
+    "clearing-operation-report": "contract-v3.3",
+    "clearing-dispatch-record": "contract-v3.3",
+    "clearing-single-door-attestation": "contract-v3.3",
+    "clearing-deliberation-return": "admit-deliberation-clearing-operation",
+}
+
+
+def test_every_expected_row_declares_its_provenance_form() -> None:
+    """The two maps are one set, so a row added to one and not the other is red
+    rather than silently unchecked."""
+    assert set(REGISTRATION) == set(EXPECTED_ROWS)
+
+
+def test_the_realization_row_reserves_no_bundle_number() -> None:
+    """A change MUST NOT reserve a minor before merge order is known.
+
+    `contract-v3.4` was claimed by another lane on the repository owner's word
+    before this row existed, and Lane Collision Protocol Amendment 1 rule 7
+    serializes contract-cut claims FIFO. So this row names its CHANGE and leaves
+    the number to the cutting session — and this test is what stops a later
+    session writing one in without cutting.
+    """
+    doc = yaml.safe_load(MANIFEST.read_text(encoding="utf-8"))
+    row = next(r for r in doc["contracts"]
+               if r["id"] == "clearing-deliberation-return")
+    rule = row["consumption_rule"]
+    assert "the bundle number is the cutting session's" in rule
+    assert "contract-v3.4" not in rule
+    assert "contract-v3.5" not in rule
 
 
 @pytest.fixture(scope="module")
@@ -52,7 +102,14 @@ def rows() -> dict[str, dict]:
             if row["path"].startswith("contracts/clearing/")}
 
 
-def test_the_family_registers_exactly_the_six_members(rows) -> None:
+def test_the_family_registers_exactly_the_seven_members(rows) -> None:
+    """SIX until 2026-09-04, SEVEN since.
+
+    `clearing-deliberation-return` is register entry number two's declared output
+    shape, registered at realization by `admit-deliberation-clearing-operation`
+    (ratified by Brett Heap, PR #645, merged `3cf917b7`). An eighth arriving
+    without a change to this constant is still a bundle member nobody declared.
+    """
     assert set(rows) == set(EXPECTED_ROWS), (
         "the manifest's clearing rows are not the expected set. A row added "
         "without a change to this constant is a bundle member nobody declared; a "
@@ -110,9 +167,11 @@ def test_every_row_declares_the_neutral_ownership_fields(row_id, rows) -> None:
     assert row["source_path"] == "openxFactory/" + row["path"]
     assert row["consumption_rule"].strip(), "a row with no consumption rule tells " \
         "a consumer what to copy and nothing about what it means"
-    assert "contract-v3.3" in row["consumption_rule"], (
-        "each row records the release that registered it, so a consumer reading "
-        "one row knows which bundle to pin"
+    assert REGISTRATION[row_id] in row["consumption_rule"], (
+        "each row records WHERE IT CAME FROM, so a consumer reading one row knows "
+        "which bundle to pin — or, for a row registered at realization ahead of "
+        "its cut, which governed change registered it and that the number is the "
+        "cutting session's"
     )
 
 

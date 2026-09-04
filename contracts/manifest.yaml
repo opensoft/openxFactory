@@ -2716,7 +2716,7 @@ contracts:
     # landed on main while this branch carried its own eleven-subject widening,
     # so this row's digest reflects the UNION of both widenings, not either one
     # alone.
-    sha256: c6222617f12853209d1ec59d392c4ff4d3628d047db67f1495ecfacad6af314b
+    sha256: 0dfc2e8ebf47ca4e160173882abac98918ba772cff0fab626a3aab614a1ebf0a
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -3052,13 +3052,38 @@ contracts:
   # The neutral half of the RATIFIED `clearing-dispatch-boundary` capability
   # (PR #555, squash ab0bb2dd), as MODIFIED by `add-cpc-clearing-boundary`
   # (merged c0270d28). The packaged corpus
-  # (contracts/clearing/examples/, 6 positive examples + 24 intended-invalid
-  # negatives, one per closed refusal code), the canonical validator
+  # (contracts/clearing/examples/, 7 positive examples + 28 intended-invalid
+  # negatives, at least one per closed refusal code), the canonical validator
   # (scripts/validate-clearing-dispatch.py), the family README and its pytest
   # wiring (tests/clearing/) are content-addressed by commit; no per-file digest
   # (the openxWallet, client-identity-roster, identity-brokering, trust-anchor
-  # and signed-execution-chain precedent). The five schemas and the ONE registry
+  # and signed-execution-chain precedent). The SIX schemas and the ONE registry
   # instance below carry per-file sha256 over their bytes.
+  #
+  # THE CORPUS COUNTS ARE MEASURED HERE, NOT INCREMENTED. The second figure read
+  # "24" from the contract-v3.3 registration onward while the disk held 26 —
+  # the validator's own self-test reported the true number on every run and
+  # nobody reconciled the two. It is corrected to the measured value rather than
+  # bumped from the written one (`admit-deliberation-clearing-operation` task
+  # 2.10, which found it), and the qualifier now says AT LEAST ONE per closed
+  # refusal code, because more than one fixture may probe a code and one fixture
+  # declares the family's non-member shape refusal `schema`.
+  #
+  # ENTRY NUMBER TWO AND ITS RETURN SHAPE WERE REGISTERED AT REALIZATION on
+  # 2026-09-04 by `admit-deliberation-clearing-operation` (ratified by Brett
+  # Heap, PR #645, merged 3cf917b7): the register instance gains the member
+  # `deliberation`, its dispatch-record row's refusal enumeration grows from two
+  # to five, and `clearing-deliberation-return` is a NEW SEVENTH ROW.
+  #
+  # NO BUNDLE NUMBER IS RESERVED BY THAT REGISTRATION, and
+  # `contract_bundle_version` at the head of this file is NOT moved by it. The
+  # next additive number is fresh-counted at the tip the cut is taken from, per
+  # docs/contract-versioning-policy.md § Bundle Realization Order, because a
+  # change MUST NOT reserve a minor before merge order is known — the same split
+  # `add-chain-attestation` (#556 rows, #565 cut) and `add-chain-anchoring` (rows
+  # below, cut pending) already use. `contract-v3.4` is held by another lane on
+  # the repository owner's word, so the three rows this registration moves say
+  # WHO registered them and leave the number to the cutting session.
   #
   # THE REGISTRY INSTANCE IS REGISTERED AS A MEMBER, not left as corpus, because
   # its CONTENT is the contract: the closed set of operations a governed host may
@@ -3115,7 +3140,7 @@ contracts:
     source_path: openxFactory/contracts/clearing/permitted-operations.registry.yaml
     type: registry
     schema_version: 1
-    sha256: 763fd0bfd48bc0f8c02c1be9ca4d5ef3ad25987b038c50ae75d677dd3f94e926
+    sha256: 406d79bc360093b50903b000c7b42916f6f625c060a88d46f3c93239aeb5e76b
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -3155,12 +3180,43 @@ contracts:
       Registered at contract-v3.3; consumed through the pinned
       openxFactory checkout with per-file sha256 verified before any copy
       is treated as current.
+  - id: clearing-deliberation-return
+    path: contracts/clearing/deliberation-return.schema.yaml
+    source_path: openxFactory/contracts/clearing/deliberation-return.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d515082851ee6cb7b3ae83ce1338b5dd8e275a432bea7dfd4c490befbc1b6f3e
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The DELIBERATION RETURN — register entry number two's declared output shape: the per-seat outputs as STRUCTURED EVIDENCE, bound to the convening they answer.
+      A NEUTRAL SCHEMA AUTHORED HERE AND NEVER A PRODUCER'S PATH (ruling OQ1,
+      Brett Heap 2026-09-04): a return is validated against the register's
+      DECLARED value and never against a bundle's copy of it, so a declared
+      schema owned by a producing repository would make the producer the author
+      of the shape its own return is checked against. Carries `seats`, keyed by
+      SEAT IDENTITY so a duplicate is unrepresentable, each with that seat's
+      output as a tagged union of an inline string payload or a reference plus a
+      REQUIRED byte hash; and `binding`, all three identifiers required — the
+      convening job id, the VERIFIED subject pin, and the digest of the INBOUND
+      sealed bundle. NO SIGNATURE MEMBER, because the return is UNSIGNED on the
+      host and signed ON RETURN by the originating repository's own hosted
+      signer; NO OUTCOME AND NO VERDICT-SHAPED MEMBER at any depth, the root and
+      every nested object being closed and the canonical validator applying the
+      same name scan it applies to the operation report. THE SEAT'S OUTPUT IS
+      OPAQUE to this contract: the producing estate's per-seat accounting travels
+      inside the payload rather than becoming a neutral member.
+      Registered at realization by `admit-deliberation-clearing-operation`
+      (ratified 2026-09-04 by Brett Heap, PR #645, merged 3cf917b7); the bundle
+      number is the cutting session's and is not reserved here. Consumed through
+      the pinned openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
   - id: clearing-dispatch-record
     path: contracts/clearing/dispatch-record.schema.yaml
     source_path: openxFactory/contracts/clearing/dispatch-record.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 3641618c0e8a34f52a48cc990a1ae6a5ece963ae0b4a2695d9b4e062eef6763f
+    sha256: ce59ab54d4e4963cd044ac5aec3413ccfc6e5cd32381de5e9df59cfbf5ad738d
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -3220,9 +3276,11 @@ contracts:
   # session's act, unwritten at this commit.
   #
   # NO BUNDLE NUMBER IS RESERVED BY THIS REGISTRATION. `contract_bundle_version`
-  # at the head of this file still reads `contract-v3.2` and is NOT moved here;
-  # the next additive number is fresh-counted at the tip the cut is taken from,
-  # per `docs/contract-versioning-policy.md` § Bundle Realization Order, because
+  # at the head of this file is NOT moved here (it read `contract-v3.2` when
+  # these rows were written; a cut, and only a cut, advances it, and the
+  # first cut after #629 is the bundle that ships these rows); the next
+  # additive number is fresh-counted at the tip the cut is taken from, per
+  # `docs/contract-versioning-policy.md` § Bundle Realization Order, because
   # a proposed change MUST NOT reserve a minor number before merge order is
   # known. This is the one deliberate divergence from #556's row text, which
   # named its forthcoming number; the two moved tranche-one/two rows above,
@@ -3244,7 +3302,7 @@ contracts:
     source_path: openxFactory/contracts/chain-anchoring/anchoring-definitions.schema.yaml
     type: schema
     schema_version: 1
-    sha256: d8ee9b4f844a60a8ba0b39eab47a8ef328f6bf78f971d4b1c0ba6501d1f45542
+    sha256: b8c0dcd476c846f640111def377642d68fac7dcba2f46dabbd0b80b7a44a7752
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -3263,7 +3321,7 @@ contracts:
     source_path: openxFactory/contracts/chain-anchoring/anchor-receipt.schema.yaml
     type: schema
     schema_version: 1
-    sha256: f6de7ea2f78955a0b82aeef350c0d13dc76ed06a56b9b5105abcc0ef856bcecd
+    sha256: 46a1b36c60390ef8e5015245acaacc5f2ba598920d0fb378f3c0b165471af7d6
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -3283,7 +3341,7 @@ contracts:
     source_path: openxFactory/contracts/chain-anchoring/anchor-state.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 0e89b8b0ddf1a3625f08b456e39428953f1525a09215310d2b4f1ba4f58be609
+    sha256: f01e99495c59f412d398a4f5b0b4c57c8ec0bbba0c1e740a531a5eec53097fe7
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -3301,7 +3359,7 @@ contracts:
     source_path: openxFactory/contracts/chain-anchoring/verification-result.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 6de11c5a5e3640bd6e28e6df9318a8a3946e42d8485f915c6749640601a42def
+    sha256: d8380dcdf81463fbe95eb82c313265bdc34c04e6e4190c0081afe3e94e207165
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -3453,7 +3511,7 @@ contracts:
     source_path: openxFactory/contracts/chain-anchoring/conformance-declaration.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 1c3f0f3aba8f72bc3324b4d39163912cd38ff9b99b5d6874e7b223aa10e5f7d1
+    sha256: 1ee8bef79745115efe828e347b0fd6f8d4e737b91bd81df2b4d041ba3b83e2aa
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -3467,3 +3525,155 @@ contracts:
       the cutting session's and is not reserved here. Consumed through the
       pinned openxFactory checkout with per-file sha256 verified before any copy
       is treated as current.
+  # ---- the durability profile — registration at realization
+  #      (`amend-chain-anchoring-readiness-and-durability`, requirements 2 and 3) ----
+  # RATIFIED 2026-09-04 by Brett Heap, repository owner, in session, verbatim
+  # *"ratify 2 and 3"* (record
+  # `openspec/changes/amend-chain-anchoring-readiness-and-durability/review/ratification-2026-09-04.md`);
+  # requirement 1 was WITHDRAWN by his separate earlier ruling of the same day.
+  #
+  # WHY THESE SIX ROWS LAND AT REALIZATION. Same reason and same precedent as the
+  # twelve above: the rows move with the bytes they describe, and
+  # `contracts/CHANGELOG.md` plus the `contract_bundle_version` bump stay the
+  # cutting session's act. NO BUNDLE NUMBER IS TAKEN OR RESERVED HERE.
+  #
+  # AND WHY THIS REALIZATION IS ORDERED BEFORE THE NEXT CUT. It REPLACES a closed
+  # enumeration — `anchor-state.schema.yaml`'s per-witness `status`, which was
+  # `[in_flight, landed, terminally_failed]` — and a closed enumeration is free to
+  # change before publication and a compatibility break after it. MEASURED RATHER
+  # THAN ASSUMED at this commit: `git tag --contains 11feff75` is EMPTY and
+  # `contracts/releases/contract-v3.3.digests.yaml` carries ZERO rows for any file
+  # in `contracts/chain-anchoring/`, because the `contract-v3.3` tag (`16b85614`)
+  # predates the basis realization by twenty minutes. The family is REGISTERED and
+  # UNSHIPPED, so this change is additive to every bundle that has ever shipped.
+  #
+  # SIX FURTHER `digest_subject` MEMBERS moved with these bytes on
+  # `digest-construction.schema.yaml`'s own written invitation — one enumeration,
+  # no second construction — which is why that file's row above moved too.
+  - id: chain-anchoring-confirmation-profile
+    path: contracts/chain-anchoring/confirmation-profile.schema.yaml
+    source_path: openxFactory/contracts/chain-anchoring/confirmation-profile.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: adaf54d444e87f8911cbe7cb40fcef486bbe145cfff903c37a6b87c9ceb05552
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      ONE OPERATOR-APPROVED CONFIRMATION PROFILE for one witness network: the objective condition separating SUBMITTED from CONFIRMED, the proof material retained at confirmation, the reorganization and replacement rules, and positive and refusal vectors at every transition boundary.
+      THE NUMBER IS NOT HERE AND THAT IS THE POINT. A neutral contract
+      naming a confirmation depth would be asserting a number about
+      somebody else's consensus rules; what this shape fixes is what an
+      APPROVED answer looks like, and a depth carried with no citation
+      behind it is refused (`confirmation_profile_numeric_depth_uncited`).
+      The digest a register binds is over `terms` and over nothing else.
+      Registered at realization by
+      `amend-chain-anchoring-readiness-and-durability`; the bundle number
+      is the cutting session's and is not reserved here. Consumed through
+      the pinned openxFactory checkout with per-file sha256 verified
+      before any copy is treated as current.
+  - id: chain-anchoring-confirmation-profile-registry
+    path: contracts/chain-anchoring/confirmation-profile-registry.schema.yaml
+    source_path: openxFactory/contracts/chain-anchoring/confirmation-profile-registry.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: ffe52780a2dd2433ae702a670b9c82f36306894aa9c640495e563eb9f6cd94c2
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      THE APPEND-ONLY SIGNED REGISTER of approved confirmation profiles, and the one place a UTC window resolves its version from — each entry binding the network, profile id, immutable version, canonical digest, approval record, predecessor, activation log sequence and checkpoint, half-open effective interval and closed standing.
+      SELECTION IS DETERMINISTIC OR THE WINDOW DOES NOT OPEN. Refused by
+      name: a configured network with no active entry (the amendment's
+      BLOCKED state, measured rather than assumed), a rewritten history, a
+      rollback past an activation checkpoint, an implementer-approved
+      entry, and a retired or compromised version minting a new receipt.
+      Registered at realization by
+      `amend-chain-anchoring-readiness-and-durability`; the bundle number
+      is the cutting session's and is not reserved here. Consumed through
+      the pinned openxFactory checkout with per-file sha256 verified
+      before any copy is treated as current.
+  - id: chain-anchoring-daily-merkle-profile
+    path: contracts/chain-anchoring/daily-merkle-profile.schema.yaml
+    source_path: openxFactory/contracts/chain-anchoring/daily-merkle-profile.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: a0529871522b1b77e1324117ff1f2f444deec5ee55ca86289676d07cf3cadc18
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      THE RELEASED IMMUTABLE DAILY-MERKLE CONSTRUCTION: canonical leaf encoding, SHA-256, DISTINCT leaf and internal-node domain separators, sequence ordering, tree shape, odd-node handling, and the deterministic empty root a count-zero window binds.
+      A MERKLE ROOT WITHOUT A CONSTRUCTION IS A NUMBER, NOT A PROOF. Two
+      honest implementations that disagree about odd-node handling compute
+      different roots over the same events and neither can show the other
+      wrong. The canonical reader RESOLVES this profile and recomputes
+      every leaf, path and root under it; an unresolved, substituted or
+      non-deterministic construction refuses admission and closure.
+      Registered at realization by
+      `amend-chain-anchoring-readiness-and-durability`; the bundle number
+      is the cutting session's and is not reserved here. Consumed through
+      the pinned openxFactory checkout with per-file sha256 verified
+      before any copy is treated as current.
+  - id: chain-anchoring-durability-eligibility-registry
+    path: contracts/chain-anchoring/durability-eligibility-registry.schema.yaml
+    source_path: openxFactory/contracts/chain-anchoring/durability-eligibility-registry.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d6344fb2007c1e2a7f3074543900615380a8f4e5c7a48240c386bc273e8134c9
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      THE APPEND-ONLY SIGNED REGISTER of durability-eligible neutral event kinds — the DENOMINATOR, versioned, digested, approved, activated at a log position and snapshotted at window open.
+      "EVERY ACCEPTED EVENT EXACTLY ONCE" IS A CLAIM ABOUT A SET, and a
+      completeness proof over a denominator its own author chose proves
+      nothing. Control leaves are excluded from the count by every
+      conforming entry, which is what permits genuine consecutive empty
+      windows and what stops a manifest having to contain its own
+      description. Refused by name: zero or several active entries, a
+      rollback, substituted terms under an approved version.
+      Registered at realization by
+      `amend-chain-anchoring-readiness-and-durability`; the bundle number
+      is the cutting session's and is not reserved here. Consumed through
+      the pinned openxFactory checkout with per-file sha256 verified
+      before any copy is treated as current.
+  - id: chain-anchoring-durability-batch-admission
+    path: contracts/chain-anchoring/durability-batch-admission.schema.yaml
+    source_path: openxFactory/contracts/chain-anchoring/durability-batch-admission.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 2da441f27afe5faa881dba724f300278021f56e832dc8cb1a760893d1e8dd15e
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      ONE ATOMIC ADMISSION of one event into one fixed UTC window: the trusted acceptance time that SELECTS the window, the monotonic leaf sequence that orders events within it, the dedupe rule and its off-chain key custody, the window's eligibility and Merkle snapshots, and the membership path into the batch root.
+      ACCEPTANCE SELECTS AND SOURCE TIME NEVER DOES, and midnight belongs
+      to the window that OPENS then because the interval is half-open.
+      Refused by name: a non-fixed window, a window selected from source
+      time, a non-atomic admission, a replay that consumed a second
+      sequence, a key reused for different content, a key reachable from
+      the anchor, a control leaf offered as an event, and a constituent
+      event holding its own anchor receipt.
+      Registered at realization by
+      `amend-chain-anchoring-readiness-and-durability`; the bundle number
+      is the cutting session's and is not reserved here. Consumed through
+      the pinned openxFactory checkout with per-file sha256 verified
+      before any copy is treated as current.
+  - id: chain-anchoring-durability-batch-manifest
+    path: contracts/chain-anchoring/durability-batch-manifest.schema.yaml
+    source_path: openxFactory/contracts/chain-anchoring/durability-batch-manifest.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: e5723ae428e86b1d988aeb00dc0b1df66ec45ff51f3aa703e54eca04d572f8fe
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      THE CANONICAL SIGNED MANIFEST of one closed fixed-UTC window, and the ANCHORED ITEM of this profile: its `terms` bind the eligibility snapshot, the window boundaries, the summaries, the batch root, the Merkle profile, the previous item's anchored digest, the close watermark, the resolving signed-log checkpoint, the close reason and the dedupe and late-arrival rules.
+      THE SUMMARIES ARE DERIVED AND THE READER TREATS THEM THAT WAY: a
+      manifest that lowers its last sequence and count to match a retained
+      prefix is refused even though its three numbers and its root are
+      perfectly self-consistent. Continuity is over the previous item's
+      CONFIGURATION-BOUND anchored digest and never over its batch root,
+      because two consecutive empty windows share that root on purpose.
+      Registered at realization by
+      `amend-chain-anchoring-readiness-and-durability`; the bundle number
+      is the cutting session's and is not reserved here. Consumed through
+      the pinned openxFactory checkout with per-file sha256 verified
+      before any copy is treated as current.

@@ -1,0 +1,62 @@
+# expected_failure: eligibility_boundary_selection_ambiguous
+# expected_failure_detail: entries stand active
+# TWO ACTIVE DENOMINATORS. At each window open exactly ONE active entry whose half-open interval contains the boundary is selected; with two, no event is admitted, because a window that opened under an ambiguous denominator has no answer to give later about what it was measuring.
+schema_version: 1
+kind: xfactory_chain_anchoring_durability_eligibility_registry
+registry_id: der-negative-0001
+append_only:
+  append_only: true
+  history_rewritten: false
+  signature_ref: sig-negative-der
+entries:
+- entry_id: der-negative-a
+  version: 1
+  terms:
+    event_kinds:
+    - kind_id: owner-evidence-record-accepted
+    excluded_leaf_classes:
+    - anchoring_control
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: durability_eligibility_terms
+    value: sha256:70195037d45ae2e17cb2ff6009007a2eb2f1798d39597680034e2f955f2574b2
+  approval:
+    approval_id: approval-example-negative-0002
+    approved_by: operator
+    approved_on: '2026-08-25'
+    approval_record_ref: record-example-operator-approval-negative-0002
+    decision_statement: approved by the repository operator as the objective condition separating
+      submitted from confirmed on this network, with its transition vectors
+  activation:
+    log_sequence: 600
+    checkpoint_ref: cp-log-checkpoint-0600
+  effective_interval:
+    from_window_open: '2026-08-26T00:00:00Z'
+  standing: active
+- entry_id: der-negative-b
+  version: 2
+  terms:
+    event_kinds:
+    - kind_id: owner-evidence-record-accepted
+    excluded_leaf_classes:
+    - anchoring_control
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: durability_eligibility_terms
+    value: sha256:70195037d45ae2e17cb2ff6009007a2eb2f1798d39597680034e2f955f2574b2
+  approval:
+    approval_id: approval-example-negative-0002
+    approved_by: operator
+    approved_on: '2026-08-25'
+    approval_record_ref: record-example-operator-approval-negative-0002
+    decision_statement: approved by the repository operator as the objective condition separating
+      submitted from confirmed on this network, with its transition vectors
+  activation:
+    log_sequence: 600
+    checkpoint_ref: cp-log-checkpoint-0600
+  effective_interval:
+    from_window_open: '2026-08-26T00:00:00Z'
+  standing: active
+  predecessor_entry_id: der-negative-a
+recorded_at: '2026-09-02T00:00:00Z'
+record_version: 1

@@ -1,0 +1,73 @@
+# expected_failure: daily_continuity_link_over_batch_root
+# expected_failure_detail: taken over the previous
+# CONTINUITY OVER THE PREVIOUS ROOT — THE PLAUSIBLE MISTAKE. Two consecutive empty windows share the deterministic empty root ON PURPOSE, so a link over the root cannot tell a missing intermediate day from a present one. The link is over the previous item's configuration-bound anchored digest, which commits to its identity, its accounting, its registry snapshots and its configuration.
+schema_version: 1
+kind: xfactory_chain_anchoring_durability_batch_manifest
+manifest_id: dbm-negative-0001
+terms:
+  window_open: '2026-09-02T00:00:00Z'
+  window_close: '2026-09-03T00:00:00Z'
+  eligibility_snapshot:
+    registry_id: der-example-0001
+    entry_id: der-entry-0002
+    version: 2
+    canonical_digest:
+      construction: xfc-jcs-sha256-1
+      subject: durability_eligibility_terms
+      value: sha256:a958754817f2860c0e52986dfad5637425657e7e708b4bb1a2c30ab6ca4bcd2a
+    activation:
+      log_sequence: 616
+      checkpoint_ref: cp-log-checkpoint-0616
+    standing: active
+  event_count: 0
+  daily_batch_root:
+    construction: xfc-jcs-sha256-1
+    subject: daily_batch_root
+    value: sha256:c35fc8b72f989e6106fe6808d62ceece2bbdc436e7dba0184bb35b4bb2ba2ec2
+  merkle_profile:
+    profile_id: dmp-example-daily-merkle
+    version: 1
+    canonical_digest:
+      construction: xfc-jcs-sha256-1
+      subject: daily_merkle_construction
+      value: sha256:498aa35ea0a41ba00fe57f0df0f3c0b388ab1514cfe9ee7187b4104cca5adc8a
+  previous_daily_anchored_digest:
+    construction: xfc-jcs-sha256-1
+    subject: anchored_commitment
+    value: sha256:7cedc69972c687d0c6636aaefa9fa3845ccb63999e5f57d26e5338288bbb7173
+  close_sequence_watermark: 670
+  resolving_log_checkpoint:
+    checkpoint_ref: cp-log-checkpoint-0670
+    tree_size: 671
+    checkpoint_root:
+      construction: xfc-jcs-sha256-1
+      subject: log_checkpoint
+      value: sha256:e715ef13b6d631ecc39471a0061b1ea0be18135ad2057f5c106a1cb5334af597
+    signature_ref: sig-log-checkpoint-0670
+  close_reason: fixed_utc_boundary
+  dedupe_rule:
+    rule_id: dedupe-example-owner-local
+    key_scope: owner_local_stable
+    on_identical_replay: return_existing_leaf
+    on_key_reuse_with_different_material: refuse_before_sequence_assignment
+    key_custody:
+      reference_id: custody-example-dedupe-keys
+      resolves_into: governed_layer
+  late_arrival_rule:
+    rule_id: late-example-acceptance-selects
+    window_selected_from: trusted_acceptance_time
+    source_time_lateness_recorded: off_chain
+  selectivity_applied: false
+  previous_daily_batch_root:
+    construction: xfc-jcs-sha256-1
+    subject: daily_batch_root
+    value: sha256:c35fc8b72f989e6106fe6808d62ceece2bbdc436e7dba0184bb35b4bb2ba2ec2
+material_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_material
+  value: sha256:64df5b4b6929a3bb52f26f12d12f1d77bbbc5248924a6223c7756cc5adf9b679
+window_closed: true
+continuity_leaf_ref: leaf-dbm-negative-0001-continuity
+signature_ref: sig-dbm-negative-0001
+recorded_at: '2026-09-03T00:00:00Z'
+record_version: 1

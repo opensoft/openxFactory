@@ -26,7 +26,7 @@ receipt_ref: rcp-example-0002
 header_source_ref: hs-example-verifier-own-0001
 evaluated_at: '2026-08-31T09:05:00Z'
 record_version: 1
-notes: 'the ordering-only witness proves the anchor and counts toward the configured
-  set, and is NOT eligible as a horizon base — so with no eligible base the honest
-  status is no_determination, a first-class answer rather than a gap: a claim the
-  artifact cannot check is not a basis for a fail-closed answer'
+notes: 'the ordering-only witness proves the anchor and counts toward the configured set,
+  and is NOT eligible as a horizon base — so with no eligible base the honest status is no_determination,
+  a first-class answer rather than a gap: a claim the artifact cannot check is not a basis
+  for a fail-closed answer'

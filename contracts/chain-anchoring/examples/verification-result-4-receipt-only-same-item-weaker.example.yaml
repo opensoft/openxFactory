@@ -28,8 +28,8 @@ receipt_ref: rcp-example-0004
 header_source_ref: hs-example-verifier-own-0001
 evaluated_at: '2026-08-30T16:00:00Z'
 record_version: 1
-notes: 'the SAME item as the stateful result beside it, verified receipt-only: same
-  status, weaker knowledge — this mode cannot distinguish a terminal failure from
-  a horizon breach (incomplete_cause: undistinguished_receipt_only, said rather
-  than omitted silently) and cannot prove a delay breach. The mode member is what
-  lets a caller tell the two answers apart'
+notes: 'the SAME item as the stateful result beside it, verified receipt-only: same status,
+  weaker knowledge — this mode cannot distinguish a terminal failure from a horizon breach
+  (incomplete_cause: undistinguished_receipt_only, said rather than omitted silently) and
+  cannot prove a delay breach. The mode member is what lets a caller tell the two answers
+  apart'

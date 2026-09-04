@@ -4,13 +4,23 @@
 # SHALL BE A GOVERNED CONTRACT CHANGE with a spec delta and a reviewer, and SHALL
 # NOT be a workflow edit."
 #
-# THE MEMBER IS `deliberation`, AND THE CHOICE IS NOT DECORATIVE. codexFactory
-# #165 wants a deliberation operation on the governed host. It is a REAL,
-# WANTED, LATER GOVERNED CHANGE — which makes it the honest fixture for this
-# refusal, because the failure mode is never somebody adding an absurd operation.
-# It is somebody adding a reasonable one, in a hurry, in the file rather than in
-# a change. This entry is otherwise complete and well-formed; the ONLY thing
-# wrong with it is that no ratified text admits it.
+# THE MEMBER IS `coding`, AND THE CHOICE IS NOT DECORATIVE. The estate wants a
+# coding operation on the governed host: `add-clearing-dispatch-boundary` design
+# D11 names it as the next real later operation, and the lane
+# (`xfactory-execution-lane-workers` / `host-coding-cpc-brett01`) and the
+# grandfathered worker (`execution-lane-coding-worker.yml`, group 7) are already
+# there waiting for it. It is a REAL, WANTED, LATER GOVERNED CHANGE — which makes
+# it the honest fixture for this refusal, because the failure mode is never
+# somebody adding an absurd operation. It is somebody adding a reasonable one, in
+# a hurry, in the file rather than in a change. This entry is otherwise complete
+# and well-formed; the ONLY thing wrong with it is that no ratified text admits
+# it.
+#
+# `deliberation` HELD THIS ROLE UNTIL 2026-09-04 AND VACATED IT BY BEING
+# RATIFIED — `admit-deliberation-clearing-operation`, PR #645, merged
+# `3cf917b7` — which is the only way to vacate it. The fixture moved to the next
+# honest name in the same diff, because a closure refusal with no live probe is a
+# refusal nobody tests.
 #
 # What the refusal is worth is stated where it is implemented: the register, the
 # validator and this fixture share a repository with the changes they police, so
@@ -98,8 +108,8 @@ operations:
     fixes and `opensoft/xFactory`'s clearing workflow already declares literally; a rename
     here without a matching change there would make this register disagree with the door it
     describes.
-- operation_id: deliberation
-  title: Council deliberation on the governed host
+- operation_id: coding
+  title: Coding work on the governed host
   permitted_semantics:
     may:
     - Report the runner's own identity and compare it against the identity expected for the

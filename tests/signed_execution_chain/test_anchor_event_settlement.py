@@ -450,7 +450,7 @@ def test_the_wrong_values_stay_representable_so_a_negative_can_exist(validator):
 # The digest-construction enumeration moved with the grammar.
 # --------------------------------------------------------------------------
 
-def test_the_eleven_anchoring_digest_subjects_are_enumerated_once():
+def test_the_anchoring_digest_subjects_are_enumerated_once():
     """`digest-construction.schema.yaml` invites exactly this: *"Any digest a
     later tranche introduces is computed under this construction, with its
     subject added to the enumeration below."* Eleven were added, in one place,
@@ -462,6 +462,17 @@ def test_the_eleven_anchoring_digest_subjects_are_enumerated_once():
     (`sealed_bundle_manifest`), under the same construction, per this file's
     own tranche-widening invitation. The count pin below moves from 27 to 28
     to match — a union of subjects, never a second construction.
+
+    UPDATED AGAIN BY `amend-chain-anchoring-readiness-and-durability`
+    (requirements 2 and 3, ratified 2026-09-04): SIX further subjects for the
+    fixed-UTC durability batch — the two registers' terms, the released
+    daily-Merkle construction, and the three tree positions its proof chain
+    recomputes. **The pin moves 28 -> 34 and `construction_name` does not move
+    at all**, which is the whole shape of the invariant this test exists to
+    hold: this enumeration is a UNION that grows, and a second construction is
+    a defect whatever it is called. The assertion is written as a slice per
+    tranche rather than a flat list, so a subject inserted in the middle of an
+    earlier tranche's block fails here rather than passing on a count.
     """
     doc = _load(DIGEST_SCHEMA_PATH)
     subjects = doc["$defs"]["digest_subject"]["enum"]
@@ -475,8 +486,13 @@ def test_the_eleven_anchoring_digest_subjects_are_enumerated_once():
         "log_checkpoint", "linkage_derivation", "analysis_result",
         "verification_result", "anchor_event",
     ]
-    assert subjects[27:] == ["sealed_bundle_manifest"]
-    assert len(subjects) == len(set(subjects)) == 28
+    assert subjects[27] == "sealed_bundle_manifest"
+    assert subjects[28:] == [
+        "confirmation_profile_terms", "durability_eligibility_terms",
+        "daily_merkle_construction", "durability_event_leaf",
+        "daily_batch_node", "daily_batch_root",
+    ]
+    assert len(subjects) == len(set(subjects)) == 34
     assert doc["$defs"]["construction_name"]["const"] == "xfc-jcs-sha256-1"
 
 

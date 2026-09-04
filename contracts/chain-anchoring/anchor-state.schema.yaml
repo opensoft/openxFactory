@@ -38,6 +38,32 @@ description: >-
   tranche one's leaf grammar; this record REFERENCES leaves and defines none,
   because a second grammar is exactly what this tranche must not mint.
 
+  SUBMITTED IS NOT CONFIRMED, AND THIS RECORD IS WHERE THE TWO ARE KEPT APART
+  (`amend-chain-anchoring-readiness-and-durability`, requirement "Witness
+  submission and confirmation remain distinct evidence states", ratified
+  2026-09-04). The per-witness enumeration this record shipped with —
+  `[in_flight, landed, terminally_failed]` — had ONE word for two facts: a
+  witness with no accepted submission evidence, and a witness whose submission an
+  interface accepted while the approved confirmation condition remains unmet.
+  With one word, interface acceptance reads as progress toward confirmation, and
+  "the transaction was accepted for processing" becomes "the material is
+  anchored". So the enumeration is REPLACED rather than widened: `pending` and
+  `submitted` split `in_flight`, `landed` becomes `confirmed` and is bound to a
+  named profile's objective condition, `terminally_failed` is unchanged, and
+  `invalid` and `unevaluable` are added because the amendment's own refusal
+  scenario obliges a verifier to report them. The migration and the measurement
+  that makes a REPLACEMENT legal — this family has never shipped in a tagged
+  bundle — are stated once, at
+  `anchoring-definitions.schema.yaml#/$defs/witness_evidence_state`.
+
+  AND THE DURABILITY WITNESS IS TWO LAYERS, REPORTED AS TWO. `upgrade_stage`
+  carries the aggregation submission and the underlying chain confirmation
+  separately, because the amendment requires the record to say "OpenTimestamps
+  submitted and Bitcoin pending" — a state one field cannot express, and the
+  exact state in which an unupgraded detached proof gets mistaken for durability.
+  A long-horizon claim admitted over anything but a confirmed chain layer is
+  refused by name.
+
   THERE IS NO AGGREGATE `anchored` BOOLEAN ANYWHERE IN THIS CAPABILITY, AND THIS
   IS THE RECORD THAT WOULD OTHERWISE CARRY ONE. Such a field can read TRUE while
   a configured witness is missing, which is how an outage becomes selectivity by
@@ -113,6 +139,14 @@ properties:
     # completeness claim over an uncaptured receipt from a completeness claim
     # over a missing witness.
     $ref: '#/$defs/identifier'
+  long_horizon_claim_admitted:
+    # WHETHER THIS ITEM IS OFFERED AS A LONG-HORIZON DURABILITY CLAIM. *"A
+    # long-horizon durability claim SHALL cite Bitcoin-confirmed evidence and
+    # MUST NOT cite an unupgraded OpenTimestamps submission or Kaspa alone."*
+    # The claim is a thing a realization ASSERTS, so it is writable here and
+    # refused by name against the rows that would have to support it — which is
+    # the only way the refusal can say what the claim was actually resting on.
+    type: boolean
   configured_witness_count:
     # WHAT THE CONFIGURATION DEMANDED, so a shortfall is arithmetic rather than
     # inference. The authoritative set is the receipt's COMMITTED mint-time
@@ -137,22 +171,40 @@ $defs:
     $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/duration_seconds"
   terminal_failure_ground:
     $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/terminal_failure_ground"
+  witness_evidence_state:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/witness_evidence_state"
+  confirmation_profile_snapshot:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/confirmation_profile_snapshot"
   witness_status_row:
     type: object
-    required: [witness_id, role, status, completion_horizon_seconds, horizon_base]
+    required: [witness_id, role, status, completion_horizon_seconds, horizon_base,
+               confirmation_profile]
     additionalProperties: false
     properties:
       witness_id: {$ref: '#/$defs/identifier'}
       role: {$ref: '#/$defs/witness_role'}
       chain_id: {$ref: '#/$defs/chain_id'}
       status:
-        # IN FLIGHT, LANDED, OR TERMINALLY FAILED — and the third is the one a
-        # receipt can never carry, because it arises AFTER the receipt was
-        # minted and leaves no mark on it. A terminally failed item's receipt is
-        # byte-identical to a sound one's, which is the whole reason a
-        # receipt-only verification may not claim to have excluded one.
-        type: string
-        enum: [in_flight, landed, terminally_failed]
+        # SIX STATES, AND THE FIRST TWO ARE THE SPLIT THIS AMENDMENT EXISTS FOR.
+        # `pending` (no accepted submission evidence) and `submitted`
+        # (submission accepted, the approved confirmation condition not yet
+        # satisfied) were ONE value, `in_flight`, in the basis realization; one
+        # word for both is what lets interface acceptance be read as progress
+        # toward confirmation, and requirement 3 refuses exactly that. `landed`
+        # is now `confirmed`, bound to a profile's objective condition rather
+        # than to a word. `terminally_failed` is unchanged. `invalid` and
+        # `unevaluable` are new and are required by the amendment's own refusal
+        # scenario, which obliges a verifier to report "the actual submitted,
+        # pending, invalid, or unevaluable state".
+        #
+        # `terminally_failed` REMAINS THE ONE A RECEIPT CAN NEVER CARRY, because
+        # it arises AFTER the receipt was minted and leaves no mark on it. A
+        # terminally failed item's receipt is byte-identical to a sound one's,
+        # which is the whole reason a receipt-only verification may not claim to
+        # have excluded one. The full migration, and the measurement that makes
+        # replacing a closed enumeration legal here, are stated once at
+        # `anchoring-definitions.schema.yaml#/$defs/witness_evidence_state`.
+        $ref: '#/$defs/witness_evidence_state'
       completion_horizon_seconds: {$ref: '#/$defs/duration_seconds'}
       horizon_base:
         # WHERE THE HORIZON IS MEASURED FROM, DECLARED RATHER THAN ASSUMED.
@@ -196,6 +248,17 @@ $defs:
           aggregation_calendar_ref: {$ref: '#/$defs/identifier'}
           upgraded_into_receipt_entry: {type: boolean}
           reanchored: {type: boolean}
+          prior_transitions_retained:
+            # AN UPGRADE APPENDS AND ERASES NOTHING. *"A later proof upgrade
+            # SHALL append the completed durability entry against the same
+            # anchored digest and MUST NOT re-anchor the item or erase prior
+            # state transitions."* Re-anchoring already has its refusal above;
+            # this member is the OTHER half — an upgrade that tidied the
+            # submitted state away is refused
+            # (`state_transition_history_erased_on_upgrade`), because the
+            # transitions are the evidence that the two states were ever
+            # distinct.
+            type: boolean
       inclusion_proof_captured_at_anchor_time:
         # THE OPERATIONAL WITNESS'S SECOND ADOPTION CONDITION, PER ITEM. An
         # anchor written without capturing its inclusion proof at anchor time is
@@ -204,6 +267,101 @@ $defs:
         # proof later is not accepted, because the chain will have pruned the
         # material the derivation needs.
         type: boolean
+      confirmation_profile:
+        # THE PROFILE THIS ROW'S STATE IS BOUND TO, and it is the SAME snapshot
+        # the receipt's committed configuration block carries for this witness.
+        # A state that says `confirmed` without naming the rule it was confirmed
+        # under is a label, and requirement 3's whole subject is the difference
+        # between a label and an evaluated condition. Where the row and the
+        # committed block disagree, the committed block governs and the reader
+        # refuses the disagreement rather than preferring either.
+        $ref: '#/$defs/confirmation_profile_snapshot'
+      submission_evidence:
+        # WHAT AN INTERFACE ACTUALLY ACCEPTED. Present on `submitted` and on
+        # anything downstream of it; ABSENT on `pending`, which is RESERVED for a
+        # witness with no accepted submission evidence — using `pending` where
+        # this member exists is refused
+        # (`witness_pending_with_submission_evidence`), because a row that
+        # under-reports is as wrong an answer as one that over-reports.
+        type: object
+        required: [accepted_by_interface, evidence_kinds]
+        additionalProperties: false
+        properties:
+          accepted_by_interface: {type: boolean}
+          evidence_kinds:
+            type: array
+            minItems: 1
+            uniqueItems: true
+            items:
+              type: string
+              enum:
+                - interface_acceptance
+                - retained_detached_timestamp_proof
+                - transaction_identifier
+          accepted_at: {type: string, format: date-time}
+          interface_ref: {$ref: '#/$defs/identifier'}
+      confirmation_evidence:
+        # WHAT THE APPROVED CONDITION ACTUALLY FOUND. `confirmed` REQUIRES this
+        # member with `condition_satisfied: true` and the retained material the
+        # snapshotted profile's terms demand; a `confirmed` row without it is
+        # refused two different ways on purpose —
+        # `submission_evidence_offered_as_confirmed` where submission evidence is
+        # ALL there is, and `witness_confirmed_without_profile_condition` where
+        # the condition was evaluated and did not pass. Two faults, two
+        # refusals, because "you have no evidence" and "your evidence fails" are
+        # different things to tell an operator.
+        type: object
+        required: [condition_satisfied, retained_proof_material]
+        additionalProperties: false
+        properties:
+          condition_satisfied: {type: boolean}
+          chain_acceptance_rule_passed: {type: boolean}
+          retained_proof_material:
+            type: array
+            minItems: 0
+            uniqueItems: true
+            items:
+              type: string
+              enum:
+                - transaction_bytes
+                - inclusion_proof
+                - block_header
+                - chain_acceptance_evidence
+                - upgraded_timestamp_proof
+          evaluated_at: {type: string, format: date-time}
+      upgrade_stage:
+        # THE DURABILITY WITNESS HAS TWO LAYERS AND THE AMENDMENT REPORTS BOTH:
+        # *"the anchor-state record reports OpenTimestamps submitted and Bitcoin
+        # pending"*. The aggregation submission and the underlying chain
+        # confirmation are separate facts about one witness, and collapsing them
+        # into the row's single `status` is how an unupgraded detached proof gets
+        # read as durability. A long-horizon claim admitted while
+        # `chain_confirmation` is anything but `confirmed` is refused
+        # (`long_horizon_claim_on_unupgraded_durability_proof`).
+        type: object
+        required: [aggregation_submission, chain_confirmation]
+        additionalProperties: false
+        properties:
+          aggregation_submission: {$ref: '#/$defs/witness_evidence_state'}
+          chain_confirmation: {$ref: '#/$defs/witness_evidence_state'}
+          upgraded_at: {type: string, format: date-time}
+      observation_change:
+        # A REORGANIZATION OR A REPLACEMENT, AND WHAT THE PROFILE'S RULE DID
+        # ABOUT IT. The state after the change comes from the profile's declared
+        # transition rule, the change is WRITTEN as evidence, and a stale
+        # `confirmed` label retained by assertion is refused
+        # (`reorganized_witness_retains_confirmed_label`).
+        type: object
+        required: [change_kind, evidence_written, state_after]
+        additionalProperties: false
+        properties:
+          change_kind:
+            type: string
+            enum: [reorganization, transaction_replacement]
+          evidence_written: {type: boolean}
+          state_after: {$ref: '#/$defs/witness_evidence_state'}
+          leaf_ref: {$ref: '#/$defs/identifier'}
+          observed_at: {type: string, format: date-time}
       terminal_failure_ground:
         # Present only where `status` is `terminally_failed`, and drawn from the
         # closed set rather than written as prose: a ground a validator cannot
@@ -229,8 +387,22 @@ $defs:
     additionalProperties: false
     properties:
       transition:
+        # FOUR EDGES BECAME SEVEN WHEN SUBMITTED AND CONFIRMED BECAME DISTINCT
+        # STATES. A witness submission and a witness confirmation are moves the
+        # record must be able to name, and a durability-proof upgrade is a third
+        # — each is a CONTROL leaf in the signed log, outside any batch it
+        # relates to, and each carries its own `leaf_ref` for the same reason the
+        # original four do: a transition claimed without a leaf is an opinion
+        # about a state machine rather than a record of it.
         type: string
-        enum: [pending_entry, horizon_breach, terminal_witness_failure, completion]
+        enum:
+          - pending_entry
+          - witness_submission
+          - witness_confirmation
+          - durability_proof_upgrade
+          - horizon_breach
+          - terminal_witness_failure
+          - completion
       witness_id:
         # Named on a per-witness transition — a horizon breach and a terminal
         # failure are always ABOUT a witness — and absent on `pending_entry` and

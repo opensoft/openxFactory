@@ -77,6 +77,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [treatment-options-engine](#treatment-options-engine) | MODIFIED `governed-derived-model` (a `role: recommendation` member emitting ranked, cited, non-authoritative options; a declared `evidence_floor` dial with labelled, structurally non-mixable relaxed modes; an `editorial_weights` declaration for ranking inputs no truth store supplies) — with the realized half MedxFactory-owned across `root-truth-grounding` (adverse-reaction and mechanism-of-action backfill), `terminology-normalization` (drug-class and indication mapping tables) and `treatment-plan-generation` (the engine itself) | 1 | Registered 2026-08-26 — Brett's build decision ("we will build this"), six steps: indicated → minus contraindicated → minus interacting → weighed by adverse reactions → rebalance on a charted non-response → off-label mode with the evidence floor lowered and mechanism similarity as the candidate generator. 7 claims settled, the governance boundary among them and NOT a dial: the engine PROPOSES and a clinician decides, `execute_final_action: false` holds, the plan gate stays human-reviewed, and the rebalance trigger is a chart observation rather than a timer. **Corpus recon 2026-08-26 corrected the described shape in four ways that change the deltas**: (a) `adverse_effect` is ALREADY in the closed ten-member claim-type enum with 3 records, so §6 work is a BACKFILL, not a new claim type; (b) the drug→condition edge is effectively ABSENT — 5 of 6,510 grounded pairs are `condition_*` — so "list all drugs indicated for X" is unanswerable today rather than merely slow; (c) the condition namespace already carries TWO id conventions (generated `condition_<icd10>` vs curated readable slugs, curated silently winning), which `indicated_for` must settle before writing a row; (d) evidence_grade is already multi-valued (6,499 regulatory_label + 7 across three lower grades), so the off-label floor has grades to drop to. Corpus measured at 6,506 records / 1,302 medication concepts / 1,298 custody SPLs (≈22% of the 5,803-row prescribable RxNorm set). 10 open questions, all `open`; three are hard blockers — Q7 (MoA as an eleventh enum member vs overloading `target`) fixes every backfilled record id, Q9 (no Medx policy authorizes `person_modeling: identified_persons_under_policy`, and the Medx conformance file declares `synthetic_only`) blocks declaring the family at all, and Q10 (WHO ATC's licence commit rule) is a structural validate gate with FDA-EPC-alone as the fallback. Q8 asks whether the engine is a MODIFIED `treatment-plan-generation` rather than a new capability — its nine promoted requirements already cover the entry point, the citation obligation, the closed worker plane, consent, the model pin and the plan-G1 gate. Exits NEUTRAL-FIRST: the `governed-derived-model` delta once Q7/Q8/Q9 dispose, then the Medx corpus+engine change once Q10 clears and the extractor-model policy re-pin (a governed version bump of `medx.domain.policy.plan_authoring_models` v1, recommended on cost) is made or declined |
 | [openxwallet-neutral-home](#openxwallet-neutral-home) | REMOVED `openxwallet` + REMOVED `openxwallet-agent-profile` from the openxFactory corpus (moved to `opensoft/openXwallet`); ADDED `domain-descendant-boundary` (the general standard: a domain consumes a neutral open* product through a `<Domainx><Product>` pin-and-profile descendant) + ADDED `neutral-product-pin` (commit + per-file sha256 + `pinned_by_commit_only`, tag-only refused, fail closed on an uninitialized submodule or digest drift); MODIFIED `trust-anchor` (custody registry resolved from the pin) + MODIFIED `review-authority-intake` (the reader is the pinned tool inside a REQUIRED consumer check) | 1 | **PROPOSED 2026-08-26 as `split-openxwallet-repo`** (PR opensoft/openxFactory#391) and **RATIFIED 2026-08-26** by Brett Heap in session, AS PROPOSED — R1-R8 standing unchanged, Q1-Q5 carried at the design's dispositions (Q1/Q2/Q3 travel, Q4/Q5 decided); realization proceeds through Speckit features, one per `tasks.md` group, not `/opsx:apply`. Registered 2026-08-26 — origin is Brett's two questions (is openXwallet a repo or features in another repo; do domains integrate the neutral product directly or through a `<Domain>Wallet` that pins it) and his ruling the same day, verbatim: "approve R1-R8 as recommended, stage the topic and propose". **ALL EIGHT RULINGS SETTLED** — R1 `opensoft/openXwallet` on the house `openX<type>` form (which owes `docs/openxdox-naming.md` an Amendment 2, since that ratified record currently names `openxWallet` as a family EXCEPTION); R2 machine keys FROZEN in v1 (paths, capability ids, the `xfactory_wallet_*` kind prefix, the envelope kind, finding codes — a rename in the same change as the move is unbisectable, and LedgerxFactory pins five kinds and several finding-code strings by name); R3 the new repo owns the wallet's own standard (both contract families + corpus, validator, syntax gate, CI workflow, the two promoted specs, Speckit 006/010/012, the `2026-08-08-add-openxwallet` archive) while openxFactory keeps the SEAM (`governance/review-authority/`, Speckit 013/014, the trust-anchor / identity-brokering / roles-authority-model compositions, all ideation provenance) — which amends the aggregation's working rule #1; R4 the pin is BIDIRECTIONAL and acyclic (openxFactory pins openXwallet by commit + per-file sha256 + `pinned_by_commit_only`; openXwallet vendors exactly ONE openxFactory artifact, `contracts/schemas/hermes-job-envelope.schema.yaml`, because validator rule (g) reads it); R5 root-level `openXwallet/` submodule in the aggregation, on the DTN-022 precedent; R6 the register STAYS (codexFactory's merge-gate floor pins `governance/review-authority/register.yaml` in `opensoft/openxFactory` and refuses wildcards) while its READER travels with the validator as a generic authority-register mode; R7 descendants are `MedxWallet` / `LedgerxWallet` / `codexWallet` / `OpsxWallet` / `AdxWallet`, the `<Domainx><Product>` form all four existing descendants use; R8 `LedgerxWallet` first, at extraction time, because LedgerxFactory is the only live consumer. The load-bearing FINDING is that the descendant repo is already the house standard with **no counter-example** — openChart -> MedxChart, openPractice -> MedxPractice, openAvatar -> MedxAvatar/LedgerxAvatar — so this topic ratifies the pattern ONCE as a general standard instead of paying for a fourth bespoke boundary change. First release is a **byte-identical pure move**: the eight artifact sha256s must equal openxFactory HEAD's manifest rows before `wallet-v1.0` is tagged. 5 open questions, none blocking the move — Q1 (promote the register as a wallet primitive vs split the reader back) is expected to TRAVEL to the council rather than resolve, since either answer converts a provably-empty diff into a design change. Hard sequencing: LedgerxFactory's forward-compatible finder lands BEFORE openxFactory sheds (its `validate_wallet_estate.py::find_openxfactory()` fails loudly, never skips), `wallet-v1.0` exists before openxFactory changes, and consume-and-shed is ONE atomic PR because `validate-trust-anchor.py` hard-exits without the custody registry. Verified NOT affected: hermes-install reseed (wallet content is not in `CONTENT_KINDS`) and codexFactory (the register does not move). **EXIT TAKEN — the change is ARCHIVED 2026-08-28** as `openspec/changes/archive/2026-08-28-split-openxwallet-repo/`, on merged-plus-green realization evidence across six repositories (openXwallet at `wallet-v1.0` then `wallet-v1.1`; openxFactory at `contract-v1.47` then `contract-v2.0`, which shed 92 local copies; codexFactory #117; xFactory #161; LedgerxFactory #25/#29/#30/#31; OpsxFactory #129) plus the first descendant LedgerxWallet at `lxw-v1.0`. **The row and the fragment are KEPT ON DISK as provenance**, on the `agent-wallet-identity` precedent above — that topic's change archived 2026-08-08 and its row stayed because the staged fragment remains on disk carrying the deferred material, which is the same reason here. **The topic is NOT fully exited**: it still carries a LIVE successor exit, `create-ledgerxwallet-overlay-boundary`, ratified and realized but an ACTIVE change still |
 | [wallet-carried-work-authority](#wallet-carried-work-authority) | MODIFIED `openxwallet` (openXwallet-owned — `scope.objects` extended BELOW REPOSITORY GRANULARITY as ordered literal path prefixes, with PREFIX CONTAINMENT added to the attenuation rule beside its set-subset test; `author` and `merge` given named readers and declared constraints the way `review` has them); ADDED `work-authority-intake` in openxFactory (sibling of `review-authority-intake` — a required check reading AUTHOR grants at pull-request open and MERGE grants at the merge gate, exercise recorded); MODIFIED `neutral-product-pin` realization (the digest pin bumps to the openXwallet release carrying the extension) | 1 | Registered 2026-09-02 from **Brett Heap's ruling in session that same day**, choosing option 2 (extend the grant schema) over option 1 (make the three-repo schema the default wherever spec and code authority diverge) — verbatim reasoning: option 2 matches the ratified doctrine that layout confers nothing; option 1 quietly re-imports layout as an authority carrier. **THE CLAIM THAT MAKES IT WORTH RAISING:** `add-wallet-carried-review-authority` demoted the SPEC/CODE/ASSEMBLY three-repository schema to a human election that "changes no gate, no floor, no grant, and no clearance eligibility" — and that demotion is TRUE IN THE PROSE AND FALSE IN THE MACHINERY. Grant objects are repo-granular in practice (the live `grant-mrc-0001` scopes `review` to `opensoft/openxFactory`), the schema carries NO path or branch narrowing, and only `review` is an act with a reader, so the ONLY way to seat spec authority and code authority separately over one project today is to put spec and code in different repositories. The confers-nothing schema is therefore SILENTLY LOAD-BEARING, and this topic makes it genuinely optional by removing the coupling from the AUTHORITY side rather than the layout side. Three verified substrate facts shrink the delta and shape it: the `identifier` pattern `^[A-Za-z0-9][A-Za-z0-9._:/-]*$` ALREADY admits `opensoft/openxFactory:openspec/`, so the path form is a SEMANTIC delta to attenuation and not a grammar one; there is NO closed act enumeration anywhere in openXwallet (`REVIEW_ACT_TOKEN = "review"` is the one token with a reader), so the act work is READER-and-constraint work; and `xfactory_wallet_distinct_holder_constraint` already takes `object_kind` + `acts.prior`/`acts.subsequent`, so author-versus-review is a new INSTANCE, not a new shape. **A CORPUS HOLE FOUND WHILE CHECKING Q2 AND RECORDED AS A CONFLICT:** `review-authority-intake` carries a ratified requirement about "the approval act", but NO `approve` act token exists in openXwallet — approval is an `approval_posture`, not an act — so `merge` is recommended as a DISTINCT ACT rather than `approve` at a higher custody tier. 7 falsifiable claims (layout confers nothing; prefix containment is the narrowing test; author and review over one object cannot be one holder; a worker NEVER holds an author grant as key access — `access_secrets: false` is a schema-level `const`, so the act is exercised under tier-1 human authority with a tier-2 attestation per `signed-execution-chain`; branch protection and CODEOWNERS stay layout-bound external enforcement and cannot be the carrier). 7 open questions, all `open`, each carrying a real recommendation: Q1 ordered literal path prefixes with NO globs and NO negation (a glob's cover is not decidable by inspection; `A but not A/b` is not narrower than `A` under any containment test); Q2 `merge` as a distinct act; Q3 TWO SEQUENCED CHANGES — `extend-openxwallet-object-scope` in openXwallet first, then `add-wallet-carried-work-authority` here carrying the pin bump as its own first task; Q4 one required status check, with any ruleset or CODEOWNERS a drift-checked PROJECTION of the register and never read back as the authority fact; Q5 PR-open plus merge gate rather than per commit (intra-branch commits covered by chain attestations); Q6 ASSEMBLY as another path prefix, no ASSEMBLY-specific object kind; Q7 its own register beside the review one, sharing the reader but not the file (the staleness bound is per-surface and merge needs a tighter one than convening). EXPLICITLY NOT CHANGED: `shared-contract-ownership` co-residence, `adopt-neutral-tooling-home`, and the SPEC/CODE/ASSEMBLY schema itself, which stays human-elected and is now DECOUPLED from authority legibility. BLOCKED ON THE PREDECESSOR'S UNBUILT HALVES: S3 exercise recording is half-merged (6.1 merged at `401da4f` 2026-08-27; 6.2–6.8 unchecked, 6.4 has not decided where exercise records are stored) and S5 revocation lifecycle is four pull requests, NONE MERGED — and `register.yaml` says in its own header it is not a revocation surface (`revocation_staleness_bound: P7D`), which bites harder at a merge gate than at a convening because merge is irreversible |
+| [opendox-two-layer-product](#opendox-two-layer-product) | REMOVED-by-SPLIT `ideation-dashboard` (102 requirements leave openxFactory with a per-requirement successor map across THREE destinations); ADDED a neutral corpus-adapter seam capability (declared by openDox, implemented by openXdox); ADDED a neutral domain-mapping declaration capability (what a `<Domainx>Dox` descendant declares); MODIFIED `domain-descendant-boundary` (a descendant of a RUNTIME product with a schema and migrations, and the per-tenant deployment unit); MODIFIED `neutral-product-pin` (a pin whose consumption is a deployment); possibly MODIFIED `document-lifecycle` + `governed-derived-model` | 1 | Registered 2026-09-04 from Brett's rulings (governing record: issue #656). **FIVE RULINGS PLUS A DIRECTION, all 2026-09-04**, carried as claims 11-15: **Q1** the database owns IDENTITY AND COORDINATION (users, memberships, projects, the project-to-repo map, sessions, drafts) and git owns GOVERNED ARTIFACTS written back ONLY through the apply lane, so every existing gate stays valid and the db is disposable relative to the corpus (rejected: docs-in-db-with-git-export, and ideas-in-db-until-promoted); **Q2** the runtime REUSES the Hermes install pattern — FastAPI + Postgres on AKS, OIDC through the Keycloak broker, growing into the OpsxFactory `dox` workload set; **Q3** ONE INSTANCE AND ONE DATABASE PER TENANT, ALWAYS, in both Case A (operator-hosted) and Case B (tenant-hosted), no cross-tenant data ever sharing a store — so the descendant IS the deployment unit; **Q4** openDox DEFINES the corpus-adapter interface and openXdox IMPLEMENTS it, the two `doc_health` back-imports move to a small neutral module, and the dependency points ONE WAY; **Q5 DIRECTION** replaces the two-way split with a THREE-LAYER TEST — openDox must be useful ALONE to a student or a lab assistant (module test: would someone with no notion of factories, gates or tenants use it?), openXdox holds the machinery COMMON to how MedxFactory, LedgerxFactory and AdxFactory each map onto the workbench, descendants hold the domain-specific mapping — making the per-module assignment DESIGN WORK this topic carries, with an active obligation to name PULL-UPS. Also settled: two ruled departures from `split-openxwallet-repo` (the integration SEAM becomes its own repo; the byte-identical floor is unavailable), and the naming record owes an **Amendment 3** carried by the change, NOT by this topic. **DISPOSITIONED 2026-09-04 — Q6 and Q7 RULED, all three recorded conflicts RESOLVED, one secondary question fully settled.** **Q6** — freeze the dashboard NOW and carve immediately: the five active changes (`add-composed-view-authoring`, `add-doxchat-model-intake`, `add-lens-document-selection`, `add-nightly-dashboard-refresh`, `retire-doxbench-chat-turn-v1`) stop where they stand in openxFactory and their live deltas and 20 open tasks RE-HOME into the extraction change and the new repositories as part of the carve; no new dashboard change opens here; the lane's own recommendation (wait for the wave, carve after the two gated ones archive) was put and NOT taken. **Q7** — `opensoft` owns both repositories, BOTH PUBLIC from day one under Apache-2.0 (matching `openChart`, `openPractice`, `openRepoShape`), descendants following their domain repos' visibility; rejected openXdox-private-until-proven and MIT/AGPL-3.0. **C1** the naming collision is accepted knowingly, repository is `opensoft/openDox`, Amendment 3 states the measured facts and travels with the repository-creating change. **C2** openXdox is the domain-mapping core, PARAMETERIZED by a domain profile — engineering vocabulary belongs to `codexDox` or openxFactory's own adapter, never to openXdox itself, which also SETTLES **Q11** (the lifecycle vocabulary is parameterized, not fixed) and narrows Q8's destination boundary. **C3** standalone openDox is git-backed by a plain local repo per project; Q1 holds unchanged; moving into a governed factory is a push, not a migration — which reinforces (without fully settling) Q10. **Q8** (REMOVE-vs-stub mechanics) and **Q9** (the replacement safety property) still travel into the change unchanged. Folds `openxdox-install-app-provisioning` and codexFactory #89. Record: `opensoft/openxFactory` issue #656 |
 
 ## hermes-stack-topology-per-client
 
@@ -2462,3 +2463,239 @@ repo scope.
   in its own tasks. Every open question must carry a disposition other than
   `open`; Q1/Q2/Q6 gate change one's contract text, Q3 gates the shape of both,
   and Q4/Q5/Q7 gate change two only.
+
+## opendox-two-layer-product
+
+- Staging ID: `openxFactory:staging:opendox-two-layer-product`
+- Repository context: SPLIT across four homes on purpose. `opensoft/openDox` (to
+  be created) owns the APP and **DEFINES** the corpus-adapter interface —
+  accounts, projects, documents, ideas, the editor and chat, the model plane, the
+  branch session, the NotebookLM connection, the install and the database
+  schema — and must be useful with no openxFactory anywhere. `opensoft/openXdox`
+  (to be created) **IMPLEMENTS** that interface and owns the machinery COMMON to
+  how the domains map onto the workbench. openxFactory keeps the CORPUS and its
+  GOVERNANCE (`document-lifecycle`, `doc-health`, `workflow-gate-contract`,
+  `governed-derived-model`, `roles-authority-model`, the contract families, the
+  ideation estate and all provenance) plus the two neutral seam contracts, and
+  consumes both products at pins. The DomainxFactories gain `<Domainx>Dox`
+  descendants holding their own domain mapping, created lazily, each the
+  deployment unit for one tenant instance.
+- Source: Brett Heap's rulings of 2026-09-04, in session, recorded verbatim on
+  the governing record `opensoft/openxFactory` issue #656 — filed as an issue so
+  they live outside a chat transcript. The founding ruling: "we do not have a
+  place to store projects … I think we need to make this an app that installs and
+  is hosted with a db. we should have users and projects and can expand the
+  feature set" and "openDox is a dead project … lets use that name as the core
+  opensource repo. we have two layers of opensource openDox and openXdox … we
+  will make openDox work to just manage documents and ideas. it will keep the
+  integration with git and notebook lm etc … then openXdox will integrate with
+  openXfactory", plus the descendant sentence "If I install MedxFacotry [sic], then I
+  get a medXdox install running in the installed tenand [sic] with its own db." Four
+  further rulings (Q1 15:24Z, Q2 15:31Z, Q3 15:32Z, Q4 15:34Z) and one direction
+  (Q5 15:48Z) followed the same afternoon.
+- Claim: fifteen settled claims. Ten from the founding ruling — two open-source
+  repositories neither of which exists today; openDox's scope is the app and its
+  feature set is explicitly expandable; openXdox's scope is the openxFactory
+  integration; descendants pin openXdox in the ratified `<Domainx><Product>` form
+  (not the transcript's `medXdox`, which would be a third casing scheme); a
+  DomainxFactory install stands the descendant up in the tenant with its own
+  database; the ratified naming record is overridden and owes an **Amendment 3**
+  carried by the change and NOT by this topic; the wallet precedent's seam rule
+  is departed from BY RULING (R3 kept the integration seam in openxFactory, here
+  it becomes its own repository); the byte-identical floor is departed from BY
+  FORCE; the brand "Opensoft openDox" is ALREADY in canon in a promoted
+  requirement; and this slice is ideation only. Five more from the afternoon's
+  rulings: **Q1** the database owns identity and coordination while git owns
+  governed artifacts written back only through the apply lane (rejected:
+  documents-in-the-database-with-git-as-export, and the ideas-until-promoted
+  hybrid); **Q2** reuse the Hermes install pattern with OIDC through the Keycloak
+  broker (rejected: a database bolted onto today's stdlib `serve.py`, and a new
+  full-stack platform); **Q3** one instance and one database per tenant always,
+  in both operating cases, no cross-tenant data ever sharing a store (rejected:
+  shared multi-tenant with row-level isolation, and a per-tenant default with a
+  pooled operator option — so a consent-gated shared profile is off the table);
+  **Q4** openDox defines the corpus-adapter interface and openXdox implements it,
+  the two `doc_health` back-imports move into a small neutral module both sides
+  depend on, and the dependency points ONE way (rejected: openDox pinning
+  doc-health as a library, which inverts the layering, and openXdox as a tuned
+  copy with no shared interface, which guarantees divergence); and **Q5** as a
+  DIRECTION rather than a module ruling.
+- **The Q5 three-layer test is the topic's organizing constraint.** (1) openDox
+  must be useful ALONE to a student or a lab assistant — manage documents,
+  brainstorm, do research analysis, connect to NotebookLM — with the module test
+  "would someone with no notion of factories, gates or tenants use it?" and an
+  ACTIVE obligation to find what to PULL UP from today's dashboard to make it a
+  better brainstorming and research-analysis tool. (2) openXdox holds the
+  machinery COMMON to how MedxFactory (patient management and research),
+  LedgerxFactory (financial simulations, accounting questions) and AdxFactory
+  (marketing analysis) each map onto the workbench — and those three mappings
+  must be worked explicitly to extract that core. (3) Descendants hold the
+  domain-specific mapping. The per-module assignment is design work carried by
+  the topic and the brainstorm packet, not ruled module by module.
+- Design work carried under that direction, as a FIRST PASS to be contested:
+  three columns over the 48 modules — **openDox ~24.9K** (editor and canvas
+  family, model plane, branch sessions, accounts, the NotebookLM action, and the
+  pull-up wave), **openXdox ~10.9K plus a large unbuilt remainder** (the adapter
+  implementation and projection mechanism, the gate-and-commission loop, scope
+  and ownership authority — plus the model/scenario workbench, the
+  evidence-and-provenance surface and the role-and-authority projection, none of
+  which exist anywhere in the 80K lines), **descendant (`codexDox`) ~5.0K**
+  (`doxbench_packet`, `doxbench_contracts`, `human_seen` and the three lanes,
+  whose whole subject is thawing openxFactory's own corpus), and **10.9K of
+  residue that must be split by function** (`serve.py` 6,733 needing an
+  app-server extension point so openXdox contributes routes without forking the
+  server, `cli.py` 2,456, `workbench.py` 1,575, `authoring.py` 329). Named
+  PULL-UPS, ranked for a lab assistant: the bounded-knowledge and compression
+  stack (`doxbench_knowledge` 1,231 — filed as governance only because its input
+  set is called "the staged set"), abstracts (`doxbench_abstract_store` 446 plus
+  the generation surface), the lens set-builder (the keyword half of `lens` 282),
+  the NotebookLM connection (`notebook_action` 239, leaving the stage-to-book
+  mapping behind since a per-project book is the neutral shape), and the
+  editor-and-chat surface. NOT pulled up: Adx's `calibrated`-tier calibration
+  loop and the gate console. The SEVEN machineries common to the three mappings:
+  the corpus-adapter implementation, the lifecycle engine, the
+  gate-and-commission loop, the evidence-and-provenance surface, the
+  model/scenario workbench, the role-and-authority projection, and the review
+  lane.
+- Measured 2026-09-04 (openxFactory `origin/main`): 48 modules / 49,605 LOC, 40
+  web files / 30,410 LOC, 125 test files / 3,927 test functions (**52% of the
+  repository's 7,612**), a 289,266-byte spec with **102 requirements / 472
+  scenarios** (the largest promoted spec in the corpus), 4 schemas, 142 examples,
+  30 archived and 5 active changes carrying a delta. The coupling is asymmetric:
+  **12 of 48 modules carry 23 `doc_health` import statements**, while the
+  back-edge is **exactly two** lazy `from ideation_dashboard.boundary import
+  OutputBoundary` statements — one class, one 377-line module — which is why Q4's
+  "move them to a small neutral module" is a small change. Tree-layout knowledge
+  is spread across a third of the package as path literals (`ideation/staging` in
+  16 modules, `contracts/` in 15, `docs/` in 9). The three domain mappings rest
+  on ratified facts: Medx (Patient / Care Organization Hermes; "patient and care
+  context"; care-affecting action, patient privacy, clinical authority; Dream
+  Object / Simulation Scenario with RATIFIED templates at `governed`), Ledgerx
+  (Engagement / Firm Hermes; "ledger, filing, report, transaction, obligation";
+  money movement, filing accuracy, audit, compliance; Counterparty Health Profile
+  / Financial Scenario, staged), Adx (Advertiser / Marketing Organization Hermes;
+  "campaign, audience, offer, channel, account"; brand risk, external send, paid
+  spend, privacy, attribution; Persona / Campaign Simulation at `calibrated`).
+  **No model/scenario UI exists anywhere in the 80K lines** — the largest
+  genuinely missing piece of the openXdox core. Consumers running an instance:
+  **zero** — codexFactory holds 0 tracked files of it, two DRAFT Speckit features
+  and a comment-only `stack.yaml` digest declaration that states a false verified
+  fact. Live: `openxdox.opensoft.dev` returns HTTP 401; the apply lane has ONE
+  run ever (2026-08-15), which Q1 promotes to the ONLY governed write path; the
+  nightly image-refresh worker has three runs and zero successes and has never
+  produced `refresh-status.json`; both readiness results are expired. Name
+  collisions as measured for Amendment 3: a GitHub ORG `opendox` exists (created
+  2026-03-20, one unrelated repo) and six repositories named `opendox` exist, the
+  largest dormant since 2022 and one active 2026 project (`fum4/opendox`) in the
+  adjacent agent-written-docs space; per-owner namespacing leaves
+  `opensoft/openDox` available. Every `open*` repository in the org is PRIVATE
+  with NO license, `openXwallet` included — which is why Q7 exists.
+- Folds two prior records rather than duplicating them:
+  `openxdox-install-app-provisioning` (staged 2026-08-14, gate MET, exit unraised
+  twenty days on) — its two-App security invariant, the App-Manifest-flow
+  finding, tenant ownership, the globally-unique-name convention and the small
+  apply-repo all survive, and Q3's per-tenant-always ruling STRENGTHENS them (the
+  manifest flow now runs once per tenant by construction) while making its
+  Case A / Case B distinction load-bearing; its Q1 contract home should be
+  answered inside the two-layer change because a per-tenant install provisions a
+  DATABASE as well as two Apps; and the earlier worry that its dispatch App
+  becomes moot is now SETTLED the other way — Q1 keeps git authoritative, so both
+  Apps stay. The topic folder STAYS staged. And codexFactory **#89** ("Plan
+  openXdox standalone project migration", open since 2026-08-25) — its
+  obligations list reads as the change's checklist and its scope boundary
+  correctly leaves the mechanical migration to an OpsxFactory workflow; what
+  changes is that #89 scoped one level of project-register re-parenting while the
+  rulings make it a two-repository extraction with a runtime, a database and a
+  third descendant layer — and Q1 turns "update project-register relationships"
+  into a migration INTO the openDox schema rather than a YAML edit. A
+  cross-reference comment was posted on #89 on 2026-09-04.
+- Contested against a ratified reading, and one tension the rulings create: the
+  2026-09-04 read-only review recommended **NOT NOW** at medium-high confidence,
+  gating the split on the first domain that stands up an instance, on three facts
+  that all remain true (the wallet precedent's live-consumer trigger has not
+  fired; the move cannot be byte-identical; five active changes are mid-flight
+  with two open archive gates). The rulings supersede that by COMMISSIONING the
+  consumer rather than waiting for it, and the three facts become sequencing
+  constraints. Separately, **Q5's second layer and the layer's own NAME
+  disagree**: the direction says openxFactory "brings in the core machinery to
+  map to domains", which describes a domain-mapping core, while the founding
+  ruling says openXdox is "openDox tuned for use with openXfactory", which
+  describes one domain's integration. Under the first reading most of today's
+  reader is `codexDox` and openXdox is largely unbuilt; under the second the
+  domain-mapping core has no home. The packet keeps both, and the concrete test
+  between them is whether a clinician would ever see the word "requirement".
+- Files: 1 (`opendox-two-layer-product.md`). Brainstorm packet (six docs, all
+  under `ideation/brainstorm/`):
+  [`opendox-two-layer-overview.md`](../brainstorm/opendox-two-layer-overview.md)
+  (entry point),
+  [`opendox-core-product.md`](../brainstorm/opendox-core-product.md),
+  [`opendox-domain-mappings.md`](../brainstorm/opendox-domain-mappings.md) (the
+  three mappings and the common core),
+  [`opendox-openxdox-boundary.md`](../brainstorm/opendox-openxdox-boundary.md)
+  (the three-column assignment and the pull-ups),
+  [`opendox-persistence-and-truth.md`](../brainstorm/opendox-persistence-and-truth.md),
+  [`opendox-synthesis-install-and-tenancy.md`](../brainstorm/opendox-synthesis-install-and-tenancy.md).
+- Target capabilities: REMOVED-by-SPLIT `ideation-dashboard` (with a
+  per-requirement successor map across three destinations); ADDED a neutral
+  corpus-adapter seam capability (declared by openDox, implemented by openXdox);
+  ADDED a neutral domain-mapping declaration capability (artifact kinds,
+  lifecycle vocabulary, acts and gates, evidence classes, promoting
+  authorities); MODIFIED `domain-descendant-boundary` (a descendant of a RUNTIME
+  product, and the per-tenant deployment unit); MODIFIED `neutral-product-pin` (a
+  pin whose consumption is a deployment with a migration); possibly MODIFIED
+  `document-lifecycle` (Q11) and `governed-derived-model` (the model/scenario
+  workbench), both carried as design work rather than declared.
+- **Open questions DISPOSITIONED 2026-09-04 — all resolved or knowingly left
+  travelling.** Q6 and Q7 were RULED by Brett Heap in session on issue #656:
+  **Q6** (17:49Z) freezes the dashboard now and carves immediately — the five
+  active `ideation-dashboard` changes (`add-composed-view-authoring`,
+  `add-doxchat-model-intake`, `add-lens-document-selection`,
+  `add-nightly-dashboard-refresh`, `retire-doxbench-chat-turn-v1`) stop where
+  they stand and their live deltas and 20 open tasks RE-HOME into the
+  extraction change and the new repositories as part of the carve, rather than
+  waiting for the wave to clear as the topic recommended; the one genuine
+  conflict (`add-nightly-dashboard-refresh` adding 7 `doc-health` requirements
+  while Q4 separates them) is resolved the same way, by re-homing the change
+  itself. **Q7** (17:51Z) puts both repositories under `opensoft`, BOTH PUBLIC
+  from day one under Apache-2.0 — departing from the recommendation on one
+  point, since it left openXdox's visibility open as a separate, possibly
+  private decision. The three recorded CONFLICTS are RESOLVED in place, text
+  kept: **C1** (17:46Z) the naming collision is accepted knowingly, the
+  repository is `opensoft/openDox`, Amendment 3 states the measured facts and
+  travels with the repository-creating change, not this topic; **C2** (17:47Z)
+  openXdox is the domain-mapping core, PARAMETERIZED by a domain profile, with
+  engineering vocabulary belonging to `codexDox` or openxFactory's own adapter
+  — never to openXdox — resolving the topic's own "finding that most needs
+  contesting"; **C3** (17:48Z) standalone openDox is git-backed by a plain
+  local repository per project, Q1 unchanged, and moving into a governed
+  factory is a push, not a migration. Of the **four secondary questions**, C2's
+  ruling FULLY SETTLES **Q11** (the lifecycle vocabulary is parameterized,
+  exactly as recommended) and PARTIALLY narrows **Q8** (C2 settles which of the
+  three destinations a requirement can land in; the REMOVE-vs-stub mechanics
+  still travel) — C3 similarly reinforces **Q10**'s premise (a standalone
+  consumer is real) without settling its pin-declaration mechanism, which still
+  travels. **Q9** (the byte-identity replacement) is untouched by any ruling and
+  travels unchanged. All dispositions carry a dated `Disposition`/`Dispositioned-by`
+  or `RESOLVED` paragraph in the fragment, citing issue #656 by ruling id.
+- **Exit UNBLOCKED and OWED.** One OpenSpec change on the
+  `split-openxwallet-repo` shape adapted for a two-repository,
+  non-byte-identical extraction of an APPLICATION with a third descendant
+  layer, declaring a code surface across at least six repositories so it
+  archives only on merged plus green realization evidence. Q6's ruling changes
+  the exit plainly: the change RE-HOMES the five active `ideation-dashboard`
+  changes' live deltas and their 20 open tasks (13 in
+  `add-nightly-dashboard-refresh`, 7 in `retire-doxbench-chat-turn-v1`) as part
+  of the carve — `add-composed-view-authoring`, `add-doxchat-model-intake`,
+  `add-lens-document-selection`, `add-nightly-dashboard-refresh` and
+  `retire-doxbench-chat-turn-v1` all stop where they stand and no new dashboard
+  change opens in openxFactory. **Four preparatory slices do NOT depend on the
+  proposal and are still worth taking first**: land Q4's one-way dependency and
+  its small neutral module; name the corpus adapter's operation signatures;
+  harden the apply lane (Q1 promotes a path with ONE dispatch in its history to
+  the only governed write path); and work the three domain mappings out far
+  enough to extract the common core. Both preconditions this exit named —
+  Brett's answers to Q6 and Q7 — are MET; what remains OWED before the carve
+  phase is the unpromoted `ideation-intent-plane` capability promoted or its
+  non-promotion recorded before the per-requirement map is authored, and the
+  OpenSpec change itself (proposal/design/tasks/deltas plus Amendment 3),
+  claimed on issue #656 for the same lane.

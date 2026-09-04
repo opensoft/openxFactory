@@ -325,6 +325,24 @@ above are the text as ratified 2026-08-25 and are retained unedited. Under
 Brett's host ruling the repository-read act moves to the parent and the recipe
 reads as follows; step 5 is unchanged and is not repeated.
 
+> **WHOSE HOST — the disambiguation owed to PR #595's declined review thread,
+> recorded here 2026-09-04 by slice S6.** In the delta's failure scenario
+> "The sealed source artifact is unavailable or invalid", *"no repository
+> fallback, host clone, image push, digest, or pull request MUST occur"*,
+> **"host clone" means a clone on the WORKER host** — the child's own, once the
+> artifact is missing or invalid. It does not reach the parent: the parent's
+> materialization is the PRIOR scenario's requirement ("The lane runs on a
+> night with corpus movement", where the credentialed parent seals fresh
+> openxFactory `main` plus the current recipe into a bounded source artifact),
+> and it has already happened — or already failed — by the time the failure
+> scenario's WHEN can fire. Read in order the two scenarios do not contradict.
+> Copilot read them out of order on PR #595 and reported a contradiction; the
+> finding was DECLINED because the ratified text is right, and this sentence is
+> what that declination promised instead of an edit to ratified text. Realized
+> in the child exactly this way by aggregation PR #243 (`84dbbb24`), whose
+> verification steps all precede the ACR login and whose refusal path exports
+> nothing and falls back to nothing.
+
 1. AFTER the no-change decision finds movement, the credentialed hosted parent
    checks out openxFactory `main` and the Omnigent-Install recipe at `main`, with
    credentials not persisted, and records each path-scoped baked-input revision.
@@ -368,6 +386,62 @@ reads as follows; step 5 is unchanged and is not repeated.
 > exists on `generate` and `generate-and-open`; the measurement above
 > records why it had to. Step 3's invocation is runnable as written.
 
+> **WHAT THE MANIFEST ATTESTS AND WHAT IT ONLY CORROBORATES — recorded
+> 2026-09-04 by slice S6 from the realization's own findings.** The child's
+> verification of the seal (the eight ordered steps of openxFactory PR #648's
+> manifest contract, realized in aggregation PR #243) mixes two different kinds
+> of check, and a reader who does not separate them will over-read the
+> guarantee.
+>
+> **Step 5 is an INTERNAL-CONSISTENCY check, not an independent attestation.**
+> It compares the manifest's `corpus_revision` and `recipe_revision` against
+> the `decision` block the parent sealed *beside them in the same manifest*.
+> The dispatch carries no revision input, so both sides of that comparison come
+> from one file written by one writer: a manifest that lied consistently would
+> pass. It is still worth doing — it catches a malformed or half-written seal,
+> which is the class of fault it exists for — but it does not prove the
+> revisions.
+>
+> **The independent anchors are the four values the dispatch carried and the
+> manifest cannot influence:** `correlation_id`, `artifact_name`,
+> `parent_run_id` and `parent_repository`. All four are checked by the child,
+> and the comment in the child's own verification step says which leg is which
+> rather than letting a reader assume the revisions were independently
+> attested. **The revisions themselves are attested at the other end**, on the
+> only side that still touches a real repository: `git archive`'s tar output
+> carries the commit it was made from in a global extended pax header
+> (`comment=<sha>`, written by git itself), and the parent refuses to seal
+> unless that header equals the `source_head` it is about to record. The
+> child's independent recomputation of `tree_digest` — from the rule the
+> manifest carries in its own `tree_digest_spec`, so the artifact ships its own
+> verification rule — is the other half. Together those are what open question
+> 1 asked for: the one-revision property stays PROVEN rather than degrading to
+> asserted when the child stopped having a `.git` to measure against.
+>
+> **The validator's asymmetry — open question 7, resolved as recommended.**
+> `scripts/validate-ideation-dashboard-contracts.py` is a TOP-LEVEL
+> `scripts/*.py` file that `CORPUS_BAKED_PATHS` does not name, yet
+> `snapshot.find_validator` walks UP for it and `--strict` fails with
+> "validator unavailable" without it. So the SEAL path set is
+> `CORPUS_BAKED_PATHS ∪ {that validator}` while `CORPUS_BAKED_PATHS` — the
+> DECISION scope — is byte-unchanged. The validator's revision is therefore
+> **sealed but not baked**: a commit touching only it moves what the child
+> validates WITH, but does not by itself trigger a rebuild. That asymmetry is
+> deliberate. Widening the decision scope to cover it would make `_same_scope`
+> fire `REASON_SCOPE_CHANGED` against every already-recorded pin and force one
+> rebuild for nothing, and the validator is not COPYed into the image, so it
+> changes no baked byte.
+>
+> **`generated_at` is checked for EQUALITY, not presence — open question 4,
+> strengthened past its own recommendation.** The field is OPTIONAL in
+> `contracts/schemas/ideation-dashboard-snapshot.schema.yaml`, so a lost anchor
+> would degrade silently into a snapshot with no freshness stamp rather than
+> failing `--strict`. Open question 4 asked for a child-side PRESENCE check;
+> #243 asserts EQUALITY against the manifest's `source_committed_at` instead,
+> which is provable because the generator records a supplied value verbatim.
+> The schema field stays optional — making it required would be a contract
+> change and a cut this packet does not need.
+
 Step 3's `--strict` is a real gate and not decoration: it means zero errors AND
 zero warnings, and it also fails when the validator could not RUN, so a
 missing-validator environment cannot silently produce an unvalidated snapshot.
@@ -384,6 +458,23 @@ change. And the context should carry ONLY what the Dockerfile copies: the
 corpus roots are ~8 MB by the Dockerfile's own accounting, and it deliberately
 omits `experiments/` (169 MB), so a lazy `cp -a` of a full checkout would send
 a needlessly enormous context to the daemon.
+
+> **MEASURED 2026-09-04 — the ~8 MB above is the Dockerfile's estimate and it
+> is low by a factor of four.** The sealed source is **3511 files /
+> 35,123,275 bytes (~35.1 MB)**: openxFactory PR #648 (`96aa61a3`) measured it
+> on the real corpus at `3e5a3090`, and aggregation PR #243 (`84dbbb24`)
+> measured **35,159,691 bytes** rehearsing the whole intake against a real seal
+> at `63586454` — the difference is corpus drift between the two revisions, not
+> a disagreement. `ideation/` and `openspec/` dominate. The paragraph's
+> CONCLUSION is unaffected and its arithmetic gets stronger, not weaker: 35 MB
+> of governed roots against a 169 MB `experiments/` tree is still the reason
+> not to `cp -a` a full checkout. What changes is the transfer cost design open
+> question 2 asked about — two ~35 MB Actions-artifact transfers per CHANGED
+> night, accepted as recommended, with a quiet night still transferring nothing
+> because the no-change decision precedes the seal. Every manifest records
+> `file_count` and `total_bytes`, so the figure travels with the artifact and
+> is not a number anyone has to re-measure. Recorded also at `tasks.md` § 7.6,
+> which is where the requirement's staleness bound lands.
 
 **Whether this recipe runs at all** is not decided here. It is decided by the
 input-revision predicate in Decision 10, which runs BEFORE step 1 — so on a

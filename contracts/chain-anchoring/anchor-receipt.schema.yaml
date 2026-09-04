@@ -282,6 +282,28 @@ properties:
       obtainable_independently: {type: boolean}
       supplied_by_minter: {type: boolean}
       source_statement: {type: string, maxLength: 600}
+  daily_item:
+    # THIS RECEIPT'S ANCHORED MATERIAL IS A CLOSED DAILY MANIFEST, AND SAYING SO
+    # IS WHAT MAKES THE DAILY PROFILE'S EXTRA RULES APPLICABLE. Under the
+    # `daily_merkle` profile the aggregation path is the IDENTITY path, so
+    # `aggregation_root == anchored_digest`; a receipt that declares the profile
+    # and carries a non-empty path, or whose entries derive from any other root,
+    # is refused (`aggregation_root_not_identity_for_daily_item`).
+    #
+    # IT CARRIES A POINTER AND NO ACCOUNTING. The window boundaries, the event
+    # count, the batch root, the registry snapshots and the continuity link are
+    # the MANIFEST's `terms`, and they are already committed here through
+    # `material_digest` — restating any of them on this record would put a value
+    # a verifier reads outside the committed block, which the closure rule
+    # refuses.
+    type: object
+    required: [profile, manifest_ref]
+    additionalProperties: false
+    properties:
+      profile:
+        type: string
+        enum: [daily_merkle]
+      manifest_ref: {$ref: '#/$defs/identifier'}
   record_version: {type: integer, minimum: 1}
   notes:
     # OUTSIDE THE ANCHORED COMMITMENT, AND THEREFORE EDITABLE BY A HOLDER. The
@@ -313,18 +335,48 @@ $defs:
     $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/chain_native_value"
   base64url_bytes:
     $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/base64url_bytes"
+  confirmation_profile_snapshot:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/confirmation_profile_snapshot"
+  profile_as_of_token:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/profile_as_of_token"
   configured_witness:
     # ONE WITNESS AS THE CONFIGURATION DEMANDED IT, with everything a
     # receipt-only verifier needs about it. Every member of this shape is a
     # receipt-only input, which is why the whole shape sits inside the committed
     # block.
     type: object
-    required: [witness_id, role, chain_id, completion_horizon_seconds, chain_accepted_time_rule]
+    required: [witness_id, role, chain_id, completion_horizon_seconds,
+               chain_accepted_time_rule, confirmation_profile]
     additionalProperties: false
     properties:
       witness_id: {$ref: '#/$defs/identifier'}
       role: {$ref: '#/$defs/witness_role'}
       chain_id: {$ref: '#/$defs/chain_id'}
+      confirmation_profile:
+        # THE WINDOW-SNAPSHOTTED CONFIRMATION PROFILE, INSIDE THE COMMITTED
+        # BLOCK BECAUSE THE AMENDMENT PUTS IT THERE
+        # (`amend-chain-anchoring-readiness-and-durability`, requirement
+        # "Witness submission and confirmation remain distinct evidence
+        # states": *"Every configured witness SHALL reference its
+        # window-snapshotted confirmation-profile id, version, content digest,
+        # activation checkpoint, and standing evidence in the mint-time
+        # configuration block committed by `anchored_digest`."*).
+        #
+        # IT IS A RECEIPT-ONLY INPUT, WHICH IS THE WHOLE REASON IT SITS HERE.
+        # What separates submitted from confirmed is the profile's objective
+        # condition, so a verifier that reads the profile reference reads a
+        # value the anchored digest binds — and a snapshot a holder could edit
+        # while every inclusion proof still validated would let the confirmation
+        # RULE be swapped under a valid-looking proof. The closure rule already
+        # says it in general: every value the receipt-only computation reads
+        # lives in this block. This is that rule applied, not an exception to
+        # it.
+        #
+        # MINTING UNDER A RETIRED OR COMPROMISED VERSION IS REFUSED
+        # (`confirmation_profile_retired_or_compromised_mints_receipt`), and
+        # `standing` is carried here so that refusal is a comparison against the
+        # committed value rather than a lookup a holder could steer.
+        $ref: '#/$defs/confirmation_profile_snapshot'
       completion_horizon_seconds:
         # `H(w)` — THE DECLARED COMPLETION HORIZON THIS WITNESS WAS CONFIGURED
         # UNDER. It exists because anchoring is a two-phase, deadline-bounded
@@ -360,9 +412,76 @@ $defs:
       - inclusion_proof
       - block_header
       - chain_acceptance_evidence
+      - commitment_derivation
+      - confirmed_under_profile
     additionalProperties: false
     properties:
       chain_id: {$ref: '#/$defs/chain_id'}
+      commitment_derivation:
+        # THE WITNESS-SPECIFIC COMMITMENT PATH, WHICH IS THE STEP THE FOUR
+        # ELEMENTS DO NOT COVER. The amendment's own scenario: an entry may
+        # carry transaction and chain inclusion evidence and still fail to prove
+        # that ITS transaction commitment derives from the SAME
+        # configuration-bound `aggregation_root` the receipt names — and such an
+        # entry is REFUSED even where the transaction itself is canonically
+        # accepted (`witness_commitment_path_absent`). Different witness
+        # commitment paths are MANDATORY where encoding differs; what is refused
+        # is two different SOURCES.
+        #
+        # `proof_over` CAN NAME THE REFUSED VALUE ON PURPOSE. A detached
+        # timestamp proof taken over the raw `daily_batch_root` rather than over
+        # the configuration-bound aggregation root is the specific substitution
+        # the amendment names twice, once for the durability witness and once
+        # for the profile as a whole
+        # (`durability_witness_proof_over_raw_batch_root`), and a shape that
+        # could not say it could not carry the fixture that proves the refusal
+        # fires.
+        type: object
+        required: [source_aggregation_root, path_present, proof_over]
+        additionalProperties: false
+        properties:
+          source_aggregation_root:
+            # THE ROOT THIS ENTRY'S COMMITMENT DERIVES FROM. Every configured
+            # witness's path begins at the SAME value; two entries naming
+            # different roots for one item are refused
+            # (`daily_item_witness_roots_differ`), because a split root is two
+            # anchored items presented as one.
+            allOf:
+              - {$ref: '#/$defs/digest'}
+              - properties: {subject: {const: anchored_commitment}}
+                required: [subject]
+          path_present: {type: boolean}
+          proof_over:
+            type: string
+            enum: [aggregation_root, raw_daily_batch_root]
+          path_ref: {$ref: '#/$defs/identifier'}
+          encoding_statement: {type: string, maxLength: 600}
+      confirmed_under_profile:
+        # THE PROFILE THIS ENTRY WAS EVALUATED UNDER, NAMED ON THE ENTRY ITSELF
+        # (*"every confirmed receipt entry and verification result SHALL name
+        # the profile under which it was evaluated"*). A per-chain entry EXISTS
+        # only once its proof material is captured whole, so an entry is by
+        # construction a confirmed one — which is why this is `required` here and
+        # why the anchor-state record, not the receipt, is where a submitted
+        # witness is reported.
+        #
+        # THE `as_of_token` IS IMMUTABLE EVIDENCE AND NOT A STATUS. It says
+        # `confirmed_under_v<version>_at_<checkpoint>` and it keeps saying that
+        # after the profile retires: current standing is reported by a CURRENT
+        # verification, beside this token and never over it
+        # (`confirmation_profile_standing_rewrites_historical_receipt`).
+        type: object
+        required: [profile_id, version, canonical_digest, as_of_token]
+        additionalProperties: false
+        properties:
+          profile_id: {$ref: '#/$defs/identifier'}
+          version: {type: integer, minimum: 1}
+          canonical_digest:
+            allOf:
+              - {$ref: '#/$defs/digest'}
+              - properties: {subject: {const: confirmation_profile_terms}}
+                required: [subject]
+          as_of_token: {$ref: '#/$defs/profile_as_of_token'}
       witness_id:
         # Which configured witness this entry discharges, where the realization
         # configures more than one witness against one chain. The SHORTFALL is

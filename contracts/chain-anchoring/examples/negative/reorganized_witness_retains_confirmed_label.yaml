@@ -1,0 +1,111 @@
+# expected_failure: reorganized_witness_retains_confirmed_label
+# expected_failure_detail: the state after it is still
+# A REORGANIZATION OBSERVED, AND THE LABEL KEPT ANYWAY. The profile's declared transition rule determines the state and the change is WRITTEN as evidence; a confirmed label retained across a reorganization is an assertion about a block that is no longer there.
+schema_version: 1
+kind: xfactory_chain_anchoring_anchor_state
+state_id: as-negative-reorg
+item_ref: dbm-example-0003
+state: anchor_pending
+per_witness:
+- witness_id: w-example-op-0001
+  role: operational
+  chain_id: chain-example-operational
+  status: confirmed
+  confirmation_profile:
+    chain_id: chain-example-operational
+    profile_id: cp-example-operational
+    version: 2
+    canonical_digest:
+      construction: xfc-jcs-sha256-1
+      subject: confirmation_profile_terms
+      value: sha256:90c3d4f763e5dc6691ba596f91ef00e8aeb7d21b611b9e3df6030f95dffc7207
+    activation:
+      log_sequence: 618
+      checkpoint_ref: cp-log-checkpoint-0618
+    standing: active
+  completion_horizon_seconds: 14400
+  horizon_base:
+    kind: chain_derived
+    chain_id: chain-example-operational
+    value: '2026-09-02T00:09:00Z'
+  submission_evidence:
+    accepted_by_interface: true
+    evidence_kinds:
+    - interface_acceptance
+    - transaction_identifier
+    accepted_at: '2026-09-02T00:04:00Z'
+    interface_ref: iface-example-operational
+  confirmation_evidence:
+    condition_satisfied: true
+    chain_acceptance_rule_passed: true
+    retained_proof_material:
+    - transaction_bytes
+    - inclusion_proof
+    - block_header
+    - chain_acceptance_evidence
+    evaluated_at: '2026-09-02T00:11:00Z'
+  inclusion_proof_captured_at_anchor_time: true
+  landed_receipt_entry_chain_id: chain-example-operational
+  transition_leaf_ref: leaf-example-witness-confirmation-0653
+  observation_change:
+    change_kind: reorganization
+    evidence_written: true
+    state_after: confirmed
+    observed_at: '2026-09-02T06:00:00Z'
+    leaf_ref: leaf-negative-reorg-0001
+- witness_id: w-example-dur-0001
+  role: durability
+  chain_id: chain-example-durability
+  status: submitted
+  confirmation_profile:
+    chain_id: chain-example-durability
+    profile_id: cp-example-durability
+    version: 1
+    canonical_digest:
+      construction: xfc-jcs-sha256-1
+      subject: confirmation_profile_terms
+      value: sha256:0cbf3cf8b7484f38415d55c5ac3d9b142f59a543d2d94b9ad24cfc144ea94469
+    activation:
+      log_sequence: 610
+      checkpoint_ref: cp-log-checkpoint-0610
+    standing: active
+  completion_horizon_seconds: 86400
+  horizon_base:
+    kind: chain_derived
+    chain_id: chain-example-operational
+    value: '2026-09-02T00:09:00Z'
+  submission_evidence:
+    accepted_by_interface: true
+    evidence_kinds:
+    - retained_detached_timestamp_proof
+    accepted_at: '2026-09-02T00:05:00Z'
+    interface_ref: iface-example-aggregation-calendar
+  upgrade_stage:
+    aggregation_submission: submitted
+    chain_confirmation: pending
+  transition_leaf_ref: leaf-example-witness-submission-0653
+  pending_durability_proof:
+    proof_ref: otsproof-example-daily-0003
+    awaiting_upgrade: true
+    aggregation_calendar_ref: cal-example-aggregation
+    upgraded_into_receipt_entry: false
+    reanchored: false
+    prior_transitions_retained: true
+transitions:
+- transition: pending_entry
+  leaf_ref: leaf-example-anchor-pending-entry-0652
+  occurred_at: '2026-09-02T00:03:00Z'
+- transition: witness_submission
+  witness_id: w-example-dur-0001
+  leaf_ref: leaf-example-witness-submission-0653
+  occurred_at: '2026-09-02T00:05:00Z'
+  statement: 'the detached proof is retained and NOT upgraded: OpenTimestamps submitted, underlying
+    chain pending, and no long-horizon claim admitted'
+- transition: witness_confirmation
+  witness_id: w-example-op-0001
+  leaf_ref: leaf-example-witness-confirmation-0653
+  occurred_at: '2026-09-02T00:11:00Z'
+long_horizon_claim_admitted: false
+receipt_ref: rcp-example-daily-0003
+configured_witness_count: 2
+record_version: 1

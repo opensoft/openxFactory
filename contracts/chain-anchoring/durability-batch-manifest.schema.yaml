@@ -1,0 +1,222 @@
+schema_version: 1
+kind: openxfactory-chain-anchoring-contract-schema
+name: xfactory_chain_anchoring_durability_batch_manifest
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/durability-batch-manifest.schema.yaml"
+contract_id: chain-anchoring-durability-batch-manifest
+contract_schema_version: 1
+title: The canonical signed manifest of one closed fixed-UTC durability window
+description: >-
+  THE CLOSED DAILY MANIFEST IS THE ANCHORED ITEM, AND THIS IS ITS SHAPE
+  (`amend-chain-anchoring-readiness-and-durability`, requirement "Fixed UTC
+  durability batches account for every accepted event exactly once": *"The CLOSED
+  DAILY MANIFEST represented by the configuration-bound `anchored_digest` SHALL
+  be the anchored item for this profile; constituent events SHALL be membership
+  leaves and SHALL NOT receive separate multi-anchor receipts."*).
+
+  `terms` IS THE MANIFEST AND EVERYTHING ELSE IS ABOUT IT. The amendment
+  enumerates, field by field, what the canonical signed manifest bytes bind:
+  the eligibility snapshot with its version, digest, activation checkpoint and
+  standing; the window boundaries; first and last sequence when present; the
+  event count; `daily_batch_root`; the Merkle profile's id, version and digest;
+  `previous_daily_anchored_digest`; `close_sequence_watermark`; the resolving
+  signed-log checkpoint's identity, tree size, root and signature; the close
+  reason; the dedupe rule; and the late-arrival rule. Those are `terms`, they are
+  CLOSED, and `material_digest` is taken over them and over nothing else — so the
+  receipt that anchors this item anchors exactly this list.
+
+  THE SUMMARIES ARE DERIVED, NOT DECLARED, AND THE READER TREATS THEM THAT WAY.
+  *"`first sequence`, `last sequence`, and `event count` are summaries of that
+  checkpoint-derived set, not a caller-selected denominator."* A verifier walks
+  every log record through `close_sequence_watermark` under the resolving
+  checkpoint, applies the window's bound eligibility snapshot and the trusted
+  acceptance-time partition, reproduces the ordered admission set, and compares.
+  A manifest that LOWERS its last sequence and count to match a retained prefix
+  is refused (`durability_batch_summary_lowered_below_watermark`) even though its
+  three numbers and its root are perfectly self-consistent — which is precisely
+  the attack a self-consistent summary cannot detect.
+
+  THE CLOSE IS ONE TRANSACTION AND IT CARRIES ITS OWN WATERMARK. *"The SAME
+  atomic close transaction SHALL record a `close_sequence_watermark` ... AND the
+  immutable reference to a signed resolving log checkpoint whose tree size/root
+  covers every log leaf through that watermark."* A watermark without a
+  checkpoint that covers it, or a checkpoint whose tree size falls short of it,
+  is refused (`durability_close_watermark_unproven`): a serialization point
+  nothing witnesses is a serialization point a minter can move.
+
+  CONTINUITY IS OVER THE PREVIOUS `anchored_digest` AND NEVER OVER ITS ROOT. Two
+  consecutive empty windows share the deterministic empty `daily_batch_root` on
+  purpose, so a link over the root cannot tell a missing intermediate day from a
+  present one; a link over the previous item's CONFIGURATION-BOUND anchored
+  digest commits to the previous window's identity, accounting fields, registry
+  snapshots and configuration, so a missing, duplicated, reordered or substituted
+  daily item breaks the next manifest's proof
+  (`daily_continuity_link_over_batch_root`, `daily_continuity_link_unresolved`).
+  The FIRST manifest binds the contract-defined genesis sentinel instead
+  (`first_daily_manifest_without_genesis_sentinel`).
+
+  AN EMPTY WINDOW IS STILL A DAILY ITEM. *"A window with no eligible accepted
+  events SHALL still emit a signed, linked count-zero checkpoint using a
+  deterministic empty root, and that daily item SHALL enter both configured
+  witnesses through the same receipt path."* A skipped empty window is refused
+  (`empty_window_without_linked_checkpoint`) — because a chain of daily items
+  with holes in it proves nothing about the days in the holes.
+
+  AND AN OPEN WINDOW IS NOT ANCHORED. While the window is open its events are
+  evidenced by the signed owner-local log; presenting that as already publicly
+  anchored is refused (`open_window_presented_as_anchored`). Both members that
+  make the claim are writable, because a refusal with no representable negative
+  is a refusal nobody has tested.
+type: object
+required:
+  - schema_version
+  - kind
+  - manifest_id
+  - terms
+  - material_digest
+  - window_closed
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_chain_anchoring_durability_batch_manifest]
+  manifest_id: {$ref: '#/$defs/identifier'}
+  terms:
+    type: object
+    required:
+      - window_open
+      - window_close
+      - eligibility_snapshot
+      - event_count
+      - daily_batch_root
+      - merkle_profile
+      - close_sequence_watermark
+      - resolving_log_checkpoint
+      - close_reason
+      - dedupe_rule
+      - late_arrival_rule
+      - selectivity_applied
+    additionalProperties: false
+    properties:
+      window_open: {type: string, format: date-time}
+      window_close: {type: string, format: date-time}
+      eligibility_snapshot: {$ref: '#/$defs/eligibility_snapshot'}
+      first_leaf_sequence:
+        # PRESENT WHEN THE WINDOW HAS EVENTS AND ABSENT WHEN IT DOES NOT — "when
+        # present" is the amendment's own phrase. A count-zero window carrying a
+        # first and last sequence would be asserting a range over an empty set.
+        type: integer
+        minimum: 0
+      last_leaf_sequence: {type: integer, minimum: 0}
+      event_count: {type: integer, minimum: 0}
+      daily_batch_root:
+        allOf:
+          - {$ref: '#/$defs/digest'}
+          - properties: {subject: {const: daily_batch_root}}
+            required: [subject]
+      merkle_profile: {$ref: '#/$defs/merkle_profile_snapshot'}
+      previous_daily_anchored_digest:
+        # THE PREVIOUS DAILY ITEM'S CONFIGURATION-BOUND ANCHORED DIGEST. Absent
+        # ONLY on the first manifest, which binds `genesis_sentinel` instead;
+        # exactly one of the two is present on a conforming record, and the
+        # reader names which was lacking rather than a shape reporting a missing
+        # property.
+        allOf:
+          - {$ref: '#/$defs/digest'}
+          - properties: {subject: {const: anchored_commitment}}
+            required: [subject]
+      previous_daily_batch_root:
+        # THE MEMBER A CONFORMING MANIFEST DOES NOT CARRY. It is writable so
+        # `daily_continuity_link_over_batch_root` has a fixture: linking over the
+        # previous ROOT is the plausible mistake, and it is exactly the link that
+        # cannot distinguish two consecutive empty days from one.
+        allOf:
+          - {$ref: '#/$defs/digest'}
+          - properties: {subject: {const: daily_batch_root}}
+            required: [subject]
+      genesis_sentinel: {$ref: '#/$defs/daily_genesis_sentinel'}
+      close_sequence_watermark:
+        # THE GREATEST SIGNED-LOG SEQUENCE COVERED BY THE CLOSE'S SERIALIZATION
+        # POINT. The close serializes after every admission assigned before the
+        # exclusive boundary and before the first admission assigned to the next
+        # window, and this number is where that point fell.
+        type: integer
+        minimum: 0
+      resolving_log_checkpoint: {$ref: '#/$defs/resolving_log_checkpoint'}
+      close_reason: {$ref: '#/$defs/window_close_reason'}
+      dedupe_rule: {$ref: '#/$defs/dedupe_rule'}
+      late_arrival_rule: {$ref: '#/$defs/late_arrival_rule'}
+      selectivity_applied:
+        # `false` ON EVERY CONFORMING MANIFEST. "Every durability-eligible event
+        # accepted during a window SHALL appear exactly once in that window's
+        # ordered Merkle batch, WITH NO PER-EVENT SELECTIVITY" — so a manifest
+        # declaring selectivity is refused by name
+        # (`durability_event_selectivity_applied`), and the boolean exists so
+        # that refusal can fire on a record instead of on an absence.
+        type: boolean
+  material_digest:
+    # THE DIGEST OF THE CANONICAL MANIFEST BYTES — that is, of `terms` — and it
+    # is the value the receipt names as its anchored material. The reader
+    # recomputes it and refuses a mismatch, which is what ties the daily item to
+    # the receipt that anchors it rather than leaving the two beside each other.
+    allOf:
+      - {$ref: '#/$defs/digest'}
+      - properties: {subject: {const: anchor_material}}
+        required: [subject]
+  window_closed:
+    # WHETHER THIS WINDOW HAS CLOSED. A manifest for an OPEN window is a lawful
+    # record — it is how a realization reports the open window's state — and it
+    # is exactly the record that must not claim public anchoring.
+    type: boolean
+  reopened_after_close:
+    # THE MEMBER A CONFORMING MANIFEST DOES NOT CARRY AS `true`. A closed window
+    # must not be reopened or rewritten; the boolean is writable so
+    # `durability_window_reopened_after_close` has a fixture, because a reopened
+    # window is a claim a realization makes and not a shape defect.
+    type: boolean
+  presented_as_publicly_anchored:
+    # THE OPEN WINDOW'S ONE FORBIDDEN CLAIM. Writable beside `window_closed:
+    # false` on purpose.
+    type: boolean
+  receipt_ref:
+    # THE MULTI-ANCHOR RECEIPT THAT ANCHORED THIS CLOSED ITEM, once minted. The
+    # receipt holds the mint-time configuration block, the aggregation path and
+    # the per-chain entries; this record holds the accounting. The two are
+    # compared rather than assumed to agree.
+    $ref: '#/$defs/identifier'
+  continuity_leaf_ref:
+    # THE CONTROL LEAF THAT RECORDED THIS CLOSE IN THE SIGNED LOG. Referenced by
+    # identifier, because this family defines no leaf grammar; and it is a
+    # CONTROL leaf, so it is outside the count of the batch it closes.
+    $ref: '#/$defs/identifier'
+  signature_ref:
+    # THE SIGNATURE OVER THE CANONICAL MANIFEST BYTES, by reference. An unsigned
+    # manifest is an accounting nobody stands behind.
+    $ref: '#/$defs/identifier'
+  recorded_at: {type: string, format: date-time}
+  record_version: {type: integer, minimum: 1}
+  notes:
+    # OUTSIDE `terms` AND THEREFORE OUTSIDE THE DIGEST — so nothing a verifier
+    # reads may live here, the same rule the receipt's `notes` carries.
+    type: string
+    maxLength: 1400
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"
+  eligibility_snapshot:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/eligibility_snapshot"
+  merkle_profile_snapshot:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/merkle_profile_snapshot"
+  resolving_log_checkpoint:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/resolving_log_checkpoint"
+  window_close_reason:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/window_close_reason"
+  dedupe_rule:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/dedupe_rule"
+  late_arrival_rule:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/late_arrival_rule"
+  daily_genesis_sentinel:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/daily_genesis_sentinel"

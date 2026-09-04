@@ -1,0 +1,161 @@
+schema_version: 1
+kind: openxfactory-chain-anchoring-contract-schema
+name: xfactory_chain_anchoring_daily_merkle_profile
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/daily-merkle-profile.schema.yaml"
+contract_id: chain-anchoring-daily-merkle-profile
+contract_schema_version: 1
+title: The released immutable daily-Merkle construction profile
+description: >-
+  THE ONE CONSTRUCTION A WINDOW'S BATCH IS BUILT UNDER, FIXED BEFORE ANY
+  COMPLETENESS CLAIM IS MADE ABOUT IT
+  (`amend-chain-anchoring-readiness-and-durability`, requirement "Fixed UTC
+  durability batches account for every accepted event exactly once": *"Before
+  schema or validator authoring, the operator SHALL approve one immutable
+  `daily-merkle` construction profile."*).
+
+  A MERKLE ROOT WITHOUT A CONSTRUCTION IS A NUMBER, NOT A PROOF. Two honest
+  implementations that disagree about odd-node handling, about whether a leaf is
+  domain-separated from an internal node, or about what the empty tree hashes to
+  will compute different roots over the same events — and neither can show the
+  other is wrong. So the construction is RELEASED, VERSIONED and DIGESTED, every
+  admission and every manifest binds the same identifier, version and digest, and
+  an unresolved or substituted profile REFUSES admission and closure before any
+  membership or completeness claim is accepted
+  (`merkle_profile_absent_or_substituted`).
+
+  THE TWO DOMAIN SEPARATORS ARE REQUIRED AND MUST DIFFER. Without separation a
+  leaf digest can be presented as an internal node and a second-preimage
+  substitution becomes available inside a valid-looking path; the reader refuses
+  equal separators as `merkle-domain-separators-equal`, a semantic finding whose
+  code lives OUTSIDE the closed enumeration because inventing a member there
+  would be a contract change made by a reader.
+
+  THE EMPTY ROOT IS DECLARED, NOT DERIVED BY CONVENTION. A window with no
+  eligible accepted events still emits a signed, linked count-zero manifest, so
+  the empty tree must have a value both parties reach. It is declared here, once,
+  and every empty window's manifest binds exactly it — which is also why two
+  consecutive empty windows share a `daily_batch_root` ON PURPOSE and why the
+  continuity link is over the previous item's `anchored_digest` rather than over
+  that shared root.
+
+  HASH ALGORITHM IS A `const` AND EVERY OTHER CHOICE IS AN ENUMERATION. SHA-256
+  is fixed by the amendment's own text, so a second algorithm is UNREPRESENTABLE
+  rather than refused; ordering, tree shape and odd-node handling are choices an
+  operator makes, so each can express the answer this profile does not take and
+  the reader refuses a manifest whose bound version disagrees with the resolved
+  construction.
+type: object
+required:
+  - schema_version
+  - kind
+  - profile_id
+  - version
+  - construction
+  - canonical_digest
+  - approval
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_chain_anchoring_daily_merkle_profile]
+  profile_id: {$ref: '#/$defs/identifier'}
+  version: {type: integer, minimum: 1}
+  construction:
+    # THE DIGESTED SUBSTANCE. Closed, so a member added here is a deliberate
+    # contract edit; immutable, so a change is a NEW VERSION and never a rewrite
+    # of this one.
+    type: object
+    required:
+      - leaf_encoding
+      - hash_algorithm
+      - leaf_domain_separator
+      - node_domain_separator
+      - ordering
+      - tree_shape
+      - odd_node_handling
+      - empty_root
+    additionalProperties: false
+    properties:
+      leaf_encoding:
+        # CANONICAL EVENT-LEAF ENCODING, AND IT IS THIS ESTATE'S ONE
+        # CONSTRUCTION. A second canonicalization would be a second construction
+        # by another name, which the digest-construction file forbids in its own
+        # header.
+        type: string
+        enum: [xfc_jcs_sha256_1_canonical_json]
+      hash_algorithm:
+        type: string
+        const: sha256
+      leaf_domain_separator:
+        # THE DOMAIN-SEPARATION BYTES FOR A LEAF, unpadded base64url — the
+        # spelling this family already uses wherever raw bytes are carried.
+        type: string
+        minLength: 1
+        maxLength: 64
+        pattern: '^[A-Za-z0-9_-]+$'
+      node_domain_separator:
+        type: string
+        minLength: 1
+        maxLength: 64
+        pattern: '^[A-Za-z0-9_-]+$'
+      ordering:
+        # SEQUENCE ORDER, WHICH IS THE ACCEPTANCE-TIME PARTITION'S OWN ORDER.
+        # `acceptance_time_ascending` is the plausible-looking wrong answer:
+        # timestamps can tie and a tie has no deterministic tiebreak, so a batch
+        # ordered by them is a batch two builders can order differently.
+        type: string
+        enum: [leaf_sequence_ascending, acceptance_time_ascending]
+      tree_shape:
+        type: string
+        enum: [binary_left_complete, unbalanced_arbitrary]
+      odd_node_handling:
+        # PROMOTE OR DUPLICATE, AND THE CHOICE MUST BE STATED. Duplicating an
+        # unpaired node is the classic shape ambiguity; promoting it is the
+        # answer that keeps a leaf count recoverable from the tree.
+        type: string
+        enum: [promote_unpaired_node, duplicate_unpaired_node]
+      empty_root:
+        allOf:
+          - {$ref: '#/$defs/digest'}
+          - properties: {subject: {const: daily_batch_root}}
+            required: [subject]
+  canonical_digest:
+    # THE DIGEST OF `construction`, RECOMPUTED BY THE READER. A snapshot naming
+    # this version whose digest does not equal this value is the substitution the
+    # amendment refuses before any root is believed.
+    allOf:
+      - {$ref: '#/$defs/digest'}
+      - properties: {subject: {const: daily_merkle_construction}}
+        required: [subject]
+  approval: {$ref: '#/$defs/approval_record'}
+  released_at: {type: string, format: date-time}
+  vectors:
+    # POSITIVE AND REFUSAL VECTORS FOR THE CONSTRUCTION, which the amendment
+    # requires of the release. They sit OUTSIDE `construction` deliberately: a
+    # vector is evidence ABOUT the rules and not one of them, and folding it into
+    # the digest would make adding a test case a new profile version.
+    type: array
+    minItems: 0
+    items:
+      type: object
+      required: [vector_id, leaf_count, expectation]
+      additionalProperties: false
+      properties:
+        vector_id: {$ref: '#/$defs/identifier'}
+        leaf_count: {type: integer, minimum: 0}
+        expectation:
+          type: string
+          enum: [accept, refuse]
+        expected_root: {$ref: '#/$defs/digest'}
+        statement: {type: string, maxLength: 600}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"
+  approval_record:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/approval_record"

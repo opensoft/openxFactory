@@ -10,12 +10,12 @@ entries:
   path: contracts/CHANGELOG.md
   type: changelog
   git_mode: '100644'
-  digest: sha256:0a81676247a5fde5ca2012b7b3dab61440757163b401d9b3db1fa56c90a9623f
+  digest: sha256:b1f841264a6cddcb0379b9f0bf8bbc38a25473a9add766127cd90ee61e1ed196
 - artifact_id: contracts-readme.md
   path: contracts/README.md
   type: documentation
   git_mode: '100644'
-  digest: sha256:9ee6ab7ccb55feb308cc208d09c8c0e34c019e08522015fe509b96ad5c0f41d3
+  digest: sha256:b1233da828b6cbd87002e87afcbe4a12a1a0eadac5095346634ad1ecce1e8804
 - artifact_id: hermes-runtime-contract-readme
   path: contracts/hermes-runtime/README.md
   type: documentation
@@ -974,7 +974,7 @@ entries:
   path: contracts/manifest.yaml
   type: manifest
   git_mode: '100644'
-  digest: sha256:9daaebe136210959a47542931df3df5e1d076702106b80c1d502c6ba8daa85c6
+  digest: sha256:22d42b4d1fa0fdbabe547f4692a5e48ce0afda4a514afa6ee6babf1905107d65
 - artifact_id: contracts-releases-release-digest-inventory.schema.yaml
   path: contracts/releases/release-digest-inventory.schema.yaml
   type: schema
@@ -1508,7 +1508,7 @@ entries:
   path: tests/intent-compliance/test_release_boundary.py
   type: documentation
   git_mode: '100644'
-  digest: sha256:8bc56be7455d1158d4e859872e7cabc2b0db6add9250c2363e9e14c0dad7086c
+  digest: sha256:9c387fa2452added5dbe918e458bce4c225b7c90ce2f8c80a863cc07a042f89c
 - artifact_id: tests-intent-compliance-test_temporal.py
   path: tests/intent-compliance/test_temporal.py
   type: documentation

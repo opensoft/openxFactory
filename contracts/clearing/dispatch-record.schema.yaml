@@ -57,16 +57,26 @@ description: >-
   cannot present a declared lane as an observed one.
 
   REFUSAL GROUNDS ARE A CLOSED, NAMED ENUMERATION, NOT FREE TEXT — a boundary
-  that logs prose cannot be counted. The enumeration is SEEDED WITH EXACTLY THE
-  TWO GROUNDS THE CURRENT REALIZATION EMITS, `unregistered_operation` and
-  `unknown_lane_selector` (`opensoft/xFactory` clearing-dispatch.yml, PR #191).
-  The requirement text names nine further grounds — expiry, hash mismatch,
-  workflow-path contradiction, commit mismatch, unreadable API, lane not
-  permitted, output-schema failure, origin-scoped credential, committed-data
-  offer — and each becomes a member AS THE OPERATION THAT CAN PRODUCE IT LANDS.
-  Adding one is a governed change to this schema, not a new string in a workflow.
-  Seeding all eleven now would publish grounds no implementation can emit, which
-  is a closed enumeration in name only.
+  that logs prose cannot be counted. The enumeration was SEEDED WITH EXACTLY THE
+  TWO GROUNDS THE FIRST REALIZATION EMITS, `unregistered_operation` and
+  `unknown_lane_selector` (`opensoft/xFactory` clearing-dispatch.yml, PR #191),
+  and IT HOLDS FIVE TODAY. The requirement text named nine further grounds and
+  SIX OF THEM REMAIN ABSENT — expiry, hash mismatch, workflow-path contradiction,
+  commit mismatch, unreadable API, committed-data offer — each becoming a member
+  AS THE OPERATION THAT CAN PRODUCE IT LANDS. Adding one is a governed change to
+  this schema, not a new string in a workflow. Seeding all eleven at once would
+  publish grounds no implementation can emit, which is a closed enumeration in
+  name only.
+
+  THE OTHER THREE — lane not permitted, output-schema failure, origin-scoped
+  credential — WERE ADMITTED ON 2026-09-04 by
+  `admit-deliberation-clearing-operation` (ratified by Brett Heap, PR #645,
+  merged `3cf917b7`), because register entry number two is the FIRST entry that
+  can produce any of them: it is the first to permit one lane and refuse the
+  other, the first to declare a return shape a host actually produces, and the
+  first whose job carries a token at all. The count above is written as a reading
+  TAKEN AT A MOMENT rather than as a standing fact, because a sentence its own
+  successor falsifies is a sentence a later reader cannot rely on.
 
   WORKSPACE DISPOSAL IS A FIELD OF THIS RECORD, not a claim in a job log.
   add-cpc-clearing-boundary's ADDED requirement puts it here deliberately: this
@@ -172,14 +182,58 @@ $defs:
 
   refusal_ground:
     description: >-
-      THE CLOSED, NAMED ENUMERATION. Two members today, one per refusal the
-      current realization can actually emit. A ground absent from this
-      enumeration is added by a governed change to this schema rather than
-      recorded as free text.
+      THE CLOSED, NAMED ENUMERATION. FIVE members as of 2026-09-04, one per
+      refusal a landed entry can actually emit. A ground absent from this
+      enumeration is added by a GOVERNED CHANGE to this schema rather than
+      recorded as free text, and the validator reads this list out of the schema
+      at run time — `clearing-record-refusal-ground-unknown` is not a second copy
+      of it.
+
+      WHO ADMITTED EACH, so a reader is never left to guess whether a member was
+      ratified or typed:
+
+        * `unregistered_operation`   — seeded, add-clearing-dispatch-boundary
+        * `unknown_lane_selector`    — seeded, add-clearing-dispatch-boundary
+        * `lane_not_permitted`       — admit-deliberation-clearing-operation
+        * `output_schema_failure`    — admit-deliberation-clearing-operation
+        * `origin_scoped_credential` — admit-deliberation-clearing-operation
+
+      THE RENDERING RULE, WRITTEN DOWN SO THE SIX THAT REMAIN ARE RENDERED THE
+      SAME WAY. This schema names its awaited grounds IN PROSE and never in
+      identifiers, so there is no identifier anywhere to copy and a realizer
+      would otherwise have to invent one. An identifier is produced FROM one of
+      those prose names by: lower-casing it; joining its words with underscores;
+      dropping any `clearing-` prefix; and turning a compound's internal hyphen
+      into an underscore. The two seeded members already follow it
+      ("unregistered operation" -> `unregistered_operation`; "unknown lane
+      selector" -> `unknown_lane_selector`), and the three admitted in 2026-09
+      were produced by it ("lane not permitted"; "output-schema failure";
+      "origin-scoped credential"). The rule is recorded here rather than
+      re-derived from three examples — and APPLYING IT TO THE SIX THAT REMAIN IS
+      NOT AUTHORIZATION TO SEED THEM.
+
+      `origin` IN `origin_scoped_credential` MEANS THE ORIGINATING REPOSITORY,
+      the sense this schema already fixes for the word in its own field names
+      (`origin_repository`, `origin_workflow_path`, `origin_signature`). It is a
+      credential SCOPED TO the originating repository, wherever it came from —
+      not "the origin signing key's credential" — and the ONE ground covers the
+      whole class of material scoped to that repository which must never reach
+      the host, A SEAT KEY INCLUDED. The awaited list names no separate
+      signing-key ground, and coining one would be minting a CONCEPT where every
+      other member is the rendering of a name this schema already carries.
+
+      THESE ARE NOT THE VALIDATOR'S FINDING CODES. That is a different set with a
+      different spelling — hyphenated and `clearing-` prefixed — and a different
+      emitter. `output_schema_failure` and `origin_scoped_credential` are written
+      by the CLEARING WORKFLOW'S HOSTED FINALIZER at dispatch, not by the
+      canonical validator, which never writes a dispatch record at all.
     type: string
     enum:
       - unregistered_operation
       - unknown_lane_selector
+      - lane_not_permitted
+      - output_schema_failure
+      - origin_scoped_credential
 
 properties:
   schema_version: {const: 1}

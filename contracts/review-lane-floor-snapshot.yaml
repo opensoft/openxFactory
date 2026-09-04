@@ -3,7 +3,7 @@ kind: repository_gate_floor
 floor:
   id: openxfactory-review-authority-register
   repository: opensoft/openxFactory
-  # THIS DOCUMENT IS 8 + 1, NOT 64 EQUALLY-REASONED CHOKEPOINTS.
+  # THIS DOCUMENT IS 8 + 1, NOT 66 EQUALLY-REASONED CHOKEPOINTS.
   #
   # EIGHT hand-reasoned gate chokepoints, each with its own ground below: the
   # intake register, the two paths that determine WHICH READER opens it, a
@@ -116,12 +116,12 @@ floor:
     # ==== BEGIN MACHINE-GENERATED BLOCK — DO NOT HAND-EDIT ====
     # prefix:             openspec/specs
     # source_repository:  opensoft/openxFactory
-    # generated_at:       c236c6b1cd21db3736ff668bb3ce0f9f23a91137
-    # entry_count:        56
+    # generated_at:       0ae74086c4aec05d0d7f1f189cdc76a8b4ef7a8e
+    # entry_count:        58
     # regenerate with:
     #   python3 scripts/merge_master/generate_specs_floor_block.py \
     #     --repo <opensoft/openxFactory checkout> \
-    #     --ref c236c6b1cd21db3736ff668bb3ce0f9f23a91137 --write
+    #     --ref 0ae74086c4aec05d0d7f1f189cdc76a8b4ef7a8e --write
     #
     # ONE GROUND FOR THE WHOLE BLOCK, and it is not the ground above it.
     # The eight entries ABOVE are separately reasoned GATE CHOKEPOINTS: each one
@@ -134,7 +134,7 @@ floor:
     # propose a subset because "a smaller enumeration has the identical failure
     # mode, merely less often").
     #
-    # SO THE READER IS NOT MISLED: this document is 8 + 1, not 64 equally-reasoned
+    # SO THE READER IS NOT MISLED: this document is 8 + 1, not 66 equally-reasoned
     # chokepoints (CSC-C9). Do not hand-edit the block. Do not add a member by
     # hand. Regenerate it with the command above, at a named openxFactory commit.
     #
@@ -185,6 +185,8 @@ floor:
     - openspec/specs/ideation-routing/spec.md
     - openspec/specs/layer-vocabulary/spec.md
     - openspec/specs/lifecycle-notebook-projection/spec.md
+    - openspec/specs/medxchart-overlay-boundary/spec.md
+    - openspec/specs/medxpractice-overlay-boundary/spec.md
     - openspec/specs/memory-gateway/spec.md
     - openspec/specs/neutral-job-envelope/spec.md
     - openspec/specs/neutral-product-pin/spec.md

@@ -1,0 +1,50 @@
+# expected_failure: merkle-domain-separators-equal
+# expected_failure_detail: are the same string
+# ONE SEPARATOR FOR BOTH TREE POSITIONS. Without separation a LEAF digest can be presented as an INTERNAL NODE, and a second-preimage substitution becomes available inside a membership path that still walks. Its code lives outside the closed enumeration, because inventing a member there would be a contract change made by a reader.
+schema_version: 1
+kind: xfactory_chain_anchoring_daily_merkle_profile
+profile_id: dmp-negative-0001
+version: 1
+construction:
+  leaf_encoding: xfc_jcs_sha256_1_canonical_json
+  hash_algorithm: sha256
+  leaf_domain_separator: eGZjLWRhaWx5LWxlYWY
+  node_domain_separator: eGZjLWRhaWx5LWxlYWY
+  ordering: leaf_sequence_ascending
+  tree_shape: binary_left_complete
+  odd_node_handling: promote_unpaired_node
+  empty_root:
+    construction: xfc-jcs-sha256-1
+    subject: daily_batch_root
+    value: sha256:c35fc8b72f989e6106fe6808d62ceece2bbdc436e7dba0184bb35b4bb2ba2ec2
+canonical_digest:
+  construction: xfc-jcs-sha256-1
+  subject: daily_merkle_construction
+  value: sha256:baf51993189d7011a194031a13728478584ba4f54be339753c7b986ee0f552ff
+approval:
+  approval_id: approval-example-0005
+  approved_by: operator
+  approved_on: '2026-08-25'
+  approval_record_ref: record-example-operator-approval-0005
+  decision_statement: approved by the repository operator as the objective condition separating
+    submitted from confirmed on this network, with its transition vectors
+released_at: '2026-08-25T00:00:00Z'
+vectors:
+- vector_id: dmp-vec-empty
+  leaf_count: 0
+  expectation: accept
+  expected_root:
+    construction: xfc-jcs-sha256-1
+    subject: daily_batch_root
+    value: sha256:c35fc8b72f989e6106fe6808d62ceece2bbdc436e7dba0184bb35b4bb2ba2ec2
+  statement: the deterministic empty root, which a count-zero window binds
+- vector_id: dmp-vec-odd
+  leaf_count: 3
+  expectation: accept
+  statement: an unpaired node is PROMOTED, so the leaf count stays recoverable from the tree
+- vector_id: dmp-vec-refuse-undomained
+  leaf_count: 2
+  expectation: refuse
+  statement: 'a leaf digest offered as an internal node is refused: the two domain separators
+    differ precisely so that substitution fails'
+record_version: 1

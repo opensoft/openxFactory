@@ -1,0 +1,161 @@
+schema_version: 1
+kind: openxfactory-chain-anchoring-contract-schema
+name: xfactory_chain_anchoring_confirmation_profile_registry
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/confirmation-profile-registry.schema.yaml"
+contract_id: chain-anchoring-confirmation-profile-registry
+contract_schema_version: 1
+title: The append-only signed registry of approved confirmation profiles
+description: >-
+  THE OPERATOR'S APPROVALS, PUBLISHED APPEND-ONLY, AND THE ONE PLACE A WINDOW
+  RESOLVES ITS PROFILE VERSION FROM
+  (`amend-chain-anchoring-readiness-and-durability`, requirement "Witness
+  submission and confirmation remain distinct evidence states": *"The operator
+  SHALL publish those approvals in an append-only signed confirmation-profile
+  registry ... Registry history MUST NOT be rewritten."*).
+
+  WHY A REGISTRY AND NOT A FIELD. A confirmation rule that lives beside the
+  receipt it governs is a rule the receipt's holder can restate; a rule that lives
+  in an append-only register, is bound by a canonical digest, and is SNAPSHOTTED
+  AT WINDOW OPEN is a rule that is the same for every admission in that window
+  and for every later reader of it. That is the whole mechanism by which "this was
+  confirmed" survives a policy change: the policy change appends a version
+  effective at a LATER window boundary, the old receipt keeps its as-of result,
+  and current verification reports current standing beside it.
+
+  SELECTION IS DETERMINISTIC OR THE WINDOW DOES NOT OPEN. At each UTC window
+  open, exactly one entry per configured network must have `standing: active` and
+  an effective interval containing that boundary; the entry with the GREATEST
+  activation checkpoint wins. Zero matches and two matches are both refused
+  (`eligibility_boundary_selection_ambiguous` is the sibling registry's spelling
+  of the same defect; here it is `confirmation_profile_unresolved` for zero and
+  `registry_history_rewritten` or a rollback refusal for the ways two arise) —
+  because a window that opened under an ambiguous rule has no answer to give
+  later about what it was measuring.
+
+  ACTIVATION IS A LOG POSITION, NOT A DATE. `activation` carries a log sequence
+  inside a named checkpoint, which is what makes "a newer version had already
+  activated" a comparison rather than an argument
+  (`confirmation_profile_snapshot_rolled_back`).
+
+  AND MID-WINDOW ACTIVATION CHANGES NOTHING FOR THE OPEN WINDOW. An entry that
+  activates after a window opened applies to the NEXT window; applying it to the
+  current one is refused
+  (`confirmation_profile_activation_applied_to_open_window`), because a rule that
+  can change while a window is being counted is a rule two readers of the same
+  window can disagree about.
+
+  A RETIRED OR COMPROMISED VERSION IS STILL HISTORY AND IS NO LONGER A BASIS. It
+  MUST NOT mint a new receipt or support a new long-horizon claim
+  (`confirmation_profile_retired_or_compromised_mints_receipt`), and it MUST NOT
+  have its historical receipts rewritten
+  (`confirmation_profile_standing_rewrites_historical_receipt`). Both directions
+  are refused, because each is the other's overcorrection.
+type: object
+required:
+  - schema_version
+  - kind
+  - registry_id
+  - append_only
+  - configured_networks
+  - entries
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_chain_anchoring_confirmation_profile_registry]
+  registry_id: {$ref: '#/$defs/identifier'}
+  append_only: {$ref: '#/$defs/registry_append_only_declaration'}
+  configured_networks:
+    # THE NETWORKS THIS REGISTRY IS OBLIGED TO COVER, DECLARED — which is what
+    # turns "a profile is missing" into a derivable fact rather than a hope. The
+    # ruled configuration names two witnesses; a network listed here with no
+    # `active` entry is the amendment's BLOCKED state, and the reader names it
+    # (`confirmation_profile_unresolved`) rather than validating vacuously over
+    # whichever entries happen to be present.
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items: {$ref: '#/$defs/chain_id'}
+  entries:
+    # ONE IMMUTABLE ENTRY PER APPROVED VERSION, IN APPEND ORDER. A superseded
+    # entry STAYS, with its interval closed and its standing moved — deleting it
+    # is the history rewrite this register exists to prevent, and a reader that
+    # could not see the predecessor could not detect a rollback.
+    type: array
+    minItems: 1
+    items: {$ref: '#/$defs/registry_entry'}
+  recorded_at: {type: string, format: date-time}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"
+  chain_id:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/chain_id"
+  witness_role:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/witness_role"
+  registry_standing:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/registry_standing"
+  approval_record:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/approval_record"
+  activation_checkpoint:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/activation_checkpoint"
+  effective_window_interval:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/effective_window_interval"
+  registry_append_only_declaration:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/registry_append_only_declaration"
+  registry_entry:
+    # THE SEVEN BINDINGS THE AMENDMENT NAMES, PLUS THE NETWORK AND PROFILE THIS
+    # REGISTER IS ABOUT: *"Every registry entry SHALL bind the network, profile
+    # id, immutable version, canonical content digest, approval record,
+    # predecessor when present, activation log sequence and checkpoint, effective
+    # interval, and closed standing."* Every one of them is `required` except
+    # the predecessor, which is absent on the first entry and present on every
+    # successor — and the reader refuses a successor that omits it, because a
+    # chain with a hole in it cannot prove a rollback did not happen.
+    type: object
+    required:
+      - entry_id
+      - chain_id
+      - profile_id
+      - version
+      - canonical_digest
+      - approval
+      - activation
+      - effective_interval
+      - standing
+    additionalProperties: false
+    properties:
+      entry_id: {$ref: '#/$defs/identifier'}
+      chain_id: {$ref: '#/$defs/chain_id'}
+      witness_role: {$ref: '#/$defs/witness_role'}
+      profile_id: {$ref: '#/$defs/identifier'}
+      version: {type: integer, minimum: 1}
+      canonical_digest:
+        allOf:
+          - {$ref: '#/$defs/digest'}
+          - properties: {subject: {const: confirmation_profile_terms}}
+            required: [subject]
+      approval: {$ref: '#/$defs/approval_record'}
+      predecessor_entry_id: {$ref: '#/$defs/identifier'}
+      activation: {$ref: '#/$defs/activation_checkpoint'}
+      effective_interval: {$ref: '#/$defs/effective_window_interval'}
+      standing: {$ref: '#/$defs/registry_standing'}
+      superseded_by_entry_id:
+        # THE FORWARD POINTER, so a reader holding a retired entry can find what
+        # replaced it without scanning. It is a convenience and never the
+        # authority: the authority is the interval and the activation checkpoint,
+        # which is what the reader compares.
+        $ref: '#/$defs/identifier'
+      standing_changed_at:
+        # WHEN A STANDING MOVED, so retirement and compromise are datable
+        # without being retroactive. A standing change is a fact about NOW; the
+        # historical receipt keeps its as-of result, and this member is how a
+        # reader tells the two apart.
+        type: string
+        format: date-time
+      entry_statement: {type: string, maxLength: 600}

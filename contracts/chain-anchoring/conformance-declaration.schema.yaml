@@ -96,8 +96,13 @@ properties:
     # validator closes coverage in both directions, because `uniqueItems` cannot
     # see that two entries name the same obligation with different reasons.
     type: array
-    minItems: 9
-    maxItems: 9
+    # ELEVEN, EXACTLY: one entry per obligation, no more and no fewer. The bound
+    # moved from nine when `amend-chain-anchoring-readiness-and-durability`
+    # ratified its two additive requirements — a declaration whose length could
+    # not follow the capability would either refuse every conforming record or
+    # tolerate a silence, and both are the closure failing.
+    minItems: 11
+    maxItems: 11
     uniqueItems: true
     items:
       type: object
@@ -112,8 +117,21 @@ properties:
           # and its refusing validator; CA-R6 the permissioned consent plane;
           # CA-R7 served verification and access leaves; CA-R8 the separated
           # planes and the authorized linkage derivation; CA-R9 neutrality.
+          #
+          # CA-R10 AND CA-R11 ARE THE AMENDMENT'S TWO, AND THE SET IS ELEVEN
+          # BECAUSE THE CAPABILITY IS ELEVEN
+          # (`amend-chain-anchoring-readiness-and-durability`, ratified
+          # 2026-09-04; its own `tasks.md` 3.2 counts "all eleven promoted
+          # requirements"). CA-R10 the fixed-UTC durability batch that accounts
+          # for every accepted event exactly once; CA-R11 witness submission and
+          # confirmation as distinct evidence states. A declaration that
+          # enumerated nine after the amendment ratified would be a declaration
+          # SILENT on two obligations, which is precisely what
+          # `obligation_not_declared` exists to refuse — the set had to move with
+          # the capability or the closure would have started lying.
           type: string
-          enum: [CA-R1, CA-R2, CA-R3, CA-R4, CA-R5, CA-R6, CA-R7, CA-R8, CA-R9]
+          enum: [CA-R1, CA-R2, CA-R3, CA-R4, CA-R5, CA-R6, CA-R7, CA-R8, CA-R9,
+                 CA-R10, CA-R11]
         obligation_statement: {type: string, maxLength: 600}
         satisfaction:
           type: string
@@ -159,6 +177,8 @@ properties:
       - per_item_witness_selection
       - ten_year_claim_witness
       - operational_witness_conditions
+      - durability_profile
+      - confirmation_profile_resolution
       - audit_surface
       - checkpoint_cadence
       - delay_check_reading
@@ -323,6 +343,68 @@ properties:
         # off a chain; batched checkpoints over the attempt leaves are anchored
         # instead.
         type: boolean
+      durability_profile:
+        # THE AMENDMENT'S REQUIREMENT 2, DECLARED BY THE REALIZATION RATHER THAN
+        # INFERRED FROM ITS RECORDS. A realization can hold perfectly conforming
+        # manifests and still be running the wrong profile — batching hourly,
+        # anchoring the raw batch root, selecting among events — and none of that
+        # is visible in one record. So it is DECLARED, and each wrong answer is
+        # expressible and refused by name.
+        type: object
+        required: [window_kind, anchored_item, witness_root_shared,
+                   empty_windows_anchored]
+        additionalProperties: false
+        properties:
+          window_kind:
+            # FIXED UTC MIDNIGHT-TO-MIDNIGHT, OR IT IS NOT THIS PROFILE.
+            type: string
+            enum: [fixed_utc_daily, rolling_interval, operator_triggered]
+          anchored_item:
+            # THE CLOSED DAILY MANIFEST'S CONFIGURATION-BOUND ANCHORED DIGEST.
+            # `raw_daily_batch_root` and `per_event` are the two refused answers:
+            # the first drops the accounting and the configuration from the
+            # commitment, the second gives every constituent event its own
+            # receipt, which is the shape the amendment names and refuses.
+            type: string
+            enum: [closed_daily_manifest, raw_daily_batch_root, per_event]
+          witness_root_shared:
+            # BOTH CONFIGURED WITNESSES' COMMITMENT PATHS BEGIN AT ONE
+            # `aggregation_root`. `false` is the split-root realization the
+            # amendment refuses by name.
+            type: boolean
+          empty_windows_anchored: {type: boolean}
+          eligibility_registry_ref: {$ref: '#/$defs/identifier'}
+          merkle_profile_ref: {$ref: '#/$defs/identifier'}
+      confirmation_profile_resolution:
+        # THE AMENDMENT'S REQUIREMENT 3 GATE, AND IT IS A GATE ON AUTHORING
+        # ITSELF: *"If either profile is unresolved, schema and validator
+        # authoring SHALL remain blocked rather than leaving finality to an
+        # implementer."* A realization declares which networks it configures and
+        # which of them have a resolved, operator-approved, active profile; a
+        # configured network missing from the resolved set is the BLOCKED state,
+        # named (`confirmation_profile_unresolved`) rather than passed over.
+        #
+        # THIS IS WHERE THE OPERATOR GATE MEETS THE CONTRACT. The contract can be
+        # authored — these shapes ARE the vessel an approval is published into —
+        # and what it cannot do is report a profile resolved that no operator
+        # approved. So the declaration says so in the present tense, exactly as
+        # the reader-not-required warning does.
+        type: object
+        required: [configured_networks, resolved_networks, registry_ref]
+        additionalProperties: false
+        properties:
+          configured_networks:
+            type: array
+            minItems: 1
+            uniqueItems: true
+            items: {$ref: '#/$defs/chain_id'}
+          resolved_networks:
+            type: array
+            minItems: 0
+            uniqueItems: true
+            items: {$ref: '#/$defs/chain_id'}
+          registry_ref: {$ref: '#/$defs/identifier'}
+          operator_approval_outstanding: {type: boolean}
       neutrality:
         # BOTH LISTS ARE REQUIRED AND BOTH ARE EXPECTED EMPTY. A non-empty
         # `domain_record_kinds` is REFUSED

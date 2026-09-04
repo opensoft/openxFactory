@@ -1,0 +1,64 @@
+# expected_failure: eligibility_snapshot_rolled_back
+# expected_failure_detail: retired eligibility entry
+# A ROLLBACK TO THE RETIRED DENOMINATOR. Its successor activated at the greater checkpoint and closed this entry's interval; offering the predecessor is exactly how a minter would shrink a denominator after the fact, so window opening is refused rather than the smaller set accepted.
+schema_version: 1
+kind: xfactory_chain_anchoring_durability_batch_admission
+admission_id: dba-negative-674
+admission_kind: new_leaf
+window_open: '2026-09-02T00:00:00Z'
+window_close: '2026-09-03T00:00:00Z'
+leaf_sequence: 674
+leaf_class: owner_evidence_event
+trusted_acceptance_time: '2026-09-02T10:00:00Z'
+material_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_material
+  value: sha256:8f4f8665217ee9112e77909a4d44f20532c3dab616fff373fd39ce149b8185b7
+event_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: durability_event_leaf
+  value: sha256:30aba5ec6a5b58f4445274a5fcb805f0257491831a012abcd809188a7967ad8e
+dedupe_key_ref: dk-negative-674
+dedupe_rule:
+  rule_id: dedupe-example-owner-local
+  key_scope: owner_local_stable
+  on_identical_replay: return_existing_leaf
+  on_key_reuse_with_different_material: refuse_before_sequence_assignment
+  key_custody:
+    reference_id: custody-example-dedupe-keys
+    resolves_into: governed_layer
+late_arrival_rule:
+  rule_id: late-example-acceptance-selects
+  window_selected_from: trusted_acceptance_time
+  source_time_lateness_recorded: off_chain
+admission_transaction:
+  transaction_ref: txn-dba-negative-674
+  atomic: true
+  steps:
+  - validate_eligibility
+  - apply_dedupe_rule
+  - record_acceptance_time
+  - select_window_from_acceptance_time
+  - assign_next_leaf_sequence
+eligibility_snapshot:
+  registry_id: der-example-0001
+  entry_id: der-entry-0001
+  version: 1
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: durability_eligibility_terms
+    value: sha256:627929a88dc71119696961d0cb961993de9c0d1787256d528efe8c872209e682
+  activation:
+    log_sequence: 605
+    checkpoint_ref: cp-log-checkpoint-0605
+  standing: retired
+merkle_profile:
+  profile_id: dmp-example-daily-merkle
+  version: 1
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: daily_merkle_construction
+    value: sha256:498aa35ea0a41ba00fe57f0df0f3c0b388ab1514cfe9ee7187b4104cca5adc8a
+membership_path: []
+recorded_at: '2026-09-02T10:00:00Z'
+record_version: 1

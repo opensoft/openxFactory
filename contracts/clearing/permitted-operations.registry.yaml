@@ -7,9 +7,24 @@
 # tasks.md 6.2. Registered in contracts/manifest.yaml + contracts/CHANGELOG.md at
 # contract-v3.3, per docs/contract-versioning-policy.md.
 #
-# EXACTLY ONE MEMBER TODAY. `readiness-diagnostic` is the ratified entry #1, and
-# it is the whole register. That is not a placeholder state waiting to be filled
-# in by whoever needs a lane next.
+# ENTRY NUMBER TWO ARRIVED BY THE FRONT DOOR ON 2026-09-04. `deliberation` is
+# the realization of the ratified change `admit-deliberation-clearing-operation`
+# (PR #645, merged `3cf917b7`; ratified 2026-09-04 by Brett Heap, record
+# `openspec/changes/admit-deliberation-clearing-operation/review/ratification-2026-09-04.md`),
+# same capability, requirement "deliberation is register entry number two and
+# returns evidence only"; tasks.md 2.1. THAT REGISTRATION RESERVES NO BUNDLE
+# NUMBER — the row in contracts/manifest.yaml records the CHANGE that registered
+# it and leaves the minor to the cutting session, because a change must not
+# reserve one before merge order is known.
+# `registry_version` ADVANCED 1 -> 2 IN THE SAME ACT: the instance's identity is
+# a `const` but its version is not, and a governed change to a closed set that
+# left the version at 1 would make two different registers indistinguishable by
+# their own declaration.
+#
+# TWO MEMBERS TODAY, AND EACH ARRIVED WITH A SPEC DELTA AND A RATIFIER. That is
+# not a placeholder state waiting to be filled in by whoever needs a lane next,
+# and the count is written as a reading TAKEN AT A MOMENT rather than as a
+# standing fact.
 #
 # ADDING A MEMBER IS A GOVERNED CONTRACT CHANGE, NOT AN EDIT TO THIS FILE.
 # `scripts/validate-clearing-dispatch.py` carries the ratified member set as a
@@ -24,28 +39,42 @@
 # changes they police, so ONE DIFF CAN EDIT EVERY SIDE. What the refusal
 # guarantees is that an addition cannot be made SILENTLY — it is a red check plus
 # a diff touching this file or the validator. It is a tripwire backed by review,
-# and it is not an unforgeable refusal.
+# and it is not an unforgeable refusal. The member set is pinned in FIVE places,
+# not two: the validator's frozen constant, the INDEPENDENT copy in
+# `tests/clearing/test_register_closure.py`, this instance,
+# `.github/workflows/clearing-dispatch-gate.yml`'s literal member-count grep, and
+# the test in `tests/clearing/test_clearing_gate_wiring.py` that pins that grep
+# from a second file. All five move together or the change is red.
 #
-# `deliberation` IS NOT HERE ON PURPOSE. codexFactory #165 wants a deliberation
-# operation on the governed host. It is a LATER GOVERNED CHANGE and it is not in
-# the ratified text this instance realizes, so it does not appear here, and
+# `coding` IS NOT HERE ON PURPOSE, AND IT IS THE NEXT REAL ONE.
+# `add-clearing-dispatch-boundary` design D11 names it as the next real later
+# operation; the estate already holds its lane
+# (`xfactory-execution-lane-workers` / `host-coding-cpc-brett01`) and its
+# grandfathered worker (`execution-lane-coding-worker.yml`, group 7), waiting for
+# it. It is a LATER GOVERNED CHANGE and no ratified text admits it, so it does
+# not appear here, and
 # `examples/negative/register-carrying-an-unratified-operation.yaml` uses it as
 # the fixture that proves the refusal fires. An operation that arrives by editing
 # this comment out is the failure mode the whole requirement exists to prevent.
+# `deliberation` held that role until 2026-09-04 and vacated it by being
+# RATIFIED, which is the only way to vacate it.
 #
 # WHAT THE INSTANCE IS NOT. It is not enforcement. Until the clearing
 # implementation validates a dispatched operation id against THIS FILE, the
 # operative register is that workflow's own literal choice list — the
 # workflow-edit surface `add-clearing-dispatch-boundary` tasks.md 3.7 declares as
-# an accepted interim precisely because it has one member and this successor was
+# an accepted interim precisely because it had one member and this successor was
 # scheduled. That task's own words: once this instance lands, the clearing
 # workflow MUST validate against the registry INSTANCE and stop relying on its
 # own choice list as the authority. That is a task of `opensoft/xFactory`, and a
-# green gate here does not discharge it.
+# green gate here does not discharge it. ADMITTING ENTRY TWO AUTHORIZES NO HOST
+# JOB BY ITSELF: the act that declares one must, in the same act, retire the
+# grandfathered `council-deliberation-worker.yml` route, or it leaves the dormant
+# second door the boundary refuses.
 schema_version: 1
 kind: xfactory_clearing_permitted_operations_registry
 registry_id: clearing-permitted-operations
-registry_version: 1
+registry_version: 2
 
 composes_with:
   - registry_id: worker-enrollment-broker
@@ -182,3 +211,136 @@ operations:
       tasks.md 3 fixes and `opensoft/xFactory`'s clearing workflow already
       declares literally; a rename here without a matching change there would
       make this register disagree with the door it describes.
+
+  # -------------------------------------------------------------------------
+  # ENTRY #2 — the ratified second member, admitted 2026-09-04.
+  #
+  # A BUNDLE-CARRYING OPERATION WHOSE ENTIRE RETURN IS EVIDENCE. It runs the
+  # seat deliberations of an admitted convening on the governed host and hands
+  # back the per-seat outputs; it does not compute, carry, or imply the outcome
+  # those outputs are later used to decide. The consumer is codexFactory PR
+  # #165's leg 3, whose design D13 states in its own words that there was "no
+  # legal home for a deliberation host job today". This entry is that home, and
+  # it was opened by the front door: a spec delta and a ratifier.
+  # -------------------------------------------------------------------------
+  - operation_id: deliberation
+    title: Council deliberation on the governed host (register entry number two)
+
+    permitted_semantics:
+      may:
+        - >-
+          Read the admitted, RE-SEALED deliberation bundle served to it from the
+          CLEARING run. Never from the originating repository: there is no route
+          by which the host may fetch, clone, or authenticate to the producer.
+        - >-
+          Run the seat deliberations the bundle's resolved run specification
+          names, the candidate bytes reaching a seat only as DELIMITED UNTRUSTED
+          INPUT.
+        - >-
+          Emit the per-seat outputs as a STRUCTURED RETURN of evidence — seat
+          identity, that seat's output, and the run identifiers that bind the
+          return to the convening job id, the verified subject pin, and the
+          inbound bundle digest it answers — sealed as an object of the clearing
+          run so the clearing side can re-serve it to the originator.
+      may_not:
+        - >-
+          Check out any repository, the originating repository included. A
+          checkout writes the runner workspace and is refused by this entry's
+          class constraints.
+        - >-
+          Write anything outside the runner's own temporary plumbing, and it
+          SHALL prove its staging area is gone when it terminates.
+        - >-
+          Reference a secret, in any expression or environment block.
+        - >-
+          HOLD ANY SEAT KEY, OR ANY OTHER SIGNING KEY, IN ANY FORM. The return is
+          UNSIGNED on the host and is signed on return by the originating
+          repository's own hosted signer, so NO KEY IS EVER PRESENT ON THE HOST.
+        - >-
+          Carry a verdict, eligibility, decision, go/no-go, approval, or
+          recommendation field. What the seats produce is EVIDENCE; the outcome
+          is computed by the runtime from the signed returns, downstream of and
+          outside this boundary.
+        - >-
+          Report OBSERVED runner-group membership. Observed membership is
+          established only by the periodic single-door attestation reading the
+          provider's API.
+        - >-
+          Affect any repository. This entry declares no repository-affecting
+          output, and a change that gives it one is a change to this entry.
+
+    class_constraints:
+      checks_out_code: false
+      writes: false
+      may_reference_secrets: false
+      # EXACTLY the clearing side's own scoped, short-lived, READ-ONLY admission
+      # credential and nothing else — sufficient to read the CLEARING
+      # repository's own run artifacts, which is how leg 3 receives the re-sealed
+      # bundle, and no more. The spelling is `credential-contracts`' own
+      # (`scripts/validate-credential-contracts.py` `DISPATCH_SCOPES`); this
+      # family mints no scope vocabulary. `metadata:read` is DELIBERATELY ABSENT:
+      # on this provider a token carries metadata read implicitly, so declaring
+      # it would describe the provider's floor rather than a grant this entry
+      # makes, and a register entry that lists floors alongside grants stops
+      # being a bound.
+      #
+      # ENTRY NUMBER ONE'S EMPTY LIST IS NOT WIDENED BY THIS ENTRY AND MUST NOT
+      # BE READ AS HAVING BEEN. Those constraints bind entry number one; a later
+      # bundle-carrying operation carries the clearing side's admission
+      # credential under its OWN entry's constraints, which is this one. A
+      # CREDENTIAL SCOPED TO THE ORIGINATING REPOSITORY SHALL NEVER APPEAR IN
+      # THIS OPERATION'S JOB ENVIRONMENT, whatever this entry's scopes say.
+      token_scopes:
+        - actions:read
+      # A BOUND, NOT A BUDGET. The ratified requirement says BOUNDED and fixes no
+      # number; entry one's 5 is a probe's figure and would make a multi-turn
+      # seat deliberation unable to complete. 120 is the smallest round number
+      # that leaves the bound real rather than nominal. Lowering it is
+      # housekeeping; RAISING it is a widening of what this operation may occupy
+      # the host for, and is reviewed as one.
+      timeout_minutes: 120
+
+    worker_profile: council-deliberation-worker
+
+    # THE ARTIFACT LANE, AND ONLY THE ARTIFACT LANE. A sealed request for this
+    # operation declaring `xfactory-execution-lane-workers` or
+    # `host-coding-cpc-brett01` is refused `clearing-lane-not-permitted` before
+    # any runner is selected, and the refusal is recorded with the ground
+    # `lane_not_permitted`. Widening this list is a governed change to this
+    # entry.
+    lanes:
+      - lane_key: artifact
+        runner_group: xfactory-artifact-workers
+        dispatch_label: host-rider-cpc-brett01
+        expected_runner: xfactory-artifact-cpc-brett01
+
+    output_schema_ref: contracts/clearing/deliberation-return.schema.yaml
+
+    # `internal-governance`: STRICTER than entry one's `public_log_only`, which
+    # is what the comment on that entry promised a bundle-carrying operation
+    # would declare. The difference is in what crosses: entry one reports facts
+    # about the runner that are already visible in a public run log, while this
+    # operation carries SELECTED SOURCE FILES AND A GOVERNANCE PACKET across the
+    # boundary and returns the seats' reasoning about them. THE ATTRIBUTION,
+    # exactly: the `data_handling` FIELD borrows its vocabulary from
+    # `document-cataloging`, as this register's schema says and as
+    # `composes_with` above repeats; the CLASS NAME is the `Handling:` header
+    # value the estate's governance corpus already travels under, of the
+    # `document-lifecycle` / doc-health header family, and the handling
+    # authorization the doc-health worker dispatch requires by default. This
+    # entry declares WHICH class its output carries; it mints no class and no
+    # vocabulary.
+    data_handling: internal-governance
+
+    repository_affecting_output: false
+
+    notes: >-
+      The lane constants are entry number one's own artifact-lane constants and
+      the ones `opensoft/xFactory`'s clearing workflow declares literally; this
+      entry introduces none. ADMITTING THIS ENTRY AUTHORIZES NO HOST JOB. The
+      change in the clearing repository that declares the `deliberation` host job
+      SHALL, in the same act, remove `council-deliberation-worker.yml`'s host
+      jobs, remove its workflow-allowlist entry on `xfactory-artifact-workers`,
+      and shrink the grandfather enumeration by that member — this entry
+      existing beside a live direct route is the dormant second door the boundary
+      refuses.

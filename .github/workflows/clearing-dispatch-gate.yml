@@ -107,11 +107,20 @@ jobs:
             || fail "the pinned decoders were not read. This reader REFUSES rather than decoding keys with arithmetic of its own, so a run that reached the corpus without them did not happen — investigate the gitlink rather than relaxing this line."
 
           # THE LITERAL COUNT IS THE POINT. The permitted-operations register is
-          # CLOSED at exactly one member. If this line has to move, the change
+          # CLOSED at exactly two members. If this line has to move, the change
           # that moved it is a GOVERNED CONTRACT CHANGE with a spec delta and a
           # ratifier — not an edit to a grep.
-          grep -qE '^note  permitted-operations register read: contracts/clearing/permitted-operations\.registry\.yaml \(1 registered operation\)' clearing-gate.log \
-            || fail "the closed register was not opened, or it no longer holds exactly one registered operation. Adding an operation is a governed contract change; do not move this assertion to match the file."
+          #
+          # IT MOVED ONCE, 1 -> 2, ON 2026-09-04, AND THAT IS WHAT MOVING IT
+          # COSTS: `admit-deliberation-clearing-operation` (PR #645, merged
+          # `3cf917b7`), ratified by Brett Heap, admitting `deliberation` as
+          # register entry number two. The count is one of FIVE frozen copies of
+          # the member set — the validator's constant, the INDEPENDENT constant
+          # in `tests/clearing/test_register_closure.py`, the register instance,
+          # this grep, and `tests/clearing/test_clearing_gate_wiring.py`, which
+          # pins this grep's literal from a second file.
+          grep -qE '^note  permitted-operations register read: contracts/clearing/permitted-operations\.registry\.yaml \(2 registered operations\)' clearing-gate.log \
+            || fail "the closed register was not opened, or it no longer holds exactly two registered operations. Adding an operation is a governed contract change; do not move this assertion to match the file."
 
           grep -qE '^note  self-test: [0-9]+ packaged record\(s\) validated, [0-9]+ negative fixture\(s\) refused' clearing-gate.log \
             || fail "the packaged corpus was not adjudicated. The corpus IS the proof that each closed refusal fires."
