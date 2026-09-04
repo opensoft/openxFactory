@@ -860,3 +860,108 @@ contract byte.
       commit and per-file digest. Requirement 9 is what keeps their content out.
 - [ ] 6.5 **The openXwallet successor field** tranche one named remains
       tranche one's to raise; this packet neither closes it nor waits on it.
+
+## Archive — the recorded escape, and the sixteen boxes that made it necessary
+
+**ARCHIVED 2026-09-04 VIA THE RECORDED ESCAPE.** Brett Heap ordered it in
+session, verbatim *"archive chain-anchoring"*, over a packet whose whole
+evidence chain is on `main`: **RATIFIED** 2026-08-30 (PR #513, record
+`review/ratification-2026-08-30.md`, ruling *"2 yes with note"*); **REALIZED**
+PR #629, squash `11feff75`; **COMPLETED** by the amendment's realization PR
+#657, squash `e65dcc48`; and **PUBLISHED** in `contract-v3.4`, squash
+`807a4f47`, annotated tag `a3309921` (PR #653).
+
+`python3 scripts/proposal-support.py . archive add-chain-anchoring` was tried
+FIRST and REFUSED — exit 1, `"change has incomplete tasks"`. Its gate is
+
+    tasks.is_file() and re.search(r"^- \[ \]", tasks.read_text(), re.M)
+    (scripts/proposal-support.py:1079-1081)
+
+— **unconditional on WHICH box**, read off those three lines rather than
+remembered. `OPENSPEC_TELEMETRY=0 openspec archive add-chain-anchoring --yes`
+was run instead, reporting `Task status: 24/40 tasks` and
+`Warning: 16 incomplete task(s) found. Continuing due to --yes flag.` It created
+`openspec/specs/chain-anchoring/spec.md` (`+ 9 added`, `~ 0`, `- 0`) and moved
+the packet to `openspec/changes/archive/2026-09-04-add-chain-anchoring/`.
+
+**PRECEDENT, cited rather than invented**: `declare-spent-bundle-state` § 5.1
+(PR #611, squash `7af2725c`, 2026-09-03), itself following
+`govern-sibling-added-modified-deltas` (PR #571, squash `3bcde7e2`); and the
+immediately preceding application of the same escape, `add-subject-establishment`
+(PR #647, squash `e4ff4fb3`, 2026-09-04), whose seven open boxes named owed
+successor and cross-repository work.
+
+**NOT ONE OF THE SIXTEEN IS UNDONE REALIZATION OF THIS CHANGE**, and ticking any
+of them to satisfy the wrapper would be writing a false completion to get past a
+gate that cannot tell "open by omission" from "open by design" apart. They fall
+in four classes, enumerated here so a re-audit does not have to reconstruct
+them:
+
+**(a) OPERATOR INFRASTRUCTURE — 4.5, 4.6, 4.7, 4.9, 4.10.** § 4's own text calls
+4.5 – 4.7 and 4.9 `[OPERATOR]` in their first words, and `proposal.md`'s
+`code_surface` declares the anchoring RUNTIME — an archival node for the
+operational witness, an aggregation-calendar client for the durability witness,
+the batching scheduler — **NOT THIS CHANGE'S SURFACE**, "commissioned at
+realization and named in `tasks.md` § 4, not contract bytes". 4.10's end-to-end
+exercise of the BOTH-WITNESSES rule cannot run before those witnesses exist, so
+it is the same class one step downstream. Ticked box 4.8 already says this in
+the packet's own voice: *"THE OPERATOR CONDITIONS 4.5-4.7 AND 4.9 REMAIN OPEN
+AND THIS BOX DOES NOT REACH THEM"* — what the reader enforces is that a
+realization cannot CLAIM more than its witnesses support, which is a different
+thing from a witness existing. `contract-v3.4`'s own contract-index row states
+the consequence in canon: *"no witness is configured, no receipt is captured,
+no confirmation profile is approved, no durability window is opened, nothing is
+placed on any chain"*.
+
+**(b) SETTLEMENTS THIS PACKET DELIBERATELY DID NOT FIX — 5.1, 5.2, 5.4, 5.5.**
+Each names a value the ratified requirements require to be DECLARED and
+deliberately do not number: the anchored-item unit (requirement 1 fixes the
+receipt SHAPE and not the unit), the completion horizons and per-chain
+accepted-time rules (requirement 3 requires that they be declared and names no
+numbers), the permissioned plane instance (Fabric or Besu — *"a realization
+decision this packet deliberately does not fix"*, `code_surface`), and the
+linkage-derivation construction (requirement 8 fixes the SHAPE and the refusals
+and deliberately not the construction; the domain overlay fixes the occasion and
+the standard). A packet that numbered them would be authoring the domain content
+requirement 9 exists to keep out.
+
+**(c) BOOKKEEPING DISCHARGED ELSEWHERE, THE BOX LEFT AS ANOTHER SESSION'S TO
+TICK — 3.2 and 4.12.** 4.12 says of itself *"The CUTTING SESSION's act, on
+#565's precedent, and not this realization's"*, and the cutting session
+performed it: `contract-v3.4` (PR #653, squash `807a4f47`, tag `a3309921`,
+2026-09-04) carries the `contracts/CHANGELOG.md` entry, the
+`contract_bundle_version` bump, the `contracts/README.md` contract-index row and
+the rebuilt `contracts/releases/contract-v3.4.digests.yaml`, and its own row
+says so in canon — *"PUBLISHED at `contract-v3.4`, the cut that discharged task
+4.12's half: the changelog entry, the version bump, this row and the rebuilt
+inventory"*. 3.2's substance likewise held: `target_release` remained ALLOCATED
+BY MERGE ORDER and reserved no number, and `proposal.md`'s front matter carries
+the re-measurement taken on the merged head on 2026-09-04. **NEITHER BOX IS
+TICKED HERE, and that is deliberate**: an archive act is not the place to close
+boxes belonging to a ratification round and a cutting session in another lane,
+and ticking them moves this gate not at all — fourteen would remain. The facts
+are recorded one section away instead, which is what a record is for.
+
+**(d) SUCCESSORS AND DEPENDENCIES — 6.1 … 6.5**, under a heading that already
+reads **NAMED, NOT DRAFTED**. They are dependency notes, not work items of this
+change: 6.1's hard prerequisite `add-signed-execution-chain` is itself realized
+and ARCHIVED (`openspec/changes/archive/2026-08-31-add-signed-execution-chain`);
+6.2's PKI plane (`implement-openxpki-install-repo`) is another packet's;
+6.3 sequences against `add-chain-attestation`, which has since reached
+`contract-v3.0`; 6.4 holds the domain overlays out of this repository by name
+(MedxChain/HealthLinc in MedxFactory, LedgerLinc in LedgerxFactory); and 6.5 is
+explicitly *"tranche one's to raise; this packet neither closes it nor waits on
+it"*.
+
+**THE PROMOTION WAS BYTE-CHECKED, NOT TRUSTED.** The requirement text of the
+created `openspec/specs/chain-anchoring/spec.md` was extracted from its first
+`### Requirement:` line and diffed against the same extraction from the archived
+delta at `specs/chain-anchoring/spec.md` — **IDENTICAL but for one trailing
+blank line the archiver emits** (95 509 vs 95 510 bytes), with **NINE
+requirements / 89 SCENARIOS on both sides**, matching `proposal.md`'s and the
+README record's own declared count. `git status --porcelain -uall
+openspec/specs/` named that one file and nothing else, so no promoted
+requirement in any other capability moved a word. **The amendment
+`amend-chain-anchoring-readiness-and-durability` archives SECOND, into this same
+file** — its own task 3.2 fixes that order, and its two ADDED requirements bring
+the capability to eleven.
