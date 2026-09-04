@@ -1,0 +1,38 @@
+schema: spec-driven
+created: 2026-09-02
+origin:
+  kind: staged
+  id: openxFactory:staging:project-repo-schema
+  path: ideation/staging/project-repo-schema
+  reason: >-
+    Staged and exited within hours, on 2026-09-02, because the convener asked
+    for the exit and not because the topic aged. The forcing finding is a gap
+    the family already ruled on and never wrote down: the ratified
+    `add-wallet-carried-review-authority` RECOMMENDS a three-repository shape
+    and rules who elects it and what electing it buys (nothing), and then
+    stops — its own `specs/` deltas are exactly two, no `project-repo-schema`
+    capability exists under `openspec/specs/`, and greps for the
+    recommendation resolve only to that one proposal. A `PA` who elects the
+    schema today has nothing to elect against. Two further acts made the exit
+    possible on the day: Brett Heap ruled the ASSEMBLY leg is per project
+    ("yes, assembly is per project"), which was the topic's declared gate on
+    proposing; and `opensoft/openRepoShape` — named, made public and
+    Apache-2.0-licensed by his rulings the same day — reached a pinnable
+    revision at `deacbdc`, so the pin this change owes can be authored from
+    real bytes rather than deferred. The topic promotes IN FULL: no file
+    remains under `ideation/staging/project-repo-schema/`.
+  approved_by: >-
+    Brett Heap (openxFactory convener) — in session on 2026-09-02, verbatim:
+    "start the add-project-repo-schema exit change". THIS IS AN ADMISSION INTO
+    THE PROPOSAL QUEUE AND NOT A RATIFICATION OF CONTENT: it supplies the
+    origin and approval pair the proposal-origin contract requires and nothing
+    more. The packet remains `Status: draft`, carries no ratification citation,
+    and owes none — the promoted lifecycle rule requires one only for
+    `Status: ratified`. Seven rulings of his are carried as LOCKED constraints
+    rather than as decisions this packet takes (R1 2026-08-22 on the elective
+    shape, ratified inside `add-wallet-carried-review-authority`; R2-R5 and R7
+    of 2026-09-02 — assembly is per project, descendant only if it pins
+    open<Product>, the name and public visibility, Apache-2.0 and create it,
+    and MedxScribe is a temporary pilot and not a real project). Whether this
+    change's CONTENT is ratified is a separate act that has not happened.
+  approved_on: 2026-09-02

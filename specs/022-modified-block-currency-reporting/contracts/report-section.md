@@ -19,6 +19,19 @@ through the arm's advisory launch; `_LAUNCH_SEVERITY` flipped to `error` and
 three worked-example lines and the bullet template below are corrected to
 `` `error` ``; every other class's band is unchanged.
 
+**AMENDED 2026-09-01 by `govern-sibling-added-modified-deltas`, realized as its
+Speckit F1 and F2.** That change adds a SIXTH and a SEVENTH finding class —
+`sibling-pairing declaration` and `added-over-canon collision` — and the SAME
+four enumerations were about to become false about the code they describe, which
+is exactly the reasoning the 2026-08-28 amendment above records. All four carry
+both new classes.
+
+**AND THE TWO NEW ROWS ARE INSERTED, NOT APPENDED.** They sit BEFORE
+`unplaced-finding drift`, because that class reads this map's own verdict on
+every class above it: appending after it would leave the drift row rendering in
+the middle of the block it is about. Both standing ordering claims therefore
+still hold — the gate-bearing arm reads FIRST and the drift class reads LAST.
+
 ## 1. The rendered subtotal block
 
 Rendered under `### modified-block-currency`, after any `FAMILY_NOTES` lines,
@@ -38,12 +51,14 @@ Finding classes, counted apart so the gate-bearing arm is never read as one of t
 - carriage ledger: {n} (`info` — editorial, and the arm says so in every finding)
 - title resolution and ordering: {n} (`warning`)
 - marker defects: {n} (`info`)
+- sibling-pairing declaration: {n} (`warning`)
+- added-over-canon collision: {n} (`warning`)
 - unplaced-finding drift: {n} (`warning`)
 ```
 
-The fifth bullet is LAST and carries NO gloss: the ordering comment's contract
-is "the gate-bearing arm reads FIRST", which appending leaves untouched, and two
-of the five classes carry a gloss where three do not.
+The drift bullet is LAST and carries NO gloss: the ordering comment's contract
+is "the gate-bearing arm reads FIRST", which inserting ahead of it leaves
+untouched, and two of the seven classes carry a gloss where five do not.
 
 **The residual bullet, rendered ONLY when its count is nonzero, verbatim except
 the count:**
@@ -65,6 +80,8 @@ Finding classes, counted apart so the gate-bearing arm is never read as one of t
 - carriage ledger: 7 (`info` — editorial, and the arm says so in every finding)
 - title resolution and ordering: 0 (`warning`)
 - marker defects: 0 (`info`)
+- sibling-pairing declaration: 0 (`warning`)
+- added-over-canon collision: 0 (`warning`)
 - unplaced-finding drift: 0 (`warning`)
 
 - [info] openxFactory:openspec/changes/add-composed-view-authoring/specs/ideation-dashboard/spec.md — active MODIFIED block for 'Composed views are read-only with a repository jump' does not carry 2 of the 6 body units …
@@ -92,11 +109,13 @@ Finding classes, counted apart so the gate-bearing arm is never read as one of t
 - carriage ledger: 0 (`info` — editorial, and the arm says so in every finding)
 - title resolution and ordering: 0 (`warning`)
 - marker defects: 0 (`info`)
+- sibling-pairing declaration: 0 (`warning`)
+- added-over-canon collision: 0 (`warning`)
 - unplaced-finding drift: 1 (`warning`)
 - unclassified: 3 — findings this family emitted that its own class map does not place; the map has drifted from the arms and the counts above are short by this many
 ```
 
-Five class rows plus the residual, summing to the five rows printed beneath —
+Seven class rows plus the residual, summing to the five rows printed beneath —
 the three ledger findings the map no longer places, the titles finding it still
 does, and the one drift `warning` naming them. **The residual row and the drift
 finding are counted APART**: the row counts the arms' unplaced findings, the
@@ -175,8 +194,16 @@ carriage-ledger   <TITLED>does not carry \d+ of the \d+ body units and scenario 
 marker-defects    <TITLED>carries a '\w+' marker by<space>
 title-resolution  <TITLED>resolves to no promoted requirement,<space>
 title-resolution  ^the ordering of MODIFIED blocks for <REPR> is undecided:<space>
+sibling-pairing   <TITLED>rests on an active sibling's addition rather than on canon, and the pairing is<space>
+added-over-canon  ^active (?:`## ADDED Requirements`|`## RENAMED Requirements` `TO:`) block for <REPR> writes a requirement title<space>
 unplaced          ^this family's own class map has no pattern for \d+ findings? this run emitted,<space>
 ```
+
+**`added-over-canon` IS THE ONE ENTRY THAT CANNOT USE `<TITLED>`**, and it is
+anchored to the same DEPTH rather than to the same prefix: its subject is an
+`## ADDED Requirements` block or a rename's `TO:` half, never a MODIFIED block,
+so it spells its own opening and still matches from the start of the rule and
+past the closing quote of the title's `repr`.
 
 Every pattern is anchored at the start of the rule and past the closing quote of
 the requirement title's `repr`, so a corpus-supplied title containing another
@@ -205,7 +232,18 @@ template:marker-defects    active MODIFIED block for {title!r} carries a {form!r
 template:title-resolution  active MODIFIED block for {title!r} resolves to no promoted requirement, no rename of its own, and no active sibling's addition: {why}
 template:ordering          the ordering of MODIFIED blocks for {title!r} is undecided: {names} — {why}; each block is meanwhile measured against canon, the only basis a reader can name
 template:unplaced-drift    this family's own class map has no pattern for {n} finding{s} this run emitted, which share one rule shape the map has drifted behind; the first of them in this family's own report order reads, verbatim: {rule}
+template:sibling-pairing   active MODIFIED block for {title!r} rests on an active sibling's addition rather than on canon, and the pairing is {state}: {why}
+template:added-over-canon  active {block_kind} block for {title!r} writes a requirement title {spec_rel} already states: {why}
 ```
+
+**ONE TEMPLATE CARRIES ALL FOUR OF THE PAIRING CLASS'S REPORTED STATES**, and
+MISDECLARED's four grounds inside its own. One template is one shape is one map
+entry, and the four states share a band and an action and differ only in the
+interpolated `{state}` and `{why}` — so giving any of them fixed prose of its
+own would claim a second remedy where there is one. The marker COUNT is
+interpolated for the same reason every other number this family reports is:
+fixed prose carrying a numeral is a shape the mask cannot strip, and a
+two-marker block and a three-marker one would read as two remedies.
 
 **Every arm RENDERS through its template**, so the fixed prose has exactly one
 definition and no arm can emit a rule text the mask cannot read.
@@ -223,7 +261,7 @@ definition and no arm can emit a rule text the mask cannot read.
    runs), fail-closed: an unrecognized text is never merged into a template
 ```
 
-The six templates are mutually exclusive over masked text, asserted at template
+The eight templates are mutually exclusive over masked text, asserted at template
 level over every fixture tree and the real corpus rather than through `_shape`'s
 single return — a class-level comparison can never exceed one hit however many
 templates match.
@@ -236,11 +274,13 @@ templates match.
 | carriage ledger | same |
 | title resolution and ordering | same |
 | marker defects | name a unit the block does not restate, or drop the declaration — a marker that does not describe the block declares nothing |
+| sibling-pairing declaration | declare the basis with ONE `Modified over` marker and no more than one, name the change carrying the block as that marker's `by` identifier, give the marker the ` — <reason>` tail its form requires, disclose in that reason clause where the basis is not ratified, and hold the archive until the declared change promotes |
+| added-over-canon collision | promote nothing further until the collision is resolved, and — where the requirement genuinely already exists — convert the addition to a modification declared against canon, or withdraw or re-target the rename whose `TO:` title canon already carries |
 | unplaced-finding drift | extend the class map in `scripts/doc_health/modified_block_currency.py`, or fix the drifted rule text the finding names |
 
 Rendered as `action="…"` in every one of the family's ranked-plan rows.
 
-The fifth action names BOTH remedies and interpolates NO path of its own: the
+The drift action names BOTH remedies and interpolates NO path of its own: the
 delta path is already the finding's own `path` field, the drifted rule text is
 quoted in the finding itself, and
 `test_every_finding_carries_its_class_s_band_and_action` compares each finding's

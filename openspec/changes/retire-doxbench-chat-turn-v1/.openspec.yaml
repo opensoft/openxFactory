@@ -1,0 +1,74 @@
+schema: spec-driven
+created: 2026-09-01
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-01-retire-doxbench-chat-turn-v1
+  reason: >-
+    openxFactory issue #522 — "three contract-v2.0-targeted deprecations
+    outlived their target" — measured 2026-08-31 against main tip `4290cad2`
+    AND RE-MEASURED BY THIS PACKET on 2026-09-01 against main tip `1a69b7cb`.
+    TWO BASELINES, TWO ACTS, DELIBERATELY BOTH NAMED: `4290cad2` is what the
+    memo measured and what the ruling adopted; `1a69b7cb` is what this packet
+    re-verified against, and where it disagreed with the memo the tree governs
+    and the proposal says so. Collapsing them to one SHA would hide which
+    findings are the memo's and which are this packet's.
+
+    The memo itself is durable on the operator host at
+    `deprecations-522-memo-2026-08-31.md` — held on the operator's own machine,
+    NAMED here and not located because Principle IV forbids a host-absolute path
+    in a committed file, OPERATOR-LOCAL
+    and deliberately NOT committed here; the durable in-repo referents are issue
+    #522 and its 2026-09-01 ruling comment. There is no
+    staged topic: the subject arrived as a filed issue and was dispositioned by
+    ruling, so `kind: staged` would claim a staging source that does not exist.
+
+    THIS PACKET IS ENTRY 3 ALONE, AND THE SEPARATION IS THE RULING'S. Entries 1
+    and 2 are the named sibling
+    `retire-hermes-flat-keys-and-openworkflow-tokens`. The memo recommended
+    entry 3 be "executed at contract-v3.0, but as its own Speckit slice, not
+    folded into a combined cut", and Brett's ruling adopted that: this is the
+    only one of the three that moves a DIGEST-PINNED SCHEMA's bytes, an
+    inventory member's digest, twelve packaged fixtures, a committed
+    byte-identity baseline test, and a server posture that must be REDESIGNED
+    rather than deleted.
+
+    IT IS ALSO THE ONLY ONE OF THE THREE WHOSE WARNING ACTUALLY FIRES. A
+    default run of `scripts/validate-ideation-dashboard-contracts.py` over a
+    clean checkout reports four warnings, every one naming a removal target the
+    bundle passed one major and five minors ago.
+
+    THIS PACKET IS RATIFIED — 2026-09-01, Brett Heap, repository owner, in
+    session ("ratify #551 and #552"), at pull request #552 tip `c5169476`;
+    record at `review/ratification-2026-09-01.md`. THE RATIFICATION IS A THIRD
+    ACT and is deliberately not merged with the two below it: the FILING of
+    issue #522 on his word of 2026-08-30, then the RULING of 2026-09-01
+    adopting the memo's recommendations (recorded as a comment on #522, and
+    named in `approved_by`), then this. Ratification authorizes the requirement
+    text alone — it performs no realization, moves no schema byte, changes no
+    manifest digest, cuts no bundle and moves no CHANGELOG row, so `tasks.md`
+    §§ 2-7 stay open and § 8's archive gate is undischarged. IT RATIFIES THE
+    FALLBACK POSTURE AS ENCODED, the ruling having set only its DIRECTION
+    ("redesigned, not deleted"). THREE THINGS THE ACT STOOD ON ARE DISCLOSED IN
+    THE RECORD RATHER THAN GLOSSED: no Codex review of this packet has
+    happened — three requests, three provider usage-limit refusals, zero
+    verdicts, and a pass still owed and unblocked; four low-severity Copilot
+    comments stand uncorrected on the ratified head, because correcting them
+    would have produced a head other than the one he ruled on; and `main`
+    carries an inherited `pytest-suite` red from PR #510's carriage-ledger
+    subject, which this packet neither causes nor fixes.
+  approved_by: >-
+    BRETT HEAP, repository owner, 2026-09-01 in session, ruling on openxFactory
+    issue #522 and recorded as a comment there: "execute all three retirements
+    at contract-v3.0, as the memo recommends", entry 3 being "EXECUTE, its own
+    slice", with the `serve.py` v1-fallback posture "redesigned, not deleted".
+    The ruling authorizes the PROPOSAL; IT DOES NOT RATIFY THIS TEXT, and this
+    field is kept unchanged in that respect because it was accurate when
+    written and is accurate now. RATIFICATION IS THE SEPARATE THIRD ACT of the
+    same day, recorded in `origin.reason` above and at
+    `review/ratification-2026-09-01.md`; the packet stands at
+    `Status: ratified` on THAT act, not on this one.
+  approved_on: 2026-09-01
+related:
+  - openxFactory:change:retire-hermes-flat-keys-and-openworkflow-tokens  # SIBLING, authored the same day from the same ruling. Entries 1 and 2. Lands at the SAME contract-v3.0 major and is deliberately a separate packet; neither is a precondition of the other, and this packet's delta touches only `ideation-dashboard` so it does not depend on the capability that one adds
+  - openxFactory:change:add-doxbench-editing-phase-b   # ARCHIVED. The widening release, contract-v1.34: it introduced the co-resident `-v2` family, wrote the machine-readable `deprecated_envelopes` block, and recorded the removal target this packet executes
+  - openxFactory:change:add-doxchat-model-intake       # ACTIVE. Touches the same chat rail and the same schema file; named so a cut ordering the two is a decision rather than a surprise

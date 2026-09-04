@@ -1,0 +1,70 @@
+# LIVE INSTANCE — the FIRST origin grant in the stack.
+#
+# Task 2.3 of the ratified change `add-cpc-clearing-boundary`. Root grant (no
+# `parent_grant_ref`): `issued_by` is the anchored responsible operator under
+# the Human Escalation Contract (`docs/roles-and-authority.md:103-140`).
+# Audience resolves to `../wallets/wal-origin-codexfactory-0001.yaml`; the
+# backing row is `row-origin-codexfactory-0001` in `../register.yaml`; the tier
+# stands on the custody attestation in `../attestations/`.
+#
+# THE ACT IS `originate`, AND IT IS NOT `review`. This grant confers ONE thing:
+# the standing to sign a sealed bounded-request manifest as the originator of
+# that request. It confers no standing to decide anything about any governed
+# object, and the key that carries it appears in no review-authority record —
+# checked, not intended, by the disjointness rule in
+# `scripts/validate-factory-identity.py`.
+#
+# THE SCOPE IS ONE REPOSITORY. `objects` narrows to `opensoft/codexFactory`, so
+# a signature under this grant evidences codexFactory's origination and nothing
+# else. A second originating repository is a NEW wallet, a NEW grant and a NEW
+# row — never a widened `objects` list here, because widening this object
+# narrowing would let one compromised key speak for a repository it was never
+# issued for.
+#
+# NINETY DAYS, AND THE CEILING IS THE POINT. `expires_at` is `issued_at` + 90
+# days and never more. An origin key lives in a hosted CI environment where a
+# compromise is discoverable only by its effects, and where this estate has no
+# projection path that could revoke it at the moment of clearing (design D9,
+# OQ1 open). A short, unconditional expiry is therefore the only propagation
+# mechanism that actually works today: the row lapses whether or not anybody
+# notices. Renewal is a governed re-issuance, not an edit to this line.
+# `expires_at` is character-for-character equal to the backing row's, which
+# `scripts/validate-factory-identity.py` compares.
+#
+# `state: active` IS A SHAPE, NOT A CLAIM. The pinned grant schema's `state`
+# enum is `[active, expired, revoked]` and carries no pending member, so a
+# grant that has been issued but whose key is not yet minted can only be
+# spelled `active`. IT CONFERS NOTHING IN THAT CONDITION: the wallet it
+# addresses declares `FILL-IN-AT-MINT` where its public half belongs, so there
+# is no key to present, and the tree does not merge while that sentinel stands.
+#
+# THE TIER IS `act` AND IT STANDS ON AN ATTESTATION THAT DOES NOT YET EXIST.
+# The ratified requirement caps an origin key whose custody is undeclared or
+# UNATTESTED at the lower authority the custody vocabulary assigns to unattested
+# custody — `request` (rank 1), below `act` (rank 2). The attestation beside
+# this file is a TEMPLATE carrying the same sentinel, so this grant's declared
+# `act` is refused by `scripts/validate-factory-identity.py` with the named
+# finding `factory-identity-tier-unattested` until the operator attests the
+# custody at mint. The tier is written as what the grant IS FOR rather than
+# lowered to what an unattested key could carry, precisely so the refusal
+# fires and the attestation cannot be forgotten.
+schema_version: 1
+kind: xfactory_wallet_grant
+grant_id: grant-origin-codexfactory-0001
+audience:
+  wallet_ref: wal-origin-codexfactory-0001
+  holder_ref: opensoft/codexFactory
+scope:
+  acts:
+    - originate
+  objects:
+    - opensoft/codexFactory
+  authority_tier: act
+  approval_posture:
+    hermes_approval_required_before_apply: true
+    authority_agents_may_approve: false
+    human_escalation_required_for: []
+expires_at: "2026-12-02T00:00:00Z"
+issued_at: "2026-09-03T00:00:00Z"
+issued_by: Brett.Heap@opensoft.one
+state: active

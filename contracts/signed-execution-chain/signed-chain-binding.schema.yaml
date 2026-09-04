@@ -1,0 +1,160 @@
+schema_version: 1
+kind: openxfactory-signed-execution-chain-contract-schema
+name: xfactory_signed_execution_chain_chain_binding
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/signed-chain-binding.schema.yaml"
+contract_id: signed-execution-chain-chain-binding
+contract_schema_version: 1
+title: Signed chain binding — a tier-2 identity's scope, enumeration and chain
+description: >-
+  THE RECORD THAT MAKES "THE CONTROLLER ISSUES THESE IDENTITIES" CHECKABLE
+  (`add-chain-attestation`, requirement "A runner attestation is produced at the
+  controller, on a recorded request"). Saying the controller ISSUES a tier-2
+  identity does not let anyone TELL that it did. A lane can generate its own
+  keypair, label it with the scope a verifier expects, and then forge BOTH the
+  record and its request attribution under that same untrusted key — and EVERY
+  attribution rule in this capability is satisfied by the forgery, because they
+  all check the record against the key rather than the key against an issuer.
+
+  THE CONTROLLER THEREFORE ISSUES EVERY TIER-2 IDENTITY UNDER THREE RECORDS THAT
+  COMPOSE, two of them `add-trust-anchor`'s CANONICAL shapes CONSUMED UNMODIFIED
+  and one this capability's own:
+
+  1. THE CERTIFICATE RECORD — canonical `xfactory_certificate_record`, carrying
+     the identity's PUBLIC-KEY FINGERPRINT (`subject.public_key_fingerprint`) and
+     its VALIDITY BOUNDS (`validity.not_before` / `not_after`), an ephemeral
+     identity being one whose bounds say so. IT CARRIES A FINGERPRINT AND NOT A
+     KEY — the canonical shape holds no public key at all, which is why the
+     verification key is SUPPLIED by the signed record and MATCHED against this
+     fingerprint rather than read from here.
+  2. THE ISSUANCE EVIDENCE — canonical `xfactory_issuance_evidence`, carrying the
+     CONTROLLER'S ISSUANCE ACT: which authority issued, under what establishment
+     level, on whose request, and when.
+  3. THIS RECORD — controller-signed, carrying exactly what neither canonical
+     shape admits: the identity's SUBJECT SCOPE, its CLOSED RECORD-KIND
+     ENUMERATION, and THE CHAIN IDENTITY IT SERVES — and REFERENCING (1) and (2)
+     by their `certificate_id` and `issuance_evidence_id`.
+
+  THE COMPOSITION IS FORCED BY THE CANONICAL SHAPES AND IS NOT A PREFERENCE. Both
+  trust-anchor schemas are `additionalProperties: false` at every level and admit
+  none of the three facts above. An earlier form of the requirement asked for all
+  five bindings in "issuance evidence expressed in `add-trust-anchor` vocabulary",
+  WHICH NO REALIZATION COULD BUILD: it would have had to invent the parallel
+  certificate-like record the requirement itself forbids, or drop the bindings and
+  re-open the forged-identity gap. COMPOSITION IS WHAT LETS THE CANONICAL SHAPES
+  STAY CANONICAL.
+
+  AND THIS RECORD IS NOT A CERTIFICATE SHAPE, WHICH IS WHY THE
+  NO-SECOND-VOCABULARY RULE SURVIVES INTACT. It asserts no key, no validity, no
+  issuing authority and no trust; it establishes nothing about WHO A SIGNER IS —
+  that is entirely (1) and (2)'s work, in `add-trust-anchor`'s vocabulary and no
+  other. What it carries is what THIS capability means by a tier-2 identity: which
+  chain it serves, which subject scope it holds, and which record kinds it may
+  sign.
+
+  VERIFICATION COMPOSES ALL THREE AND THE FORGED-IDENTITY REFUSAL FIRES ON ANY ONE
+  MISSING: the certificate valid and CURRENT — bounds that are merely PRESENT are
+  not bounds that are MET — the issuance evidenced, and this binding naming THIS
+  chain and the scope the record's kind requires. A signature whose record kind
+  falls outside the enumeration ITS OWN BINDING carries is refused on the same
+  footing, so the closed enumerations are enforced against the ISSUER'S SIGNED
+  STATEMENT rather than against a reader's memory.
+
+  IT IS A SIGNED RECORD OF THIS CAPABILITY, SO IT TAKES ITS PLACE IN THE WALK BY
+  THE GENERAL RULE. A late-dispatched task's identity is issued after the hash-link
+  rule is in force, minting a binding mid-run; it descends from THE ACTUAL NEAREST
+  PRIOR IN-FORCE SIGNED RECORD, and the records written after it descend from it in
+  turn. Folding a NAMED KIND into the order rather than stating the rule over the
+  SET is exactly how this record fell outside the walk the moment it was created —
+  recorded here because the packet paid a round for it.
+type: object
+required:
+  - schema_version
+  - kind
+  - binding_id
+  - chain_ref
+  - signed_binding
+  - binding_signature
+  - issued_at
+  - leaf_ref
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_signed_execution_chain_chain_binding]
+  binding_id: {$ref: '#/$defs/identifier'}
+  chain_ref: {$ref: '#/$defs/chain_ref'}
+  signed_binding: {$ref: '#/$defs/signed_binding'}
+  binding_signature:
+    # SIGNED UNDER THE CONTROLLER CERTIFICATE — never under the identity it
+    # issues, which would be a key vouching for itself.
+    allOf:
+      - {$ref: '#/$defs/signature_block'}
+      - properties: {signed_over: {const: signed_binding}}
+        required: [signed_over]
+  issued_at: {type: string, format: date-time}
+  leaf_ref: {$ref: '#/$defs/identifier'}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/digest"
+  chain_ref:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/chain_ref"
+  signature_block:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/signature_block"
+  predecessor:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/predecessor"
+  subject_scope:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/subject_scope"
+  authorized_record_kind:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/authorized_record_kind"
+  signed_binding:
+    type: object
+    required:
+      - chain_ref
+      - digest_construction
+      - predecessor
+      - identity_key_ref
+      - certificate_ref
+      - issuance_evidence_ref
+      - subject_scope
+      - authorized_record_kinds
+    additionalProperties: false
+    properties:
+      chain_ref:
+        # THE CHAIN IDENTITY IT SERVES, inside the signed bytes. A binding naming
+        # ANOTHER chain is refused (`chain_binding_names_another_chain`) — an
+        # identity issued for one chain is not an identity for the next one.
+        $ref: '#/$defs/chain_ref'
+      digest_construction: {type: string, const: xfc-jcs-sha256-1}
+      predecessor: {$ref: '#/$defs/predecessor'}
+      identity_key_ref: {$ref: '#/$defs/identifier'}
+      certificate_ref:
+        # (1) BY `certificate_id`. Consumed, never redefined.
+        $ref: '#/$defs/identifier'
+      issuance_evidence_ref:
+        # (2) BY `issuance_evidence_id`. Consumed, never redefined.
+        $ref: '#/$defs/identifier'
+      subject_scope: {$ref: '#/$defs/subject_scope'}
+      task_ref:
+        # REQUIRED BY THE READER on a `per_task` binding and REFUSED on a
+        # `chain_scoped` one: a per-task identity that names no task is valid for
+        # one task nobody can identify, and a chain-scoped identity that names one
+        # has a subject narrower than the records it is authorized to sign.
+        $ref: '#/$defs/identifier'
+      authorized_record_kinds:
+        # THE CLOSED ENUMERATION FOR THIS IDENTITY. The reader requires it to EQUAL
+        # the set its `subject_scope` fixes — {runner attestation} for `per_task`,
+        # {PR-open decision, closure record} for `chain_scoped` — so a binding
+        # cannot widen an identity by writing a longer list, and an authority record
+        # is not expressible here at all.
+        type: array
+        minItems: 1
+        maxItems: 2
+        uniqueItems: true
+        items: {$ref: '#/$defs/authorized_record_kind'}
+      validity_statement: {type: string, maxLength: 600}

@@ -822,7 +822,11 @@ Guidance:
   scaffolded file is a stub written before any install exists, so it declares
   the const-true `instantiation_stub` token and nothing else; an instantiator
   REPLACES the token with the two identifiers when the consuming system exists,
-  rather than keeping it beside live values. The exemption is the TOKEN and
+  rather than keeping it beside live values; where the provider issues that
+  identity out of a named directory, account or tenant, the instantiator also
+  declares `identity_namespace`, which is optional and is what keeps two
+  tenants' identically-named principals from reading as one authority.
+  The exemption is the TOKEN and
   never the `*.template.yaml` filename — a filename is author-chosen and
   invisible in the bytes a pinned consumer validates — and a placeholder is not
   an alternative: it fails the identifier grammar, and a grammar-passing

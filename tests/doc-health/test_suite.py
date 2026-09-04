@@ -764,7 +764,7 @@ def test_full_run_still_fires_uncited_resolution_when_genuinely_resolved(
 # xFactory nightly carried 25 such rows, exactly the 25 uncited-resolution
 # findings of the 2026-08-26 baseline, with no document behind any of them.
 #
-# `uncited-resolution` is not one of the twenty-two check families
+# `uncited-resolution` is not one of the twenty-three check families
 # (doc-health.md "Check Families"; `FAMILY_IDS`) — it is the ENFORCEMENT of
 # the contested-finding rule for those families, so its own vanishing is not a
 # fact about corpus state a citation can discharge a second time. The fix

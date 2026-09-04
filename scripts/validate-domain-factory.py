@@ -13,8 +13,9 @@ Checks (errors fail the run; warnings fail only with --strict):
   3.  hermes.layers declares exactly one static customer, client, and domain
       template (extensions allowed with authority_scope); the one Customer
       template may realize zero or more runtime customer_subject instances.
-      Overlay dirs exist and contain at least one YAML file. Legacy flat keys
-      are accepted with deprecation warnings.
+      Overlay dirs exist and contain at least one YAML file. A stack that
+      declares no hermes.layers list is an error: the legacy flat-key
+      fallback read was removed at contract-v3.0.
   4.  omnigent.domain_overlay dir exists.
   5.  tenancy declares kinds + isolation; isolation values are from the
       recognized scope vocabulary.
@@ -23,7 +24,6 @@ Checks (errors fail the run; warnings fail only with --strict):
   7.  tenants/examples/*.yaml: profile references resolve.
   8.  workflows/*.yaml: every gate has id + owner_layer + requires;
       owner_layer resolves to a declared layer, omnigent, or xfactory.
-      "openworkflow_*" tokens are flagged as deprecated naming.
   9.  Cross-ID consistency (when files exist): tool-routing workflow and
       worker-capability references resolve; workflow credential
       requirements resolve; near-duplicate IDs across the credential
@@ -56,17 +56,6 @@ CANONICAL_ROLES = ("customer", "client", "domain")
 ISOLATION_SCOPES = {
     "per_tenant", "per_client", "per_customer", "per_customer_subject", "per_patient",
     "per_campaign", "per_project", "per_ledger", "shared_with_review",
-}
-LEGACY_HERMES_KEYS = {
-    "subject_overlay": "customer",
-    "subject_layer_name": "customer",
-    "customer_overlay": "customer",
-    "customer_layer_name": "customer",
-    "client_overlay": "client",
-    "client_layer_name": "client",
-    "care_organization_overlay": "client",
-    "domain_overlay": "domain",
-    "domain_layer_name": "domain",
 }
 SECRET_PATTERNS = [
     re.compile(r"-----BEGIN (RSA|EC|OPENSSH|PGP) PRIVATE KEY-----"),
@@ -187,17 +176,16 @@ def resolve_layers(root: Path, stack: dict, rpt: Report) -> dict[str, dict]:
             if role not in layers:
                 rpt.error(f"stack.yaml: hermes.layers missing required role {role!r}")
     else:
-        rpt.warn("stack.yaml: hermes uses legacy flat keys; migrate to hermes.layers "
-                 "(canonical roles customer/client/domain)")
-        for key, role in LEGACY_HERMES_KEYS.items():
-            if key.endswith("_overlay") and key in hermes:
-                layers.setdefault(role, {})["overlay"] = hermes[key]
-            if key.endswith("_layer_name") and key in hermes:
-                layers.setdefault(role, {})["display_name"] = hermes[key]
-        for role in CANONICAL_ROLES:
-            if role not in layers or "overlay" not in layers.get(role, {}):
-                msg = f"stack.yaml: no overlay resolvable for hermes role {role!r}"
-                (rpt.error if role in ("customer", "domain") else rpt.warn)(msg)
+        # The legacy flat-key FALLBACK READ was removed at contract-v3.0
+        # (retire-hermes-flat-keys-and-openworkflow-tokens). It is REPLACED by
+        # this error rather than merely deleted: the missing-required-role
+        # errors above sit inside the `layers`-declared branch, so a bare
+        # deletion would let a `layers`-less stack fall through to an EMPTY
+        # layer map and produce no finding at all — a silent widening at a
+        # major, the exact opposite of the retirement.
+        rpt.error("stack.yaml: hermes.layers is missing or is not a list; declare it "
+                  "with the canonical roles customer/client/domain (the legacy flat-key "
+                  "fallback read was removed at contract-v3.0)")
     for role, layer in layers.items():
         overlay = layer.get("overlay")
         if not overlay:
@@ -306,10 +294,7 @@ def check_workflows(root: Path, stack: dict, layers: dict, rpt: Report) -> set[s
             if not gate.get("requires"):
                 rpt.error(f"workflows/{wf.name}: gate {gid} has empty requires")
             token = snake(str(owner))
-            if token.startswith("openworkflow"):
-                rpt.warn(f"workflows/{wf.name}: gate {gid} owner_layer {owner!r} uses "
-                         "deprecated openWorkflow naming; use 'xfactory'")
-            elif token not in allowed:
+            if token not in allowed:
                 rpt.error(f"workflows/{wf.name}: gate {gid} owner_layer {owner!r} does "
                           f"not resolve to a declared layer (allowed: {sorted(allowed)})")
     return workflow_ids

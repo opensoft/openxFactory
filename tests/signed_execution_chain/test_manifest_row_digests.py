@@ -8,11 +8,15 @@ nobody shipped — and that is not hypothetical here: `validate-manifest-digests
 exists at all because one stale row (`content-manifest.schema.yaml`) rode through
 THREE bundle cuts undetected.
 
-**AND THAT SWEEPER IS WIRED INTO NOTHING.** `grep -rn validate-manifest-digests`
-finds it in prose — a README line, changelog history, task lists — and in no
-workflow and no test. So it catches drift only when a human remembers to run it,
-which is the same failure mode it was written to close, one level up. This test
-is the standing check for the rows THIS family owns.
+**THAT SWEEPER WAS WIRED INTO NOTHING, until issue #512's second half gave it
+a lane.** `grep -rn validate-manifest-digests` used to find it in prose — a
+README line, changelog history, task lists — and in no workflow and no test;
+it now also finds `tests/manifest_digests/test_manifest_digest_sweep.py`,
+which runs it as a subprocess on every required-suite pass and proves it can
+fail closed, not only that it passes today. It used to catch drift only when
+a human remembered to run it, which was the same failure mode it was written
+to close, one level up. This test remains the standing check for the rows
+THIS family owns.
 
 WHY NOT THE WHOLE MANIFEST. The estate-wide sweep is
 `scripts/validate-manifest-digests.py`'s job and it is the right tool for it
@@ -39,10 +43,11 @@ import yaml
 ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = ROOT / "contracts" / "manifest.yaml"
 
-# The five schemas the family README's table names, keyed by manifest row id.
-# A sixth file in contracts/signed-execution-chain/ that is a schema and is NOT
-# here would be an unregistered contract, which is what the closure test below
-# refuses.
+# The thirteen schemas the family registers, keyed by manifest row id: tranche
+# one's five (contract-v2.5) and tranche two's eight (contract-v2.6,
+# add-chain-attestation task 5.9). A fourteenth file in
+# contracts/signed-execution-chain/ that is a schema and is NOT here would be an
+# unregistered contract, which is what the closure test below refuses.
 EXPECTED_ROWS = {
     "signed-execution-chain-digest-construction": (
         "contracts/signed-execution-chain/digest-construction.schema.yaml"
@@ -58,6 +63,30 @@ EXPECTED_ROWS = {
     ),
     "signed-execution-chain-conformance-declaration": (
         "contracts/signed-execution-chain/conformance-declaration.schema.yaml"
+    ),
+    "signed-execution-chain-attestation-common": (
+        "contracts/signed-execution-chain/attestation-common.schema.yaml"
+    ),
+    "signed-execution-chain-setup-attestation": (
+        "contracts/signed-execution-chain/setup-attestation.schema.yaml"
+    ),
+    "signed-execution-chain-commitment-extension": (
+        "contracts/signed-execution-chain/commitment-extension.schema.yaml"
+    ),
+    "signed-execution-chain-signed-chain-binding": (
+        "contracts/signed-execution-chain/signed-chain-binding.schema.yaml"
+    ),
+    "signed-execution-chain-runner-attestation": (
+        "contracts/signed-execution-chain/runner-attestation.schema.yaml"
+    ),
+    "signed-execution-chain-pr-open-decision": (
+        "contracts/signed-execution-chain/pr-open-decision.schema.yaml"
+    ),
+    "signed-execution-chain-closure-record": (
+        "contracts/signed-execution-chain/closure-record.schema.yaml"
+    ),
+    "signed-execution-chain-remediation-declaration": (
+        "contracts/signed-execution-chain/remediation-declaration.schema.yaml"
     ),
 }
 
@@ -85,7 +114,7 @@ def _family_rows() -> dict[str, dict]:
     return rows
 
 
-def test_the_family_registers_exactly_the_five_schemas() -> None:
+def test_the_family_registers_exactly_the_thirteen_schemas() -> None:
     """Closed in BOTH directions: a schema with no row is an unregistered
     contract, and a row with no schema is a digest over nothing."""
     assert _family_rows().keys() == EXPECTED_ROWS.keys()
@@ -154,5 +183,9 @@ def test_every_row_names_the_bundle_that_registered_it(row_id: str) -> None:
     pinning and that the digest must be checked before a copy is treated as
     current."""
     rule = _family_rows()[row_id]["consumption_rule"]
-    assert "Registered at contract-v2.5" in rule, row_id
+    # Tranche one's rows register at contract-v2.5 (four of them additionally
+    # noting the v2.6 extension that moved their bytes); tranche two's register
+    # at contract-v2.6. Either way the row must SAY which bundle registered it.
+    assert ("Registered at contract-v2.5" in rule
+            or "Registered at contract-v2.6" in rule), row_id
     assert "per-file sha256 verified" in rule, row_id

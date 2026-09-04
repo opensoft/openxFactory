@@ -790,13 +790,23 @@ that paperwork, the disposition included.
 The five open design points `design.md` names, plus the one this tranche inherits.
 Each is contract content — cheap now, expensive after a bundle ships.
 
-- [ ] 4.1 Fix the **signing-request record shape**, for BOTH SUBJECT SCOPES — a
+- [x] 4.1 Fix the **signing-request record shape**, for BOTH SUBJECT SCOPES — a
       field on the record or a sibling record it references, for the task-scoped
       link-5 request AND for the chain-scoped link-6/link-10 request. The
       requirement fixes for each that it is recorded alongside the signature, that
       the request is ATTRIBUTED (to the provisioned task; to the party the chain's
       inception record binds), and that absence is refused — not its shape.
-- [ ] 4.2 Fix the **evidence-class vocabulary's closure** — whether
+      **SETTLED: a REQUIRED member INSIDE the signed block, not a sibling record**
+      (`contracts/signed-execution-chain/attestation-common.schema.yaml`
+      `$defs.signing_request`, consumed by `$ref` from the runner attestation,
+      the PR-open decision and the closure record). One shape, two attribution
+      modes (`controller_provisioning` for link 5; `chain_inception_binding` for
+      links 6/10), the request's own `payload_digest` taken over the signed block
+      WITH the request removed so the commitment is well-founded, and ABSENCE IS
+      UNREPRESENTABLE rather than refused — the member is `required`, which is
+      stronger than the requirement asked for and recorded as such in the
+      conformance declaration's SEC-R11 entry.
+- [x] 4.2 Fix the **evidence-class vocabulary's closure** — whether
       `controller_corroborated` / `independently_observed` / `runner_claimed` is a
       CLOSED set at the schema, and what a fourth class would have to establish.
       **THE NAMED INPUT TO THIS DECISION IS
@@ -810,14 +820,49 @@ Each is contract content — cheap now, expensive after a bundle ships.
       composition and ORDER D2 declares — not against intuition — and the schema
       SHALL carry an explicit composition statement on that registry's own
       `composes_with` pattern so the two sets cannot drift into two custody models.
-- [ ] 4.3 Fix **what a setup attestation enumerates** — how the model surface, the
+      **SETTLED: CLOSED at three members**
+      (`attestation-common.schema.yaml` `$defs.evidence_class`, `enum` of exactly
+      `controller_corroborated | independently_observed | runner_claimed`), with
+      the composition statement carried in that file's prose on the registry's
+      own `composes_with` pattern, naming
+      `contracts/trust-anchor/trust-anchor-chain-custody.registry.yaml` and the
+      ORDER D2 declares (custody ceiling first, evidence class second, and no
+      class raises a fact above the ceiling — `custody_ceiling_exceeded` is the
+      reader's named refusal for the drift). A fourth class is a governed change
+      to that enum judged against the registry's `excluded_models` reasoning.
+- [x] 4.3 Fix **what a setup attestation enumerates** — how the model surface, the
       harness and its version, the toolchain and the workspace provenance are each
       expressed.
-- [ ] 4.4 Fix the **ordering key for the plural-predecessor enumeration**, settled
+      **SETTLED: four NAMED fact lists under one fact shape**
+      (`setup-attestation.schema.yaml` `provisioned_environment`, members
+      `model_surface`, `harness`, `toolchain`, `workspace_provenance`, each a
+      non-empty list of `$defs.attested_fact` — fact name, value, REQUIRED
+      evidence class, and `observed_by` wherever the class asserts independent
+      observation). The four surfaces are the requirement's own enumeration; the
+      fact shape is shared with link 5 so corroboration is a comparison over one
+      grammar rather than a translation between two.
+- [x] 4.4 Fix the **ordering key for the plural-predecessor enumeration**, settled
       WITH tranche one's single digest construction and never beside it.
-- [ ] 4.5 Confirm the extended gate stays **ONE required check walking further**,
+      **SETTLED: THE LOG'S OWN ORDER IS THE KEY.** A record's predecessor is the
+      actual nearest prior IN-FORCE signed record of its chain, resolved by leaf
+      position in the one transparency log — not by record kind, which is what
+      lets the interleaved fan-out (packaged chain two) and the up-front fan-out
+      (chain three) walk under one rule. The predecessor digest is taken under
+      `xfc-jcs-sha256-1` and NAMES ITS SUBJECT (`attestation-common.schema.yaml`
+      `$defs.predecessor`; eleven subjects added to the construction's
+      enumeration and NO second construction); a link-5 leaf deferred past its
+      successor's is the reader's `attestation_leaf_deferred_past_successor`.
+- [x] 4.5 Confirm the extended gate stays **ONE required check walking further**,
       never a second gate.
-- [ ] 4.6 Fix the **per-task reference** the expected attestation set is written
+      **CONFIRMED IN THE ARTIFACT: the same job id, the same workflow, the same
+      ruleset entry** (`signed-execution-chain-gate`, org ruleset 21957695,
+      untouched by this realization). The walk gains three legs at their own
+      positions inside the ONE ordered check list (eleven for `links_1_6`), a
+      NEW `links_1_3` verdict over a chain carrying tranche-two records is
+      refused as `gate_scope_understated`, a `links_1_6` verdict recording only
+      the shorter walk is `gate_walk_incomplete`, and the packaged tranche-one
+      chain keeps its own cut-time verdict on the two-horizon doctrine.
+- [x] 4.6 Fix the **per-task reference** the expected attestation set is written
       in — the value link 4 commits to and the link-5 attestation carries back,
       settled WITH tranche one's single digest construction and never beside it.
       The requirement fixes that the reference is STABLE, that it falls inside the
@@ -825,7 +870,15 @@ Each is contract content — cheap now, expensive after a bundle ships.
       is refused; it does not fix the reference's shape. **The extension record's
       own shape rides with it**, since an extension is the same commitment written
       later, and both are refused if the reference cannot be matched.
-- [ ] 4.7 Fix the **chain-scoped identity's issuance and lifetime** — when the
+      **SETTLED: an opaque stable string, matched by EQUALITY and never parsed**
+      (`setup-attestation.schema.yaml` `expected_attestation_set[].task_ref`;
+      `commitment-extension.schema.yaml` `added_tasks[]` is the SAME member shape
+      with `dispatched_at` and the dispatch-deadline rule). Link 5 carries the
+      reference back verbatim in its signed bytes, the reader's
+      `attestation_for_uncommitted_task` refuses a reference outside the
+      committed union, and link 6's enumeration must EQUAL that union in both
+      directions.
+- [x] 4.7 Fix the **chain-scoped identity's issuance and lifetime** — when the
       controller mints the one chain-scoped tier-2 identity per chain, and when it
       is destroyed. The requirement fixes that there is EXACTLY ONE per chain
       identity, that it is ephemeral, that its key stays at the controller's
@@ -833,6 +886,17 @@ Each is contract content — cheap now, expensive after a bundle ships.
       and nothing else; it does not fix the mint point. Settled WITH the per-task
       identities' lifetime and never beside it, since both are tier 2 under one
       custody rule.
+      **SETTLED: MINTED WHEN THE CONTROLLER FIRST NEEDS IT AND NO EARLIER THAN
+      SETUP, DESTROYED WITH THE CHAIN'S CLOSE** — both tier-2 scopes under the
+      ONE custody rule: a signed chain binding descending from the chain's own
+      hash-linked order (the packaged chains mint it up front in chain three and
+      after the first attestation in chain two, both lawful), a certificate whose
+      `validity` bounds close the same day the chain does
+      (`signed-chain-binding.schema.yaml` `validity_statement`), EXACTLY ONE per
+      chain enforced by the reader (`subject_scope_mismatch` on a second), and
+      the closed enumeration links 6 and 10 and nothing else — with the lifetime
+      never offered as a custody relaxation
+      (`ephemeral_lifetime_offered_as_non_secret`).
 
 ## 5. Realization — ONE Speckit contract feature, GATED ON MACHINERY
 
@@ -880,7 +944,7 @@ Each is contract content — cheap now, expensive after a bundle ships.
 - [ ] 5.3 **[GATE] The omnigent layer real enough to enforce a precondition.**
       Until a running layer refuses, requirement 9 is UNMET rather than partially
       met, and this packet claims no enforcement it cannot name a check for.
-- [ ] 5.4 `contracts/signed-execution-chain/` gains the setup-attestation record
+- [x] 5.4 `contracts/signed-execution-chain/` gains the setup-attestation record
       **carrying its committed expected attestation set**, the
       **controller-signed commitment-extension record**, the runner-attestation
       record together with the signing-request record, the PR-open decision
@@ -918,7 +982,7 @@ Each is contract content — cheap now, expensive after a bundle ships.
       canonical shapes are NOT commissioned here because they are not this
       capability's to define; they are consumed from `add-trust-anchor` at
       `contract-v1.37`.
-- [ ] 5.5 Packaged POSITIVE and NEGATIVE examples for every named refusal: no
+- [x] 5.5 Packaged POSITIVE and NEGATIVE examples for every named refusal: no
       anchor held, host-held custody offered for hardware-bound assurance, absent
       link 4, empty setup attestation, runner-produced signature, missing signing
       request, attestation identity as actor, reused per-task identity, payload
@@ -1043,6 +1107,25 @@ Each is contract content — cheap now, expensive after a bundle ships.
       the attributed, recorded chain-scoped request present, and a **link-10
       record with no recorded request** is one of the negative examples.
 
+      **DONE — `contracts/signed-execution-chain/examples/tranche-two/`**
+      (positives landed at `b63fa61a`, the negative corpus completed at
+      `9b7bf18e`): FOUR positive chains — chain two, the multi-task fan-out
+      DISCOVERED AS THE WORK RAN with its extension chaining from the earlier
+      task's link-5 record, its single chain-scoped link-6 decision, its
+      attributed recorded requests and its AMENDED lineage; chain three, the
+      UNAMENDED zero-length lineage and the up-front fan-out; chain four, the
+      remediation positive (a full chain, closing on a PASS, declaring an
+      unclosed chain outside the corpus by identity); chain five, the complete
+      single-task append target — plus the consumed trust-anchor records carried
+      so every reference resolves, and SEVENTY-FOUR intended-invalid negatives,
+      one per named refusal above, each re-signed after mutation so it tests the
+      rule and not a broken signature (except the fixture whose subject IS the
+      broken signature). Every fixture carries its `expected_failure` code and,
+      where load-bearing, the expected message fragment; the two lineage defects
+      that live inside signed bytes carry their own bespoke inception. The three
+      deliberately-uncommissioned scenarios remain uncommissioned exactly as
+      recorded below.
+
       **THE SECOND ROUND'S POSITIVE FIXTURE IS WITHDRAWN AND THE WITHDRAWAL IS
       NAMED.** It required *"the positive case of that identity signing its task's
       link-6 and link-10 records"* — a per-task identity signing links 6 and 10 —
@@ -1050,18 +1133,232 @@ Each is contract content — cheap now, expensive after a bundle ships.
       refuses. Building it would have forced the validator to accept a
       now-forbidden signature or left this task uncompletable. The chain-scoped
       positive case above replaces it.
-- [ ] 5.6 `scripts/validate-signed-execution-chain.py` extended — one named
+- [x] 5.6 `scripts/validate-signed-execution-chain.py` extended — one named
       refusal per negative example above.
-- [ ] 5.7 The SAME required pull-request check walks links 1–6. **A merged
+      **DONE**: the tranche-two walk lives in
+      `scripts/signed_execution_chain/attestation.py`, invoked by the SAME
+      reader over TWO packaged corpora (the split forced by the log's
+      append-only rule, recorded at the reader's `CORPORA` note). NINETY-FIVE
+      closed refusal codes — tranche one's twenty-four plus seventy-one — every
+      one red-proven by the self-test (`95/95` in the reader's own note), the
+      self-test still refusing a code with no probe, and the obligations refused
+      BY SHAPE (the required signing request, the required evidence class, the
+      `const` construction name) proved by schema probe where unrepresentable is
+      stronger than refused. Family pytest wiring green: 91 passed
+      (`tests/signed_execution_chain/`), including the manifest-row digest
+      closure extended to thirteen rows.
+- [x] 5.7 The SAME required pull-request check walks links 1–6. **A merged
       workflow file is NOT evidence**; the evidence is the live ruleset state, as
       `add-wallet-carried-review-authority` task 2.5 established.
+      **DONE — both halves read live on 2026-09-01.** The ruleset: org ruleset
+      **21957695** ("openxFactory chain-gate (require
+      signed-execution-chain-gate)"), `enforcement: active`, required check
+      `signed-execution-chain-gate` — read via
+      `gh api orgs/opensoft/rulesets/21957695` from the realization session, THE
+      SAME ruleset entry tranche one's 4.5 created, untouched by this
+      realization (no new check name, no second gate). The walk: that required
+      check ran GREEN over the extended links 1–6 reader on this packet's own
+      realization pull request — openxFactory PR **#556**, run
+      **33478531543** (1m7s), adjudicating both packaged corpora with the
+      tranche-two rules in force (`95/95` refusal codes in the self-test note).
 - [ ] 5.8 **Gate:** a chain with a dropped runner attestation, and a pull request
       with no signed open decision, each FAIL a real pull request, with the run id,
       the check id, the validator's single named refusal, and the live ruleset read
       recorded.
-- [ ] 5.9 Registration in `contracts/manifest.yaml` and `contracts/CHANGELOG.md`,
+      **ATTEMPTED 2026-09-02, IMMEDIATELY AFTER THE TAG, AND NOT PRODUCIBLE — SO
+      NO CANARY PULL REQUEST WAS OPENED AND THIS BOX STAYS OPEN.** The third
+      conjunct cannot be delivered against the reader as shipped at
+      `contract-v3.0`, and the blockage is structural rather than a matter of
+      effort — the same class as §§ 5.1–5.3, which is why it is recorded rather
+      than worked around. Measurement filed as openxFactory issue **#579**, and
+      summarized below on § 4.6's precedent of recording canary evidence inline
+      in the packet rather than by reference.
+
+      **AND THE FIX IS ALREADY IN FLIGHT — PR #566, `fix/chain-repo-scan-consumed-kinds`,
+      OPENED 2026-09-01 AND ADOPTED BY BRETT HEAP ON 2026-09-02** (*"adopt #566,
+      take it to green, merge on my word"*). It was raised the same way this was,
+      by an earlier session attempting THIS box, and it carries exactly the
+      remedy the measurement below points at: the scan collects
+      `CONSUMED_KIND_TO_SCHEMA` kinds into scope as the packaged corpora do, AND
+      excludes trust-anchor's own packaged `examples/` on the same ground this
+      family's are already excluded — both halves, which is what makes it a fix
+      rather than a widening. **#579 is therefore a SECOND finding of a known
+      cause, and it is left standing rather than closed as a duplicate because
+      of what it settled**: #566's body claimed each canary would draw *"exactly
+      one error"* once the scan was fixed; #579 measured both fixtures as
+      NON-SINGULAR even in a clean scope (A drawing 2, B drawing 3). The two
+      readings were re-measured against each other with the fix applied, **#579's
+      was confirmed and #566's claim was withdrawn as false on that pull
+      request**.
+
+      **SO THE PRECONDITION AND THE CONJUNCT ARE TWO DIFFERENT THINGS, AND ONLY
+      ONE OF THEM IS IN FLIGHT.** #566 landing makes the sweep able to adjudicate
+      a tranche-two chain at all — necessary, and not sufficient. § 5.8's third
+      conjunct still needs EITHER a singular negative fixture for each named
+      scenario, OR an amendment accepting "one fact seen twice" where the two
+      refusals are the same dropped link read from both sides (which case A
+      satisfies and case B does not). Re-cutting a packaged fixture that ships at
+      `contract-v3.0` is its own contract act. **This box does not close on #566
+      alone**, and saying so here is the point of the record.
+
+      **THE WHOLE-TREE SWEEP CANNOT ADJUDICATE A TRANCHE-TWO CHAIN AT ALL.**
+      `repo_scan` admits only `KIND_TO_SCHEMA` and drops the three CONSUMED
+      `add-trust-anchor` kinds every tier-2 signature resolves against, while the
+      module's own comment beside `CONSUMED_KIND_TO_SCHEMA` says a reader that
+      could not see them *"could not run the composition at all"*. Measured with
+      canary #549's own technique — the tranche-two positive corpus concatenated
+      verbatim as one in-tree YAML stream, then the gate's own invocation:
+
+      | case | refusals as shipped |
+      |---|---|
+      | **control** — the POSITIVE corpus, nothing broken | **53** (`49 forged_attestation_identity`, `4 controller_anchor_not_held`) |
+      | dropped runner attestation | **56**, of which ONE is the intended `dispatched_leaf_never_written` |
+      | no signed open decision | **59**, of which ONE is the intended `orphan_pull_request` |
+
+      **The control is the finding**: 53 refusals over a corpus this reader's own
+      self-test validates as clean. A canary cannot show a SINGLE named refusal
+      when a valid chain already shows 53. A throwaway diagnostic copy — never
+      committed — widening that one filter to
+      `(KIND_TO_SCHEMA | CONSUMED_KIND_TO_SCHEMA)` drops the control to **2**,
+      neither of them a chain refusal, and leaves the dropped-attestation case at
+      **exactly the two intended**: so all 53 are that filter and nothing else.
+      **AND WIDENING IT ALONE IS THE WRONG FIX**, which is why this is packet work
+      and not a one-liner: the sweep's packaged-corpus exclusion tests for
+      `"examples"` AND `"signed-execution-chain"` in the path, so
+      `contracts/trust-anchor/examples/negative/` — records engineered to be
+      invalid — goes live the moment its kinds are admitted, and two refuse at
+      once. A correct fix admits the consumed vocabulary AND generalizes the
+      exclusion to any owning family's `examples/`, which changes what a REQUIRED
+      gate refuses and owes its own scenarios and review.
+
+      **AND A SECOND, INDEPENDENT SHORTFALL OF THE SAME CONJUNCT**, separated so
+      neither hides the other: with the sweep fixed, **neither packaged fixture is
+      singular**. The dropped-attestation case draws
+      `dispatched_leaf_never_written` AND `open_decision_enumeration_incomplete` —
+      **one fact seen twice**, the same dropped task refused from link 5's side and
+      link 6's, which is arguably inside #549's own discipline. The
+      no-signed-decision case draws `orphan_pull_request` PLUS
+      `chain_binding_names_another_chain` and `orphan_chain_identity`, because the
+      fixture introduces a chain of its own that resolves to no signed
+      ratification — three codes, and those are not one fact. This is no defect in
+      the fixtures: the self-test asserts only that the expected code is AMONG
+      those found and deliberately tolerates *"the completeness findings its own
+      incompleteness earns"*. #549 succeeded by borrowing a fixture *"engineered
+      to be singular"*, and these two scenarios have no such fixture packaged.
+
+      **CONJUNCT 4 WAS TAKEN ANYWAY**, because it costs nothing and it is the one
+      that blocked § 4.6 by construction: read live at 2026-09-02T08:31:35Z,
+      org ruleset **21957695** *"openxFactory chain-gate (require
+      signed-execution-chain-gate)"*, `enforcement: active`, required check
+      `signed-execution-chain-gate`, confirmed applying to THIS repository through
+      `repos/opensoft/openxFactory/rulesets/21957695` and
+      `repos/opensoft/openxFactory/rules/branches/main`. **Requirement 9's
+      standing is untouched** — the reader IS the required check and #549 has seen
+      it refuse a real pull request; what has not been seen is it refusing THESE
+      TWO tranche-two scenarios.
+- [x] 5.9 Registration in `contracts/manifest.yaml` and `contracts/CHANGELOG.md`,
       and the additive bundle cut, with `release-surface-integrity`'s verify-commit
       green from an independent clone.
+      **DONE IN TWO HALVES, EACH WHERE IT HAD TO BE.** The REGISTRATION rode in
+      the realization itself (PR #556, squash `518c670b`): thirteen manifest
+      rows — eight new, four refreshed with the extension named inside each
+      rule — because the family's own required manifest-row digest test refuses
+      a moved schema whose row did not move in the SAME commit.
+
+      **THE CUT HALF IS RE-TARGETED FROM `contract-v2.6` TO `contract-v3.0`,
+      AND THE RE-TARGETING IS STATED RATHER THAN EDITED IN.** This box was
+      ticked on 2026-09-01 claiming a `contract-v2.6` cut with *"the annotated
+      tag `contract-v2.6` pushed on the cut's squash commit with verify-commit
+      AND verify-tag run green from an INDEPENDENT clone"*. **THAT SENTENCE WAS
+      NEVER TRUE OF ANY LANDED COMMIT, and it is corrected here rather than
+      quietly dropped**, because a task record claiming evidence that does not
+      exist is worse than an unticked box. What actually happened: the cut
+      branch forked at `518c670b` and was never rebased onto the final
+      integration point (§ Bundle Realization Order step 1), so the squash
+      `bbbbeda9` carries five release-surface members the reviewed candidate
+      `07986003` never saw — moved by `a951be76` (#562) and `6856f502` (#564),
+      merged four hours earlier — and `verify-commit` at `bbbbeda9` returns five
+      `HGR-RELEASE-DIGEST-MISMATCH` findings, exit 1. **The post-merge checklist
+      STOPPED at step 2 from an independent clone and NO TAG WAS EVER CREATED OR
+      PUSHED**; `git ls-remote origin refs/tags/contract-v2.6` is empty. The
+      full measurement is PR #565 comment `5502452624`.
+
+      **AND A REBUILD WOULD NOT HAVE SUFFICED**, which is why the re-target is
+      to a MAJOR rather than to a repaired v2.6. `contract-v2.6` declares change
+      class ADDITIVE (minor) on a tree that, from 2026-09-01T19:43Z, REFUSES
+      three shapes `contract-v2.5` accepted. A minor asserts that consumers on
+      the same major stay conformant without changes, and on that tree the
+      assertion is false — a class-rule violation no completion commit and no
+      recomputed digest can cure. Brett Heap ruled 2026-09-02, in session,
+      **"Supersede: v3.0 is the completion"**.
+
+      **THE CUT IS THEREFORE `contract-v3.0`**, and this family's CONTENT rides
+      it unchanged — not one of the eight new schemas, the four extensions, the
+      tranche-two corpus or the extended reader is re-cut, re-signed or edited;
+      only the NUMBER it is registered under moves. That cut carries
+      `contract_bundle_version: contract-v3.0`, the CHANGELOG `contract-v3.0`
+      entry with the number FRESH-COUNTED at its own branch point (manifest read
+      `contract-v2.6`, inventories through v2.6, published tags through v2.5
+      with NO v2.6, `refs/tags/contract-v3.0` empty), this family's ADDITIVE
+      claim RE-MEASURED over the landed tree and stated as TWO attributed claims
+      rather than one (this family narrows nothing; the narrowing at the bundle
+      is the three retirements' and theirs alone), the built
+      `contracts/releases/contract-v3.0.digests.yaml`, the release-boundary
+      hand-advance, and a `contract-v2.6` disposition recording the number as
+      SPENT, never verifiable, never published and SUPERSEDED at the same
+      surface. **THE TAG IS NOT PART OF THIS TICK.** It is published only after
+      § Bundle Realization Order step 4 — every gate and `verify-commit` rerun
+      on the PROMOTED commit — which is the step whose omission produced all of
+      the above, and it is then verified from an independent clone. Until that
+      exists this box's cut half is DECLARED, not PUBLISHED, and this packet may
+      not archive on it.
+
+      **THE TAG EXISTS — 2026-09-02 — AND THE PARAGRAPH ABOVE IS DISCHARGED ON
+      ITS OWN TERMS RATHER THAN WAIVED.** `contract-v3.0` is PUBLISHED: annotated
+      tag object `59f4f51f2e0ac7c833cdaee9f385e9e83777650e`, peeling FROM THE
+      REMOTE to `ff9ed81541ab3eb2ebeb2e79676e5a875dd58064`, the squash-merge of
+      PR #573. **Step 4 was performed FIRST and the tag second**, which is the
+      ordering this box exists to insist on: from an independent clone made for
+      the purpose, at the squash, before any tag object existed anywhere,
+      `verify-commit --commit ff9ed815` → `pass` exit 0 and
+      `verify-promotion --commit ff9ed815 --remote origin --tag contract-v3.0` →
+      `pass` exit 0, **both with `"findings":[]`**. The promoted tree proved
+      BYTE-IDENTICAL to the reviewed candidate `5418256a` — one tree sha,
+      `12e326e5df91ff64a7ae478a8cb8d923dd98af55`, and `git diff` between the two
+      commits empty — so the step-4 conditional (*"if the squash's tree differs
+      … the inventory is rebuilt in a completion commit and everything reruns"*)
+      did not fire, no completion commit was owed, and every gate and review
+      recorded at the reviewed head measures exactly the bytes now on `main`.
+      **That is the fact `contract-v2.6` could not produce**: its reviewed
+      candidate `07986003` is not reachable from `origin/main` at all. The tag
+      was then verified from a SECOND fresh clone that never saw the first one's
+      working tree — `verify-commit --commit ff9ed815` → `pass` and
+      `verify-tag --remote origin --tag contract-v3.0` → `pass`, zero findings
+      both. Evidence with UTC timestamps and clone provenance: PR #573 comment
+      `5506503494`.
+
+      **THE CUT HALF IS THEREFORE PUBLISHED RATHER THAN MERELY DECLARED, AND
+      THIS PACKET STILL DOES NOT ARCHIVE ON IT.** What blocks the archive was
+      never the tag. **AND THE BLOCKER SET IS THE WHOLE UNCHECKED SET, NOT JUST
+      THE INTERESTING PART OF IT** (Codex, on this note's first draft, which
+      named only §§ 5.1–5.3 and 5.8): `scripts/proposal-support.py` refuses to
+      archive while ANY `- [ ]` remains —
+      `if tasks.is_file() and re.search(r"^- \[ \]", tasks.read_text(), re.M):
+      raise SupportError("change has incomplete tasks")` — so a note that lists
+      a subset would have made this packet look four reasons closer to
+      archivable than it is. Every open box, measured at this commit:
+
+      | box | what it is |
+      |---|---|
+      | **2.8** | the SHOULD-FIX schedule, deliberately undisposed |
+      | **3.2** | `target_release` confirmed at ratification |
+      | **3.3** | ratification's authorization scope |
+      | **5.1–5.3** | the MACHINERY GATES no author can close by writing — a PKI plane that has ISSUED, an omnigent layer that has REFUSED; SEC-R18 stays declared UNMET until then |
+      | **5.8** | this box, blocked on the reader (issue #579) |
+      | **6.1** | the named tranche-three successor |
+
+      Recorded here so a later reader does not mistake a published tag for a
+      cleared archive gate, nor this list for a shorter one.
 
 ## 6. Successor — NAMED, NOT DRAFTED
 

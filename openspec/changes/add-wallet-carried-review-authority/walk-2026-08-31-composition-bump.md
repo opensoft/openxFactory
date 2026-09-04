@@ -335,3 +335,51 @@ quoted at the tick. In summary:
   ground: this was a precision-flip walk, not a revocation-class one (§5.4).
 * **7.7 — STAYS UNTICKED.** Its gate needs a rehearsed revoked-holder park; §5.1
   and §5.2 record that no park happened and no re-issuance was performed.
+
+---
+
+## 8. Return trip — 2026-09-02: the register act WAS performed, and §4's two PENDINGs are filled
+
+**APPENDED. Nothing above this line is altered** — this record established the
+superseded state before anything was edited, and that is exactly why it must not
+be rewritten after the fact.
+
+**THE REGISTER ACT OF 2026-09-02 HAS BEEN PERFORMED**, by Brett Heap on the
+permanently human-only surface. Its record is
+[`walk-2026-09-02-register-act.md`](walk-2026-09-02-register-act.md), and it is
+the return trip the runbook's §5.1 requires: *"When steps 1–3 are done, return to
+step 4 and fill the superseding grant reference and the effective time. The
+re-issuance record is not complete until that return trip has happened."*
+
+**The two fields §4 above left PENDING, now filled — the values, not a pointer:**
+
+| R8 field | State in §4 above | Filled 2026-09-02 |
+|---|---|---|
+| **superseding grant reference** | *"PENDING — the register act (runbook step 5) has not been performed"* | **`grant-mrc-0002`** — root grant, `state: active`, issued by `Brett.Heap@opensoft.one`, expiring `2027-06-30T00:00:00Z` |
+| **effective time** | *"PENDING with the register act"* | **`2026-09-02T13:33:48Z`** — one instant, written identically into `grant-mrc-0002`'s `issued_at`, `grant-mrc-0001`'s `revocation.revoked_at`, and the 2026-09-02 walk |
+
+**The third PENDING is UNCHANGED and stays PENDING.** *"Composition hash issued
+against"* remains **PENDING R6/R7** — no canonical digest is implementable until
+that change is authored and ratified. The 2026-09-02 act records the same
+substitute this record defined at §2.2 (codexFactory `6edecaf1`, per-component),
+plus `agent-mixes.yaml`'s `rendered_set_digest`
+`sha256:751e03a203fd5cef59f0e4873fc910ef6c2c501e60472ea54791ad77fda7c92a`,
+**explicitly labelled a substitute** in both records.
+
+**What the 2026-09-02 act performed, against §5.2 and §5.4 of this record:**
+`grant-mrc-0001` **REVOKED** for **DRIFT** at `2026-09-02T13:33:48Z`, its reason
+naming this record's own bump (codexFactory `6edecaf1`); `grant-mrc-0002`
+**MINTED** at the same instant; `row-mrc-0001` **REPOINTED**
+(`grant_ref` → `grant-mrc-0002`, `expires_at` → `2027-06-30T00:00:00Z`, row
+`state` unchanged at `active`); **no row added**. That is items **3** of §5.4's
+list of five, performed.
+
+**§5.4's items 1, 2, 4 and 5 remain UNEXERCISED**, and the 2026-09-02 record says
+so in its own §8: no detection path fired (nothing mismatched), **no park
+happened because nothing convenes**, the projection is **not re-derived by that
+act** (it is machinery on the cluster and moves only after merge), **no convening
+was watched admitting**, and no budget interaction was observed.
+
+**§2.3's claim above — "Both are byte-identical after this walk" — remains TRUE
+of THIS walk** and is not retroactively falsified: the files were changed by a
+LATER, separately recorded act, not by this one.

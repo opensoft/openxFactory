@@ -1,0 +1,207 @@
+schema_version: 1
+kind: repository_gate_floor
+floor:
+  id: openxfactory-review-authority-register
+  repository: opensoft/openxFactory
+  # THIS DOCUMENT IS 8 + 1, NOT 63 EQUALLY-REASONED CHOKEPOINTS.
+  #
+  # EIGHT hand-reasoned gate chokepoints, each with its own ground below: the
+  # intake register, the two paths that determine WHICH READER opens it, a
+  # fourth that determines WHICH DECISION CORE judges this repository at all,
+  # and FOUR more naming the SIBLING factory-identity register family added by
+  # openxFactory's ratified `add-cpc-clearing-boundary` (task 2.7).
+  #
+  # PLUS ONE machine-generated block carrying every tracked path under
+  # `openspec/specs` — openxFactory's promoted OpenSpec canon — floored as one
+  # undifferentiated set with ONE collective ground, stated inside the block.
+  # Gate-Rules Council, 2026-08-31, the (b′) narrow act:
+  # `hermes/domain/review-councils/records/2026-08-31-gate-rules-openxfactory-bprime.md`
+  # §8 ("THE EXTENSION — ALL 53, PINNED AND REGENERATED"), ruled ACCEPT by
+  # Brett Heap at §1 item 7.9. The block is written ONLY by
+  # `scripts/merge_master/generate_specs_floor_block.py` (CSC-C7: "a hand-typed
+  # or copy-pasted list is refused on its face").
+  #
+  # BLAST RADIUS, BOTH DIRECTIONS, STATED (CSC-C8, BLOCKING). A DEAD entry — a
+  # floored path that no longer exists in openxFactory — is accepted silently in
+  # the no-tree production mode (`load_governance_paths`) and reddens
+  # openxFactory's ADVISORY lane, which today blocks nobody. A DUPLICATE entry is
+  # refused BEFORE the tree check, i.e. in that same no-tree production mode,
+  # i.e. inside codexFactory's OWN required gate: **one mistyped duplicate in
+  # this list wedges a required gate in another repository.** With four entries
+  # that risk was negligible; at fifty-seven it is not, which is why nothing but
+  # the generator may write the block.
+  #
+  # The register alone was not enough. `RepositoryGateFloor.matching_paths` is
+  # exact set membership, so protecting the register FILE protects
+  # nothing about the TOOL that reads it. After openxFactory's ratified
+  # `split-openxwallet-repo` P3, that reader lives in a nested `openXwallet`
+  # submodule pinned by `contracts/openxwallet-pin.yaml` — and one pull request
+  # could bump the gitlink to a neutered reader AND edit a grant under
+  # `governance/review-authority/` while matching no floor path at all. It would
+  # be council-clearable, and the check that would have caught it is the one the
+  # same pull request replaces. A candidate could repoint its own checker and
+  # clear the result by council. (`council-adversary-engineer.md` concern 2,
+  # VALID/HIGH; widened by P3b, `design.md` D10.)
+  #
+  # `.gitmodules` is DELIBERATELY NOT a floor entry. A URL swap alone cannot
+  # change what runs: the openxFactory-side check compares the recorded gitlink,
+  # the checked-out revision and the eight digests against the pin, so a fork at
+  # the same commit and bytes is inert and a fork at any other commit fails. Any
+  # pull request that actually changes which reader runs must edit the pin file,
+  # which IS floored. One chokepoint, chosen over a fence around every adjacent
+  # file. `tests/merge-master/test_repository_gate_floor.py` asserts the absence
+  # so it cannot later be mistaken for an oversight.
+  #
+  # PRE-EXISTING and out of scope here (`split-openxwallet-repo` §8.3): this floor
+  # omits `governance/review-authority/{grants,wallets,attestations}/`, and
+  # lead-security's 2026-08-26 floor-reachability finding stands. Both belong to
+  # the arc owner of `add-wallet-carried-review-authority`.
+  never_clearable_paths:
+    - governance/review-authority/register.yaml
+    # The product pin: which openXwallet commit and digests openxFactory consumes.
+    - contracts/openxwallet-pin.yaml
+    # The gitlink, bare name and no trailing slash — the form `git diff
+    # --name-only` reports and the only form `_parse_exact_path` accepts; that
+    # parser refuses a leading or trailing `/`.
+    - openXwallet
+    # A fourth, separately grounded entry (not part of the wallet-register
+    # trio above): the review-lane pin selects which codexFactory commit's
+    # decision core judges this repository. Clearable, it would let a pull
+    # request choose its own judge.
+    - contracts/review-lane-pin.yaml
+    # ---------------------------------------------------------------------
+    # THE SIBLING FACTORY-IDENTITY REGISTER FAMILY, entered BY NAME.
+    #
+    # openxFactory `add-cpc-clearing-boundary` (ratified 2026-09-02, merged
+    # c0270d28), capability `factory-origin-identity`, task 2.7. Its ratified
+    # requirement: "Where a gate enumerates never-clearable floor members,
+    # `governance/factory-identity/` SHALL be entered BY NAME rather than
+    # matched by a path-shaped clause, and where a consuming repository's floor
+    # file is compared as an EXACT SET, that file SHALL be updated in the same
+    # governed act that creates the register — an exact-set comparison against a
+    # floor that does not yet name the new register fails closed on every
+    # candidate, so the two are one change and not two."
+    #
+    # BY NAME IS FORCED HERE, NOT MERELY PREFERRED. `_parse_exact_path` refuses
+    # wildcards, `.`/`..` segments and any leading or trailing `/`, so
+    # `governance/factory-identity/` CANNOT be floored as a directory prefix.
+    # Each file is named exactly, which is what the requirement asks for and
+    # what `matching_paths`' exact set membership can act on.
+    #
+    # WHY ALL FOUR AND NOT ONLY THE REGISTER. The intake trio above floors
+    # `governance/review-authority/register.yaml` alone, and §8.3 of
+    # `split-openxwallet-repo` records that omitting its grants, wallets and
+    # attestations is a PRE-EXISTING gap with lead-security's 2026-08-26
+    # floor-reachability finding still standing against it. That gap is not
+    # reproduced here: the ratified requirement for THIS family says "changes to
+    # the factory-identity register AND THE RECORDS BESIDE IT" are landable only
+    # by a human act, and a floor naming only the register would leave the grant
+    # that confers the origin act — and the custody attestation that lifts its
+    # unattested cap — council-clearable. Editing either one changes what a
+    # verified origin signature MEANS without touching the register at all.
+    #
+    # THE STANDING LIMIT, STATED RATHER THAN DISCOVERED LATER. This is an
+    # ENUMERATION, so a record ADDED under `governance/factory-identity/` is not
+    # floored until it is added here. Admitting a second originating repository
+    # is therefore not one act but two files in one act — its wallet, grant and
+    # attestation entered here in the same governed change that adds its row —
+    # which is the same one-governed-act discipline the requirement already
+    # imposes on this file's relationship to the register. `repository_floor_
+    # drift.py` catches the REMOVAL direction; nothing catches the addition
+    # direction but this comment and the reviewer reading it.
+    - governance/factory-identity/register.yaml
+    - governance/factory-identity/wallets/wal-origin-codexfactory-0001.yaml
+    - governance/factory-identity/grants/grant-origin-codexfactory-0001.yaml
+    - governance/factory-identity/attestations/custody-attest-wal-origin-codexfactory-0001.yaml
+    # ==== BEGIN MACHINE-GENERATED BLOCK — DO NOT HAND-EDIT ====
+    # prefix:             openspec/specs
+    # source_repository:  opensoft/openxFactory
+    # generated_at:       8d893a0fbf110931c8ab9e48d05a84996ff1891b
+    # entry_count:        55
+    # regenerate with:
+    #   python3 scripts/merge_master/generate_specs_floor_block.py \
+    #     --repo <opensoft/openxFactory checkout> \
+    #     --ref 8d893a0fbf110931c8ab9e48d05a84996ff1891b --write
+    #
+    # ONE GROUND FOR THE WHOLE BLOCK, and it is not the ground above it.
+    # The eight entries ABOVE are separately reasoned GATE CHOKEPOINTS: each one
+    # selects the reader, the judge, or a register or the records beside it. The
+    # entries BELOW are
+    # CONTENT — the promoted OpenSpec canon of `opensoft/openxFactory`, every
+    # tracked path under the named prefix, floored as one undifferentiated set
+    # because the canon is what the review-authority arrangement is FOR and no
+    # member of it has a ground the others lack (LA-F9; CPL-C3, which declines to
+    # propose a subset because "a smaller enumeration has the identical failure
+    # mode, merely less often").
+    #
+    # SO THE READER IS NOT MISLED: this document is 8 + 1, not 63 equally-reasoned
+    # chokepoints (CSC-C9). Do not hand-edit the block. Do not add a member by
+    # hand. Regenerate it with the command above, at a named openxFactory commit.
+    #
+    # DE-FLOOR BEFORE YOU REMOVE (LS-A2, BLOCKING, 2026-08-31). Removing or
+    # renaming a floored path in openxFactory BEFORE the floor stops naming it
+    # produces a red-and-blind window on every subsequent openxFactory pull
+    # request. The order is:
+    #   (1) codexFactory pull request REMOVING the entry from this document;
+    #   (2) openxFactory pull request advancing `contracts/review-lane-pin.yaml`
+    #       `core_commit` (and the workflow's two pin literals, in lockstep);
+    #   (3) the removal or rename in openxFactory.
+    # The reverse order is the natural one, and it is the order the 2026-08-28
+    # capability exit actually used. Runbook, with the named owner:
+    # `docs/repository-gate-floor-repair-runbook.md`.
+    - openspec/specs/avatar-brokered-call-feasibility/spec.md
+    - openspec/specs/avatar-client-lab/spec.md
+    - openspec/specs/avatar-client-runtime/spec.md
+    - openspec/specs/avatar-first-ui/spec.md
+    - openspec/specs/avatar-lab-evidence/spec.md
+    - openspec/specs/avatar-reference-runtime/spec.md
+    - openspec/specs/canonical-contract-migration/spec.md
+    - openspec/specs/canonical-policy-migration/spec.md
+    - openspec/specs/capability-health/spec.md
+    - openspec/specs/client-identity-roster/spec.md
+    - openspec/specs/client-infrastructure-liaison/spec.md
+    - openspec/specs/client-infrastructure-request/spec.md
+    - openspec/specs/client-layer-tuning/spec.md
+    - openspec/specs/consent-instrument/spec.md
+    - openspec/specs/credential-contracts/spec.md
+    - openspec/specs/crystallization-build/spec.md
+    - openspec/specs/crystallization-consent/spec.md
+    - openspec/specs/crystallization-decision/spec.md
+    - openspec/specs/crystallization-dispatch/spec.md
+    - openspec/specs/crystallized-capability-registry/spec.md
+    - openspec/specs/deployment-handoff-boundary/spec.md
+    - openspec/specs/doc-health/spec.md
+    - openspec/specs/document-cataloging/spec.md
+    - openspec/specs/document-lifecycle/spec.md
+    - openspec/specs/domain-conformance-checks/spec.md
+    - openspec/specs/domain-descendant-boundary/spec.md
+    - openspec/specs/domain-ontology-lifecycle/spec.md
+    - openspec/specs/governed-derived-model/spec.md
+    - openspec/specs/hermes-customer-subject-runtime/spec.md
+    - openspec/specs/hermes-domain-overlay/spec.md
+    - openspec/specs/hermes-governed-record-integrity/spec.md
+    - openspec/specs/ideation-cross-reference/spec.md
+    - openspec/specs/ideation-dashboard/spec.md
+    - openspec/specs/ideation-routing/spec.md
+    - openspec/specs/layer-vocabulary/spec.md
+    - openspec/specs/lifecycle-notebook-projection/spec.md
+    - openspec/specs/memory-gateway/spec.md
+    - openspec/specs/neutral-job-envelope/spec.md
+    - openspec/specs/neutral-product-pin/spec.md
+    - openspec/specs/omnigent-domain-overlay/spec.md
+    - openspec/specs/omnigent-install-manifest/spec.md
+    - openspec/specs/pattern-ledger/spec.md
+    - openspec/specs/project-repo-schema/spec.md
+    - openspec/specs/reference-proof-placement/spec.md
+    - openspec/specs/release-realization/spec.md
+    - openspec/specs/release-surface-integrity/spec.md
+    - openspec/specs/repo-boundary-governance/spec.md
+    - openspec/specs/roles-authority-model/spec.md
+    - openspec/specs/shared-contract-ownership/spec.md
+    - openspec/specs/signed-execution-chain/spec.md
+    - openspec/specs/standards-body-registry/spec.md
+    - openspec/specs/workflow-gate-contract/spec.md
+    - openspec/specs/workflow-visualization/spec.md
+    - openspec/specs/workstation-intake/spec.md
+    - openspec/specs/xfactory-semantic-kernel/spec.md
+    # ==== END MACHINE-GENERATED BLOCK ====

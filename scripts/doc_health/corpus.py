@@ -575,6 +575,56 @@ class RealGit:
                 pins[path] = parts[2]
         return pins
 
+    def tag_ref(self, repo: Path, name: str):
+        """The PUBLISHED ref named `name`, as (objecttype, peeled commit).
+
+        `("tag", sha)` for an annotated tag, `("commit", sha)` for a
+        lightweight one, `(None, None)` where the remote lists no such ref, and
+        None where the refs could not be listed at all — which the caller turns
+        into a skip rather than into "no tag".
+
+        READ FROM THE REMOTE, NOT FROM LOCAL REFS, deliberately. The obligation
+        is about a PUBLISHED tag, and a local ref can be an unpushed tag on the
+        operator's machine — which would let this family report an obligation
+        met that no consumer can see. `ls-remote` lists an annotated tag twice,
+        as `refs/tags/X` and its peeled `refs/tags/X^{}`, and that second entry
+        is what distinguishes annotated from lightweight over the wire without
+        needing the object locally.
+        """
+        out = self._run(repo, "ls-remote", "--tags", "origin",
+                        f"refs/tags/{name}", f"refs/tags/{name}^{{}}")
+        if out is None:
+            return None
+        direct = peeled = None
+        for line in out.splitlines():
+            parts = line.split()
+            if len(parts) != 2:
+                continue
+            sha, ref = parts
+            if ref == f"refs/tags/{name}^{{}}":
+                peeled = sha
+            elif ref == f"refs/tags/{name}":
+                direct = sha
+        if direct is None and peeled is None:
+            return (None, None)
+        if peeled is not None:
+            return ("tag", peeled)
+        return ("commit", direct)
+
+    def first_parent_shas(self, repo: Path, ref: str,
+                          limit: int) -> list[str] | None:
+        """Up to `limit` first-parent commits from `ref`, newest first.
+
+        Bounded by the caller because the question it serves has three
+        outcomes and an unbounded walk would read a blob per commit over the
+        whole history to answer it.
+        """
+        out = self._run(repo, "rev-list", "--first-parent",
+                        f"-n{max(1, limit)}", ref)
+        if out is None:
+            return None
+        return [line.strip() for line in out.splitlines() if line.strip()]
+
     def remote_main_sha(self, repo: Path) -> str | None:
         out = self._run(repo, "ls-remote", "origin", "refs/heads/main")
         if out and out.strip():

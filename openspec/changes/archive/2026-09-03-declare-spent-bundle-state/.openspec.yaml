@@ -1,0 +1,85 @@
+schema: spec-driven
+created: 2026-09-02
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-02-declare-spent-bundle-state
+  reason: >-
+    THE NAMED SUCCESSOR OF A DEFECT A RELEASE CUT MET, DECLARED AND REFUSED TO
+    FIX INSIDE ITSELF. openxFactory issue #575, filed by the `contract-v3.0` cut
+    (PR #573, squash `ff9ed815`) at the moment it hit the collision rather than
+    afterwards, and named in `contracts/CHANGELOG.md` § `contract-v2.6`
+    disposition so that a reader meeting the ERROR knows it is DECLARED rather
+    than undiscovered.
+    THE DEFECT, quoted from that entry: the `release-tag-publication` family
+    "SIMPLY HAS NO THIRD STATE between published and owes a tag, and a
+    spent-never-publishable number is that third state." `contract-v2.6` was
+    declared at `bbbbeda9` (PR #565), is never verifiable (five
+    HGR-RELEASE-DIGEST-MISMATCH findings, measurement of record PR #565 comment
+    5502452624), can never carry a legal tag under the targeting rule, and
+    declares change class ADDITIVE over a tree that refuses three shapes
+    `contract-v2.5` accepted — which no completion commit and no rebuilt
+    inventory can cure. Brett Heap ruled it 2026-09-02, verbatim as quoted in
+    #575: "Supersede: v3.0 is the completion."
+    WHY THE CUT DID NOT TAKE IT, and why this is a separate packet: the ruling
+    said `contract-v3.0` supersedes `contract-v2.6`, NOT that a checker should
+    stop objecting to abandoned bundles. The entry records that the shape of any
+    such vocabulary — "what record counts as a supersession, who may declare
+    one, whether it is `contested` and needs a disposition entry" — is "design
+    work that owes its own change and its own review", and that "a release cut
+    quietly relaxing the one check that exists to stop bundles being walked away
+    from is precisely the failure that check was built for."
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, checked rather than assumed. No
+    topic under `ideation/staging/` carries this subject and `INDEX.md` holds
+    nothing on release-tag publication states. The organized source is a GitHub
+    issue carrying a recorded ruling and a measurement, which is the shape
+    `add-requirement-ref-resolution-integrity`,
+    `fix-content-resolution-conflation` and
+    `fix-pin-value-boundary-and-sentinel-split` all filed under. `ad_hoc` is
+    correct here and is not a substitute for staging.
+  approved_by: >-
+    Brett Heap (openxFactory repository owner) — commissioned in session on
+    2026-09-02, relayed to the authoring session verbatim: "Merge now, fix #575
+    next", the first clause disposing of PR #573 and the second commissioning
+    this packet.
+    THIS FIELD RECORDS AUTHORIZATION TO AUTHOR, NOT RATIFICATION OF CONTENT,
+    AND MUST NOT BE READ AS ONE. The citation covers THE DECISION TO WRITE A FIX
+    FOR #575 and nothing else. Every decision beyond that clause was the
+    authoring session's, is listed in proposal.md § Orchestrator Decisions as
+    OD-1 … OD-8 (OD-9 was ADDED LATER, under review — see below), and was
+    FLAGGED FOR VETO when written, as were the three items in § Open questions,
+    each of which carries a recommendation and no decision.
+    TWO OF THEM CARRY GOVERNANCE CONTENT AND ARE OWED AN EXPLICIT RULING rather
+    than acceptance by silence: OD-3, whether a correctly declared spent bundle
+    is RECORDED at `info` or SILENT, and OD-4, that the only way to quiet a
+    spent bundle is to publish its successor's tag. Tasks § 1.2 carries them.
+    BOTH WERE RULED, AND THE PACKET IS NOW RATIFIED — BY A SEPARATE AND LATER
+    ACT, 2026-09-02, Brett Heap (repository owner), in session and recorded on
+    PR #578; record at `review/ratification-2026-09-02.md`, and proposal.md
+    carries `Status: ratified` with the record-citing `Ratified:` line. OD-3
+    ACCEPTED AS PROPOSED (an `info` with its own finding key, not silence) and
+    OD-4 ACCEPTED AS PROPOSED (quiet only once the successor's tag is published;
+    `warning` while it is cut but untagged; `error` where the named successor
+    was never cut). OD-1, OD-2 and OD-6 … OD-8 stand as drafted. OD-5 was
+    AMENDED and OD-9 was ADDED before the ratifying commit, both on Codex P1
+    findings on PR #578 — a shared finding identity across two spent bundles,
+    and a successor guard satisfiable by an EARLIER already-published bundle —
+    and both are NARROWINGS of what was ruled rather than departures from it.
+    OQ-1 … OQ-3 REMAIN OPEN. THIS FIELD STILL RECORDS AUTHORIZATION TO AUTHOR;
+    the ratification is the later act named above and is not this field's.
+    Ratification authorizes realization and performs none of it: no checker
+    line, no test and no changelog declaration lands in the ratifying commit.
+    AND THIS FILING IS ANOTHER INSTANCE OF ISSUE #318, cited rather than
+    re-derived: an `ad_hoc` origin's vocabulary pairs "approved" naturally with
+    ratification, so a packet that is AUTHORIZED but NOT RATIFIED must do by
+    PROSE what the taxonomy has no kind to declare, which is the disclaiming
+    work this field performs. `Status:` was `draft` when this field was written
+    and is `ratified` as of the act recorded above; the disclaiming sentences
+    stand because what they disclaim — that an `ad_hoc` "approved" is not a
+    ratification — is exactly as true after the ratification as before it.
+  approved_on: 2026-09-02
+related:
+  - openxFactory:change:add-release-tag-publication-check      # ARCHIVED 2026-09-01 by PR #563 at openspec/changes/archive/2026-09-01-add-release-tag-publication-check/, its `Release-tag publication` requirement PROMOTED into openspec/specs/doc-health/spec.md. THE BASIS: this change carries the only `## MODIFIED Requirements` block over that promoted requirement. Because the basis is ARCHIVED and the requirement is CANON, no `Modified over` marker is owed and no archive-order hold arises — the marker's form is reserved for a block whose requirement no promoted specification carries. Checked against every active change: none ADDS, RENAMES or MODIFIES this title
+  - openxFactory:change:govern-sibling-added-modified-deltas   # RATIFIED 2026-08-31 by direct ruling, ACTIVE. The rule this packet was measured against before concluding that no `Modified over` marker is owed
+  - openxFactory:change:add-family-enumeration-check           # archived; the self-gate whose forcing function made #544 a one-landing packet. It does NOT fire here — this change adds no family and moves no count — which is OD-8's mechanical reason for splitting proposal from realization
+  - openxFactory:change:add-release-inventory-drift-check      # archived; ratified `docs/contract-versioning-policy.md`, and owns the EDITORIAL member set (`contracts/CHANGELOG.md`, `contracts/manifest.yaml`, `contracts/README.md`) that decides OD-1 and OD-6
+  - openxFactory:change:add-modified-block-currency-check      # archived; the arm that reads this packet's MODIFIED block. MEASURED, not predicted: it reports NOTHING against it — `scenario-title completeness: 0`, the gate-bearing arm — which independently agrees with the scenario-by-scenario verification in proposal.md

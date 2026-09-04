@@ -177,3 +177,52 @@ jobs:
             || fail "the gate log does not say wal-agent-mrc-0001's FIVE declared keys were adjudicated; the wallet lost its keys: block, or an entry was refused, or the pinned reader predates wallet-v1.3 — in any of which cases rule (r) refuses every exercise record naming a per-seat key"
           echo "register-read conjunction holds:"
           grep -E "^note  (repo scan:|intake register read:|intake register: |wallet 'wal-agent-mrc-0001':)" wallet-gate.log
+
+      # ---------------------------------------------------------------------
+      # THE FACTORY-IDENTITY REGISTER, read inside the SAME REQUIRED check.
+      #
+      # Task 2.6 of the ratified change `add-cpc-clearing-boundary`. The reader
+      # is an openxFactory file, not a pinned one, because the register it reads
+      # is an openxFactory artifact with no contract schema (design D3) — but it
+      # DERIVES NOTHING OF ITS OWN: every public-key decoding and every
+      # fingerprint in it comes from the pinned openXwallet reader initialized
+      # above, imported rather than copied, and it REFUSES rather than falling
+      # back to arithmetic of its own when the gitlink is absent. That is why
+      # this step runs AFTER the scoped init and after the pin is verified.
+      #
+      # WHY IT IS HERE AND NOT IN ITS OWN WORKFLOW. `wallet-validation` is the
+      # REQUIRED token (org ruleset 21538893). A second workflow would be
+      # advisory until an operator marked it required, and a register whose
+      # reader is advisory confers nothing on the day it matters.
+      - name: Read the factory-identity register and check register disjointness
+        shell: bash
+        run: python3 scripts/validate-factory-identity.py . | tee factory-identity-gate.log
+
+      # THE ASSERTION IS POSITIVE, for the reason the intake assertion above
+      # gives: on the happy path the reader emits no finding, so "no
+      # factory-identity finding" alone is satisfied by never having opened the
+      # register. The conjunction is what proves it ran: the register was READ,
+      # its active rows were COUNTED, and the disjointness rule was ADJUDICATED
+      # against the review-authority tree with a literal count of shared
+      # identifiers.
+      #
+      # THE COUNTS ARE LITERAL, NOT `[0-9]+`. One originating repository is
+      # registered today. A second arriving, or the first going missing, must
+      # break this gate and be a deliberate edit here beside the register edit —
+      # a wildcard would let a register that lost its only row pass the positive
+      # assertion and confer nothing.
+      - name: Assert the factory-identity register was actually read
+        shell: bash
+        run: |
+          set -euo pipefail
+          fail() { echo "::error::$1"; exit 1; }
+          grep -qE '^note  factory-identity register read: governance/factory-identity/register\.yaml \([0-9]+ row\(s\)\)$' factory-identity-gate.log \
+            || fail "the log carries no 'factory-identity register read:' NOTE — the sibling origin register was not opened, so an origin signature would be verified against nothing"
+          grep -qE '^note  factory-identity register: 1 active origin row\(s\) over 1 originating repository\(ies\)$' factory-identity-gate.log \
+            || fail "the log does not say ONE active origin row over ONE originating repository; the register lost its row, or a second originator arrived without a deliberate edit to this gate beside it"
+          grep -qE '^note  factory-identity: disjointness holds against governance/review-authority/ \([0-9]+ identifier\(s\) here, [0-9]+ identifier\(s\) there, 0 shared\)$' factory-identity-gate.log \
+            || fail "the log does not record the disjointness rule ADJUDICATED with zero shared identifiers; the ratified requirement's whole enforceable half did not run, or it found an overlap"
+          ! grep -qE '\[factory-identity-[a-z-]+\]' factory-identity-gate.log \
+            || fail "the log carries a factory-identity-* finding; see the reader output above"
+          echo "factory-identity register-read conjunction holds:"
+          grep -E '^note  factory-identity' factory-identity-gate.log

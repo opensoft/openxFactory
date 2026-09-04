@@ -1,0 +1,45 @@
+# POSITIVE (add-consumer-identity-namespace). TWO TENANTS OF ONE PROVIDER whose
+# principals carry THE SAME NAME, distinguished by the directory that issued
+# them. This is the record shape that was a FALSE REFUSAL before the
+# `identity_namespace` member existed, and it is packaged as a positive so the
+# clearing direction has a probe rather than only the reporting one.
+#
+# WHY IT IS SILENT. The two holder references DIFFER and the two fetch
+# identities are the SAME STRING, which is the shared-authority shape — but each
+# binding declares a DIFFERENT `identity_namespace`, so the comparison reads the
+# PAIR and finds two principals of two directories rather than two systems on
+# one authority.
+#
+# WHAT WOULD MAKE IT REPORT, and it is one edit either way: give both bindings
+# the same namespace, or delete the member from one of them. Both are packaged
+# as registered negatives beside this file, because a check that cleared on
+# omission would be a rule an estate can turn off without writing anything
+# false.
+#
+# SYNTHETIC IDENTIFIERS, under the ruling of 2026-08-29 that governs this
+# corpus: no live tenant, directory or fetch identity is named here.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+credential_bindings:
+  tenant_a_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-tenant-a
+    secret_ref: example-tenant-a-sync-secret
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:tenant-a-sync-lane
+      fetch_identity: example-runtime-identity
+      identity_namespace: example-directory-tenant-a
+  tenant_b_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-tenant-b
+    secret_ref: example-tenant-b-sync-secret
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:tenant-b-sync-lane
+      fetch_identity: example-runtime-identity
+      identity_namespace: example-directory-tenant-b

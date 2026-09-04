@@ -61,6 +61,39 @@ description: >-
     records its issuance.
   * `gate_verdict` — the verdict block a gate leaf carries.
 
+  ADDED AT TRANCHE TWO (`add-chain-attestation`), UNDER THIS SAME CONSTRUCTION AND
+  NOT BESIDE IT — the enumeration is what a later tranche extends, which is
+  exactly what the paragraph below already said it would do:
+
+  * `setup_attestation` — the block the harness controller's link-4 signature
+    covers, carrying the provisioned environment AND the committed expected
+    attestation set.
+  * `commitment_extension` — the block a controller-signed extension's signature
+    covers, adding tasks to that expectation at or before their dispatch.
+  * `signed_chain_binding` — the block a controller-signed tier-2 chain binding's
+    signature covers: subject scope, the closed record-kind enumeration, and the
+    chain identity it serves.
+  * `runner_attestation` — the block a link-5 signature covers, produced at the
+    controller under a per-task tier-2 identity.
+  * `signing_request` — a recorded request's own content, so a request beside a
+    signature is a value and not a narration.
+  * `pr_open_decision` — the block a link-6 signature covers, carrying the pull
+    request identifier and the head revision it proposes.
+  * `closure_record` — the block a link-10 signature covers: the authenticated
+    execution, the tested revision, the test identity and the result.
+  * `remediation_declaration` — the block a remediation chain's ratifying
+    signature covers when it declares an unclosed chain as its subject.
+  * `reviewed_subject` — the subject AS THE COUNCIL REVIEWED IT. It is a
+    DIFFERENT SUBJECT from `ratified_subject` and is named separately for the
+    reason this file exists: after an *accepted as amended* verdict the two
+    legitimately differ, and a lineage that used one name for both could not say
+    which end of it a value came from.
+  * `review_record` — the review record itself, which is what makes a lineage name
+    a REVIEW rather than only the SUBJECT a review happened to cover.
+  * `governed_test_definition` — the definition of the governed post-merge test
+    the ratified subject names, so *"governed"* is a value a closure record can be
+    compared against rather than an adjective.
+
   THE CONTENT DIGEST AND THE CHAIN IDENTITY MUST NOT BE EQUATED. Doing so rejects
   every conforming chain, and it is unbuildable in the other direction as well:
   an exercise's `object_ref` would then have to commit to a signature not yet
@@ -127,6 +160,12 @@ $defs:
     # ONE ENUMERATION, AND IT IS THE ONLY PLACE A SUBJECT IS NAMED. A digest whose
     # subject is not on this list is refused rather than guessed at, which is what
     # makes "every digest NAMES its subject" a checkable claim.
+    #
+    # WIDENED AT TRANCHE TWO AND AGAIN AT TRANCHE THREE, WHICH IS THE ONE WAY THIS
+    # FILE IS MEANT TO MOVE. A later tranche adds SUBJECTS to this enumeration and
+    # never a second CONSTRUCTION; the members below the tranche-one five are
+    # tranche two's eleven and tranche three's eleven, and `construction_name` is
+    # untouched by both.
     type: string
     enum:
       # --- signed-execution-chain (tranche one) ---
@@ -135,6 +174,18 @@ $defs:
       - transparency_log_leaf
       - traveling_contract
       - gate_verdict
+      # --- add-chain-attestation (tranche two) ---
+      - setup_attestation
+      - commitment_extension
+      - signed_chain_binding
+      - runner_attestation
+      - signing_request
+      - pr_open_decision
+      - closure_record
+      - remediation_declaration
+      - reviewed_subject
+      - review_record
+      - governed_test_definition
       # --- add-chain-anchoring, on this file's own invitation above: no second
       #     construction, one enumeration, eleven further subjects ---
       - anchor_material

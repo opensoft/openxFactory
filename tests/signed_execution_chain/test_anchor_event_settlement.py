@@ -190,6 +190,21 @@ HEALTHY_EVENTS: dict[str, dict] = {
 TRANCHE_ONE_TYPES = ("wallet_presented_ratification", "chain_inception",
                      "traveling_contract_issued", "gate_verdict")
 
+# Tranche two's seven (`add-chain-attestation`), which landed on `main` while this
+# settlement was being authored. They sit BETWEEN tranche one's four and this
+# packet's twelve in the shipped enumeration, so the slices below name all three
+# groups by position rather than assuming the twelve start at index four.
+TRANCHE_TWO_TYPES = ("setup_attestation", "commitment_extension",
+                     "signed_chain_binding", "runner_attestation",
+                     "pr_open_decision", "closure_record",
+                     "remediation_declaration")
+
+TRANCHE_TWO_SUBJECTS = ("setup_attestation", "commitment_extension",
+                        "signed_chain_binding", "runner_attestation",
+                        "signing_request", "pr_open_decision", "closure_record",
+                        "remediation_declaration", "reviewed_subject",
+                        "review_record", "governed_test_definition")
+
 # A minimally complete gate verdict, so the tranche-one control is a record the
 # shape actually accepts rather than one refused for an unrelated reason.
 CHECK_NAMES = (
@@ -248,14 +263,15 @@ def test_the_settled_kinds_are_exactly_the_twelve_the_shape_enumerates(validator
     """
     declared = _load(LEAF_SCHEMA_PATH)["properties"]["leaf_type"]["enum"]
     assert declared[:4] == list(TRANCHE_ONE_TYPES)
-    assert declared[4:] == [
+    assert declared[4:11] == list(TRANCHE_TWO_TYPES)
+    assert declared[11:] == [
         "anchor_pending_entry", "horizon_breach", "terminal_witness_failure",
         "anchor_completion", "item_anchor_refusal",
         "correction_anchored_forward", "verification", "verification_failure",
         "permitted_access", "refused_access", "linkage_derivation_issuance",
         "linkage_derivation_use",
     ]
-    assert set(declared[4:]) == set(HEALTHY_EVENTS)
+    assert set(declared[11:]) == set(HEALTHY_EVENTS)
     assert not any("validation_failure" in name for name in declared), (
         "requirement 4's validation-failure leaf is a gate verdict and is "
         "DELIBERATELY excluded; a member for it is the second grammar 5.3 "
@@ -445,13 +461,14 @@ def test_the_eleven_anchoring_digest_subjects_are_enumerated_once():
     assert subjects[:5] == ["ratified_subject", "signed_ratification",
                             "transparency_log_leaf", "traveling_contract",
                             "gate_verdict"]
-    assert subjects[5:] == [
+    assert subjects[5:16] == list(TRANCHE_TWO_SUBJECTS)
+    assert subjects[16:] == [
         "anchor_material", "anchored_commitment", "anchor_receipt",
         "anchor_state", "anchor_bound_commitment", "consent_checkpoint",
         "log_checkpoint", "linkage_derivation", "analysis_result",
         "verification_result", "anchor_event",
     ]
-    assert len(subjects) == len(set(subjects)) == 16
+    assert len(subjects) == len(set(subjects)) == 27
     assert doc["$defs"]["construction_name"]["const"] == "xfc-jcs-sha256-1"
 
 

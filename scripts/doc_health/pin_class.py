@@ -729,6 +729,49 @@ PIN_CLASS: tuple[PinMember, ...] = (
              "site: this key is ALWAYS the product's, and `carve_commit` above "
              "is ALWAYS this repository's.",
     ),
+    # ---- the second neutral-product pin: ONE artifact, ONE locality --------
+    # `contracts/openreposhape-pin.yaml` (add-project-repo-schema) pins
+    # `opensoft/openRepoShape`, the public Apache-2.0 project-repository-shape
+    # standard this repository ratifies the doctrine for and consumes the
+    # mechanics of.
+    #
+    # ONE MEMBER, NOT TWO, AND THE ASYMMETRY WITH THE WALLET PIN IS THE POINT.
+    # `openxwallet-pin.yaml` needed two members because it names BOTH the
+    # product's commit AND `carve_commit`, the openxFactory commit the wallet
+    # bytes were carved out of this repository at — a value that must stay
+    # reachable HERE. This pin has no such value and cannot have one:
+    # openxFactory authored none of openRepoShape's bytes, so there is no carve
+    # and nothing in this file is an openxFactory commit. Declaring a REPO_LOCAL
+    # member beside this one would invent a claim the artifact does not make.
+    PinMember(
+        id="openreposhape-pin-product-commit",
+        paths=("contracts/openreposhape-pin.yaml",),
+        key="commit",
+        key_form="field",
+        generator="authored with the pin (add-project-repo-schema)",
+        reproduction=MEASURED,
+        locality=CROSS_REPOSITORY,
+        presence=CURRENT,
+        note="`source_repository: opensoft/openRepoShape` — the PINNED "
+             "STANDARD'S commit. It does not resolve in this repository and "
+             "must not be reported as an orphan; openRepoShape answers for it, "
+             "and locally `scripts/validate-openreposhape-pin.py` recomputes "
+             "the sixteen digested members against the real bytes at that "
+             "commit, asserts every path-only member is present, and asserts "
+             "SURFACE COMPLETENESS — a file at the pinned commit named by "
+             "neither list is refused. That verifier is a stronger reachability "
+             "guarantee than a ref here could give, which is why the "
+             "cross-repository declaration is not a gap. It differs from the "
+             "wallet verifier in having no gitlink to compare: openxFactory "
+             "CITES this standard rather than mounting it, so the bytes are "
+             "resolved from a supplied checkout or the host API and an "
+             "unresolvable run REFUSES rather than passing. The key is "
+             "`commit`, already in the vocabulary from "
+             "`openxwallet-pin-product-commit`; what makes this a distinct "
+             "member is the PATH, and a site under a known key at an undeclared "
+             "path is UNCOVERED — which is exactly how this one announced "
+             "itself, on the CI run of the pull request that added the pin.",
+    ),
     # ---- the pinned decision core: executable governance, not a bundle -----
     # `contracts/review-lane-pin.yaml` (feature 025-openxfactory-review-lane-caller)
     # pins the codexFactory commit whose Merge Master decision core judges this
@@ -1068,6 +1111,36 @@ NON_MEMBERS: tuple[NonMember, ...] = (
         reason="schemas DECLARE the keys; they carry no pins of their own. A "
                "schema whose required `source_revision` has no committed "
                "instance yet is a FUTURE member above, not a site here.",
+    ),
+    NonMember(
+        paths=("contracts/review-lane-floor-snapshot.yaml",),
+        reason="A VENDORED BYTE COPY OF ANOTHER REPOSITORY'S DOCUMENT — "
+               "codexFactory's `openxfactory-review-authority-floor.yaml` at "
+               "the commit `contracts/review-lane-pin.yaml` pins, carried here "
+               "so a REQUIRED check can assert this repository's promoted "
+               "OpenSpec canon against it offline. Its generated block's "
+               "header carries `generated_at`, an openxFactory commit that "
+               "DOES resolve here, which is exactly why the exclusion must be "
+               "DECLARED rather than left to whether it resolves — the same "
+               "ground the examples row states. Two facts make a member the "
+               "wrong answer, both measured. (1) The generator writes that "
+               "value into a YAML COMMENT: the commit-shaped pass reads every "
+               "line and finds it, the non-commit pass skips comment lines by "
+               "design and does not, so one member classifies this file twice. "
+               "(2) `PIN_KEY_VOCABULARY` is the union of declared field keys, "
+               "so declaring `generated_at` widens the sweep over 21 files in "
+               "the scan roots whose `generated_at` is an ISO timestamp. And "
+               "the file may not be edited to suit either pass: it is a "
+               "witness, verified byte for byte, and an edited witness proves "
+               "nothing. THE PROVENANCE IS NOT UNGUARDED. "
+               "`contracts/review-lane-pin.yaml` declares the copy's `sha256` "
+               "and `tests/review_lane_pin/test_floor_snapshot.py` compares "
+               "the bytes to the authoritative document whenever the pinned "
+               "core is on disk — a stronger guarantee than a reachability "
+               "verdict, since a drifted `generated_at` could only arrive "
+               "inside bytes that failed both. The claim this file makes is "
+               "codexFactory's, not this repository's about itself, which is "
+               "the line every row here draws.",
     ),
     NonMember(
         paths=("**/*.schema.yaml", "**/*.schema.yml", "**/*.schema.json"),

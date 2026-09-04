@@ -85,6 +85,20 @@ SUBJECTS = frozenset({
     "transparency_log_leaf",
     "traveling_contract",
     "gate_verdict",
+    # Widened at tranche two (add-chain-attestation): eleven subjects added to
+    # the ENUMERATION and no second CONSTRUCTION, which is the one way the
+    # contract file says this set is meant to move.
+    "setup_attestation",
+    "commitment_extension",
+    "signed_chain_binding",
+    "runner_attestation",
+    "signing_request",
+    "pr_open_decision",
+    "closure_record",
+    "remediation_declaration",
+    "reviewed_subject",
+    "review_record",
+    "governed_test_definition",
     # --- add-chain-anchoring (tranche three), under this same construction ---
     "anchor_material",
     "anchored_commitment",
