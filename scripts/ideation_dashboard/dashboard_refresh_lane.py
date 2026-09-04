@@ -109,6 +109,7 @@ import re
 import subprocess
 import sys
 import tarfile
+import tempfile
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -1093,32 +1094,39 @@ def seal_source(
             f"could not read the committer date of {_short(source_head)}")
 
     seal_root = Path(seal_dir)
+    if seal_root.exists() and any(seal_root.iterdir()):
+        # A seal is a FRESH tree, never an overlay on one: `files` is the
+        # authority on what the child must find, so a leftover from an earlier
+        # attempt would be indexed, digested and shipped as though the parent
+        # had sealed it.
+        raise SealRefused(
+            f"the seal directory {seal_root} is not empty — a seal must be "
+            "materialized into a fresh tree")
     seal_root.mkdir(parents=True, exist_ok=True)
-    archive_path = seal_root.parent / f".{seal_root.name}-source.tar"
-    result = runner(["git", "-C", str(corpus_checkout), "archive",
-                     "--format=tar", f"--output={archive_path}", source_head,
-                     "--", *seal_paths])
-    if not result.ok:
-        raise SealRefused(
-            f"git archive failed at {_short(source_head)}: "
-            f"{result.stderr.strip()[:200]}")
-
-    # THE PARENT-SIDE ONE-REVISION ASSERTION (design open question 1). The
-    # archive names its own commit; if that is not the head we recorded, the
-    # two would disagree in a manifest nobody could later disprove.
-    recorded = git_archive_revision(archive_path)
-    if recorded != source_head:
-        archive_path.unlink(missing_ok=True)
-        raise SealRefused(
-            "the source archive's own recorded revision "
-            f"({recorded or 'absent'}) is not the sealed source_head "
-            f"({source_head})")
-
     corpus_root = seal_root / SEAL_CORPUS_RELPATH
-    try:
+    # The intermediate tar lives OUTSIDE the seal (and outside the checkout):
+    # it is not part of the artifact, and `git archive --output=` means the
+    # bytes never pass through this module's text-mode runner.
+    with tempfile.TemporaryDirectory(prefix="dfr-seal-") as staging:
+        archive_path = Path(staging) / "source.tar"
+        result = runner(["git", "-C", str(corpus_checkout), "archive",
+                         "--format=tar", f"--output={archive_path}",
+                         source_head, "--", *seal_paths])
+        if not result.ok:
+            raise SealRefused(
+                f"git archive failed at {_short(source_head)}: "
+                f"{result.stderr.strip()[:200]}")
+
+        # THE PARENT-SIDE ONE-REVISION ASSERTION (design open question 1). The
+        # archive names its own commit; if that is not the head we recorded,
+        # the two would disagree in a manifest nobody could later disprove.
+        recorded = git_archive_revision(archive_path)
+        if recorded != source_head:
+            raise SealRefused(
+                "the source archive's own recorded revision "
+                f"({recorded or 'absent'}) is not the sealed source_head "
+                f"({source_head})")
         _extract_seal_archive(archive_path, corpus_root)
-    finally:
-        archive_path.unlink(missing_ok=True)
     if not any((corpus_root / path.split("/", 1)[0]).exists()
                for path in seal_paths):
         raise SealRefused(

@@ -424,12 +424,28 @@ def test_a_failing_archive_is_refused_rather_than_half_sealed(corpus, tmp_path):
     assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
 
 
-def test_the_intermediate_archive_is_not_left_beside_the_seal(corpus, tmp_path):
+def test_the_intermediate_archive_is_never_part_of_the_artifact(corpus, tmp_path):
+    """The tar is staged outside the seal AND outside the checkout: it is not
+    part of the artifact, and a `.tar` swept into the `files` index would be an
+    8-figure byte count the child downloads twice."""
     seal = tmp_path / "seal"
-    _seal(corpus, seal)
-    leftovers = [path.name for path in tmp_path.iterdir()
-                 if path.name.endswith(".tar")]
-    assert leftovers == []
+    manifest = _seal(corpus, seal)
+    assert [path.name for path in tmp_path.rglob("*.tar")] == []
+    assert not any(key.endswith(".tar") for key in manifest["files"])
+
+
+def test_a_non_empty_seal_directory_is_refused(corpus, tmp_path):
+    """A seal is a FRESH tree, never an overlay on one. `files` is the
+    authority on what the child must find, so a leftover from an earlier
+    attempt would be indexed, digested and shipped as though the parent had
+    sealed it."""
+    seal = tmp_path / "seal"
+    seal.mkdir()
+    (seal / "leftover.txt").write_text("from an earlier attempt\n",
+                                       encoding="utf-8")
+    with pytest.raises(lane.SealRefused, match="not empty"):
+        _seal(corpus, seal)
+    assert not (seal / lane.SEAL_MANIFEST_NAME).exists()
 
 
 # ---------------------------------------------------------------------------
