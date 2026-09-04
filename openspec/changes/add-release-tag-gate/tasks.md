@@ -149,7 +149,11 @@ is `create-medxchart-overlay-boundary` § 5.3/5.4 (`pin-validation`, ruleset
       tool with an uncontrolled code and broken its own "0 or 2, never 1"
       contract — turning a fail-closed refusal into a crash. Caught, and
       `test_an_unrunnable_git_refuses_rather_than_crashing` now pins it with a
-      positive control on the same tree.
+      positive control on the same tree. **Copilot round 2 on the fixed head:
+      ZERO new comments**, verdict *"Needs a closer look … warrants final human
+      verification of process implications"* — which is this packet's own
+      pointer: the process implications are D1, D2 and the `[OPERATOR]` act in
+      § 4, all three of them the convener's and none of them claimed as done.
 - [x] 5.8 A POSITIVE CONTROL ON THE `## MODIFIED` BLOCK ITSELF. The
       `modified-block-currency` family reports nothing about this change, which
       alone cannot be distinguished from a block it never read. One promoted
