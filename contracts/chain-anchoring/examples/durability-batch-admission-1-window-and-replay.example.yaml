@@ -2,10 +2,11 @@
 # atomic transaction that did all five things — validated eligibility, applied the
 # dedupe rule, recorded trusted acceptance time, selected the window FROM that
 # acceptance time, and assigned the next monotonic sequence. The second sits at
-# acceptance `2026-08-31T00:00:00Z`... which is the NEXT window's open, and is
-# therefore NOT in this batch; it is here at sequence 642 with the day-one window
-# because its acceptance is 2026-08-30, and the midnight fixture in `negative/`
-# proves the boundary the other way. The third is a REPLAY ACKNOWLEDGEMENT: same
+# acceptance `2026-08-30T23:59:59Z`, the last second the day-one window admits;
+# the day-three admission in the file beside this one is accepted at exactly
+# `2026-09-01T00:00:00Z` and belongs to the window that OPENS then, because the
+# interval is half-open and the prior window's exclusive boundary has passed by
+# that instant. The third is a REPLAY ACKNOWLEDGEMENT: same
 # dedupe key, same material digest, the EXISTING sequence returned, no second
 # sequence consumed, and no pre-closure anchor receipt.
 ---
@@ -85,7 +86,7 @@ window_open: '2026-08-30T00:00:00Z'
 window_close: '2026-08-31T00:00:00Z'
 leaf_sequence: 642
 leaf_class: owner_evidence_event
-trusted_acceptance_time: '2026-08-31T00:00:00Z'
+trusted_acceptance_time: '2026-08-30T23:59:59Z'
 material_digest:
   construction: xfc-jcs-sha256-1
   subject: anchor_material
@@ -142,7 +143,7 @@ membership_path:
     subject: daily_batch_node
     value: sha256:ee53e7222595d8a1f43af5423399be39e1f46a53e5142d55fc03a9857a7cdd4a
 batch_manifest_ref: dbm-example-0001
-recorded_at: '2026-08-31T00:00:00Z'
+recorded_at: '2026-08-30T23:59:59Z'
 record_version: 1
 ---
 schema_version: 1

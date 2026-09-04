@@ -20,13 +20,13 @@ terms:
       log_sequence: 616
       checkpoint_ref: cp-log-checkpoint-0616
     standing: active
-  first_leaf_sequence: 651
+  first_leaf_sequence: 650
   last_leaf_sequence: 651
-  event_count: 1
+  event_count: 2
   daily_batch_root:
     construction: xfc-jcs-sha256-1
     subject: daily_batch_root
-    value: sha256:9a5d8e9bd13f6bdd84ba01504cdf526968e394e4710e7cfaae3b10507b4f6712
+    value: sha256:0e9065b7e3c3e75600e04d8c886c261f99241511d1054bd8da591a9aeb6e3b6f
   merkle_profile:
     profile_id: dmp-example-daily-merkle
     version: 1
@@ -64,7 +64,7 @@ terms:
 material_digest:
   construction: xfc-jcs-sha256-1
   subject: anchor_material
-  value: sha256:831c0720cdfddf6acf30a66f6cd9ad33d19f3d5d0b2844c764b371553a262445
+  value: sha256:4440b89faeea1d27eb69da07394723a2d8018ae3c294904124502e5f6717cc9e
 window_closed: true
 receipt_ref: rcp-example-daily-0003
 continuity_leaf_ref: leaf-dbm-example-0003-continuity
