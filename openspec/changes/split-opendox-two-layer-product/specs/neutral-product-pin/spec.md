@@ -25,6 +25,20 @@ commit. Two facts of this extraction are outside that shape.
    commit is the same "two answers to which bytes are pinned" defect one level
    down.
 
+**RULED OQ-2 (`opensoft/openxFactory` issue #656, 2026-09-04T22:16Z): TWO
+MODIFIED REQUIREMENTS AND NO THIRD.** This packet had recommended a third — a
+one-field "which layer do you pin" declaration, so a consumer could pin openDox
+directly. Brett ruled against it in terms: *"Inside the xFactory family there is
+ONE chain: openDox is pinned only by openXdox, and every domain descendant pins
+openXdox … No third MODIFIED requirement is added to `neutral-product-pin`."* The
+mapping core is never bypassed and there is one consumption shape to validate.
+**This does not close openDox**: *"Anyone outside the family uses openDox freely
+as open source — this ruling governs the pin chain only"*, so RULING Q7's
+public-from-day-one posture and RULING C3's standalone student both stand. The
+CHAIN clause below is therefore the whole of what one chain needs, and the absent
+third requirement is a ruled omission rather than an oversight. Rejected: a
+direct pin for docs-only installs; deferring to the first request.
+
 **What is deliberately NOT modified here.** *An unanswerable pin question refuses,
 and the refusal names its remedy*, *A required check runs the pinned tool, at the
 pinned digest*, *A pinned validator invoked with no scan target refuses*,

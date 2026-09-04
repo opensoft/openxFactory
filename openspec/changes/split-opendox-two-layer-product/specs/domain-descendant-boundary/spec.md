@@ -22,9 +22,12 @@ through a descendant repository*, *A descendant pins the product by commit,
 twice* and *A descendant is placed at a ratified placement* are unchanged. The
 two-level pin chain (a descendant pinning openXdox, which pins openDox) is
 carried by `neutral-product-pin` instead, because it is a statement about the PIN
-and not about the descendant; and open question Q10 — whether a consumer may pin
-openDox DIRECTLY, which would add a "which layer" declaration to the pin — is
-NOT decided here and travels to the ratification read (`design.md` § OQ-2).
+and not about the descendant. And the question of whether a consumer may pin
+openDox DIRECTLY is **RULED — it may not, inside this family** (RULING OQ-2,
+`opensoft/openxFactory` issue #656, 2026-09-04T22:16Z: *"openDox is pinned only
+by openXdox, and every domain descendant pins openXdox"*), so the "which layer"
+declaration this packet had recommended is NOT added, here or in
+`neutral-product-pin`.
 
 ## MODIFIED Requirements
 

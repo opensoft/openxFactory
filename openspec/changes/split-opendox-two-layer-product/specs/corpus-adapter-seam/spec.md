@@ -21,6 +21,17 @@ The interface's SHAPE is nonetheless load-bearing on `openxFactory`, so
 **list, read, write back, check** — as design rather than as promoted text, and
 `tasks.md` § 2 lands the operations before any repository exists.
 
+**RULING DQ-1 (2026-09-04T22:14Z) MAKES THE FOURTH REQUIREMENT BELOW
+LOAD-BEARING RATHER THAN PRECAUTIONARY.** It was authored against a world in
+which `openxFactory` might keep no adapter at all; Brett has since ruled that it
+KEEPS ONE — *"doc-health and OpenSpec stay in openxFactory, and a small adapter
+package beside them implements the corpus-adapter seam; `codexDox` becomes a thin
+descendant that pins openXdox and reuses that adapter"* — so this repository is
+permanently both the owner of a corpus and the author of a reader over it. That
+is exactly the position in which a private door gets built, and the fourth
+requirement is the rule that forbids one. Read it as the ruling's own safeguard:
+without it, DQ-1 collapses into "the reader never really left".
+
 ## ADDED Requirements
 
 ### Requirement: The corpus reader is an external pinned product and the dependency points one way

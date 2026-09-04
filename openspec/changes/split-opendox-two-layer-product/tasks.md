@@ -17,7 +17,7 @@ Legend: `[oxF]` openxFactory · `[oD]` opensoft/openDox (new) · `[oXd]`
 opensoft/openXdox (new) · `[xF]` the xFactory aggregation · `[OmI]`
 Omnigent-Install · `[Opsx]` OpsxFactory · `[cxF]` codexFactory.
 
-## 0. Ratification read, the carried questions, and Amendment 3's text
+## 0. Ratification read, the FOUR RULED questions, and Amendment 3's text
 
 - [ ] 0.1 `[oxF]` This packet lands as PROPOSAL ONLY, `Status: draft`, at
   `openspec/changes/split-opendox-two-layer-product/`: `proposal.md`,
@@ -28,16 +28,28 @@ Omnigent-Install · `[Opsx]` OpsxFactory · `[cxF]` codexFactory.
   only over the doctrine. A reviewer contesting a ROW contests a row; the
   mechanism (REMOVE with a per-requirement map rather than keep a stub) is taken
   as recommended per the topic's Q8 and RULING C2.
-- [ ] 0.3 `[oxF]` **DQ-1 PUT FOR RULING** — where `openxFactory`'s own engineering
-  adapter lives: `codexDox` (Reading A) or `openxFactory` (Reading B). RULING C2
-  states both as lawful. The 15 `codexDox` rows carry the disjunction until this
-  is ruled. **The ruling decides whether § 7 precedes or follows § 5.**
-- [ ] 0.4 `[oxF]` **OQ-1 PUT** — the replacement safety property (§ D6's four
-  parts). Recommended as drafted.
-- [ ] 0.5 `[oxF]` **OQ-2 PUT** — may a consumer pin openDox directly. Recommended:
-  both pinnable, the consumer declares which layer; NOT authored here.
-  **OQ-3 PUT** — `document-lifecycle` taxonomy parameterization. Recommended: no
-  delta now.
+- [x] 0.3 `[oxF]` **RULED DQ-1 — 2026-09-04T22:14Z** (`#656` comment
+  `5547049745`): **`openxFactory` KEEPS its own adapter**; `doc-health` and
+  OpenSpec stay here, a small package beside them implements the seam, and
+  `codexDox` is a THIN DESCENDANT that pins openXdox and reuses it. Encoded: the
+  15 rows moved to the `openxFactory` column (map **71 / 16 / 15**), the
+  disjunction removed from every row, and **§ 5 now PRECEDES § 7** rather than
+  waiting on a descendant. Rejected: `codexDox` owning the adapter and the 15
+  rows, with the shed waiting on the descendant.
+- [x] 0.4 `[oxF]` **RULED OQ-1 — 22:15Z** (comment `5547060378`): the FOUR-PART
+  FLOOR, **as a REQUIREMENT of this change and not a recommendation in it**.
+  Encoded at § D6 with the ruling's own CLOSED edit-class list (import rewrites,
+  path constants, adapter calls); built at § 3.1, § 3.7, § 5.4 and § 5.5; gated
+  one evidence line per part at § 8.2. Rejected: manifest-with-digests only;
+  snapshot-equivalence only.
+- [x] 0.5 `[oxF]` **RULED OQ-2 — 22:16Z** (comment `5547067574`): ONE CHAIN —
+  inside the family openDox is pinned ONLY by openXdox and every descendant pins
+  openXdox; outside the family openDox is used freely as open source. **No third
+  MODIFIED requirement on `neutral-product-pin`** — verified: this packet modifies
+  exactly two of its nine promoted requirements. **RULED OQ-3 — 22:21Z** (comment
+  `5547107565`): NO `document-lifecycle` delta now; descendants declare their
+  lifecycles via `domain-mapping-declaration`; revisit at `MedxDox`. Both encoded
+  at § D3a.
 - [ ] 0.6 `[oxF]` **GATE — `ideation-intent-plane` reaches canon, or its
   non-promotion is RECORDED.** Ratified 2026-07-23, part-realized, absent from
   `openspec/specs/` for 43 days, and RULING Q1 has just made its apply lane the
@@ -105,6 +117,14 @@ else in the arc can start while the two packages import each other.**
   operations **classify** and **resolve** (`design.md` § D2). A repository created
   before the interface exists has its boundary drawn by whatever `git filter-repo`
   happened to move.
+- [ ] 2.2a `[oxF]` **STAND UP `openxFactory`'s OWN ADAPTER PACKAGE (RULING DQ-1)**
+  beside `scripts/doc_health/`: one conformant implementation of the interface
+  from 2.2 over THIS repository's corpus, reached by no route the interface does
+  not define — no privileged direct call, no bypass for the home corpus, no
+  operation a domain implementation cannot also declare
+  (`corpus-adapter-seam` requirement 4, which this ruling makes load-bearing). It
+  is built HERE and it STAYS here; it is what makes § 5's shed possible without a
+  descendant.
 - [ ] 2.3 `[oxF]` `authoring.py`'s `REQUIRED_HEADER_FIELDS` — today co-authoritative
   with `doc_health.corpus.STATUS_SCAN_LINES` — becomes a CLASSIFY response rather
   than a constant.
@@ -126,15 +146,17 @@ else in the arc can start while the two packages import each other.**
 
 ## 3. The openDox carve — with the mapping manifest
 
-- [ ] 3.1 `[oxF]` Emit `docs/opendox-carve-manifest.yaml` at the **NAMED CARVE
-  COMMIT** BEFORE any file moves: for every file under the moved paths, its
-  `openxFactory` path, its `sha256` at that commit, its destination repository and
-  path, and one of exactly three dispositions — `moved_verbatim`,
-  `moved_with_declared_edit` (edit class named from a CLOSED list: import-path
-  rewrite, subject rename, extension-point extraction, vocabulary
-  parameterization) or `not_moved` with a reason. **A file in none of the three is
-  an undeclared movement and the carve refuses.** This is what replaces the
-  byte-identity floor's file half.
+- [ ] 3.1 `[oxF]` **FLOOR PART 1 (RULED OQ-1).** Emit
+  `docs/opendox-carve-manifest.yaml` at the **NAMED CARVE COMMIT** BEFORE any file
+  moves: for every file under the moved paths, its `openxFactory` path, its
+  `sha256` at that commit, its destination repository and path, and one of exactly
+  three dispositions — `moved_verbatim`, `moved_with_declared_edit`, or
+  `not_moved` with a reason. **The edit-class list is CLOSED and is the ruling's
+  own, verbatim: `import rewrites`, `path constants`, `adapter calls`** — three,
+  not four; the packet's earlier "vocabulary parameterization" is not carried, so
+  such an edit is either expressible as one of the three or it is not a carve edit
+  and belongs to a later change. **A file in no row, or an edit in no class, is an
+  UNDECLARED MOVEMENT and the carve REFUSES.**
 - [ ] 3.2 `[oD]` Carve openDox's ~24.9K of modules per `design.md` § D3, plus the
   PULL-UP wave: `doxbench_knowledge` (1,231), `doxbench_abstract_store` (446) and
   the abstract-generation surface, the keyword-query half of `lens` (282), and
@@ -160,10 +182,12 @@ else in the arc can start while the two packages import each other.**
   repository. Includes RULING C3's standalone shape — a PLAIN LOCAL GIT
   REPOSITORY per project, commits as the write path, a remote attachable later —
   as the trivial conformant adapter implementation, not as a mode.
-- [ ] 3.7 `[oD]` The conformance corpus: a corpus with no `openspec/`, no
-  `contracts/` and no lifecycle headers, positives plus negative confirmations, so
-  a descendant AND a student can prove conformance without `openxFactory`'s
-  corpus. Floor part (3).
+- [ ] 3.7 `[oD]` `[oXd]` `[oxF]` **FLOOR PART 3 (RULED OQ-1).** The neutral
+  conformance corpus — no `openspec/`, no `contracts/`, no lifecycle headers,
+  positives plus negative confirmations — and **EVERY DESTINATION PASSES IT**, the
+  ruling's own word: openDox, openXdox's adapter implementation, AND
+  `openxFactory`'s own adapter from § 2.2a. That last one is the only mechanical
+  proof that the home corpus has no privileged route.
 - [ ] 3.8 `[oD]` Cut `dox-v1.0` only after the floor's four parts are green.
 
 ## 4. The openXdox mapping core
@@ -196,6 +220,14 @@ else in the arc can start while the two packages import each other.**
   Per the MODIFIED `neutral-product-pin`, `openxFactory` declares only its DIRECT
   upstreams; openDox's commit is READ from openXdox's own pin and recorded, if at
   all, as a DERIVED value.
+- [ ] 5.2a `[oxF]` **The FIFTEEN engineering-vocabulary requirements are
+  re-promoted HERE (RULING DQ-1), not shed.** They leave the capability
+  `ideation-dashboard` and land in `openxFactory`'s own corpus under the § 2.2a
+  adapter's own successor capability, whose id this task authors.
+  `promotion_fidelity.py` keys on (capability, normalized title), so the successor
+  is a distinct key and the REMOVED delta stays visible to the checker. The only
+  edit they take is re-expressing path literals as `adapter calls` — one of
+  RULING OQ-1's three classes, by name.
 - [ ] 5.2 `[oxF]` Delete `scripts/ideation_dashboard/` (48 modules), `web/` (40
   files), `tests/ideation-dashboard/` (125 files) and `tests/ideation_dashboard/`
   (the four-file underscore spelling), `scripts/ideation-dashboard-nightly.py`,
@@ -205,13 +237,14 @@ else in the arc can start while the two packages import each other.**
 - [ ] 5.3 `[oxF]` Convert the dashboard workflows to CONSUMER GATES over the pinned
   tools, on the `openxwallet-consumer-gate` shape, **retaining the job id** so a
   ruleset-pinned token survives a file rename.
-- [ ] 5.4 `[oxF]` **The collection triple moves and the arithmetic must SUM.** 3,927
-  `def test_` leave — 52% of this repository's 7,612. openDox + openXdox + the
-  `openxFactory` remainder SHALL equal the pre-split count, pinned by test. Floor
-  part (2).
-- [ ] 5.5 `[oxF]` The snapshot-equivalence run: the same corpus served by the
-  pre-split tree and by the post-split repositories produces the SAME snapshot
-  digests. Floor part (4).
+- [ ] 5.4 `[oxF]` **FLOOR PART 2 (RULED OQ-1) — test counts that must SUM across
+  the three repositories.** 3,927 `def test_` leave — 52% of this repository's
+  7,612. openDox + openXdox + the `openxFactory` remainder (which now includes the
+  adapter's own tests, per RULING DQ-1) SHALL equal the pre-split count, pinned by
+  test the way `pytest-suite.yml` already pins the collection triple.
+- [ ] 5.5 `[oxF]` **FLOOR PART 4 (RULED OQ-1) — the snapshot-equivalence run:**
+  the new stack renders the SAME dashboard snapshot as the old, proven by matching
+  snapshot digests over one corpus.
 - [ ] 5.6 `[cxF]` `[oxF]` **DE-FLOOR BEFORE YOU REMOVE — Rule 7 substrate row 1,
   claimed HERE.** `openspec/specs/ideation-dashboard/` is REMOVED and two
   capability directories are ADDED by the archive, and the codexFactory
@@ -262,23 +295,26 @@ movements claimed at the time they land.
 - [ ] 6.4 `[oxF]` `[oD]` **`add-composed-view-authoring`** → openDox. One MODIFIED
   requirement, `target_release: none`, no contract bytes — the cheapest of the
   five.
-- [ ] 6.5 `[oxF]` `[oD]` `[cxF]` **`add-lens-document-selection`** → SPLIT. The
-  set-builder half to openDox; its `doc_health.staging_seed` drafter and route to
-  `codexDox` or `openxFactory`'s own adapter, per DQ-1's ruling. **The only one of
-  the five whose content does not land in one place.**
+- [ ] 6.5 `[oxF]` `[oD]` **`add-lens-document-selection`** → SPLIT. The
+  set-builder half to openDox; its `doc_health.staging_seed` drafter and route
+  STAY in `openxFactory`'s own adapter (RULING DQ-1 — no longer a `codexDox`
+  question). **The only one of the five whose content does not land in one
+  place.**
 - [ ] 6.6 `[oxF]` **No new dashboard change opens in `openxFactory`** (RULING Q6),
   from this packet's ratification forward.
 
 ## 7. The first descendant — a task with a RULING CHECKBOX, not a decision
 
-- [ ] 7.1 `[oxF]` **RULING OWED: which domain gets the first `<Domainx>Dox`, and
-  when.** On the brainstorm's evidence the answer is likely **`codexDox`** —
-  engineering is the only corpus with a live consumer and the three lanes are the
-  clearest descendant content in the package — but codexFactory holds **zero**
-  tracked dashboard files today, so `domain-descendant-boundary`'s laziness rule
-  says no descendant exists yet. **This is put, not decided.** Its answer is
-  entangled with DQ-1 (§ 0.3): under Reading A a descendant must exist before the
-  carve completes; under Reading B it need not.
+- [ ] 7.1 `[oxF]` **§ 7 FOLLOWS § 5, RULED (DQ-1).** The shed no longer waits on a
+  descendant: `openxFactory` keeps its own adapter, so the carve completes on its
+  own account and the first `<Domainx>Dox` follows when a domain has a profile.
+  **RULING STILL OWED: which domain gets the first one, and when.** On the
+  brainstorm's evidence the answer is likely **`codexDox`** — engineering is the
+  only corpus with a live consumer — but codexFactory holds **zero** tracked
+  dashboard files today, so `domain-descendant-boundary`'s laziness rule says no
+  descendant exists yet, and under DQ-1 `codexDox` is a THIN descendant that pins
+  openXdox and reuses `openxFactory`'s adapter rather than owning one. **This is
+  put, not decided, and nothing in § 1–§ 6 waits on it.**
 - [ ] 7.2 `[oxF]` Until that ruling, descendant NAMES are registered (§ 1.7) and no
   repository is created. An empty descendant is REPORTED under the promoted
   requirement, not cited as precedent for creating more.
@@ -301,14 +337,21 @@ realization evidence, never on landing. Each line is its own evidence.
 
 - [ ] 8.1 Both repositories exist, PUBLIC, Apache-2.0, each with a required check
   that has reported at least once and a ruleset promoted from EVALUATE to ACTIVE.
-- [ ] 8.2 The floor's four parts each produced their own artifact: the carve
-  manifest with every file in exactly one disposition; the summing collection
-  counts; the conformance corpus green; the snapshot-equivalence run's matching
-  digests.
+- [ ] 8.2 **The RULED four-part floor (OQ-1), one evidence line per part:** the
+  carve manifest with every file in exactly one disposition and every edit in one
+  of the three closed classes; the collection counts SUMMING across the three
+  repositories; the neutral conformance corpus green in EVERY destination
+  including `openxFactory`'s own adapter; and the snapshot-equivalence run's
+  matching digests. **None of these is "the tests passed"**, and no part
+  substitutes for another — the two single-instrument alternatives were rejected
+  on the record.
 - [ ] 8.3 `openxFactory`'s shed merged, the MAJOR cut and TAGGED, and the tag
   verified from an INDEPENDENTLY REFRESHED checkout.
 - [ ] 8.4 The codexFactory floor de-floored BEFORE the removal, in that order, with
-  the five openxFactory pin sites moved in ONE reviewed diff.
+  the five openxFactory pin sites moved in ONE reviewed diff. Note the floor must
+  account for BOTH directions of this archive: `openspec/specs/ideation-dashboard/`
+  removed, and the two new capability directories plus the § 5.2a adapter successor
+  capability ADDED.
 - [ ] 8.5 All five re-homed changes dispositioned, each with its destination named
   in the receiving repository; `retire-doxbench-chat-turn-v1` archived in
   `openxFactory` on its own evidence first.

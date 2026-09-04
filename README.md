@@ -509,7 +509,10 @@ Active changes:
   block over **ALL 102** promoted `ideation-dashboard` requirements — the largest
   promoted spec in this corpus (289,266 B / 472 scenarios), with 30 archived and
   5 active changes carrying deltas — each row naming its successor destination and
-  the reason it reads that way: **71 openDox, 16 openXdox, 15 `codexDox`**. The
+  the reason it reads that way: **71 openDox, 16 openXdox, 15 `openxFactory`
+  itself** — the third column being this repository's own engineering adapter
+  under RULING DQ-1, so those fifteen leave the CAPABILITY and not the repository.
+  The
   per-requirement map is deliberately the packet's largest artifact: it is the
   SPECIFICATION-side substitute for the byte-identity floor this extraction cannot
   meet (twelve of forty-eight modules import `doc_health`, `doc_health` imports
@@ -549,19 +552,31 @@ Active changes:
   `add-nightly-dashboard-refresh`'s SEVEN `doc-health` requirements do NOT travel
   and are NOT added here — they are re-authored against the adapter in openXdox,
   which is RULING Q6's resolution of the one conflict it names.
-  **FOUR QUESTIONS GO TO THE RATIFICATION READ:** OQ-1 what replaces byte
-  identity (recommended: a four-part floor — a source→destination mapping manifest
-  with per-file digests at the carve commit and a CLOSED list of edit classes,
-  test-count arithmetic that must SUM over 3,927 test functions, a neutral
-  conformance corpus, and a named snapshot-equivalence run); OQ-2 may a consumer
-  pin openDox directly; OQ-3 does `document-lifecycle`'s taxonomy become one
-  instance of a declared shape; and **DQ-1 — where openxFactory's own engineering
-  adapter lives**, which RULING C2 leaves lawful in TWO ways in one sentence, and
-  which moves 15 of the 102 rows. `code_surface:` names SEVEN repositories, two of
-  which do not exist, so under `release-realization` it archives ONLY on merged
-  plus green evidence, never on landing; `target_release:` is the next **MAJOR**
-  (a removed shape is BREAKING), deliberately UNNUMBERED on the wallet
-  precedent's own reasoning. Rule 7 substrate rows 2 and 3 are claimed by this
+  **THE FOUR QUESTIONS THE PACKET PUT WERE ALL RULED THE SAME EVENING**, before
+  ratification, on #656 — so nothing in the packet is open and what is pending is
+  Brett's ratification word on the proposal itself. **DQ-1** (22:14Z):
+  `openxFactory` KEEPS its own adapter — `doc-health` and OpenSpec stay here, a
+  small package beside them implements the seam, and `codexDox` is a THIN
+  DESCENDANT that pins openXdox and reuses it; the fifteen engineering rows stay
+  here, the shed (§ 5) now PRECEDES the first descendant (§ 7), and the packet's
+  own earlier phrase "the code that reads the corpus leaves entirely" is corrected
+  — what leaves is the PRODUCT. **OQ-1** (22:15Z): the FOUR-PART FLOOR, **as a
+  requirement of this change and not a recommendation in it** — a mapping manifest
+  with per-file digests at the cut plus a CLOSED edit-class list (`import
+  rewrites`, `path constants`, `adapter calls`); test counts that must SUM across
+  the three repositories; a neutral conformance corpus **every destination**
+  passes; and a snapshot-equivalence run. Both single-instrument alternatives were
+  rejected on the record. **OQ-2** (22:16Z): ONE CHAIN — openDox is pinned only by
+  openXdox inside the family, and **no third MODIFIED requirement is added to
+  `neutral-product-pin`**; outside the family openDox is used freely as open
+  source. **OQ-3** (22:21Z): NO `document-lifecycle` delta now; descendants declare
+  their lifecycles via `domain-mapping-declaration`; revisit at `MedxDox`.
+  `code_surface:` names SEVEN repositories, two of which do not exist — and under
+  DQ-1 `openxFactory` GAINS a surface (its adapter package) rather than only
+  shedding one — so under `release-realization` it archives ONLY on merged plus
+  green evidence, never on landing; `target_release:` is the next **MAJOR** (a
+  removed shape is BREAKING), deliberately UNNUMBERED on the wallet precedent's
+  own reasoning. Rule 7 substrate rows 2 and 3 are claimed by this
   packet; **row 1 — the codexFactory review-authority floor — is claimed at
   REALIZATION**, because the floor's runbook says DE-FLOOR BEFORE YOU REMOVE and
   this packet adds and removes no path under `openspec/specs/`.
