@@ -25,7 +25,11 @@ ADMITTED UNDER the closed-register requirement's own terms, and every general
 rule it names — the single door, the ten-field sealed request, API-resolved
 provenance, the re-seal, the hosted finalizer, the authoring-time guard, the
 dispatch record and the periodic attestation — governs this operation
-unchanged.
+unchanged. TWO of those requirements RESERVE AN ACT TO A GOVERNED CHANGE and
+this one performs both, which is exercising them rather than amending them: the
+closed register's "adding an operation SHALL be a governed contract change", and
+the dispatch record's "a ground absent from that enumeration SHALL be added by a
+governed change rather than recorded as free text".
 
 THE ENTRY SHALL DECLARE EVERY FACT the closed-register requirement demands of an
 entry, and this requirement fixes each of them.
@@ -165,10 +169,7 @@ a SECOND DOOR EXISTS: a register entry with no host job declared anywhere is not
 a route, nothing can be dispatched through it, and the direct route is still the
 only door. The act that opens the second door is the act that declares the host
 job, and that act is where the requirement bites — which is why the obligation
-is carried forward onto it below rather than discharged here. This reading is
-the authoring session's and is flagged for the ratifier's veto in design D10; if
-it is refused, the remedy is to hold this entry's admission until the retiring
-change is ready to land with it.
+is carried forward onto it below rather than discharged here.
 
 The governed group `xfactory-artifact-workers` today carries the grandfathered
 member `council-deliberation-worker.yml`, whose host jobs perform exactly this

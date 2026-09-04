@@ -303,7 +303,10 @@ anywhere is not a door: nothing can be dispatched through it, and the direct
 route remains the only route. The act that opens the second door is the act that
 declares the host job. **That reading is the authoring session's, it is not
 ruled, and if Brett refuses it the remedy is plain: hold this admission until
-the retiring xFactory change is ready to land beside it.** The remedy is
+the retiring xFactory change is ready to land beside it.** The requirement
+itself states the answer and not the flag — a ratified sentence that reports its
+own author's uncertainty is a sentence a later reader cannot rely on — so the
+veto lives here, where every other unruled decision in this packet lives. The remedy is
 available at any time and costs this packet nothing but its landing window,
 which is why the reading is offered rather than argued for.
 
