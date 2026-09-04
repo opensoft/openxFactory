@@ -1,0 +1,56 @@
+# A FIXTURE FACTORY-IDENTITY REGISTER — packaged corpus only, NEVER a live one.
+#
+# `scripts/validate-clearing-dispatch.py` resolves the packaged corpus's origin
+# signatures against THIS file, not against `governance/factory-identity/`. Two
+# reasons, both deliberate:
+#
+#   1. THE LIVE REGISTER'S PRIVATE HALVES DO NOT EXIST IN THIS REPOSITORY, and
+#      they must not. `opensoft/codexFactory`'s origin key lives only in that
+#      repository's own hosted packaging environment; a packaged example signed
+#      by it could only exist if that key had left the environment the ratified
+#      requirement confines it to.
+#   2. A SELF-TEST THAT DEPENDED ON A GOVERNANCE TREE WOULD COUPLE THE CORPUS TO
+#      A FILE THAT CHANGES FOR REASONS OF ITS OWN — a rotation would turn the
+#      packaged examples red for a fact about a different subject.
+#
+# The whole-tree sweep is the other half: run with a path, the validator resolves
+# REAL artifacts against the LIVE register, so `opensoft/codexFactory` really is
+# treated as a registered producer there.
+#
+# THE KEY BELOW IS AN EPHEMERAL FIXTURE. Its public half and one signature are
+# committed; its private half was generated for the signing act and never written
+# to this repository. A public key is not a secret, and this file holds nothing
+# else — no seed, no passphrase, no secret name resolvable to key material.
+#
+# DELIBERATELY KINDLESS, exactly as `governance/factory-identity/register.yaml`
+# is, so the fixture exercises the shape the reader actually reads rather than a
+# second shape invented for testing.
+register_version: 1
+revocation_staleness_bound: P7D
+revocation_staleness_ceiling: P7D
+
+rows:
+  # The REGISTERED producer. A manifest whose origin repository is this one must
+  # carry an ORIGIN SIGNATURE; hosted-workflow provenance alone is refused with
+  # `clearing-origin-signature-missing`.
+  - row_id: row-origin-example-producer-0001
+    holder_ref: opensoft/example-producer
+    wallet_ref: wal-origin-example-producer-0001
+    act: originate
+    grant_ref: grant-origin-example-producer-0001
+    expires_at: "2027-12-31T00:00:00Z"
+    state: active
+
+  # A REVOKED row, present so the corpus exercises the rule that only an ACTIVE
+  # row makes a producer registered. `opensoft/example-retired-producer` is
+  # therefore an UNREGISTERED producer for field (10)'s purposes, and hosted
+  # provenance satisfies it — registering an identity tightens a producer, and
+  # revoking one must not silently keep the tighter rule in force against a key
+  # nothing can verify against.
+  - row_id: row-origin-retired-producer-0001
+    holder_ref: opensoft/example-retired-producer
+    wallet_ref: wal-origin-retired-producer-0001
+    act: originate
+    grant_ref: grant-origin-retired-producer-0001
+    expires_at: "2026-01-01T00:00:00Z"
+    state: revoked

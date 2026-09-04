@@ -1,0 +1,125 @@
+# expected_failure: clearing-report-environment-not-allowlisted
+# expected_failure_detail: AZURE_CLIENT_SECRET
+# VIOLATES "An environment dump is proposed → it MUST be refused as non-conformant
+# with this entry's class constraints", and the entry's own words: "The
+# environment echo SHALL be a NAME ALLOWLIST and SHALL NOT be a wholesale
+# environment dump, so that a credential which someday appears in the host's
+# process environment cannot be printed into a run log by accident."
+#
+# THE VALUE HERE IS `<unset>`, AND THE REFUSAL STILL FIRES. That is deliberate.
+# The hazard is not that this run leaked a secret — it did not. The hazard is a
+# shape that PERMITS the name, because the day the variable is set is the day the
+# log is public and nobody re-reads the allowlist. The name is refused, not the
+# value.
+schema_version: 1
+kind: xfactory_clearing_operation_report
+dispatch_id: cd-33999123456-1
+operation: readiness-diagnostic
+operation_claimed: readiness-diagnostic
+lane_selector: both
+cleared_at: '2026-09-03T11:03:58Z'
+clearing_result: success
+outcome: success
+run_url: https://github.com/opensoft/xFactory/actions/runs/33999123456
+lanes:
+  coding:
+    declared:
+      runner_group: xfactory-execution-lane-workers
+      dispatch_label: host-coding-cpc-brett01
+      expected_runner: xfactory-coding-cpc-brett01
+    runner:
+      name: xfactory-coding-cpc-brett01
+      os: Windows
+      arch: X64
+      environment: self-hosted
+      identity: CONFIRMED
+    host:
+      hostname: cpc-brett01
+      computername: CPC-BRETT01
+      whoami: cpc-brett01\\runneradmin
+      username: runneradmin
+      userprofile: C:\\Users\\runneradmin
+      workspace: <unset>
+    heartbeat:
+      job_executing: true
+      utc: '2026-09-03T11:04:12Z'
+      epoch: 1788505452
+    environment:
+      RUNNER_NAME: xfactory-coding-cpc-brett01
+      RUNNER_OS: Windows
+      RUNNER_ARCH: X64
+      RUNNER_TEMP: C:\\a\\_temp
+      COMPUTERNAME: CPC-BRETT01
+      USERNAME: runneradmin
+      PROCESSOR_ARCHITECTURE: AMD64
+      NUMBER_OF_PROCESSORS: '8'
+      GITHUB_WORKSPACE: <unset>
+      AZURE_CLIENT_SECRET: <unset>
+    tools:
+      claude:
+        path: C:\\tools\\claude.exe
+        version: 2.1.4
+      python3:
+        path: C:\\Python312\\python.exe
+        version: 3.12.6
+    compute:
+      python: 3.12.6
+      platform: Windows AMD64
+      node: CPC-BRETT01
+      sha256: 420a56ae77a83e42997bfec97d2d352880fc70e04f6cbade546237e032988618
+      expected_sha256: 420a56ae77a83e42997bfec97d2d352880fc70e04f6cbade546237e032988618
+      sha256_check: PASS
+      arithmetic_check: PASS
+      round_trip: PASS
+    result: success
+    forwarded_lines: 31
+  artifact:
+    declared:
+      runner_group: xfactory-artifact-workers
+      dispatch_label: host-rider-cpc-brett01
+      expected_runner: xfactory-artifact-cpc-brett01
+    runner:
+      name: xfactory-artifact-cpc-brett01
+      os: Windows
+      arch: X64
+      environment: self-hosted
+      identity: CONFIRMED
+    host:
+      hostname: cpc-brett01
+      computername: CPC-BRETT01
+      whoami: cpc-brett01\\runneradmin
+      username: runneradmin
+      userprofile: C:\\Users\\runneradmin
+      workspace: <unset>
+    heartbeat:
+      job_executing: true
+      utc: '2026-09-03T11:04:12Z'
+      epoch: 1788505452
+    environment:
+      RUNNER_NAME: xfactory-artifact-cpc-brett01
+      RUNNER_OS: Windows
+      RUNNER_ARCH: X64
+      RUNNER_TEMP: C:\\a\\_temp
+      COMPUTERNAME: CPC-BRETT01
+      USERNAME: runneradmin
+      PROCESSOR_ARCHITECTURE: AMD64
+      NUMBER_OF_PROCESSORS: '8'
+      GITHUB_WORKSPACE: <unset>
+    tools:
+      claude:
+        path: C:\\tools\\claude.exe
+        version: 2.1.4
+      python3:
+        path: C:\\Python312\\python.exe
+        version: 3.12.6
+    compute:
+      python: 3.12.6
+      platform: Windows AMD64
+      node: CPC-BRETT01
+      sha256: 420a56ae77a83e42997bfec97d2d352880fc70e04f6cbade546237e032988618
+      expected_sha256: 420a56ae77a83e42997bfec97d2d352880fc70e04f6cbade546237e032988618
+      sha256_check: PASS
+      arithmetic_check: PASS
+      round_trip: PASS
+    result: success
+    forwarded_lines: 31

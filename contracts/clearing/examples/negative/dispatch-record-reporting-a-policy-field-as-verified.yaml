@@ -1,0 +1,78 @@
+# expected_failure: clearing-record-policy-field-reported-verified
+# expected_failure_detail: false assurance
+# VIOLATES "A policy-checked field is reported → those fields MUST be reported as
+# POLICY-CHECKED against the register AND they MUST NOT be reported as
+# PROVIDER-VERIFIED."
+#
+# The row is internally impeccable: claimed and resolved agree, `agrees: true`.
+# The defect is the SET it sits in. No provider API can answer "is
+# cpc-readonly-probe the right worker profile" — the register answers that — and
+# the ratified sentence names the harm precisely: "'verified' applied to a field
+# nothing could verify is precisely the false assurance this boundary exists to
+# prevent." A reader of this ledger would believe an external authority had
+# confirmed a value only this repository ever asserted.
+schema_version: 1
+kind: xfactory_clearing_dispatch_record
+dispatch_id: cd-33999123456-1
+dispatched_at: '2026-09-03T11:03:58Z'
+actor: brettheap
+actor_id: '1513478'
+clearing_repository: opensoft/xFactory
+clearing_workflow_ref: opensoft/xFactory/.github/workflows/clearing-dispatch.yml@refs/heads/main
+run_id: '33999123456'
+run_attempt: 1
+run_url: https://github.com/opensoft/xFactory/actions/runs/33999123456
+cleared: true
+operation:
+  claimed: readiness-diagnostic
+  resolved: readiness-diagnostic
+bundle_present: false
+verification:
+  provider_verified:
+  - field: origin_repository
+    claimed: opensoft/xFactory
+    resolved: opensoft/xFactory
+    agrees: true
+  - field: dispatching_identity
+    claimed: brettheap
+    resolved: brettheap
+    agrees: true
+  - field: worker_profile
+    claimed: cpc-readonly-probe
+    resolved: cpc-readonly-probe
+    agrees: true
+  policy_checked:
+  - field: operation
+    claimed: readiness-diagnostic
+    resolved_from_register: readiness-diagnostic
+    agrees: true
+  - field: worker_profile
+    claimed: null
+    resolved_from_register: cpc-readonly-probe
+    agrees: true
+  - field: data_handling
+    claimed: null
+    resolved_from_register: public_log_only
+    agrees: true
+  origin_signature:
+    performed: false
+    outcome: not_required
+    register_row_id: null
+    key_id: null
+lane_declarations:
+- lane: coding
+  declared_runner_group: xfactory-execution-lane-workers
+  declared_dispatch_label: host-coding-cpc-brett01
+- lane: artifact
+  declared_runner_group: xfactory-artifact-workers
+  declared_dispatch_label: host-rider-cpc-brett01
+declared_data_handling: public_log_only
+refusal: null
+workspace_disposal:
+  disposed: true
+  disposed_at: '2026-09-03T11:09:02Z'
+  method: runner temp accumulator removed at job teardown; no workspace was created because
+    the operation performs no checkout
+  evidence_ref: https://github.com/opensoft/xFactory/actions/runs/33999123456#step:6
+chain_ref: null
+outcome: success

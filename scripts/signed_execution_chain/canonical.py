@@ -86,6 +86,13 @@ SUBJECTS = frozenset({
     "reviewed_subject",
     "review_record",
     "governed_test_definition",
+    # Widened at tranche three (add-cpc-clearing-boundary, realized by the
+    # neutral contracts/clearing/ family): ONE subject added to the
+    # ENUMERATION and no second CONSTRUCTION. The contract file carries the
+    # reasoning; this frozen copy moves with it, because a reader refusing a
+    # subject the contract admits is the same defect as a reader admitting one
+    # it does not.
+    "sealed_bundle_manifest",
 })
 
 _ESCAPES = {

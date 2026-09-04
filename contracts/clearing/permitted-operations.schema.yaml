@@ -1,0 +1,233 @@
+schema_version: 1
+kind: openxfactory-clearing-contract-schema
+name: xfactory_clearing_permitted_operations_registry
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/clearing/v1/permitted-operations.schema.yaml"
+contract_id: clearing-permitted-operations-registry
+contract_schema_version: 1
+title: The CLOSED permitted-operations register
+description: >-
+  THE SET OF OPERATIONS A GOVERNED EXECUTION HOST MAY BE ASKED TO PERFORM IS
+  CLOSED (add-clearing-dispatch-boundary, capability `clearing-dispatch-boundary`,
+  requirement "The permitted-operations register is closed"). An operation EXISTS
+  only as an entry here; a sealed request naming an operation with no entry is
+  refused before any runner is selected.
+
+  SCHEMA PLUS INSTANCE, on the convention `trust-anchor`'s chain-custody registry
+  already uses against `openxwallet-custody`: this file declares the SHAPE, and
+  `permitted-operations.registry.yaml` beside it is the one CLOSED INSTANCE. The
+  split exists so that the members are DATA a reviewer can read in one file
+  rather than a constant inside a program, and so that a second consumer of the
+  set reads the same bytes the first one does.
+
+  WHAT A SCHEMA CANNOT SAY, AND WHO SAYS IT. JSON Schema can require that an
+  entry be COMPLETE; it cannot require that the SET be the ratified one, because
+  a schema constrains a document rather than a decision. CLOSURE is therefore the
+  canonical validator's rule: `scripts/validate-clearing-dispatch.py` carries the
+  ratified member set as a frozen constant and refuses an instance member outside
+  it with `clearing-register-member-unratified`.
+
+  ADDING AN OPERATION IS A GOVERNED CONTRACT CHANGE with a spec delta and a
+  reviewer, and it is NOT a workflow edit — the ratified reason, verbatim in
+  substance: an operation set that any lane author may extend is a self-service
+  widening of what the estate's hosts do, reviewed only as workflow
+  configuration. WIDENING AN EXISTING ENTRY'S CLASS CONSTRAINTS is a governed
+  change on the same terms: letting a registered operation check out code, write,
+  or reference a secret where its entry forbids it changes what the estate's
+  hosts do just as surely as adding an entry does.
+
+  THE CLOSED REGISTER IS THE CONTAINMENT, and the ratified text names it as such
+  in preference to the dispatch credential's scope: a compromised producer
+  holding a correctly scoped dispatch credential can still dispatch REGISTERED
+  operations with bundles it controls, and no scoping of that credential prevents
+  it. What bounds the damage is which operations exist at all and what each one
+  is permitted to do — which is this file's subject.
+
+  THE HONEST LIMIT. The register, the validator that reads it and the test that
+  pins it share a repository with the changes they police, so one diff can edit
+  every side. The refusal is a TRIPWIRE that makes an addition VISIBLE AND
+  COSTLY, backed by REVIEW OF ANY DIFF touching the register or the validator —
+  it is not an unforgeable refusal, and it is not described as one, for the same
+  reason the ratified authoring-time guard requires that limit be stated.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - registry_id
+  - registry_version
+  - operations
+
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'
+
+  statement:
+    type: string
+    minLength: 1
+    maxLength: 2000
+
+  lane:
+    description: >-
+      A LANE AN OPERATION MAY BE DISPATCHED TO. The GROUP is the boundary the
+      provider enforces and the LABEL is the routing choice within it; both are
+      literal here, and a request declaring a group or label this entry does not
+      list is refused. `expected_runner` is the identity the operation compares
+      the runner's self-report against — a runner that is not the expected host
+      fails the operation with the observed identity named, rather than the
+      operation proceeding against an unexpected host.
+    type: object
+    additionalProperties: false
+    required: [lane_key, runner_group, dispatch_label, expected_runner]
+    properties:
+      lane_key: {$ref: '#/$defs/identifier'}
+      runner_group: {$ref: '#/$defs/identifier'}
+      dispatch_label: {$ref: '#/$defs/identifier'}
+      expected_runner: {$ref: '#/$defs/identifier'}
+
+  class_constraints:
+    description: >-
+      WHAT THE OPERATION IS PERMITTED TO DO AT ALL — the ratified minimum, in the
+      ratified order: whether it checks out code, whether it writes, whether it
+      may reference secrets, and the token scopes its job carries. A bounded
+      timeout is carried beside them because the first entry's ratified
+      constraints name one and a constraint with no representation cannot be
+      checked.
+
+      THESE BIND AN OPERATION AND ITS JOB, NOT THE CLEARING WORKFLOW FOR ALL
+      TIME. They are THIS entry's declared class; a later bundle-carrying
+      operation carries the clearing side's admission credential under ITS OWN
+      entry's constraints. Reading them as a permanent property of the clearing
+      workflow would make the first conformant bundle-carrying operation look
+      like a violation of a requirement about a different operation.
+    type: object
+    additionalProperties: false
+    required:
+      - checks_out_code
+      - writes
+      - may_reference_secrets
+      - token_scopes
+      - timeout_minutes
+    properties:
+      checks_out_code: {type: boolean}
+      writes: {type: boolean}
+      may_reference_secrets: {type: boolean}
+      token_scopes:
+        description: >-
+          The token scopes the operation's job carries. An EMPTY array means the
+          job token carries no scopes at all, which is a stronger statement than
+          the member's absence and is why the member is required rather than
+          optional.
+        type: array
+        items: {$ref: '#/$defs/identifier'}
+        uniqueItems: true
+      timeout_minutes: {type: integer, minimum: 1, maximum: 1440}
+
+  operation_entry:
+    type: object
+    additionalProperties: false
+    required:
+      - operation_id
+      - title
+      - permitted_semantics
+      - class_constraints
+      - worker_profile
+      - lanes
+      - output_schema_ref
+      - data_handling
+      - repository_affecting_output
+    properties:
+      operation_id: {$ref: '#/$defs/identifier'}
+      title: {type: string, minLength: 1, maxLength: 300}
+      permitted_semantics:
+        description: >-
+          WHAT THE OPERATION MAY DO AND WHAT IT MAY NOT. Both halves are required
+          and both must be non-empty: an entry that lists only permissions
+          describes a capability, while an entry that lists both describes a
+          BOUND, and the ratified requirement asks for the bound.
+        type: object
+        additionalProperties: false
+        required: [may, may_not]
+        properties:
+          may:
+            type: array
+            minItems: 1
+            items: {$ref: '#/$defs/statement'}
+          may_not:
+            type: array
+            minItems: 1
+            items: {$ref: '#/$defs/statement'}
+      class_constraints: {$ref: '#/$defs/class_constraints'}
+      worker_profile: {$ref: '#/$defs/identifier'}
+      lanes:
+        type: array
+        minItems: 1
+        items: {$ref: '#/$defs/lane'}
+      output_schema_ref:
+        description: >-
+          The DECLARED output schema. A return is validated against THIS value,
+          never against a bundle's copy of it.
+        type: string
+        minLength: 1
+        maxLength: 400
+      data_handling:
+        description: >-
+          The entry's DECLARED data-handling classification. For a bundle-less
+          dispatch this is the value the dispatch record carries, because there
+          is no bundle to carry one. The vocabulary is `document-cataloging`'s;
+          this family declares none of its own.
+        $ref: '#/$defs/identifier'
+      repository_affecting_output:
+        description: >-
+          Whether the operation returns REPOSITORY-AFFECTING OUTPUT. An operation
+          declaring `true` has its return validated — and, where the entry so
+          says, tested — by a hosted finalizer before any branch, commit or pull
+          request exists. An operation declaring `false` is PREVENTED from having
+          a repository effect: its return is evidence, and a change that gives it
+          an effect is a change to this entry.
+        type: boolean
+      finalizer_tests_output:
+        description: >-
+          Optional, and meaningful only where `repository_affecting_output` is
+          true: whether the hosted finalizer also TESTS the return rather than
+          only validating its shape.
+        type: boolean
+      notes: {$ref: '#/$defs/statement'}
+
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_clearing_permitted_operations_registry}
+  registry_id:
+    description: >-
+      The registry's own identity, a `const` so a second file cannot claim to be
+      this register. The `trust-anchor` chain-custody registry pins its id the
+      same way and for the same reason.
+    const: clearing-permitted-operations
+  registry_version: {type: integer, minimum: 1}
+  composes_with:
+    description: >-
+      Registries this one consumes vocabulary FROM rather than restating. Present
+      so a reader can see, in the instance, which words are borrowed and whose
+      they are.
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [registry_id, statement]
+      properties:
+        registry_id: {$ref: '#/$defs/identifier'}
+        registry_path: {type: string, minLength: 1, maxLength: 400}
+        statement: {$ref: '#/$defs/statement'}
+  operations:
+    description: >-
+      THE CLOSED SET. `minItems: 1` because a register with no members is not a
+      closed set, it is an unrealized one. There is no `maxItems`: the bound on
+      this array is the GOVERNED CHANGE the validator enforces, not a number, and
+      a numeric cap would suggest the set may grow freely up to it.
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items: {$ref: '#/$defs/operation_entry'}

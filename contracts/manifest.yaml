@@ -2705,7 +2705,7 @@ contracts:
     source_path: openxFactory/contracts/signed-execution-chain/digest-construction.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 7a9752a8c2c59a6309a0d5c1e7dad81ffaf83ffda4605d10faa740dcdee7d297
+    sha256: 407d77fd78504ca720c257c3ccd07e410db5c48a0630e36a76cc6824e48d4566
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-

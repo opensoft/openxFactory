@@ -1,0 +1,92 @@
+# A CONFORMANT SEALED BOUNDED REQUEST from a REGISTERED producer.
+#
+# All ten declared fields, an expiry that has not passed, a byte-tagged hash per
+# selected file, and field (10) as an ORIGIN SIGNATURE — which is what
+# `add-cpc-clearing-boundary` REQUIRES of a producer holding an active row in the
+# factory-identity register. Hosted-workflow provenance alone from this producer
+# is refused; see `negative/registered-producer-offers-hosted-provenance.yaml`.
+#
+# THE SIGNATURE HERE GENUINELY VERIFIES. It was produced by an ephemeral key over
+# the canonical bytes of this manifest's signable subject, under
+# `xfc-jcs-sha256-1` with subject `sealed_bundle_manifest`; the public half is in
+# `factory-identity-fixture/wallets/`, and the private half was never written to
+# this repository. A packaged example carrying a signature-shaped value that
+# nothing could check would prove only that the field exists.
+#
+# WHY THE OPERATION IS `readiness-diagnostic`. It is the only member of the
+# closed register, and a manifest naming anything else would be refused for that
+# reason rather than validating the shape. That operation carries no bundle in
+# today's realization — it asks the host only about itself — so this example
+# exercises THE MANIFEST SHAPE a bundle-carrying operation will use, against the
+# only entry that exists. Inventing an unregistered operation to make the example
+# feel realistic would have tested the corpus against a fiction.
+#
+# THE POLICY-CHECKED FIELDS AGREE WITH THE REGISTER HERE, and they agree because
+# they were copied FROM it. The register still governs: the dispatch runs on the
+# entry's values, and these copies are claims that happen to match. See
+# `negative/bundle-worker-profile-disagrees-with-register.yaml` for what happens
+# when they do not.
+schema_version: 1
+kind: xfactory_sealed_bundle_manifest
+
+# (1) the originating repository and workflow — provider-verifiable claims
+origin:
+  repository: opensoft/example-producer
+  workflow_path: .github/workflows/package-sealed-bundle.yml
+
+# (2) the source commit — compared against the head the provider reports
+source_commit: 4f1c0d9a7b2e8c3d5a6f0b1e2c4d6a8b0c2e4f60
+
+# (3) a unique job id and an EXPIRATION — what makes this a request, not a mirror
+job:
+  job_id: sbm-example-0001
+  issued_at: "2026-09-03T11:00:00Z"
+  expires_at: "2026-09-03T13:00:00Z"
+
+# (4) the selected-file manifest, a BYTE hash per file
+selected_files:
+  - path: src/example/module.py
+    content_hash: sha256:9f2c3a1b4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8
+    size_bytes: 2048
+  - path: tests/example/test_module.py
+    content_hash: sha256:1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f809
+    size_bytes: 1024
+
+# (5) the permitted operation — resolved against the CLOSED register
+operation: readiness-diagnostic
+
+# (6) the required worker profile — a CLAIM; the register's value governs
+worker_profile: cpc-readonly-probe
+
+# (7) the exact runner group and the unique dispatch label, both literal
+lane:
+  runner_group: xfactory-execution-lane-workers
+  dispatch_label: host-coding-cpc-brett01
+
+# (8) the output schema — a CLAIM; the register's value governs
+output_schema_ref: contracts/clearing/operation-report.schema.yaml
+
+# (9) the data-handling classification — a CLAIM; the register's value governs
+data_handling: public_log_only
+
+# (10) the origin attestation — the TIGHTENED form
+origin_attestation:
+  attestation_type: origin_signature
+  register_row_id: row-origin-example-producer-0001
+  key_id: key-fixture-example-producer-0001
+  manifest_digest:
+    construction: xfc-jcs-sha256-1
+    subject: sealed_bundle_manifest
+    value: sha256:de836b596761a9174ab30d4d955db60efae54cd399faf8949fd21ad9914888e0
+  signature: zOWg2uN99fCQ-bHlQPgX8et81bq4v3Ci2SaXwW1_Y-j5uLVcrOhP-9-QsoL67xGGLWGjI2nHlBDA14pdmSWfCA
+  covered_fields:
+    - origin
+    - source_commit
+    - job
+    - selected_files
+    - operation
+    - worker_profile
+    - lane
+    - output_schema_ref
+    - data_handling
+    - origin_attestation

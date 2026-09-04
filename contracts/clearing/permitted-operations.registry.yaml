@@ -1,0 +1,184 @@
+# THE CLOSED PERMITTED-OPERATIONS REGISTER — the one instance.
+#
+# Realization of the ratified change `add-clearing-dispatch-boundary` (PR #555,
+# merged `ab0bb2dd` on 2026-09-02), capability `clearing-dispatch-boundary`,
+# requirement "The permitted-operations register is closed" and requirement
+# "readiness-diagnostic is register entry number one and is strictly read-only";
+# tasks.md 6.2. Registered in contracts/manifest.yaml + contracts/CHANGELOG.md at
+# contract-v3.3, per docs/contract-versioning-policy.md.
+#
+# EXACTLY ONE MEMBER TODAY. `readiness-diagnostic` is the ratified entry #1, and
+# it is the whole register. That is not a placeholder state waiting to be filled
+# in by whoever needs a lane next.
+#
+# ADDING A MEMBER IS A GOVERNED CONTRACT CHANGE, NOT AN EDIT TO THIS FILE.
+# `scripts/validate-clearing-dispatch.py` carries the ratified member set as a
+# frozen constant and REFUSES any member outside it with
+# `clearing-register-member-unratified`. WIDENING an existing member's class
+# constraints — checkout, writes, secret reference, token scopes — is a governed
+# change on the same terms; the refusal above does not catch a widening, and
+# REVIEW OF THE DIFF is what does.
+#
+# THE HONEST LIMIT, stated here rather than only in the README: this file, the
+# validator that reads it and the test that pins it share a repository with the
+# changes they police, so ONE DIFF CAN EDIT EVERY SIDE. What the refusal
+# guarantees is that an addition cannot be made SILENTLY — it is a red check plus
+# a diff touching this file or the validator. It is a tripwire backed by review,
+# and it is not an unforgeable refusal.
+#
+# `deliberation` IS NOT HERE ON PURPOSE. codexFactory #165 wants a deliberation
+# operation on the governed host. It is a LATER GOVERNED CHANGE and it is not in
+# the ratified text this instance realizes, so it does not appear here, and
+# `examples/negative/register-carrying-an-unratified-operation.yaml` uses it as
+# the fixture that proves the refusal fires. An operation that arrives by editing
+# this comment out is the failure mode the whole requirement exists to prevent.
+#
+# WHAT THE INSTANCE IS NOT. It is not enforcement. Until the clearing
+# implementation validates a dispatched operation id against THIS FILE, the
+# operative register is that workflow's own literal choice list — the
+# workflow-edit surface `add-clearing-dispatch-boundary` tasks.md 3.7 declares as
+# an accepted interim precisely because it has one member and this successor was
+# scheduled. That task's own words: once this instance lands, the clearing
+# workflow MUST validate against the registry INSTANCE and stop relying on its
+# own choice list as the authority. That is a task of `opensoft/xFactory`, and a
+# green gate here does not discharge it.
+schema_version: 1
+kind: xfactory_clearing_permitted_operations_registry
+registry_id: clearing-permitted-operations
+registry_version: 1
+
+composes_with:
+  - registry_id: worker-enrollment-broker
+    registry_path: contracts/worker-enrollment/
+    statement: >-
+      Runner group, dispatch label and trust tier are that capability's words.
+      This register names the lanes an operation may be dispatched TO; it does
+      not define what a runner group is, and its subject is what was CLEARED to a
+      host rather than which hosts may BE runners.
+  - registry_id: document-cataloging
+    registry_path: contracts/schemas/
+    statement: >-
+      `data_handling` is a handling class from that capability's vocabulary. This
+      register declares WHICH class an operation's output carries, and defines no
+      classification of its own.
+  - registry_id: signed-execution-chain-digest-construction
+    registry_path: contracts/signed-execution-chain/digest-construction.schema.yaml
+    statement: >-
+      Every digest a sealed request for one of these operations carries is
+      computed under `xfc-jcs-sha256-1`, over the `sealed_bundle_manifest`
+      subject admitted to that construction's enumeration at tranche three. No
+      construction is declared here.
+
+operations:
+  # -------------------------------------------------------------------------
+  # ENTRY #1 — the ratified first member.
+  #
+  # Its checks are `opensoft/xFactory#188`'s standalone runner-readiness
+  # diagnostic, carried forward verbatim in substance, which is why that
+  # workflow RETIRED into this operation rather than being allowlisted beside
+  # it (Brett Heap's option-1 supersession, 2026-09-01). Retirement executed in
+  # `opensoft/xFactory#191`, squash `95f1a9c6`, 2026-09-01.
+  # -------------------------------------------------------------------------
+  - operation_id: readiness-diagnostic
+    title: Strictly read-only host readiness probe (register entry number one)
+
+    permitted_semantics:
+      may:
+        - >-
+          Report the runner's own identity and compare it against the identity
+          expected for the dispatched lane, failing the operation with the
+          OBSERVED identity named when the two differ, rather than proceeding
+          against an unexpected host.
+        - >-
+          Report the lane's DECLARED runner group and DECLARED dispatch label.
+          The provider exposes no runner-group context to a running job, so a
+          probe cannot read the group it was in; what it reports is what the
+          dispatch DECLARED for the lane.
+        - >-
+          Report the service account the runner executes as, and the host
+          identity.
+        - >-
+          Report a heartbeat and a clock reading.
+        - >-
+          Echo the host environment BY NAME ALLOWLIST of known non-secret
+          variables only.
+        - >-
+          Perform a harmless fixed-input, fixed-expected-digest compute round
+          trip, recording BOTH the computed and the expected value when they
+          disagree.
+        - >-
+          Print back the presence and version of read-only operator tooling,
+          bounded by a timeout so a hung or interactive build cannot wedge the
+          lane.
+        - >-
+          Emit a STRUCTURED OPERATION REPORT — the probed facts as data — and
+          compose one report of record per dispatch across however many lanes
+          were probed.
+      may_not:
+        - >-
+          Check out any repository. A checkout writes the runner workspace and is
+          refused by this entry's class constraints.
+        - >-
+          Write anything outside the runner's own temporary plumbing.
+        - >-
+          Reference a secret, in any expression or environment block.
+        - >-
+          Carry any token scope. The job token carries none at all.
+        - >-
+          Dump the host environment wholesale. A credential that someday appears
+          in the host's process environment must not be printable into a run log
+          by accident, which a name allowlist prevents and a dump does not.
+        - >-
+          Report OBSERVED runner-group membership. Observed membership is
+          established by the periodic single-door attestation reading the
+          provider's API, never by a runner's report of itself — a job reporting
+          its own group would be the bundle-trust error moved onto the host.
+        - >-
+          Carry an eligibility verdict, a readiness decision, or any go/no-go
+          field. The report is EVIDENCE produced BY passing through the boundary;
+          it is not, and may not grow into, the neutral
+          infrastructure-readiness result that the promoted `document-cataloging`
+          and `ideation-routing` preflights await, which is a decision input
+          consulted BEFORE dispatch.
+        - >-
+          Affect any repository. This entry declares no repository-affecting
+          output, and a change that gives it one is a change to this entry.
+
+    class_constraints:
+      checks_out_code: false
+      writes: false
+      may_reference_secrets: false
+      # EMPTY, and the emptiness is the statement: the job token carries no
+      # scopes at all. This binds THIS operation and its job, not the clearing
+      # workflow forever — a later bundle-carrying operation carries the clearing
+      # side's admission credential under its OWN entry's constraints.
+      token_scopes: []
+      timeout_minutes: 5
+
+    worker_profile: cpc-readonly-probe
+
+    lanes:
+      - lane_key: coding
+        runner_group: xfactory-execution-lane-workers
+        dispatch_label: host-coding-cpc-brett01
+        expected_runner: xfactory-coding-cpc-brett01
+      - lane_key: artifact
+        runner_group: xfactory-artifact-workers
+        dispatch_label: host-rider-cpc-brett01
+        expected_runner: xfactory-artifact-cpc-brett01
+
+    output_schema_ref: contracts/clearing/operation-report.schema.yaml
+
+    # `public_log_only`: this operation produces nothing but facts about the
+    # runner itself, all of which are already visible in a public run log, so no
+    # output of it needs handling beyond the log it is printed into. A
+    # bundle-carrying operation will declare a stricter class.
+    data_handling: public_log_only
+
+    repository_affecting_output: false
+
+    notes: >-
+      The lane constants are the interface `add-clearing-dispatch-boundary`
+      tasks.md 3 fixes and `opensoft/xFactory`'s clearing workflow already
+      declares literally; a rename here without a matching change there would
+      make this register disagree with the door it describes.
