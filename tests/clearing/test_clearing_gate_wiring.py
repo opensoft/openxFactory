@@ -12,6 +12,15 @@ This module is collected by the REQUIRED `pytest-suite` job, so weakening any of
 those cannot land without a required check going red. It is the same instrument,
 and the same argument, as `tests/factory_identity/test_gate_wiring.py` and
 `tests/openxwallet_consumer_gate/test_gate_invocation.py`.
+
+WHY THE FILENAME CARRIES THE FAMILY. `tests/signed_execution_chain/` already
+holds a `test_gate_wiring.py`, and neither directory is a Python package, so both
+would claim the bare module name `test_gate_wiring` in `sys.modules` and
+collection would fail with an import-file mismatch the moment both are collected
+— which the required `pytest-suite` job always does. The alternative, making this
+directory a package, would put the conftest behind a qualified name and break the
+`from conftest import` this family's modules use. A distinct basename is the
+smaller change.
 """
 
 from __future__ import annotations

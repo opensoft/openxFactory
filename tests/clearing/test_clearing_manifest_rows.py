@@ -7,6 +7,10 @@ This module closes the other direction, the way
 `tests/signed_execution_chain/test_manifest_row_digests.py` does for its family —
 every expected row is registered, and every registered artifact on disk carries a
 row.
+
+THE FILENAME CARRIES THE FAMILY for the same reason its sibling gate test does:
+that signed-execution-chain module has the obvious basename already, and two
+rootless directories cannot both claim one bare module name in `sys.modules`.
 """
 
 from __future__ import annotations
