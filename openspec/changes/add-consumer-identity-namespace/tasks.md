@@ -201,7 +201,7 @@ directory; it holds no material.
   ITS OWN minor rather than at `contract-v2.4`. **EXECUTED.** That last is the
   half a reader at the major needs: a row that borrowed a window it never served
   is exactly the defect this entry exists to prevent.
-- [ ] 5.3 `[#511]` **THE CUT — NOT THIS CHANGE.** The ruling excludes it in
+- [x] 5.3 `[#511]` **THE CUT — NOT THIS CHANGE.** The ruling excludes it in
   terms. Whoever cuts owes, in one act: the number (allocated by merge order —
   `contract-v3.1` was being spent by PR #616 when this was written, was CUT by
   it, and was then found DEFECTIVE and SUPERSEDED by `contract-v3.2` (PR #624);
@@ -222,7 +222,33 @@ directory; it holds no material.
   § 2.6's precedent; and that nothing else narrows — the member being optional,
   the schema constraining nothing about the block, and the comparison only
   ceasing to refuse.
-- [ ] 5.4 `[#511]` Two `release-inventory-drift` findings — `contracts/manifest.yaml`
+  **DISCHARGED 2026-09-04 BY PR #636 (lane `openxfactory-smalls`), AND NOT AS
+  THIS PACKET EXPECTED — THE NUMBER WAS ALLOCATED BY SOMEONE ELSE'S MERGE
+  ORDER, WHICH IS EXACTLY WHAT ALLOCATING LATE MEANS.** `contract-v3.3` was cut
+  by **PR #628** (lane `team02c`, `add-clearing-dispatch-boundary`, merged
+  `0d5e1ba9`), whose branch point is AFTER this packet's own landing
+  `95c2cf6a` — so this packet's schema, validator and documentation bytes were
+  ALREADY inside the `contract-v3.3` tree while that entry named none of them.
+  Two lanes measured the same free number within the same hour; the tie is
+  settled by merge order, and #628 landed first. **THE REMEDY IS A FOLD, NOT A
+  SECOND NUMBER.** PR #636 was opened as a rival cut of `contract-v3.3`, was
+  overtaken, and was REWORKED into an amendment of the SAME untagged release:
+  it adds one clearly headed block, `### Also realized in this cut:
+  add-consumer-identity-namespace (#622)`, inside #628's existing
+  `## contract-v3.3 — 2026-09-03` section, carrying this task's prescription
+  VERBATIM as a quotation and then discharging it clause by clause, and it
+  alters **not one word** of #628's text. Spending `contract-v3.4` on a release
+  whose bytes are already published-in-tree would have made the changelog lie
+  about which bundle carries them. **THE FOLD IS LAWFUL BECAUSE THE TAG IS NOT
+  YET PUSHED**: `docs/contract-versioning-policy.md` § *Bundle Realization
+  Order* step 4 makes a promoted commit a NEW candidate that every gate reruns
+  against, and § *Immutable Tag Correction* binds only a PUBLISHED tag. Lane
+  `team02c` is holding the `contract-v3.3` tag by agreement until #636 lands.
+  Of the four things this task says the cut owes, #628 supplied the number, the
+  version-headed entry and the inventory under `contracts/releases/`, and owes
+  the annotated tag; #636 supplies the entry text this task prescribes and
+  rebuilds the inventory LAST at the amended tree.
+- [x] 5.4 `[#511]` Two `release-inventory-drift` findings — `contracts/manifest.yaml`
   and `docs/contract-versioning-policy.md`, both members of the standing
   release inventory (`contract-v3.0` when this was written, **`contract-v3.2`
   since PR #624 cut the superseding release for a defective `contract-v3.1`**)
@@ -231,11 +257,24 @@ directory; it holds no material.
   MOVING**: while `main` was itself drifting the policy doc, this branch's edit
   to it added no finding; #624's cut rebaselined the inventory and made `main`
   clean, so the same unchanged edit now raises a NEW ERROR against the branch.
-  Recorded in § 8.1, and still not hand-fixed. **UNTICKED RATHER THAN TICKED WITH AN EXCUSE.** The
+  Recorded in § 8.1, and never hand-fixed. **WHILE THIS PACKET WAS OPEN THE BOX WAS
+  LEFT UNTICKED RATHER THAN TICKED WITH AN EXCUSE** — it is ticked now only
+  because a CUT discharged it, which is the paragraph below. The
   family's own remedy line is *"cut a release through the bundle realization
   order; never hand-edit an inventory or `contract_bundle_version` to make this
   comparison pass"*, and `add-binding-consumer-identity` § 6.3 took exactly these
   two findings for exactly this reason.
+  **DISCHARGED BY THE CUT — #628's, NOT #636's — AND NOT BY A HAND-EDIT.** Both
+  findings named `contract-v3.2`'s inventory. #628's cut advanced
+  `contract_bundle_version` to `contract-v3.3` and BUILT
+  `contracts/releases/contract-v3.3.digests.yaml` from the bytes on disk at a
+  tree that already carried this packet's landing, so both members —
+  `contracts/manifest.yaml` and `docs/contract-versioning-policy.md` — are
+  re-baselined there and the family reports NOTHING on either at `origin/main`
+  `21190cf7`. CONFIRMED BY MEASUREMENT rather than assumed: the
+  `release-inventory-drift` family is at ZERO findings on that baseline, and at
+  ZERO on #636's tip. Neither an inventory nor `contract_bundle_version` was
+  ever adjusted to make a comparison pass, by either lane. Figures in § 8.1.
 
 ## 6. The delta — two rulings, one block
 
@@ -296,15 +335,24 @@ directory; it holds no material.
 - [x] 7.4 `python3 -m pytest tests/credential_contracts tests/manifest_digests -q`.
   **EXECUTED**: **239 passed**, and **247 passed** after § 8.3's round and
   § 4.2a.
-- [ ] 7.5 doc-health, branch against a same-clock `origin/main` baseline from an
+- [x] 7.5 doc-health, branch against a same-clock `origin/main` baseline from an
   IDENTICALLY-NAMED checkout (the finding identity is `(family, repo, path)` and
   the repo is the basename, so a differently-named baseline manufactures
-  phantoms). **EXECUTED AND NOT ZERO AT THE CURRENT BASELINE — UNTICKED
-  DELIBERATELY.** One new ERROR, `release-inventory-drift` on
+  phantoms). **EXECUTED, AND AT THE BASELINE READ WHILE THIS PACKET WAS OPEN IT
+  WAS NOT ZERO, SO THE BOX WAS LEFT UNTICKED DELIBERATELY** — that reading, and
+  the state it describes, are recorded here as they stood; what discharged them
+  is the paragraph below. One new ERROR, `release-inventory-drift` on
   `docs/contract-versioning-policy.md` against the `contract-v3.2` inventory
   #624 cut, plus three INFO. It is § 5.3's to discharge and § 5.4's to refuse to
   hand-edit; figures, both-directions set difference and the reason the answer
   changed are in § 8.1.
+  **NOW TICKED, AND THE ERROR THAT KEPT IT UNTICKED IS GONE FROM BOTH SIDES.**
+  At `origin/main` `21190cf7` — which carries #628's `contract-v3.3` cut — the
+  `release-inventory-drift` ERROR on `docs/contract-versioning-policy.md` and
+  the INFO on `contracts/manifest.yaml` are BOTH absent, because that cut
+  re-baselined the inventory over this packet's already-landed bytes. #636's tip
+  adds ZERO new critical, error or warning over that baseline. Re-measured
+  figures and the both-directions set difference are in § 8.1.
 - [x] 7.6 `python3 -m pytest tests/doc-health -q`. **EXECUTED**: 1500 passed
   after § 4.4a; the first run's single failure was the corpus-movement gate and
   is recorded in § 8.2 rather than smoothed away.
@@ -336,6 +384,41 @@ evidence.
 Both sides run with `--single-repo`, both checkouts named exactly `openxFactory`,
 both `--as-of 2026-09-03`.
 
+**RE-MEASURED 2026-09-04 AT THE FOLD (PR #636), BOTH CHECKOUTS NAMED
+`openxFactory`, both `--as-of 2026-09-04`.** This packet had MERGED as #622
+(`95c2cf6a`) and `contract-v3.3` had been cut by #628 (`0d5e1ba9`) before the
+measurement, so the comparison is no longer branch-against-`main`: it is
+`origin/main` `21190cf7` against #636's tip, and #636 carries ONE file's
+change — the folded `contracts/CHANGELOG.md` block — plus the rebuilt inventory
+and these ticks.
+
+| | critical | error | warning | info | total |
+| --- | --- | --- | --- | --- | --- |
+| baseline `origin/main` `21190cf7` | 6 | 4 | 40 | 16 | 66 |
+| fold tip (PR #636, `c82f946e`) | 6 | 4 | 40 | 16 | 66 |
+
+**THE FINDING SETS ARE BYTE-IDENTICAL — 66 ROWS EACH, ZERO ADDED AND ZERO
+REMOVED**, taken as a set difference over the machine block in BOTH directions.
+Per-family counts match exactly on both sides: document-catalog 1/1,
+ideation-routing 1/1, modified-block-currency 12/12, ratified-provenance 2/2,
+record-immutability 4/4, register-lifecycle-consistency 10/10,
+**release-inventory-drift 0/0**, release-tag-publication 2/2,
+staged-candidate-aging 4/4, staged-topic-template 26/26, tag-hygiene 4/4. An
+amendment that adds one changelog block and rebuilds the inventory over it is
+supposed to move nothing else, and this measures that rather than asserting it.
+
+**AND THE DRIFT THIS SECTION EXISTED TO RECORD IS GONE ON BOTH SIDES.** The
+`release-inventory-drift` ERROR on `docs/contract-versioning-policy.md` and the
+INFO on `contracts/manifest.yaml`, which stood against the `contract-v3.2`
+inventory, are absent from the `21190cf7` baseline: #628's cut re-baselined the
+inventory at a tree already carrying this packet's bytes. **THAT IS A CUT
+DISCHARGING IT, NOT AN EDIT** — neither lane touched an inventory or
+`contract_bundle_version` to make a comparison pass, and #636 rebuilds the
+inventory LAST with `validate-contract-release.py build` rather than by hand.
+
+**EARLIER BRANCH-AGAINST-`main` READINGS, kept as the record of what was true
+then**, follow below.
+
 **RE-MEASURED 2026-09-03 AT `origin/main` `6a39d2ab`, AFTER #617 AND #624, AND
 THE ANSWER CHANGED — IT IS NO LONGER ZERO-NEW-ERROR.** The earlier reading below
 is kept as the record of what was true then; this is the reading that governs.
@@ -357,8 +440,8 @@ so this packet's edit to it added nothing. **PR #624 then cut `contract-v3.2`**
 the inventory and made `main` clean on that file. This packet's edit to
 § Deprecations Currently In Force now reintroduces the drift on its own.
 
-**THE BOX STAYS UNTICKED RATHER THAN TICKED WITH AN EXCUSE, and it is NOT
-hand-fixed.** The family's own remedy line is *"cut a release through the bundle
+**AT THIS READING THE BOX STAYED UNTICKED RATHER THAN TICKED WITH AN
+EXCUSE, and it was NOT hand-fixed.** The family's own remedy line is *"cut a release through the bundle
 realization order; never hand-edit an inventory or `contract_bundle_version` to
 make this comparison pass"*, and the finding's class is `auto-fixable` only in
 the sense that a CUT fixes it. Editing the inventory to green this comparison is
