@@ -135,6 +135,14 @@ marker is `document-lifecycle`'s third reserved form,
 ``**Modified over `<basis change-id>`'s addition by <change-id>
 (<YYYY-MM-DD>):**`` followed by ` — <reason>`, which names no units and is
 therefore never a suppression, never a marker defect and never a carriage unit.
+Issue #627 then generalized the ordering arm from a pair to a chain: where
+three or more active ratified changes carry a MODIFIED block for one
+requirement, their declarations resolve the order whenever they state a single
+linear chain — one starting point, no fork and no cycle — and every later block
+is then measured against its predecessor's block rather than against canon,
+while a group whose declarations state no such chain is still reported and now
+names the defect (`forked`, `unanchored`, `cycle`, or a declaration anchored on
+a writer outside the ratified group).
 
 [`2026-09-01-add-release-tag-publication-check`](../openspec/changes/archive/2026-09-01-add-release-tag-publication-check/proposal.md)
 added a twenty-third deterministic family, `release-tag-publication`, per the

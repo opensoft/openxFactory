@@ -1,0 +1,23 @@
+{
+  "change_id": "add-subject-establishment",
+  "files": [
+    {
+      "path": "subject-establishment.md",
+      "sha256": "bb134bf92125260bfa24e1aebfb67179ac016b1b517ac8b76f2009e725f6c739",
+      "source_path": "ideation/staging/subject-establishment/subject-establishment.md",
+      "source_sha256": "05638cc5cf9c9dd586acf9bbc66d076e6f6feeb2263f21a40612f8eb36591e7b",
+      "source_snapshot_path": "source-snapshots/subject-establishment.md"
+    }
+  ],
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin": {
+    "id": "openxFactory:staging:subject-establishment",
+    "kind": "staged",
+    "path": "ideation/staging/subject-establishment"
+  },
+  "origin_path": "ideation/staging/subject-establishment",
+  "remaining_paths": [],
+  "source_revision": "3cebf83e604506a967f60057650d15dd47eaecbe",
+  "transitioned_at": "2026-08-28"
+}
