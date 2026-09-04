@@ -512,8 +512,7 @@ Active changes:
   the reason it reads that way: **71 openDox, 16 openXdox, 15 `openxFactory`
   itself** — the third column being this repository's own engineering adapter
   under RULING DQ-1, so those fifteen leave the CAPABILITY and not the repository.
-  The
-  per-requirement map is deliberately the packet's largest artifact: it is the
+  The per-requirement map is deliberately the packet's largest artifact: it is the
   SPECIFICATION-side substitute for the byte-identity floor this extraction cannot
   meet (twelve of forty-eight modules import `doc_health`, `doc_health` imports
   back twice at `derive_possibles.py:857` and `ideation_readiness.py:1351`, and

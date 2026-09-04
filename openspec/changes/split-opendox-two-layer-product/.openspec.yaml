@@ -47,7 +47,12 @@ origin:
     The REMOVED corpus exit and its 102-row successor map, the two ADDED
     capabilities, the four MODIFIED requirements across two capabilities,
     Amendment 3 to `docs/openxdox-naming.md`, the re-homing of five active
-    changes and the three carried open questions are DECLARED, not decided.
+    changes, and the four questions the packet PUT for ruling, are DECLARED and
+    not decided BY THIS AUTHORIZATION. The four were themselves ruled later the
+    same evening — DQ-1 at 22:14Z, OQ-1 at 22:15Z, OQ-2 at 22:16Z, OQ-3 at
+    22:21Z, all on issue #656 — and the packet now carries them as constraints;
+    so nothing in it is open, and what this block records is still authorization
+    to AUTHOR rather than ratification of what was authored.
     The same claim says in terms that no repository is created and no code moves
     in this slice: "creation and the carve are that change's realization after
     ratification."
