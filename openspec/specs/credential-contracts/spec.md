@@ -311,13 +311,47 @@ capability's own promoted text already names as one of the two bindings a
 consuming lane receives — the other being the opaque secret reference the shape
 already carries.
 
-THE BLOCK MAY ALSO CARRY a reference to the requirement the binding resolves, an
-acknowledgment that the credential is deliberately reached by more than one
-consumer, and a declaration that the record is an instantiation stub. The
+THE BLOCK MAY ALSO CARRY the NAMESPACE the fetch identity is issued in, a
+reference to the requirement the binding resolves, an acknowledgment that the
+credential is deliberately reached by more than one consumer, and a declaration
+that the record is an instantiation stub. The
 acknowledgment and the stub declaration SHALL each be a DECLARED-OR-ABSENT token
 whose only valid value is true, on the same reasoning this schema already applies
 to issuance preconditions: a false-valued declaration reads as governance while
 asserting nothing.
+
+A FETCH IDENTITY IS A NAME, AND A NAME IS UNIQUE ONLY INSIDE THE DIRECTORY THAT
+ISSUED IT. The block SHALL therefore carry an ADDITIVE OPTIONAL
+`identity_namespace` naming the ISSUING DIRECTORY, ACCOUNT OR TENANT WITHIN THE
+PROVIDER that mints the fetch identity, and WHERE BOTH SIDES OF A COMPARISON
+DECLARE ONE the authority a binding names is THE PAIR rather than the bare
+string. Two genuinely different principals, in two tenants of one provider, may
+both be called `runtime_identity`; before this member the record had no way to
+say so, and the only escape from the refusal that follows was to RENAME one
+fetch identity in the record while the principal kept its real name in the
+provider. That makes the record FALSE, it is the misrepresentation this family
+has already refused once, and A REFUSAL WHOSE ONLY ESCAPE IS A LIE IS WORSE THAN
+THE OVER-REPORT IT PREVENTS.
+
+THE MEMBER IS OPTIONAL AND ITS ABSENCE FAILS CLOSED, and those are one design
+rather than two. Where either side declares no namespace — or declares one that
+does not match its grammar — the comparison FALLS BACK to the bare fetch
+identity and the finding is still REPORTED. An estate SHALL NOT be able to
+silence a real shared authority by OMISSION: absence never clears, it only
+declines to distinguish. What the member buys runs the other way and is the
+whole of the gain — a pair that is reported today and is not in fact one
+authority goes silent only when BOTH bindings say, in their own bytes, which
+directory issued the identity they name.
+
+THE NAME IS SETTLED AGAINST TWO SPELLINGS THIS ESTATE HAS ALREADY SPENT.
+`tenant` and `tenant_ref` are NOT available: `adopt-subject-tenant-domain-vocabulary`
+reserves `tenant` for the TENANT-OPERATOR LAYER
+(`contracts/policies/layer-vocabulary.yaml`), and giving a ratified word a second
+sense inside one contract family is how a vocabulary stops being one. `realm` is
+Keycloak's word for one product's instance of this idea, and a provider-neutral
+shape SHALL NOT name a provider-specific concept. `identity_namespace` collides
+with nothing and follows the compound idiom this repository's contracts already
+write in `policy_namespace`.
 
 THE REQUIREMENT REFERENCE SHALL BE QUALIFIED, NOT A BARE IDENTIFIER, and it
 SHALL take the shape the identity-brokering family already ships for this
@@ -356,8 +390,14 @@ summarised, and the enumeration is the requirement: a binding that declares no
 block; a block that EXISTS but omits either identifier; a block carrying an
 undeclared member; a member whose value does not match the identifier grammar; a
 const-true token declared false; a `credential_bindings` MAP KEY outside the key
-grammar; an `access_mode` outside the closed vocabulary; and a
-`requirements_document_ref` outside the path grammar. **A WARNING SET THAT LEAVES
+grammar; an `access_mode` outside the closed vocabulary; a
+`requirements_document_ref` outside the path grammar; and an
+`identity_namespace` outside the identifier grammar — NINE shapes now, and the
+ninth SHALL carry a code of ITS OWN rather than joining the member-grammar code,
+because its consequence is not the other members'. An ungrammatical namespace is
+SKIPPED by the authority comparison and the pair falls back to the bare
+identity, so a reader told only that a member failed a grammar would not learn
+that the scoping they declared is not in force. **A WARNING SET THAT LEAVES
 ANY REFUSED-AT-THE-MAJOR SHAPE UNWARNED DOES NOT SERVE THE DEPRECATION THE MAJOR
 DEPENDS ON**, and the shapes that go missing are the ones no single arm happens
 to look at — a block present but empty matches none of the first four, and a
@@ -459,8 +499,28 @@ omits it, because only the second is visible.
 - **THEN** it is ungrammatical, it is reported, and it is NOT treated as resolved
 - **AND** the validator MUST NOT open the path — resolution is against records the validator itself discovered in the scanned tree, never against a path a record supplies
 
+#### Scenario: A binding declares the namespace its fetch identity is issued in
+- **WHEN** a credential binding declares a `consumer:` block carrying an `identity_namespace` beside its holder reference and its fetch identity
+- **THEN** it validates, and WHICH DIRECTORY ISSUED the identity is a fact of the record rather than an inference from the vault the binding happens to name
+- **AND** the member is OPTIONAL at the release that declares it, so a binding that omits it draws no omission warning and is refused nothing
+
+#### Scenario: A namespace value does not match the identifier grammar, at the minor
+- **WHEN** a `consumer:` block at the introducing minor carries an `identity_namespace` whose value does not match the identifier grammar
+- **THEN** the record remains VALID and the validator warns under the NAMESPACE'S OWN code, distinct from the code naming a `holder_ref` or `fetch_identity` grammar fault
+- **AND** the warning MUST say that the value is NOT READ AS A NAMESPACE, because the authority comparison skips it and a reader who is not told that will believe a scoping they declared is in force
+
+#### Scenario: The namespace is one of the members the block closes around at the major
+- **WHEN** the major release that constrains the block is validated against
+- **THEN** `identity_namespace` is a DECLARED member — a block carrying it is not an undeclared-member refusal — and a value outside the identifier grammar is an ERROR
+- **AND** that release MUST have been preceded by a full minor in which the same value produced a warning, on exactly the terms every other member of the block is served by
+
+#### Scenario: A block declares a namespace and neither identifier
+- **WHEN** a `consumer:` block carries an `identity_namespace` and omits `holder_ref` or `fetch_identity`, at the introducing minor
+- **THEN** the incomplete-block finding fires unchanged, because a namespace scopes an identity and does not stand in for one
+- **AND** the namespace MUST NOT be read as satisfying either identifier, on the same ground a grammar-passing sentinel is refused as a repair: a record that names a directory and no principal names no authority at all
+
 ### Requirement: Two bindings on one secret are refused unless every pair declares distinct consumers, acknowledges the sharing, and names a requirement bound to the binding
-Bindings in one credential binding template that share a `secret_ref` SHALL be REFUSED by default, and that refusal SHALL be lifted ONLY where every one of six conditions holds together, OVER EVERY PAIR that shares that reference: both bindings declare a `consumer:` block; their holder references DIFFER; their fetch identities DIFFER; both declare the shared-credential acknowledgment; both name a QUALIFIED requirement reference resolving, in the repository under validation, to EXACTLY ONE requirement whose ACCESS MODE IS A MEMBER OF THE DECLARED VOCABULARY, equal across the pair and not dispatch-only; and each reference's `requirement_id` EQUALS THE MAP KEY of the binding that carries it.
+Bindings in one credential binding template that share a `secret_ref` SHALL be REFUSED by default, and that refusal SHALL be lifted ONLY where every one of six conditions holds together, OVER EVERY PAIR that shares that reference: both bindings declare a `consumer:` block; their holder references DIFFER; their fetch AUTHORITIES DIFFER — the fetch identity read WITH the `identity_namespace` that issued it where BOTH declare a grammatical one, and the bare fetch identity otherwise; both declare the shared-credential acknowledgment; both name a QUALIFIED requirement reference resolving, IN THE ONE REQUIREMENTS DOCUMENT THAT REFERENCE NAMES, to EXACTLY ONE requirement whose ACCESS MODE IS A MEMBER OF THE DECLARED VOCABULARY, equal across the pair and not dispatch-only; and each reference's `requirement_id` EQUALS THE MAP KEY of the binding that carries it.
 
 THE SIXTH CONDITION IS THE ONE THAT MAKES THE OTHER FIVE MEAN ANYTHING, and it
 exists because the fifth alone is the author's own unverified word. Severing the
@@ -490,7 +550,7 @@ the question is not a matching entry — applied to the field the lift turns on
 rather than only to the reference that reaches it.
 
 EVERY CONDITION FAILS CLOSED, and the list is the whole six rather than a sample:
-an absent block, a shared holder reference, a shared fetch identity, a one-sided
+an absent block, a shared holder reference, a shared fetch authority, a one-sided
 or missing acknowledgment, a reference resolving to zero or to more than one
 record, a reference whose id does not equal its binding's key, an ungrammatical
 or escaping document reference, and an access mode that is absent, unrecognised,
@@ -516,7 +576,7 @@ cheaper to relax on evidence than a rule that admits one nobody checked.
 Relaxing it SHALL be a separate act carrying its own case.
 
 A REFUSAL SHALL NAME THE FAULT IT FOUND, AND NAME IT ONCE. Two bindings whose
-FETCH IDENTITIES are the same while their HOLDER REFERENCES DIFFER SHALL be
+FETCH AUTHORITIES are the same while their HOLDER REFERENCES DIFFER SHALL be
 refused under a distinct finding that names two systems sharing one authority,
 rather than under the finding about two credentials collapsing into one. They are
 different faults with different remedies, and a reader told about the wrong one
@@ -526,13 +586,35 @@ produce one finding, or a reader repairing the named fault is left with a second
 refusal describing the same record.
 
 AND THAT FAULT IS NOT THE SHARED SECRET REFERENCE. Two different holders
-declaring one fetch identity is the authority collapse WHATEVER their
+declaring one fetch AUTHORITY is the authority collapse WHATEVER their
 `secret_ref`s, because a shared secret reference is a proxy for the rule and not
 the rule; scoping the finding to a shared reference leaves the same collapse
 unreported when two spellings name one secret. The finding SHALL be raised on the
-holder/fetch-identity pair within one document, independently of the secret
+holder/fetch-authority pair within one document, independently of the secret
 reference. One holder reusing its own fetch identity across its own bindings is
 NOT the fault and SHALL NOT be reported.
+
+AND THE AUTHORITY IS THE IDENTITY READ WITH THE NAMESPACE THAT ISSUED IT, because
+a bare string comparison refuses a shape that is not the fault. A principal name
+is unique only inside its issuing directory, so two bindings naming
+`runtime_identity` in two tenants of ONE provider are two principals and not one
+authority — and a finding raised on them is a FALSE REFUSAL THE RECORD CANNOT
+ESCAPE, since the only workaround available before the namespace member existed
+was to write a name the provider does not use. The comparison SHALL therefore be
+made on the PAIR of `identity_namespace` and `fetch_identity`, and a pair whose
+namespaces are both declared, both grammatical, and DIFFERENT SHALL NOT be
+reported.
+
+AND THE FALLBACK SHALL REPORT RATHER THAN CLEAR. Where either side declares no
+namespace, or declares a value outside the identifier grammar, the comparison
+SHALL fall back to the bare fetch identity and the finding SHALL still be
+raised. The reason is the whole reason a security rule has a default: an estate
+that could clear a real shared authority by OMITTING a member on one side would
+hold a refusal it can silence without ever writing anything false, which is a
+worse instrument than the over-report this member exists to end. THE REPORT SHALL
+NAME THE NAMESPACE WHERE ONE IS PRESENT, so a reader can see whether the scoping
+they declared was read, and the remedy for a one-sided declaration is to declare
+the namespace on BOTH bindings rather than to remove it from the one that has it.
 
 THE COMPARISON IS WITHIN ONE RECORD. These conditions are evaluated across the
 bindings of a single template by a validator that reads one repository, and
@@ -562,7 +644,7 @@ act this requirement does not perform.
 - **AND** an implementation carrying the inherited first-against-rest shape MUST be replaced rather than extended
 
 #### Scenario: Two bindings on one secret share a fetch identity
-- **WHEN** two bindings declare different holder references and the same fetch identity
+- **WHEN** two bindings declare different holder references and the same fetch identity, and they declare no `identity_namespace` or declare the same one
 - **THEN** they MUST be rejected under a finding naming two systems on one authority, because one identity may be shared and one authority may not
 - **AND** the finding fires whether or not their `secret_ref`s are equal, and MUST NOT be the one about two credentials collapsing into one
 
@@ -584,7 +666,7 @@ act this requirement does not perform.
 - **AND** the unresolvable reference is reported rather than treated as an absent condition that happens not to fail
 
 #### Scenario: The requirement reference resolves to more than one record
-- **WHEN** a named requirement reference matches requirement records in more than one document, or more than one record in a document
+- **WHEN** a named requirement reference matches more than one requirement record in the requirements document the reference names
 - **THEN** the lift is UNAVAILABLE and the ambiguity is reported, exactly as a reference resolving to nothing is
 - **AND** an implementation MUST NOT resolve the ambiguity by picking one — the two matches may carry different access modes, and a rule whose outcome depends on which was found first is not a rule
 
@@ -595,6 +677,21 @@ act this requirement does not perform.
 #### Scenario: Two bindings share a secret and declare nothing
 - **WHEN** two bindings share a `secret_ref` and neither declares a `consumer:` block
 - **THEN** the existing refusal fires exactly as it does today, because this change tightens before it lifts and nothing that is refused today becomes accepted by silence
+
+#### Scenario: Two tenants of one provider name their principals the same
+- **WHEN** two bindings declare different holder references and the same fetch identity, and each declares a DIFFERENT grammatical `identity_namespace`
+- **THEN** nothing is reported, because these are two directories' identically-labelled principals rather than two systems on one authority
+- **AND** the distinction MUST be READ FROM THE DECLARATION and never inferred from the vault, the provider or the owner — those differ freely between bindings that DO collapse two systems onto one authority, which is why the finding has always ignored them
+
+#### Scenario: One side declares a namespace and the other does not
+- **WHEN** two bindings declare different holder references and the same fetch identity, and exactly one of them declares an `identity_namespace`
+- **THEN** the comparison FALLS BACK to the bare fetch identity and the finding is still REPORTED
+- **AND** the remedy is to declare the namespace on BOTH bindings, never to delete it from the one that carries it — a rule an estate could silence by omitting a member is not a rule
+
+#### Scenario: A declared namespace does not match the grammar
+- **WHEN** one of two bindings that declare different holder references and the same fetch identity carries an `identity_namespace` outside the identifier grammar
+- **THEN** the value is NOT read as a namespace, the comparison falls back to the bare fetch identity, and the shared-authority finding is REPORTED
+- **AND** the record ALSO draws the namespace's own grammar warning, the two answering different questions — whether this value is well formed, and whether these two bindings are one authority — which is two faults in one record rather than one fault named twice
 
 ### Requirement: A declared consumer makes access revocation readable and does not make a bearer secret unshared
 A consuming system's declaration on a binding SHALL be treated as establishing WHICH ACCESS is revoked and WHOSE FUTURE FETCHES stop, and SHALL NOT be treated as establishing containment of a credential a consumer has already obtained.
