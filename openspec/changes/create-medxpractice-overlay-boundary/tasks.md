@@ -104,7 +104,7 @@ the sibling's 5.5 is discharged by this paragraph and needs no second decision.
 this pull request and is left for the sibling's own pass to tick with a pointer
 here.**
 
-- [ ] 5.1 Author `tests/validate_pin.py` in `opensoft/MedxPractice`,
+- [x] 5.1 Author `tests/validate_pin.py` in `opensoft/MedxPractice`,
       fail-closed, REFUSING (never warning, never defaulting) when: the nested
       `openPractice` gitlink and `contracts/openpractice-pin.yaml`'s
       `pin.revision` name different commits; either is absent or unparseable;
@@ -117,11 +117,34 @@ here.**
       exist; or the CHECKED-OUT `openPractice/` revision differs from the
       recorded one or is dirty — that last check being the one that catches a
       fork executing at another commit while all three declarations agree.
-- [ ] 5.2 Add `.github/workflows/pin-validation.yml` in
+  - *2026-09-04 — DONE, on Brett Heap's word "do the pin validators".*
+    `opensoft/MedxPractice` **PR #1**, merged
+    **`f7fd8364e033df4a6c5b0f84080b7bde5d156fb4`** (2026-09-04T13:05:10Z) on his
+    later word *"merge both when aligned and green"*, adds
+    `tests/validate_pin.py` (384 lines) refusing on **all four conditions above**
+    with seven named tokens — `pin-gitlink-disagrees`/`pin-gitlink-absent`,
+    `pin-manifest-absent`/`pin-manifest-unreadable`,
+    `pin-manifest-shape`/`pin-revision-invalid`, `pin-checkout-drift` — and the
+    NESTED-manifest reading this task insisted on: top-level
+    `schema_version`/`kind` (`1`/`medxpractice_openpractice_pin`) AND every one
+    of the six fields under `pin:`. `tests/test_validate_pin.py` (213 lines)
+    carries **seven** self-tests. **"One validator shape for one pin shape" was
+    MEASURED, not repeated**: normalizing the MedxChart sibling's validator
+    through the product vocabulary and diffing leaves THREE lines, all the
+    uppercase banner string; the same over the self-tests leaves ONE. Evidence:
+    `review/realization-evidence-2026-09-04.md` §§ 2, 2.1.
+- [x] 5.2 Add `.github/workflows/pin-validation.yml` in
       `opensoft/MedxPractice` running 5.1 on pull request and on push to
       `main`, with the check named `pin-validation` to match the LedgerxWallet
       precedent and the MedxChart sibling.
-- [ ] 5.3 **[OPERATOR]** Create the branch-protection ruleset on
+  - *2026-09-04 — DONE.* `.github/workflows/pin-validation.yml` (72 lines) in
+    the same landing: `name: pin-validation`, on `pull_request` against `main`
+    **and** `push` to `main`, job carrying no display name so the context
+    surfaces as exactly `pin-validation`, and no `paths:` filter so a required
+    context can never fail to report. Two lines shorter than MedxChart's only
+    because that copy carries a note discharging ITS 5.5, which has no analogue
+    here. Evidence: `review/realization-evidence-2026-09-04.md` § 3.
+- [x] 5.3 **[OPERATOR]** Create the branch-protection ruleset on
       `opensoft/MedxPractice`'s default branch (`main`) making `pin-validation`
       a REQUIRED status check, on the shape of ruleset `21701436`. This half is
       Brett's console act; no agent performs it, and an agent-reported "ruleset
@@ -129,9 +152,35 @@ here.**
       rulesets already on this repository are ORGANIZATION-sourced and neither
       requires a status check, so this is a repository-level addition and not
       an edit of either.
-- [ ] 5.4 Record the ruleset id and one green required run in this change's
+  - *2026-09-04 — DONE BY THE OPERATOR, AND READ BACK RATHER THAN REPORTED.*
+    **Ruleset `22273105`, "MedxPractice pin-gate"** — Brett's console act,
+    performed 2026-09-04, verified via
+    `gh api repos/opensoft/MedxPractice/rulesets/22273105`: **Repository**-sourced
+    (so this task's own note holds — a repository-level ADDITION, not an edit of
+    either organization ruleset), `target: branch`, `enforcement: active`,
+    `~DEFAULT_BRANCH`, required status check `pin-validation`, `strict` false,
+    created 2026-09-04T13:23:13Z. **The id guessed in session before the act
+    (`21987655`) was wrong; the API is authoritative.** Both halves of the gap
+    this group measured on 2026-09-03 — zero workflows, no repository-level
+    ruleset — are now closed. OBSERVED DEVIATION from precedent `21701436`, in
+    two directions (two extra rules `deletion`/`non_fast_forward`; one extra
+    bypass actor `RepositoryRole: always`), recorded and NOT repaired, because
+    editing an operator's ruleset is the act this task reserves. The MedxChart
+    sibling's `22272824` carries the identical deviation, so it is one operator
+    pattern applied twice:
+    `review/realization-evidence-2026-09-04.md` § 4.1.
+- [x] 5.4 Record the ruleset id and one green required run in this change's
       `review/` directory as realization evidence, then and only then open the
       archive gate.
+  - *2026-09-04 — DONE; this task is the archive gate and it is now OPEN.*
+    The record is **`review/realization-evidence-2026-09-04.md`**
+    (`Status: record`, `Kind: report`), carrying the ruleset id, its API reading,
+    and **one green run UNDER the ruleset**: run **`33876124444`**, head
+    `f7fd8364`, **`run_attempt: 2`**, started 2026-09-04T13:25:37Z and completed
+    **`success`** at 13:25:59Z. The first attempt (created 13:05:15Z) PREDATES
+    the ruleset created at 13:23:13Z and is therefore green under no required
+    regime; **the re-run is the evidence, and the two are distinguished by
+    `run_attempt` because they share one run id**.
 - [ ] 5.5 While that tree is open, close the known limitation `design.md`
       records: MedxPractice's own `.gitmodules` names the PUBLIC
       `opensoft/openPractice` over `git@`, so an anonymous recursive clone
