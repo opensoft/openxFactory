@@ -223,3 +223,42 @@ requirements, and ratifying the first grants nothing under the second.
 Both boundaries predate the rule that would have gated them
 (`split-openxwallet-repo`, 2026-08-28), which is why they are reported
 rather than refused.
+
+## 7. The archive act
+
+- [x] 7.1 **THE LANDING ACT.** This change is archived by **openxFactory PR
+      #654**, branch `change/archive-create-medxchart-overlay-boundary`, cut
+      from `main` at `48dc9b67`, on Brett Heap's word of 2026-09-04:
+      *"rulesets created … do 5.4 and archive both"*. The move ran through
+      **`python3 scripts/proposal-support.py . archive
+      create-medxchart-overlay-boundary --date 2026-09-04 --yes`** — the
+      sanctioned wrapper, never bare `openspec archive` — which re-runs the
+      origin gate and `openspec validate --strict` before handing off, and
+      refuses while any task is unticked, which is why § 5 had to close first.
+      `.openspec.yaml` is UNTOUCHED, as `release-realization`'s origin-retention
+      rule requires the gate to find it; the parent-declaration retention gate
+      (`--archive-gate` against the ratified ref `0f1edc0e`) is reported in the
+      pull request body. **This packet's own § 5 is the gate that opened**:
+      merged code (`opensoft/MedxChart` PR #1, `8bc39a8c`) plus green
+      realization evidence UNDER the required regime (ruleset `22272824`, run
+      `33876197016`, `run_attempt: 2`), measured after landing and never
+      assumed.
+- [x] 7.2 **THE LEDGER MOVE, CONFIRMED RATHER THAN PREDICTED.** Archiving moves
+      **exactly one** `tests/sequenced_after/corpus-ledger.yaml` row —
+      `create-medxchart-overlay-boundary`, `state: active` → `archived` — with
+      `class` held at `co-modifier` (this packet carries the
+      `domain-descendant-boundary` `## MODIFIED Requirements` block, so it was
+      and remains a co-modifier), `declares: absent` unchanged, and **no partner
+      flipped**, so **NO MOVEMENT LOG entry is owed**: the row diff explains the
+      whole move, which is the rule `add-per-change-sweep-ledger` promoted. The
+      diff is quoted in the pull request body.
+- [x] 7.3 **THE SIBLING ARCHIVES SECOND.** `create-medxpractice-overlay-boundary`
+      is archived by its own pull request, cut from the `main` this one makes,
+      for the same reason § 6.2 of that packet gives for the ratification order:
+      this change owns the `domain-descendant-boundary` placement delta and the
+      sibling cites it, so the amendment must be promoted into canon before the
+      packet that cites it archives against it. **Nothing in the repository
+      enforces that order** — the two packets co-modify nothing, so no
+      `sequenced_after:` declaration is owed and none is present — and it is
+      protected by this note, by the pull request bodies, and by the coordinator
+      who merges.

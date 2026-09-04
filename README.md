@@ -1618,30 +1618,6 @@ Active changes:
   pattern, the ruleset half being an operator act. That group also ANSWERS the
   sibling's open 5.5: MedxPractice takes the same validator shape, one answer
   for one pin shape.
-- [create-medxchart-overlay-boundary](openspec/changes/create-medxchart-overlay-boundary/proposal.md)
-  — **RATIFIED 2026-09-03** (Brett Heap, in-session: *"ratify both, 1 and 1"*;
-  record at `review/ratification-2026-09-03.md`). MedxChart owns the Medx
-  composition boundary, pins openChart at `d2376a31` twice — nested gitlink and
-  `contracts/openchart-pin.yaml` — and the xFactory aggregate no longer tracks
-  openChart directly. `opensoft/MedxChart` EXISTS (private, published
-  2026-08-23) and the aggregation resolves it at the absolute
-  `git@github.com:opensoft/MedxChart.git` URL, the relative `../MedxChart` form
-  this packet first chose having been reversed at `opensoft/xFactory`
-  `386e7ee2` after it killed every nightly from 2026-08-24; `design.md`
-  Decision 2 records the reversal rather than erasing it. **This change owns the
-  `domain-descendant-boundary` placement delta** — the explicit amendment that
-  promoted requirement asked for by name, ratifying the aggregation's
-  `xFactories/` placement and naming BOTH `MedxChart` and `MedxPractice` as its
-  realized placements; the sibling `create-medxpractice-overlay-boundary` carries
-  none of its own, and its ratification packet is to cite this delta — an
-  obligation stated in the future tense because no sibling pull request has
-  merged and that packet carries no reference to it yet. MedxChart is a REPORTED
-  EMPTY BOUNDARY under the
-  lazy-creation rule (composition metadata only, zero openChart profile
-  artifacts) and is **not** precedent for creating more. **ARCHIVE IS GATED** on
-  `tasks.md` § 5: the descendant pin validator, its required `pin-validation`
-  check and its ruleset in `opensoft/MedxChart`, on the LedgerxWallet pattern —
-  the ruleset half being an operator act.
 - [add-nightly-dashboard-refresh](openspec/changes/add-nightly-dashboard-refresh/proposal.md)
   — authored 2026-08-22, **RATIFIED 2026-08-25** against its realized system
   (Brett, in-session: "ratify add-nightly-dashboard-refresh against its
@@ -2177,6 +2153,64 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [create-medxchart-overlay-boundary](openspec/changes/archive/2026-09-04-create-medxchart-overlay-boundary/proposal.md)
+  — **ARCHIVED 2026-09-04 on the realization gate its own § 5 commissioned, and
+  the gate is the point: this packet spent a month as an ASSERTED boundary and
+  archives as an ENFORCED one.** Proposed 2026-08-23; **ADMITTED** 2026-08-25
+  (PR #345, `f90f3a08`) on *"admit the two medx boundary packets"* — origin
+  metadata only, explicitly NOT a ratification; **RATIFIED 2026-09-03** by Brett
+  Heap in session, verbatim *"ratify both, 1 and 1"* (PR #608, `0f1edc0e`;
+  records `review/ratification-2026-09-03.md` and
+  `review/verification-2026-09-03.md`, archived with the packet). **ARCHIVED on
+  his word of 2026-09-04, *"rulesets created … do 5.4 and archive both"***,
+  after *"do the pin validators"* and *"merge both when aligned and green"*.
+  **REALIZED by `opensoft/MedxChart` PR #1**, merge **`8bc39a8c`**
+  (2026-09-04T13:05:59Z): `tests/validate_pin.py` (four fail-closed refusal
+  categories, one per condition § 5.1 names), `tests/test_validate_pin.py`
+  (SEVEN self-tests), `.github/workflows/pin-validation.yml` (`pull_request` +
+  `push` to `main`, no job display name so the context surfaces as exactly
+  `pin-validation`, no `paths:` filter), `.gitignore` and a README Validation
+  section. **GATED by ruleset `22272824`** "MedxChart pin-gate"
+  (Repository-sourced, `~DEFAULT_BRANCH`, `pin-validation` REQUIRED, `strict`
+  false), Brett's console act at 2026-09-04T13:17:59Z — **the ids guessed in
+  session before the act were wrong and the API is authoritative**. **GREEN
+  UNDER THE RULESET**: run **`33876197016`**, head `8bc39a8c`, **`run_attempt:
+  2`**, `success` at 13:25:47Z; the first attempt (13:06:02Z) PREDATES the
+  ruleset and is green under no required regime, so it is the RE-RUN that is the
+  evidence. Recorded at `review/realization-evidence-2026-09-04.md`, which also
+  carries an **OBSERVED DEVIATION from the LedgerxWallet precedent `21701436`,
+  reported and deliberately NOT repaired**: MedxChart's ruleset adds `deletion`
+  and `non_fast_forward` rules (strictly more protective) AND one more bypass
+  actor, `RepositoryRole` id 5 `always` (one more class of actor who can escape
+  the required check) — editing an operator's ruleset is the act § 5.3 reserves
+  to the console, so an accurate reading is what the record owes.
+  **WHAT IT LEAVES IN CANON.** ONE requirement AMENDED in
+  `openspec/specs/domain-descendant-boundary/spec.md` — *"A descendant is placed
+  at a ratified placement"*, whose `xFactories/` half moves from **REALIZED BUT
+  NOT YET RATIFIED** to **RATIFIED 2026-09-03**, naming BOTH realized placements
+  (`xFactories/MedxChart` `68d2f1f5`, `xFactories/MedxPractice` `d8d73195`) at
+  their absolute `git@github.com:opensoft/` remotes, and saying in its own text
+  that ratifying a PLACEMENT ratifies no CREATION. This is the explicit delta
+  the promoted requirement asked for **by name**, written at ratification rather
+  than derived at archive by re-reading, with four superseded units declared
+  under a `Removed from canon by` marker rather than deleted silently. And THREE
+  requirements promoted into a NEW capability
+  `openspec/specs/medxchart-overlay-boundary/spec.md` (specs 56 → 57): MedxChart
+  pins openChart at one named revision twice (`d2376a31`), the aggregation
+  reaches openChart ONLY through MedxChart at the ABSOLUTE remote form (the
+  relative `../MedxChart` form this packet first chose is recorded as REVERSED
+  at `opensoft/xFactory` `386e7ee2` after it killed every nightly from
+  2026-08-24 — `design.md` Decision 2 keeps the rejected argument rather than
+  erasing it), and openChart is relocated to the workspace root as an
+  independent upstream.
+  **MedxChart REMAINS A REPORTED EMPTY BOUNDARY and a validator does not change
+  that** — composition metadata plus, now, its own gate; zero openChart profile
+  artifacts — so it is **not** precedent for creating another descendant. **THE
+  ARCHIVE MOVED EXACTLY ONE LEDGER ROW** (`state: active` → `archived`, `class`
+  held at `co-modifier`, no partner flipped), so no MOVEMENT LOG entry was owed.
+  **THE SIBLING `create-medxpractice-overlay-boundary` ARCHIVES SECOND**, from
+  the `main` this act makes, because its R3 cites this delta and the amendment
+  must be in canon before the packet citing it archives against it.
 - [add-subject-establishment](openspec/changes/archive/2026-09-04-add-subject-establishment/proposal.md)
   — **ARCHIVED 2026-09-04 on the gate its own OD-6 made STRICTER than
   `code_surface: none` required: merge PLUS green PLUS the ruling round.** All
