@@ -228,8 +228,11 @@ declared_from: >-
   codexFactory origin/main HEAD as observed on 2026-09-04 at 14:05:07Z
   (`bfb8bde3`, the MERGE COMMIT of PR #197 — merged, not squashed, this
   repository disallowing squash — and codexFactory `main` re-verified at that
-  same commit by `git ls-remote` immediately before this advance, which returned
-  `bfb8bde39f61d3eb4a768cdc7117a3bbc1418d2d refs/heads/main` exactly). Its
+  same commit by `git ls-remote` immediately before this advance, whose
+  `refs/heads/main` line named this exact `core_commit` and no other — written
+  SHORT here, as the four prior advances wrote theirs, because a second
+  commit-shaped VALUE in this file would be a second pin site owing its own
+  declared derivation-pin-class member). Its
   `scripts/merge_master/openxfactory-review-authority-floor.yaml` was
   regenerated at openxFactory `2a3b29c8` and carries 65 entries: EIGHT
   hand-reasoned chokepoints and 57 generated spec paths, covering every tracked
