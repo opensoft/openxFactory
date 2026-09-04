@@ -32,7 +32,7 @@ The enumeration is `contracts/clearing/dispatch-record.schema.yaml`'s
 `$defs.refusal_ground.enum` — **TWO members** today, snake_case and unprefixed
 (`unregistered_operation`, `unknown_lane_selector`) — and NOT the validator's
 hyphenated `clearing-…` `REFUSAL_CODES`. The two are different sets with
-different spellings, which is how this gets got wrong. The ratified sentence
+different spellings, which is how a realizer gets this wrong. The ratified sentence
 that binds a refusal ("named FROM A CLOSED, NAMED ENUMERATION of refusal
 grounds", with #560's "a ground absent from that enumeration MUST be added by a
 governed change") is about the record's grounds.

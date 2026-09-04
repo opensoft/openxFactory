@@ -426,8 +426,8 @@ realizer to add a member to a closed enumeration on their own authority, which
 is exactly the self-service widening the closed register exists to end, moved
 one enumeration to the left.
 
-**THE TWO ENUMERATIONS ARE DIFFERENT AND THE SPELLINGS ARE DIFFERENT, WHICH IS
-HOW THIS GETS GOT WRONG.** Measured, not remembered:
+**THE TWO ENUMERATIONS ARE DIFFERENT AND SO ARE THEIR SPELLINGS, WHICH IS HOW
+A REALIZER GETS THIS WRONG.** Measured, not remembered:
 
 | enumeration | where it lives | spelling | today |
 |---|---|---|---|
