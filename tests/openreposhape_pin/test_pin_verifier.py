@@ -13,8 +13,8 @@ THE REAL BYTES ARE STILL CHECKED, once, and NOT here: the gate
 (`.github/workflows/openreposhape-pin-gate.yml`) checks out openRepoShape at the
 pinned commit on every pull request and runs the verifier against it. What THIS
 suite owns is the refusal vocabulary and the ordering — that a stale checkout is
-reported as a revision mismatch rather than as sixteen digest failures, and that
-a product file named by neither list is reported at all.
+reported as a revision mismatch rather than as a pile of digest failures, and
+that a product file named by neither list is reported at all.
 """
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts" / "validate-openreposhape-pin.py"
 PIN = ROOT / "contracts" / "openreposhape-pin.yaml"
 
-COMMIT = "deacbdcce4f52af427bcb4edd075fcc992e3dabe"
+COMMIT = "122d729bc0c2f2e0ded0bb61b6b97f49512f613e"
 
 
 def _load_module():
@@ -72,7 +72,7 @@ class FakeSource:
 class DigestHonouringSource(FakeSource):
     """A tree that agrees with the real pin, without holding the real product.
 
-    Sixteen sha256 PREIMAGES cannot be manufactured, so the fixture below
+    The recorded sha256 PREIMAGES cannot be manufactured, so the fixture below
     intercepts the digest function instead and this class only decides WHICH
     paths exist and which ones return tampered bytes. That split keeps the
     interception in one place and leaves the tests reading as statements about
@@ -136,16 +136,16 @@ def test_the_real_pin_parses_into_the_expected_shape(pin):
     assert pin["revision_kind"] == "commit"
     assert pin["commit"] == COMMIT
     assert pin["source_repository"] == "opensoft/openRepoShape"
-    assert len(pin["files"]) == 16
-    assert len(pin["pinned_by_commit_only"]) == 18
+    assert len(pin["files"]) == 27
+    assert len(pin["pinned_by_commit_only"]) == 33
     assert all(set(e) == {"path", "sha256"} for e in pin["files"])
 
 
-def test_the_two_lists_are_disjoint_and_cover_thirty_four_members(pin):
+def test_the_two_lists_are_disjoint_and_cover_sixty_members(pin):
     digested = {e["path"] for e in pin["files"]}
     path_only = set(pin["pinned_by_commit_only"])
     assert digested & path_only == set()
-    assert len(digested | path_only) == 34
+    assert len(digested | path_only) == 60
 
 
 def test_the_reader_refuses_a_line_outside_its_grammar(mod, tmp_path):
@@ -166,7 +166,7 @@ def test_an_absent_pin_is_unreadable_and_not_an_unpinned_pass(mod, tmp_path):
 
 @pytest.mark.parametrize("mutation, detail", [
     ({"revision_kind": "tag"}, "a tag is not a commit"),
-    ({"commit": "deacbdc"}, "an abbreviated oid is not a commit"),
+    ({"commit": "122d729b"}, "an abbreviated oid is not a commit"),
     ({"commit": "main"}, "a branch is not a commit"),
 ])
 def test_a_movable_referent_is_refused_as_tag_only(mod, pin, mutation, detail):
@@ -194,7 +194,7 @@ def test_the_shape_guard_runs_before_the_source_is_consulted(mod, pin):
 
 # ------------------------------------------------------------- check 2 ------
 
-def test_a_stale_source_is_a_revision_mismatch_not_sixteen_digest_failures(
+def test_a_stale_source_is_a_revision_mismatch_not_a_pile_of_digest_failures(
         mod, pin, honouring):
     source = honouring(pin, revision="0" * 40)
     with pytest.raises(mod.PinRefusal) as exc:
@@ -207,9 +207,9 @@ def test_a_stale_source_is_a_revision_mismatch_not_sixteen_digest_failures(
 def test_a_conformant_source_verifies(mod, pin, honouring):
     summary = mod.verify(honouring(pin), pin)
     assert summary["commit"] == COMMIT
-    assert summary["digested"] == 16
-    assert summary["path_only"] == 18
-    assert summary["surface"] == 34
+    assert summary["digested"] == 27
+    assert summary["path_only"] == 33
+    assert summary["surface"] == 60
 
 
 def test_digest_drift_on_one_member_refuses(mod, pin, honouring):
