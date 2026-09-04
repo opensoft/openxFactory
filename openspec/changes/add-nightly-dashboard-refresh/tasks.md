@@ -155,6 +155,25 @@ an extra field — it needs a schema delta.
       > checkouts and seals only those roots plus manifest + recipe into the
       > source artifact; the worker assembles the same minimal Docker context
       > without repository access.
+      > REALIZED 2026-09-04, BOTH HALVES. Parent half: openxFactory PR #648
+      > (squash `96aa61a3`; path containment hardened in its branch commit
+      > `5628fab1`, folded into that squash). `--phase seal` `git archive`s the
+      > seal path set out of the already-initialized `openxFactory` submodule at
+      > the decision's `origin/main` revision and writes only those roots plus
+      > `manifest.json` and `recipe/Dockerfile` — no second clone, no
+      > working-tree mutation. Worker half: aggregation PR #243 (squash
+      > `84dbbb24`). The child owns no checkout at all now: it downloads the
+      > seal and assembles the same minimal Docker context from it, with
+      > `manifest.json` and `recipe/` kept out of the daemon's context.
+      > MEASURED, NOT ESTIMATED — the sealed source is **3511 files /
+      > 35,123,275 bytes (~35.1 MB)** (#648, real corpus at `3e5a3090`;
+      > #243's end-to-end rehearsal measured 35,159,691 bytes at `63586454`,
+      > the difference being corpus drift between the two revisions), against
+      > the ~8 MB this task's retained body cites from the Dockerfile's own
+      > comment. `ideation/` and `openspec/` dominate. Recorded at task 7.6 and
+      > in `design.md` beside the ~8 MB estimate; it is the measurement design
+      > open question 2 asked for, and it does not change the property this
+      > task holds (the context is still only what the Dockerfile copies).
 - [x] 3.3 Read the Dockerfile from Omnigent-Install `main`, not from the
       aggregation's submodule pin — the same staleness reason as the corpus —
       and record its revision as a provenance input, because a Dockerfile
@@ -163,6 +182,18 @@ an extra field — it needs a schema delta.
       > DONE: the child clones Omnigent-Install `main`, sparse-checks out
       > `containers/ideation-dashboard`, and the parent records the path-scoped
       > recipe revision in the proposal provenance.
+      > REALIZED 2026-09-04, and the sentence above about the CHILD is now
+      > RETIRED (retained, not deleted: it describes the pre-amendment
+      > realization). The recipe is no longer cloned by anybody. openxFactory
+      > PR #648 (squash `96aa61a3`): the parent reads
+      > `containers/ideation-dashboard/Dockerfile` through the contents API at
+      > the pinned `recipe_revision` — the same `gh api` path
+      > `read_current_inputs` already used — and seals it at `recipe/Dockerfile`
+      > with `recipe_repo`, `recipe_revision`, `recipe_path` and `recipe_relpath`
+      > in the manifest. Aggregation PR #243 (squash `84dbbb24`): the child
+      > builds with `-f <seal>/recipe/Dockerfile`, so the recipe it uses is the
+      > one the parent RECORDED, and the path-scoped recipe revision is still
+      > the provenance input this task requires.
 - [x] 3.4 Add the artifact-only child workflow `dashboard-image-worker.yml`,
       modelled on `doc-health-analysis-worker.yml`:
       `runs-on: {group: xfactory-artifact-workers, labels: <dispatch_label>}`,
@@ -180,6 +211,18 @@ an extra field — it needs a schema delta.
       > the child itself, running `dashboard-refresh-nightly.py --phase build`
       > (fresh checkout → `--strict` generate → docker build → ACR push), is the
       > aggregation's to author and is NOT created in this repo.
+      > CORRECTION 2026-09-04 — the sentence immediately above is RETAINED as
+      > written 2026-08-22 and is SUPERSEDED as a description of the live lane.
+      > The child never ran `dashboard-refresh-nightly.py --phase build`: it
+      > always did the recipe in its own bash, and the module's `--phase build`
+      > was a second, unreached copy of it. That copy is now GONE — openxFactory
+      > PR #641 (squash `19a777d8`, re-realization S4) deleted `--phase build`,
+      > `build_and_push`, `BuildPlan` and the clone/sparse block, because a
+      > module-side raw clone contradicts the re-ratified prohibition whether or
+      > not a caller exists. `--phase` now accepts only
+      > `decide | pin | report | seal | record-pr`, and `--phase build` is an
+      > argparse usage error. What is still the aggregation's to author, and the
+      > sentence's surviving claim, is the child WORKFLOW itself.
       > DONE: aggregation PR #141 (`c1bba45d`) landed the active child workflow
       > (id 341027124); PR #179 (`de9a1d99`) corrected its canonical
       > aggregation checkout shape so strict validation can actually run.
@@ -187,6 +230,27 @@ an extra field — it needs a schema delta.
       > downloads the parent run's sealed source artifact (the same pattern as
       > its sibling workers), validates its manifest, then runs strict
       > generation/build/push. It performs no repository clone or fetch.
+      > REALIZED 2026-09-04 — this is the act 3.4's amendment was waiting for.
+      > Aggregation PR #243 (squash `84dbbb24`) edits
+      > `dashboard-image-worker.yml` IN PLACE (job id `build-and-push` kept, no
+      > second workflow file, so the frozen `grandfather-enumeration.yaml`
+      > member set and `GRANDFATHER_ORIGIN` are untouched and no second door is
+      > opened): the deploy-key header block, the `CORPUS_URL`/`RECIPE_URL` env
+      > and the whole "Fetch the corpus…" step are deleted; the file now
+      > contains no `git` invocation, no `GIT_*` env, no `ssh://`, no credential
+      > helper, no `insteadOf` and no checkout action. In their place:
+      > `actions/download-artifact@v4` cross-run against
+      > `dashboard-image-source-<correlation_id>` with `github-token`,
+      > `repository` and `run-id`, then the EIGHT ordered verification steps of
+      > #648's manifest contract — all of them BEFORE the ACR login step, which
+      > IS `specs/doc-health/spec.md`'s "fail before strict generation and
+      > before any registry credential is used". `permissions: {contents: read,
+      > actions: read}` is byte-unchanged. ACR login, build, push,
+      > `digest.json`, upload and scrub are untouched, per the amendment's Git
+      > qualification. The producer of that artifact is openxFactory PR #648
+      > (squash `96aa61a3`), and #642's `--generated-at` (squash `bbc21e41`,
+      > task 3.6) has its first consumer here — the flag is no longer
+      > landed-but-unused.
 - [x] 3.5 Confirm the child joins the existing `xfactory-artifact-worker`
       concurrency group so the singleton host is never double-booked by the
       nightly, the review lane and this lane at once.
@@ -245,6 +309,19 @@ an extra field — it needs a schema delta.
       > DONE. The "Ideation-dashboard IMAGE REFRESH stage" block sits
       > immediately after the "Commit report (deliver via rolling PR — ruleset
       > 18962101)" step and before "Open regression issue" in `finalize`.
+      > STILL TRUE AFTER THE RE-REALIZATION, 2026-09-04, openxFactory PR #648
+      > (squash `96aa61a3`). The stage gains three steps INSIDE the same block,
+      > between `dfr-decide` and the dispatch — the seal (`id: dfr-seal`), the
+      > upload (`id: dfr-upload`, `actions/upload-artifact@v4` with
+      > `include-hidden-files: true` and `if-no-files-found: error`), and a
+      > record-skip for an unsealed or un-uploaded source — and the dispatch's
+      > `if:` gains `dfr-seal.outputs.sealed == 'true' && dfr-upload.outcome ==
+      > 'success'` (the `outcome`, not the `conclusion`, because
+      > `continue-on-error` makes the latter always success). The stage's
+      > POSITION in `finalize` is unchanged, so the ordering property this task
+      > holds — the refresh can never jeopardise the report it follows — is
+      > unchanged. A refused seal is a recorded SKIP and exit 0: nothing is
+      > dispatched and the nightly continues.
 - [x] 4.2 Gate it with the file's existing readiness idiom — the
       `GROUP="xfactory-artifact-workers"` runner-group resolution plus the
       authenticated Hermes heartbeat, evaluated by
@@ -550,6 +627,25 @@ This is the companion's task 7, unblocked by rulings (a) and (b). Ordered after
       rollout) against the design's ~24 h + one reconcile interval + one
       rollout, and state it wherever the served plane is documented, as the
       MODIFIED requirement demands.
+      > PARTIAL, 2026-09-04 — the SIZE half of this task's measurement is now
+      > recorded; the staleness bound still needs a live run and this task
+      > therefore stays UNTICKED. Design open question 2 asked for the sealed
+      > corpus size to be measured on the first real run and recorded here. It
+      > was measured earlier than that, on the real corpus, twice: openxFactory
+      > PR #648 (squash `96aa61a3`) sealed **3511 files / 35,123,275 bytes** at
+      > `3e5a3090`, and aggregation PR #243 (squash `84dbbb24`) rehearsed the
+      > whole intake end to end against a real seal at `63586454` —
+      > **35,159,691 bytes**, the delta being corpus drift between the two
+      > revisions. So the sealed source is **~35 MB, not the design's ~8 MB
+      > estimate**: the Dockerfile's comment accounts the COPY roots, and
+      > `ideation/` plus `openspec/` dominate what is actually there. Every
+      > manifest records `file_count` and `total_bytes`, so the figure is
+      > carried by the artifact itself from now on and does not have to be
+      > re-measured by hand. Two transfers of ~35 MB per CHANGED night is the
+      > accepted cost (open question 2, taken as recommended); a quiet night
+      > still seals and transfers nothing, because the decision precedes the
+      > seal. The observed generation-to-served-rollout bound remains OWED and
+      > is S7's.
 
 ## 8. Docs and close
 
@@ -630,3 +726,76 @@ open.
 are recoverable from the rescue commit 2ffe1807 if ever needed.
 Re-ratification of the amended delta recorded in proposal.md § AMENDED AFTER
 RATIFICATION.**
+
+## 9a. Re-realization record — the amended lane, built (lane `openxfactory-f2`)
+
+**RECORD, 2026-09-04.** Re-ratifying the amendment (§9) created a code/spec
+disagreement the amendment itself declined to discharge: `proposal.md`
+§ "The consequence this amendment does NOT discharge" said the landed
+realization "may now disagree with the amended delta", and it did — the child
+still held two SSH deploy keys and cloned two private repositories, while
+`worker_readiness.py` failed the lane's readiness gate closed with
+`repository_credentials_present` unless the heartbeat attested
+`repository_credentials_absent: true`. **The lane could be READY or it could
+FETCH, never both.** Brett ordered the re-realization in-session, verbatim:
+"go S2 to S7", then "lets go". These are the acts, each verified merged at the
+gate rather than read out of a handoff.
+
+| slice | repository | PR | merge sha | what it did |
+| --- | --- | --- | --- | --- |
+| S1 | openxFactory | #642 | `bbc21e41` | `--generated-at <RFC 3339>` on `generate` / `generate-and-open`, validated at the CLI boundary and REFUSED when malformed. Ticks task 3.6. |
+| S4 | openxFactory | #641 | `19a777d8` | Retired the module's own raw-clone `--phase build` recipe — a second, unreached realization that now contradicted a ratified requirement. |
+| S2 | openxFactory | #648 | `96aa61a3` | The credentialed parent seals the bounded source artifact: `--phase seal`, `manifest.json` with a `files` index and a `tree_digest`, the `git archive` pax-header revision assertion, the validator added to the seal set (and only the seal set), `dfr-seal` / `dfr-upload` finalize steps, dispatch gated on `sealed == 'true'` and the upload's `outcome`. Path containment hardened in branch commit `5628fab1`, folded into the squash. |
+| S3 | opensoft/xFactory | #243 | `84dbbb24` | The child consumes the seal: cross-run `download-artifact`, the eight ordered verification steps BEFORE ACR login, no Git credential and no `git` invocation left in the file, deploy-key clones removed, job id `build-and-push` and the grandfathered enumeration untouched. |
+| S5 | Omnigent-Install | #211 | `cdfe3152` | The worker profile's `description`, `capabilities` and `prerequisites` describe the sealed intake; the raw-`git clone`-plus-ambient-credential prerequisite is gone, so the profile no longer contradicts its own `repository_credentials_absent` attestation. `profile_version` deliberately NOT bumped — the attested heartbeat keys did not move, so `--required-profile-version 1` needs no lockstep edit. |
+
+**What this record does NOT claim.** S1–S5 remove the disagreement and the
+`repository_credentials_absent` deadlock, so the lane CAN now be exercised at
+all. That is not the same as exercised. No `[x]` in §7 moves, `target_release`
+stays `implementation_pending`, and **the archive gate stays OPEN** on exactly
+the evidence it always named.
+
+### S7 — OWED, and it is the operator's, not an agent's
+
+The re-realization deletes one of the five host acts outright and leaves four.
+Act **D** — provisioning the SSH deploy-key Git substrate for the two private
+repositories — **is DELETED, not deferred**: after S3 there is nothing left on
+the worker to provision it for. That is the single largest practical dividend
+of this re-realization. Still owed:
+
+- **(A)** the host heartbeat publisher advertising runner label
+  `dashboard-image` and profile `dashboard-image-refresh` **v1** (v1, because
+  S5 deliberately did not bump the profile version).
+- **(B)** `XFW_ACR_PUSH_USER` / `XFW_ACR_PUSH_TOKEN` into the runner service
+  environment (the escrowed `cpc-brett01-acr-push-token` of §2.2's rider note).
+- **(C)** Docker with Linux containers on the rider — **this one still carries
+  a RULING, not just an act**: Docker Desktop vs WSL2 `docker-ce` vs a remote
+  daemon.
+- **(E)** `python3` + PyYAML available to the runner service account.
+- **~~(D)~~** retire the SSH deploy-key Git substrate — **DISCHARGED by S3**
+  (aggregation PR #243, `84dbbb24`): the keys, the host aliases and every
+  `git` invocation are gone from `dashboard-image-worker.yml`, so this act has
+  no remaining object.
+
+Then **the FIRST REAL NIGHTLY**, which is the archive gate's evidence and is
+what §§7.1–7.6, 3.1, 1.2, 1.4, 2.3, 6.5 and 8.4–8.5 wait on: one real cycle
+producing a digest-only pin PR that merge-master approves, GitHub auto-merges
+and Flux reconciles, PLUS one deliberately wider diff from the same lane
+identity refused and parked. Both halves, or the gate does not open — "a lane
+proven only by a dry run is exactly the evidence this program has learned not
+to accept."
+
+### Carried forward from §9's own not-re-verified list
+
+The host- and org-admin facts §9 recorded as NOT RE-VERIFIED BY THE ADOPTING
+LANE are **still not re-verified**, and this slice did not check them either:
+the `XFACTORY_APP` installation `145372182` being organization-wide with
+`contents: write` + `pull_requests: write` (1.3); the runner label
+`dashboard-image` on runner id 23 and runner group id 5's allowed-workflow
+entry (3.5); active ruleset `21294850` on Omnigent-Install `main` (1.6); the
+current overlay pin digest and its `xf-refresh-provenance: v1` comment (1.5);
+and the escrowed `cpc-brett01-acr-push-token` (2.2's rider note). None is
+withdrawn and none is load-bearing for anything that has landed — each is
+re-checked by the first real cycle, which is the gate that actually closes this
+change. Two of them are now also S7 acts in their own right, above: the runner
+label is act (A)'s object, and the ACR token is act (B)'s.
