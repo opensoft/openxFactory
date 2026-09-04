@@ -19,14 +19,20 @@ ADDS this requirement and the promoted specification does not carry it at all.
 The governing text is the EXTENDED antecedent — the paragraph "THE ANTECEDENT
 REACHES A REQUIREMENT AN ACTIVE RATIFIED CHANGE ADDS OR RENAMES TO, AND NOT ONLY
 ONE IT MODIFIES", with its scenario "A proposal modifies a requirement an active
-ratified change adds or renames to", both carried by
-`govern-sibling-added-modified-deltas` at
-`openspec/changes/govern-sibling-added-modified-deltas/specs/release-realization/spec.md`.
+ratified change adds or renames to", both carried by the requirement
+"Ordered deltas and branch vocabulary" at
+`openspec/specs/release-realization/spec.md`.
 **THAT TEXT IS RATIFIED AND IT IS NOT CANON.**
+*(Superseded 2026-09-04: formerly cited at
+`openspec/changes/govern-sibling-added-modified-deltas/specs/release-realization/spec.md`;
+`govern-sibling-added-modified-deltas` archived 2026-09-02 via #571
+`3bcde7e2` and the text is now canon at the path cited above — cite it
+directly.)*
 `govern-sibling-added-modified-deltas` was ratified on 2026-08-31 by Brett Heap's
 direct ruling, and its deltas promote only at its own archive, so it is cited
 here as a RATIFIED-BUT-UNPROMOTED DELTA at its change-directory path and never as
-a promoted specification. The obligation this delta is under is unchanged by the
+a promoted specification. *(Superseded 2026-09-04: the delta is now promoted;
+see the note above.)* The obligation this delta is under is unchanged by the
 correction — reference the basis change, declare relative to its outcome, and do
 not archive while the title is unpromoted; what changes is which text says so.
 
