@@ -199,8 +199,9 @@ an extra field — it needs a schema delta.
       Decision 3's amended step 3 and the amended spec delta's "using the
       manifest-pinned source revision and timestamp" both call for DOES NOT
       EXIST. The Python entry point `generate_snapshot` already takes
-      `generated_at`; `_generation_stamp` (`scripts/ideation_dashboard/
-      generator.py`) otherwise derives it by running `git show -s --format=%cI`
+      `generated_at`; `_generation_stamp` in
+      `scripts/ideation_dashboard/generator.py` otherwise derives it by
+      running `git show -s --format=%cI`
       inside the scanned tree, and `RealGitDates` degrades "to None … outside a
       git checkout" — which is exactly what the child now has. So without this
       task the amended lane publishes a snapshot with NO `generated_at`, and
