@@ -530,6 +530,108 @@ Active changes:
   two archive. Evidence, with both BEFORE/AFTER totals verbatim:
   `openspec/changes/prepare-openspec-1.12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md`.
 
+- [split-opendox-two-layer-product](openspec/changes/split-opendox-two-layer-product/proposal.md)
+  — authored 2026-09-04, **`Status: ratified`** (2026-09-05, Brett Heap,
+  in-session, verbatim *"ratify #666"* at 01:38Z over head `6935fb8b`; record
+  `openspec/changes/split-opendox-two-layer-product/review/ratification-2026-09-05.md`,
+  ruling on `opensoft/openxFactory` issue #656). **IT STILL PERFORMS NOTHING.**
+  No repository is created, no code moves, no capability is
+  promoted or removed, and `docs/openxdox-naming.md` is NOT edited by this packet
+  — Amendment 3's text is DRAFTED at `design.md` § D8 and applied in the pull
+  request that creates the repository.
+  **THE EXIT OF THE STAGED TOPIC `opendox-two-layer-product`**
+  (`openxFactory:staging:opendox-two-layer-product`), on Brett Heap's **ELEVEN
+  recorded acts of 2026-09-04** on the governing record `opensoft/openxFactory`
+  issue **#656**: the founding ruling (two verbatim utterances — *"we do not have
+  a place to store projects … I think we need to make this an app that installs
+  and is hosted with a db"* and *"we have two layers of opensource openDox and
+  openXdox"*), **Q1** the database owns identity and coordination while git owns
+  governed artifacts written back only through the apply lane, **Q2** the Hermes
+  install pattern (FastAPI + Postgres, Keycloak broker), **Q3** one instance and
+  one database per tenant ALWAYS in both operating cases, **Q4** openDox DEFINES
+  the corpus-adapter interface and openXdox IMPLEMENTS it with the dependency one
+  way, **DIRECTION Q5** the THREE-LAYER TEST, **C1** the `openDox` name collision
+  accepted knowingly, **C2** openXdox is the domain-mapping core PARAMETERIZED by
+  a domain profile (*"a clinician using `MedxDox` never sees the word
+  'requirement'"*), **C3** standalone openDox creates a plain local git repository
+  per project, **Q6** freeze the dashboard now and carve immediately, and **Q7**
+  `opensoft` owns both repositories, both PUBLIC from day one under Apache-2.0.
+  **THE CORPUS'S FIRST THREE-WAY CAPABILITY EXIT.** A `## REMOVED Requirements`
+  block over **ALL 102** promoted `ideation-dashboard` requirements — the largest
+  promoted spec in this corpus (289,266 B / 472 scenarios), with 30 archived and
+  5 active changes carrying deltas — each row naming its successor destination and
+  the reason it reads that way: **71 openDox, 16 openXdox, 15 `openxFactory`
+  itself** — the third column being this repository's own engineering adapter
+  under RULING DQ-1, so those fifteen leave the CAPABILITY and not the repository.
+  The per-requirement map is deliberately the packet's largest artifact: it is the
+  SPECIFICATION-side substitute for the byte-identity floor this extraction cannot
+  meet (twelve of forty-eight modules import `doc_health`, `doc_health` imports
+  back twice at `derive_possibles.py:857` and `ideation_readiness.py:1351`, and
+  the destinations gain a database and a runtime). Also **TWO ADDED** capabilities
+  — `corpus-adapter-seam` (4 requirements: the reader is an external pinned
+  product and the dependency points ONE way; a reader over a corpus it does not
+  own fails closed and distinguishes "empty" from "could not look"; the governed
+  write path is the only write path; and openxFactory's own adapter is one
+  conformant implementation with NO privileged route — the INTERFACE ITSELF is
+  openDox's to declare under Q4 and is NOT authored here) and
+  `domain-mapping-declaration` (3 requirements: the five axes a `<Domainx>Dox`
+  descendant declares, extracted from the Medx / Ledgerx / Adx mappings worked
+  explicitly per Q5(b)) — and **FOUR MODIFIED** requirements: two on
+  `domain-descendant-boundary` (the migration set is PINNED CONTENT and a
+  descendant-authored migration is a fork of the schema — the harder fork to
+  detect, because a database diverges silently; and a committed TENANT INSTALL is
+  a profile artifact, which reconciles Q3 with the standard's own laziness rule)
+  and two on `neutral-product-pin` (a pin whose consumption is a DEPLOYMENT
+  declares its migration range, reversibility and runbook, and completes when the
+  operation runs rather than when the file merges; and a pin CHAIN is resolved one
+  hop at a time, each level declaring only its DIRECT upstream).
+  **THE COLLISION IS DECLARED RATHER THAN PAPERED OVER.** Five active changes hold
+  live `ideation-dashboard` deltas and RULING Q6 freezes and re-homes all five.
+  FOUR promoted titles this block REMOVES are also MODIFIED by a sibling; since
+  `release-realization`'s ordered-deltas antecedent reaches a MODIFY and not a
+  REMOVE, and `govern-sibling-added-modified-deltas`' `Modified over` marker is a
+  MODIFIED-block form, the pairing is declared IN PROSE as an EXTENSION of that
+  reasoning — and the ARCHIVE ORDER runs the OPPOSITE way from the promoted rule:
+  this change SHALL NOT archive until each of the five is dispositioned, because a
+  sibling MODIFIED block promoting into a removed capability would be reported
+  forever as a requirement present after its ratified removal. TWELVE titles the
+  siblings ADD are not in canon and are therefore NOT removed here; the re-homing
+  plan (`design.md` § D9, `tasks.md` § 6) names each destination, and
+  `retire-doxbench-chat-turn-v1` is the one that CANNOT simply close because its
+  schema removal is already realized in openxFactory bytes at `contract-v3.0`.
+  `add-nightly-dashboard-refresh`'s SEVEN `doc-health` requirements do NOT travel
+  and are NOT added here — they are re-authored against the adapter in openXdox,
+  which is RULING Q6's resolution of the one conflict it names.
+  **THE FOUR QUESTIONS THE PACKET PUT WERE ALL RULED THE SAME EVENING**, before
+  ratification, on #656 — so nothing in the packet was open when Brett ratified
+  it. **DQ-1** (22:14Z):
+  `openxFactory` KEEPS its own adapter — `doc-health` and OpenSpec stay here, a
+  small package beside them implements the seam, and `codexDox` is a THIN
+  DESCENDANT that pins openXdox and reuses it; the fifteen engineering rows stay
+  here, the shed (§ 5) now PRECEDES the first descendant (§ 7), and the packet's
+  own earlier phrase "the code that reads the corpus leaves entirely" is corrected
+  — what leaves is the PRODUCT. **OQ-1** (22:15Z): the FOUR-PART FLOOR, **as a
+  requirement of this change and not a recommendation in it** — a mapping manifest
+  with per-file digests at the cut plus a CLOSED edit-class list (`import
+  rewrites`, `path constants`, `adapter calls`); test counts that must SUM across
+  the three repositories; a neutral conformance corpus **every destination**
+  passes; and a snapshot-equivalence run. Both single-instrument alternatives were
+  rejected on the record. **OQ-2** (22:16Z): ONE CHAIN — openDox is pinned only by
+  openXdox inside the family, and **no third MODIFIED requirement is added to
+  `neutral-product-pin`**; outside the family openDox is used freely as open
+  source. **OQ-3** (22:21Z): NO `document-lifecycle` delta now; descendants declare
+  their lifecycles via `domain-mapping-declaration`; revisit at `MedxDox`.
+  `code_surface:` names SEVEN repositories, two of which do not exist — and under
+  DQ-1 `openxFactory` GAINS a surface (its adapter package) rather than only
+  shedding one — so under `release-realization` it archives ONLY on merged plus
+  green evidence, never on landing; `target_release:` is the next **MAJOR** (a
+  removed shape is BREAKING), deliberately UNNUMBERED on the wallet precedent's
+  own reasoning. Rule 7 substrate rows 2 and 3 are claimed by this
+  packet; **row 1 — the codexFactory review-authority floor — is claimed at
+  REALIZATION**, because the floor's runbook says DE-FLOOR BEFORE YOU REMOVE and
+  this packet adds and removes no path under `openspec/specs/`.
+  `Refs #656`.
+
 - [add-openspec-cli-pin](openspec/changes/add-openspec-cli-pin/proposal.md)
   — authored 2026-09-04, **`Status: draft`**, on Brett Heap's word
   *"draft the openxFactory pin change, pinned at 1.2.0"*. **Not ratified, not

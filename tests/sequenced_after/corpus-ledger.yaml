@@ -81,7 +81,7 @@ rows:
   add-cross-factory-ideation-routing: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-crystallizer-contracts: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-customer-memory-gateway-architecture: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  add-dashboard-account-menu: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-dashboard-account-menu: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}
   add-dashboard-repo-selector: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-deployment-handoff-boundary: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-dispatch-credential-contract: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
@@ -107,11 +107,11 @@ rows:
   add-ideation-intent-plane: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-identity-brokering: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-lens-document-selection: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  add-lens-gate-verbs: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-lens-gate-verbs: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}
   add-lifecycle-notebook-hybrid-imports: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-lifecycle-notebook-projection: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  add-model-capability-vocabulary: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  add-model-provider-broker: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-model-capability-vocabulary: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}
+  add-model-provider-broker: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}
   add-modified-block-currency-check: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-neutrality-drift-lane: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-nightly-dashboard-refresh: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
@@ -137,21 +137,21 @@ rows:
   add-proposal-origin-contract: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-proposal-supporting-doc-lifecycle: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-propose-verb: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  add-register-edit-lane: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-register-edit-lane: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}
   add-release-inventory-drift-check: {state: archived, class: co-modifier, declares: absent, prose: true, moved_by: "#623", moved_on: "2026-09-03"}
   add-release-realization-flow: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-release-tag-gate: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#672", moved_on: "2026-09-05"}
   add-release-tag-publication-check: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  add-repository-lens: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-repository-lens: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}
   add-requirement-ref-resolution-integrity: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-roster-device-admission-surface: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-roster-directory-admission-surface: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-sequenced-after-substrate: {state: active, class: sole, declares: [add-structured-scope-substrate], depth: 1, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-session-notebook-reconciliation: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  add-shared-identity-seeds: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-shared-identity-seeds: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}
   add-signed-execution-chain: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-sops-ciphertext-ruling: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  add-staged-topic-outline-template: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-staged-topic-outline-template: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}
   add-staging-workbench: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-standing-policy-compliance-contract: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-structured-scope-substrate: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
@@ -161,7 +161,7 @@ rows:
   add-trust-anchor: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-unclassified-finding-class: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-wallet-carried-review-authority: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  add-wheel-action-verbs: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-wheel-action-verbs: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}
   add-workbench-branch-sessions: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-workbench-bullseye-and-create: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-workbench-integrated-editor-chat: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
@@ -228,6 +228,7 @@ rows:
   sanction-ratified-record-spelling: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   settle-aging-staging-topics: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   split-ideation-book-per-repo: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  split-opendox-two-layer-product: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}
   split-openxwallet-repo: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   split-roles-authority: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   supersede-lost-pin-baseline: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
