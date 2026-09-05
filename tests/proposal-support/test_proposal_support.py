@@ -1213,6 +1213,24 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assertIn("origin retention", result.stderr)
             self.assertIn("no bypass flag", result.stderr)
 
+    def test_every_arm_of_the_gate_exits_2_not_only_the_mutation(self):
+        """THE EXIT STATUS IS THE GATE'S, NOT THE MUTATION'S. `not ratified`
+        and an unreadable history are refusals of the same gate and answer
+        with the same status; a caller reads which arm it was from the
+        message. Pinned because the docstring and the handler comment now
+        promise exactly that, and a promise about an exit code that no test
+        exercises is the kind that quietly stops being true."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root, ratified=False)
+            result = subprocess.run(
+                [sys.executable, str(SCRIPT), str(root), "archive",
+                 "change-r", "--yes"],
+                capture_output=True, text=True, check=False)
+            self.assertEqual(result.returncode, 2, result.stderr)
+            self.assertNotIn("Traceback", result.stderr)
+            self.assertIn("not ratified", result.stderr)
+
     def test_the_archive_subcommand_offers_no_bypass_flag(self):
         """The requirement's own scenario makes accepting a mutation a
         contested-class act requiring an explicit disposition. A flag on this

@@ -451,13 +451,23 @@ def origin_errors(root: Path, directory: Path, *, strict: bool,
 
 
 class OriginRetentionError(SupportError):
-    """The archive gate refused: the origin declaration moved after
-    ratification.
+    """The archive gate's origin-retention refusal — ANY arm of it.
+
+    Three conditions raise it, and the exception is deliberately one rather
+    than three: the declaration moved after ratification, no ratifying commit
+    exists to compare against, or the history that holds the baseline could
+    not be read. What they share is the only thing a caller can act on — the
+    packet CANNOT BE SHOWN to still carry the origin it was ratified over —
+    and none of them is the "fix the tree and retry" shape that `SupportError`
+    means everywhere else in this script.
 
     A subclass rather than a message, so the CLI can answer with its own exit
-    status (2). A shape error is something the operator fixes and retries; this
-    one is a contested-class finding that leaves the tree alone and goes to a
-    disposition, and the two should not be indistinguishable to a script.
+    status (2) and a script can branch on "retention could not be established"
+    without parsing prose. WHICH arm it was is in the message, never in the
+    number. The mutation arm alone carries the further consequence the
+    requirement names — restoring or accepting it is a contested-class act
+    requiring an explicit disposition — and the finding for that arm says so
+    in its own text.
     """
 
 
@@ -1540,15 +1550,18 @@ def main() -> None:
             archive_change(args.root.resolve(), args.change, args.date,
                            args.final_import_complete, args.yes)
     except OriginRetentionError as exc:
-        # EXIT 2, NOT 1. A shape error is fixed in the tree and retried; a
-        # post-ratification origin mutation is a contested-class refusal that
-        # goes to a disposition, and a caller scripting this gate should be
-        # able to tell the two apart without parsing prose. Printed here rather
-        # than carried in `SystemExit` because that argument doubles as the
-        # exit status, and an int is the whole point. (argparse spends 2 on
-        # its own usage errors, which this shares rather than fights: a usage
-        # error never reaches this handler, and the two are a sentence apart
-        # in the message either way.)
+        # EXIT 2, NOT 1: THE ORIGIN-RETENTION GATE REFUSED. Every arm of it
+        # lands here — a declaration that moved after ratification, no
+        # ratifying commit to compare against, an unreadable history — and
+        # none of them is the "fix the tree and retry" shape exit 1 has always
+        # meant for this script. So the status says "retention could not be
+        # established" and no more; a caller reads WHICH arm from the message,
+        # and only the mutation arm is the contested-class refusal that goes
+        # to a disposition. Printed here rather than carried in `SystemExit`
+        # because that argument doubles as the exit status, and an int is the
+        # whole point. (argparse spends 2 on its own usage errors, which this
+        # shares rather than fights: a usage error never reaches this
+        # handler.)
         print(str(exc), file=sys.stderr)
         raise SystemExit(2) from exc
     except (SupportError, subprocess.CalledProcessError) as exc:
