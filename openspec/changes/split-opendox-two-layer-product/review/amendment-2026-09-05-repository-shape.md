@@ -29,7 +29,7 @@ can cite.
    a `-code` leg. SIX repositories, created by `scaffold-project.py`, PUBLIC and
    Apache-2.0 (RULING Q7 unchanged), the election recorded in each assembly
    root's `project.yaml` — `elected_by: Brett Heap`, `elected_on: 2026-09-05`,
-   `reference: docs/project-repo-schema.md`. Descendants are scaffolded the same
+   `reference: openxFactory docs/project-repo-schema.md`. Descendants are scaffolded the same
    way with a pin on openXdox.
 2. **Follow the pin chain.** A `<Domainx><Product>` name classifies as a
    descendant when its declared `neutral_product_pins` REACH the matching

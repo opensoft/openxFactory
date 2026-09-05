@@ -828,7 +828,7 @@ gate, plus a `<Project>-spec` leg and a `<Project>-code` leg. Six repositories,
 created by `scaffold-project.py` rather than by hand, PUBLIC and Apache-2.0 as
 RULING Q7 already required, with the election recorded in each `project.yaml`
 (`elected_by: Brett Heap`, `elected_on: 2026-09-05`,
-`reference: docs/project-repo-schema.md`). Descendants are scaffolded the same
+`reference: openxFactory docs/project-repo-schema.md`). Descendants are scaffolded the same
 way with `--pin openXdox@<sha>`. **No family holder is created.**
 
 **Electing confers nothing, and that is why this is an amendment and not a

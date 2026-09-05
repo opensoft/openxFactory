@@ -252,7 +252,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   family.
 - [ ] 1.9 `[xF]` **NEW (2026-09-05) — `project-register.yaml` rows for the two
   elected projects.** One row each for `openDox` and `openXdox` carrying
-  `schema: project-repo-schema`, `reference: docs/project-repo-schema.md`, the
+  `schema: project-repo-schema`, `reference: openxFactory docs/project-repo-schema.md`, the
   three repositories in `repositories`, and a `repository_roles` entry per
   repository (`assembly`, `spec`, `code` — at most one `assembly` per project).
   **The row is DERIVED and the manifest is the SOURCE**
@@ -594,7 +594,7 @@ realization evidence, never on landing. Each line is its own evidence.
   "Both repositories"), PUBLIC, Apache-2.0, each with a required check that has
   reported at least once and a ruleset promoted from EVALUATE to ACTIVE; each
   assembly root's `project.yaml` records the election (`elected_by: Brett Heap`,
-  `elected_on: 2026-09-05`, `reference: docs/project-repo-schema.md`) and its
+  `elected_on: 2026-09-05`, `reference: openxFactory docs/project-repo-schema.md`) and its
   `validate` gate is green over its own legs.
 - [ ] 8.2 **The RULED four-part floor (OQ-1), one evidence line per part:** the
   carve manifest with every file in exactly one disposition and every edit in one
