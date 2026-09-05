@@ -229,6 +229,22 @@
 # change now in flight promotes one, so the next advance again belongs to
 # whichever future archive first does.
 #
+# ADVANCED AN EIGHTH TIME 2026-09-05, from `76fa501c` to `e57643a7`
+# (codexFactory PR #208, merge commit), realizing the ratified
+# `mirror-floor-addition-grace` — and its object is the ADDITION GRACE, not a
+# spec promotion: the floor's generated block is BYTE-UNCHANGED (`generated_at`
+# stays `3afd8a8c`, `entry_count` stays 59, floor total stays 67) — the FIRST
+# advance in this pin's history whose floor grew by zero paths. The pinned
+# core's own `add-floor-addition-grace` (codexFactory PR #206, merge
+# `712fc8ca`, an ancestor of `e57643a7`) is what moved: step 8 below now
+# imports `evaluate_floor_completeness` and `pin_window_for_document` from it
+# directly rather than hand-rolling the completeness set difference, and
+# `tests/review_lane_pin/test_floor_snapshot.py` mirrors the same rule locally,
+# falsified by replaying the core's own exported vectors. See
+# `contracts/review-lane-pin.yaml`'s own comment history for the full
+# ancestry measurement; the five pin sites move together in the one commit
+# that made this note.
+#
 # WHAT THE (b′) ADVANCE MADE OPERATIVE HERE, on 2026-09-01. Until it, this lane
 # reported against a four-entry floor and could refuse only a floor that had
 # gone unreachable on the BASE branch. It now also:
@@ -339,7 +355,7 @@ jobs:
       # the commit `actions/checkout` actually produced. The AUTHORITATIVE copy
       # is `contracts/review-lane-pin.yaml`; this is a second witness and the
       # test asserts the two agree. Keep it byte-identical to the `ref:` below.
-      PINNED_CORE_COMMIT: "76fa501cd1c846ca9676d901e41e33ae1e730733"
+      PINNED_CORE_COMMIT: "e57643a79132d11a1b2e1c807b0da589befb3f31"
     steps:
       # ---- 1. Is there any way to read the decision core at all? ------------
       - name: Preflight — a decision-core read credential must exist
@@ -431,7 +447,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: opensoft/codexFactory
-          ref: "76fa501cd1c846ca9676d901e41e33ae1e730733"
+          ref: "e57643a79132d11a1b2e1c807b0da589befb3f31"
           path: .merge-master-core
           persist-credentials: false
           token: ${{ steps.repo-token.outputs.token || steps.org-token.outputs.token || github.token }}
