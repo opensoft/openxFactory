@@ -1,11 +1,13 @@
-# DRAFT — an upstream issue for `fission-ai/openspec`. NOT FILED.
+# An upstream issue for `fission-ai/openspec` — FILED 2026-09-05 as https://github.com/Fission-AI/OpenSpec/issues/1793
 
 Status: record
 Kind: draft correspondence
 Written: 2026-09-05
 Author: lane `codexfactory-0d`
 
-> **THIS HAS NOT BEEN POSTED ANYWHERE, AND THIS LANE WILL NOT POST IT.**
+> **FILED 2026-09-05 as https://github.com/Fission-AI/OpenSpec/issues/1793, on Brett Heap's word ("file the upstream issue"), by lane codexfactory-0d under Brett's GitHub account.** The paragraph below is kept as the record of the draft's standing before that word; the body was posted as written, with the title corrected to one line after a mangled first post.
+>
+> Original standing: THIS HAS NOT BEEN POSTED ANYWHERE, AND THIS LANE WILL NOT POST IT.
 > It is exit 3 of the three #673's evidence record enumerated. Brett Heap ruled
 > **"take exit 2"** on 2026-09-05 — the dispositioned exception, which this
 > packet implements. Exit 3 is not excluded by that ruling and the two are not
