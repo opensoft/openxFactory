@@ -155,6 +155,10 @@ def _major_release() -> str:
     there instead of here.
     """
     manifest = yaml.safe_load(MANIFEST.read_text())
+    if not isinstance(manifest, dict):
+        raise SystemExit(
+            f"{MANIFEST}: does not parse to a mapping ({type(manifest).__name__}); "
+            f"MAJOR_RELEASE cannot be derived from it")
     bundle = manifest.get("contract_bundle_version")
     found = _BUNDLE_VERSION.match(bundle or "")
     if not found:

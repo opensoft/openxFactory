@@ -43,18 +43,31 @@ def _policy_text() -> str:
 
 
 def _consumer_block_target(text: str) -> str:
-    found = re.search(
-        r"is DECLARED at contract-v2\.4 and CONSTRAINED at (contract-v\d+\.\d+)", text)
-    assert found, "policy entry for the consumer block's DECLARED/CONSTRAINED pair not found"
-    return found.group(1)
+    pattern = r"is DECLARED at contract-v2\.4 and CONSTRAINED at (contract-v\d+\.\d+)"
+    matches = re.findall(pattern, text)
+    assert len(matches) == 1, (
+        f"expected exactly one DECLARED/CONSTRAINED pair for the consumer block, found "
+        f"{len(matches)}")
+    return matches[0]
+
+
+def _bounded_entry(text: str, marker: str) -> str:
+    """`text` from `marker` up to (not including) the next top-level bullet
+    (`\n- **`) or section heading (`\n## `) — this ENTRY'S OWN TEXT and
+    nothing past it. Unbounded, a search over "everything after the marker"
+    would happily match a LATER entry that happens to share phrasing (every
+    restated entry in this section says "removal target RESTATED to
+    contract-vX.Y"), so a future entry added below this one could silently
+    feed the wrong version into the assertions this file makes."""
+    assert text.count(marker) == 1, f"expected exactly one {marker!r} bullet"
+    start = text.index(marker)
+    body = text[start:]
+    boundary = re.search(r"\n(?:- \*\*|## )", body)
+    return body[:boundary.start()] if boundary else body
 
 
 def _resolution_integrity_target(text: str) -> str:
-    # The bullet is named by its opening phrase; everything after it, up to
-    # the next bullet or section, is this entry's own text.
-    marker = "A `requirement_ref` that RESOLVES TO NOTHING"
-    assert text.count(marker) == 1, f"expected exactly one {marker!r} bullet"
-    section = text.split(marker, 1)[1]
+    section = _bounded_entry(text, "A `requirement_ref` that RESOLVES TO NOTHING")
     found = re.search(r"removal target RESTATED to (contract-v\d+\.\d+)", section)
     assert found, "resolution-integrity entry's restated removal target not found"
     return found.group(1)
