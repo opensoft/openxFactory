@@ -5,27 +5,34 @@ target_release: implementation_pending — the affected repositories' own main l
 
 # Proposal: split-opendox-two-layer-product
 
-Status: draft
+Status: ratified
 Proposed: 2026-09-04 — the exit of the staged topic
 `ideation/staging/opendox-two-layer-product/`
 (`openxFactory:staging:opendox-two-layer-product`, staged and fully
 dispositioned the same day), on Brett Heap's eleven recorded acts of 2026-09-04
 on the governing record `opensoft/openxFactory` issue #656.
+Ratified: 2026-09-05 by Brett Heap (repository owner) — in-session,
+verbatim: *"ratify #666"* (2026-09-05T01:38Z, recorded on
+`opensoft/openxFactory`#656; record:
+`review/ratification-2026-09-05.md`).
 Lane: `openxfactory-opendox`.
 
-**THIS PACKET IS PROPOSAL ONLY AND IT IS NOT RATIFIED.** `Status: draft`. No
-repository is created, no code moves, no capability is promoted or removed, and
-`docs/openxdox-naming.md` is NOT edited by this packet — Amendment 3's text is
-DRAFTED in `design.md` § D8 and APPLIED at realization, because amending a
-`ratified` record ahead of the act it describes would leave the record
-describing a repository that does not exist. What this packet asks for is a
-ratification read over the doctrine, the 102-row successor map, the four
-MODIFIED requirements, the two ADDED capabilities and the re-homing plan for
-five active changes. The FOUR questions this packet put — DQ-1, OQ-1, OQ-2 and
+**THIS PACKET IS RATIFIED AND IT STILL PERFORMS NOTHING.** `Status:
+ratified` — Brett Heap's word *"ratify #666"* (2026-09-05T01:38Z, recorded on
+`opensoft/openxFactory` issue #656; record `review/ratification-2026-09-05.md`)
+ratified it AS IT STOOD AT HEAD `6935fb8b`. What was ratified is the doctrine,
+the 102-row successor map, the four MODIFIED requirements, the two ADDED
+capabilities and the re-homing plan for five active changes. No repository is
+created, no code moves, no capability is promoted or removed BY THIS PACKET, and
+`docs/openxdox-naming.md` is NOT edited by it — Amendment 3's text is DRAFTED in
+`design.md` § D8 and APPLIED at realization, because amending a `ratified`
+record ahead of the act it describes would leave the record describing a
+repository that does not exist. Realization proceeds by `tasks.md` groups 1–8,
+each its own Speckit feature carrying its own evidence, beginning with the
+corpus-adapter seam. The FOUR questions this packet put — DQ-1, OQ-1, OQ-2 and
 OQ-3 — were **ALL RULED by Brett on 2026-09-04**, the same evening, and are
-encoded below as constraints rather than offered as recommendations; **nothing in
-this packet is now open**, and what is pending is his ratification word on the
-proposal itself.
+encoded below as constraints rather than offered as recommendations; **nothing
+in this packet is open**.
 
 ## Rulings carried as LOCKED constraints
 
@@ -288,7 +295,7 @@ than left to be noticed.
 
 ### New Capabilities
 
-- **`corpus-adapter-seam`** — 4 requirements, 13 scenarios. Governs the terms on
+- **`corpus-adapter-seam`** — 4 requirements, 11 scenarios. Governs the terms on
   which a reader `openxFactory` does not own reads `openxFactory`'s corpus.
 - **`domain-mapping-declaration`** — 3 requirements, 9 scenarios. Governs what a
   `<Domainx>Dox` descendant declares so the neutral layer can be parameterized
@@ -482,9 +489,10 @@ waiting on the descendant.
   realized in `domain-mapping-declaration`'s second requirement; RULING OQ-3 then
   confirmed that `openxFactory`'s own taxonomy is not touched by it.
 
-**NOTHING IS NOW OPEN IN THIS PACKET.** What remains is Brett's ratification word
-on the proposal as a whole, and the 102-row successor map is what that read is
-over.
+**NOTHING IS OPEN IN THIS PACKET.** Brett's ratification word on the proposal as
+a whole — *"ratify #666"*, 2026-09-05T01:38Z — was given over the packet as it
+stood at head `6935fb8b`; the 102-row successor map is what that read was over
+and no row was contested. Record: `review/ratification-2026-09-05.md`.
 
 ## Out of scope, deliberately
 

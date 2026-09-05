@@ -483,8 +483,11 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [split-opendox-two-layer-product](openspec/changes/split-opendox-two-layer-product/proposal.md)
-  — authored 2026-09-04, **`Status: draft`**. **PROPOSAL ONLY, AWAITING BRETT'S
-  RATIFICATION READ.** No repository is created, no code moves, no capability is
+  — authored 2026-09-04, **`Status: ratified`** (2026-09-05, Brett Heap,
+  in-session, verbatim *"ratify #666"* at 01:38Z over head `6935fb8b`; record
+  `openspec/changes/split-opendox-two-layer-product/review/ratification-2026-09-05.md`,
+  ruling on `opensoft/openxFactory` issue #656). **IT STILL PERFORMS NOTHING.**
+  No repository is created, no code moves, no capability is
   promoted or removed, and `docs/openxdox-naming.md` is NOT edited by this packet
   — Amendment 3's text is DRAFTED at `design.md` § D8 and applied in the pull
   request that creates the repository.
@@ -552,8 +555,8 @@ Active changes:
   and are NOT added here — they are re-authored against the adapter in openXdox,
   which is RULING Q6's resolution of the one conflict it names.
   **THE FOUR QUESTIONS THE PACKET PUT WERE ALL RULED THE SAME EVENING**, before
-  ratification, on #656 — so nothing in the packet is open and what is pending is
-  Brett's ratification word on the proposal itself. **DQ-1** (22:14Z):
+  ratification, on #656 — so nothing in the packet was open when Brett ratified
+  it. **DQ-1** (22:14Z):
   `openxFactory` KEEPS its own adapter — `doc-health` and OpenSpec stay here, a
   small package beside them implements the seam, and `codexDox` is a THIN
   DESCENDANT that pins openXdox and reuses it; the fifteen engineering rows stay

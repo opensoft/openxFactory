@@ -1,6 +1,7 @@
 # Design: split-opendox-two-layer-product
 
-Status: draft
+Status: ratified
+Ratified by: split-opendox-two-layer-product — 2026-09-05, Brett Heap, "ratify #666" (record `review/ratification-2026-09-05.md`)
 
 Companion to `proposal.md`. The proposal argues the doctrine, carries the eleven
 2026-09-04 acts as LOCKED constraints and names the wave; this document records
@@ -832,6 +833,7 @@ alternatives.
 asked, because neither is a question the packet needs answered to be ratified:
 the pre-governed scratch space a lab assistant may want (§ D5, a consequence of
 the rejected ideas-in-the-database hybrid), and the front end's absent package
-boundary (§ D3, which `tasks.md` § 3.4 makes its own task). What remains is
-Brett's ratification word on the proposal as a whole, and the 102-row successor
-map is what that read is over.
+boundary (§ D3, which `tasks.md` § 3.4 makes its own task). Brett's ratification
+word on the proposal as a whole — *"ratify #666"*, 2026-09-05T01:38Z, over head
+`6935fb8b` — has since been given, and the 102-row successor map is what that
+read was over. Both residuals survive it, recorded and not resolved.

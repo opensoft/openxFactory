@@ -1104,9 +1104,91 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         f"comparison above is no longer one-to-one")
 
 
+# ============================================================================
+#
+# THE TWO-WRITERS ORDERING CLASS STOPPED READING ZERO ON 2026-09-05, and its
+# subjects are NAMED HERE rather than the assertion loosened — `_LEDGER_SUBJECTS`
+# and `_PAIRING_SUBJECTS`' own discipline, `==` and never `<=`, both directions
+# failing by name.
+#
+# **THE MOVEMENT IS ONE RATIFICATION, NOT A CORPUS DRIFT.** The arm scopes to
+# ACTIVE RATIFIED writers — `_arm_ordering` returns early below two — so a group
+# holding one ratified writer and one draft reports nothing. Two changes write
+# `neutral-product-pin`'s *An external neutral product is pinned by commit and
+# digest, never by tag*: `add-openspec-cli-pin`, ratified 2026-09-04 and landed
+# as PR #667, and `split-opendox-two-layer-product`, ratified 2026-09-05 (Brett
+# Heap, "ratify #666", record
+# `openspec/changes/split-opendox-two-layer-product/review/ratification-2026-09-05.md`).
+# The second ratification is what made the pair two ratified writers, and neither
+# proposal names the other, so the ordering is UNSTATED and both blocks are
+# reported — one finding per block, which is why this set has two rows for one
+# requirement.
+#
+# **THE ROWS RETIRE ON THE DECLARATION, NOT ON A DISPOSITION.** Under
+# `release-realization`'s *Ordered deltas and branch vocabulary* the LATER
+# writer's `proposal.md` names the earlier change, and that single mention is the
+# ordering — at which point the arm resolves the pair, the later block is
+# measured against the earlier block's outcome instead of canon, and these two
+# rows go. They also retire if either change archives. The declaration was
+# deliberately NOT made by the ratification-encoding act: choosing which of two
+# ratified siblings carries the other's additions to that requirement is an
+# editorial decision over a ratified delta, not bookkeeping, and the packet's own
+# `specs/neutral-product-pin/spec.md` preamble now records the obligation as
+# OWED. **WHEN IT IS DISCHARGED, DELETE BOTH ROWS AND EXPECT THE CARRIAGE LEDGER
+# TO MOVE INSTEAD** — a resolved pair re-bases the later block, so
+# `_LEDGER_SUBJECTS` is where the divergence will surface next.
+_ORDERING_SUBJECTS = {
+    ("add-openspec-cli-pin", "neutral-product-pin",
+     "An external neutral product is pinned by commit and digest, never by "
+     "tag"),
+    ("split-opendox-two-layer-product", "neutral-product-pin",
+     "An external neutral product is pinned by commit and digest, never by "
+     "tag"),
+}
+
+# The ordering arm quotes its title in its OWN wording, which is not the
+# carriage arms' "active MODIFIED block for" opening, so `_subject` cannot read
+# it — it raises rather than returning a partial subject, by design. This is the
+# same read against this arm's own sentence, and it raises on the same two
+# grounds for the same reason.
+_ORDERING_TITLE = re.compile(
+    r"the ordering of MODIFIED blocks for (['\"])(.+?)\1")
+
+
+def _ordering_subject(finding) -> tuple[str, str, str]:
+    """One ordering finding's named subject, read out of WHAT THE FAMILY WROTE.
+
+    STRICT ON BOTH HALVES, exactly as `_subject` is: an unparseable path or an
+    unquoted title RAISES, so a change to this arm's rule wording fails here by
+    name instead of silently emptying the compared set.
+    """
+    path = _DELTA_PATH.match(finding.path)
+    if path is None:
+        raise AssertionError(
+            f"ordering finding path {finding.path!r} is not of the family's "
+            f"own {mbc.DELTA_GLOB!r} shape — the gate reads the family's "
+            f"output, so a path shape change must fail here")
+    title = _ORDERING_TITLE.search(finding.rule)
+    if title is None:
+        raise AssertionError(
+            f"ordering finding rule quotes no requirement title in this arm's "
+            f"own wording, so no subject can be named: {finding.rule[:200]!r}")
+    return path.group(1), path.group(2), title.group(2)
+
+
 def test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree():
-    """THE FOUR CLASSES THAT READ ZERO, each identified by the module's OWN
-    wording and each with a POSITIVE CONTROL on its probe.
+    """THE FOUR CLASSES THIS TEST COVERS — THREE READ ZERO AND ONE NO LONGER
+    DOES — each identified by the module's OWN wording and each with a POSITIVE
+    CONTROL on its probe.
+
+    **THE ORDERING CLASS STOPPED READING ZERO ON 2026-09-05** and is asserted
+    against `_ORDERING_SUBJECTS`, a NAMED EXACT SET on `_LEDGER_SUBJECTS`'
+    discipline, rather than by a loosened band. The function keeps its name
+    because that name is pinned in `specs/021-modified-block-currency-self-gate/
+    contracts/self-gate-contract.md` and in two archived packets, and a rename
+    would move more text than the fact does; the docstring and the contract row
+    carry the correction instead. The other three classes still read zero and
+    are still asserted as empty.
 
     An "absent from" assertion over a rule-text probe is precisely the shape
     F1's mutation round caught: "the `FAMILY_RESOLUTION` absence was documented
@@ -1115,11 +1197,13 @@ def test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree
     module's own text. Get the probe wrong and this fails on the probe, not on
     the corpus.
 
-    Zero here is a fact about this tree, not a structural guarantee: an
-    unresolved title, an undecided two-writers group and a defective marker are
-    all reportable, and the packet's § 6.7 measured the ordering arm at zero
-    twice — once under the withdrawn date reading and once under the ruled
-    by-declaration one.
+    Zero here was always a fact about this tree and never a structural
+    guarantee: an unresolved title, an undecided two-writers group and a
+    defective marker are all reportable, and the undecided group is now
+    reported. The packet's § 6.7 measured the ordering arm at zero twice — once
+    under the withdrawn date reading and once under the ruled by-declaration one
+    — and the by-declaration reading is exactly what reports it today, on a
+    corpus that has since ratified two writers of one requirement.
 
     **THIS TEST DOES NOT COVER THE TWO CLASSES
     `govern-sibling-added-modified-deltas` ADDS**, and saying so is the point:
@@ -1166,9 +1250,23 @@ def test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree
     assert unresolved == [], _moved(
         "the title-resolution class (0 at 76a2ad27)",
         f"{[_subject(f) for f in unresolved]}")
-    assert ordering == [], _moved(
-        "the two-writers ordering class (0 at 76a2ad27)",
-        f"{[f.rule[:160] for f in ordering]}")
+    ordering_seen = {_ordering_subject(f) for f in ordering}
+    ordering_gone = _ORDERING_SUBJECTS - ordering_seen
+    ordering_fresh = ordering_seen - _ORDERING_SUBJECTS
+    assert not ordering_gone and not ordering_fresh, _moved(
+        "the two-writers ordering class (0 at 76a2ad27; TWO named subjects "
+        "since 2026-09-05, when split-opendox-two-layer-product's ratification "
+        "made it the second ACTIVE RATIFIED writer of neutral-product-pin's "
+        "'An external neutral product is pinned by commit and digest, never by "
+        "tag' beside add-openspec-cli-pin, neither proposal naming the other)",
+        f"{len(ordering_gone)} named subject(s) NO LONGER reported "
+        f"{sorted(ordering_gone)}; {len(ordering_fresh)} unnamed subject(s) "
+        f"NEWLY reported {sorted(ordering_fresh)}")
+    assert len(ordering) == len(ordering_seen), (
+        f"{len(ordering)} ordering findings collapsed to "
+        f"{len(ordering_seen)} subjects — two findings share a "
+        f"(change, capability, requirement) triple, so the set comparison "
+        f"above is no longer one-to-one")
     assert markers == [], _moved(
         "the marker-defect class (0 at 76a2ad27)",
         f"{[f.rule[:160] for f in markers]}")
@@ -2076,10 +2174,21 @@ def test_the_gate_reaches_the_corpus_only_through_the_family():
 
     A gate that re-parsed the corpus would prove something about the gate. So:
     every corpus read here goes through a named `mbc.*` public function from a
-    declared allowlist, and this module's OWN regexes are exactly four, none of
+    declared allowlist, and this module's OWN regexes are exactly five, none of
     which can parse openspec requirement structure — proven by running each
     against a `### Requirement:` heading, a `#### Scenario:` heading and a
     scenario bullet.
+
+    `_ORDERING_TITLE` IS THE FIFTH, ADDED 2026-09-05, and it is the SAME CLASS
+    OF PATTERN AS `_TITLE` rather than a new parser: it reads the title out of a
+    sentence THE FAMILY WROTE — the ordering arm's own "the ordering of MODIFIED
+    blocks for" opening, which `_TITLE`'s "active MODIFIED block for" opening
+    does not reach — and it is anchored on that literal, so it cannot match a
+    requirement heading, a scenario heading or a bullet. It exists because the
+    ordering class stopped reading zero and its subjects had to be NAMED; a
+    widened `_TITLE` was the alternative and was rejected, because `_subject`
+    feeds two other exact sets that must not silently start collecting this
+    arm's findings.
 
     MATCHED ON USE, NOT ON MENTION, which is a lesson this test file inherited
     rather than learned: F1's `test_the_promoted_reader_cannot_reach_a_measurement_basis`
@@ -2087,7 +2196,8 @@ def test_the_gate_reaches_the_corpus_only_through_the_family():
     refuses to use. A grep for `## MODIFIED` here would fire on this file's own
     docstring, so the pin is on the patterns' BEHAVIOUR instead.
     """
-    declared = {"_DELTA_PATH", "_TITLE", "_HEADLINE", "_SECTION"}
+    declared = {"_DELTA_PATH", "_TITLE", "_ORDERING_TITLE", "_HEADLINE",
+                "_SECTION"}
     mine = {name for name, value in globals().items()
             if isinstance(value, re.Pattern)}
     assert mine == declared, (

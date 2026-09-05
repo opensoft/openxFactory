@@ -1,9 +1,24 @@
 # neutral-product-pin Specification
 
-Two MODIFIED requirements. **NO ACTIVE CHANGE CARRIES A DELTA ON THIS
-CAPABILITY** — checked over all 31 active change directories at `origin/main`
-`a858e5b0`, 2026-09-04 — so both blocks are written over CANON, restated as canon
-states it today, and no `Modified over` marker is owed.
+Two MODIFIED requirements, both written over CANON and restated as canon stated
+it when they were authored: **no active change carried a delta on this
+capability** — checked over all 31 active change directories at `origin/main`
+`a858e5b0`, 2026-09-04 — so no `Modified over` marker was owed at authoring.
+
+**THAT MEASUREMENT IS DATED, AND A SIBLING HAS SINCE ARRIVED.**
+`add-openspec-cli-pin` was ratified on 2026-09-04 (Brett Heap, *"ratify 667"*)
+and LANDED as `opensoft/openxFactory#667` after this check was taken, and it
+carries its own `## MODIFIED` block over *An external neutral product is pinned
+by commit and digest, never by tag* — the same requirement this delta's first
+block modifies. Two ACTIVE RATIFIED writers now hold that requirement and
+NEITHER declares its order relative to the other, so `modified-block-currency`
+reports the ordering as undecided against both blocks (two `contested` warnings,
+measured 2026-09-05). **The ordering declaration is OWED and is not made here**:
+under `release-realization`'s *Ordered deltas and branch vocabulary* it is the
+later writer's proposal that declares, each block is meanwhile measured against
+canon, and choosing which of the two ratified siblings carries the other's
+additions is a decision for that declaring act rather than a correction to a
+ratified delta. Recorded rather than silently resolved.
 
 **Why this capability has to grow, in two places.** The capability was written
 for a pin whose CONSUMPTION IS A FILE READ: `openxFactory` pins `openXwallet`,

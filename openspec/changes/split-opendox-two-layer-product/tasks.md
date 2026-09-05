@@ -1,6 +1,7 @@
 # Tasks: split-opendox-two-layer-product
 
-Status: draft
+Status: ratified
+Ratified by: split-opendox-two-layer-product — 2026-09-05, Brett Heap, "ratify #666" (record `review/ratification-2026-09-05.md`)
 
 Nine groups, mirroring the `split-openxwallet-repo` packet's shape and adapted
 for a two-repository, non-byte-identical extraction of an APPLICATION. **Every
@@ -19,15 +20,20 @@ Omnigent-Install · `[Opsx]` OpsxFactory · `[cxF]` codexFactory.
 
 ## 0. Ratification read, the FOUR RULED questions, and Amendment 3's text
 
-- [ ] 0.1 `[oxF]` This packet lands as PROPOSAL ONLY, `Status: draft`, at
+- [ ] 0.1 `[oxF]` This packet lands RATIFIED AND PERFORMING NOTHING,
+  `Status: ratified`, at
   `openspec/changes/split-opendox-two-layer-product/`: `proposal.md`,
-  `design.md`, this file, `.openspec.yaml` with the staged origin, and five spec
-  delta files. Plus the staging INDEX row recording the exit and one README
-  "OpenSpec Records" row.
-- [ ] 0.2 `[oxF]` **The ratification read is over the 102-row successor map**, not
+  `design.md`, this file, `.openspec.yaml` with the staged origin, five spec
+  delta files, and `review/ratification-2026-09-05.md`. Plus the staging INDEX
+  row recording the exit and one README "OpenSpec Records" row.
+- [x] 0.2 `[oxF]` **The ratification read is over the 102-row successor map**, not
   only over the doctrine. A reviewer contesting a ROW contests a row; the
   mechanism (REMOVE with a per-requirement map rather than keep a stub) is taken
-  as recommended per the topic's Q8 and RULING C2.
+  as recommended per the topic's Q8 and RULING C2. **DONE — RATIFIED
+  2026-09-05T01:38Z**, Brett Heap, verbatim *"ratify #666"*, over the packet as
+  it stood at head `6935fb8b`; no row was contested. Record:
+  `review/ratification-2026-09-05.md`; ruling:
+  <https://github.com/opensoft/openxFactory/issues/656#issuecomment-5548470629>.
 - [x] 0.3 `[oxF]` **RULED DQ-1 — 2026-09-04T22:14Z** (`#656` comment
   `5547049745`): **`openxFactory` KEEPS its own adapter**; `doc-health` and
   OpenSpec stay here, a small package beside them implements the seam, and
@@ -68,8 +74,16 @@ Omnigent-Install · `[Opsx]` OpsxFactory · `[cxF]` codexFactory.
   claimed at § 5.6.
 - [ ] 0.9 `[oxF]` Ledger row seeded:
   `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#<PR>'`,
-  then `--ledger-diff` clean. No MOVEMENT LOG entry is owed — a row added is a
-  move the row diff itself states.
+  then `--ledger-diff` clean. **A MOVEMENT LOG entry IS owed here and is
+  written** (`tests/sequenced_after/test_sweep.py`): the seeding moved TEN rows,
+  not one — this change's own row enters as an ACTIVE co-modifier and NINE
+  ARCHIVED rows flip `sole` -> `co-modifier` in the same act, because a
+  `## REMOVED Requirements` block naming all 102 `ideation-dashboard` titles
+  shares a requirement key with every change that ever solely added one. Nine
+  partner rows moving for somebody else's delta is not legible from the row diff
+  alone, which is the condition the log entry exists for. (Corrects an earlier
+  reading of this item that said no entry was owed — Copilot round 5, taken
+  2026-09-05.)
 
 ## 1. Repository bootstrap — two repositories, public, Apache-2.0 (RULING Q7)
 
