@@ -139,6 +139,16 @@ def registry(support, real_pin, tmp_path, monkeypatch):
     calls: list = []
     served = {"payload": PAYLOAD, "reports": version}
     real_which = verifier.shutil.which
+    # A REAL FILE IN A TEMPORARY DIRECTORY rather than a hard-coded system
+    # path: the constitution forbids a host-absolute path in a committed file
+    # (§ IV), and a fictional npm that exists where the test put it is the more
+    # honest double anyway — `fetch_artifact` asks `shutil.which` whether npm is
+    # obtainable at all, and nothing in this suite should depend on where a
+    # particular machine keeps it.
+    fake_npm = tmp_path / "bin" / "npm"
+    fake_npm.parent.mkdir(parents=True, exist_ok=True)
+    fake_npm.write_text("#!/bin/sh\n", encoding="utf-8")
+    fake_npm.chmod(0o755)
 
     def fake_run(argv, **kwargs):
         argv = [str(item) for item in argv]
@@ -160,7 +170,7 @@ def registry(support, real_pin, tmp_path, monkeypatch):
     monkeypatch.setattr(verifier, "_run", fake_run)
     monkeypatch.setattr(
         verifier.shutil, "which",
-        lambda name, *a, **k: ("/usr/bin/npm" if name == "npm"
+        lambda name, *a, **k: (str(fake_npm) if name == "npm"
                                else real_which(name, *a, **k)))
     return Registry(verifier, pin_path, version, binary, calls, served)
 
@@ -434,7 +444,9 @@ def test_the_escape_is_the_entrypoints_own_and_refuses_another_version(
     referent — and this is the case it exists to catch: yesterday's global
     install answering for today's pin.
     """
-    local = tmp_path / "bin"
+    # `path-bin`, not `bin`: the registry fixture keeps its fictional npm in
+    # `bin`, and this is the PATH the escape reads — two different fictions.
+    local = tmp_path / "path-bin"
     local.mkdir()
     (local / registry.binary).write_text("#!/bin/sh\n", encoding="utf-8")
     (local / registry.binary).chmod(0o755)
@@ -453,7 +465,9 @@ def test_the_escape_is_the_entrypoints_own_and_refuses_another_version(
 
 def test_the_escape_accepts_the_pinned_version_and_says_what_it_did_not_check(
         support, registry, tmp_path, capsys, monkeypatch):
-    local = tmp_path / "bin"
+    # `path-bin`, not `bin`: the registry fixture keeps its fictional npm in
+    # `bin`, and this is the PATH the escape reads — two different fictions.
+    local = tmp_path / "path-bin"
     local.mkdir()
     (local / registry.binary).write_text("#!/bin/sh\n", encoding="utf-8")
     (local / registry.binary).chmod(0o755)
@@ -475,7 +489,9 @@ def test_the_escape_reaches_the_entrypoint_too_so_the_halves_agree(
         support, registry, recorded, tmp_path, monkeypatch):
     """One mode, both halves. A run that validated from PATH and archived from
     the artifact — or the reverse — would be two runs wearing one name."""
-    local = tmp_path / "bin"
+    # `path-bin`, not `bin`: the registry fixture keeps its fictional npm in
+    # `bin`, and this is the PATH the escape reads — two different fictions.
+    local = tmp_path / "path-bin"
     local.mkdir()
     (local / registry.binary).write_text("#!/bin/sh\n", encoding="utf-8")
     (local / registry.binary).chmod(0o755)
@@ -498,13 +514,15 @@ def test_the_escape_reaches_the_entrypoint_too_so_the_halves_agree(
                          "--yes"]]
 
 
-def test_the_archive_subcommand_carries_the_escape_and_no_other(support):
+def test_the_archive_subcommand_carries_the_escape_and_no_other(support,
+                                                                tmp_path):
     """One escape, and it is the entrypoint's. Anything that skipped the pin
     outright would be a bypass invented here."""
+    root = str(tmp_path)
     parsed = support.parser().parse_args(
-        ["/tmp", "archive", "change-a", "--path-mode"])
+        [root, "archive", "change-a", "--path-mode"])
     assert parsed.path_mode is True
     assert support.parser().parse_args(
-        ["/tmp", "archive", "change-a"]).path_mode is False
+        [root, "archive", "change-a"]).path_mode is False
     with pytest.raises(SystemExit):
-        support.parser().parse_args(["/tmp", "archive", "change-a", "--no-pin"])
+        support.parser().parse_args([root, "archive", "change-a", "--no-pin"])

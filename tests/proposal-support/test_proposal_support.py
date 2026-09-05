@@ -90,6 +90,13 @@ def serve_a_fictional_registry(test: unittest.TestCase) -> list:
 
     calls: list = []
     real_which = shutil.which
+    # A real file under the double's own directory, never a hard-coded system
+    # path: the constitution forbids a host-absolute path in a committed file
+    # (§ IV), and `fetch_artifact` only asks whether npm is obtainable at all.
+    fake_npm = workspace / "bin" / "npm"
+    fake_npm.parent.mkdir(parents=True, exist_ok=True)
+    fake_npm.write_text("#!/bin/sh\n", encoding="utf-8")
+    fake_npm.chmod(0o755)
 
     def fake_run(argv, **kwargs):
         argv = [str(item) for item in argv]
@@ -118,7 +125,7 @@ def serve_a_fictional_registry(test: unittest.TestCase) -> list:
             (verifier, "PIN_PATH", pin_path),
             (verifier, "_run", fake_run),
             (shutil, "which",
-             lambda name, *a, **k: ("/usr/bin/npm" if name == "npm"
+             lambda name, *a, **k: (str(fake_npm) if name == "npm"
                                     else real_which(name, *a, **k))),
     ):
         previous = getattr(target, attribute)
