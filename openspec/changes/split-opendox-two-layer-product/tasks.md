@@ -205,6 +205,36 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   assembly root, a pytest suite and a required check in each of the FOUR legs
   (the scaffold's `validate.yml` covers the two assembly roots only), and 1.5's
   rulesets.
+  *(Corrected by reality check 2026-09-05 (lane
+  openxfactory-4-opendox-extraction), re-measured against a fresh
+  `openRepoShape` clone at tip `e9c4827b85f50503bbdd9e5b4fac9d6c3d0baf63` and,
+  in a worktree, at the currently-pinned `122d729bc0c2f2e0ded0bb61b6b97f49512f613e`
+  — the "and nothing else" list above is wrong at BOTH revisions, and
+  differently. AT THE PIN, a `--local-remote-dir` materialization (no network,
+  nothing created on GitHub) writes three assembly-root files the list above
+  omits: `scripts/repo_shape.py`, `scripts/validate-repository-naming.py` and
+  `contracts/repository-naming.yaml` — copied out of `openRepoShape`'s own
+  tree so the project carries the standard it was cut from, each carrying a
+  row in the project's own `contracts/shape-pin.yaml` (9 rows at the pin), so
+  a realizer who deletes one as unaccounted-for turns `scripts/validate-pins.py`
+  red on the first push. Fifteen assembly-root files at the pin, not twelve;
+  the three-file leg list IS exact there. AT `355f6ef4` — the exact commit
+  `tasks.md` § 1.1a already names as the re-pin target, so it is the revision
+  1.1/1.2 will actually run at once unblocked, never the pin above — the tool
+  ALSO writes `AGENTS-shape.md`, `AGENTS.md` and `CLAUDE.md` into the assembly
+  root (ten `shape-pin.yaml` rows) and a rendered `AGENTS.md` plus a one-line
+  `CLAUDE.md` (`Read AGENTS.md.`) into EACH leg (openRepoShape PR #30,
+  `99b3774`, an ancestor of `355f6ef4`): eighteen assembly-root files, five per
+  leg. This makes "`AGENTS.md`/`CLAUDE.md`" in the hand-act sentence above
+  FALSE in operation — the tool writes them from `355f6ef4` onward, the only
+  revision the blocked 1.1/1.2 will ever run at. `AGENTS-shape.md` is itself
+  digest-pinned in the scaffolded project's own `contracts/shape-pin.yaml` —
+  never hand-edit it; edits belong in the generated `AGENTS.md`, deliberately
+  left unpinned. Every other item in the hand-act sentence (LICENSE, 1.4's
+  four posture files, `.github/CODEOWNERS`, the OpenSpec instance,
+  `contracts/manifest.yaml`/`CHANGELOG.md`, the FOUR legs' pytest suite and
+  required check, 1.5's rulesets) is unaffected and holds at every revision
+  checked.)*
 - [ ] 1.4 `[oD]` `[oXd]` **PUBLIC FROM DAY ONE MEANS A POSTURE EXISTS AT CREATION**,
   not after the first outside issue: `CONTRIBUTING.md`, `SECURITY.md` (a
   security-report path that is not an issue) and `CODE_OF_CONDUCT.md`. Retro-fitting
@@ -245,7 +275,21 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   because a descendant scaffolded the same way is three repositories, and a leg
   name nobody registered is exactly the name somebody creates by hand. STILL
   CREATING NONE: eighteen descendant names plus one install name, zero
-  repositories.)*
+  repositories.)* *(Corrected by reality check 2026-09-05 (lane
+  openxfactory-4-opendox-extraction): "eighteen" is arithmetic wrong, at every
+  `openRepoShape` revision checked (tip `e9c4827b` and the pinned `122d729b`
+  give byte-identical leg counts). Five descendants are named above — `MedxDox`,
+  `codexDox`, `LedgerxDox`, `AdxDox`, `OpsxDox` — each three names (the assembly
+  name plus its two leg names, confirmed by `scaffold-project.py --dry-run` at
+  both revisions and by `scripts/validate-repository-naming.py --explain`
+  classifying all fifteen as `project-leg`): 5 × 3 = **fifteen** descendant
+  names, not eighteen. A sixth descendant would be needed to reach eighteen and
+  none exists anywhere in this packet — `grep -oE` over proposal.md, design.md
+  and tasks.md for the `<Domainx>Dox` pattern returns exactly these five base
+  names. Read "fifteen descendant names — five descendants × three names each,
+  the assembly name plus its two leg names — plus one install name, zero
+  repositories" in place of the eighteen-count above; the rest of the sentence
+  is unaffected.)*
 - [ ] 1.8 `[xF]` Aggregation `CLAUDE.md` working rule #1 amended: it accommodates a
   neutral `open*` product `openxFactory` pins, and does NOT yet accommodate a
   neutral product that is an APPLICATION WITH A SCHEMA rather than a contract
