@@ -67,8 +67,8 @@ jobs:
 
       # Node is here to supply `npm`, and for NOTHING else. The version the gate
       # runs is not this one: it is the artifact the verifier fetches and checks.
-      # `@fission-ai/openspec@1.2.0` declares `engines.node >=20.19.0`, which 22
-      # satisfies.
+      # `@fission-ai/openspec@1.12.0` declares `engines.node >=20.19.0`, which 22
+      # satisfies (`1.2.0` declared the same floor).
       - uses: actions/setup-node@v4
         with:
           node-version: "22"

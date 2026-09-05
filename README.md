@@ -482,6 +482,54 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [bump-openspec-cli-pin-to-1.12](openspec/changes/bump-openspec-cli-pin-to-1.12/proposal.md)
+  — authored 2026-09-05, **`Status: draft`**, on Brett Heap's ruling *"take exit
+  2"* — a decision among the three exits #673 enumerated, **not** a ratification
+  of this text. **THIS IS THE BUMP #667 NAMED.**
+  `contracts/openspec-cli-pin.yaml` moves `@fission-ai/openspec` from `1.2.0`
+  to **`1.12.0`** by CONTENT ADDRESS: both hashes recomputed in-lane over the
+  real 477,381-byte / 389-file tarball
+  (`sha512-oFE2Lj7WVSc87nSi…`, shasum `c844543999…`), the previous referent kept
+  as a `rollback:` block in the pin's own grammar. **THE PRECONDITION IS MET AND
+  MEASURED:** #673 here and #220 in OpsxFactory cleared the pre-existing
+  conditions, and on 2026-09-05 OpsxFactory reads **47 passed / 0 failed** at
+  `1.12.0` outright while openxFactory reads **88 passed / 2 failed of 90**.
+  **THE TWO ARE NOT DEFECTS AND ARE NOT HIDDEN.** Both are deliberate scenario
+  narrowings declared with the reserved
+  ``**Merged into `<destination>` by <change> (<date>):**`` marker (council
+  LA-A1; #444), and `doc-health`'s promoted marker requirement uses the
+  composed-view pair as its **worked example** at
+  `openspec/specs/doc-health/spec.md:1770` — so 1.12.0's marker-blind
+  scenario-currency check re-reports as ERRORs exactly what canon holds up as
+  correct, and the only satisfying edit would revert two ratified decisions.
+  **So the packet adds a cited DISPOSITION mechanism** to
+  `scripts/validate-openspec-cli-pin.py` (check 6) and to the pin: an exception
+  names one repository, one item, one delta path and the finding's text matched
+  WHOLE, carries a non-empty `cited_to:` and a `ratified_by:`, and is PRINTED BY
+  NAME on every run so a pass cannot be mistaken for a clean tree. **A
+  disposition matched by NO finding in a WHOLE-CORPUS run REFUSES**
+  (`pin-disposition-stale`, exit 2; a narrowed `--change` run applies its
+  dispositions, decides no staleness and says so):
+  `add-composed-view-authoring` has one open box left, and the day it archives
+  this pin fails until its entry is deleted — the archive forcing the re-reading,
+  by design. Dispositions are scoped by repository (identity read from the git
+  remote, never the directory name, because every change is authored in a
+  worktree named for its branch), so OpsxFactory's run through the same pin
+  applies neither and is correctly reported *clean*. **A pin with no
+  `dispositions:` takes the original streaming path** — no `--json`, no parsing,
+  no git call — so the 1.2.0-era behaviour is a branch rather than a promise.
+  Tests 41 → **81**, including both `--json` array shapes parsed from CAPTURED
+  REAL 1.12.0 bytes and an offline reconciliation of the pin's own `finding:`
+  strings against them. **The old binary on PATH is now REFUSED**
+  (`pin-version-mismatch`), demonstrated in the record. **Exit 3 is DRAFTED AND
+  NOT FILED** — `evidence/upstream-issue-draft-merged-into-marker.md`, a
+  ready-to-file `fission-ai/openspec` issue with a minimal reproduction; filing
+  it is Brett's act, and if upstream fixes the check the dispositions go stale
+  and the mechanism removes them. **HUMAN-ONLY**, not clearable by a council.
+  Evidence, with the raw `2 failed` shown verbatim beside the reconciled
+  `0 undispositioned`:
+  `openspec/changes/bump-openspec-cli-pin-to-1.12/evidence/pin-bump-1.12-2026-09-05.md`.
+
 - [prepare-openspec-1.12-readiness](openspec/changes/prepare-openspec-1.12-readiness/proposal.md)
   — authored 2026-09-05, **`Status: draft`**, on Brett Heap's in-session word
   *"start the 1.12 upgrade fixes"* — an ADMISSION TO THE QUEUE, not a
