@@ -1,0 +1,40 @@
+schema: spec-driven
+created: 2026-09-05
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-05-amend-published-tip-unreadable-scenario
+  reason: >-
+    A DEFECT IN CANON FOUND BY A MEASUREMENT, filed as openxFactory issue #662
+    by lane `doxbench-stewardship` and carried out of PR #646's reviewer note
+    (issue #612). `doc-health`'s promoted *Release-tag publication* scenario
+    "The manifest cannot be read at the published tip" tells its reader that the
+    commonest cause of an empty manifest read is "a checkout that has not
+    fetched that commit". The measurement ran the other way: on the aggregation
+    nightly the commit WAS fetched — the workflow's own fetch step had put all
+    ten published tips in the store — and nine of the ten governed repositories
+    simply carry no `contracts/manifest.yaml` at all. Every night those nine
+    were reported in the words of an unfetched checkout, sending anyone reading
+    the report to look for a fetch defect the workflow had already ruled out.
+    PR #646 (`2177b2a2`) taught the family to establish which fact holds before
+    choosing its words; this packet is canon catching up to that, and it changes
+    no behaviour.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and `INDEX.md` read on 2026-09-05: no
+    topic carries doc-health skip vocabulary or the fetched/absent distinction.
+    `kind: staged` would claim a staging source that does not resolve. The
+    organized source is the issue and the ruling on it.
+  approved_by: >-
+    Brett Heap (openxFactory convener) — in session on 2026-09-05, lane
+    `openXfactory-1`, verbatim: "do both as a batch on one word", this packet
+    being one of the two. THIS IS AN ADMISSION INTO THE PROPOSAL QUEUE AND NOT A
+    RATIFICATION OF CONTENT: it supplies the origin and approval pair the
+    proposal-origin contract requires and nothing more. The packet carries
+    `Status: draft` and owes no ratification citation until a separate act
+    supplies one. The one decision the issue did not settle — whether the
+    establishing obligation is written on the `WHEN` or the `THEN` side — is
+    `design.md` D1 and is flagged for veto.
+  approved_on: 2026-09-05
+related:
+  - openxFactory:change:add-release-tag-publication-check  # ARCHIVED. Promoted the requirement this block MODIFIES, and the scenario whose wording is amended
+  - openxFactory:change:declare-spent-bundle-state         # ARCHIVED. The second writer of that requirement, and the precedent for qualifying a byte-faithful promoted sentence underneath rather than rewriting it
+  - openxFactory:change:add-release-tag-gate               # ARCHIVED 2026-09-05 (#672). The third writer, whose block ADDED only and therefore owed no removal marker — the contrast this packet's D3 names

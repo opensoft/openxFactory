@@ -482,6 +482,39 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-published-tip-unreadable-scenario](openspec/changes/amend-published-tip-unreadable-scenario/proposal.md)
+  — authored 2026-09-05, **`Status: draft`**, on Brett Heap's in-session word
+  *"do both as a batch on one word"* (openxFactory issue **#662**, filed by lane
+  `doxbench-stewardship` out of PR #646's reviewer note on #612) — an ADMISSION
+  to the queue, **not a ratification**.
+  **CANON NAMES A CAUSE THE CHECKER HAS SINCE PROVED IS THE WRONG ONE.**
+  `doc-health`'s *Release-tag publication* scenario *The manifest cannot be read
+  at the published tip* tells its reader that an empty manifest read's
+  "commonest cause" is "a checkout that has not fetched that commit". **The
+  measurement ran the other way** (#612): on the aggregation nightly the commit
+  WAS fetched — the workflow's own fetch step had put all ten published tips in
+  the store — and **nine of the ten governed repositories simply carry no
+  `contracts/manifest.yaml` at all**, so every night those nine were reported in
+  an unfetched checkout's words, sending readers to hunt a fetch defect that did
+  not exist. **PR #646 (`2177b2a2`) taught the family to establish which fact
+  holds before choosing its words**; this packet is canon catching up.
+  **ONE requirement MODIFIED**, restated in full with all 30 promoted scenarios,
+  changing exactly one scenario: the `WHEN` bullet REPLACED to name **both
+  facts** the single answer stands for, plus two `AND` bullets — one requiring
+  the family to have ESTABLISHED which holds (presence, then one bounded fetch)
+  *rather than naming a cause it did not check*, one saying that a tip the
+  checkout HOLDS is an ANSWER and must be reported as such. The promoted `THEN`
+  and the closing `verify_tag`/#338 clause are carried byte-identical.
+  **ONE canon unit is dropped and it is DECLARED** — the block carries the
+  reserved `Removed from canon by` marker naming the old `WHEN` verbatim, which
+  is the difference from `add-release-tag-gate`, whose block only added.
+  **`code_surface: none`** — no script, no test and no contract member moves;
+  the behaviour already exists and the suite already pins the two skip texts
+  apart from each other. No file is added under `openspec/specs/`, so **no
+  codexFactory floor advance**. `design.md` **D1** is flagged for veto: the
+  establishing obligation is written on the `WHEN` side (non-circular, weaker as
+  a compliance hook) rather than as a `THEN`-side `MUST`.
+
 - [prepare-openspec-1.12-readiness](openspec/changes/prepare-openspec-1.12-readiness/proposal.md)
   — authored 2026-09-05, **`Status: draft`**, on Brett Heap's in-session word
   *"start the 1.12 upgrade fixes"* — an ADMISSION TO THE QUEUE, not a
