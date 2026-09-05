@@ -137,8 +137,10 @@ def uncovered(surface, entries) -> list[str]:
 # --- mirror-floor-addition-grace: the REQUIRED lane's own classification ----
 #
 # RATIFIED 2026-09-05 by Brett Heap, in session, verbatim "ratify the
-# companion when green, then realize it" (packet
-# `openspec/changes/mirror-floor-addition-grace/`). Mirrors the pinned core's
+# companion when green, then realize it"; ARCHIVED 2026-09-05 (packet
+# `openspec/changes/archive/2026-09-05-mirror-floor-addition-grace/`,
+# capability `openspec/specs/review-lane-floor-mirror/spec.md`).
+# Mirrors the pinned core's
 # `merge_master.repository_floor_drift.evaluate_floor_completeness` — NOT by
 # IMPORTING it (authoring decision A: the pinned core checkout carries
 # `continue-on-error: true` below by design, so an importing REQUIRED

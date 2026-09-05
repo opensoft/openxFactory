@@ -276,3 +276,161 @@ divergence, not a mirror.
   tolerance NUMBER is codexFactory's to set in its own CODEOWNERS-routed
   document, and option (b) from codexFactory issue #203 remains unruled and
   undesigned.
+
+## Archive — the recorded escape, the three open boxes, and the LIVE TEST this act is
+
+**ARCHIVED 2026-09-05 VIA THE RECORDED ESCAPE, SECOND OF AN ORDERED
+CROSS-REPOSITORY PAIR — AND THIS ARCHIVE IS ITSELF THE PACKET'S FALSIFICATION
+TEST.** Brett Heap ordered it in session on 2026-09-05, verbatim *"archive the
+grace packets"* — one word covering BOTH archives, because the pair is one act
+in two repositories.
+
+**THE ORDER IS NOT A PREFERENCE EITHER**, and it is this packet's own
+declaration that fixes it: `proposal.md` carries
+`sequenced_after: [codexFactory:add-floor-addition-grace]`, so the parent
+archives FIRST. It did: **codexFactory PR #218, merge commit
+`35c089948a55bd8cf34293394e3b2621b6b0c8c5`, merged 2026-09-05T19:47:09Z**,
+promoting seven requirements into `openspec/specs/repository-gate-floor/spec.md`
+(5 → 12 requirements, 13 → 38 scenarios) and closing codexFactory issue #203 as
+`completed`. This companion archives SECOND, into a capability of its own.
+
+**WHY THIS PARTICULAR ARCHIVE IS THE PROGRAMME'S TEST, AND NOT BOOKKEEPING.**
+This act CREATES `openspec/specs/review-lane-floor-mirror/spec.md` — a new
+tracked path under a floor that is an EXACT ENUMERATION. Under the regime this
+packet replaced, that path would be reported UNCOVERED in two lanes at once and
+the REQUIRED `pytest-suite` would refuse the pull request until a two-repository
+hand repair had run — the cost `proposal.md` measured at five payments in two
+days. Under the grace now in force in both lanes, this pull request's own diff
+creates the path, so the required lane should stay GREEN with the path reported
+**covered-pending** (reason `created_by_candidate`) and the advisory lane should
+print `pending_floor_extension` naming it. **Tasks 5.2 and 5.3 are therefore
+NOT closable by any act before this one**: they are observations of THIS pull
+request's own checks, and they are ticked in a later commit ON THIS PULL
+REQUEST, with the run ids and the verbatim lines in their evidence, or they are
+not ticked at all.
+
+The evidence chain is read off `main` — every sha re-read from the GitHub API
+for this act rather than remembered:
+
+* **RATIFIED** 2026-09-05 by Brett Heap, repository owner, in session, verbatim
+  *"ratify the companion when green, then realize it"* — a standing word applied
+  at the first head where the condition held, `ce9a81ed`. The packet landed as
+  **PR #676**, merge commit **`568fa370`** (2026-09-05T15:14:31Z). Record
+  [`review/ratification-2026-09-05.md`](review/ratification-2026-09-05.md),
+  archived with the packet. Authoring decisions **A–F STAND AS RECOMMENDED**
+  under that word and none was separately ruled (task 6.2).
+* **REALIZED** by **PR #686**, merge commit **`f6724f04`**
+  (2026-09-05T17:30:54Z) — the pin advance in one act across five sites, the
+  required lane's mirrored rule with its negative controls and the pinned core's
+  own vector replay watched by name, and the advisory lane's step 8 IMPORTING
+  `evaluate_floor_completeness` with `fetch-depth: 0` on its base checkout.
+* **REGENERATED AT A LANDED COMMIT** by **codexFactory PR #212**, merge commit
+  **`67a6ffc9`** (2026-09-05T18:08:23Z) — `generated_at` `3afd8a8c` →
+  `f6724f04`, 59 entries unchanged, the first floor repair in this programme
+  that did NOT block the pull request that caused it (task 4.1).
+* **RE-PINNED** onto that regeneration by **PR #689**, merge commit
+  **`b6804991`** (2026-09-05T18:39:13Z), the five sites moving in lockstep
+  (task 4.2). **That is what makes the live test measurable**: the declared
+  `generated_at` `f6724f04` IS an ancestor of this repository's `main`
+  (`git merge-base --is-ancestor f6724f04 origin/main`, checked on this tree
+  before this act), where the retired `3afd8a8c` was not — so B1's pin window
+  resolves rather than fail-safing to `None` (task 4.3).
+* **NO CONTRACT BUNDLE AND NO RELEASE TAG.** `proposal.md`'s `target_release:`
+  says so in its own words: this packet adds no registered contract row, moves
+  no digest set, spends no `contract_bundle_version` and owes no tag. Nothing
+  was cut for it and nothing is owed.
+
+**THE ESCAPE IS DISCLOSED RATHER THAN ROUTED AROUND.**
+`python3 scripts/proposal-support.py . archive mirror-floor-addition-grace` was
+run FIRST and REFUSED — exit 1, `change has incomplete tasks`, working tree
+untouched. Its gate is
+
+    tasks = directory / "tasks.md"
+    if tasks.is_file() and re.search(r"^- \[ \]", tasks.read_text(), re.M):
+        raise SupportError("change has incomplete tasks")
+    (scripts/proposal-support.py:1079-1081)
+
+— read off those three lines in this tree rather than remembered, and
+**UNCONDITIONAL on WHICH box**: it matches the leading marker and can tell
+nothing else about the task it refuses on.
+`OPENSPEC_TELEMETRY=0 openspec archive mirror-floor-addition-grace --yes` was
+run instead, verbatim:
+
+    Proposal warnings in proposal.md (non-blocking):
+      ⚠ Why section should not exceed 1000 characters
+    Task status: 26/29 tasks
+    Warning: 3 incomplete task(s) found. Continuing due to --yes flag.
+
+    Specs to update:
+      review-lane-floor-mirror: create
+    Applying changes to openspec/specs/review-lane-floor-mirror/spec.md:
+      + 7 added
+    Totals: + 7, ~ 0, - 0, → 0
+    Specs updated successfully.
+    Change 'mirror-floor-addition-grace' archived as '2026-09-05-mirror-floor-addition-grace'.
+
+**PRECEDENT, cited rather than invented**: `govern-sibling-added-modified-deltas`
+(PR #571, squash `3bcde7e2`), `declare-spent-bundle-state` (PR #611, squash
+`7af2725c`), `add-subject-establishment` (PR #647, squash `e4ff4fb3`),
+`add-chain-anchoring` (PR #669, squash `66d11a24`) and
+`amend-chain-anchoring-readiness-and-durability` (PR #670, squash `3d7b8f3b`) —
+and, one repository over and one hour earlier, this packet's own parent
+(codexFactory PR #218, `35c08994`), which recorded the same escape for the same
+class of box.
+
+**NOT ONE OF THE THREE OPEN BOXES IS UNDONE REALIZATION OF THIS CHANGE**, and
+ticking any of them to satisfy the wrapper would be writing a false completion
+past a gate that cannot tell "open by omission" from "open by design" apart.
+They fall in two classes:
+
+**(a) OBSERVATIONS THIS ACT PERFORMS — 5.2 and 5.3.** 5.2 asks for the
+`pending_floor_extension` outcome *"OBSERVED ONCE on a real advisory run, with
+its path list, its per-path reasons and its owed-regeneration message, quoted
+verbatim in the archive record"*; 5.3 asks for *"a real promoting pull request
+observed NOT RED in the required lane for the path it creates"*. **No earlier
+act could close them, and the parent's own archive record says so**: codexFactory
+PR #218 recorded its task 5.4 as PARTIAL, because openxFactory run
+`33983590725` printed `covered-pending: 0 (tolerance 3, pin NOT measured
+(fail-safe))` — the report SHAPE and the B1 fail-safe were seen, but no path was
+ever covered-pending and the path list and the owed-regeneration message had
+never been rendered live. **THIS PULL REQUEST IS THE FIRST CANDIDATE THAT
+CREATES SUCH A PATH.** The observation is recorded below and the boxes are
+ticked in the same commit that records it, or neither happens.
+
+**(b) NOT OWED HERE — 6.3.** The box says so in its own first words: the D-3
+escalation-tolerance NUMBER is codexFactory's to set in its own CODEOWNERS-routed
+document, and option (b) from codexFactory issue #203 remains unruled and
+undesigned. codexFactory PR #218's record states the same fact from the other
+side — the tolerance stands PROPOSED at `pending_floor_extension_tolerance: 3`,
+offered for veto, no veto exercised, and UNRULED. **An openxFactory archive
+cannot close a codexFactory owner's box**, and no attempt is made here.
+
+**THE PROMOTION WAS BYTE-CHECKED, NOT TRUSTED.** The capability is NEW, so the
+check runs one way only — the archived delta's requirement text against the
+created specification's, extracted from the first `### Requirement:` line on
+both sides:
+
+* `openspec/changes/archive/2026-09-05-mirror-floor-addition-grace/specs/review-lane-floor-mirror/spec.md`
+  → **16 744 bytes**;
+  `openspec/specs/review-lane-floor-mirror/spec.md` → **16 745 bytes**;
+  `diff` reports exactly one difference, `182a183`, a single appended blank
+  line at end-of-file — the same one-byte archiver signature #669 and #670 each
+  recorded for their own promotions. **Not one other character moved.**
+* **SEVEN requirements / 28 SCENARIOS on both sides**, counted by
+  `^### Requirement:` and `^#### Scenario:` rather than by addition, and equal
+  to the counts `proposal.md` and the ratification record each declared
+  separately.
+* `git status --porcelain -uall openspec/specs/` names **that one file and
+  nothing else**, so no promoted requirement in any other capability moved a
+  word.
+
+**THE `## Purpose` WAS WRITTEN BY THIS ACT, AND THAT IS THE ONE THING IN THE
+PROMOTED FILE THE ARCHIVER DID NOT AUTHOR.** `openspec archive` creates a new
+capability's spec with the placeholder *"TBD - created by archiving change
+mirror-floor-addition-grace. Update Purpose after archive."* and an instruction
+addressed to nobody. Leaving it would have made this the ONLY promoted
+specification in the corpus carrying that sentence — commit `552a3a76` had
+repaired all 39 of the others on 2026-09-05 — so it was replaced here, in the
+promoted specification directly, which is the only surface where such an edit
+lands. It is prose ABOUT the capability, carries no SHALL, and is outside the
+byte-checked requirement region above.
