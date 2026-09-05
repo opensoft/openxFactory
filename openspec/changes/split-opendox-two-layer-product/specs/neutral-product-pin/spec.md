@@ -1,24 +1,42 @@
 # neutral-product-pin Specification
 
-Two MODIFIED requirements, both written over CANON and restated as canon stated
-it when they were authored: **no active change carried a delta on this
-capability** — checked over all 31 active change directories at `origin/main`
-`a858e5b0`, 2026-09-04 — so no `Modified over` marker was owed at authoring.
+The FIRST MODIFIED requirement is written OVER `add-openspec-cli-pin`'s block for
+the same requirement, on the ordering declaration recorded below; the SECOND is
+written over CANON, `add-openspec-cli-pin` carrying no delta on it and no other
+active change carrying one either.
 
-**THAT MEASUREMENT IS DATED, AND A SIBLING HAS SINCE ARRIVED.**
-`add-openspec-cli-pin` was ratified on 2026-09-04 (Brett Heap, *"ratify 667"*)
-and LANDED as `opensoft/openxFactory#667` after this check was taken, and it
-carries its own `## MODIFIED` block over *An external neutral product is pinned
-by commit and digest, never by tag* — the same requirement this delta's first
-block modifies. Two ACTIVE RATIFIED writers now hold that requirement and
-NEITHER declares its order relative to the other, so `modified-block-currency`
-reports the ordering as undecided against both blocks (two `contested` warnings,
-measured 2026-09-05). **The ordering declaration is OWED and is not made here**:
-under `release-realization`'s *Ordered deltas and branch vocabulary* it is the
-later writer's proposal that declares, each block is meanwhile measured against
-canon, and choosing which of the two ratified siblings carries the other's
-additions is a decision for that declaring act rather than a correction to a
-ratified delta. Recorded rather than silently resolved.
+**THE ORDERING DECLARATION IS MADE, AND THIS PARAGRAPH REPLACES THE ONE THAT
+RECORDED IT AS OWED.** When these deltas were authored **no active change carried
+a delta on this capability** — checked over all 31 active change directories at
+`origin/main` `a858e5b0`, 2026-09-04. That measurement went stale inside the same
+week: `add-openspec-cli-pin` was ratified 2026-09-04 (Brett Heap, *"ratify 667"*)
+and LANDED as `opensoft/openxFactory#667`, carrying its own `## MODIFIED` block
+over *An external neutral product is pinned by commit and digest, never by tag* —
+the same requirement this delta's first block modifies. Two ACTIVE RATIFIED
+writers then held that requirement and neither named the other, so
+`modified-block-currency` reported the ordering as undecided against both blocks
+(two `contested` warnings, measured 2026-09-05).
+
+**Brett Heap ruled *"declare and land"*** at 2026-09-05T12:49Z
+(`https://github.com/opensoft/openxFactory/issues/656#issuecomment-5551928470`).
+This packet ratified 2026-09-05T01:38Z and `add-openspec-cli-pin` on 2026-09-04,
+so under `release-realization`'s *Ordered deltas and branch vocabulary* THIS
+packet is the LATER writer. Its `proposal.md` now REFERENCES
+`add-openspec-cli-pin` by name — that reference IS the ordering the family reads
+— and the first MODIFIED block below is written over that change's OUTCOME rather
+than over canon: all 26 units of the earlier block are carried and none dropped,
+this packet's own addition is marked in place with a `Modified by` lead-in, and
+the requirement body carries a per-requirement record of the declaration.
+
+**The reserved ``Modified over `<basis>`'s addition by <change-id> (<date>):``
+pairing form is deliberately NOT used here, and the reason is a distinction that
+form itself makes.** It declares a block written over a requirement the promoted
+specification does not yet carry, which an active sibling ADDS or RENAMES to.
+`add-openspec-cli-pin` MODIFIES a requirement canon already carries; the pairing
+arm does not reach this shape, and a marker of that form here would assert an
+addition that does not exist. What this shape owes is the proposal reference, and
+the in-body paragraph records it in the parallel wording without borrowing the
+reserved anchor.
 
 **Why this capability has to grow, in two places.** The capability was written
 for a pin whose CONSUMPTION IS A FILE READ: `openxFactory` pins `openXwallet`,
@@ -81,8 +99,30 @@ refused in that shape's own words, "a tag can be moved": a tag MAY be recorded
 beside the commit as a human-readable label, never as the thing being trusted,
 and a pin SHALL NOT express a version RANGE.
 
-**WHERE THE PINNED PRODUCT IS A RUNTIME, THE PIN SHALL DECLARE THAT ITS
-CONSUMPTION IS A DEPLOYMENT AND NAME THE OPERATION A BUMP REQUIRES.** A pin whose
+WHERE THE PRODUCT IS DISTRIBUTED AS A PUBLISHED, CONTENT-ADDRESSED ARTIFACT
+RATHER THAN AS A SOURCE TREE, the pin SHALL carry that ARTIFACT'S DIGEST as its
+referent and SHALL declare `revision_kind` accordingly, and the release NAME —
+the version string — is a LABEL recorded beside it on exactly the terms a tag is
+recorded beside a commit. The distinction is the same one and it is not weakened
+by the change of medium: a digest over the published bytes cannot be moved,
+whereas a version name is kept stable by a REGISTRY'S POLICY and an operator who
+administers it, and a policy is not a content address.
+
+Such a pin carries NEITHER a per-file `sha256` list NOR a `pinned_by_commit_only:`
+list, and their absence is not a permitted omission but a consequence of the
+medium. Those two lists exist because a commit is not a digest a consumer can
+compare a single file against, so the surface must be ENUMERATED for
+completeness to be checkable at all. A published artifact needs no enumeration:
+ONE digest addresses EVERY byte inside it, so no member can be undeclared and
+none can be added or altered without changing the referent. The completeness
+obligation is therefore DISCHARGED MORE STRONGLY here rather than waived, and a
+pin of this kind SHALL record every field the consumer's verifier checks —
+including any secondary address the registry publishes — so that no declared
+field goes unverified.
+
+**Modified by `split-opendox-two-layer-product`:** **WHERE THE PINNED PRODUCT IS
+A RUNTIME, THE PIN SHALL DECLARE THAT ITS CONSUMPTION IS A DEPLOYMENT AND NAME
+THE OPERATION A BUMP REQUIRES.** A pin whose
 product carries a database schema and ordered migrations SHALL declare the
 migration RANGE the bump crosses, whether the bump is reversible, and the runbook
 that performs it — beside the commit and the digests, in the pin file, not only in
@@ -93,7 +133,24 @@ instances are still running the previous commit until the operation runs, and a
 pin the fleet has not reached is a declared fact that is not yet true. The
 declaration SHALL NOT be read as permission to skip the digests — commit and
 per-file `sha256` remain the trusted referent exactly as for a file-read pin, and
-the deployment declaration is what the digests are consumed BY.
+the deployment declaration is what the digests are consumed BY. It reaches a
+different medium from the published-artifact clause above and narrows none of
+it: an artifact-digest pin whose product is also a runtime owes both.
+
+**Modified over `add-openspec-cli-pin`'s modification by
+split-opendox-two-layer-product (2026-09-05):** — the basis MODIFIES this
+requirement rather than ADDING it, was ratified 2026-09-04 and landed as
+`opensoft/openxFactory#667`; this packet ratified later, 2026-09-05T01:38Z, and
+Brett Heap ruled *"declare and land"* at 2026-09-05T12:49Z on
+`opensoft/openxFactory` issue #656. This block is therefore written over the
+basis's OUTCOME and not over canon: all 26 of its units are carried — the
+published-artifact clause, the enumeration clause and both of its scenarios
+included — and the runtime-deployment clause above with the two scenarios at the
+end are this packet's own additions on top, marked in place. The ordering the
+`modified-block-currency` family reads is the reference to
+`add-openspec-cli-pin` in this packet's `proposal.md`; this paragraph is the
+per-requirement record of that declaration and is NOT the reserved pairing
+marker, whose form is reserved for a basis that ADDS an unpromoted requirement.
 
 #### Scenario: A pin declares a tag and no commit
 - **WHEN** a pin file names a release tag but no commit
@@ -107,6 +164,15 @@ the deployment declaration is what the digests are consumed BY.
 #### Scenario: A pin expresses a range
 - **WHEN** a pin expresses a version range or a moving reference
 - **THEN** it is refused, because the moment a pin trusts a range the fail-closed property is gone
+
+#### Scenario: The product is published as an artifact rather than as a source tree
+- **WHEN** the consumed product is distributed as a published package whose registry publishes a digest over its bytes
+- **THEN** the pin records that digest as the referent, declares a `revision_kind` naming it, and records the version string only as a label
+- **AND** the pin carries no per-file list, one digest over the artifact addressing every file inside it and leaving nothing undeclared
+
+#### Scenario: A published-artifact pin records only a version
+- **WHEN** such a pin names a version, a dist-tag or a range and records no digest over the artifact
+- **THEN** it is refused on the same ground a tag-only pin is refused, a name whose stability is a registry's policy not being the thing that is trusted
 
 #### Scenario: A pin bump crosses a migration
 - **WHEN** the pinned commit of a product carrying a database schema moves across one or more ordered migrations

@@ -309,6 +309,23 @@ than left to be noticed.
 - **`neutral-product-pin`** — 2 of 9 promoted requirements MODIFIED, on the same
   discipline. Seven deliberately untouched.
 
+  **ORDERED AFTER `add-openspec-cli-pin`, ON A RULING.** Brett Heap ruled
+  *"declare and land"* at 2026-09-05T12:49Z
+  (`https://github.com/opensoft/openxFactory/issues/656#issuecomment-5551928470`).
+  `add-openspec-cli-pin` — ratified 2026-09-04, landed as
+  `opensoft/openxFactory#667` — carries its own `## MODIFIED` block over *An
+  external neutral product is pinned by commit and digest, never by tag*, the
+  same requirement this packet's first block modifies. This packet ratified
+  later, 2026-09-05T01:38Z, so under `release-realization`'s *Ordered deltas and
+  branch vocabulary* it is the LATER WRITER: this proposal REFERENCES
+  `add-openspec-cli-pin` and declares that block's delta relative to THAT
+  CHANGE'S OUTCOME rather than to canon. The block carries all 26 units of the
+  earlier writer's block — nothing dropped — and adds this packet's
+  runtime-deployment clause and two scenarios on top, marked in place. The
+  second modified requirement, *The consuming repository's pin is authoritative
+  among reachable checkouts*, is not written by `add-openspec-cli-pin` at all
+  and stays written over canon.
+
 ### Removed Capabilities
 
 - **`ideation-dashboard`** — all 102 requirements, with a per-requirement

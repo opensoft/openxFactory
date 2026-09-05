@@ -579,12 +579,134 @@ structure; a widened `_TITLE` was the alternative and was rejected because
 this arm's findings. The test's docstring and
 `specs/021-modified-block-currency-self-gate/contracts/self-gate-contract.md`'s
 row for it are amended rather than left stating a zero that is no longer true.
+**AND THE ZERO CAME BACK THE SAME DAY** — the ordering declaration in the
+addendum below retired both named rows exactly as this band's own retirement
+condition said it would, so `_ORDERING_SUBJECTS` is now an EMPTY exact set. Both
+amendments below are re-amended to that fact.
 The function keeps its name: it is pinned in that contract and in two archived
 packets, and a rename would move more text than the fact does.
 
 **No other test moved.** The whole self-gate file is green (19 passed), and the
 carriage-ledger, pairing and collision exact sets are untouched — the flip
 added no `info` finding and retired none.
+
+## Addendum — 2026-09-05, ordering declaration made
+
+**Brett Heap, in session at 2026-09-05T12:49Z, verbatim: *"declare and land"*** —
+recorded at
+`https://github.com/opensoft/openxFactory/issues/656#issuecomment-5551928470` and
+mirrored on `opensoft/openxFactory#666`. The declaration the Verification section and
+the *Next* list below both named as OWED is **MADE** by that act, in this
+branch, before the landing.
+
+**What was declared.** `split-opendox-two-layer-product` (ratified
+2026-09-05T01:38Z) is the LATER ratified writer of `neutral-product-pin`'s *An
+external neutral product is pinned by commit and digest, never by tag*;
+`add-openspec-cli-pin` (ratified 2026-09-04, landed as
+`opensoft/openxFactory#667`) is the EARLIER one. Under `release-realization`'s
+*Ordered deltas and branch vocabulary* the later writer's `proposal.md` names the
+earlier change, and that mention IS the ordering — it is what
+`modified_block_currency.declarations()` reads, out of `proposal.md` and nothing
+else. Three edits carry it:
+
+1. **`proposal.md`, Modified Capabilities** — the `neutral-product-pin` bullet
+   now names `add-openspec-cli-pin`, states this packet as the later writer, and
+   says its delta on that requirement is declared relative to THAT CHANGE'S
+   OUTCOME.
+2. **`specs/neutral-product-pin/spec.md`, first MODIFIED block** — rewritten
+   OVER `add-openspec-cli-pin`'s block. **ALL 26 OF THE BASIS'S UNITS ARE
+   CARRIED; NONE IS LOST.**
+   The basis block held 26 units (canon's 13 plus its own 13 — the
+   published-artifact clause, the enumeration clause, and the two scenarios
+   *The product is published as an artifact rather than as a source tree* and
+   *A published-artifact pin records only a version*). Every one is carried
+   verbatim. This packet's own runtime-deployment clause carries a
+   ``**Modified by `split-opendox-two-layer-product`:**`` lead-in marking it in
+   place, gains one reconciling sentence saying it reaches a different medium
+   from the published-artifact clause and narrows none of it, and its two
+   scenarios follow the basis's. The block went 23 → 38 units.
+3. **The per-requirement record.** The requirement body carries a dated
+   declaration paragraph naming the basis, the ruling and the unit count.
+
+**The reserved pairing marker is NOT used, deliberately.** ``**Modified over
+`<basis>`'s addition by <change-id> (<date>):**`` is the form
+`govern-sibling-added-modified-deltas` reserves for a block over a requirement
+the promoted specification does not yet carry, which an active sibling ADDS or
+RENAMES to — the shape `add-cpc-clearing-boundary` used over
+`add-clearing-dispatch-boundary`. `add-openspec-cli-pin` MODIFIES a requirement
+canon already carries, so `resolve()` returns that block against CANON and the
+pairing arm never runs; a marker of that form here would assert an addition that
+does not exist and would promote a false sentence into canon. The in-body
+paragraph therefore uses the parallel wording *"Modified over
+`add-openspec-cli-pin`'s **modification** by …"*, which is greppable beside the
+reserved form and matches none of the three reserved prefixes.
+
+**The +2 warnings are DISCHARGED.** `modified-block-currency`'s "title
+resolution and ordering" band reads **0** at this tree, down from 2, and no other
+band moved: carriage ledger 8, scenario-title completeness 0, marker defects 0,
+pairing 0, collision 0, drift 0 — the same counts main reports. The doc-health
+delta against `origin/main` is now **ZERO across every family and every
+severity, `info` included**. Re-basing the later block onto the earlier one is
+what would have surfaced a carriage row, and none appeared, because the carriage
+is complete.
+
+**The self-gate followed its own retirement condition.**
+`tests/doc-health/test_modified_block_currency_self_gate.py::
+test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree`
+had named `_ORDERING_SUBJECTS` as an exact set of the two rows with the condition
+written down — *"the rows go when the ordering declaration is made or when either
+change archives"*. The declaration is made, so both rows are deleted and
+`_ORDERING_SUBJECTS` is now `set()`, on `_PAIRING_SUBJECTS`' precedent: an EMPTY
+EXACT SET, `==` and never `<=`, both directions failing by name. That is a
+STATED zero, not a dropped assertion — nothing is loosened. `_ORDERING_TITLE` is
+KEPT, because an empty exact set still needs the reader that names the first
+subject to reappear, and because
+`test_the_gate_reaches_the_corpus_only_through_the_family` pins this module's
+regex set at exactly five by name. The test's docstring and the row in
+`specs/021-modified-block-currency-self-gate/contracts/self-gate-contract.md` are
+amended to the new fact. Whole file green: **19 passed**.
+
+**Verification at the declaring head** (branch worktree, after a second
+catch-up merge of `origin/main` `6f3301fa`, which brought
+`prepare-openspec-1.12-readiness` (#673) in and moved the item count from 90 to
+91; the only conflict was `README.md`'s Active-changes list, where both sides had
+prepended an entry and both are kept):
+
+- `openspec validate split-opendox-two-layer-product --strict`, through the
+  pinned entrypoint `scripts/validate-openspec-cli-pin.py`
+  (`@fission-ai/openspec@1.2.0`, content address verified): **valid**, zero
+  issues.
+- `--all --strict` through the same entrypoint: **91 passed, 0 failed (91
+  items)**.
+- `python3 scripts/proposal-support.py . verify`: **proposal support
+  verification ok**.
+- **Doc-health, `python3 scripts/doc-health.py --single-repo <tree>`**, this tree
+  against a fresh detached worktree of `origin/main` `6f3301fa`:
+
+  | | critical | error | warning | info |
+  | --- | --- | --- | --- | --- |
+  | `origin/main` `6f3301fa` | 6 | 6 | 30 | 13 |
+  | this tree | 6 | 6 | 30 | 13 |
+
+  **The delta is ZERO across every family and every severity, `info`
+  included.** Stronger than the totals: both Ranked Plans carry **55 rows** and
+  are byte-identical once the repository label is normalized away, and the
+  per-family class counts are identical line for line. The one
+  `release-inventory-drift` `error` is INHERITED from `origin/main` and appears
+  identically on both sides — this packet neither causes nor cures it, exactly
+  as at the ratification act.
+- `pytest -q tests/doc-health tests/sequenced_after tests/proposal-support
+  tests/credential_contracts tests/notebooklm tests/scope_globs`: **2319 passed,
+  0 failed, 39 subtests passed**, 5m29s — the same module set and the same total
+  as the ratification act. **THE FULL SUITE WAS NOT RUN LOCALLY, and that is
+  said rather than implied**: `tests/ideation-dashboard` (52% of this
+  repository's suite) is covered by the required `pytest-suite` check on this
+  head, and the pull-request comment records that check's verdict.
+- `tests/doc-health/test_modified_block_currency_self_gate.py` alone: **19
+  passed**.
+- `tests/sequenced_after` alone: **162 passed**. `corpus-ledger.yaml` needs NO
+  row change for this act — the declaration adds no change directory and moves
+  no requirement key.
 
 ## Verification (at the pushed head, this act)
 
@@ -617,15 +739,24 @@ ratification edits.
   | | critical | error | warning | info |
   | --- | --- | --- | --- | --- |
   | `origin/main` `26d0a43d` | 6 | 6 | 30 | 13 |
-  | this tree | 6 | 6 | **32** | 13 |
+  | this tree, ratification act | 6 | 6 | **32** | 13 |
+  | this tree, after the ordering declaration | 6 | 6 | **30** | 13 |
+
+  (The third row is re-measured against `origin/main` `6f3301fa`, the tip
+  after #673, not against `26d0a43d`; that tip reports the same four
+  numbers and the same 55 ranked-plan rows. The full re-measurement is in
+  the addendum above.)
 
   (Measured twice, against two different tips of main — `9e869acc` before
   `add-release-tag-gate` archived and `26d0a43d` after. The delta is the same
   both times, which is the point of re-measuring rather than carrying the first
   number.)
 
-  **The delta is +2 `warning`, one family, and it is NOT zero — stated plainly
-  rather than rounded to "no regressions".** Both are
+  **The delta WAS +2 `warning`, one family, and it is NOW ZERO — DISCHARGED
+  2026-09-05 by the *ordering declaration* addendum above, on Brett Heap's
+  ruling "declare and land". The paragraph below records the condition that
+  stood at the ratification act and why; it is history, not the current
+  measurement.** Both were
   `modified-block-currency`, resolution class `contested`, and both are the
   SAME finding reported against each of the two blocks it concerns: *the
   ordering of MODIFIED blocks for 'An external neutral product is pinned by
@@ -638,13 +769,17 @@ ratification edits.
   packet makes it the second. `add-openspec-cli-pin` ratified 2026-09-04 and
   landed as #667 AFTER this packet's own sibling check was taken at
   `a858e5b0`, which is why the delta's preamble said no active change carried
-  a delta on this capability. That measurement is now DATED IN PLACE rather
-  than left standing as a false claim, and the ordering declaration it now
-  owes is named as OWED and deliberately NOT made in this act:
+  a delta on this capability. That measurement was DATED IN PLACE rather
+  than left standing as a false claim, and the ordering declaration it owed was
+  named as OWED and deliberately NOT made in the ratification act:
   `release-realization`'s *Ordered deltas and branch vocabulary* puts the
   declaration in the later writer's proposal, and choosing which of two
   ratified siblings carries the other's additions to that requirement is a
-  decision, not a bookkeeping correction to a ratified delta.
+  decision, not a bookkeeping correction to a ratified delta. **OWED —
+  DISCHARGED 2026-09-05** by the addendum above, on the ruling *"declare and
+  land"*: this packet is declared the LATER writer, its `proposal.md` names
+  `add-openspec-cli-pin`, its block carries all 26 of that block's units, and
+  the two warnings are gone.
   **No other family, severity or count moves — the `info` row included.**
 - The one `error` this tree carries that `b68a4e92` did not
   (`release-inventory-drift`) is inherited from `origin/main`, which reports
@@ -657,11 +792,12 @@ ratification edits.
    the same word, admin-merged because the pull request is
    `brettheap`-authored and cannot self-clear the code-owner review. Not
    performed by this record.
-2. **The ordering declaration owed on `neutral-product-pin`** — one of
-   `add-openspec-cli-pin` and `split-opendox-two-layer-product` names the
-   other in its own `proposal.md`, which is what decides which block is
-   measured against the other's outcome. Until it is made, the two contested
-   warnings above stand and this record is their citation.
+2. **~~The ordering declaration owed on `neutral-product-pin`~~ — MADE
+   2026-09-05, before the landing** (addendum above, ruling *"declare and
+   land"*). `split-opendox-two-layer-product`'s `proposal.md` names
+   `add-openspec-cli-pin`, so this packet's block is measured against that
+   change's outcome and carries all 26 of its units. The two contested
+   warnings are discharged; nothing is owed here.
 3. **Realization by `tasks.md` groups**, each its own Speckit feature,
    starting with **§ 2, the corpus-adapter seam landed INSIDE `openxFactory`**
    — the ratification comment's own sequencing, and the only order in which
