@@ -1,14 +1,15 @@
 ---
 code_surface: none — this change moves PROSE IN CANON and nothing else. The behaviour the amended scenario describes is already implemented and already pinned: `add-release-tag-publication-check`'s family gained `obtain_commit` and the present-but-empty arm in PR #646 (`2177b2a2`, 2026-09-04), and `tests/doc-health/test_release_tag_publication.py` already asserts the TWO skip texts apart from each other as fresh literals (`_UNFETCHED_WORDS` + `_FETCH_TRIED_WORDS` against `_PRESENT_WORDS` + `_ANSWERED_WORDS`, over a `_StoreGit` fake object store that can express "the commit is not here"). NOTHING under `scripts/` changes, no test changes, no workflow changes, no contract member moves, and no severity, threshold, enforcement floor or finding path moves. **NO TEST ASSERTS THE OLD SCENARIO PROSE** — checked before this was written: the only occurrence of "commonest cause" anywhere outside canon is a code COMMENT in `scripts/doc_health/release_tag_publication.py`, not an assertion.
 target_release: none — no contract bundle is cut, no release tag is owed, and nothing under `contracts/` is touched. Under `release-realization` a change whose `code_surface` is `none` archives ON LANDING; there is no realization to wait for, because the realization is what this amendment is catching up to.
-Status: draft
+Status: ratified
 Proposed: 2026-09-05
-Origin: openxFactory issue **#662**, filed by lane `doxbench-stewardship` as a follow-up carried out of PR #646's reviewer note (issue #612), and Brett Heap's ruling of 2026-09-05, in session, verbatim: *"do both as a batch on one word"* — this packet being one of the two. THAT INSTRUCTION ADMITTED THE PACKET TO THE QUEUE AND DID NOT RATIFY ITS CONTENT; ratification is a separate act and has not happened.
+Ratified: 2026-09-05 by Brett Heap (openxFactory operator authority) — "ratify 678, use openxfactory-1, land it when green"; record at review/ratification-2026-09-05.md
+Origin: openxFactory issue **#662**, filed by lane `doxbench-stewardship` as a follow-up carried out of PR #646's reviewer note (issue #612), and Brett Heap's ruling of 2026-09-05, in session, verbatim: *"do both as a batch on one word"* — this packet being one of the two. THAT INSTRUCTION ADMITTED THE PACKET TO THE QUEUE AND DID NOT RATIFY ITS CONTENT; ratification followed as a separate act the same day.
 ---
 
 # Proposal: amend-published-tip-unreadable-scenario
 
-Status: draft
+Status: ratified
 Proposed: 2026-09-05, on Brett Heap's in-session ruling of the same day — lane
 `openxfactory-1` (renamed this day from `openxfactory-max001`; spelled lowercase
 because the required `lane-line` check enforces `^Lane: [a-z0-9-]+$` and every
@@ -17,7 +18,10 @@ as a batch on one word"* — over openxFactory
 issue **#662**, which states the defect and names the remedy. **That instruction
 supplied the origin and approval pair the proposal-origin contract requires and
 nothing more: it ADMITTED this packet to the queue and did not ratify its
-content.**
+content.** Ratification was a SEPARATE act later the same day and it has now
+happened; the front matter carries its citation — ONE citation line for the
+document, which is what `ratified-provenance` requires — and § Ratification
+records the act, its verbatim word, and the two things it settled.
 
 ## Why
 
@@ -91,12 +95,33 @@ the mutation probe that proves the family read the block at all.
 **No file is added under `openspec/specs/`**, so no codexFactory floor advance
 is owed.
 
-## Orchestrator Decisions — FLAGGED FOR VETO
+## Orchestrator Decisions — FLAGGED FOR VETO, AND NOT VETOED
 
 **D1** in `design.md`: whether the establishing obligation is written as a
 `WHEN`-side bullet (what the family has already done by the time the scenario
 applies) or as a `THEN`-side one (what it must do). This packet writes it on the
-`WHEN` side and says why. It is the only decision the issue did not settle.
+`WHEN` side and says why. It was the only decision the issue did not settle, and
+it was put to the ratifier as the packet's veto point.
+
+**It was not vetoed.** The word of 2026-09-05 was given with D1 standing, so the
+`WHEN`-side reading is **ratified knowingly** rather than by silence, together
+with the cost D1 states in its own terms: a `WHEN`-side obligation is weaker as
+a compliance hook than a `THEN`-side `MUST`.
+
+## Ratification
+
+**Ratified 2026-09-05 by Brett Heap (openxFactory operator authority), in
+session, verbatim: *"ratify 678, use openxfactory-1, land it when green"*.** The
+record is `review/ratification-2026-09-05.md`; the verification it cites is
+`review/verification-2026-09-05.md`.
+
+The word settles **two** things and nothing else. It ratifies the delta with D1
+standing. And it settles the lane spelling § Lane spelling raised: **the
+canonical lane id is the lowercase `openxfactory-1`** — the spelling the ratified
+`lane-line` grammar can express and the one this packet already wrote — so the
+capitalised `openXfactory-1` is a display form and not a second lane. **It does
+NOT amend `lane-line.yml`**, which this packet never proposed and still does
+not.
 
 ## Lane spelling — surfaced, not papered over
 

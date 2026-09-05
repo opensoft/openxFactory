@@ -1,6 +1,7 @@
 # Design: amend-published-tip-unreadable-scenario
 
-Status: draft
+Status: ratified
+Ratified by: amend-published-tip-unreadable-scenario — 2026-09-05, Brett Heap, "ratify 678, use openxfactory-1, land it when green" (record `review/ratification-2026-09-05.md`)
 Kind: design
 
 ## 0. The brief
@@ -41,9 +42,14 @@ compliance hook: a family that never established anything does not *violate*
 this scenario, it simply never enters it. That is acceptable here because the
 obligation is not left unpinned — the sibling scenarios and the promoted body
 already require each skip to name its own reason, and the suite asserts the two
-skip texts against each other as literals. **This is the decision most worth a
+skip texts against each other as literals. **This was the decision most worth a
 veto**, and the alternative is a mechanical change: move the bullet below the
 `THEN` and reword it as a `MUST`.
+
+**RATIFIED KNOWINGLY, 2026-09-05 — NOT VETOED.** The word *"ratify 678, use
+openxfactory-1, land it when green"* was given with this decision in front of
+the ratifier and standing, so the `WHEN`-side reading and the weakening it
+admits are both ratified rather than merely unremarked.
 
 ## D2 — the promoted `THEN` is carried verbatim even though it reads oddly now
 
