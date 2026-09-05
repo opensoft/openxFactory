@@ -235,6 +235,32 @@ def test_no_argv_in_this_script_begins_with_the_bare_binary_name(support,
         f"an argv beginning with the bare name {binary!r} is issue #691")
 
 
+def test_the_wrapper_originated_refusal_codes_are_exactly_what_it_raises(
+        support):
+    """The declared list and the raised codes are ONE fact, checked both ways.
+
+    The refusal vocabulary belongs to the pin verifier; the two codes this
+    wrapper originates are the conditions the verifier cannot report about
+    itself, and they are declared in `WRAPPER_REFUSAL_CODES`. A list that
+    drifted from the code would be a caller branching on a name nothing raises,
+    or a raised name no reader was told about — which is exactly the drift
+    Copilot caught on PR #694, when the prose said "exactly one" and the code
+    raised two.
+    """
+    raised = {node.args[0].value
+              for node in ast.walk(ast.parse(SCRIPT.read_text(encoding="utf-8")))
+              if isinstance(node, ast.Call)
+              and isinstance(node.func, ast.Name)
+              and node.func.id == "PinnedCliRefusal"
+              and node.args and isinstance(node.args[0], ast.Constant)
+              and isinstance(node.args[0].value, str)}
+    assert raised == set(support.WRAPPER_REFUSAL_CODES)
+    # …and every one of them is OUTSIDE the verifier's own vocabulary, because a
+    # name that collided with one would make a caller's branch mean two things.
+    verifier_codes = set(support.pin_verifier().REFUSAL_CODES)
+    assert raised.isdisjoint(verifier_codes)
+
+
 def test_the_archive_runs_the_resolved_binary_and_never_a_bare_name(
         support, registry, recorded, tmp_path):
     """The end-to-end property: both halves ran, and both ran the PINNED path."""

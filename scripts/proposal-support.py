@@ -1132,6 +1132,33 @@ _PIN_VERIFIER_MODULE = None
 _RESOLVED_OPENSPEC: dict[tuple, Path] = {}
 
 
+# THE TWO CODES THIS FILE ORIGINATES, and the reason there are two rather than
+# one. The refusal VOCABULARY belongs to the pin verifier: where this wrapper
+# catches a `PinRefusal` it carries that code and that message through unchanged
+# (`pin-tag-only`, `pin-integrity-mismatch`, `pin-unresolvable`,
+# `pin-version-mismatch`, …). These two are the conditions the verifier cannot
+# report about itself:
+#
+#   pin-entrypoint-unavailable  the entrypoint could not be LOADED, so no
+#                               refusal of its own could be raised at all
+#   pin-refused                 the entrypoint was called as a whole
+#                               (`validate_through_the_pin`) and returned its
+#                               exit 2 rather than an exception. The named code
+#                               and the remediation are already on stderr,
+#                               printed by the verifier; re-deriving them here
+#                               would be a second copy of a vocabulary this file
+#                               does not own, so what this code says is only
+#                               "the entrypoint refused, and this archive stops"
+#
+# `tests/proposal-support/test_pinned_openspec_cli.py::
+# test_the_wrapper_originated_refusal_codes_are_exactly_what_it_raises` asserts
+# this tuple against the codes actually raised in this file, so a third one
+# cannot be added without adding it here — which is the drift Copilot caught on
+# PR #694, when this list said "exactly one" and the code raised two.
+WRAPPER_REFUSAL_CODES: tuple[str, ...] = (
+    "pin-entrypoint-unavailable", "pin-refused")
+
+
 class PinnedCliRefusal(RuntimeError):
     """A refusal to invoke OpenSpec because the PINNED CLI is not what would run.
 
@@ -1141,13 +1168,11 @@ class PinnedCliRefusal(RuntimeError):
     on the first and got the second would read an unresolved pin as a defect in
     somebody's proposal.
 
-    `code` is the verifier's own refusal code, carried unchanged so a caller may
-    branch on it, and `str()` is the verifier's whole message — code, detail and
-    the one fixed remediation trailer — reproduced verbatim rather than reworded
-    here. The refusal vocabulary belongs to the pin verifier; this file adds
-    exactly one code of its own, `pin-entrypoint-unavailable`, for the single
-    condition the verifier cannot report because it is the condition of the
-    verifier being unreachable.
+    `code` is the verifier's own refusal code wherever this wrapper caught a
+    `PinRefusal` — carried unchanged so a caller may branch on it — and
+    otherwise one of the two in `WRAPPER_REFUSAL_CODES` above. `str()` is the
+    verifier's whole message where there was one, code, detail and the fixed
+    remediation trailer reproduced verbatim rather than reworded here.
     """
 
     def __init__(self, code: str, message: str) -> None:
