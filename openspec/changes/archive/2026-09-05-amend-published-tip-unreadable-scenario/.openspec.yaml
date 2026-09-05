@@ -27,8 +27,7 @@ origin:
     Brett Heap (openxFactory convener) — in session on 2026-09-05, lane
     `openxfactory-1` — renamed this day from `openxfactory-max001`, and spelled
     LOWERCASE here deliberately: the required `lane-line` check enforces
-    `^Lane: [a-z0-9-]+( \(.*\))?$` and every lane id in this corpus is
-    lowercase, so the
+    `^Lane: [a-z0-9-]+$` and every lane id in this corpus is lowercase, so the
     capitalised form circulating in session (`openXfactory-1`) is a display
     spelling the ratified grammar cannot express. Normalising here keeps one
     lane's history under one id rather than splitting it across two — verbatim:
