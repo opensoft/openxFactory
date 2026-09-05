@@ -104,7 +104,7 @@ ratification when it happens and nothing below decides it.
 
 ## Slice 5 — successor work in THIS repository (not this packet)
 
-- [x] **5.1** **(DONE 2026-09-05, PR #TBD — its own diff and its own green run,
+- [x] **5.1** **(DONE 2026-09-05, PR #687 — its own diff and its own green run,
       exactly as this task required.)** `.github/workflows/pytest-suite.yml`'s
       literal `npm install -g @fission-ai/openspec@1.2.0` is replaced by
       `scripts/install-pinned-openspec-cli.py --cache-dir "${RUNNER_TEMP}/openspec-cli-pin"`,

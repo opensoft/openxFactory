@@ -136,7 +136,7 @@ repoint the very tool that judges its own change.
       in the authoring lane, and the record says so.)** Ratification of this packet's text by Brett Heap, recorded as a
       `Ratified by:` line and a `review/` record. *"take exit 2"* settled the
       approach and not the text.
-- [x] 6.2 **(DONE 2026-09-05, PR #TBD — the disagreement is closed.)**
+- [x] 6.2 **(DONE 2026-09-05, PR #687 — the disagreement is closed.)**
       `.github/workflows/pytest-suite.yml` no longer installs by literal: it runs
       `scripts/install-pinned-openspec-cli.py`, which resolves the artifact
       through THIS pin's own verifier (`read_pin` → `resolve_pinned` →
