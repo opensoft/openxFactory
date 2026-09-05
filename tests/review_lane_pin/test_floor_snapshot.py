@@ -137,8 +137,10 @@ def uncovered(surface, entries) -> list[str]:
 # --- mirror-floor-addition-grace: the REQUIRED lane's own classification ----
 #
 # RATIFIED 2026-09-05 by Brett Heap, in session, verbatim "ratify the
-# companion when green, then realize it" (packet
-# `openspec/changes/mirror-floor-addition-grace/`). Mirrors the pinned core's
+# companion when green, then realize it"; ARCHIVED 2026-09-05 (packet
+# `openspec/changes/archive/2026-09-05-mirror-floor-addition-grace/`,
+# capability `openspec/specs/review-lane-floor-mirror/spec.md`).
+# Mirrors the pinned core's
 # `merge_master.repository_floor_drift.evaluate_floor_completeness` — NOT by
 # IMPORTING it (authoring decision A: the pinned core checkout carries
 # `continue-on-error: true` below by design, so an importing REQUIRED
@@ -693,19 +695,73 @@ class NegativeControls(unittest.TestCase):
         cls.snapshot_text = SNAPSHOT.read_text(encoding="utf-8")
         cls.entries = floor_entries(cls.snapshot_text)
         cls.surface = tracked_paths_under(FLOORED_PREFIX)
+        # MEASURED, not hard-coded: exactly the derivation
+        # `TheRealFiles.setUpClass` uses for `generated_at`, and exactly the
+        # derivation `test_every_tracked_openspec_spec_path_is_on_the_floor`
+        # uses for `created` / `window`. A control that hard-codes `()` / `()`
+        # for these on the LIVE, tracked surface is not exercising the grace
+        # the shipped assertion actually runs — it is asserting a fact about
+        # a checkout that creates nothing and lands after no window, which is
+        # false on a branch that legitimately promotes a spec (found red on
+        # PR #699, the programme's first real promotion — see this class's
+        # docstring history for the fix).
+        found = GENERATED_AT_RE.findall(cls.snapshot_text)
+        cls.generated_at = found[0] if len(found) == 1 else None
+        base_ref = resolve_base_branch()
+        cls.created = (
+            created_since_merge_base(base_ref, FLOORED_PREFIX)
+            if base_ref is not None else None)
+        cls.window = (
+            pin_window(cls.generated_at, base_ref, FLOORED_PREFIX)
+            if base_ref is not None else None)
 
     def test_the_unmutated_surface_is_a_positive_first(self) -> None:
         """Ordering guard: a control that never passes proves nothing.
 
-        Moved onto the GRACED expression (authoring decision E): a control that
-        never drives the same code the shipped assertion drives proves nothing
-        about what ships. `created=()` / `window=()` — measured, and empty —
-        so this exercises the graced expression's own no-grace-needed path
-        rather than either fail-safe branch (those are `NegativeControls`
-        below).
+        MEASURES THE SAME GRACE THE SHIPPED ASSERTION MEASURES — `created`
+        and `window` come from `setUpClass`, exactly as
+        `test_every_tracked_openspec_spec_path_is_on_the_floor` derives them,
+        rather than the hard-coded `created=()` / `window=()` this control
+        used before. That composes with a branch that legitimately promotes a
+        spec (this control drives the SAME measurement as the shipped
+        assertion, so a branch adding a floored path is graced here too,
+        exactly as it is graced there) instead of reading every candidate's
+        own promotion as an uncovered path.
+
+        FOUND RED ON THE FIRST REAL PROMOTION: PR #699 (`mirror-floor-
+        addition-grace`'s own archive) creates
+        `openspec/specs/review-lane-floor-mirror/spec.md`, and the old
+        hard-coded `(), ()` call could not see that diff — it asserted
+        `graced_uncovered(...) == ((), ())` against a live surface that, on
+        this very branch, has one covered-pending path. This control's
+        pass/fail must track what actually ships, not a fact frozen at
+        authoring time.
+
+        `missing` must still be empty — nothing on an unmutated surface is
+        actually uncovered — and every pending path must be one this run
+        actually measured (created by this candidate's own diff, or landed on
+        the base branch inside the pin window): a graced path with no
+        measured reason would mean the grace is granting something it cannot
+        justify.
         """
+        missing, pending = graced_uncovered(
+            self.surface, self.entries, self.created, self.window)
         self.assertEqual(
-            graced_uncovered(self.surface, self.entries, (), ()), ((), ()))
+            missing, (),
+            "the unmutated, tracked surface must never be reported uncovered")
+        measured_reasons = set(self.created or ()) | set(self.window or ())
+        for path, _reason in pending:
+            self.assertIn(
+                path, measured_reasons,
+                "a covered-pending path must be one this run actually "
+                "measured as created by this candidate's own diff or as "
+                "landed inside the pin window — a pending path with no "
+                "measured reason is a grace granted for nothing")
+        if pending:
+            print(
+                "GRACED (covered-pending, regeneration OWED): %d path(s): %s"
+                % (len(pending),
+                   ", ".join("%s (%s)" % item for item in pending)))
 
     def test_a_fabricated_off_floor_spec_path_is_refused(self) -> None:
         """LQ-A7's falsification, run through the SHIPPED (graced) expression.
@@ -715,23 +771,31 @@ class NegativeControls(unittest.TestCase):
 
         THE FABRICATED PATH IS CREATED BY NO DIFF AND LIES IN NO WINDOW, SO IT
         STAYS REFUSED — asserted in those words (authoring decision E), so the
-        grace can never be misread as "additions are free". `created=()` /
-        `window=()`: both halves of the rule were MEASURED here, and neither
-        carries this path.
+        grace can never be misread as "additions are free". `created` /
+        `window` are `setUpClass`'s MEASURED values (the same ones the shipped
+        assertion uses), not hard-coded `()` / `()`: this control must stay
+        refused even when the run legitimately graces OTHER paths, which is
+        exactly the case on this branch (see the sibling control's docstring).
+        A baseline is taken first so the fabrication's effect is isolated from
+        whatever this branch's own measurement already grants.
         """
         fabricated = "openspec/specs/a-capability-nobody-floored/spec.md"
         self.assertNotIn(fabricated, self.entries)
+        _, pending_before = graced_uncovered(
+            self.surface, self.entries, self.created, self.window)
         missing, pending = graced_uncovered(
-            self.surface + [fabricated], self.entries, (), ())
+            self.surface + [fabricated], self.entries,
+            self.created, self.window)
         self.assertEqual(
             missing, (fabricated,),
             "the coverage assertion must name the uncovered path, and only it "
             "— a fabricated path created by no diff and lying in no measured "
             "pin window is refused, exactly as before the grace existed")
         self.assertEqual(
-            pending, (),
+            pending, pending_before,
             "a path no diff creates and no window carries must not be "
-            "reported covered-pending")
+            "reported covered-pending, and must not change what was already "
+            "graced")
 
     def test_a_floor_that_lost_one_entry_is_refused(self) -> None:
         """The other direction: the floor narrows while the surface holds.

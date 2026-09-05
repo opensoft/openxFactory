@@ -763,66 +763,6 @@ Active changes:
   this packet adds and removes no path under `openspec/specs/`.
   `Refs #656`.
 
-- [mirror-floor-addition-grace](openspec/changes/mirror-floor-addition-grace/proposal.md)
-  — authored 2026-09-05, **`Status: ratified`** (2026-09-05, Brett Heap,
-  in-session, verbatim *"ratify the companion when green, then realize it"*,
-  applied at head `ce9a81ed`; record
-  `openspec/changes/mirror-floor-addition-grace/review/ratification-2026-09-05.md`).
-  **THE SEVEN ADDED REQUIREMENTS ARE RATIFIED AS WRITTEN; AUTHORING DECISIONS
-  A–F STAND AS RECOMMENDED, VETO-ABLE BY FOLLOW-UP.**
-  **THE PULL REQUEST THAT PROMOTES A CAPABILITY IS REFUSED FOR CREATING THE PATH
-  THE FLOOR IS SUPPOSED TO PROTECT — AND HERE THE REFUSAL BLOCKS.**
-  codexFactory's `repository_gate_floor` for this repository is an EXACT SET (59
-  generated spec paths inside a 67-entry floor), so a promotion is an ADDITION
-  to the set it enumerates and `surface − entries` reports the new path as
-  uncovered in two places at once: `tests/review_lane_pin/test_floor_snapshot.py`'s
-  LQ-A7 assertion inside the **REQUIRED** `pytest-suite` (org ruleset
-  `21538893`) together with the two negative controls that fail with it by
-  construction, and `.github/workflows/merge-master-approval.yml` step 8 at
-  stage `floor_incomplete`. **THE REPAIR WAS PAID FIVE TIMES IN TWO DAYS** —
-  codexFactory PRs #183/#195/#197/#198/#204, four of them on 2026-09-04, each
-  matched here by an advance moving FIVE SITES IN LOCKSTEP; the floor document
-  concedes it (*"TWO ADVANCES IN ONE DAY IS THE FEATURE'S CADENCE, NOT AN
-  INCIDENT"*). codexFactory has now fixed its half —
-  `add-floor-addition-grace`, ruled option (c) at its issue #203 (*"rule c, this
-  lane authors it"*), ratified (*"ratify 205, B1 stands"*) and realized by its
-  PR #206, merge `712fc8ca` — and its ratified requirement *"The blocking check
-  and the reporting lane implement one completeness rule"* NAMES this repository
-  as the companion and deliberately does not author it (its tasks 4.1–4.3).
-  This is that companion. Governing issue #675.
-  **ONE RULE, TWO LANES**: an off-floor spec path is COVERED-PENDING when the
-  candidate's own diff creates it (git status `added`) or — B1, ratified — when
-  it was added to `main` after the block's `generated_at`; never for a removal,
-  rename, copy or modification; an empty or degenerate surface never passes.
-  **THE FAIL-SAFE IS THE DEFAULT**: no base, no merge base, an unresolvable or
-  non-ancestor pin → NO grace, uncovered, today's behaviour, because *an
-  unresolvable pin is a reason to refuse, never a reason to excuse*.
-  **THE REQUIRED LANE MIRRORS AND REPLAYS; THE ADVISORY LANE IMPORTS**
-  (decision **A**) — the pinned core checkout is `continue-on-error` in
-  `pytest-suite` on purpose, so an IMPORTING blocking assertion could only skip
-  (the blocking check silently stops blocking — the CSC-F16 shape inside the
-  guard against CSC-F16) or fail for a cause no candidate can fix; the mirror is
-  therefore local and its FALSIFIER is foreign, replaying the core's 16 exported
-  vectors plus 5 refused ones, watched by name with `EXPECT_SKIPPED` 21 → 22 in
-  PR #569's own discipline. Step 8, which already treats an unreadable core as
-  fatal, imports and deletes its hand-rolled set difference.
-  **AND THE ADVISORY LANE'S BASE CHECKOUT IS SHALLOW TODAY** (no `fetch-depth:`
-  at all), so B1 would be permanently fail-safed off there while working in the
-  blocking lane — the exact disagreement the ratified requirement forbids.
-  **A MEASURED DEFECT IN THIS REPOSITORY IS RETIRED BY IT**: re-measured
-  2026-09-05, THREE of the last five declared `generated_at` pins — `3afd8a8c`
-  (**the live one**), `c236c6b1`, `8d893a0f` — are NOT ancestors of `main`,
-  because the old order forced regeneration at a pull-request head; with the
-  addition graced the regeneration FOLLOWS the landing and pins at a landed
-  commit. SEVEN `## ADDED Requirements`, 28 scenarios, in a NEW capability
-  `review-lane-floor-mirror` (decision **B**: `neutral-product-pin` was declined
-  because `contracts/review-lane-pin.yaml` deliberately is NOT a
-  `pinned_contract_manifest`, on its own written ground). First
-  CROSS-REPOSITORY `sequenced_after:` in this corpus
-  (`[codexFactory:add-floor-addition-grace]`, well-formedness-checked only).
-  **PROPOSAL ONLY** — no realization code, no pin advance, no regeneration, no
-  D-3 tolerance value, no codexFactory file touched.
-
 - [add-openspec-cli-pin](openspec/changes/add-openspec-cli-pin/proposal.md)
   — authored 2026-09-04, **`Status: draft`**, on Brett Heap's word
   *"draft the openxFactory pin change, pinned at 1.2.0"*. **Not ratified, not
@@ -2342,6 +2282,92 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [mirror-floor-addition-grace](openspec/changes/archive/2026-09-05-mirror-floor-addition-grace/proposal.md)
+  — **ARCHIVED 2026-09-05 ON BRETT HEAP'S WORD**, in session, verbatim
+  *"archive the grace packets"* — one word over BOTH halves of a
+  CROSS-REPOSITORY PAIR, and **SECOND BY THIS PACKET'S OWN DECLARATION**:
+  `sequenced_after: [codexFactory:add-floor-addition-grace]`, so the parent
+  archived first (codexFactory **PR #218**, merge **`35c08994`**,
+  2026-09-05T19:47:09Z, promoting `repository-gate-floor` 5 → 12 requirements
+  and closing codexFactory issue **#203**). Governing issue **#675**.
+  **RATIFIED 2026-09-05** — *"ratify the companion when green, then realize
+  it"*, applied at head `ce9a81ed`; records
+  `review/ratification-2026-09-05.md`, archived with the packet; decisions
+  **A–F STAND AS RECOMMENDED**, none separately ruled. **PROPOSED by PR #676**,
+  merge **`568fa370`**; **REALIZED by PR #686**, merge **`f6724f04`**
+  (2026-09-05T17:30:54Z); **REGENERATED AT A LANDED COMMIT** by codexFactory
+  **PR #212**, merge **`67a6ffc9`** (`generated_at` `3afd8a8c` → `f6724f04`, 59
+  entries unchanged) — the first floor repair in this programme that did NOT
+  block the pull request that caused it; **RE-PINNED onto it by PR #689**, merge
+  **`b6804991`**, five sites in lockstep. **NO CONTRACT BUNDLE AND NO RELEASE
+  TAG**: no registered row, no digest set, no `contract_bundle_version` spent,
+  no tag owed.
+  **THE PULL REQUEST THAT PROMOTES A CAPABILITY WAS REFUSED FOR CREATING THE
+  PATH THE FLOOR IS SUPPOSED TO PROTECT — AND HERE THE REFUSAL BLOCKED.**
+  codexFactory's `repository_gate_floor` for this repository is an EXACT SET (59
+  generated spec paths inside a 67-entry floor), so a promotion is an ADDITION
+  to the set it enumerates and `surface − entries` reported the new path as
+  uncovered in two places at once: `tests/review_lane_pin/test_floor_snapshot.py`'s
+  LQ-A7 assertion inside the **REQUIRED** `pytest-suite` (org ruleset
+  `21538893`), together with the two negative controls that fail with it by
+  construction, and `.github/workflows/merge-master-approval.yml` step 8 at
+  stage `floor_incomplete`. **THE REPAIR WAS PAID FIVE TIMES IN TWO DAYS** —
+  codexFactory PRs #183/#195/#197/#198/#204, four of them on 2026-09-04, each
+  matched here by an advance moving FIVE SITES IN LOCKSTEP.
+  **ONE RULE, TWO LANES**: SEVEN requirements over 28 scenarios promoted into a
+  NEW capability [`review-lane-floor-mirror`](openspec/specs/review-lane-floor-mirror/spec.md)
+  (decision **B**). An off-floor spec path is COVERED-PENDING when the
+  candidate's own diff creates it (git status `added`) or — **B1**, ratified —
+  when it was added to `main` after the block's `generated_at`; never for a
+  removal, rename, copy or modification; an empty or degenerate surface never
+  passes. **THE FAIL-SAFE IS THE DEFAULT**: no base, no merge base, an
+  unresolvable or non-ancestor pin → NO grace, uncovered, the old behaviour,
+  because *an unresolvable pin is a reason to refuse, never a reason to excuse*.
+  **THE REQUIRED LANE MIRRORS AND REPLAYS; THE ADVISORY LANE IMPORTS**
+  (decision **A**) — the pinned core checkout is `continue-on-error` in
+  `pytest-suite` by design, so an IMPORTING blocking assertion could only skip
+  (the blocking check silently stops blocking) or fail for a cause no candidate
+  can fix; the mirror is local and its FALSIFIER is foreign, replaying the
+  core's 16 accepted plus 5 refused vectors, watched by name. Step 8 imports
+  `evaluate_floor_completeness`, deletes its hand-rolled set difference, and
+  gets `fetch-depth: 0` on its base checkout (decision **C**) so B1's window is
+  measurable there at all.
+  **A MEASURED DEFECT IN THIS REPOSITORY IS RETIRED BY IT**: re-measured
+  2026-09-05, THREE of the last five declared `generated_at` pins — `3afd8a8c`
+  (**the live one**), `c236c6b1`, `8d893a0f` — were NOT ancestors of `main`,
+  because the old order forced regeneration at a pull-request head. With the
+  addition graced the regeneration FOLLOWS the landing: `f6724f04` IS an
+  ancestor of `main`, so B1's pin window resolves rather than fail-safing.
+  **THIS ARCHIVE IS THE PACKET'S OWN FALSIFICATION TEST, NOT BOOKKEEPING.** It
+  CREATES `openspec/specs/review-lane-floor-mirror/spec.md`, a new tracked path
+  under the exactly-enumerated floor — under the old regime a two-repository
+  hand repair before the pull request could merge. **THE OBSERVED RESULT IS
+  RECORDED IN THE ARCHIVED `tasks.md`'s own § 5.2/5.3**, with the run ids and
+  the two lanes' verbatim lines, and tasks **5.2** and **5.3** are ticked from
+  it and from nothing else — no earlier act could close them, which is why
+  codexFactory PR #218 recorded its own equivalent box as PARTIAL (run
+  `33983590725` printed `covered-pending: 0 (tolerance 3, pin NOT measured
+  (fail-safe))`: the shape, never a path). **THE SAME LIVE TEST ALSO FOUND A
+  REAL DEFECT, WHICH IS WHAT IT WAS FOR**: the required lane's own run
+  (`pytest-suite` 33989489654) held the shipped LQ-A7 assertion green while
+  two `NegativeControls` in the same module went red — they drove
+  `graced_uncovered` against hard-coded EMPTY grace sets rather than this
+  candidate's own measured `created`/`window`, a gap in PR #686's authoring
+  decision E that a Copilot review predicted and this packet's first real
+  promotion caught; fixed in the same pull request, with the full account and
+  the re-run counts in task 5.3's evidence. **ARCHIVED VIA THE RECORDED
+  ESCAPE** —
+  `proposal-support.py archive` refused (exit 1, `change has incomplete tasks`,
+  gate `scripts/proposal-support.py:1079-1081`, unconditional on WHICH box) and
+  `openspec archive --yes` was used instead, `26/29 tasks`, `+ 7 added`.
+  **ONE BOX STAYS OPEN AND IS NAMED RATHER THAN CLOSED**: **6.3**, the D-3
+  escalation-tolerance NUMBER, which is codexFactory's to set in its own
+  CODEOWNERS-routed document (it stands PROPOSED at 3, offered for veto, no veto
+  exercised, UNRULED), together with option (b) of codexFactory issue #203,
+  still unruled and undesigned. **The promoted-capability count moves 59 → 60**,
+  and the floor regeneration that covers the new path is OWED AFTER this landing
+  rather than before it — which is the whole point.
 
 - [amend-published-tip-unreadable-scenario](openspec/changes/archive/2026-09-05-amend-published-tip-unreadable-scenario/proposal.md)
   — **ARCHIVED 2026-09-05 ON LANDING**, which is what `code_surface: none` means
