@@ -25,6 +25,15 @@ kind: pinned_contract_manifest
 # and every agent in every repository has been validating and archiving with
 # whatever `openspec` happened to be on PATH.
 #
+# CORRECTED 2026-09-05: THAT LITERAL LINE IS GONE. The paragraph above describes
+# the state this pin was cut against and is kept for that reason, but
+# `pytest-suite.yml` now installs through `scripts/install-pinned-openspec-cli.py`,
+# which reads THIS file with the verifier's own parser and checks the artifact's
+# content address before installing it (#667 task 5.1, #677 task 6.2). The two
+# copies had already disagreed by then — this file at `1.12.0`, that literal
+# still at `1.2.0` — which is the failure the paragraph above predicts, observed
+# rather than argued.
+#
 # WHY `kind: pinned_contract_manifest` UNCHANGED. The grammar is ratified by
 # `neutral-product-pin` and realized twice — `contracts/openxwallet-pin.yaml` and
 # `contracts/openreposhape-pin.yaml`. Only the DISTRIBUTION FORM is new, so

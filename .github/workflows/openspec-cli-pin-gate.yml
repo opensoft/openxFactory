@@ -32,14 +32,23 @@
 # THE VERSION IS NOT WRITTEN IN THIS FILE, and that absence is deliberate. The
 # verifier reads `contracts/openspec-cli-pin.yaml` with its own parser, so there
 # is exactly one place the referent is written. A workflow that installed
-# `@fission-ai/openspec@1.2.0` by literal — which is precisely what
-# `pytest-suite.yml` does today, and precisely why that line is not a contract —
-# would be a second copy of the pin, and the whole defect this capability exists
-# to write down is what happens to copies of a pin that move separately.
+# `@fission-ai/openspec@1.2.0` by literal would be a second copy of the pin, and
+# the whole defect this capability exists to write down is what happens to copies
+# of a pin that move separately.
 # `tests/openspec_cli_pin/test_openspec_cli_pin.py::
 # test_the_gate_workflow_reads_the_pin_and_carries_no_fourth_copy` asserts the
 # absence against this file's own bytes, so a helpful future edit that pastes the
 # version back in fails on the developer's machine first.
+#
+# THAT WAS NOT HYPOTHETICAL, AND THIS COMMENT SAID SO IN THE PRESENT TENSE until
+# 2026-09-05 — it read "which is precisely what `pytest-suite.yml` does today".
+# It did, and by then the two copies HAD moved apart: the pin bumped to `1.12.0`
+# while that literal still installed `1.2.0`, so the required test suite drove
+# one version while this gate verified another. #667 task 5.1 / #677 task 6.2
+# replaced the literal with `scripts/install-pinned-openspec-cli.py`, which
+# resolves the binary through this same verifier's code and is asserted by the
+# twin of the test above. The claim is corrected rather than deleted: the defect
+# is the argument for the absence, and it happened here.
 name: openspec-cli-pin-gate
 
 on:

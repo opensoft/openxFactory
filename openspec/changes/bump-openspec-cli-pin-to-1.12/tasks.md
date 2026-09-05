@@ -5,7 +5,11 @@ Status: draft
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in
 this pull request or a measurement recorded verbatim in
 `evidence/pin-bump-1.12-2026-09-05.md`. Group 5 is DRAFTED-NOT-DONE work and
-group 6 is OWED work; neither is ticked and each names why.
+group 6 is OWED work; neither is ticked and each names why. **AMENDED
+2026-09-05:** two of group 6 have since been discharged in their own pull
+requests and are ticked with the evidence beside them — 6.1 (the ratification
+record) and 6.2 (the `pytest-suite.yml` literal). 5.1, 6.3 and 6.4 are untouched
+and still owed.
 
 **RATIFICATION HAS NOT HAPPENED.** Brett Heap ruled *"take exit 2"* on
 2026-09-05, deciding WHICH of the three exits #673 enumerated is taken. That
@@ -132,13 +136,24 @@ repoint the very tool that judges its own change.
       in the authoring lane, and the record says so.)** Ratification of this packet's text by Brett Heap, recorded as a
       `Ratified by:` line and a `review/` record. *"take exit 2"* settled the
       approach and not the text.
-- [ ] 6.2 `.github/workflows/pytest-suite.yml`'s literal
-      `npm install -g @fission-ai/openspec@1.2.0` now DISAGREES with the pin.
-      This is #667's open task 5.1 and its own diff, over this repository's most
-      load-bearing required check; it is not ridden on this pull request. Until
-      it lands, `tests/proposal-support/` drives a `1.2.0` binary while the gate
-      validates at `1.12.0` — which is the two-copies-of-a-pin defect #667 named,
-      now visible rather than latent.
+- [x] 6.2 **(DONE 2026-09-05, PR #TBD — the disagreement is closed.)**
+      `.github/workflows/pytest-suite.yml` no longer installs by literal: it runs
+      `scripts/install-pinned-openspec-cli.py`, which resolves the artifact
+      through THIS pin's own verifier (`read_pin` → `resolve_pinned` →
+      `assert_reported_version`) and puts the verified executable on
+      `$GITHUB_PATH`. `tests/proposal-support/` therefore drives the same
+      `1.12.0` bytes the gate verifies, and the version is written in one place.
+      Proved before landing: with that binary on PATH,
+      `tests/proposal-support` reports **36 passed, 0 skipped**, so the three
+      `skipUnless(shutil.which("openspec"))` tests RUN and `EXPECT_SKIPPED: "21"`
+      does not move. The stale prose is corrected in the same diff, dated, in the
+      pin header, the verifier's docstring and the gate's comment. Was: the
+      literal now DISAGREES with the pin; this is #667's open task 5.1 and its
+      own diff, over this repository's most load-bearing required check; it is
+      not ridden on this pull request. Until it lands,
+      `tests/proposal-support/` drives a `1.2.0` binary while the gate validates
+      at `1.12.0` — which is the two-copies-of-a-pin defect #667 named, now
+      visible rather than latent.
 - [ ] 6.3 The remaining consuming repositories (codexFactory, MedxFactory,
       LedgerxFactory, AdxFactory) still have no wiring to this entrypoint. Named
       by #667 as per-repository successor work; unchanged by this bump.
