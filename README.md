@@ -633,9 +633,12 @@ Active changes:
   `Refs #656`.
 
 - [mirror-floor-addition-grace](openspec/changes/mirror-floor-addition-grace/proposal.md)
-  — authored 2026-09-05, **`Status: draft`**, on Brett Heap's word
-  *"companion"*. **That word authorized the AUTHORING, not the content;
-  ratification is OWED and is his act.**
+  — authored 2026-09-05, **`Status: ratified`** (2026-09-05, Brett Heap,
+  in-session, verbatim *"ratify the companion when green, then realize it"*,
+  applied at head `ce9a81ed`; record
+  `openspec/changes/mirror-floor-addition-grace/review/ratification-2026-09-05.md`).
+  **THE SEVEN ADDED REQUIREMENTS ARE RATIFIED AS WRITTEN; AUTHORING DECISIONS
+  A–F STAND AS RECOMMENDED, VETO-ABLE BY FOLLOW-UP.**
   **THE PULL REQUEST THAT PROMOTES A CAPABILITY IS REFUSED FOR CREATING THE PATH
   THE FLOOR IS SUPPOSED TO PROTECT — AND HERE THE REFUSAL BLOCKS.**
   codexFactory's `repository_gate_floor` for this repository is an EXACT SET (59

@@ -6,7 +6,7 @@ sequenced_after: [codexFactory:add-floor-addition-grace]
 
 # Proposal: mirror-floor-addition-grace
 
-Status: draft
+Status: ratified
 Proposed: 2026-09-05
 Origin: codexFactory issue #203, ruled option (c) by Brett Heap 2026-09-05,
 verbatim *"rule c, this lane authors it"*; the codexFactory packet
@@ -16,12 +16,23 @@ requirement 6 names this repository's half as the COMPANION CHANGE
 `openxFactory: mirror-floor-addition-grace` and deliberately does not author it
 (its tasks 4.1–4.3). Governing issue: openxFactory #675.
 
+Ratified: 2026-09-05, Brett Heap (repository owner), in session, verbatim
+**"ratify the companion when green, then realize it"** — a standing word given
+while this packet was being authored, applied at the first head where the
+condition held, `ce9a81ed`, recorded on PR #676 (comment beginning "RULING —
+Brett Heap") and on issue #675 (comment beginning "RATIFIED — Brett Heap");
+record `review/ratification-2026-09-05.md`. Authoring decisions A–F STAND AS
+RECOMMENDED under that word and none is separately ruled — the owner may veto
+any of them by follow-up.
+
 Authored: 2026-09-05, lane `openXfactory-2` (formerly `openxfactory-1d`), on
 Brett Heap's word of the same day, verbatim **"companion"**. **THAT WORD
 AUTHORIZED THE AUTHORING, NOT THE CONTENT. RATIFICATION IS OWED AND IS BRETT
 HEAP'S ACT**; nothing below is ratified by being authored, and no requirement
 here may be cited as approved until he rules on this packet itself. Every judgment this authoring session took
 is listed under § Authoring decisions rather than presented as settled.
+**Ratified 2026-09-05 — see `Ratified:` above; the paragraph above is kept as
+the record of the packet's state at authoring.**
 
 ## Why
 
@@ -174,6 +185,11 @@ requirement text to modify and no sibling-delta hazard to walk into.
   option is NOT RULED; nothing here designs it, schedules it or assumes it.
 
 ## Authoring decisions — put for veto, not presented as settled
+
+**2026-09-05 — under the ratification word, decisions A–F below STAND AS
+RECOMMENDED; none is separately ruled.** They remain veto-able by the owner's
+follow-up; this note answers the section's own heading, it does not rewrite a
+decision below.
 
 Brett Heap's word authorized the authoring. It settled none of these. Each is
 stated with the alternative it beat, so a veto has something to veto.
