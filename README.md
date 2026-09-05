@@ -580,6 +580,59 @@ Active changes:
   REALIZATION**, because the floor's runbook says DE-FLOOR BEFORE YOU REMOVE and
   this packet adds and removes no path under `openspec/specs/`.
   `Refs #656`.
+- [add-openspec-cli-pin](openspec/changes/add-openspec-cli-pin/proposal.md)
+  — authored 2026-09-04, **`Status: draft`**, on Brett Heap's word
+  *"draft the openxFactory pin change, pinned at 1.2.0"*. **Not ratified, not
+  merged.**
+  **THE TOOL THAT DECIDES WHAT CANON IS HAS NEVER BEEN PINNED.**
+  `openspec validate --strict` is the gate every spec delta passes before it may
+  archive and `openspec archive` is the act that writes a ratified delta into
+  canon, yet the OpenSpec CLI is UNPINNED fleet-wide: the only pin anywhere is one
+  literal line in `.github/workflows/pytest-suite.yml:400`
+  (`npm install -g @fission-ai/openspec@1.2.0`), installed so
+  `tests/proposal-support/` can drive the binary — read by no consuming
+  repository, verified by nothing, refusing nothing. OpenSpec offers no
+  project-level version field to lean on instead (`openspec/config.yaml` carries
+  only `schema:`; `openspec config` is global-scope). And
+  `openspec validate --all --strict` runs in **NO repository's CI at all**:
+  OpsxFactory and codexFactory have zero workflows mentioning it, and
+  MedxFactory/LedgerxFactory/AdxFactory have no workflows. The estate's archive
+  gate has been running on laptops at whatever version was installed there.
+  **THE COST IS MEASURED, NOT HYPOTHETICAL** (2026-09-04): the same trees that are
+  clean at 1.2.0 fail under 1.12.0 — openxFactory `48 passed, 41 failed (89)`,
+  OpsxFactory `34 passed, 10 failed (44)` — every failure a PRE-EXISTING
+  condition (placeholder `## Purpose` sections the `archive` command itself
+  writes, a duplicate task id, and at least four deltas the newer `archive` would
+  REFUSE), so an unpinned upgrade reds two repositories and stalls every archive
+  in the name of whoever ran `npm install -g`. So the pin is set where the estate
+  is GREEN. **THE REFERENT IS THE TARBALL'S SHA-512**
+  (`sha512-2XDmPZ…`, shasum `0fd53335…`) and the version string `1.2.0` is a
+  **LABEL** — `contracts/openreposhape-pin.yaml`'s tag-versus-commit argument
+  transposed to a registry, because npm's refusal to republish a version is a
+  REGISTRY POLICY with an operator and an unpublish window, and a policy is not a
+  content address. `contracts/openspec-cli-pin.yaml` reuses
+  `kind: pinned_contract_manifest` unchanged;
+  `scripts/validate-openspec-cli-pin.py` is BOTH the pin's verifier AND the one
+  consumer entrypoint (separating them would leave a verifier nobody must call
+  beside a bare `openspec` that answers with whatever is on `PATH`) — stdlib-only,
+  five ordered checks, five refusal codes, one fixed remediation trailer; it
+  fetches and re-hashes the artifact BEFORE installing or invoking it rather than
+  trusting `npx`, its default mode **never reads `PATH`**, and it has no
+  `--verify-only` because a target-less mode is the green-check-that-verified-
+  nothing the grammar forbids. `.github/workflows/openspec-cli-pin-gate.yml`
+  makes this the **FIRST repository in the estate whose archive gate actually
+  runs in CI**, with the version read out of the pin and never restated in the
+  workflow (the sibling gate's "fourth copy of the pin" argument, asserted by a
+  test). FOUR ADDED requirements plus **ONE MODIFIED** — required, because the
+  ratified grammar is COMMIT-ONLY and an npm package has no commit and no
+  per-file surface, so the delta admits a published-artifact referent minimally
+  (every existing clause and all three scenarios restated, nothing deleted, no
+  deletion marker owed) and argues that one digest over a tarball discharges the
+  completeness obligation the two member lists exist to make checkable rather
+  than waiving it. **DOES NOT BUMP THE VERSION** — the upgrade is a separate,
+  human-only governed change that must land its target-version `--all --strict`
+  evidence in the same change. Consuming-repository wiring is successor work,
+  one change per repository.
 
 - [admit-deliberation-clearing-operation](openspec/changes/admit-deliberation-clearing-operation/proposal.md)
   — authored 2026-09-04, **`Status: ratified`** (2026-09-04, Brett Heap,
@@ -1063,139 +1116,6 @@ Active changes:
   — a successor commits to an ORDERED, DEDUPLICATED enumeration of every
   predecessor and a subset commitment is refused, because otherwise a lane drops
   the attestation it dislikes and still presents a continuous chain.
-- [amend-chain-anchoring-readiness-and-durability](openspec/changes/amend-chain-anchoring-readiness-and-durability/proposal.md)
-  — authored 2026-08-31 from the owner-approved reconciliation that preserves
-  ratified `add-chain-anchoring` and retires the stale competing
-  `add-signed-execution-chain-anchoring` draft. **Originally three semantic gaps
-  survived the collapse; TWO REMAIN** after the owner's ruling of 2026-09-04
-  ("bring 548 forward after 629 lands, drop requirement 1") — the first, a
-  realization-gate/operational-PKI prerequisite with a mandatory shared-Speckit-
-  feature linkage, is DROPPED, because `add-chain-anchoring` has since realized
-  (PR #629, squash `11feff75`) without either mechanism, and ratifying it now
-  would retroactively call that landed realization illegitimate. The two that
-  remain, re-presented on their own merits: one atomic admission transaction and
-  a non-recursive eligibility registry define fixed-UTC durability membership,
-  then event root → canonical manifest/material digest → configuration-bound
-  anchored digest → aggregation root binds the one item both witnesses prove;
-  and Kaspa/OpenTimestamps submission remains distinct from independently
-  verified Kaspa/Bitcoin confirmation under an append-only profile registry with
-  activation, digest, standing and anti-rollback semantics, while preserving the
-  receipt/state split. The superseded draft's provider-neutral gateway text is
-  not imported — protected-operation enforcement remains a consumer/runtime-
-  owner boundary. **`Status: ratified`** — Brett Heap, 2026-09-04, in session,
-  recorded on PR #548, verbatim "ratify 2 and 3", ratifying BOTH remaining
-  requirements AS WRITTEN over head `2677cef9`; requirement 1 is WITHDRAWN, not
-  refused, and no shared-feature mandate survives it. Record:
-  `openspec/changes/amend-chain-anchoring-readiness-and-durability/review/ratification-2026-09-04.md`.
-  Ratification promotes the delta and realizes nothing: a follow-on pass is now
-  OWED against #629's already-landed schemas — measured zero confirmation-profile
-  vocabulary anywhere in them, and a closed `[in_flight, landed,
-  terminally_failed]` per-witness enum to widen or replace — and must land before
-  the next `chain-anchoring` bundle cut, the `contract-v3.3` tag having predated
-  #629 by twenty minutes and so left those schemas registered but unpublished.
-  See `proposal.md`'s "Requirement 1 removed" and "Realization cost — ratified,
-  and now owed" sections for the full reasoning and measurement.
-- [add-chain-anchoring](openspec/changes/add-chain-anchoring/proposal.md)
-  — authored 2026-08-29, **`Status: draft` — RATIFICATION IS NOT SOUGHT BY THIS
-  PACKET'S LANDING.** Exit 3 of three of the staged topic
-  `signed-execution-chain`: the PUBLIC ANCHORING LAYER and the PERMISSIONED
-  CONSENT PLANE. It is read adversarially by a **§7.4-shaped council convened
-  OUTSIDE the clearance pipeline** — a class over `openspec/changes/**` can never
-  commission one, measured 984 admitted / 984 floored / 0 remaining and
-  reproduced code-level (2026-08-28 `gate_rules_council`, unanimous 5/5) — and
-  **Brett Heap's ratification follows that review**, on
-  `add-binding-consumer-identity`'s pattern. **Almost nothing here is proposed —
-  most of it is RULED**, and the packet distinguishes the two everywhere. **Q3,
-  ROUND 2 (2026-08-29, and it DIVERGES from the vendored study)**: BOTH witnesses
-  on EVERY anchored item — **Kaspa FIRST as the OPERATIONAL witness** under the
-  study's three conditions unchanged (archival node; inclusion proofs captured
-  AND retained at anchor time; corroborating, never sole) and **Bitcoin batched
-  via OpenTimestamps as the DURABILITY witness**, with **ten-year claims citing
-  Bitcoin**, **no selectivity** and **no third chain**. *"Primary" is order of
-  arrival, never evidentiary weight* — the pruning finding is not softened by the
-  promotion. The study is **NOT edited**: a research record rewritten to agree
-  with a later ruling stops being evidence, so the ruling governs and the study
-  stands, cited for GROUNDS only. **THE MULTI-ANCHOR RECEIPT IS BUILT FIRST**,
-  per the exit path, and in the CORRECTED form: digest → aggregation Merkle path
-  → per-chain {**anchor transaction bytes**, **transaction-to-block or DAG
-  inclusion proof**, block header, **chain-acceptance evidence**}, captured whole
-  at anchor time, **REFUSED AT CAPTURE TIME** if any is missing — a header beside a bare transaction reference
-  proves nothing once the transaction is pruned, and a bespoke single-chain
-  receipt is the one-way door the design exists to avoid. **Q2 AND Q6 BECOME
-  CONTRACT TEXT WITH A REFUSING VALIDATOR**: on chain, salted keyed commitments,
-  consent-log CHECKPOINT commitments and the anchors; off chain, every payload
-  without exception plus consent STATE and the SALTS. **The payload refusal is
-  STRUCTURAL, not semantic** — a neutral validator that refused PHI by name would
-  need domain semantics, one that refuses EVERY payload needs none and is
-  stricter — and **the unsalted-commitment refusal is by DECLARED CONSTRUCTION**,
-  because a salted keyed commitment and a plain digest are indistinguishable by
-  inspection; that residual is **DECLARED as a gap** on `add-trust-anchor`'s
-  pattern rather than claimed closed. **ERASURE IS BY SALT DESTRUCTION and its
-  cost is stated**: the handle becomes permanently unverifiable, and that IS the
-  erasure. **ANCHOR LATE** — a false attestation reaching a chain is permanent,
-  and the cost of lateness is one aggregation interval. **THE PACKET'S LARGEST
-  DECISION, put to the council rather than presented as settled: WHAT FAILS
-  CLOSED IS THE CLAIM, NOT THE FACTORY.** A witness outage never blocks
-  ratification, execution or any gate — the log is the record and anchors are late
-  additions to it — but an item with fewer witnesses than the configuration
-  demands is `anchor_incomplete` with its missing witnesses NAMED, verification
-  returns `anchor_incomplete` and never a bare pass or a bare fail, ten-year
-  claims are refused while the durability witness is missing, every horizon breach
-  is a leaf, and **there is no aggregate `anchored` boolean anywhere**. The two
-  outages are ASYMMETRIC and the requirement says so; a returning aggregation
-  calendar **UPGRADES THE PENDING DURABILITY PROOF and appends its entry** and
-  never re-anchors — the receipt holds proof material, the ANCHOR-STATE record
-  holds state, and keeping them apart is what stops the two rules colliding.
-  **THE REVIEW ROUND CORRECTED TWO CONTROLS THAT COULD NOT RUN**, both real,
-  both recorded rather than patched: an append-only log's checkpoints commit to
-  every prefix, so "no unvalidated material reaches a chain" was unachievable —
-  resolved by telling an **ITEM ANCHOR** (gate-passed material only) apart from a
-  **LOG CHECKPOINT ANCHOR** (witnesses what the log SAID, **never a validity
-  claim**, inclusion never read as validation), which **NARROWS the staged
-  topic's anchor-late constraint, recorded rather than applied silently**; and a
-  block header is not canonicality, so the receipt gained its **fourth element**
-  and a **named independently obtainable header source**, with the limit stated —
-  a receipt is checkable against a header set the verifier fetches for itself,
-  never self-sufficient against a forged history. Also
-  carried, from Brett Heap's own 2024 MedxChain notes vendored by **PR #509 (IN
-  FLIGHT)**: **verification-attempt auditing** (verify events and refused access
-  are leaves — an evidence plane that records only writes cannot answer who
-  tried), **the meta-analysis lane** (record + demographic planes analyzable
-  without the identity plane BY CONSTRUCTION), and the **domain-instantiation
-  boundary** (MedxChain/HealthLinc are MedxFactory's, LedgerLinc LedgerxFactory's;
-  the neutral layer authors no domain content, and an overlay may TIGHTEN a
-  refusal and never relax one) — plus **one CORRECTION to that source**: its one
-  shared record digest across three databases is a cross-plane JOIN KEY, so
-  per-plane keys are derived under per-plane salts. **Q5 IS COMPLIED WITH
-  POSITIVELY**: today's evidence-only posture is stated in the present tense, with
-  **no "never"** and **NO TRIGGER CONDITION**, because the ruling refused both.
-  **NINE ADDED requirements over 89 SCENARIOS, no MODIFIED block anywhere**
-  (52 scenarios at the head the council judged; the 2026-08-30 fix round and its
-  NINE bot rounds added THIRTY-SEVEN SCENARIOS and NO NEW REQUIREMENT — the
-  requirement count is unchanged at nine) — a
-  NEW capability `chain-anchoring` rather than a second ADDED block on
-  `signed-execution-chain`, which avoids the sibling-delta shape of issue #502
-  outright. The change id and capability **diverge from the ratified working id**
-  `add-signed-execution-chain-anchoring`, and the divergence is recorded rather
-  than glossed. `target_release` **deliberately NOT numbered** — the era is
-  `contract-v2.2` and the next additive minor is allocated at realization by merge
-  order, since tranche one already names `contract-v2.3` and tranche two reaches
-  the same cut. **ITS §7.4 COUNCIL SAT 2026-08-30** — four seats, one ACCEPT and
-  three ACCEPT AS AMENDED, the sitting carried in `review/` with
-  `disposition-2026-08-30.md` as the sole disposition of record. Brett Heap ruled
-  *"accept all fifteen as recommended"*; this packet's **three blocking
-  amendments and one folded bot finding were discharged**, then NINE bot rounds
-  followed. **RATIFIED 2026-08-30** (`Status: ratified`; record
-  `review/ratification-2026-08-30.md`), ruling *"2 yes with note"* — **the note
-  being that the heads from `fd7c1ca7` onward are unreviewed by any bot on a
-  quota refusal rather than a clean pass**, disclosed before the ruling and
-  ratified under the prescribed-fix principle. The same act **normalized the
-  frozen sitting headers (4a)**, **blessed LS-A9's out-of-disposition execution
-  (5)**, and **ordered the TIMING-MODEL CONSOLIDATION (6a)** — eighteen scattered
-  paragraphs, in which three consecutive rounds had found direction errors,
-  restated as ONE section with semantics unchanged and every clock-relevant
-  scenario satisfied. **Ratification authorizes REALIZATION and performs none of
-  it.**
 - [add-structured-scope-substrate](openspec/changes/add-structured-scope-substrate/proposal.md)
   — **RATIFIED 2026-08-28** (Brett Heap, convener). MODIFIES `release-realization`
   to add the OPTIONAL front-matter sibling `scope_globs:` — a per-repository map
@@ -2180,6 +2100,128 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [amend-chain-anchoring-readiness-and-durability](openspec/changes/archive/2026-09-05-amend-chain-anchoring-readiness-and-durability/proposal.md)
+  — **ARCHIVED 2026-09-05 ON THE REPOSITORY OWNER'S WORD**, Brett Heap in
+  session 2026-09-04, verbatim *"archive chain-anchoring"* — one word covering
+  both halves — and archived **SECOND of the ordered pair, into the file the
+  first half created**: `add-chain-anchoring` archived 2026-09-04 and made
+  `openspec/specs/chain-anchoring/spec.md` at nine requirements, this packet
+  archives into that same file, and the order is the one its own task 3.2 fixes,
+  because the reverse writes a capability holding only the amendment. The two
+  dates straddle a UTC midnight; the act did not. Authored 2026-08-31 from the
+  owner-approved reconciliation that preserves ratified `add-chain-anchoring`
+  and retires the stale competing `add-signed-execution-chain-anchoring` draft.
+  **Originally three semantic gaps survived the collapse; TWO REMAIN** after the
+  owner's ruling of 2026-09-04 (*"bring 548 forward after 629 lands, drop
+  requirement 1"*) — the first, a realization-gate/operational-PKI prerequisite
+  with a mandatory shared-Speckit-feature linkage, is **WITHDRAWN, not refused**,
+  because `add-chain-anchoring` had since realized (PR #629, squash `11feff75`)
+  without either mechanism and ratifying it afterwards would retroactively call
+  that landed realization illegitimate. The two that remain, re-presented on
+  their own merits: one atomic admission transaction and a non-recursive
+  eligibility registry define fixed-UTC durability membership, then event root →
+  canonical manifest/material digest → configuration-bound anchored digest →
+  aggregation root binds the one item both witnesses prove; and
+  Kaspa/OpenTimestamps submission remains distinct from independently verified
+  Kaspa/Bitcoin confirmation under an append-only profile registry with
+  activation, digest, standing and anti-rollback semantics, while preserving the
+  receipt/state split. The superseded draft's provider-neutral gateway text is
+  not imported — protected-operation enforcement remains a consumer/runtime-owner
+  boundary. **TWO ADDED requirements over 34 SCENARIOS**, no `## MODIFIED` block
+  anywhere, promoted into the existing `chain-anchoring` capability and
+  **BYTE-CHECKED IN BOTH DIRECTIONS rather than trusted**: the nine requirements
+  the first archive promoted are byte-for-byte untouched (95 510 bytes against
+  95 510, `diff` exit 0), the two appended are the archived delta's own text but
+  for the one trailing blank line the archiver emits (23 811 against 23 812), no
+  appended title collides with any of the nine, and the file goes 95 655 → 119 467
+  bytes at **ELEVEN REQUIREMENTS / 123 SCENARIOS** (9 + 2, 89 + 34) with no other
+  file under `openspec/specs/` touched. **RATIFIED 2026-09-04** — Brett Heap,
+  repository owner, in session, recorded on **PR #548, squash `471d3361`**,
+  verbatim *"ratify 2 and 3"*, both remaining requirements AS WRITTEN over head
+  `2677cef9`; no shared-feature mandate survives requirement 1's withdrawal.
+  Record:
+  `openspec/changes/archive/2026-09-05-amend-chain-anchoring-readiness-and-durability/review/ratification-2026-09-04.md`.
+  **RATIFICATION PROMOTED THE DELTA AND REALIZED NOTHING, and that sentence has
+  since been ANSWERED rather than deleted**: the follow-on pass this entry
+  recorded as *"now OWED against #629's already-landed schemas — measured zero
+  confirmation-profile vocabulary anywhere in them, and a closed `[in_flight,
+  landed, terminally_failed]` per-witness enum to widen or replace — and must
+  land before the next `chain-anchoring` bundle cut"* **RAN, AND LANDED IN THAT
+  ORDER**. **REALIZED by PR #657**, squash `e65dcc48` (2026-09-04T18:25Z) — six
+  further schemas under `contracts/chain-anchoring/` (`confirmation-profile`,
+  `confirmation-profile-registry`, `daily-merkle-profile`,
+  `durability-eligibility-registry`, `durability-batch-admission`,
+  `durability-batch-manifest`), six registered `contracts/manifest.yaml` rows, and
+  the closed per-witness enumeration REPLACED by `[pending, submitted, confirmed,
+  invalid, unevaluable, terminally_failed]` while it was still unpublished, which
+  is why the owner ordered it to land BEFORE the cut. **PUBLISHED at
+  `contract-v3.4`** (PR #653, squash `807a4f47`, annotated tag `a3309921`) — and
+  the word is used precisely: `contracts/releases/contract-v3.4.digests.yaml` is a
+  SELECTIVE inventory of 283 entries carrying ZERO rows under
+  `contracts/chain-anchoring/`, so publication here means the six manifest rows,
+  the `contracts/CHANGELOG.md` v3.4 entry that names this change four times, and
+  the `contracts/README.md` contract-index row, never "its digests are in the
+  inventory". **ARCHIVED VIA THE RECORDED ESCAPE** —
+  `proposal-support.py archive` REFUSED on `"change has incomplete tasks"`, a gate
+  unconditional on WHICH box, so `openspec archive --yes` was run on
+  `declare-spent-bundle-state` § 5.1's precedent (PR #611, `7af2725c`) as applied
+  by `add-subject-establishment` (PR #647, `e4ff4fb3`) and, immediately before
+  this act, by `add-chain-anchoring` itself (PR #669, `66d11a24`). The FOUR open
+  boxes are disclosed and classified in the archived `tasks.md` § *Archive — the
+  recorded escape*: two `[OPERATOR]` approvals no contract can perform, whose
+  vessels and refusals the realization did build (1.3, 1.4); THIS ACT itself,
+  deliberately NOT self-ticked because an archive act does not close its own box
+  (3.2); and the cut, discharged by the cutting session in another lane and NOT
+  ticked here for the same reason (3.3). Not one is undone realization of this
+  change.
+- [add-chain-anchoring](openspec/changes/archive/2026-09-04-add-chain-anchoring/proposal.md)
+  — **ARCHIVED 2026-09-04 ON THE REPOSITORY OWNER'S WORD**, Brett Heap in
+  session, verbatim *"archive chain-anchoring"*, and archived FIRST of an
+  ordered pair: this act CREATES canonical `chain-anchoring`, and
+  `amend-chain-anchoring-readiness-and-durability` archives SECOND into the same
+  file — the order its own task 3.2 fixes, because the reverse writes a
+  capability holding only the amendment's two requirements. Tranche THREE of the
+  neutral signed execution chain: the PUBLIC ANCHORING LAYER and the
+  PERMISSIONED CONSENT PLANE, exit 3 of three of the staged topic
+  `signed-execution-chain`. **NINE ADDED requirements over 89 SCENARIOS**, no
+  MODIFIED block anywhere — a NEW capability rather than a second ADDED block on
+  `signed-execution-chain`, which avoids the sibling-delta shape of issue #502
+  outright — promoted to `openspec/specs/chain-anchoring/spec.md` and
+  BYTE-CHECKED against the archived delta rather than trusted: both sides
+  extracted from their first `### Requirement:` line, IDENTICAL but for the one
+  trailing blank line the archiver emits, nine requirements and 89 scenarios on
+  both sides, and no other file under `openspec/specs/` touched.
+  **ITS §7.4 COUNCIL SAT 2026-08-30** — four seats, one ACCEPT and three ACCEPT
+  AS AMENDED, the sitting carried in the packet's `review/` with
+  `disposition-2026-08-30.md` as the sole disposition of record; Brett Heap ruled
+  *"accept all fifteen as recommended"*, three blocking amendments and one folded
+  bot finding were discharged, and NINE bot rounds followed. **RATIFIED
+  2026-08-30** (PR #513; record `review/ratification-2026-08-30.md`, ruling
+  *"2 yes with note"* — the note being that the heads from `fd7c1ca7` onward were
+  unreviewed by any bot on a quota refusal rather than a clean pass, disclosed
+  before the ruling and ratified under the prescribed-fix principle). **REALIZED
+  by PR #629**, squash `11feff75` — twelve schemas under `contracts/chain-anchoring/`,
+  the canonical refusing `scripts/validate-chain-anchoring.py`, and TWELVE
+  MANIFEST ROWS registered AT REALIZATION on the owner's overruling of task
+  4.11's own timing (*"merge 629, register now"*), on the tranche-two precedent
+  #556. **COMPLETED BEFORE PUBLICATION by PR #657**, squash `e65dcc48`, the
+  amendment's realization the owner ORDERED to land before these schemas shipped
+  in a tagged bundle. **PUBLISHED at `contract-v3.4`** (PR #653, squash
+  `807a4f47`, annotated tag `a3309921`), the cut that discharged task 4.12's
+  half. **ARCHIVED VIA THE RECORDED ESCAPE** — `proposal-support.py archive`
+  REFUSED on `"change has incomplete tasks"`, a gate unconditional on WHICH box,
+  so `openspec archive --yes` was run on `declare-spent-bundle-state` § 5.1's
+  precedent (PR #611, `7af2725c`) as most recently applied by
+  `add-subject-establishment` (PR #647, `e4ff4fb3`). The SIXTEEN open boxes are
+  disclosed and classified in the archived `tasks.md` § *Archive — the recorded
+  escape*: operator infrastructure the `code_surface` declares is NOT this
+  change's surface (4.5 – 4.7, 4.9, 4.10 — no witness is configured and nothing
+  is on any chain), settlements the ratified requirements deliberately leave to
+  a realization and its domain overlay (5.1, 5.2, 5.4, 5.5), two boxes whose
+  substance the ratification round and the cutting session discharged elsewhere
+  and which are deliberately NOT ticked here (3.2, 4.12), and § 6's dependency
+  notes, whose heading already reads *NAMED, NOT DRAFTED* (6.1 – 6.5). Not one is
+  undone realization of this change.
 - [create-medxpractice-overlay-boundary](openspec/changes/archive/2026-09-04-create-medxpractice-overlay-boundary/proposal.md)
   — **ARCHIVED 2026-09-04, SECOND OF THE MEDX PAIR AND FOR THE REASON THE PAIR
   WAS ORDERED**: this packet CITES the placement amendment its sibling wrote, so

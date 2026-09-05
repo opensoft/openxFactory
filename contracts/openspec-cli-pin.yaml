@@ -1,0 +1,160 @@
+schema_version: 1
+kind: pinned_contract_manifest
+
+# ============================================================================
+# openspec-cli-pin.yaml — content-addressed consumption of the OpenSpec CLI,
+# `@fission-ai/openspec`, published by `Fission-AI/OpenSpec`.
+#
+# openxFactory does not OWN the OpenSpec CLI. It CONSUMES it, and it consumes it
+# in the most load-bearing place a tool can sit: `openspec validate --strict` is
+# the gate every spec delta in this corpus passes, and `openspec archive` is the
+# act that moves a ratified delta into canon. This file is the whole of the
+# claim about WHICH TOOL that is, and `scripts/validate-openspec-cli-pin.py` is
+# the running code that checks it AND the one entrypoint through which strict
+# validation runs.
+#
+# WHAT THIS PIN REPLACES, AND WHY IT IS NOT A REFINEMENT OF IT. Until this file
+# existed, the OpenSpec CLI was UNPINNED fleet-wide. The single pin anywhere in
+# the estate was one literal line in this repository's own test workflow —
+# `.github/workflows/pytest-suite.yml`, `npm install -g @fission-ai/openspec@1.2.0`
+# — installed so `tests/proposal-support/` could drive the real binary. That line
+# is not a contract: it is read by no consuming repository, it is not verified
+# against anything, and nothing refuses when a different version answers. OpenSpec
+# itself offers no project-level version field to lean on — `openspec/config.yaml`
+# carries only `schema:`, and `openspec config` is global-scope. So every engineer
+# and every agent in every repository has been validating and archiving with
+# whatever `openspec` happened to be on PATH.
+#
+# WHY `kind: pinned_contract_manifest` UNCHANGED. The grammar is ratified by
+# `neutral-product-pin` and realized twice — `contracts/openxwallet-pin.yaml` and
+# `contracts/openreposhape-pin.yaml`. Only the DISTRIBUTION FORM is new, so
+# reusing the kind keeps `neutral-product-pin` a statement about direction rather
+# than a new shape. The sibling pins' reasoning against a
+# `<consumer>_<product>_pin` kind carries here unchanged: that template governs
+# DESCENDANTS, and openxFactory is not a descendant of a Node package.
+#
+# THE TRUSTED REFERENT IS `integrity`, AND `version` IS A LABEL. This is the same
+# argument `contracts/openreposhape-pin.yaml` makes for a tag, transposed to a
+# registry:
+#
+#   * `integrity` is a CONTENT ADDRESS. `sha512-2XDmPZ…` is the SHA-512 of the
+#     published tarball's exact bytes. It cannot be moved, because moving it
+#     would require different bytes and different bytes are a different address.
+#     Every one of the package's 270 files is inside those bytes.
+#   * `version` is a NAME. That npm refuses to re-publish over a version is a
+#     REGISTRY POLICY, enforced by an operator, with an unpublish window and an
+#     operator who can act inside it — and a policy is not a content address. It
+#     is recorded because humans, CI logs and `npm install` all speak in version
+#     numbers, exactly as a release tag is recorded beside a commit in the
+#     sibling pin: as a human-readable LABEL, never as the thing being trusted.
+#
+# So the verifier fetches the tarball, recomputes its SHA-512 and its SHA-1, and
+# refuses `pin-integrity-mismatch` unless BOTH equal the values below — BEFORE
+# the CLI is installed and BEFORE it is invoked. `neutral-product-pin` requires
+# exactly that ordering ("The pin's digests SHALL be verified BEFORE the pinned
+# reader is invoked, by running code rather than by a stated obligation"), and it
+# is the reason this pin does not simply trust `npx` to resolve a version string.
+# A `npx -y @fission-ai/openspec@1.2.0` that fetched the wrong bytes would report
+# nothing; a recomputed digest that disagrees refuses.
+#
+# WHY THERE IS NO `files:` LIST AND NO `pinned_by_commit_only:` LIST, and why
+# that is not the omission it looks like. Those two lists exist in the sibling
+# pins because a COMMIT is not a digest a consumer can compare a file against:
+# the surface has to be enumerated so that "an artifact in neither list is an
+# undeclared consumption, not a permitted omission" can be checked at all. A
+# published tarball has no such gap. ONE digest covers ALL 270 files, so the
+# completeness question the two lists answer is answered here by construction and
+# more strongly: there is no file inside the artifact that the referent does not
+# address, and no file can be added to it without changing the referent. The
+# `## MODIFIED Requirements` delta in `openspec/changes/add-openspec-cli-pin/`
+# states this in the grammar's own words rather than leaving this file to assert
+# a licence the ratified requirement does not give it.
+#
+# THE DECLARED SHORTFALL, stated here rather than discovered later. The referent
+# addresses the CLI's OWN bytes. It does not address the CLI's DEPENDENCY
+# CLOSURE: `@fission-ai/openspec@1.2.0` declares nine runtime dependencies at
+# caret ranges (`ora ^8.2.0`, `zod ^4.0.17`, `yaml ^2.8.2`, `chalk ^5.5.0`,
+# `commander ^14.0.0`, `fast-glob ^3.3.3`, `posthog-node ^5.20.0`,
+# `@inquirer/core ^10.2.2`, `@inquirer/prompts ^7.8.0`), and npm resolves those
+# ranges at install time. Two installs of these identical, verified bytes may
+# therefore run over different dependency trees. This pin does NOT claim
+# otherwise. What it claims — and checks — is that the ADJUDICATING TOOL is the
+# artifact whose digest is below, which is the thing that was previously not
+# claimed at all. Closing the dependency closure needs a lockfile the publisher
+# does not ship and is named as successor work in the change that lands this
+# file, not quietly implied by it. The verifier installs with `--ignore-scripts`
+# so that an unpinned transitive dependency cannot run a lifecycle script inside
+# a gate; that is a mitigation of the shortfall and not a repair of it.
+#
+# THIS PIN DOES NOT BUMP THE VERSION AND MUST NOT BE READ AS APPROVING ONE.
+# 1.2.0 is what the estate already runs and what every tree in it passes at
+# TODAY. Measured 2026-09-04, the same trees that are clean at 1.2.0 fail under
+# 1.12.0 on PRE-EXISTING conditions — openxFactory 48 passed / 41 failed of 89,
+# OpsxFactory 34 / 10 of 44 — and at least four deltas the newer `archive` would
+# REFUSE outright. An unpinned upgrade turns two repositories red and stalls
+# every archive, and blames whoever upgraded for conditions that predate them.
+# So the pin is set where the estate is GREEN, and the upgrade is a later,
+# separate, human-only governed change that must land its target-version
+# evidence with it.
+# ============================================================================
+
+package: "@fission-ai/openspec"
+source_repository: Fission-AI/OpenSpec
+source_url: https://github.com/Fission-AI/OpenSpec
+registry: https://registry.npmjs.org
+
+# THE LABEL. Recorded so a human, a log line and an `npm install` can all name
+# the same artifact; never the referent. See the header.
+version: "1.2.0"
+
+# THE REFERENT, and the kind that says so. `package_integrity` is the
+# content-addressed distribution-artifact referent the accompanying MODIFIED
+# delta admits into `neutral-product-pin`'s grammar beside `commit`; a pin
+# declaring anything else — or declaring a range, a dist-tag such as `latest`,
+# or a caret — is refused `pin-tag-only` by the verifier before any byte is
+# fetched.
+revision_kind: package_integrity
+integrity_algorithm: sha512
+integrity: "sha512-2XDmPZcVY0Bs014lP9aoxe3VoEU8hFvqaBFxQaiJO2nhC8vTKCyo6sT/5YpQcOTfR/a64Hht2anTyqLR4eNhlg=="
+
+# The registry's LEGACY address for the same bytes, checked as well as — never
+# instead of — the SHA-512. It is recorded because it is what `npm view … dist`
+# and the npm CLI's own output print beside the integrity, so a human comparing
+# this file to a terminal has both halves; and it is CHECKED because a pin that
+# records a value nothing verifies invites the value to drift into being wrong
+# without anyone noticing. SHA-1 is not relied on for collision resistance: the
+# SHA-512 is the referent and this is corroboration.
+shasum: "0fd5333520c8846f0ac51727379b8812e2f13c1b"
+tarball: https://registry.npmjs.org/@fission-ai/openspec/-/openspec-1.2.0.tgz
+
+# The executable the package installs, asserted by name so a repointed `bin`
+# block in some future version is a refusal rather than a silent substitution.
+binary: openspec
+
+# NAMED here so the pin is running code rather than an obligation stated in
+# prose, matching both sibling pins' own `verify_pin:` key. This file is the
+# unusual case in which the verifier is ALSO the consumer entrypoint — see
+# `consumer_entrypoint:` below — so the same path appears twice on purpose.
+verify_pin: scripts/validate-openspec-cli-pin.py
+
+# THE CONSUMER OBLIGATION, in one field, because it is the whole point of the
+# pin. Every repository in the estate runs STRICT OpenSpec validation and every
+# OpenSpec ARCHIVE through this entrypoint and through nothing else. A repository
+# that calls a bare `openspec` binary is not running the pinned tool, whatever
+# version happens to answer, because nothing verified which tool answered. The
+# entrypoint refuses when the pinned bytes cannot be verified, refuses when it is
+# given no scan target, and — in the PATH mode a developer may ask for — refuses
+# when the binary on PATH reports a version other than the one above.
+consumer_entrypoint: scripts/validate-openspec-cli-pin.py
+
+# The invocation the entrypoint issues, recorded so that WHICH COMMAND RAN is a
+# fact in this file rather than an assumption about a wrapper. `--strict` is not
+# optional and the entrypoint offers no flag to drop it: a non-strict pass is not
+# the act this pin governs.
+pinned_invocation: openspec validate <target> --strict
+
+# Where a stale pin is re-cut. The runbook is this repository's own contract
+# versioning policy for the class of act, and the change that lands the bump for
+# the act itself; both are named because the refusal trailer names them and a
+# refusal that names a document nobody wrote is worse than one that names none.
+resync_runbook: docs/contract-versioning-policy.md

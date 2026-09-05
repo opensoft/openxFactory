@@ -264,7 +264,7 @@ current text does not yet name, and one framing worth stating explicitly:
   TREE YET.** openxFactory pull request #513, **IN FLIGHT at this
   revision**, proposes a requirement, "The record and demographic planes
   are analyzable without the identity plane"
-  (`openspec/changes/add-chain-anchoring/specs/chain-anchoring/spec.md`),
+  (`openspec/changes/archive/2026-09-04-add-chain-anchoring/specs/chain-anchoring/spec.md`),
   that would separate the record and demographic planes from the
   identity plane BY CONSTRUCTION and would bar the neutral
   chain-anchoring capability from naming any de-identification standard

@@ -7,7 +7,7 @@ Realizes: `amend-chain-anchoring-readiness-and-durability` requirements 2 and 3
 Basis: `add-chain-anchoring`, realized at PR #629 (squash `11feff75`)
 Ratification: PR #548 (squash `471d3361`), 2026-09-04, Brett Heap, repository
 owner, in session, verbatim *"ratify 2 and 3"* — record
-`openspec/changes/amend-chain-anchoring-readiness-and-durability/review/ratification-2026-09-04.md`
+`openspec/changes/archive/2026-09-05-amend-chain-anchoring-readiness-and-durability/review/ratification-2026-09-04.md`
 Owner's authorization for this feature: Brett Heap, 2026-09-04, in session,
 verbatim *"build the successor realization on 629's schemas"*
 
