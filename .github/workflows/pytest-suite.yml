@@ -488,7 +488,18 @@ jobs:
           #
           # (MIN_SELECTED and MIN_PASSED are FLOORS and need no edit: the new
           # module only raises the actuals, which widens the printed margin.)
-          EXPECT_SKIPPED: "21"
+          #
+          # MOVED 21 -> 22 by `mirror-floor-addition-grace`: the required
+          # assertion's mirrored completeness rule is FALSIFIED by replaying
+          # the pinned core's own exported vectors
+          # (`tests/review_lane_pin/test_floor_snapshot.py::TheVectorReplay
+          # ::test_every_vector_replays`), and that replay SKIPS — never
+          # fails — under the SAME condition the freshness verifier already
+          # does: no pinned core on disk. On the normal path here the core
+          # checkout succeeds and BOTH run, so this number does not move on a
+          # normal run; it moves only when that checkout fails, exactly as
+          # `TheFreshnessVerifier`'s skip already does, one skip at a time.
+          EXPECT_SKIPPED: "22"
           # THE NAMED VERDICT — the freshness verifier watched as itself rather
           # than as one unit of an aggregate it can hide inside.
           #
@@ -518,9 +529,21 @@ jobs:
           # rename fails on the developer's machine first, with the reason.
           FRESHNESS_CLASSNAME: "tests.review_lane_pin.test_floor_snapshot.TheFreshnessVerifier"
           FRESHNESS_TESTNAME: "test_the_snapshot_is_byte_identical_to_the_pinned_core"
+          # THE SECOND WATCHED PAIR, same discipline applied again
+          # (`mirror-floor-addition-grace`): the vector replay is the
+          # FALSIFIER for the required lane's mirrored completeness rule
+          # (design.md §2.1), and its skip needs the same named watch the
+          # freshness comparison's does, for the same reason — an aggregate
+          # skip count cannot tell "the replay stopped running" from "the
+          # replay stopped running AND some other conditional skip started".
+          # `tests/review_lane_pin/test_floor_snapshot.py::TheRealFiles::
+          # test_the_required_suite_watches_the_vector_replay_by_name` asserts
+          # this pair against the live class and method objects.
+          VECTOR_REPLAY_CLASSNAME: "tests.review_lane_pin.test_floor_snapshot.TheVectorReplay"
+          VECTOR_REPLAY_TESTNAME: "test_every_vector_replays"
         run: |
           set -euo pipefail
-          read -r SELECTED PASSED SKIPPED FAILURES ERRORS FRESHNESS < <(python3 - <<'PY'
+          read -r SELECTED PASSED SKIPPED FAILURES ERRORS FRESHNESS VECTOR_REPLAY < <(python3 - <<'PY'
           import os
           import xml.etree.ElementTree as ET
           root = ET.parse("pytest-report.xml").getroot()
@@ -530,34 +553,43 @@ jobs:
           failures = sum(int(s.get("failures", 0)) for s in suites)
           errors = sum(int(s.get("errors", 0)) for s in suites)
 
-          # The named freshness verdict. A `<testcase>` with no skipped/failure/
-          # error child RAN AND PASSED; that is the only acceptable outcome, and
-          # "no such testcase in the report" is one of the outcomes it rejects.
-          wanted = (os.environ["FRESHNESS_CLASSNAME"],
-                    os.environ["FRESHNESS_TESTNAME"])
-          verdicts = []
-          for case in root.iter("testcase"):
-              if (case.get("classname"), case.get("name")) != wanted:
-                  continue
-              outcome = "passed"
-              for child in case:
-                  if child.tag in ("skipped", "failure", "error"):
-                      outcome = child.tag
-                      break
-              verdicts.append(outcome)
-          if not verdicts:
-              freshness = "absent"
-          else:
-              # Any non-passing occurrence wins: a verifier that passed once and
-              # skipped once did not verify this run.
-              freshness = next((v for v in verdicts if v != "passed"), "passed")
+          # A NAMED verdict for one `<testcase>`, by classname and name. A case
+          # with no skipped/failure/error child RAN AND PASSED; that is the
+          # only acceptable outcome, and "no such testcase in the report" is
+          # one of the outcomes it rejects. Shared by the freshness verifier
+          # and the vector replay below — two callers of one rule, so they
+          # cannot drift from each other the way the thing they watch does not
+          # drift either.
+          def named_verdict(classname, name):
+              wanted = (classname, name)
+              verdicts = []
+              for case in root.iter("testcase"):
+                  if (case.get("classname"), case.get("name")) != wanted:
+                      continue
+                  outcome = "passed"
+                  for child in case:
+                      if child.tag in ("skipped", "failure", "error"):
+                          outcome = child.tag
+                          break
+                  verdicts.append(outcome)
+              if not verdicts:
+                  return "absent"
+              # Any non-passing occurrence wins: a verifier that passed once
+              # and skipped once did not verify this run.
+              return next((v for v in verdicts if v != "passed"), "passed")
+
+          freshness = named_verdict(os.environ["FRESHNESS_CLASSNAME"],
+                                     os.environ["FRESHNESS_TESTNAME"])
+          vector_replay = named_verdict(os.environ["VECTOR_REPLAY_CLASSNAME"],
+                                         os.environ["VECTOR_REPLAY_TESTNAME"])
 
           print(selected, selected - skipped - failures - errors,
-                skipped, failures, errors, freshness)
+                skipped, failures, errors, freshness, vector_replay)
           PY
           )
           echo "selected=$SELECTED passed=$PASSED skipped=$SKIPPED failures=$FAILURES errors=$ERRORS"
           echo "freshness verifier ($FRESHNESS_CLASSNAME::$FRESHNESS_TESTNAME): $FRESHNESS"
+          echo "vector replay ($VECTOR_REPLAY_CLASSNAME::$VECTOR_REPLAY_TESTNAME): $VECTOR_REPLAY"
           echo "floors: selected>=$MIN_SELECTED (margin $((SELECTED - MIN_SELECTED))) passed>=$MIN_PASSED (margin $((PASSED - MIN_PASSED))) skipped==$EXPECT_SKIPPED"
           rc=0
           [ "$FAILURES" = "0" ] || { echo "::error::$FAILURES failure(s)"; rc=1; }
@@ -566,4 +598,5 @@ jobs:
           [ "$PASSED" -ge "$MIN_PASSED" ] || { echo "::error::passed $PASSED is BELOW the floor $MIN_PASSED — find the tests that stopped passing or stopped being collected; do not lower the floor"; rc=1; }
           [ "$SKIPPED" = "$EXPECT_SKIPPED" ] || { echo "::error::skipped $SKIPPED, pinned exactly $EXPECT_SKIPPED — a directory that silently turned into skips is exactly what this pin exists to catch. If the change is intended, move the pin WITH the reason"; rc=1; }
           [ "$FRESHNESS" = "passed" ] || { echo "::error::snapshot freshness verifier did not run — pinned core checkout unavailable or test removed ($FRESHNESS_CLASSNAME::$FRESHNESS_TESTNAME is '$FRESHNESS' in pytest-report.xml, wanted 'passed'). contracts/review-lane-floor-snapshot.yaml was NOT compared byte for byte against the pinned decision core on this run, so a stale copy could assert coverage the real floor does not give. Fix the cross-repository checkout (see the 'Check out the pinned decision core' step's warning above for its outcome); if the test was deliberately renamed or moved, move FRESHNESS_CLASSNAME/FRESHNESS_TESTNAME with it in the same diff. Do not delete this assertion — the skipped-count pin CANNOT cover for it, which is the Codex P2 finding on PR #569"; rc=1; }
+          [ "$VECTOR_REPLAY" = "passed" ] || { echo "::error::vector replay did not run — pinned core checkout unavailable or test removed ($VECTOR_REPLAY_CLASSNAME::$VECTOR_REPLAY_TESTNAME is '$VECTOR_REPLAY' in pytest-report.xml, wanted 'passed'). The required lane's mirrored completeness rule (mirror-floor-addition-grace) was NOT falsified against the pinned core's own vectors on this run, so a divergence between the two floor lanes could go undetected. Fix the cross-repository checkout (see the 'Check out the pinned decision core' step's warning above for its outcome); if the test was deliberately renamed or moved, move VECTOR_REPLAY_CLASSNAME/VECTOR_REPLAY_TESTNAME with it in the same diff. Do not delete this assertion — the skipped-count pin CANNOT cover for it, the same Codex P2 finding on PR #569 applied a second time"; rc=1; }
           exit $rc
