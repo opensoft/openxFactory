@@ -1110,3 +1110,25 @@ rather than forced, exactly as that proposal's § Modified Capabilities declared
       invoking the pinned reader as a required check; red proof discharged on pull request
       [#432](https://github.com/opensoft/openxFactory/pull/432), run 33109857156, job
       98649492960), so only the requirements' TEXT is outstanding.
+
+## Archive-ordering note (2026-09-05)
+
+Under `@fission-ai/openspec@1.12.0`, `openspec archive` would REFUSE this
+change's `roles-authority-model` delta: its `## MODIFIED Requirements` block
+targets `### Requirement: Pilot repository and reviewing domain`, which no
+promoted spec carries. **This is an ordering dependency, not a broken
+pointer.** That requirement is ADDED by `add-substantive-review-lane`, which
+is still ACTIVE and unarchived — as this change's own marker in that block
+already says in words, dated 2026-08-31: *"the lane change adds this
+requirement and this change was authored the day that change ratified"*.
+`add-substantive-review-lane` archives FIRST, and the refusal ends there.
+
+Recorded by `prepare-openspec-1.12-readiness`, which measured this corpus
+under `@fission-ai/openspec@1.12.0` while the fleet pin stays at `1.2.0`
+(#667). **NOTHING IN THIS PACKET WAS CHANGED:** the delta is correct as
+written, the finding is `[INFO]` rather than a validation failure, and the
+remedy is archive ORDER, which no other packet may take on this one's behalf.
+**A `sequenced_after:` declaration is OWED here and was deliberately not
+added** — that would edit this ratified proposal's front matter from outside,
+and `add-sequenced-after-substrate`, which builds the validator that reads the
+field, is itself still active and unrealized.

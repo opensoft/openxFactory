@@ -1,7 +1,22 @@
 # document-cataloging Specification
 
 ## Purpose
-TBD - created by archiving change add-document-cataloging. Update Purpose after archive.
+
+Establish the external discovery catalog over the governed document corpus:
+immutable per-repository snapshots keyed by a canonical or policy-opaque
+document locator, the controlled classification facets (`factory_scope`,
+domain contexts, capability references, registry-resolved topic tags,
+document role, sensitivity signal) with their versioned provenance and
+effective taxonomy digest, and the baseline-then-incremental refresh that
+keeps them current without reclassifying on an unrelated commit. Keep
+semantic classification advisory and bounded: a credential-less, read-only
+`document-cataloger` lane proposes, the owning Domain Hermes or neutral
+ratify authority disposes through committed overrides, and source handling
+policy is evaluated against the host's attested boundary before anything is
+dispatched. Catalog tags live beside the corpus rather than in it — they
+never edit a source document, never set `Status`, `xspec:` or routing state,
+never confer ownership, and reach routing only as a current, authorized
+review signal.
 ## Requirements
 ### Requirement: Governed document catalog coverage
 Every document in the governed catalog corpus SHALL have exactly one entry in

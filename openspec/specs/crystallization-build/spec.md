@@ -1,7 +1,22 @@
 # crystallization-build Specification
 
 ## Purpose
-TBD - created by archiving change add-crystallizer-contracts. Update Purpose after archive.
+
+Govern the path from a funded decision to an accepted artifact: the
+`crystallization_spec` mined from a family's episode corpus with every
+invariant, parameter, branch, and mandatory counterexample citing the
+episodes it came from; the digest-pinned acceptance corpus and its
+per-output-type equivalence predicates as the operative contract; the
+deterministic scope fence as a requirement artifact consumed verbatim
+downstream; and the `effect_class` declared at spec time as part of the
+capability's identity. Hold the build itself to being an ordinary governed
+job — `crystallization_build`, executed by codexFactory for every consuming
+domain while that domain owns its own fitness gate — with a gapless
+provenance manifest, regeneration-first maintenance instead of
+hand-patching, and dry-run mode, the generated-artifact data-leak scan, and
+a declared budget cap and abort behavior as acceptance criteria. Building is
+where a family's evidence becomes a pinned artifact; routing that artifact
+to live work is not this capability's business.
 ## Requirements
 ### Requirement: Specs Are Mined From Episodes
 A `crystallization_spec` SHALL derive its requirements from the family's

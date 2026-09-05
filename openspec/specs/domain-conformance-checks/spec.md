@@ -1,7 +1,18 @@
 # domain-conformance-checks Specification
 
 ## Purpose
-TBD - created by archiving change adopt-neutral-utility-pack. Update Purpose after archive.
+
+Establish openxFactory's ownership of the neutral domain-repo conformance
+pack — inventory consistency, workflow state parity, openxFactory pin
+ancestry, and client identity roster conformance — as checks a domain gate
+invokes from the pinned openxFactory checkout against a target repository
+rather than copying into its own tree. Pack membership is what confers
+blocking status: a nonzero exit from any member fails the domain gate.
+The capability also fixes the properties a conformant DomainxFactory
+holds, so a green gate names a stated set of agreements between
+`stack.yaml`, the artifacts on disk, the workflow `.md`/`.yaml` pairs, the
+aggregation's recorded openxFactory pointer, and the roster fragments the
+repo publishes.
 ## Requirements
 ### Requirement: The conformance-check pack is openxFactory-owned and runs from the pinned checkout
 The neutral domain-repo conformance-check pack — `scripts/check-inventory-consistency.py` (inventory consistency), `scripts/check-workflow-state-parity.py` (workflow state parity), `scripts/check-openxfactory-pin.py` (openxFactory pin ancestry), and `scripts/validate-client-identity-roster.py` (client identity roster conformance) — SHALL be owned by openxFactory and run from the pinned openxFactory checkout against a target domain repository, never copied into domain repos.

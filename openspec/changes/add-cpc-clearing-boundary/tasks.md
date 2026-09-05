@@ -207,3 +207,25 @@ carries.
       rather than from the bundle, returns a result validated by the hosted
       finalizer and attested on the originating repository's hosted
       infrastructure, and leaves a dispatch record carrying disposal evidence.
+
+## Archive-ordering note (2026-09-05)
+
+Under `@fission-ai/openspec@1.12.0`, `openspec archive` would REFUSE this
+change's `clearing-dispatch-boundary` delta: the TARGET SPEC DOES NOT EXIST,
+and only `ADDED` requirements are permitted for a new spec. **This is an
+ordering dependency, not a wrong delta shape.** `add-clearing-dispatch-boundary`
+CREATES that spec and is still ACTIVE and unarchived; it archives FIRST, and
+the refusal ends there. The control that proves the shape is
+`admit-deliberation-clearing-operation`, which targets the SAME absent spec
+and validates clean, because its block is `## ADDED Requirements` — so the
+refusal is about MODIFIED-before-creation and nothing else.
+
+Recorded by `prepare-openspec-1.12-readiness`, which measured this corpus
+under `@fission-ai/openspec@1.12.0` while the fleet pin stays at `1.2.0`
+(#667). **NOTHING IN THIS PACKET WAS CHANGED:** the delta is correct as
+written, the finding is `[INFO]` rather than a validation failure, and the
+remedy is archive ORDER, which no other packet may take on this one's behalf.
+**A `sequenced_after:` declaration is OWED here and was deliberately not
+added** — that would edit this ratified proposal's front matter from outside,
+and `add-sequenced-after-substrate`, which builds the validator that reads the
+field, is itself still active and unrealized.

@@ -1,7 +1,22 @@
 # crystallization-decision Specification
 
 ## Purpose
-TBD - created by archiving change add-crystallizer-contracts. Update Purpose after archive.
+
+Govern the investment decision that is the only path from a nominated
+pattern-ledger candidate to any build, budget consumption, or capability
+creation, valid only inside the tenant's crystallization budget and
+clearance envelope. Fix the evaluation order — the family's rung ceiling
+resolves before valuation, valuation rows discount for AI-price deflation
+and pattern survival, and non-token value (latency, determinism,
+auditability, compliance, offline) may alone carry a funding — and require a
+funded outcome to select a shape: target rung, budget cap, abort rule, and
+the proof obligations the built capability must later discharge, never a
+build/don't-build boolean. Keep declines as `not_yet` records with reasons
+and re-nomination conditions so the queue's misses are calibration evidence
+too, start tenants on the human-judgment rungs of the decision ladder, and
+freeze the `automation_rung` enum L0–L6 that decisions, capability bindings,
+and dispatch records all carry. This capability decides and funds; mining
+the spec and running the build belong elsewhere.
 ## Requirements
 ### Requirement: Decisions Are The Only Path To Spend
 A `crystallization_decision` record SHALL be the only mechanism by which a

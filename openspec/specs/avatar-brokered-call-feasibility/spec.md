@@ -1,7 +1,21 @@
 # avatar-brokered-call-feasibility Specification
 
 ## Purpose
-TBD - created by archiving change qualify-avatar-brokered-call-feasibility. Update Purpose after archive.
+
+Bound the F0 feasibility experiment that answers empirically what no schema
+or mock can settle: whether a provider broker will create a WebRTC call,
+allow sideband control to be attached and verified before the SDP answer is
+applied, honor exact- and changed-offer retry identity, and terminate the
+provider leg within the neutral bound. Define the isolated lab environment
+that makes such a run safe to repeat — a dedicated lab credential, generated
+audio, disabled tools, no tenant data, and an immutable pinned candidate
+profile — together with the mandatory trial matrix, the monotonic readiness
+and client-enforced revocation measurements, and the redacted
+`PASS`/`FAIL`/`INCONCLUSIVE` evidence whose interface variances are handed
+to the contract-kernel owner rather than fixed here. Fix the boundary that
+gives the result its meaning: F0 gates contract publication and nothing
+more, and never promotes a provider profile to internal-live or production
+media.
 ## Requirements
 ### Requirement: Isolated and reproducible F0 environment
 The F0 harness SHALL execute only against a dedicated lab provider project with

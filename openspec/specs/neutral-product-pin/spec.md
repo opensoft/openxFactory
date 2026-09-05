@@ -1,7 +1,21 @@
 # neutral-product-pin Specification
 
 ## Purpose
-TBD - created by archiving change split-openxwallet-repo. Update Purpose after archive.
+
+Govern openxFactory's consumption of an EXTERNAL neutral product, the
+direction in which it is the consumer rather than the publisher: the pin
+at `contracts/<product>-pin.yaml` carrying commit, `revision_kind`,
+per-file `sha256` and `pinned_by_commit_only` — never a tag and never a
+range — and the fail-closed behaviour that turns an unanswerable pin
+question into a refusal naming its remedy instead of an implicit pass.
+The capability makes which reader ran an auditable digest: a required
+check invokes the pinned validator and the pinned reader from the pinned
+checkout, verifies the pin's digests before reading, refuses a missing
+scan target, and resolves the consuming repository's nested checkout ahead
+of any other reachable one. It also carries the reverse direction — a
+neutral product may vendor exactly one digest-pinned openxFactory contract
+as a consumed, never owned, manifest member — and makes repointing the
+reader while editing what it reads a human-only act.
 ## Requirements
 ### Requirement: An external neutral product is pinned by commit and digest, never by tag
 `openxFactory` SHALL declare its consumption of an EXTERNAL neutral product in

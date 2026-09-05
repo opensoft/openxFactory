@@ -1,7 +1,27 @@
 # ideation-dashboard Specification
 
 ## Purpose
-TBD - created by archiving change add-ideation-dashboard. Update Purpose after archive.
+
+Define the dashboard as a generated projection, never a source of truth: one
+deterministic generator scans a single repository at a single ref and emits
+the schema-versioned `ideation-dashboard-snapshot` that every renderer reads
+through the snapshot index, and when the rendered view disagrees with the
+repository it is the view that is regenerated. Build the human's working
+surfaces on that one snapshot — the six-column docs-first realization funnel
+and its secondary views, the cluster canvas, the keyword-lens set builder,
+the workbench's temporary reference sets, the drill-down explorer and
+read-only viewer, and the repository / project / project-group navigation the
+project register resolves. Fix the interactivity boundary as the capability's
+spine: the generator, renderers, workbench actions and every agent path are
+non-mutating over source documents and may never execute a lifecycle gate,
+while humans create, edit and gate through the console, branch sessions and
+the doxBench editor, each act producing the same governed artifacts as the
+manual path plus a recorded action, and kickoff dispatching the ratified
+change's next step under the workflow-gate contract rather than running it
+here. Keep the model-facing work equally bounded — grounded chat turns and
+distilled abstracts are explicitly invoked, session-local, reached through
+one narrow provider boundary with broker-minted tokens, and never snapshot
+fields.
 ## Requirements
 ### Requirement: Snapshot projection contract
 The ideation dashboard SHALL be a generated projection, never a source of truth: a deterministic generator scans `ideation/` plus active and archived OpenSpec changes for ONE repository at ONE ref and emits one schema-versioned snapshot (`kind: ideation-dashboard-snapshot`, `schema_version`, and a `repository` field), and renderers SHALL read only snapshots, addressed by the (repository, ref) pair through the snapshot registry. When the dashboard disagrees with the repository, the dashboard is wrong and is regenerated. The generator SHALL be runnable for every registered repository, and the `repository` field plus the snapshot index are what make per-repository instances and an aggregate roll-up composable — no repository is privileged, and the earlier openxFactory-only scope is superseded.

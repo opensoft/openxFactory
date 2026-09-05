@@ -1,7 +1,22 @@
 # release-realization Specification
 
 ## Purpose
-TBD - created by archiving change add-release-realization-flow. Update Purpose after archive.
+
+Keep a promoted spec a description of what the code actually does, by
+putting a realization axis on every change. Require each proposal to
+declare `code_surface:` and `target_release:`, and hold a code-surface
+change active as approved-but-unrealized intent until its code is merged
+on the implemented target and — where the surface runs — has run green,
+with a deployment onto another factory's managed subject citing the
+completed handoff request by correlation identifier. Name how a ratified
+change reaches engineering: the decomposition scale rule, deltas ordered
+against an earlier active change's outcome, and the three branch kinds
+as distinct vocabulary. Govern what the archive gate must still find
+intact — accepted claims represented in the packet rather than left in
+supporting documents, an unmutated origin declaration, pins re-derived
+by the landing whose rewrite orphans them, and a pinned corpus
+measurement carried one row per subject rather than as a contended
+shared total.
 ## Requirements
 ### Requirement: Realization axis declaration
 Every OpenSpec change proposal SHALL declare `code_surface:` — `none` or
