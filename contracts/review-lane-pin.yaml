@@ -57,7 +57,7 @@ repository: opensoft/codexFactory
 # UNCOVERED pin site. `core_commit` is a key the sweep vocabulary did not know,
 # and declaring the member in `scripts/doc_health/pin_class.py` is what teaches
 # it — the same move `carve_commit` made, for the same reason.
-core_commit: "6d35c4fecaa4af7a23134678f9239e409ff5215f"
+core_commit: "76fa501cd1c846ca9676d901e41e33ae1e730733"
 revision_kind: commit
 
 # When this pin was declared, and against what observation. Recorded because a
@@ -261,24 +261,66 @@ revision_kind: commit
 # count, is what to carry forward — AN EXACT ENUMERATION OWES AN ADVANCE TO
 # EVERY PROMOTION OF A NEW CAPABILITY, and the repair is always the runbook's
 # two-repository order.
+#
+# THE FAMILY REOPENS, SAME DAY: ADVANCED A FOURTH TIME 2026-09-04, from
+# `6d35c4fe` to `76fa501c`, EIGHT HOURS AFTER THE NOTE ABOVE CALLED ITSELF THE
+# LAST OF THE FAMILY. That note was accurate when written — no change was then
+# in flight — and this advance is exactly the "whichever future archive first
+# does" it named, not a correction of it.
+#
+# Archiving `add-chain-anchoring` promotes
+# `openspec/specs/chain-anchoring/spec.md`, and codexFactory's
+# `repository_gate_floor` for this repository ENUMERATES that surface exactly,
+# so the new spec arrived OFF the floor for the same structural reason as the
+# three before it. codexFactory PR #204 (MERGE COMMIT `76fa501c`,
+# 2026-09-04T23:47:59Z) regenerated the block at openxFactory `3afd8a8c` — THIS
+# pull request's own pushed head, EXACTLY (the ledger/ideation-path commit that
+# closes the archive, not merely an ancestor of it) — for 59 spec paths.
+# Generated block 58 -> 59; floor total 66 -> 67.
+#
+# THE FLOOR GREW BY EXACTLY ONE, AND IT IS THE SPEC. The whole diff against
+# `6d35c4fe`: ONE added entry line (`openspec/specs/chain-anchoring/spec.md`),
+# the generated block's three regeneration fields (`generated_at` and its
+# `--ref` `0ae74086` -> `3afd8a8c`, `entry_count` 58 -> 59), and the document's
+# TWO "8 + 1, not N equally-reasoned chokepoints" self-descriptions moving
+# 66 -> 67. The EIGHT hand-reasoned entries are untouched and nothing is
+# removed, so no dead entry is introduced.
+#
+# NO COLLISION, MEASURED MORE DIRECTLY THAN THE THREE ADVANCES BEFORE IT:
+# `git merge-base --is-ancestor origin/main HEAD` holds on this branch outright
+# — `main` (`9420472e`) is an ANCESTOR of this branch's head, not merely a
+# proper subset's source, so there is no commit main gained after this branch
+# was cut left to reconcile. `main` carries 58 tracked paths under
+# `openspec/specs` and this branch carries 59, the one addition being this
+# packet's own promotion. One regeneration at one tree is sufficient and the
+# second-lander remedy is not engaged.
+#
+# FOUR ADVANCES, ONE DAY, AND THE RULE OUTLIVES THE COUNT AGAIN:
+# `subject-establishment` (12:25:19Z), `medxchart-overlay-boundary`
+# (14:05:07Z), `medxpractice-overlay-boundary` (16:02:21Z), and
+# `chain-anchoring` (23:47:59Z) — each owed because an EXACT ENUMERATION owes
+# an advance to every promotion of a NEW capability. No openxFactory change now
+# in flight promotes one, so the next advance belongs to whichever future
+# archive first does, and the claim is made no more permanent this time than
+# it was the last.
 declared_at: "2026-09-04"
 declared_from: >-
-  codexFactory origin/main HEAD as observed on 2026-09-04 at 16:02:21Z
-  (`6d35c4fe`, the MERGE COMMIT of PR #198 — merged, not squashed, this
+  codexFactory origin/main HEAD as observed on 2026-09-04 at 23:47:59Z
+  (`76fa501c`, the MERGE COMMIT of PR #204 — merged, not squashed, this
   repository disallowing squash — verified an ANCESTOR of codexFactory
   `origin/main` by `git merge-base --is-ancestor` immediately before this
-  advance, and named short here as the five prior advances named theirs, because
+  advance, and named short here as the six prior advances named theirs, because
   a second commit-shaped VALUE in this file would be a second pin site owing its
   own declared derivation-pin-class member). Its
   `scripts/merge_master/openxfactory-review-authority-floor.yaml` was
-  regenerated at openxFactory `0ae74086` and carries 66 entries: EIGHT
-  hand-reasoned chokepoints and 58 generated spec paths, covering every tracked
-  path under `openspec/specs` on this branch's tree — all 58, measured — with
-  nothing left over and no dead entry. It contains `bfb8bde3` (PR #197), and
-  through it `79198ac4` (PR #195), `8f770afb` (PR #186), `605d48ac` (PR #183)
-  and `8cb17373` (PR #184), every commit this repository's pin sites have named,
-  by ancestry — so nothing any of them established is given up by advancing past
-  them.
+  regenerated at openxFactory `3afd8a8c` and carries 67 entries: EIGHT
+  hand-reasoned chokepoints and 59 generated spec paths, covering every tracked
+  path under `openspec/specs` on this branch's tree — all 59, measured — with
+  nothing left over and no dead entry. It contains `6d35c4fe` (PR #198), and
+  through it `bfb8bde3` (PR #197), `79198ac4` (PR #195), `8f770afb` (PR #186),
+  `605d48ac` (PR #183) and `8cb17373` (PR #184), every commit this repository's
+  pin sites have named, by ancestry — so nothing any of them established is
+  given up by advancing past them.
 
 # The caller this pin governs. The test asserts this file exists AND that its
 # checked-out `ref:` equals `core_commit` above.
@@ -312,9 +354,9 @@ pinned_members:
       named here because a re-point ceremony must know it is now load-bearing.
   - path: scripts/merge_master/openxfactory-review-authority-floor.yaml
     why: >-
-      The `repository_gate_floor` for `opensoft/openxFactory` — SIXTY-SIX
+      The `repository_gate_floor` for `opensoft/openxFactory` — SIXTY-SEVEN
       never-clearable paths as of this advance, and the document says on its own
-      face that it is 8 + 1 rather than 66 equally-reasoned chokepoints. The
+      face that it is 8 + 1 rather than 67 equally-reasoned chokepoints. The
       EIGHT are the hand-reasoned gate chokepoints. FOUR are the original set
       (the register, the two paths that determine which reader opens it, and
       `contracts/review-lane-pin.yaml` itself — added by codexFactory PR #125,
@@ -333,10 +375,10 @@ pinned_members:
       verified path by path, so no dead entry arrives with them. PR #182 merged
       AFTER PR #183 and PR #184 despite being authored before them, which is
       why those four appeared for the first time at an advance whose stated
-      object was a spec. THE EIGHT ARE UNCHANGED BY ALL THREE 2026-09-04
+      object was a spec. THE EIGHT ARE UNCHANGED BY ALL FOUR 2026-09-04
       ADVANCES.
       The PLUS ONE is a machine-generated block carrying every
-      tracked path under `openspec/specs` — FIFTY-EIGHT as of this advance —
+      tracked path under `openspec/specs` — FIFTY-NINE as of this advance —
       written only by
       `scripts/merge_master/generate_specs_floor_block.py` (CSC-C7: "a
       hand-typed or copy-pasted list is refused on its face"), first landed by
@@ -353,11 +395,14 @@ pinned_members:
       `subject-establishment`, and A FIFTH TIME by codexFactory PR #197 (merge
       `bfb8bde3`, 2026-09-04T14:05:07Z) at openxFactory `2a3b29c8` — THIS
       pull request's own archive commit — for 57, gaining
-      `medxchart-overlay-boundary`, and A SIXTH TIME by codexFactory PR #198
+      `medxchart-overlay-boundary`, A SIXTH TIME by codexFactory PR #198
       (merge `6d35c4fe`, 2026-09-04T16:02:21Z) at openxFactory `0ae74086` —
       THIS pull request's own pushed head after its archive and ledger commits —
-      for 58, gaining `medxpractice-overlay-boundary`. SIX REGENERATIONS, FIVE
-      OF THEM WITHIN TWENTY-FOUR HOURS AND THREE WITHIN ONE WORKING AFTERNOON:
+      for 58, gaining `medxpractice-overlay-boundary`, and A SEVENTH TIME by
+      codexFactory PR #204 (merge `76fa501c`, 2026-09-04T23:47:59Z) at
+      openxFactory `3afd8a8c` — THIS pull request's own pushed head, exactly —
+      for 59, gaining `chain-anchoring`. SEVEN REGENERATIONS NOW, FOUR OF THEM
+      ON THIS ONE CALENDAR DAY:
       the cadence is the feature's, because an exact enumeration owes an advance
       to every promotion of a new capability. Authored and
       owned in codexFactory; read here, never authored here — and vendored here
@@ -396,16 +441,16 @@ pinned_members:
 floor_snapshot:
   path: contracts/review-lane-floor-snapshot.yaml
   of: scripts/merge_master/openxfactory-review-authority-floor.yaml
-  sha256: "b890cf1de154fef4f8b91badaf9c41ff492f2abc25d1c4fe058c23b8a10961d6"
-  entry_count: 66
+  sha256: "c4a386dbbfff3b35c0ef0afd1b36932e181effb551a69434cb02b25332a59e78"
+  entry_count: 67
   taken_at: core_commit
   # THE SNAPSHOT CARRIES ONE COMMIT-SHAPED VALUE OF ITS OWN, AND IT IS DECLARED
   # IN `scripts/doc_health/pin_class.py` AS A NON-MEMBER, NOT AS A MEMBER.
   # Inside the generated block's header the generator writes `generated_at`: the
-  # OPENXFACTORY commit `git ls-tree` was run against (`0ae74086` as of this
-  # advance — this pull request's own pushed head at the moment codexFactory
-  # PR #198 regenerated, being the first tree carrying
-  # `openspec/specs/medxpractice-overlay-boundary/spec.md`, and an ancestor of
+  # OPENXFACTORY commit `git ls-tree` was run against (`3afd8a8c` as of this
+  # advance — this pull request's own pushed head, exactly, at the moment
+  # codexFactory PR #204 regenerated, being the first tree carrying
+  # `openspec/specs/chain-anchoring/spec.md`, and the immediate parent of
   # the commit that lands this file). It therefore RESOLVES
   # here, and the sweep's coverage test
   # resolves every 40-hex token in every swept file — so this file cannot simply
@@ -473,11 +518,11 @@ floor_snapshot:
 lockstep:
   status: diverged
   reason: >-
-    Diverged FURTHER on 2026-09-04 by this advance — the THIRD of the day —
+    Diverged FURTHER on 2026-09-04 by this advance — the FOURTH of the day —
     having first diverged on 2026-09-01 and diverged further on 2026-09-03 and
-    twice earlier on 2026-09-04. Both xFactory judging surfaces below STILL name
-    `f4702f64` — RE-MEASURED on xFactory `main` 2026-09-04 AT THIS ADVANCE by
-    reading the two `ref:` literals directly out of
+    three times earlier on 2026-09-04. Both xFactory judging surfaces below
+    STILL name `f4702f64` — RE-MEASURED on xFactory `main` 2026-09-04 AT THIS
+    ADVANCE by reading the two `ref:` literals directly out of
     `.github/workflows/merge-master-approval.yml` (line 146) and
     `.github/workflows/council-convening-lane.yml` (line 302), not carried over
     from any earlier reading, both still returning that same `f4702f64…` value
@@ -485,19 +530,19 @@ lockstep:
     `test_the_pin_carries_exactly_one_commit_shaped_value` permits exactly ONE
     40-hex token in it, and that one is `core_commit`) — where the
     2026-08-28 ceremony left all three, openxFactory PR #483 paired with
-    xFactory commit eae4dc6. This file now names `6d35c4fe`, which carries the
-    66-entry floor (the 65 of the 14:05 advance plus
-    `openspec/specs/medxpractice-overlay-boundary/spec.md`, this packet's own
-    promotion, regenerated at this pull request's pushed head) and the
+    xFactory commit eae4dc6. This file now names `76fa501c`, which carries the
+    67-entry floor (the 66 of the 16:02 advance plus
+    `openspec/specs/chain-anchoring/spec.md`, this packet's own promotion,
+    regenerated at this pull request's own pushed head, exactly) and the
     drift-detection core the caller calls; at `f4702f64` the floor is four
     entries and those functions are absent, so the converged commit cannot
     evaluate the object this advance exists to make operative. THE GAP WIDENED
     BY ONE MORE ENTRY, NOT BY A NEW KIND OF DIVERGENCE: the cause is unchanged
     from 2026-09-01 and remains forced by the feature, and the obligation to
     converge at a future re-point ceremony stands undischarged — and it is now
-    owed against a floor that has moved SIX times, three of them on this one
-    afternoon, which makes converging cheaper to do soon than later and dearer
-    with every promotion.
+    owed against a floor that has moved SEVEN times, four of them on this one
+    calendar day, which makes converging cheaper to do soon than later and
+    dearer with every promotion.
   converged_with:
     - opensoft/xFactory .github/workflows/merge-master-approval.yml
     - opensoft/xFactory .github/workflows/council-convening-lane.yml

@@ -3,7 +3,7 @@ kind: repository_gate_floor
 floor:
   id: openxfactory-review-authority-register
   repository: opensoft/openxFactory
-  # THIS DOCUMENT IS 8 + 1, NOT 66 EQUALLY-REASONED CHOKEPOINTS.
+  # THIS DOCUMENT IS 8 + 1, NOT 67 EQUALLY-REASONED CHOKEPOINTS.
   #
   # EIGHT hand-reasoned gate chokepoints, each with its own ground below: the
   # intake register, the two paths that determine WHICH READER opens it, a
@@ -28,8 +28,9 @@ floor:
   # refused BEFORE the tree check, i.e. in that same no-tree production mode,
   # i.e. inside codexFactory's OWN required gate: **one mistyped duplicate in
   # this list wedges a required gate in another repository.** With four entries
-  # that risk was negligible; at fifty-seven it is not, which is why nothing but
-  # the generator may write the block.
+  # that risk was negligible; at fifty-seven — the floor's size when this rule
+  # was adopted on 2026-08-31 — it was not, and the list has only grown since,
+  # which is why nothing but the generator may write the block.
   #
   # The register alone was not enough. `RepositoryGateFloor.matching_paths` is
   # exact set membership, so protecting the register FILE protects
@@ -116,12 +117,12 @@ floor:
     # ==== BEGIN MACHINE-GENERATED BLOCK — DO NOT HAND-EDIT ====
     # prefix:             openspec/specs
     # source_repository:  opensoft/openxFactory
-    # generated_at:       0ae74086c4aec05d0d7f1f189cdc76a8b4ef7a8e
-    # entry_count:        58
+    # generated_at:       3afd8a8c2c1221e52f345f7712ac22899b5d3a3c
+    # entry_count:        59
     # regenerate with:
     #   python3 scripts/merge_master/generate_specs_floor_block.py \
     #     --repo <opensoft/openxFactory checkout> \
-    #     --ref 0ae74086c4aec05d0d7f1f189cdc76a8b4ef7a8e --write
+    #     --ref 3afd8a8c2c1221e52f345f7712ac22899b5d3a3c --write
     #
     # ONE GROUND FOR THE WHOLE BLOCK, and it is not the ground above it.
     # The eight entries ABOVE are separately reasoned GATE CHOKEPOINTS: each one
@@ -134,7 +135,7 @@ floor:
     # propose a subset because "a smaller enumeration has the identical failure
     # mode, merely less often").
     #
-    # SO THE READER IS NOT MISLED: this document is 8 + 1, not 66 equally-reasoned
+    # SO THE READER IS NOT MISLED: this document is 8 + 1, not 67 equally-reasoned
     # chokepoints (CSC-C9). Do not hand-edit the block. Do not add a member by
     # hand. Regenerate it with the command above, at a named openxFactory commit.
     #
@@ -158,6 +159,7 @@ floor:
     - openspec/specs/canonical-contract-migration/spec.md
     - openspec/specs/canonical-policy-migration/spec.md
     - openspec/specs/capability-health/spec.md
+    - openspec/specs/chain-anchoring/spec.md
     - openspec/specs/client-identity-roster/spec.md
     - openspec/specs/client-infrastructure-liaison/spec.md
     - openspec/specs/client-infrastructure-request/spec.md
