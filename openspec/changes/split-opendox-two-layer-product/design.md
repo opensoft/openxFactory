@@ -2,6 +2,7 @@
 
 Status: ratified
 Ratified by: split-opendox-two-layer-product — 2026-09-05, Brett Heap, "ratify #666" (record `review/ratification-2026-09-05.md`)
+Amended: 2026-09-05 — repository shape, by Brett Heap in session, verbatim "elect the shape for both, follow the pin chain, no family yet" (`opensoft/openxFactory`#656 comment `5552614170`); record `review/amendment-2026-09-05-repository-shape.md`. § D12 records the decision; § D8's drafted Amendment 3 text and the R-index below carry it.
 
 Companion to `proposal.md`. The proposal argues the doctrine, carries the eleven
 2026-09-04 acts as LOCKED constraints and names the wave; this document records
@@ -35,6 +36,13 @@ constraints. This table is the index this document's decisions cite.
 | **OQ-1** | 22:15Z (`#656` comment `5547060378`) | **the FOUR-PART FLOOR**, as a requirement and not a recommendation: mapping manifest + per-file digests + a CLOSED edit-class list (import rewrites, path constants, adapter calls); test counts that SUM; a neutral conformance corpus; a snapshot-equivalence run | D6 |
 | **OQ-2** | 22:16Z (`#656` comment `5547067574`) | **ONE CHAIN** — inside the family openDox is pinned only by openXdox; outside it, openDox is used freely as open source. No third MODIFIED requirement on `neutral-product-pin` | D3a, and the `neutral-product-pin` delta's scope |
 | **OQ-3** | 22:21Z (`#656` comment `5547107565`) | **no `document-lifecycle` delta now**; descendants declare lifecycles via `domain-mapping-declaration`; revisit at `MedxDox` | D3a, and the packet's declared-not-modified list |
+| **SHAPE** | **2026-09-05** 14:52Z (`#656` comment `5552614170`) | **"elect the shape for both, follow the pin chain, no family yet"** — openDox and openXdox each elect the `openRepoShape` three-repository shape (six repositories, scaffolded, election recorded in `project.yaml`); a descendant's referent is reached through the DECLARED pin chain (`opensoft/openRepoShape`#40); NO family holder is created and the option stays open | **D12**, and D8, D10, D11 as amended |
+
+> Amended 2026-09-05 — repository shape. The column head reads *time
+> (2026-09-04)* because every act indexed here was taken that day; the SHAPE row
+> above is the first from a later date and carries its own date in the cell. The
+> eleven acts and the four `OQ`/`DQ` rulings are unchanged and are not reopened
+> — the shape ruling adds a row rather than editing one.
 
 ## Context
 
@@ -648,9 +656,16 @@ AMENDMENT — the discipline `split-openxwallet-repo` used for Amendment 2 — a
 travels with the act it describes. **The text below is DRAFTED, NOT APPLIED;
 `tasks.md` § 1.6 applies it in the pull request that creates the repository.**
 
+> Amended 2026-09-05 — repository shape. The drafted text below now carries the
+> SIX repository names and the election, because the ruling of
+> 2026-09-05T14:52Z made each layer a three-repository project. The amendment is
+> still DRAFTED and still applied at § 1.6; only its content grew. `openXdox`'s
+> own name, its lowercase wire label, its `dox` handle, its host and
+> `openXdox-Install` are all unchanged by it.
+
 > ## Amendment 3 — `openDox` is taken knowingly (2026-<MM>-<DD>)
 >
-> **The core repository is `opensoft/openDox`, and the collision is accepted
+> **The core is the `opensoft/openDox` PROJECT, and the collision is accepted
 > rather than absent.** Brett's ruling of 2026-09-04 (RULING C1 on
 > `opensoft/openxFactory` issue #656, 17:46Z), taken because the
 > document-and-ideation workbench becomes two open-source layers and the neutral
@@ -683,11 +698,36 @@ travels with the act it describes. **The text below is DRAFTED, NOT APPLIED;
 > lowercase wire label, its `dox` handle and its host; what changed is that the
 > neutral layer below it is now also named.
 >
+> **SIX REPOSITORY NAMES, AND THE ELECTION THAT PRODUCED THEM.** Brett's ruling
+> of 2026-09-05T14:52Z (`opensoft/openxFactory` issue #656, comment
+> `5552614170`), verbatim *"elect the shape for both, follow the pin chain, no
+> family yet"*, ELECTS the `openRepoShape` three-repository shape for both
+> layers. The names this record registers are therefore six:
+> `openDox`, `openDox-spec`, `openDox-code`, `openXdox`, `openXdox-spec` and
+> `openXdox-code`. The election is recorded where the doctrine says it lives —
+> each assembly root's `project.yaml`, `elected_by: Brett Heap`,
+> `elected_on: 2026-09-05`, `reference: docs/project-repo-schema.md` — and this
+> record only registers the NAMES.
+>
+> **The leg suffixes are not new brands.** `-spec` and `-code` are lowercase and
+> hyphenated precisely so they sit in a different naming family from every
+> CamelCase product name this record governs: `openDox-code` is a LEG of the
+> openDox project, not a product called "openDox-code", and the `openX` + `dox`
+> reasoning above does not apply to it. **Electing the shape confers nothing** —
+> no gate, no floor, no grant, no authority — so nothing else in this record
+> moves with it. `openXdox-Install` keeps its own form and its own rule: it is
+> an INSTALL name, not a leg, and it is still registered with no repository
+> created.
+>
 > **The descendant spelling is unaffected.** The transcript spells the
 > descendants `medXdox` and `CodeXdox`; the ratified `<Domainx><Product>` form
 > governs, so they are `MedxDox`, `codexDox`, `LedgerxDox`, `AdxDox` and
 > `OpsxDox` — registered as NAMES here with no repository created, on the same
-> rule that registered `openXwallet-Install`.
+> rule that registered `openXwallet-Install`. A descendant scaffolded the same
+> way carries the same two legs, so its leg names are registered beside it —
+> `codexDox-spec`, `codexDox-code`, `MedxDox-spec`, `MedxDox-code`, and so on
+> for `LedgerxDox`, `AdxDox` and `OpsxDox` — and, again, no repository is
+> created for any of them.
 
 **The contradiction the record has carried since before the ruling, and it is
 worth stating in the amendment's own paragraph:** the promoted `ideation-dashboard`
@@ -750,6 +790,17 @@ Each repository gets, at bootstrap: `README.md`, `LICENSE` (Apache-2.0),
 and `CHANGELOG.md`, one required check created in EVALUATE mode and promoted to
 ACTIVE once it has reported, and — for openXdox — `contracts/opendox-pin.yaml`.
 
+> Amended 2026-09-05 — repository shape. "Each repository" is now each PROJECT,
+> and the list above distributes across its three repositories rather than
+> sitting in one: § D12 records the election, `tasks.md` § 1.3 says exactly what
+> `scaffold-project.py` writes and what stays a hand act, and § 1.4 places the
+> posture files (LICENSE and SECURITY.md in all six; CONTRIBUTING.md and
+> CODE_OF_CONDUCT.md in the two assembly roots). The OpenSpec instance lands in
+> each `-spec` leg; `contracts/manifest.yaml`, `CHANGELOG.md` and
+> `contracts/opendox-pin.yaml` in the assembly root. Q7's substance — public,
+> Apache-2.0, `opensoft`-owned, posture at creation — is unchanged, and it now
+> binds six repositories instead of two.
+
 ### D11 — The Rule 7 substrate plan (issue #630)
 
 | row | substrate | claimed when | why |
@@ -758,6 +809,124 @@ ACTIVE once it has reported, and — for openXdox — `contracts/opendox-pin.yam
 | **2** | `tests/sequenced_after/corpus-ledger.yaml` + the MOVEMENT LOG | **NOW** | This packet adds one change directory, so it adds one ledger row and may flip partners' `class` where its REMOVED block shares requirement keys. Seeded with `--seed-ledger --moved-by '#<PR>'` once the PR number exists. No MOVEMENT LOG entry is owed: a row added is a move the diff itself states. |
 | **3** | README "OpenSpec Records" block | **NOW** | One row under Active changes. Two PRs editing the same lines conflict on merge; Rule 6's landing window is the merge-time half. |
 | **4** | contract cuts | **AT THE CUT** | The MAJOR is claimed by NUMBER at § 5.7, not by this packet. |
+
+### D12 — Repository shape: both layers elect the three-repository shape (2026-09-05)
+
+**RULED — Brett Heap, 2026-09-05T14:52Z, in session, after a read of
+`opensoft/openRepoShape` against this ratified packet, verbatim: *"elect the
+shape for both, follow the pin chain, no family yet"*** — recorded on
+`opensoft/openxFactory` issue #656, comment `5552614170`. This section records
+the decision, what was put beside it, and what it costs. It is an AMENDMENT to a
+ratified document: nothing above is rewritten, and D1's topology, D2's seam,
+D3's three-column assignment, D6's four-part floor and D9's re-homing plan are
+untouched.
+
+**The decision.** `openDox` and `openXdox` are each a THREE-REPOSITORY project in
+the sense `docs/project-repo-schema.md` ratified on 2026-09-02: an assembly root
+carrying `project.yaml`, the two legs as submodules, the pins and the `validate`
+gate, plus a `<Project>-spec` leg and a `<Project>-code` leg. Six repositories,
+created by `scaffold-project.py` rather than by hand, PUBLIC and Apache-2.0 as
+RULING Q7 already required, with the election recorded in each `project.yaml`
+(`elected_by: Brett Heap`, `elected_on: 2026-09-05`,
+`reference: docs/project-repo-schema.md`). Descendants are scaffolded the same
+way with `--pin openXdox@<sha>`. **No family holder is created.**
+
+**Electing confers nothing, and that is why this is an amendment and not a
+re-ratification.** The doctrine's own first sentence: the shape changes no gate,
+no floor, no grant and no authority. Every boundary this packet ratified — what
+leaves, what stays, the adapter seam, the floor, the pin direction — reads
+identically before and after. What moved is where files sit and how many
+repositories the bootstrap creates.
+
+**The alternatives Brett was shown, and why each was not taken.**
+
+| put | what it was | why not taken |
+| --- | --- | --- |
+| **two single repositories, on the neutral-product precedent** | every `open*` neutral product in `opensoft` today is ONE repository — `openxFactory`, `openXwallet`, `openChart`, `openPractice`, `openRepoShape`. Keeping openDox and openXdox single would have made them ordinary members of that set and cost nothing to start | NOT TAKEN. openDox is not a contract family; it is an APPLICATION WITH A SCHEMA whose requirements and whose code have different reviewers, different cadences and different floors — the gap the proposal's own § Impact names in the aggregation's working rule #1. The shape gives the split a reviewed boundary instead of a directory convention, and gives a consumer one commit that names both halves |
+| **a `Dox` family holder** | `openRepoShape` has a family form — a holder repository carrying `family.yaml` (`kind: family-manifest`) naming the members it pins, with its own templates and validator. It would have held `openDox`, `openXdox` and the descendants as one named set | NOT TAKEN — *"no family yet"*. Three members, one of which does not exist, is not a family; the holder would be a repository whose only content is a list nobody reads yet. **The option stays deliberately OPEN**: nothing here forecloses it, and a holder can be created later over repositories that already exist, which is the cheap direction. It is recorded as an open option rather than a rejected one |
+| **elect for openXdox only** | openXdox is the layer with two audiences (the mapping core and its descendants), so it has the stronger case for a spec/code split; openDox could have stayed single | NOT TAKEN by the ruling's own word — *"for both"*. A neutral core whose requirements live inside its code repository while its integration layer's do not is exactly the asymmetry a descendant would have to learn twice |
+
+**The pin chain, and what this packet depends on.** `openXdox`'s `project.yaml`
+declares `neutral_product_pins: [openDox]`; every descendant declares
+`[openXdox]`. That is RULING OQ-2 expressed as tree facts — inside the family
+openDox is pinned only by openXdox, and no descendant pins openDox directly.
+`openRepoShape`'s descendant-referent rule derives the referent from the NAME.
+**`opensoft/openRepoShape`#40 is the amendment that makes the referent follow the
+DECLARED CHAIN** (`codexDox` → `openXdox` → `openDox`, every link an offline fact
+in a tree, the chain recorded rather than inferred).
+
+**What the tool does TODAY is not what #40's own issue body says, and this
+amendment corrects the record rather than repeating it.** #40 states that
+`openXdox` *"is never a referent for `<Domainx>Dox`"*, so `codexDox` would
+classify as a plain assembly root. Measured in this session at openRepoShape
+`main` `f9ff3f8`: `codexDox` with `neutral_product_pins: [openXdox]` classifies
+as `domain-descendant / assembly` — it PASSES — and
+`templates/assembly-root/scripts/validate-manifest.py` accepts the manifest it
+writes. It passes by ACCIDENT. The descendant family admits an x-stem spelling of
+the referent (`contracts/repository-naming.yaml`, `also_accepted: openx{product}`,
+there so `codexFactory` may descend from `openxFactory`), the referent test
+compares CASE-FOLDED, and `openXdox`.casefold() equals `openxDox`.casefold(). The
+pin on the INTEGRATION layer therefore satisfies the referent test for the
+NEUTRAL CORE, and the manifest records `descendant_referent: openDox`,
+`referent_declared: true` in a tree that declares no openDox pin at all. The
+classification is right and its stated reason is false — which is worse than a
+refusal, because nothing surfaces it.
+
+That does not weaken #40; it is the argument for it. #40 makes the same
+classification TRUE by naming the chain the descendant actually relies on, and it
+removes a pass that would evaporate the moment anyone tightened the x-stem rule
+or compared spellings exactly. `tasks.md` § 1.10 sequences the descendant work
+after #40 and decides the interim rather than leaving it to the session that hits
+it: the descendant scaffolds, and the chain it relies on is RECORDED in its own
+manifest so the accidental pass is never left standing as the explanation. What
+the interim does not permit is adding a direct `openDox` pin to force the
+classification.
+
+**A second dependency, measured while authoring this amendment:
+`opensoft/openRepoShape`#41.** `scaffold-project.py` REFUSES both invocations
+today — `REFUSED naming-role-mismatch: 'openDox' classifies as neutral-product,
+not as the 'assembly' form of a project leg` — because `accepts_role()` admits
+only `project-leg/<role>` and `domain-descendant/assembly`. Verified at
+openRepoShape `main` `f9ff3f8` and at `122d729bc0c2f2e0ded0bb61b6b97f49512f613e`,
+the commit `contracts/openreposhape-pin.yaml` pins, so it is not a tip
+regression. The standard already computes the resolution it needs
+(`--explain openDox` reports `also_matches: project-leg/assembly`) and then
+discards it. #41 asks for the admission: a neutral product may elect the shape
+and be its own assembly root, on the same reasoning that already lets a declared
+descendant be one. **`tasks.md` § 1.1a carries it as the first act of § 1.**
+Nothing is blocked today, because this packet performs nothing.
+
+**Where `contracts/manifest.yaml` and the bundle tag live, and why.** In the
+ASSEMBLY ROOT of each project, with the release cut there. The assembly root is
+the only object whose single commit names both legs, so it is the only place a
+release identity can describe THE PROJECT rather than half of it; a tag on
+`openDox-code` says nothing about the requirements that shipped with it.
+`neutral-product-pin` makes a consumer pin a commit and a digest, so the commit a
+consumer pins has to be the one that answers *what was this project at that
+moment* — which is the assembly root's commit, and it is what openXdox's
+`contracts/opendox-pin.yaml` and `openxFactory`'s two pin files therefore name.
+The legs are pinned by their own assembly root, twice and in one commit (gitlink
+plus `contracts/<role>-pin.yaml`), under the lockstep invariant the doctrine
+already ratified.
+
+**The cost accepted, stated rather than discovered.** A change to openDox's code
+is not visible to openXdox until TWO pins move: openDox's assembly root advances
+its own `code` pin (gitlink plus `contracts/code-pin.yaml`, same commit), and
+openXdox then bumps `contracts/opendox-pin.yaml`. A single-repository product has
+neither move. This is the aggregation's own gitlink-trap discipline one level
+down — the invariant that went unwritten for months and left `validate` red on
+seven consecutive pin-syncs — and the reason the doctrine makes the assembly
+root's gate refuse when the three parts disagree. It is a real cost and it buys a
+reviewed boundary between requirements and implementation for a product whose
+whole purpose is governing that boundary for other people.
+
+**What this decision does NOT change.** The successor map's 102 rows and its
+71/16/15 split; the corpus-adapter seam and its four operations; the four-part
+floor; the database boundary; the tenancy model; the re-homing plan for the five
+frozen changes; the two MODIFIED capabilities and the two ADDED ones; RULING
+OQ-2's single pin chain; and the naming record's `openXdox` spelling, wire label
+and handle. `tasks.md` groups 2, 5, 6 and 8 do not move, save the two § 8
+evidence lines that COUNT repositories.
 
 ## Risks and trade-offs
 

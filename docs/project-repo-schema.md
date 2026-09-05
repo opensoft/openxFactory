@@ -106,6 +106,23 @@ this standard is built for.
 descendant because it pins the product — which is what that capability already
 requires.
 
+> Amended 2026-09-05. The rule above is unchanged and the sentence it rests on —
+> ***"Descendant only if it pins open&lt;Product&gt;"*** — still governs. What is
+> added is HOW FAR the pin may reach. Ruled by Brett Heap, 2026-09-05T14:52Z, in
+> session, verbatim: ***"elect the shape for both, follow the pin chain, no
+> family yet."*** A `<Domainx><Product>` name classifies as a domain descendant
+> where its declared `neutral_product_pins` REACH the matching `open<Product>`
+> through a CHAIN of declared neutral-product pins — `codexDox` declares
+> `openXdox`, whose own manifest declares `openDox` — and a DIRECT pin remains
+> sufficient. Every link stays an offline fact in a tree, so the check still
+> asks no host anything, and the chain is RECORDED by the descendant rather than
+> inferred, so a reader sees which links a classification relied on. The
+> mechanics are `opensoft/openRepoShape`'s to state and are authored there as
+> `opensoft/openRepoShape`#40; this doctrine only says the referent may be
+> reached rather than only named. Ruling:
+> `opensoft/openxFactory`#656 comment `5552614170`; the consuming amendment is
+> `openspec/changes/split-opendox-two-layer-product/review/amendment-2026-09-05-repository-shape.md`.
+
 ## The double pin, and the lockstep invariant
 
 Each non-assembly leg is pinned TWICE, in the same commit: by the GITLINK git

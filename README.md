@@ -582,7 +582,11 @@ Active changes:
   — authored 2026-09-04, **`Status: ratified`** (2026-09-05, Brett Heap,
   in-session, verbatim *"ratify #666"* at 01:38Z over head `6935fb8b`; record
   `openspec/changes/split-opendox-two-layer-product/review/ratification-2026-09-05.md`,
-  ruling on `opensoft/openxFactory` issue #656). **IT STILL PERFORMS NOTHING.**
+  ruling on `opensoft/openxFactory` issue #656), **amended 2026-09-05
+  (repository shape)** — Brett Heap, in-session, verbatim *"elect the shape for
+  both, follow the pin chain, no family yet"* at 14:52Z; record
+  `openspec/changes/split-opendox-two-layer-product/review/amendment-2026-09-05-repository-shape.md`.
+  **IT STILL PERFORMS NOTHING.**
   No repository is created, no code moves, no capability is
   promoted or removed, and `docs/openxdox-naming.md` is NOT edited by this packet
   — Amendment 3's text is DRAFTED at `design.md` § D8 and applied in the pull

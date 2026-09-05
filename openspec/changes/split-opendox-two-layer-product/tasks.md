@@ -14,9 +14,20 @@ Group 0 is this packet's own bookkeeping and the ratification read.
 created, no code moves, no capability is promoted or removed, and
 `docs/openxdox-naming.md` is not edited.
 
-Legend: `[oxF]` openxFactory · `[oD]` opensoft/openDox (new) · `[oXd]`
-opensoft/openXdox (new) · `[xF]` the xFactory aggregation · `[OmI]`
-Omnigent-Install · `[Opsx]` OpsxFactory · `[cxF]` codexFactory.
+Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
+`[oXd]` the opensoft/openXdox PROJECT (new) · `[xF]` the xFactory aggregation ·
+`[OmI]` Omnigent-Install · `[Opsx]` OpsxFactory · `[cxF]` codexFactory.
+
+> Amended 2026-09-05 — repository shape. `[oD]` and `[oXd]` each name a
+> THREE-REPOSITORY PROJECT rather than one repository: an assembly root
+> (`openDox`, `openXdox`), a `-spec` leg and a `-code` leg, elected by Brett
+> Heap on 2026-09-05T14:52Z — verbatim *"elect the shape for both, follow the
+> pin chain, no family yet"* (`opensoft/openxFactory`#656 comment
+> `5552614170`). Group 1 is rewritten around `scaffold-project.py`; group 7 is
+> one scaffold run rather than one repository; groups 3 and 4 name the leg a
+> destination path lands in. **Groups 2, 5, 6 and 8 did not move**, except the
+> two evidence lines in § 8 that COUNT repositories, which are marked where they
+> stand. Record: `review/amendment-2026-09-05-repository-shape.md`.
 
 ## 0. Ratification read, the FOUR RULED questions, and Amendment 3's text
 
@@ -85,35 +96,186 @@ Omnigent-Install · `[Opsx]` OpsxFactory · `[cxF]` codexFactory.
   reading of this item that said no entry was owed — Copilot round 5, taken
   2026-09-05.)
 
-## 1. Repository bootstrap — two repositories, public, Apache-2.0 (RULING Q7)
+## 1. Repository bootstrap — TWO ELECTED PROJECTS, SIX repositories, public, Apache-2.0 (RULING Q7, as amended 2026-09-05)
 
-- [ ] 1.1 `[oD]` Create `opensoft/openDox`: **PUBLIC**, Apache-2.0, `opensoft`-owned.
-  No claim is made on the `opendox` GitHub organization (RULING C1).
-- [ ] 1.2 `[oXd]` Create `opensoft/openXdox`: **PUBLIC**, Apache-2.0, `opensoft`-owned.
-- [ ] 1.3 `[oD]` `[oXd]` Scaffold each: `README.md`, `LICENSE`, `AGENTS.md` /
-  `CLAUDE.md`, `.github/CODEOWNERS`, its own OpenSpec instance, its own
-  `contracts/manifest.yaml` and `contracts/CHANGELOG.md`, and `.github/workflows/`
-  carrying one validation workflow plus a pytest suite.
+> Amended 2026-09-05 — repository shape. This group first read *two
+> repositories* and created them by hand. Brett Heap's ruling of
+> 2026-09-05T14:52Z, verbatim *"elect the shape for both, follow the pin chain,
+> no family yet"* (`opensoft/openxFactory`#656 comment `5552614170`), elects the
+> `openRepoShape` three-repository shape for BOTH layers, so the group creates
+> SIX repositories with `scaffold-project.py` rather than two by hand. Every
+> item below that MOVED carries its own note; 1.8 did not move. Q7 is not
+> reopened: `opensoft` owns them, all six are PUBLIC under Apache-2.0.
+> Electing the shape CONFERS NOTHING — no gate, no floor, no grant, no
+> authority — so no boundary this packet ratifies is changed by it. Record:
+> `review/amendment-2026-09-05-repository-shape.md`.
+
+- [ ] 1.1 `[oD]` **SCAFFOLD the `openDox` project — three repositories in one
+  run**, from a clean checkout of `opensoft/openRepoShape` at the commit
+  `contracts/openreposhape-pin.yaml` pins:
+
+  ```
+  python3 scaffold-project.py \
+      --org opensoft --project openDox --id opendox --name 'openDox' \
+      --visibility public \
+      --elected-by 'Brett Heap' --elected-on 2026-09-05 \
+      --reference 'openxFactory docs/project-repo-schema.md'
+  ```
+
+  It creates `opensoft/openDox`, `opensoft/openDox-spec` and
+  `opensoft/openDox-code`, mounts the two legs at `spec/` and `code/`, writes
+  `project.yaml` with the election and the pins, and sets the topic
+  `xf-project-opendox` on all three. **Run `--dry-run` first and keep its
+  output as the evidence line.** No claim is made on the `opendox` GitHub
+  organization (RULING C1). *(Amended 2026-09-05: this first said "Create
+  `opensoft/openDox`: PUBLIC, Apache-2.0, `opensoft`-owned" — one repository,
+  created by hand.)*
+- [ ] 1.1a `[oD]` `[oXd]` **SEQUENCED AFTER `opensoft/openRepoShape`#41 — and
+  today the two invocations above are REFUSED.** Measured 2026-09-05 at
+  openRepoShape `main` `f9ff3f8` AND at `122d729bc0c2f2e0ded0bb61b6b97f49512f613e`,
+  the commit this repository pins, so it is not a tip regression:
+  `REFUSED naming-role-mismatch: 'openDox' classifies as neutral-product, not
+  as the 'assembly' form of a project leg`. `accepts_role()` in
+  `scripts/repo_shape.py` admits only `project-leg/<role>` and
+  `domain-descendant/assembly`, and the offered remediation ("re-run with a
+  --project value that is one CamelCase token") is not takeable — the name is
+  the product's name and is what the ruling elected. `validate-repository-naming.py
+  --explain openDox` already computes the resolution this needs
+  (`also_matches: project-leg/assembly`) and `accepts_role()` discards it.
+  **openRepoShape#41 asks for the admission; § 1 starts when it lands**, and the
+  pin here bumps in its own commit first. Nothing else in the packet waits on
+  it, because the packet performs nothing.
+- [ ] 1.2 `[oXd]` **SCAFFOLD the `openXdox` project — three repositories, and the
+  family's ONE pin (RULING OQ-2)**, after 1.1 has landed a commit on
+  `opensoft/openDox`:
+
+  ```
+  python3 scaffold-project.py \
+      --org opensoft --project openXdox --id openxdox --name 'openXdox' \
+      --visibility public \
+      --elected-by 'Brett Heap' --elected-on 2026-09-05 \
+      --reference 'openxFactory docs/project-repo-schema.md' \
+      --pin openDox@<40 hex — the openDox ASSEMBLY ROOT's commit at that moment>
+  ```
+
+  `--pin` writes `contracts/opendox-pin.yaml` AND the `neutral_product_pins:
+  [openDox]` entry in `project.yaml` in the same act; an unqualified name
+  resolves under `opensoft` by default, which is where openDox lives. **A tag
+  or an abbreviated oid is refused by the tool** — pass the full 40 hex of the
+  assembly root, never a leg. *(Amended 2026-09-05: this first said "Create
+  `opensoft/openXdox`: PUBLIC, Apache-2.0, `opensoft`-owned".)*
+- [ ] 1.3 `[oD]` `[oXd]` **WHAT THE SCAFFOLD PRODUCES, AND WHAT IS STILL A HAND
+  ACT.** *(Amended 2026-09-05: this first said "Scaffold each: `README.md`,
+  `LICENSE`, `AGENTS.md`/`CLAUDE.md`, `.github/CODEOWNERS`, its own OpenSpec
+  instance, its own `contracts/manifest.yaml` and `contracts/CHANGELOG.md`, and
+  `.github/workflows/` carrying one validation workflow plus a pytest suite" —
+  as if one tool did all of it. It does not.)*
+  **The tool writes**, in each assembly root: `project.yaml`, `Makefile`,
+  `README.md`, `.gitignore`, `.github/workflows/validate.yml`,
+  `contracts/shape-pin.yaml`, `contracts/spec-pin.yaml`,
+  `contracts/code-pin.yaml`, one `contracts/<product>-pin.yaml` per `--pin`,
+  `scripts/bootstrap.py`, `scripts/validate-manifest.py`,
+  `scripts/validate-pins.py`, the two legs as submodules, and the topic. In
+  each leg: `.gitignore`, `README.md` and one `.gitkeep`
+  (`requirements/` for `-spec`, `src/` for `-code`) — **and nothing else**.
+  **Every one of these remains a hand act:** the Apache-2.0 LICENSE TEXT (the
+  tool writes no license file anywhere), 1.4's four posture files,
+  `.github/CODEOWNERS`, `AGENTS.md`/`CLAUDE.md`, the OpenSpec instance in each
+  `-spec` leg, `contracts/manifest.yaml` and `contracts/CHANGELOG.md` in each
+  assembly root, a pytest suite and a required check in each of the FOUR legs
+  (the scaffold's `validate.yml` covers the two assembly roots only), and 1.5's
+  rulesets.
 - [ ] 1.4 `[oD]` `[oXd]` **PUBLIC FROM DAY ONE MEANS A POSTURE EXISTS AT CREATION**,
   not after the first outside issue: `CONTRIBUTING.md`, `SECURITY.md` (a
   security-report path that is not an issue) and `CODE_OF_CONDUCT.md`. Retro-fitting
   a license or a posture onto a repository that has taken outside contributions is
   materially harder than choosing at creation, and every other `open*` repository
   in this organization is private and unlicensed — so nothing here can be copied.
+  *(Amended 2026-09-05: WHERE, now that a project is six repositories. `LICENSE`
+  and `SECURITY.md` in ALL SIX — each leg is separately clonable and GitHub
+  surfaces the security-report path per repository, so a leg without one is a
+  leg with no path. `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` in the two
+  ASSEMBLY ROOTS, with each leg's `README.md` pointing at its root's copy: one
+  contribution posture per project, not per repository.)*
 - [ ] 1.5 `[oD]` `[oXd]` Branch-protection ruleset created in **EVALUATE** mode in
   each, promoted to **ACTIVE** once its required check has reported once. Ruleset
   state is a repository setting, not a tree fact, and gets its own evidence line.
+  *(Amended 2026-09-05: in each of SIX, not each of two. The EVALUATE→ACTIVE
+  rule is UNCHANGED. `scaffold-project.py` creates no ruleset — the only ruleset
+  text it emits is a hint for the case where an existing organisation ruleset
+  refuses the seed push — so all six are hand acts, and the two `-spec`/`-code`
+  pairs need theirs before their assembly root's `validate` gate can be trusted
+  to mean anything.)*
 - [ ] 1.6 `[oxF]` **Amendment 3 APPLIED** to `docs/openxdox-naming.md`, text as
   drafted at `design.md` § D8, in the SAME pull request as 1.1/1.2. The record is
-  `ratified`; this is an amendment, not a rewrite.
+  `ratified`; this is an amendment, not a rewrite. *(Amended 2026-09-05: its
+  text now carries the SIX repository names — `openDox`, `openDox-spec`,
+  `openDox-code`, `openXdox`, `openXdox-spec`, `openXdox-code` — the election
+  (Brett Heap, 2026-09-05, reference `docs/project-repo-schema.md`), and the
+  leg-suffix rule that the lowercase hyphenated `-spec`/`-code` forms are NOT
+  new brand names and sit in a different naming family. `openXdox-Install` is
+  unchanged.)*
 - [ ] 1.7 `[oxF]` Register the descendant NAMES in the naming record —
   `MedxDox`, `codexDox`, `LedgerxDox`, `AdxDox`, `OpsxDox`, and `openXdox-Install`
   — **and create no repository for any of them.** The wallet arc's own treatment;
   a named-and-absent repository is otherwise a thing people create by hand.
+  *(Amended 2026-09-05: register each descendant's LEG NAMES beside it —
+  `codexDox`, `codexDox-spec`, `codexDox-code`; `MedxDox`, `MedxDox-spec`,
+  `MedxDox-code`; and the same for `LedgerxDox`, `AdxDox` and `OpsxDox` —
+  because a descendant scaffolded the same way is three repositories, and a leg
+  name nobody registered is exactly the name somebody creates by hand. STILL
+  CREATING NONE: eighteen descendant names plus one install name, zero
+  repositories.)*
 - [ ] 1.8 `[xF]` Aggregation `CLAUDE.md` working rule #1 amended: it accommodates a
   neutral `open*` product `openxFactory` pins, and does NOT yet accommodate a
   neutral product that is an APPLICATION WITH A SCHEMA rather than a contract
   family.
+- [ ] 1.9 `[xF]` **NEW (2026-09-05) — `project-register.yaml` rows for the two
+  elected projects.** One row each for `openDox` and `openXdox` carrying
+  `schema: project-repo-schema`, `reference: docs/project-repo-schema.md`, the
+  three repositories in `repositories`, and a `repository_roles` entry per
+  repository (`assembly`, `spec`, `code` — at most one `assembly` per project).
+  **The row is DERIVED and the manifest is the SOURCE**
+  (`docs/project-repo-schema.md` § *The manifest is the source; a register row
+  is derived*): each field above is READ FROM that project's own `project.yaml`
+  and the register never originates an election. Where the two disagree, the
+  register wins for NAVIGATION only and the disagreement is reported as drift —
+  it does not re-elect anything. Lands with 5.8's other aggregation edits.
+- [ ] 1.10 `[oXd]` `[oxF]` **NEW (2026-09-05) — THE PIN CHAIN, and it is
+  SEQUENCED AFTER `opensoft/openRepoShape`#40.** `openXdox`'s `project.yaml`
+  declares `neutral_product_pins: [openDox]` (written by 1.2's `--pin`); every
+  descendant declares `neutral_product_pins: [openXdox]` and records the chain
+  it relies on — `naming.referent_chain: [openXdox, openDox]` — per
+  openRepoShape#40, which amends that standard's descendant-referent rule so a
+  `<Domainx><Product>` name classifies as a descendant when its declared pins
+  REACH the matching `open<Product>` through declared links. This preserves
+  RULING OQ-2 exactly: inside the family openDox is pinned only by openXdox, and
+  no descendant pins openDox directly.
+  **If #40 has not landed when § 7 runs, that is NOT a blocker — it is a
+  recorded interim, and the decision is taken here rather than left to the
+  session that hits it. It is also not the interim #40's own issue body
+  predicts, and the measurement is recorded here so nobody re-derives it.**
+  MEASURED 2026-09-05 at openRepoShape `main` `f9ff3f8`: `codexDox` with
+  `neutral_product_pins: [openXdox]` classifies as **`domain-descendant /
+  assembly` — it PASSES today** (`also_matches: [project-leg/assembly]`,
+  `descendant_referent: openDox`, `referent_declared: true`), and the assembly
+  root's own `scripts/validate-manifest.py` accepts that manifest, because the
+  pin file it looks for is `contracts/openxdox-pin.yaml`, which the scaffold
+  wrote. **It passes by ACCIDENT, not by the chain:**
+  `contracts/repository-naming.yaml` admits an x-stem spelling of the referent
+  (`also_accepted: openx{product}`, present so `codexFactory` may descend from
+  `openxFactory`), the referent test compares CASE-FOLDED, and
+  `openXdox`.casefold() equals `openxDox`.casefold() — so a pin on the
+  INTEGRATION layer satisfies the referent test for the NEUTRAL CORE, and the
+  manifest asserts a declared `openDox` referent in a tree that declares no
+  openDox pin. **The classification is right and the reason it records is
+  false.** So the interim is: scaffold, and RECORD the chain actually relied on
+  (`naming.referent_chain: [openXdox, openDox]`) in the descendant's own
+  manifest, so the accidental pass is never left standing as the explanation;
+  #40 landing later makes the same classification true and re-reads the same
+  tree with no migration. What the interim does NOT permit is adding a direct
+  `openDox` pin to a descendant to force the classification — that would break
+  OQ-2 to satisfy a validator.
 
 ## 2. The seam — landed INSIDE openxFactory, before anything moves
 
@@ -160,6 +322,14 @@ else in the arc can start while the two packages import each other.**
 
 ## 3. The openDox carve — with the mapping manifest
 
+> Amended 2026-09-05 — repository shape. Every destination path this group names
+> at "openDox" lands in the **`opensoft/openDox-code` leg**, except requirements
+> and decisions, which land in **`opensoft/openDox-spec`**, and the release
+> identity, which is cut in the **assembly root** (3.8). The carve manifest of
+> 3.1 therefore names a destination REPOSITORY as well as a destination path —
+> the field it already carries, now answered with a leg. Nothing else in the
+> group moved.
+
 - [ ] 3.1 `[oxF]` **FLOOR PART 1 (RULED OQ-1).** Emit
   `docs/opendox-carve-manifest.yaml` at the **NAMED CARVE COMMIT** BEFORE any file
   moves: for every file under the moved paths, its `openxFactory` path, its
@@ -171,22 +341,23 @@ else in the arc can start while the two packages import each other.**
   such an edit is either expressible as one of the three or it is not a carve edit
   and belongs to a later change. **A file in no row, or an edit in no class, is an
   UNDECLARED MOVEMENT and the carve REFUSES.**
-- [ ] 3.2 `[oD]` Carve openDox's ~24.9K of modules per `design.md` § D3, plus the
+- [ ] 3.2 `[oD]` Carve openDox's ~24.9K of modules **into `openDox-code`** per `design.md` § D3, plus the
   PULL-UP wave: `doxbench_knowledge` (1,231), `doxbench_abstract_store` (446) and
   the abstract-generation surface, the keyword-query half of `lens` (282), and
   `notebook_action` (239). **The stage-to-book mapping does NOT come up** — a
   per-project book is the neutral shape.
 - [ ] 3.3 `[oD]` The app-server half of `serve.py` and the neutral half of
-  `cli.py`, carrying the extension points § 2.4 created.
-- [ ] 3.4 `[oD]` **INVENT the front-end package boundary** — 40 files, 30,410
-  lines, and no boundary exists to discover. Account menu, canvas, editor, chat,
+  `cli.py`, carrying the extension points § 2.4 created. **Both in `openDox-code`.**
+- [ ] 3.4 `[oD]` **INVENT the front-end package boundary** in `openDox-code` — 40
+  files, 30,410 lines, and no boundary exists to discover. Account menu, canvas, editor, chat,
   docs tile and theme controls are openDox; the gate console and drill-in are the
   gate loop; the wheel, funnel and lens regions carry stage names. **This is where
   a student-usable openDox is won or lost**, and it is its own task rather than a
   consequence of the Python split.
 - [ ] 3.5 `[oD]` The runtime, on the `xFactory-Hermes-Install` pattern (RULING
   Q2): FastAPI + Postgres, `migrations/` (ordered SQL, `0001` pinned canonical
-  plus additive), `deploy/compose/` and `deploy/kubernetes/`, one lifecycle CLI,
+  plus additive), `deploy/compose/` and `deploy/kubernetes/` — **all at the root
+  of `openDox-code`, not of the assembly root** — one lifecycle CLI,
   OIDC through the Keycloak broker. The schema holds ONLY identity and
   coordination (RULING Q1): users, memberships, projects, the
   project-to-repository map, sessions, unsaved drafts.
@@ -203,19 +374,34 @@ else in the arc can start while the two packages import each other.**
   `openxFactory`'s own adapter from § 2.2a. That last one is the only mechanical
   proof that the home corpus has no privileged route.
 - [ ] 3.8 `[oD]` Cut `dox-v1.0` only after the floor's four parts are green.
+  **In the ASSEMBLY ROOT** (amended 2026-09-05), over the commit that names both
+  legs: a tag on a leg describes half a project, and the bundle tag,
+  `contracts/manifest.yaml` and `contracts/CHANGELOG.md` live where a consumer's
+  pin points.
 
 ## 4. The openXdox mapping core
 
-- [ ] 4.1 `[oXd]` Carve openXdox's ~10.9K per `design.md` § D3: the adapter
+> Amended 2026-09-05 — repository shape. Same leg rule as § 3: code into
+> `opensoft/openXdox-code`, requirements and decisions into
+> `opensoft/openXdox-spec`, pins and the release identity in the assembly root
+> `opensoft/openXdox`.
+
+- [ ] 4.1 `[oXd]` Carve openXdox's ~10.9K **into `openXdox-code`** per `design.md` § D3: the adapter
   implementation and projection mechanism, the gate-and-commission loop, and
   `doxbench_scope`. The 23 outbound `doc_health` imports become the adapter's
   IMPLEMENTATION SURFACE here, where importing doc-health is lawful.
 - [ ] 4.2 `[oXd]` `contracts/opendox-pin.yaml` — openXdox pins openDox by commit
   and per-file digest, declaring the migration range its bump crosses per the
   MODIFIED `neutral-product-pin`. The dependency points ONE way and there is no
-  cycle.
+  cycle. **In the openXdox ASSEMBLY ROOT, naming the openDox ASSEMBLY ROOT's
+  commit** (amended 2026-09-05); § 1.2's `--pin` writes the file and the
+  `neutral_product_pins: [openDox]` manifest entry together, so this task
+  BUMPS it rather than creating it. **The cost the shape adds, accepted:** a
+  change to openDox's code leg is not visible to openXdox until openDox's
+  assembly root advances its own `code` pin and openXdox then bumps this file —
+  two pin moves where a single-repository product had none.
 - [ ] 4.3 `[oXd]` The routes and subcommands openXdox CONTRIBUTES to openDox's
-  extension points. No fork of the server.
+  extension points, **from `openXdox-code`**. No fork of the server.
 - [ ] 4.4 `[oXd]` **PARAMETERIZE, do not ship one domain's words (RULING C2).**
   The lifecycle engine reads its status vocabulary, transitions, authorities and
   immutability point from a domain profile. A hardcoded status word is a defect
@@ -225,12 +411,15 @@ else in the arc can start while the two packages import each other.**
   `governed-derived-model` families (openXdox's centre of gravity and absent from
   all 80,000 lines), the evidence-and-provenance surface (invariant 2's evidence
   traces and assumption registers), and the role-and-authority projection.
-- [ ] 4.6 `[oXd]` Cut `xdox-v1.0` after its own suite is green.
+- [ ] 4.6 `[oXd]` Cut `xdox-v1.0` after its own suite is green. **In the ASSEMBLY
+  ROOT** (amended 2026-09-05), on 3.8's reasoning.
 
 ## 5. openxFactory consumes and sheds; the MAJOR is cut. BREAKING
 
 - [ ] 5.1 `[oxF]` `contracts/opendox-pin.yaml` and `contracts/openxdox-pin.yaml`,
   plus the two gitlinks — each pin's file and gitlink moving in the SAME commit.
+  **Both name the ASSEMBLY ROOTS** (amended 2026-09-05); `openxFactory` never
+  pins or mounts a leg, which is the assembly root's own job.
   Per the MODIFIED `neutral-product-pin`, `openxFactory` declares only its DIRECT
   upstreams; openDox's commit is READ from openXdox's own pin and recorded, if at
   all, as a DERIVED value.
@@ -275,8 +464,9 @@ else in the arc can start while the two packages import each other.**
   own `contracts/releases/<tag>.digests.yaml` under `release-surface-integrity`,
   and a published annotated tag verified from an independently refreshed checkout.
 - [ ] 5.8 `[xF]` `.gitmodules`, two root gitlinks, `README.md`, `CLAUDE.md`,
-  `project-register.yaml`. The aggregation's root gitlink for each product SHALL
-  EQUAL `openxFactory`'s nested gitlink commit.
+  `project-register.yaml` — **including § 1.9's two derived election rows**
+  (amended 2026-09-05). The aggregation's root gitlink for each product SHALL
+  EQUAL `openxFactory`'s nested gitlink commit, and both name the ASSEMBLY ROOT.
 - [ ] 5.9 `[oxF]` ANNOTATE the 30 archived changes carrying an
   `ideation-dashboard` delta with the carry-forward. **Immutable records are
   annotated, never edited into agreement** — the wallet arc's own treatment, and
@@ -319,6 +509,15 @@ movements claimed at the time they land.
 
 ## 7. The first descendant — a task with a RULING CHECKBOX, not a decision
 
+> Amended 2026-09-05 — repository shape. The descendant is scaffolded the same
+> way and is THREE repositories, not one: `codexDox` + `codexDox-spec` +
+> `codexDox-code`, one `scaffold-project.py` run with `--pin openXdox@<sha>`.
+> **Which domain gets the first one, and when, is STILL the open ruling** — the
+> shape ruling settles how a descendant is created, not whether this one is.
+> It stays THIN under DQ-1: it pins openXdox and reuses `openxFactory`'s
+> adapter, so its `-code` leg carries deploy configuration and branding rather
+> than an adapter of its own.
+
 - [ ] 7.1 `[oxF]` **§ 7 FOLLOWS § 5, RULED (DQ-1).** The shed no longer waits on a
   descendant: `openxFactory` keeps its own adapter, so the carve completes on its
   own account and the first `<Domainx>Dox` follows when a domain has a profile.
@@ -337,6 +536,22 @@ movements claimed at the time they land.
   branding, its double pin of openXdox (gitlink + pin file, SAME commit), and its
   DECLARED per-tenant operating cost — migration run per release, backup and
   restore policy, credential set — per the MODIFIED `domain-descendant-boundary`.
+  **ONE scaffold run creates it** (amended 2026-09-05), on § 1.1's shape:
+
+  ```
+  python3 scaffold-project.py \
+      --org opensoft --project codexDox --id codexdox --name 'codexDox' \
+      --visibility <follows codexFactory's own visibility, RULING Q7> \
+      --elected-by 'Brett Heap' --elected-on <the ruling's date> \
+      --reference 'openxFactory docs/project-repo-schema.md' \
+      --pin openXdox@<40 hex — the openXdox ASSEMBLY ROOT's commit>
+  ```
+
+  Three repositories, THIN: the `-code` leg carries deploy configuration and
+  branding, the `-spec` leg the one domain-mapping declaration, the assembly
+  root the pins and the gate. It owns NO adapter (DQ-1). The `--pin` on
+  openXdox — never on openDox — is RULING OQ-2 in the tree, and § 1.10 governs
+  how it classifies before and after `opensoft/openRepoShape`#40 lands.
 - [ ] 7.4 `[OmI]` `[Opsx]` The per-tenant install: one instance and one database
   per tenant in both cases (RULING Q3), the two GitHub Apps created through the
   **App Manifest flow** in the TENANT'S org with the dispatch/content separation
@@ -349,8 +564,12 @@ movements claimed at the time they land.
 Under `release-realization` this change archives ONLY on merged plus green
 realization evidence, never on landing. Each line is its own evidence.
 
-- [ ] 8.1 Both repositories exist, PUBLIC, Apache-2.0, each with a required check
-  that has reported at least once and a ruleset promoted from EVALUATE to ACTIVE.
+- [ ] 8.1 **All SIX repositories exist** (amended 2026-09-05 — this first said
+  "Both repositories"), PUBLIC, Apache-2.0, each with a required check that has
+  reported at least once and a ruleset promoted from EVALUATE to ACTIVE; each
+  assembly root's `project.yaml` records the election (`elected_by: Brett Heap`,
+  `elected_on: 2026-09-05`, `reference: docs/project-repo-schema.md`) and its
+  `validate` gate is green over its own legs.
 - [ ] 8.2 **The RULED four-part floor (OQ-1), one evidence line per part:** the
   carve manifest with every file in exactly one disposition and every edit in one
   of the three closed classes; the collection counts SUMMING across the three
@@ -371,9 +590,12 @@ realization evidence, never on landing. Each line is its own evidence.
   `openxFactory` on its own evidence first.
 - [ ] 8.6 `ideation-intent-plane` in canon, or its non-promotion recorded (§ 0.6).
 - [ ] 8.7 The aggregation's gitlinks landed and equal to `openxFactory`'s nested
-  gitlinks.
-- [ ] 8.8 Amendment 3 applied, and the descendant names registered with no
-  repository created.
+  gitlinks, **both naming the assembly roots**, and the two derived
+  `project-register.yaml` election rows landed with them (§ 1.9, amended
+  2026-09-05).
+- [ ] 8.8 Amendment 3 applied with the SIX repository names and the election,
+  and the descendant names — each with its two leg names — registered with no
+  repository created (amended 2026-09-05).
 - [ ] 8.9 `python3 -m pytest tests/doc-health tests/sequenced_after -q` green,
   `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health
   run whose severity counts move by exactly the amount the packet predicts.
