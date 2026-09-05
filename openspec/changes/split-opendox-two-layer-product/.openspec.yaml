@@ -1,0 +1,59 @@
+schema: spec-driven
+created: 2026-09-04
+origin:
+  kind: staged
+  id: openxFactory:staging:opendox-two-layer-product
+  path: ideation/staging/opendox-two-layer-product
+  reason: >-
+    The topic's OWN DECLARED EXIT PATH, taken the day it was fully
+    dispositioned. `kind: staged` is the honest spelling and is taken
+    deliberately rather than by default: the fragment's Exit section names
+    exactly this change — "One OpenSpec change on the `split-openxwallet-repo`
+    shape, adapted for a two-repository, non-byte-identical extraction of an
+    APPLICATION rather than a contract family, with a third layer of
+    descendants below it" — and enumerates what it would carry, which is what
+    this packet carries. Nothing ad hoc happened: the staging record, not a
+    separate commission, is what this packet realizes.
+    THE TOPIC'S TWO DECLARED EXIT PRECONDITIONS ARE MET, and they were the only
+    two. The fragment's Exit section closes: "The two preconditions this exit
+    named — Brett's answers to Q6 and Q7 — are now MET." Q6 was ruled
+    2026-09-04T17:49Z (freeze the dashboard now and carve immediately; the five
+    active `ideation-dashboard` changes stop where they stand and their deltas
+    and open tasks re-home into this change) and Q7 at 17:51Z (`opensoft` owns
+    both repositories; both PUBLIC from day one under Apache-2.0). Both are
+    recorded verbatim on the governing record and dispositioned in the
+    fragment's Open questions section.
+    THE FRAGMENT STAYS STAGED AND IS NOT MOVED INTO `supporting-docs/`, on the
+    wallet precedent this packet mirrors: `split-openxwallet-repo` exited
+    `ideation/staging/openxwallet-neutral-home/` by declaring this origin block
+    and leaving the topic folder in place, and that folder is still staged in
+    this corpus today. The INDEX row records the exit instead. The mechanism is
+    available either way — `scripts/proposal-support.py <root> transition` moves
+    a fragment and writes a support manifest, and four active staged-origin
+    changes carry no support folder — so this is a choice between two live house
+    patterns and it follows the one this packet is modelled on.
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — in session on 2026-09-04,
+    across ELEVEN recorded acts on `opensoft/openxFactory` issue #656: the
+    founding ruling (the issue body, two verbatim utterances), RULING Q1
+    (15:24Z), Q2 (15:31Z), Q3 (15:32Z), Q4 (15:34Z), DIRECTION Q5 (15:48Z),
+    RULING C1 (17:46Z), C2 (17:47Z), C3 (17:48Z), Q6 (17:49Z) and Q7 (17:51Z),
+    closing with "All questions the staging topic carried are now ruled: Q1-Q7
+    and conflicts C1-C3. The topic's exit path … is unblocked", and a CLAIM for
+    "(b) authoring the OpenSpec change that exits the topic
+    (proposal/design/tasks/deltas; Amendment 3 to the naming record rides with
+    it)". This records authorization to AUTHOR this proposal and the eleven acts
+    as LOCKED constraints it carries; it is NOT ratification of the proposal.
+    The REMOVED corpus exit and its 102-row successor map, the two ADDED
+    capabilities, the four MODIFIED requirements across two capabilities,
+    Amendment 3 to `docs/openxdox-naming.md`, the re-homing of five active
+    changes, and the four questions the packet PUT for ruling, are DECLARED and
+    not decided BY THIS AUTHORIZATION. The four were themselves ruled later the
+    same evening — DQ-1 at 22:14Z, OQ-1 at 22:15Z, OQ-2 at 22:16Z, OQ-3 at
+    22:21Z, all on issue #656 — and the packet now carries them as constraints;
+    so nothing in it is open, and what this block records is still authorization
+    to AUTHOR rather than ratification of what was authored.
+    The same claim says in terms that no repository is created and no code moves
+    in this slice: "creation and the carve are that change's realization after
+    ratification."
+  approved_on: 2026-09-04

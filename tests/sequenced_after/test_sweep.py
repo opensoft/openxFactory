@@ -1105,6 +1105,45 @@ def test_the_LIVE_corpus_and_the_LEDGER_agree_row_by_row():
       difference and none of `main`'s three new commits interacts with it.
       `archived` rises 127 -> 128; prose headers hold at 3 (3 archived);
       `declaring`/`root_claims` hold at 1/0.
+    - **TEN ROWS MOVED FOR ONE CHANGE, AND NINE OF THEM ARE SOMEBODY ELSE'S** —
+      which is exactly the case the rule above keeps an entry for. On 2026-09-04
+      `split-opendox-two-layer-product` was authored (PR #666): one more ACTIVE
+      change, carrying a `## REMOVED Requirements` block over **ALL 102**
+      promoted `ideation-dashboard` requirements — the corpus exit of the
+      largest promoted specification here. Its own row enters as an ACTIVE
+      CO-MODIFIER, and **NINE ARCHIVED ROWS FLIP `sole` -> `co-modifier` in the
+      same seeding**: `add-dashboard-account-menu`, `add-lens-gate-verbs`,
+      `add-model-capability-vocabulary`, `add-model-provider-broker`,
+      `add-register-edit-lane`, `add-repository-lens`,
+      `add-shared-identity-seeds`, `add-staged-topic-outline-template` and
+      `add-wheel-action-verbs`. THE REASON IS NOT LEGIBLE FROM THE TWO ROWS
+      ALONE, which is why this entry exists: each of those nine was the SOLE
+      writer of the `ideation-dashboard` requirements it added, and a block that
+      names all 102 titles at once shares a requirement key with EVERY ONE OF
+      THEM at a stroke. A single delta flipping nine archived partners has not
+      happened before in this corpus and it is a property of the SIZE of the
+      block, not of anything the nine did.
+      THE ARITHMETIC IS THEREFORE +10 AND NOT +1. `co_modified` rises 113 -> 123
+      — the new change entering the set (+1) plus the nine partners leaving
+      `sole` for it (+9) — and `sole_modifiers` falls 52 -> 43 by the same nine.
+      Membership is BOOLEAN, so sharing 102 titles with (among others) four
+      ACTIVE siblings flips this change ONCE, and the four active siblings
+      (`add-composed-view-authoring`, `add-doxchat-model-intake`,
+      `add-nightly-dashboard-refresh`, `retire-doxbench-chat-turn-v1`) were
+      ALREADY co-modifiers and do not move at all. `active_co_modified` rises by
+      exactly ONE, 19 -> 20 — the new change alone, all nine flipped partners
+      being ARCHIVED — and `active_sole` holds at 12. `change_ids` rises
+      165 -> 166 and `active` 31 -> 32; `archived` holds at 134; prose headers
+      hold at 3 (3 archived); `declaring`/`root_claims` hold at 3/0.
+      MEASURED ON BOTH TREES, never adjusted by arithmetic, via
+      `python3 scripts/validate-sequenced-after.py . --sweep`: `origin/main` at
+      `807a4f47` reads `31 active + 134 archived` = 165 change ids, `113`
+      co-modified, `52` sole modifiers, `19 / 12` active co-modified/sole; this
+      branch reads `32 active + 134 archived` = 166, `123`, `43`, `20 / 12`.
+      The packet is PROPOSAL ONLY (`Status: draft`) and its REMOVED block
+      promotes nothing until it archives — so this is a movement of the SWEEP's
+      reading of the active corpus, and no `ideation-dashboard` requirement has
+      left canon.
     """
     readings = sa.classify_corpus(ROOT)
     ledger = sa.load_ledger(sa.ledger_path(ROOT))
