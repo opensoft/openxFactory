@@ -286,7 +286,14 @@ same suite on the same commit.**
   **codexFactory's** run refuses `pin-disposition-stale` until its entry is
   deleted — which is the mechanism forcing a re-reading, and is stated in each
   `retires_when:`.
-* **It does not claim the disagreement is resolved.** Exit 3 — teaching
-  1.12.0's scenario-currency check to read the reserved marker forms — remains
-  drafted and unfiled in #677's packet. Filing it would retire all four entries
-  at once. Four standing exceptions are the price of not having filed it.
+* **It does not claim the disagreement is resolved — though exit 3 IS FILED.**
+  `Fission-AI/OpenSpec#1793` (*"`validate --strict`: scenario-currency check has
+  no way to declare a deliberate scenario rename, so a narrowing reads as an
+  omission"*) was filed 2026-09-05 on Brett Heap's word *"file the upstream
+  issue"*; openxFactory #682 (`ff31fc7f`) recorded it. **Filed is not fixed.**
+  Until a release honours a declared rename, `1.12.0` reports these findings and
+  the four entries stand. When one does, the next pin bump re-derives the list
+  against it, all four are matched by nothing, and the pin REFUSES
+  `pin-disposition-stale` until every entry is removed — which is how these
+  exceptions are meant to end, and the reason none of them is written to be
+  permanent.

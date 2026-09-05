@@ -187,8 +187,17 @@ file appears beside it.
 * **It does not tick task 6.1 of `add-openspec-cli-pin` or 6.3 of the bump.**
   Those describe the wiring, not its precondition, and a tick that ran ahead of
   the act is the thing this estate refuses everywhere else.
-* **It does not file exit 3.** Teaching the upstream check to read the reserved
-  marker forms remains drafted-and-unfiled in #677's packet
-  (`evidence/upstream-issue-draft-merged-into-marker.md`); it is Brett's to
-  decide, the two exits are not exclusive, and this packet's four entries are
-  the standing cost of not having taken it.
+* **It does not depend on exit 3, WHICH IS ALREADY FILED.**
+  `Fission-AI/OpenSpec#1793` — *"`validate --strict`: scenario-currency check has
+  no way to declare a deliberate scenario rename, so a narrowing reads as an
+  omission"* — was filed 2026-09-05 on Brett Heap's word *"file the upstream
+  issue"*, and openxFactory #682 (`ff31fc7f`) corrected #677's draft record from
+  NOT FILED to FILED. The two exits were never exclusive: exit 2 is what this
+  estate does about its own gate, exit 3 is what it asks of the tool, and this
+  packet is exit 2 for a second repository. **What upstream would change is the
+  END of all four entries, not of these two.** A release that honours a declared
+  rename produces none of the four findings, so at the next pin bump every one of
+  the dispositions is matched by nothing and the pin REFUSES
+  `pin-disposition-stale` until all four are deleted — the mechanism retiring
+  them, exactly as designed, rather than anybody remembering to. Nothing in this
+  packet is written to survive that, and nothing in it should be.

@@ -6,7 +6,7 @@ Status: draft
 this pull request or a run recorded verbatim in
 `evidence/codexfactory-dispositions-2026-09-05.md`. Group 5 is OWED work that
 belongs to OTHER packets and is deliberately unticked, each box naming whose it
-is.
+is — or, for 5.5, saying plainly that nobody owns it yet.
 
 **RATIFICATION HAS NOT HAPPENED.** Brett Heap ruled *"use recommended name, go
 on 3 repo shape"* on 2026-09-05, deciding that codexFactory takes the same exit
@@ -100,8 +100,17 @@ ratify this text; task 5.4 records ratification when it happens.
       packet is `Status: draft` until a separate act records his
       *"ratify \<PR>"* verbatim, as #677's `review/ratification-2026-09-05.md`
       records *"ratify 677"*.
-- [ ] 5.5 **Exit 3, still unfiled.** Teaching the upstream scenario-currency
-      check to read the reserved marker forms would retire all four entries at
-      once. Drafted in #677's packet
-      (`evidence/upstream-issue-draft-merged-into-marker.md`), not filed;
-      Brett's to decide, and the two exits are not exclusive.
+- [ ] 5.5 **Watch exit 3 — `Fission-AI/OpenSpec#1793`, WHICH IS FILED.** It was
+      filed 2026-09-05 on Brett Heap's word *"file the upstream issue"*, under
+      his GitHub account by lane `codexfactory-0d`, and openxFactory #682
+      (`ff31fc7f`) corrected #677's draft record from NOT FILED to FILED:
+      *"`validate --strict`: scenario-currency check has no way to declare a
+      deliberate scenario rename, so a narrowing reads as an omission"*. **This
+      box is not the filing** — that is done, by another lane, and this packet
+      does not tick another packet's act. It is the WATCH: if upstream lands a
+      way to declare a rename, the next pin bump re-derives the list against the
+      fixed release, ALL FOUR entries — openxFactory's two and codexFactory's
+      two — are matched by no finding, and the pin REFUSES
+      `pin-disposition-stale` until every one is deleted. That refusal is the
+      INTENDED RETIREMENT PATH and not a regression, and nobody owns noticing it
+      yet.

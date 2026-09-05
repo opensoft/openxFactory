@@ -600,11 +600,13 @@ Active changes:
   Tests 41 → **81**, including both `--json` array shapes parsed from CAPTURED
   REAL 1.12.0 bytes and an offline reconciliation of the pin's own `finding:`
   strings against them. **The old binary on PATH is now REFUSED**
-  (`pin-version-mismatch`), demonstrated in the record. **Exit 3 is DRAFTED AND
-  NOT FILED** — `evidence/upstream-issue-draft-merged-into-marker.md`, a
-  ready-to-file `fission-ai/openspec` issue with a minimal reproduction; filing
-  it is Brett's act, and if upstream fixes the check the dispositions go stale
-  and the mechanism removes them. **HUMAN-ONLY**, not clearable by a council.
+  (`pin-version-mismatch`), demonstrated in the record. **Exit 3 WAS FILED
+  2026-09-05 as `Fission-AI/OpenSpec#1793`** on Brett Heap's word *"file the
+  upstream issue"*, and #682 (`ff31fc7f`) corrected
+  `evidence/upstream-issue-draft-merged-into-marker.md` from NOT FILED to FILED;
+  this entry said DRAFTED AND NOT FILED until #697 caught the leftover. If
+  upstream lands a way to declare a rename, the dispositions go stale at the next
+  bump and the mechanism removes them. **HUMAN-ONLY**, not clearable by a council.
   Evidence, with the raw `2 failed` shown verbatim beside the reconciled
   `0 undispositioned`:
   `openspec/changes/bump-openspec-cli-pin-to-1.12/evidence/pin-bump-1.12-2026-09-05.md`.
