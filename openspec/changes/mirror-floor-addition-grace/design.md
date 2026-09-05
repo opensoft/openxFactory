@@ -246,3 +246,43 @@ tidied away.
   fail-closed direction on purpose.
 * **Whether the advisory lane becomes required.** LA-C1's ordering condition and
   `add-substantive-review-lane` task 5.1's ruleset half are untouched.
+
+## 7. A finding from being the corpus's first cross-repository declaration
+
+`sequenced_after: [codexFactory:add-floor-addition-grace]` is the first
+QUALIFIED FOREIGN entry any change in this corpus has declared — measured
+2026-09-05: three changes declare the field and all three declare bare local
+parents. Seeding the per-change sweep ledger for it produced one row and one
+observation worth leaving for whoever files the second one.
+
+The row the tool wrote:
+
+```yaml
+  mirror-floor-addition-grace: {state: active, class: sole,
+    declares: [codexFactory:add-floor-addition-grace], depth: 0,
+    prose: false, moved_by: "#676", moved_on: "2026-09-05"}
+```
+
+**`depth: 0`, and it is derived rather than chosen.** The sweep measures *"the
+longest RESOLVABLE declared chain from this change, in hops"*, and a qualified
+foreign entry resolves for no validator BY DESIGN — `validate_resolvable`
+checks it for well-formedness only, on the stated ground that *"the neutral
+validator cannot read another repository's corpus and MUST NOT pretend to."* So
+no hop is walkable and the longest resolvable chain is zero hops, which is true.
+
+The ledger's own header, however, keeps `depth` off a NON-DECLARING row for
+exactly this reason: *"a change with no declaration has no chain depth, and `0`
+would read as a resolved root."* Here the row DOES declare, and `declares:`
+carries the foreign parent verbatim, so the two keys read TOGETHER say precisely
+what is true — but a reader or a consumer keying on `depth` ALONE would read
+this row as a root claim, which it is not, and `[]` (the POSITIVE root claim)
+is a different fact the ledger elsewhere goes to trouble to keep separate from
+absence.
+
+Nothing is hand-corrected here: the value is what the tool derived, and
+hand-editing a derived key would be the defect the ledger's "moved by the tool,
+never by hand" rule exists to prevent. It is recorded so the shape is on the
+record at its first instance rather than rediscovered at its second, and so that
+whether `depth` should distinguish "no resolvable hop" from "resolved root" is a
+question somebody can take up deliberately, in its own change, against a real
+example.
