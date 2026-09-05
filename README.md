@@ -482,6 +482,35 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-unreadable-read-sibling-scenarios](openspec/changes/amend-unreadable-read-sibling-scenarios/proposal.md)
+  — authored 2026-09-05, **`Status: draft`**, **NOT RATIFIED AND NOT ADMITTED**:
+  `.openspec.yaml` carries drafting provenance and no approval pair, which is the
+  lawful unapproved shape. **THE SUCCESSOR THE ARCHIVE NAMES AS OWED.**
+  `amend-published-tip-unreadable-scenario` (#678, archived by #685) retired the
+  clause *"the commonest cause being a checkout that has not fetched that
+  commit"* from `doc-health`'s *Release-tag publication* — **and that clause was
+  written TWICE.** The sibling scenario *The changelog cannot be read at the
+  published tip* carries it word for word over `contracts/CHANGELOG.md`
+  (`openspec/specs/doc-health/spec.md:2818`); #678 found it after ratification,
+  refused to widen its own ratified scope, and recorded the sibling as an owed
+  successor with one reading owed first. **THE READING, ANSWERED IN BOTH
+  HALVES.** The probe IS inherited and is COMPLETE — `obtain_commit` runs above
+  and the manifest is read at the SAME COMMIT, which `cat-file --batch` cannot do
+  for a commit the clone does not hold, so at that read the unfetched fact is
+  EXCLUDED rather than rarer. The WORDS are not inherited: the manifest read
+  states the presence and the changelog read does not. **ONE requirement
+  MODIFIED**, restated in full with all 30 promoted scenarios and #678's own note
+  and marker carried byte-identical, changing exactly one scenario — `WHEN`
+  REPLACED to name both facts, plus two `AND` bullets (one establishing, one
+  requiring the held-and-absent case to say so). **ONE canon unit is dropped and
+  it is DECLARED** by the reserved `Removed from canon by` marker.
+  **`code_surface: openxFactory`, and that is the packet's veto point**
+  (`design.md` **D2**): rather than write a `MUST` canon that the checker does
+  not satisfy — #678 inverted — the third bullet is made true here, in ONE `Skip`
+  reason and its comment in `scripts/doc_health/release_tag_publication.py`, with
+  one test added. No severity, threshold, floor, path, arm or control flow moves.
+  No file is added under `openspec/specs/`, so **no codexFactory floor advance**.
+
 - [bump-openspec-cli-pin-to-1.12](openspec/changes/bump-openspec-cli-pin-to-1.12/proposal.md)
   — authored 2026-09-05, **`Status: draft`**, on Brett Heap's ruling *"take exit
   2"* — a decision among the three exits #673 enumerated, **not** a ratification

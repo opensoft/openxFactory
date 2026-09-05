@@ -481,6 +481,17 @@ _FETCH_TRIED_WORDS = ("a bounded fetch of exactly that commit was attempted "
 _PRESENT_WORDS = "IS present in this clone and carries no contracts/manifest.yaml"
 _ANSWERED_WORDS = "so no contract bundle is declared there"
 
+# THE SAME PAIR AT THE SECOND READ. The changelog read has no presence probe of
+# its own: it INHERITS the manifest read's, and completely, because the manifest
+# is read at the SAME COMMIT and must have answered before that arm is reached —
+# a blob cannot be read out of a commit this clone does not hold. So the
+# unfetched fact is EXCLUDED there, not merely rarer, and the skip states the
+# presence instead of leaving a reader to infer a fetch defect that cannot be.
+_CHANGELOG_HELD_WORDS = "WHICH THIS CLONE HOLDS"
+_CHANGELOG_ABSENT_WORDS = ("the commit IS present and carries no "
+                           "contracts/CHANGELOG.md, so the file is absent "
+                           "rather than the commit unfetched")
+
 # A realistic tip: codexFactory's own published tip on the 2026-09-03 nightly,
 # whose report line this fixture reproduces exactly.
 _TIP = "a79ff008b8004f0e1c2d3e4f5a6b7c8d9e0f1a2b"
@@ -2045,6 +2056,27 @@ def test_an_unreadable_changelog_at_the_published_tip_skips(tmp_path):
     # rather than the repository — the skip is the SPENT read's, not the
     # family's.
     assert "contract-v2.0" in out.reason
+
+
+def test_an_absent_changelog_says_the_tip_is_held_rather_than_unfetched(tmp_path):
+    """THE SKIP NAMES THE FACT IT HAS, openxFactory #612 ONE DOCUMENT OVER.
+
+    `blobs_at`'s per-path None stands for two facts — an unfetched commit and a
+    commit this clone holds that carries no file. At THIS read only the second
+    can hold: `obtain_commit` ran above, and the manifest was read AT THE SAME
+    COMMIT and answered, which a commit the clone does not hold cannot do. So
+    the skip states the presence rather than leaving a reader of the report to
+    go looking for a fetch defect that cannot be there.
+    """
+    out = rtp.check_repo("alphaFactory", Path("r"),
+                         _NoChangelog(remotes={"r": "tip"}))
+    assert isinstance(out, Skip)
+    assert _CHANGELOG_HELD_WORDS in out.reason
+    assert _CHANGELOG_ABSENT_WORDS in out.reason
+    # AND IT IS NOT THE OTHER READ'S WORDS. The manifest arm's unfetched skip is
+    # the one that says a bounded fetch was tried and failed; this skip must
+    # never be mistakable for it, which is the whole of the defect.
+    assert _FETCH_TRIED_WORDS not in out.reason
 
 
 def test_a_below_floor_repository_with_no_changelog_is_not_newly_skipped(tmp_path):

@@ -1,0 +1,131 @@
+# Tasks: amend-unreadable-read-sibling-scenarios
+
+Status: draft
+Kind: tasks
+
+`code_surface: openxFactory`, `target_release: implemented`. The realization
+group is § 3 and it is IN THIS PULL REQUEST: the tasks are individually
+executable, so under `release-realization`'s decomposition rule this packet
+realizes through its own task list rather than through a feature DAG.
+
+**NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box is a diff in this pull
+request or a measurement recorded verbatim in the pull request body. § 1 is NOT
+ticked and names why.
+
+## 1. Ratification — OWED, NOT DONE
+
+- [ ] 1.1 **NOT RATIFIED.** No word of Brett Heap's admits this packet to the
+      queue or ratifies its text. `.openspec.yaml` carries drafting provenance
+      with NO approval pair — the lawful unapproved shape — and `proposal.md`,
+      `design.md` and this file all carry `Status: draft`.
+- [ ] 1.2 **THE VETO POINT IS `design.md` D2**: whether the third bullet — *the
+      skip MUST say the commit is held and MUST state the presence* — is in
+      scope at all, and with it the `openxFactory` code surface. Options A
+      (two bullets, `code_surface: none`) and B (three bullets, code owing) are
+      written out with their costs; C was taken. Reversing to A is a two-line
+      edit to the delta plus a front-matter change; reversing to B is a
+      front-matter change and a revert of § 3.
+
+## 2. The sweep, and the false positives it raised
+
+- [x] 2.1 **THREE ANGLES OVER `openspec/specs/`**, on this packet's own tree:
+      the retired phrase (`commonest cause`), the fact it misnames (`not
+      fetched` / `unfetched` / `has not fetched`), and the shape it sits in
+      (`answers nothing` / `cannot be read`).
+- [x] 2.2 **ONE LIVE SIBLING, AND IT IS THE ONE THIS PACKET AMENDS:**
+      `openspec/specs/doc-health/spec.md:2818`, the `WHEN` of *The changelog
+      cannot be read at the published tip*.
+- [x] 2.3 **FALSE POSITIVE — `openspec/specs/doc-health/spec.md:2715`.** It
+      carries the retired manifest clause, but it is the QUOTED UNIT inside
+      #678's own ``**Removed from canon by …:**`` marker, not a live scenario
+      bullet. The marker promotes into canon with the requirement by the same
+      requirement that defines it, and rewriting its quoted unit would leave it
+      declaring the removal of something that was never in canon. **It is
+      carried byte-identical and is NOT amended.**
+- [x] 2.4 **FALSE POSITIVE — `openspec/changes/archive/2026-09-05-amend-published-tip-unreadable-scenario/specs/doc-health/spec.md:484`.**
+      The sweep found this as a second live site while that change was still
+      active; **#685 archived it on 2026-09-05 and the path it was found at no
+      longer exists.** An archived delta is a record of what was ratified: it
+      does not re-promote, and `promotion-fidelity` compares it AGAINST canon,
+      so editing it would both mutate history and manufacture the very
+      divergence that family reports. **Not amended, and the reason is recorded
+      in `proposal.md` § What this proposal does NOT claim.**
+- [x] 2.5 **FALSE POSITIVE — `openspec/specs/doc-health/spec.md:1153`**, *A live
+      main cannot be read*. Different family (promotion fidelity), different
+      shape: it names no cause at all, and its `THEN` FALLS BACK to the checkout
+      rather than reporting a skip. There is nothing here to establish and
+      nothing misnamed.
+- [x] 2.6 **NOT A SIBLING — the tag-peel read.** The manifest scenario's closing
+      `AND` already binds it (*"the same MUST hold for the commit a tag peels
+      to"*), `_tag_state` already calls `obtain_commit` on the peeled commit, and
+      that bullet is carried byte-identical here. No second scenario is owed.
+
+## 3. The realization — one skip's words
+
+- [x] 3.1 `scripts/doc_health/release_tag_publication.py`, `check_repo`'s
+      changelog guard: the `Skip` reason now STATES THE PRESENCE — the published
+      tip *"WHICH THIS CLONE HOLDS — the commit IS present and carries no
+      contracts/CHANGELOG.md, so the file is absent rather than the commit
+      unfetched"* — while keeping every substring the suite already pins.
+- [x] 3.2 The comment above it no longer names *"a checkout that has not fetched
+      the published tip"* as the commonest cause. It names BOTH facts, and then
+      names which one holds here and why: `obtain_commit` ran above, and the
+      manifest READ at this same commit, which `cat-file --batch` cannot do for
+      a commit the clone does not hold.
+- [x] 3.3 **NO CONTROL FLOW MOVES.** Same position, same `in_scope` gate, same
+      return type; a below-floor repository with no changelog still returns
+      `[]`. No probe is added — see `design.md` D3 for why a second one would be
+      a round trip justified by nothing.
+- [x] 3.4 `tests/doc-health/test_release_tag_publication.py`: one test ADDED
+      (`test_an_absent_changelog_says_the_tip_is_held_rather_than_unfetched`)
+      pinning the two new fragments as fresh literals and asserting NEGATIVELY
+      against the manifest arm's *"a bounded fetch of exactly that commit was
+      attempted and did not obtain it"*. The existing changelog test is
+      UNCHANGED and still passes: all three of its literals are still carried.
+      145 → 146 tests in that module.
+
+## 4. The delta
+
+- [x] 4.1 `specs/doc-health/spec.md` carries ONE `## MODIFIED Requirements`
+      block over the promoted *Release-tag publication*, restating it in full —
+      every body unit and all 30 promoted scenario titles, byte-faithful,
+      INCLUDING #678's amendment note and its `Removed from canon by` marker —
+      and changing exactly one scenario: the `WHEN` bullet REPLACED, two `AND`
+      bullets ADDED. Verified by diffing the block against canon lines
+      2339–2873: the diff is those three edits and the new note, and nothing
+      else.
+- [x] 4.2 **THE ONE DROPPED UNIT IS DECLARED.** The block carries
+      `**Removed from canon by amend-unreadable-read-sibling-scenarios
+      (2026-09-05):**` naming the old `WHEN` bullet verbatim as a DOUBLE-backtick
+      code span — double because the unit itself contains a single-backtick span
+      — with the reason, and saying it is a REPLACEMENT rather than a deletion.
+- [x] 4.3 NO FILE IS ADDED UNDER `openspec/specs/` — no codexFactory floor
+      advance is owed.
+- [x] 4.4 **`sequenced_after` IS ELECTIVE AND IS NOT DECLARED.** All four other
+      writers of this requirement are ARCHIVED and no ACTIVE change writes it,
+      so there is no ordering for a declaration to settle. `proposal.md`
+      § Sequencing states the reading.
+
+## 5. Verification
+
+- [x] 5.1 `OPENSPEC_TELEMETRY=0 openspec validate
+      amend-unreadable-read-sibling-scenarios --strict` and `--all --strict`.
+- [x] 5.2 **THE SAME VALIDATION THROUGH THE PINNED 1.12 ENTRYPOINT**,
+      `python3 scripts/validate-openspec-cli-pin.py --all --no-cache`, exactly as
+      `openspec-cli-pin-gate.yml` invokes it. The prediction and the reason it
+      holds: 1.12's scenario-currency check refuses a `## MODIFIED` block that
+      OMITS a scenario the current spec carries; this block omits none and
+      retitles none, so it adds NO undispositioned failure. The two the run
+      reports are `#677`'s standing dispositions.
+- [x] 5.3 `python3 -m pytest tests/doc-health tests/sequenced_after -q`.
+- [x] 5.4 `python3 scripts/validate-sequenced-after.py .` and `--ledger-diff`.
+- [x] 5.5 `python3 scripts/doc-health.py --single-repo .` against a SAME-CLOCK
+      control at the CURRENT `main` tip, run minutes apart rather than against a
+      stale baseline.
+- [x] 5.6 **THE MUTATION PROBE, BOTH WAYS.** `modified-block-currency` reporting
+      nothing about this block cannot be told from a block it never read, so the
+      marker is removed and the family seen to FIRE on exactly one dropped unit,
+      a promoted scenario title is mutated and the family seen to FIRE on the
+      omitted scenario, and the delta is restored to silence. Recorded in the
+      pull request.
+- [x] 5.7 The corpus-sweep ledger row, seeded with the real pull request number.

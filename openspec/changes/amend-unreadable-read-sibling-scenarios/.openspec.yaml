@@ -1,0 +1,43 @@
+schema: spec-driven
+created: 2026-09-05
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-05-amend-unreadable-read-sibling-scenarios
+  reason: >-
+    THE SUCCESSOR THE ARCHIVE NAMES AS OWED. `amend-published-tip-unreadable-scenario`
+    (openxFactory PR #678, merge `87c15baa`; archived by #685) retired one clause
+    from `doc-health`'s promoted *Release-tag publication* — "the commonest cause
+    being a checkout that has not fetched that commit" — after openxFactory #612
+    measured it the wrong way round: on the aggregation nightly the commit WAS
+    fetched, and nine of the ten governed repositories simply carry no
+    `contracts/manifest.yaml` at all. THAT CLAUSE WAS WRITTEN TWICE. The sibling
+    scenario "The changelog cannot be read at the published tip" carries it word
+    for word over `contracts/CHANGELOG.md` at
+    `openspec/specs/doc-health/spec.md:2818`. #678 found this AFTER ratification,
+    refused to widen its own ratified scope, and recorded the sibling as an owed
+    successor in its `tasks.md` § 4.2 together with the one reading the successor
+    owes first: the changelog read has no presence probe of its own, it inherits
+    the manifest read's. This packet takes that reading and answers it in both
+    halves — the probe IS inherited and is complete, and the WORDS are not, so
+    the scenario's third bullet is made true in the family rather than owed by it.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and `INDEX.md` read on 2026-09-05: no topic
+    carries doc-health skip vocabulary, the fetched/absent distinction, or the
+    release-tag family's reads. `kind: staged` would claim a staging source that
+    does not resolve. The organized source is issue #662 and the archived packet's
+    own record of what it left undone.
+  proposed_by: >-
+    Lane `openxfactory-1` (session `5e783e4d`), authoring the successor
+    `amend-published-tip-unreadable-scenario` § 4.2 names. NO APPROVAL PAIR IS
+    DECLARED AND NONE IS IMPLIED: no word of Brett Heap's admits this packet to
+    the queue or ratifies its text. The lawful unapproved shape is the one
+    `add-drafted-proposal-origin` added — drafting provenance, no `approved_by`,
+    no `approved_on` — and every document in the packet carries `Status: draft`
+    to match. The decision most worth a veto is `design.md` D2: whether the third
+    bullet, and with it the `openxFactory` code surface, is in scope at all.
+  proposed_on: 2026-09-05
+related:
+  - openxFactory:change:amend-published-tip-unreadable-scenario  # ARCHIVED 2026-09-05 (#685). The direct predecessor: it retired the same clause one document over and named this packet as owed
+  - openxFactory:change:add-release-tag-publication-check        # ARCHIVED. Promoted the requirement this block MODIFIES and wrote the changelog scenario being amended
+  - openxFactory:change:declare-spent-bundle-state               # ARCHIVED. The second writer, and the precedent for qualifying a byte-faithful promoted sentence underneath rather than rewriting it
+  - openxFactory:change:add-release-tag-gate                     # ARCHIVED 2026-09-05 (#672). The third writer, whose block ADDED only and therefore owed no removal marker

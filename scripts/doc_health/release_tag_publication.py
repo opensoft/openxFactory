@@ -1224,11 +1224,24 @@ def check_repo(repo: str, repo_path: Path, git,
     if changelog is None:
         # THE SAME #338 GUARD ONE DOCUMENT OVER, AND IT IS GATED ON
         # IN-SCOPE-NESS RATHER THAN ON POSITION. `blobs_at` answers None PER
-        # PATH for a blob it cannot read, and the commonest cause is a checkout
-        # that has not fetched the published tip; NOT FETCHED IS NOT AN ANSWER,
-        # in either direction, because reading a declaration this run could not
-        # LOOK FOR as an absent declaration turns an unfetched clone into an
-        # `error` nobody can act on.
+        # PATH for a blob it cannot read, and that ONE ANSWER STANDS FOR TWO
+        # FACTS: the commit is not in this clone's object store, or the commit
+        # IS held and carries no `contracts/CHANGELOG.md`. NOT FETCHED IS NOT AN
+        # ANSWER, in either direction, because reading a declaration this run
+        # could not LOOK FOR as an absent declaration turns an unfetched clone
+        # into an `error` nobody can act on.
+        #
+        # WHICH OF THE TWO HOLDS IS ALREADY SETTLED HERE, AND IT IS ALWAYS THE
+        # SECOND — so the skip says so rather than leaving a reader to guess.
+        # `obtain_commit` asked for this tip above and fetched it where it was
+        # absent, and the manifest was read AT THIS SAME COMMIT and ANSWERED, or
+        # the two arms above would have returned. `blobs_at` sends
+        # `<commit>:<path>` to `cat-file --batch`, which reports every spec of a
+        # commit this clone does not hold as missing, so a manifest that read is
+        # proof the commit is held. This is openxFactory #612 one document over:
+        # nine repositories that simply carried no file were told every night
+        # that their tips were unfetched, sending anyone who read the report to
+        # look for a fetch defect the workflow's own fetch step had ruled out.
         #
         # BUT A REPOSITORY WITH NOTHING IN SCOPE IS NOT OWED THAT SKIP, and
         # standing above `parse_bundle` this guard fired before the bundle was
@@ -1239,10 +1252,12 @@ def check_repo(repo: str, repo_path: Path, git,
         if not in_scope:
             return []
         return Skip(FAMILY, f"{repo}: {CHANGELOG} could not be read at the "
-                            f"published tip {tip[:9]}, so a SPENT declaration "
-                            f"for {', '.join(in_scope)} could not be looked "
-                            f"for — which is not the same fact as there being "
-                            f"none")
+                            f"published tip {tip[:9]}, WHICH THIS CLONE HOLDS "
+                            f"— the commit IS present and carries no "
+                            f"{CHANGELOG}, so the file is absent rather than "
+                            f"the commit unfetched; a SPENT declaration for "
+                            f"{', '.join(in_scope)} could not be looked for, "
+                            f"which is not the same fact as there being none")
     read = read_changelog(changelog)
     findings, candidates = _refusal_findings(repo, read.declarations, cut,
                                              declared)
