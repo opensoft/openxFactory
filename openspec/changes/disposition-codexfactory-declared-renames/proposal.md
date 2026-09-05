@@ -1,12 +1,16 @@
 ---
 code_surface: openxFactory — ONE artifact moves in substance and ONE test moves with it, both in this pull request, neither a registered contract row. (1) `contracts/openspec-cli-pin.yaml`: the `dispositions:` block gains TWO entries, both `repo: codexFactory`, each accepting exactly one ERROR-level finding of 1.12.0's scenario-currency check against one delta path of one codexFactory change, with six and seven citations respectively and `ratified_by: 'Brett Heap, 2026-09-05, "use recommended name, go on 3 repo shape"'`; four header paragraphs move from "the two dispositions" to "two pairs in two repositories" so the file does not describe itself falsely. NO other field of the pin moves — not `version`, not `integrity`, not `shasum`, not `tarball`, not `rollback:`, not `consumer_entrypoint:`. (2) `tests/openspec_cli_pin/test_openspec_cli_pin.py`: the count-pinning test that asserts the real pin carries exactly the two entries the bump carried moves 2 → 4 DELIBERATELY and gains the per-repository split, plus one new test asserting the codexFactory pair is out of scope on openxFactory's own tree. NOT THIS CHANGE'S SURFACE: `scripts/validate-openspec-cli-pin.py` does not move — the scoping, the whole-message match, the staleness asymmetry and the four refusal codes all already exist and this packet is their FIRST USE ACROSS A REPOSITORY BOUNDARY, which is the point; no workflow moves; codexFactory's own gate leg and its `stack.yaml` re-pin are step 3 and are not ridden on this diff; nothing in `openspec/specs/` is written, so no capability is promoted and no floor advances.
 target_release: implemented (the openxFactory main line). No contract-bundle involvement: `contracts/openspec-cli-pin.yaml` is a CONSUMPTION pin — it is not a registered row in `contracts/manifest.yaml` and appears in no `contracts/releases/*.digests.yaml` inventory — so no digest set moves, no `contract_bundle_version` is spent and no release tag is owed. This is the same reasoning `bump-openspec-cli-pin-to-1.12` recorded for the same file, and it is recorded again rather than inherited because the file's status is the fact that decides it. The archive gate is `release-realization`'s merged-plus-green evidence for a non-empty code surface: this packet's own `openspec-cli-pin` gate run, green on openxFactory's tree, plus the codexFactory-tree measurement recorded verbatim in `evidence/codexfactory-dispositions-2026-09-05.md`.
-Status: draft
+Status: ratified
 ---
 
 # Proposal: disposition-codexfactory-declared-renames
 
-Status: draft
+Status: ratified
+Ratified: Brett Heap, 2026-09-05 — verbatim "ratify 697", heard first-hand by
+session codeXfactory-1 (lane codexfactory-1, which authored this packet); record
+at `review/ratification-2026-09-05.md`, which also records that the record was
+written AFTER the green run on `bfc9451e` and BEFORE any merge.
 Proposed: 2026-09-05
 Origin: Operator ruling, Brett Heap, 2026-09-05, in session to lane
 codexfactory-1, verbatim: *"use recommended name, go on 3 repo shape"* —
@@ -17,6 +21,14 @@ settles WHICH EXIT codexFactory takes and in what order. It does not ratify this
 packet's text**, which carries `Status: draft` and owes a ratification citation
 from a separate act; when that act happens it will add Brett's *"ratify \<PR>"*
 verbatim, as `bump-openspec-cli-pin-to-1.12` records *"ratify 677"*.
+
+**2026-09-05: THAT ACT HAS HAPPENED.** The paragraph above is kept as written
+because it is the record of what the PLAN-level word did and did not do, read as
+of the day it was given. Brett Heap ratified this text separately the same day,
+verbatim **"ratify 697"**, first-hand to this lane and against head `bfc9451e`;
+the two words and the order of events are in
+`review/ratification-2026-09-05.md`. The merge is a further, separate word and
+has not been given.
 
 ## Why
 

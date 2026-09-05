@@ -6,7 +6,9 @@ Status: draft
 this pull request or a run recorded verbatim in
 `evidence/codexfactory-dispositions-2026-09-05.md`. Group 5 is OWED work that
 belongs to OTHER packets and is deliberately unticked, each box naming whose it
-is — or, for 5.5, saying plainly that nobody owns it yet.
+is — or, for 5.5, saying plainly that nobody owns it yet. **5.4 IS THE ONE
+EXCEPTION AND IT IS TICKED**: ratification was this packet's own to receive, it
+was received on 2026-09-05, and its record is a diff in this pull request.
 
 **RATIFICATION HAS NOT HAPPENED.** Brett Heap ruled *"use recommended name, go
 on 3 repo shape"* on 2026-09-05, deciding that codexFactory takes the same exit
@@ -96,10 +98,15 @@ ratify this text; task 5.4 records ratification when it happens.
       `bump-openspec-cli-pin-to-1.12` stay UNTICKED.** They describe the WIRING,
       which is step 3. A tick that ran ahead of the act is the thing this estate
       refuses everywhere else.
-- [ ] 5.4 **Ratification of this text.** Brett's ruling chose the exit. This
-      packet is `Status: draft` until a separate act records his
-      *"ratify \<PR>"* verbatim, as #677's `review/ratification-2026-09-05.md`
-      records *"ratify 677"*.
+- [x] 5.4 (2026-09-05) **Ratified.** Brett Heap, first-hand to this lane,
+      verbatim **"ratify 697"**, given against head `bfc9451e` after every
+      required check went green on it. `proposal.md` moves to
+      `Status: ratified` with a `Ratified:` line, the draft-time paragraph kept
+      under a dated note, and the record is
+      `review/ratification-2026-09-05.md` — a diff in this pull request, which
+      is what lets this box be ticked under the rule at the top of this file.
+      **THE MERGE IS A SEPARATE WORD AND HAS NOT BEEN GIVEN.** The record says
+      so, and says what this ratification does not cover.
 - [ ] 5.5 **Watch exit 3 — `Fission-AI/OpenSpec#1793`, WHICH IS FILED.** It was
       filed 2026-09-05 on Brett Heap's word *"file the upstream issue"*, under
       his GitHub account by lane `codexfactory-0d`, and openxFactory #682

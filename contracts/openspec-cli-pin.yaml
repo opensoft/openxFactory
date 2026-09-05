@@ -357,7 +357,7 @@ dispositions:
       - codexFactory PR #216 (prepare-openspec-1.12-readiness, head b2a6af34) — the packet that converted the marker and measured what survived
       - codexFactory openspec/changes/prepare-openspec-1.12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md — the measurement, `Totals: 23 passed, 2 failed (25 items)`, and § "The two refusals"
       - codexFactory openspec/changes/add-regular-pr-council-clearance/specs/merge-master-approval/spec.md:139 — the marker itself, in the block the finding names
-    ratified_by: 'Brett Heap, 2026-09-05, "use recommended name, go on 3 repo shape"'
+    ratified_by: 'Brett Heap, 2026-09-05, "use recommended name, go on 3 repo shape" (the plan) and "ratify 697" (this change; openspec/changes/disposition-codexfactory-declared-renames/review/ratification-2026-09-05.md)'
     retires_when: >-
       add-regular-pr-council-clearance archives IN codexFactory — and on that day
       codexFactory's own `--all` run REFUSES `pin-disposition-stale` until this
@@ -387,7 +387,7 @@ dispositions:
       - codexFactory PR #216 (prepare-openspec-1.12-readiness, head b2a6af34) — the packet that measured what survived
       - codexFactory openspec/changes/prepare-openspec-1.12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md — the measurement, `Totals: 23 passed, 2 failed (25 items)`, and § "The two refusals"
       - codexFactory openspec/changes/amend-composition-selector-labelling/specs/domain-hermes-content/spec.md:19 — the marker itself, in the block the finding names
-    ratified_by: 'Brett Heap, 2026-09-05, "use recommended name, go on 3 repo shape"'
+    ratified_by: 'Brett Heap, 2026-09-05, "use recommended name, go on 3 repo shape" (the plan) and "ratify 697" (this change; openspec/changes/disposition-codexfactory-declared-renames/review/ratification-2026-09-05.md)'
     retires_when: >-
       amend-composition-selector-labelling archives IN codexFactory — and on that
       day codexFactory's own `--all` run REFUSES `pin-disposition-stale` until

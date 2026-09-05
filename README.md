@@ -612,8 +612,12 @@ Active changes:
   `openspec/changes/bump-openspec-cli-pin-to-1.12/evidence/pin-bump-1.12-2026-09-05.md`.
 
 - [disposition-codexfactory-declared-renames](openspec/changes/disposition-codexfactory-declared-renames/proposal.md)
-  — authored 2026-09-05, **`Status: draft`**, on Brett Heap's ruling to lane
-  codexfactory-1 *"use recommended name, go on 3 repo shape"* — accepting for
+  — authored 2026-09-05, **`Status: ratified`** (2026-09-05, Brett Heap,
+  first-hand to lane codexfactory-1, verbatim *"ratify 697"*, against head
+  `bfc9451e` after every required check went green on it; record at
+  `openspec/changes/disposition-codexfactory-declared-renames/review/ratification-2026-09-05.md`,
+  written BEFORE any merge), on Brett Heap's earlier plan-level ruling to the
+  same lane *"use recommended name, go on 3 repo shape"* — accepting for
   codexFactory's pair the same exit he ruled *"take exit 2"* for openxFactory's
   own pair the same day, and a decision on the substance rather than a
   ratification of this text. **THE FIRST TIME THE DISPOSITION MECHANISM CROSSES

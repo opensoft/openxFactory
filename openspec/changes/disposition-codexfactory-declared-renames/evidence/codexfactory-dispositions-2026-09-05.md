@@ -13,6 +13,10 @@ name, go on 3 repo shape"** — accepting for codexFactory's pair the same exit 
 ruled **"take exit 2"** for openxFactory's own pair the same day, and naming the
 three-step order this packet is step 2 of.
 Pull request: openxFactory #697.
+Ratified: Brett Heap, 2026-09-05, verbatim **"ratify 697"**, first-hand to
+this lane against head `bfc9451e`; record at
+`review/ratification-2026-09-05.md`. The merge is a separate word and had not
+been given when this record was written.
 
 Every block below is copied from a terminal in this lane. Where a line is
 elided it is marked `…` and nothing is elided from a totals line, a verdict
@@ -77,15 +81,24 @@ openspec-cli-pin: DISPOSITIONED FINDINGS in codexFactory (2 applied) — this ru
         MODIFIED "Bounded autonomous surface" omits scenario(s) the current spec still has: "A human-authored pull request is never auto-approved". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them).
         why: A RETITLE AND NARROWING declared with the reserved `Merged into` marker — converted from a `Removed from canon` marker by codexFactory PR #216 on Brett Heap's 2026-09-05 ruling, because canon holds that a block adding a title canon does not carry is a retitle whatever the marker calls it. A human-authored pull request is still never approved by the tier-1 envelope alone; approval may now ALSO come from tier-2 council clearance pinned to the candidate's exact head SHA, which is the BREAKING change that packet declares. Copying the old scenario back would reinstate a bar the change was ratified to lower.
         cited to: openspec/specs/doc-health/spec.md:1770 — the promoted `Merged into` marker requirement, whose written form the codexFactory block uses; openspec/specs/doc-health/spec.md:1750 — "That shape is a retitle, whatever the marker calls it", the line that makes `Merged into` the right instrument here and `Removed from canon` the wrong one; council LA-A1 — the ruling that reserved the marker forms; codexFactory PR #216 (prepare-openspec-1.12-readiness, head b2a6af34) — the packet that converted the marker and measured what survived; codexFactory openspec/changes/prepare-openspec-1.12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md — the measurement, `Totals: 23 passed, 2 failed (25 items)`, and § "The two refusals"; codexFactory openspec/changes/add-regular-pr-council-clearance/specs/merge-master-approval/spec.md:139 — the marker itself, in the block the finding names
-        accepted by: Brett Heap, 2026-09-05, "use recommended name, go on 3 repo shape"
+        accepted by: Brett Heap, 2026-09-05, "use recommended name, go on 3 repo shape" (the plan) and "ratify 697" (this change; openspec/changes/disposition-codexfactory-declared-renames/review/ratification-2026-09-05.md)
   ✗→D amend-composition-selector-labelling / domain-hermes-content/spec.md
         MODIFIED "The merge-readiness holder composition is declared from governed sources" omits scenario(s) the current spec still has: "Current aliases do not masquerade as immutable versions". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them).
         why: The scenario is RETITLED to "A selector is labelled for what it is, and none masquerades as an immutable revision", declared in the block with the reserved `Merged into` marker on Brett Heap's 2026-08-31 ruling that the old title's THEN clause needed a reading to stay true after the roster model-pin flip. The retitle restates the THEN for both exact identifiers and aliases so canon states the rule directly; restoring the old title would put back the clause the ruling found required a reading.
         cited to: openspec/specs/doc-health/spec.md:1770 — the promoted `Merged into` marker requirement, whose written form the codexFactory block uses; openspec/specs/doc-health/spec.md:1750 — "That shape is a retitle, whatever the marker calls it"; council LA-A1 — the ruling that reserved the marker forms; codexFactory hermes/domain/review-councils/records/2026-08-31-enrolled-roster-model-pin-flip.md §5.1/§12.0 — Brett Heap's 2026-08-31 ruling, the reason for the retitle; codexFactory PR #216 (prepare-openspec-1.12-readiness, head b2a6af34) — the packet that measured what survived; codexFactory openspec/changes/amend-composition-selector-labelling/specs/domain-hermes-content/spec.md:19 — the marker itself, in the block the finding names
-        accepted by: Brett Heap, 2026-09-05, "use recommended name, go on 3 repo shape"
+        accepted by: Brett Heap, 2026-09-05, "use recommended name, go on 3 repo shape" (the plan) and "ratify 697" (this change; openspec/changes/disposition-codexfactory-declared-renames/review/ratification-2026-09-05.md)
 OK openspec-cli-pin: @fission-ai/openspec@1.12.0 verified against its content address; every target validated --strict with 0 UNDISPOSITIONED failures. THIS IS NOT A CLEAN TREE: 2 finding(s) are ACCEPTED EXCEPTIONS, named above.
 EXIT=0
 ```
+
+**RE-RUN 2026-09-05 AFTER RATIFICATION, AND THE BLOCK ABOVE IS THE RE-RUN.**
+Brett Heap's *"ratify 697"* extended both entries' `ratified_by:` from the
+plan-level word alone to both words plus the record, so the `accepted by:` line
+the tool prints changed. This section was RE-MEASURED rather than left quoting a
+string the pin no longer carries: same command, same tree, same
+`Totals: 23 passed, 2 failed (25 items)`, exit 0, and the two applied exceptions
+now name both words. A transcript that stopped matching the file it transcribes
+would be the one kind of evidence this estate cannot use.
 
 **`Totals:` is IDENTICAL before and after — `23 passed, 2 failed (25 items)`.**
 That is the honesty property working: the pin does not make the tool report
