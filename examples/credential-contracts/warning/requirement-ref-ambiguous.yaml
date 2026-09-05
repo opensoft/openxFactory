@@ -29,7 +29,8 @@
 # matches may differ in `access_mode`, and an implementation MUST NOT resolve
 # the ambiguity by picking one.
 #
-# The record is VALID and WARNED; the refusal lands at contract-v3.0.
+# The record is VALID and WARNED; the refusal lands at contract-v4.0
+# (restated from contract-v3.0, openxFactory#634).
 schema_version: 1
 kind: xfactory_credential_binding_template
 client:
