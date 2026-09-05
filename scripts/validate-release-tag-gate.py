@@ -409,6 +409,42 @@ def evaluate(repo: Path, head: str = "HEAD", base: str | None = None,
     return Result(PASS, None, lines, obligation)
 
 
+def workflow_command_safe(text: str) -> str:
+    """`text` made safe to put in a GitHub Actions `::notice`/`::error` command.
+
+    COPILOT ON PR #668, TAKEN — AND ITS REACH STATED HONESTLY RATHER THAN
+    ACCEPTED AS PUT. The bundle name printed in these commands comes from
+    `contract_bundle_version` in the pull request's OWN `contracts/manifest.yaml`
+    — a value the pull request's author writes, and `parse_bundle` takes any
+    non-whitespace token. Actions DECODES `%0A`, `%0D` and `%25` inside a
+    workflow command, so an unescaped `contract-v9.9%0A::error::…` would have
+    this tool emit a SECOND, FORGED workflow command.
+
+    **IT IS NOT REACHABLE TODAY, and saying so is part of the fix.** Both
+    emission sites are already narrower than the review assumed: the `::error`
+    prints a refusal code and its meaning, BOTH from this module's closed
+    `REFUSALS` table and neither derived from the tree; and the `::notice` is
+    reached only after `_at_or_above_floor`, which parses the name against
+    `^contract-v<major>.<minor>$` — a grammar admitting no `%` and no digit-free
+    token. A crafted name is refused as out of scope before it can be printed,
+    which `test_a_crafted_bundle_name_never_reaches_a_workflow_command` pins.
+
+    So this is DEFENCE IN DEPTH, and it earns its place because the guard that
+    makes it unreachable lives in ANOTHER MODULE and answers a different
+    question: `release_tag_publication`'s enforcement floor is about which
+    bundles the family may speak of, not about what is safe to print. A floor
+    that widened, or a second emission site added here, would restore the hazard
+    silently. The escaping costs one function.
+
+    The escaping is the one Actions itself documents for command DATA, applied
+    in the only order that is correct: `%` first, or the escapes introduced by
+    the newline rules would themselves be re-escaped.
+    """
+    return (text.replace("%", "%25")
+                .replace("\r", "%0D")
+                .replace("\n", "%0A"))
+
+
 def _emit(text: str, summary_path: str | None) -> None:
     print(text)
     if summary_path:
@@ -450,12 +486,14 @@ def main(argv=None) -> int:
     if result.obligation:
         _emit("", summary)
         _emit(result.obligation, summary)
-        print(f"::notice title=release-tag-gate::{result.obligation}")
+        print("::notice title=release-tag-gate::"
+              + workflow_command_safe(result.obligation))
     if result.refusal:
         meaning = REFUSALS.get(result.refusal, "")
         _emit("", summary)
         _emit(f"REFUSED `{result.refusal}` — {meaning}", summary)
-        print(f"::error title=release-tag-gate::{result.refusal}: {meaning}")
+        print("::error title=release-tag-gate::"
+              + workflow_command_safe(f"{result.refusal}: {meaning}"))
     return result.code
 
 

@@ -308,7 +308,8 @@ def test_a_tag_already_peeling_to_the_tree_under_judgment_is_pre_published(
     tree being judged is the obligation met EARLY. Two real situations reach
     this arm: a tag pushed at the head before merge, and this gate RE-RUN
     against a merge commit after the cut landed. Replayed against openxFactory
-    `807a4f47` — the `contract-v3.4` cut, tagged 68 seconds after it merged —
+    `807a4f47` — the `contract-v3.4` cut, tagged 69 seconds after its merge
+    commit —
     the gate passes for exactly this reason.
     """
     repo, _ = _repo(tmp_path)
@@ -642,3 +643,77 @@ def test_the_publication_suite_carries_no_zero_findings_pin_on_this_repository()
     # satisfy the rule above, which is not what the scenario says.
     assert "def test_the_probe_can_fire_over_a_tree_constructed_to_be_untagged" \
         in source
+
+
+# ------------------------------------ a verdict speaks only its own words
+
+def test_a_crafted_bundle_name_never_reaches_a_workflow_command(tmp_path,
+                                                                capsys):
+    """COPILOT ON PR #668, AND THE HONEST DISPOSITION IS TWO FACTS, NOT ONE.
+
+    The review held that the bundle name — author-controlled, taken from the
+    pull request's own manifest, and printed inside a `::notice` — could carry
+    `%0A::error::…` and forge a second workflow command, Actions decoding `%0A`
+    inside a command. The escaping was added. **But the hazard is not reachable
+    today, and a test that claimed otherwise would be theatre:** the `::notice`
+    is emitted only after `_at_or_above_floor`, whose grammar is
+    `^contract-v<major>.<minor>$` and admits no `%`, so a crafted name is out of
+    scope before it can be printed. This test pins THAT — the crafted manifest
+    produces no notice and no forged command — and its sibling pins the escaping
+    itself, which is defence in depth against a floor in another module widening
+    or a second emission site being added here.
+    """
+    repo, _ = _repo(tmp_path)
+    _cut(repo, "contract-v2.0")
+    _tag(repo, "contract-v2.0")
+    base = _head(repo)
+    crafted = "contract-v9.9%0A::error::forged"
+    (repo / "contracts" / "releases").mkdir(parents=True, exist_ok=True)
+    (repo / rtp.inventory_path(crafted)).write_text("x: 1\n")
+    (repo / MANIFEST).write_text(f"contract_bundle_version: {crafted}\n")
+    _git(repo, "add", MANIFEST, rtp.inventory_path(crafted))
+    _git(repo, "commit", "-q", "-m", "a crafted bundle name")
+    head = _head(repo)
+    _push(repo)
+
+    # THE CONTROL: the crafted value really is what the manifest declares, so a
+    # green below is about the gate's handling and not about a fixture that
+    # never carried the payload.
+    assert rtp.parse_bundle((repo / MANIFEST).read_bytes()) == crafted
+
+    gate.main([str(repo), "--head", head, "--base", base,
+               "--repo-name", "alphaFactory"])
+    out = capsys.readouterr().out
+
+    # WHAT A WORKFLOW COMMAND IS, and it is the precise thing to assert.
+    # Actions parses a command only where a LINE BEGINS with `::`. The crafted
+    # value does appear inside the refusal's plain report text — the skip names
+    # the bundle it could not grade — and that is harmless for exactly this
+    # reason: an ordinary log line is not decoded and cannot forge anything.
+    commands = [line for line in out.splitlines() if line.startswith("::")]
+    forged = [c for c in commands
+              if not c.startswith("::error title=release-tag-gate::")
+              and not c.startswith("::notice title=release-tag-gate::")]
+    assert forged == [], f"a manifest value forged a workflow command: {forged}"
+    assert not any(c.startswith("::notice") for c in commands), (
+        "a bundle name outside the version grammar reached the notice arm")
+    # AND THE GATE STILL ANSWERED: a crafted name it cannot grade is a REFUSAL,
+    # not a pass, so this test cannot go green on a gate that fell silent.
+    assert any(c.startswith("::error title=release-tag-gate::gate-unaskable")
+               for c in commands), commands
+
+
+def test_the_workflow_command_escaping_is_the_one_actions_decodes():
+    """The escaping itself, asserted directly, because the arm above proves only
+    that today's grammar keeps the payload away from it.
+
+    `%` FIRST IS THE WHOLE CORRECTNESS ARGUMENT: escape the newlines first and
+    the `%` they introduce gets escaped again, so `\n` would render as `%250A`
+    and Actions would print a literal `%0A` instead of a line break.
+    """
+    assert gate.workflow_command_safe("a%b") == "a%25b"
+    assert gate.workflow_command_safe("a\nb") == "a%0Ab"
+    assert gate.workflow_command_safe("a\rb") == "a%0Db"
+    assert gate.workflow_command_safe("v9.9%0A::error::forged") == \
+        "v9.9%250A::error::forged"
+    assert gate.workflow_command_safe("plain text") == "plain text"

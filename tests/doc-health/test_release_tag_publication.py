@@ -372,8 +372,8 @@ def test_the_probe_can_fire_over_a_tree_constructed_to_be_untagged(tmp_path):
     WHY THE FIRST HALF HAD TO GO. The tag for a new bundle is published AFTER
     the cutting pull request merges, by a second actor with tag rights —
     measured over every `contract-v3.x` cut this repository has made, the
-    annotated tag is created between six and sixty-eight seconds after the merge
-    and points at the merge commit. Between those two acts this repository
+    annotated tag is created between six and sixty-nine seconds after the merge
+    commit and points at it. Between those two acts this repository
     genuinely carries the finding, so a zero-findings assertion inside the
     REQUIRED `pytest-suite` turned EVERY open pull request red for the length of
     the window: PR #628 declared `contract-v3.3` untagged at 22:27Z on

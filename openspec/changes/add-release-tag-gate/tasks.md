@@ -66,7 +66,7 @@ ruleset id and one green run.
       test renamed `test_the_probe_can_fire_over_a_tree_constructed_to_be_untagged`,
       its docstring carrying the move, the measurement and where the assertion
       went.
-- [x] 3.4 `tests/doc-health/test_release_tag_gate.py`: twenty-two tests over real
+- [x] 3.4 `tests/doc-health/test_release_tag_gate.py`: twenty-four tests over real
       git repositories with real origins — the short-circuit with its positive
       control, the path classification, the clean cut with its recorded
       obligation, the stale bundle, the in-window release-surface edit, the
@@ -200,6 +200,20 @@ is `create-medxchart-overlay-boundary` § 5.3/5.4 (`pin-validation`, ruleset
       errors. **Codex refused on quota; two Copilot rounds did not find P2-1;
       the adversarial review did.** That is the reading of record for how much
       the bot bench is worth on this packet.
+  - *2026-09-05 — COPILOT ROUND 3, on the fix round's head: FOUR comments, all
+      taken, one of them NOT AT ITS OWN FRAMING.* Two were a real miss of mine —
+      the `contract-v3.4` gap still read 68s in two test docstrings after the
+      other five sites moved to 69s. The other two said the bundle name printed
+      in the `::notice` is author-controlled and could carry `%0A::error::…`,
+      Actions decoding it into a forged workflow command. **The escaping was
+      added (`workflow_command_safe`) and the reach was CORRECTED rather than
+      accepted:** the `::error` prints only a refusal code and its meaning from
+      this module's closed table, and the `::notice` is reached only past
+      `_at_or_above_floor`, whose `^contract-v<major>.<minor>$` grammar admits
+      no `%` — so a crafted name is refused as out of scope before it can be
+      printed, which a test now pins alongside the escaping itself. It is
+      DEFENCE IN DEPTH, and it earns its place because the guard that makes it
+      unreachable lives in another module answering a different question.
 - [x] 5.8 A POSITIVE CONTROL ON THE `## MODIFIED` BLOCK ITSELF. The
       `modified-block-currency` family reports nothing about this change, which
       alone cannot be distinguished from a block it never read. One promoted
