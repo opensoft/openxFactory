@@ -43,8 +43,8 @@ plus, where a finding turned on it, a third worktree at `355f6ef4`, the exact
 commit `tasks.md` § 1.1a names as the in-flight re-pin target. No network
 call was made against GitHub; `--dry-run` and `--local-remote-dir` (bare
 repositories on disk, the tool's own documented test path) materialized real
-file trees with nothing created upstream. `/home/brett/projects/openRepoShape`
-was never touched. Where a finding turned on this organization's live
+file trees with nothing created upstream. The operator's local
+`openRepoShape` checkout (outside this repository) was never touched. Where a finding turned on this organization's live
 ruleset state, `gh api orgs/opensoft/rulesets` and the two ruleset ids the
 packet's own text names were read (read-only).
 
@@ -112,8 +112,19 @@ exactly five descendants — `MedxDox`, `codexDox`, `LedgerxDox`, `AdxDox`,
 `OpsxDox` — each three names under the shape (assembly + `-spec` + `-code`,
 confirmed identical at tip and pin by `--dry-run` and by
 `scripts/validate-repository-naming.py --explain`). 5 × 3 = fifteen, not
-eighteen; a `grep -oE` sweep of the whole packet for the `<Domainx>Dox`
-pattern finds no sixth descendant anywhere. Corrected in `tasks.md` § 1.7 with
+eighteen. Reproducible: `grep -ohE '\b[A-Za-z]+xDox\b' proposal.md design.md
+tasks.md | sort -u` (run from `openspec/changes/split-opendox-two-layer-product/`)
+returns SEVEN distinct strings, not five, because the broad pattern also catches
+two non-descendant artifacts: `medxDox`, a lowercase casing variant appearing
+exactly once inside Brett Heap's verbatim quoted founding utterance
+(`proposal.md`:59), never as a declared descendant name (the packet's own
+registration in `tasks.md` § 1.7 spells it `MedxDox`); and `openxDox`, the
+case-folded ALSO-ACCEPTED spelling of `openXdox` itself, named twice in the
+pin-chain discussion (`tasks.md`:347, `design.md`:868), not a sixth descendant.
+Excluding those two artifacts, `grep -ohE
+'\b(MedxDox|codexDox|LedgerxDox|AdxDox|OpsxDox)\b' proposal.md design.md
+tasks.md | sort -u | wc -l` returns 5 — no sixth descendant exists anywhere in
+the packet. Corrected in `tasks.md` § 1.7 with
 a dated parenthetical giving the arithmetic, so the next amendment that adds
 or drops a descendant can re-derive the count instead of inheriting a stale
 one.

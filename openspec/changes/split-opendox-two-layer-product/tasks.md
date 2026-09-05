@@ -283,13 +283,27 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   name plus its two leg names, confirmed by `scaffold-project.py --dry-run` at
   both revisions and by `scripts/validate-repository-naming.py --explain`
   classifying all fifteen as `project-leg`): 5 × 3 = **fifteen** descendant
-  names, not eighteen. A sixth descendant would be needed to reach eighteen and
-  none exists anywhere in this packet — `grep -oE` over proposal.md, design.md
-  and tasks.md for the `<Domainx>Dox` pattern returns exactly these five base
-  names. Read "fifteen descendant names — five descendants × three names each,
-  the assembly name plus its two leg names — plus one install name, zero
-  repositories" in place of the eighteen-count above; the rest of the sentence
-  is unaffected.)*
+  names, not eighteen. A sixth descendant would be needed to reach eighteen, and
+  none exists anywhere in this packet — reproducible as
+  `grep -ohE '\b[A-Za-z]+xDox\b' proposal.md design.md tasks.md | sort -u`,
+  run from `openspec/changes/split-opendox-two-layer-product/`, which returns
+  SEVEN distinct strings (`AdxDox`, `LedgerxDox`, `MedxDox`, `OpsxDox`,
+  `codexDox`, `medxDox`, `openxDox`), not five, because the broad pattern also
+  catches two non-descendant artifacts: `medxDox`, a lowercase casing variant
+  appearing exactly ONCE, inside Brett Heap's verbatim quoted founding utterance
+  at `proposal.md`:59 ("We then further pin that down to medxDox and CodeXdox
+  …"), never as a declared descendant name (the packet's own registration in
+  `tasks.md` § 1.7 spells it `MedxDox`); and `openxDox`, the case-folded
+  ALSO-ACCEPTED spelling of `openXdox` itself named twice in the pin-chain
+  discussion (`tasks.md`:347, `design.md`:868 — "`openXdox`.casefold() equals
+  `openxDox`.casefold()"), not a sixth descendant. Excluding those two
+  artifacts, `grep -ohE
+  '\b(MedxDox|codexDox|LedgerxDox|AdxDox|OpsxDox)\b' proposal.md design.md
+  tasks.md | sort -u | wc -l` returns **5**: the five names above are the only
+  declared descendant base names in the packet. Read "fifteen descendant names —
+  five descendants × three names each, the assembly name plus its two leg
+  names — plus one install name, zero repositories" in place of the
+  eighteen-count above; the rest of the sentence is unaffected.)*
 - [ ] 1.8 `[xF]` Aggregation `CLAUDE.md` working rule #1 amended: it accommodates a
   neutral `open*` product `openxFactory` pins, and does NOT yet accommodate a
   neutral product that is an APPLICATION WITH A SCHEMA rather than a contract
