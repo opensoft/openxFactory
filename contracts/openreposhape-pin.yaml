@@ -72,9 +72,10 @@ kind: pinned_contract_manifest
 # `templates/family-root/AGENTS-shape.md` are digested because the standard
 # itself digests them — `scripts/shape_materialize.py` lists both under
 # `COPIED_VERBATIM`/`FAMILY_COPIED_VERBATIM` and writes their `sha256` into each
-# project's `contracts/shape-pin.yaml`, on its own reasoning that "the sentence
-# 'never edit a file with a row in shape-pin.yaml' is worthless if the file
-# saying it can be edited". TWELVE are path-only: the eight `AGENTS.md` and
+# project's `contracts/shape-pin.yaml`, because a pin that left AGENTS-shape.md
+# undigested would let the very file that tells every project never to
+# hand-edit a pinned file drift out from under this pin without the pin ever
+# noticing. TWELVE are path-only: the eight `AGENTS.md` and
 # `CLAUDE.md` stubs under `templates/` are RENDERED per project and explicitly
 # not pinned by the shape ("The shape wrote the block above once and does not
 # pin this file"), which puts them where `templates/assembly-root/README.md`
