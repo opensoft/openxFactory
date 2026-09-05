@@ -279,3 +279,24 @@ does.
       than annotated'"*), the delta was restored and the family re-run silent.
       All 24 promoted scenario titles and every body unit are carried, verified
       by a probe shown capable of firing.
+
+## 6. The landing act
+
+- [x] 6.1 **ARCHIVED 2026-09-05 BY openxFactory PR #672**,
+      `change/archive-add-release-tag-gate`, on Brett Heap's word — in session,
+      verbatim **_"ruleset updated, do the evidence and archive it"_** — given
+      after his ratification the same day, *"ratify 668, land it when green"*.
+      That pull request is the landing act for this packet: it carries the
+      `[OPERATOR]` evidence (`review/realization-evidence-2026-09-05.md`), the
+      archive performed by `scripts/proposal-support.py … archive` rather than
+      by a bare `openspec archive`, the promotion of the ONE MODIFIED
+      requirement into `openspec/specs/doc-health/spec.md`, the README row's
+      move to *Archived changes:*, and this packet's ledger row moving
+      `state: active → archived` (`moved_by: "#672"`).
+- [x] 6.2 **THE PROMOTION IS DIFF-CLEAN AND THE SPEC COUNT DID NOT MOVE.** The
+      requirement as promoted is BYTE-IDENTICAL to the delta's `## MODIFIED`
+      block — 503 lines, 30 scenarios, compared programmatically rather than
+      eyeballed — and `openspec/specs/` holds the same **59** capability
+      directories before and after, because this packet added no spec file.
+      **No codexFactory floor advance is owed**, which is the property the
+      packet was shaped around from its first commit.
