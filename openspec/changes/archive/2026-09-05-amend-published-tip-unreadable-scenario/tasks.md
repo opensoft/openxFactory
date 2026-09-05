@@ -98,3 +98,18 @@ catching up to it.
       live bullets carrying it in the amended scenario. `openspec/specs/` holds
       the same **59** capability directories before and after, so **no
       codexFactory floor advance is owed**.
+- [x] 4.5 **A MISQUOTED REGEX IN THE PACKET'S OWN PROSE, REPAIRED IN THE ARCHIVE
+      COMMIT AND NOT IN THE RECORDS.** Copilot on PR #685 found that
+      `proposal.md` and `.openspec.yaml` quoted `lane-line`'s grammar as
+      `^Lane: [a-z0-9-]+$`, dropping the optional parenthetical group. The
+      real check is `^Lane: [a-z0-9-]+( \(.*\))?$` — and that group is exactly
+      what makes this packet's own pull-request first line,
+      `Lane: openxfactory-1 (openXfactory-1)`, legal, so the truncated quote
+      made the packet look non-conforming to a check it passes. The CONCLUSION
+      the quote supports is unaffected: no form of that group admits an
+      uppercase letter, so lowercase-only stands.
+      **THE TWO `Status: record` FILES WERE NOT TOUCHED and did not need to be**
+      — `review/ratification-2026-09-05.md` already quotes the grammar in full,
+      `review/verification-2026-09-05.md` does not quote it, and
+      `record-immutability` forbids editing either after capture, which happened
+      at the merge of #678. Only the two non-record files were repaired.
