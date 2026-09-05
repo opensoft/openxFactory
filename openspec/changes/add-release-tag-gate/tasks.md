@@ -168,13 +168,23 @@ is `create-medxchart-overlay-boundary` § 5.3/5.4 (`pin-validation`, ruleset
       request's own**, and it is cited rather than borrowed. This box is ticked
       by the commit that follows the pull request's creation, replacing
       `RUN_ID_PENDING` in the evidence record.
-- [ ] 4.3 **CARRIED FORWARD AS A SUCCESSOR, NOT TICKED, AND ARCHIVE DOES NOT
-      WAIT ON IT.** The FIRST pull request this gate judges for real is the next one that
-      touches `contracts/manifest.yaml` or `contracts/releases/**`. **PR #653 is
-      NOT it** — the `contract-v3.4` cut merged 2026-09-04 at 19:56Z, before
-      this packet was authored; it is used here only as REPLAY evidence
-      (`--head 807a4f47` exits 0). Record the first real judgement when it
-      happens.
+### 4.3 — SUCCESSOR, NAMED AND NOT DRAFTED. Deliberately not a checkbox.
+
+**This packet does not own the event, so it does not carry an open box for it.**
+The FIRST pull request this gate judges for real is the next one that touches
+`contracts/manifest.yaml` or `contracts/releases/**` — which is a future cut by
+whoever cuts it, not work this change can perform, and an open checkbox would
+either sit forever or be ticked by someone who did not do it. **PR #653 is NOT
+it**: the `contract-v3.4` cut merged 2026-09-04 at 19:56Z, before this packet
+was authored, and is used here only as REPLAY evidence (`--head 807a4f47` exits
+0, through the PRE-PUBLISHED arm rather than the `TAG OWED` arm a live cut
+takes). **Archive does not wait on it**, and the first real judgement is
+recorded by the pull request that receives it, in its own lane.
+
+The same applies to the accepted `release-inventory-drift` `error` on
+`docs/contract-versioning-policy.md`: it persists until the next contract cut
+re-digests that member. An archive does not clear it and nothing here claims it
+does.
 
 ## 5. Verification
 
