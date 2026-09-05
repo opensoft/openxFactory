@@ -398,9 +398,15 @@ its own.>
   per-change verification (`proposal-support.py verify <change>`) and the
   archive gate reject missing, malformed, dual-kind, or manifest-disagreeing
   origins, and an ad-hoc origin declaring neither provenance pair or half of
-  one; the nightly `proposal-origin` doc-health family (the fifteenth)
-  reports drift — including post-ratification mutation, a `contested`
-  finding — across active and archived proposals.
+  one; the archive gate additionally compares the declaration against the one
+  the packet carried at its RATIFYING COMMIT — the first commit whose
+  `proposal.md` declares `Status: ratified` — and refuses the archive (exit 2,
+  no bypass flag) when the origin block or the support manifest's repeated
+  origin fields have moved since, when no such commit exists, or when the
+  history holding that baseline cannot be read; the nightly `proposal-origin`
+  doc-health family
+  (the fifteenth) reports drift — including post-ratification mutation, a
+  `contested` finding — across active and archived proposals.
 - `proposed -> ratified -> implemented`: standard OpenSpec flow.
 - `implemented -> promoted`: the change archives and its requirements live
   under canonical specs; affected docs may claim `standard`. Before archive,
