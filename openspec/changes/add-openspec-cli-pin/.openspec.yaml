@@ -1,0 +1,43 @@
+schema: spec-driven
+created: 2026-09-04
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-04-add-openspec-cli-pin
+  reason: >-
+    Not from an openxFactory staged topic, and that was CHECKED rather than
+    assumed in both directions: this packet carries no Staging ID header, no
+    folder under `ideation/staging/` names the OpenSpec CLI or
+    `@fission-ai/openspec`, and `ideation/staging/INDEX.md` declares no topic
+    exit naming it. No staging origin is claimed because none exists.
+    THE FORCING FACT is measured and is stated in the proposal's Why: the tool
+    that decides what canon IS has never been pinned. `openspec validate
+    --strict` is the gate every spec delta passes before it may archive and
+    `openspec archive` is the act that writes a ratified delta into canon, yet
+    the only pin anywhere in the estate is one literal line in
+    `.github/workflows/pytest-suite.yml:400` — installed so
+    `tests/proposal-support/` can drive the binary, read by no consuming
+    repository, verified by nothing, refusing nothing — and OpenSpec offers no
+    project-level version field to lean on instead. `openspec validate --all
+    --strict` runs in NO repository's continuous integration at all. The cost of
+    leaving it unpinned is measured rather than hypothetical: at 1.12.0 the same
+    trees that are clean at 1.2.0 report `48 passed, 41 failed (89 items)` here
+    and `34 passed, 10 failed (44 items)` in OpsxFactory, every failure a
+    PRE-EXISTING condition, so a single ambient `npm install -g` reds two
+    repositories and stalls every archive in the estate.
+    The packet PINS THE CURRENT VERSION and deliberately does not bump it; the
+    upgrade is named as a separate, human-only governed change that must land
+    its target-version evidence in the same change.
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — in-session on 2026-09-04,
+    verbatim: "draft the openxFactory pin change, pinned at 1.2.0". THIS IS AN
+    ADMISSION INTO THE PROPOSAL QUEUE AND AN INSTRUCTION TO AUTHOR, NOT A
+    RATIFICATION OF CONTENT. It supplies the origin and approval pair the
+    proposal-origin contract requires and nothing more: the packet remains
+    `Status: draft`, it carries no ratification citation, and none is owed —
+    the promoted lifecycle rule requires one only for `Status: ratified`.
+    Whether this change's content is ratified is a separate act that has not
+    happened.
+  approved_on: 2026-09-04
+related:
+  - openxFactory:change:archive/2026-09-03-add-project-repo-schema   # the sibling consumption pin this one is shaped after
+  - openxFactory:change:archive/2026-08-28-split-openxwallet-repo   # where the neutral-product-pin grammar was promoted

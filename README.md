@@ -522,6 +522,60 @@ Active changes:
   `tests/doc-health/test_release_tag_publication.py` goes 110s → 19s and the
   required suite gets more hermetic.
 
+- [add-openspec-cli-pin](openspec/changes/add-openspec-cli-pin/proposal.md)
+  — authored 2026-09-04, **`Status: draft`**, on Brett Heap's word
+  *"draft the openxFactory pin change, pinned at 1.2.0"*. **Not ratified, not
+  merged.**
+  **THE TOOL THAT DECIDES WHAT CANON IS HAS NEVER BEEN PINNED.**
+  `openspec validate --strict` is the gate every spec delta passes before it may
+  archive and `openspec archive` is the act that writes a ratified delta into
+  canon, yet the OpenSpec CLI is UNPINNED fleet-wide: the only pin anywhere is one
+  literal line in `.github/workflows/pytest-suite.yml:400`
+  (`npm install -g @fission-ai/openspec@1.2.0`), installed so
+  `tests/proposal-support/` can drive the binary — read by no consuming
+  repository, verified by nothing, refusing nothing. OpenSpec offers no
+  project-level version field to lean on instead (`openspec/config.yaml` carries
+  only `schema:`; `openspec config` is global-scope). And
+  `openspec validate --all --strict` runs in **NO repository's CI at all**:
+  OpsxFactory and codexFactory have zero workflows mentioning it, and
+  MedxFactory/LedgerxFactory/AdxFactory have no workflows. The estate's archive
+  gate has been running on laptops at whatever version was installed there.
+  **THE COST IS MEASURED, NOT HYPOTHETICAL** (2026-09-04): the same trees that are
+  clean at 1.2.0 fail under 1.12.0 — openxFactory `48 passed, 41 failed (89)`,
+  OpsxFactory `34 passed, 10 failed (44)` — every failure a PRE-EXISTING
+  condition (placeholder `## Purpose` sections the `archive` command itself
+  writes, a duplicate task id, and at least four deltas the newer `archive` would
+  REFUSE), so an unpinned upgrade reds two repositories and stalls every archive
+  in the name of whoever ran `npm install -g`. So the pin is set where the estate
+  is GREEN. **THE REFERENT IS THE TARBALL'S SHA-512**
+  (`sha512-2XDmPZ…`, shasum `0fd53335…`) and the version string `1.2.0` is a
+  **LABEL** — `contracts/openreposhape-pin.yaml`'s tag-versus-commit argument
+  transposed to a registry, because npm's refusal to republish a version is a
+  REGISTRY POLICY with an operator and an unpublish window, and a policy is not a
+  content address. `contracts/openspec-cli-pin.yaml` reuses
+  `kind: pinned_contract_manifest` unchanged;
+  `scripts/validate-openspec-cli-pin.py` is BOTH the pin's verifier AND the one
+  consumer entrypoint (separating them would leave a verifier nobody must call
+  beside a bare `openspec` that answers with whatever is on `PATH`) — stdlib-only,
+  five ordered checks, five refusal codes, one fixed remediation trailer; it
+  fetches and re-hashes the artifact BEFORE installing or invoking it rather than
+  trusting `npx`, its default mode **never reads `PATH`**, and it has no
+  `--verify-only` because a target-less mode is the green-check-that-verified-
+  nothing the grammar forbids. `.github/workflows/openspec-cli-pin-gate.yml`
+  makes this the **FIRST repository in the estate whose archive gate actually
+  runs in CI**, with the version read out of the pin and never restated in the
+  workflow (the sibling gate's "fourth copy of the pin" argument, asserted by a
+  test). FOUR ADDED requirements plus **ONE MODIFIED** — required, because the
+  ratified grammar is COMMIT-ONLY and an npm package has no commit and no
+  per-file surface, so the delta admits a published-artifact referent minimally
+  (every existing clause and all three scenarios restated, nothing deleted, no
+  deletion marker owed) and argues that one digest over a tarball discharges the
+  completeness obligation the two member lists exist to make checkable rather
+  than waiving it. **DOES NOT BUMP THE VERSION** — the upgrade is a separate,
+  human-only governed change that must land its target-version `--all --strict`
+  evidence in the same change. Consuming-repository wiring is successor work,
+  one change per repository.
+
 - [admit-deliberation-clearing-operation](openspec/changes/admit-deliberation-clearing-operation/proposal.md)
   — authored 2026-09-04, **`Status: ratified`** (2026-09-04, Brett Heap,
   in-session at 12:37Z, on the recorded word *"D10 A, D13 A, ratify #645"*;
