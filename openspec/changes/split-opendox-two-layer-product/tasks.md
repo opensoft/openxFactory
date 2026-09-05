@@ -285,8 +285,11 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   classifying all fifteen as `project-leg`): 5 × 3 = **fifteen** descendant
   names, not eighteen. A sixth descendant would be needed to reach eighteen, and
   none exists anywhere in this packet — reproducible as
-  `grep -ohE '\b[A-Za-z]+xDox\b' proposal.md design.md tasks.md | sort -u`,
-  run from `openspec/changes/split-opendox-two-layer-product/`, which returns
+  `grep -ohE '(^|[^[:alnum:]_])[A-Za-z]+xDox([^[:alnum:]_]|$)'
+  proposal.md design.md tasks.md | sed -E 's/^[^A-Za-z]*//; s/[^A-Za-z]*$//' |
+  sort -u` (POSIX ERE — no `\b`, a GNU-only word-boundary token; the
+  boundary is a bracket-class alternative, stripped afterward with `sed`), run
+  from `openspec/changes/split-opendox-two-layer-product/`, which returns
   SEVEN distinct strings (`AdxDox`, `LedgerxDox`, `MedxDox`, `OpsxDox`,
   `codexDox`, `medxDox`, `openxDox`), not five, because the broad pattern also
   catches two non-descendant artifacts: `medxDox`, a lowercase casing variant
@@ -297,9 +300,10 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   ALSO-ACCEPTED spelling of `openXdox` itself named twice in the pin-chain
   discussion (`tasks.md`:347, `design.md`:868 — "`openXdox`.casefold() equals
   `openxDox`.casefold()"), not a sixth descendant. Excluding those two
-  artifacts, `grep -ohE
-  '\b(MedxDox|codexDox|LedgerxDox|AdxDox|OpsxDox)\b' proposal.md design.md
-  tasks.md | sort -u | wc -l` returns **5**: the five names above are the only
+  artifacts, `grep -owhE 'MedxDox|codexDox|LedgerxDox|AdxDox|OpsxDox'
+  proposal.md design.md tasks.md | sort -u | wc -l` (`-w` — whole-word match, a
+  portable grep OPTION rather than a regex token, so no `\b` is needed here
+  either) returns **5**: the five names above are the only
   declared descendant base names in the packet. Read "fifteen descendant names —
   five descendants × three names each, the assembly name plus its two leg
   names — plus one install name, zero repositories" in place of the
