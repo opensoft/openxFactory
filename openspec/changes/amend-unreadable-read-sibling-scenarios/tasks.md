@@ -183,8 +183,15 @@ ticked and names why.
 
 ## 6. What this packet does NOT do, and the successor it names as OWED
 
-- [ ] 6.1 **OWED SUCCESSOR — the held-and-absent skip still SUPPRESSES the
-      grading.** `scripts/doc_health/release_tag_publication.py`'s
+- [x] 6.1 **THE OWED SUCCESSOR IS RECORDED — and the TICK IS ON THE RECORDING,
+      NOT ON THE FIX.** This is the shape `amend-published-tip-unreadable-scenario`
+      § 4.2 used to name THIS packet: what a packet owes about work it is not
+      doing is to name it, with the reading its successor needs, so the next
+      packet does not re-derive it. That is done — `design.md` **D6**,
+      `proposal.md` § What this proposal does NOT claim, and § 6.2 below — and
+      nothing else here is claimed. **THE DEFECT ITSELF IS NOT FIXED AND THIS
+      BOX DOES NOT SAY IT IS.**
+      **The held-and-absent skip still SUPPRESSES the grading.** `scripts/doc_health/release_tag_publication.py`'s
       `if changelog is None:` guard stands ABOVE the `in_scope` loop and
       RETURNS, so a held tip carrying an in-scope bundle and no
       `contracts/CHANGELOG.md` is answered with a skip INSTEAD OF the tag
@@ -196,9 +203,11 @@ ticked and names why.
       scenarios, its own severity reading and its own measurement.
       `design.md` **D6** records the decision and says what the successor owes;
       `proposal.md` § What this proposal does NOT claim carries it as a named
-      carve-out. **This box stays UNTICKED: it is the next packet's, exactly as
-      #678's § 4.2 held this one.**
-- [ ] 6.2 **The promoted `THEN` is what that successor amends.** It says the
+      carve-out. **The WORK is the next packet's, exactly as #678's § 4.2 held
+      this one; only the NAMING of it is this packet's, and the naming is what
+      is ticked.**
+- [x] 6.2 **THE READING THE SUCCESSOR OWES FIRST IS WRITTEN DOWN, which is what
+      this box ticks.** The promoted `THEN` is what that successor amends. It says the
       family MUST NOT treat the absence of a declaration *"it could not look
       for"* as the absence of a declaration — and at this arm, after the
       amendment, it CAN look. This packet carries the bullet byte-identical
