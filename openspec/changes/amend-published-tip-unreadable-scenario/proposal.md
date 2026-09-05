@@ -150,4 +150,24 @@ for one of them.
   below it is what disambiguates *"saying so"*. `design.md` D1 records that
   reading rather than leaving it to be discovered.
 - It does not touch the sibling scenario *The changelog cannot be read at the
-  published tip*, which carries no equivalent misnamed cause.
+  published tip*. **CORRECTED 2026-09-05, AFTER RATIFICATION AND BEFORE
+  LANDING:** an earlier draft of this bullet said that sibling "carries no
+  equivalent misnamed cause". **That was false, and the correction is recorded
+  rather than quietly made.** `openspec/specs/doc-health/spec.md:2788` carries
+  the SAME clause word for word — *"the blob read for `contracts/CHANGELOG.md`
+  at the published tip answers nothing — the commonest cause being a checkout
+  that has not fetched that commit"*. The error was mine: at authoring I
+  searched for the manifest phrasing rather than for the clause, and found only
+  one of its two sites. It was caught by a rehearsal of the archive act, which
+  asserted that the retired clause no longer appears in canon and found that it
+  still does — in the sibling.
+
+  **The SCOPE is unchanged and deliberately so.** Issue #662 asks about the
+  manifest scenario; the ratified delta amends that scenario and no other, and
+  widening a ratified packet after the word that ratified it is not a
+  correction, it is a different change. **The sibling is therefore an OWED
+  SUCCESSOR**, named here so it is not lost: it needs the same treatment, and it
+  is one line plus a marker. The two cases are not identical — the changelog
+  read has no `obtain_commit`-style presence probe of its own, it inherits the
+  manifest read's — so the successor owes a reading of that before it copies
+  this wording across.

@@ -145,11 +145,42 @@ probed **both ways**, and both fired:
   'The published tag is lightweight rather than annotated'"*;
 - **restored** → silent again.
 
-## 7. What lands, and what is still owed
+## 7. A false claim in the ratified text, corrected before landing
+
+**The ratified `proposal.md` carried one factually wrong sentence and it is
+corrected rather than left standing.** Its § *What this proposal does NOT claim*
+said the sibling scenario *The changelog cannot be read at the published tip*
+"carries no equivalent misnamed cause". It does:
+`openspec/specs/doc-health/spec.md:2788` carries the SAME clause word for word,
+over `contracts/CHANGELOG.md` instead of the manifest.
+
+**How it was found, and why that matters here.** A REHEARSAL of the archive act
+— run on a throwaway worktree before the real one, asserting among other things
+that the retired clause no longer appears in canon after promotion — reported
+that it still did, and the surviving site was the sibling. The error was the
+authoring session's: it searched for the manifest phrasing rather than for the
+clause, and found one of its two sites.
+
+**The DELTA is untouched and the SCOPE is unchanged.** Issue #662 asks about the
+manifest scenario; the ratified delta amends that scenario and no other.
+Widening a ratified packet after the word that ratified it is not a correction,
+it is a different change. What is corrected is the packet's own PROSE about the
+corpus, which was wrong; the sibling is recorded as an **owed successor** in
+§ 8, with the one reading it owes before the wording is copied across.
+
+## 8. What lands, and what is still owed
 
 **Lands with this ratification:** the delta, the README row and the ledger row.
 
-**Still owed, and not by this word:** the archive act. `code_surface: none`
+**Still owed, and not by this word:**
+
+1. **The sibling scenario** *The changelog cannot be read at the published tip*
+   (§ 7) carries the identical misnamed cause and needs the same one-line
+   amendment plus its marker. It owes one reading first: the changelog read has
+   no presence probe of its own — it inherits the manifest read's — so whether
+   the "established which holds" wording transfers unchanged is a question that
+   packet must answer rather than assume.
+2. **The archive act.** `code_surface: none`
 means this change archives **ON LANDING** under `release-realization` — there is
 no realization to wait for, because the realization is what this amendment is
 catching up to — so the archive is a separate pull request opened after #678
