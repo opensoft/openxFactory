@@ -124,7 +124,7 @@ change. Ratification does NOT wait on this group; **ARCHIVE DOES.** The preceden
 is `create-medxchart-overlay-boundary` § 5.3/5.4 (`pin-validation`, ruleset
 `22272824`), and before it LedgerxWallet's `21701436`.
 
-- [ ] 4.1 **[OPERATOR]** Make `release-tag-gate` a REQUIRED status check on
+- [x] 4.1 **[OPERATOR]** Make `release-tag-gate` a REQUIRED status check on
       `opensoft/openxFactory`'s `main`. **THE REAL NEIGHBOURS, READ FROM THE
       API RATHER THAN ASSUMED** — this repository has NO `pin-validation`
       ruleset, which an earlier draft of this task named by carrying the
@@ -137,12 +137,39 @@ is `create-medxchart-overlay-boundary` § 5.3/5.4 (`pin-validation`, ruleset
       This half is Brett's console act; no agent performs it. (`pin-validation`
       / ruleset `22272824` is `opensoft/MedxChart`'s and is cited only as the
       SHAPE precedent for an `[OPERATOR]` task with evidence before archive.)
+  - *2026-09-05 — DONE BY THE OPERATOR, AND READ BACK RATHER THAN REPORTED.*
+      Brett's word: **_"ruleset updated, do the evidence and archive it"_**.
+      Ruleset **`21538893`** ("openxFactory wallet-gate", Organization-sourced,
+      `enforcement: active`, `~DEFAULT_BRANCH`) now lists **FOUR** required
+      contexts — `wallet-validation`, `pytest-suite`, `lane-line` and
+      **`release-tag-gate`** — with `strict_required_status_checks_policy:
+      false`. Its `updated_at` is **2026-09-05T00:36:49.902-04:00 (04:36:49Z)**
+      against a `created_at` of 2026-08-26, which is the console act. Confirmed
+      from the branch's own side too, because the two can disagree:
+      `gh api repos/opensoft/openxFactory/rules/branches/main` lists
+      `release-tag-gate` among the contexts `main` enforces. **NO NEW RULESET
+      WAS CREATED** — the context joined the one already carrying
+      `pytest-suite`, so the gate sits beside the suite the assertion left.
+      Full JSON: `review/realization-evidence-2026-09-05.md` § 2–3.
 - [ ] 4.2 **EVIDENCE, READ BACK RATHER THAN REPORTED.** Record here the ruleset
       id and the API reading that confirms it
       (`gh api repos/opensoft/openxFactory/rulesets/<id>`), plus ONE green
       `release-tag-gate` run naming its pull request and run id. A guessed
       ruleset id is not evidence; the API is authoritative.
-- [ ] 4.3 The FIRST pull request this gate judges for real is the next one that
+  - *2026-09-05 — HALF DONE, AND THE OPEN HALF IS THE POINT OF THE BOX.* The
+      ruleset half is § 4.1 above and is complete. The RUN half is **not**: every
+      `release-tag-gate` run to date (`33927889060`, `33932616773`,
+      `33933031517`, `33937403224`, `33938798720`) is green but was taken while
+      the check was ADVISORY, and **a green advisory run is not evidence that a
+      REQUIRED context reports** — a required context that fails to report
+      blocks the merge forever, which is exactly what § 3.2's missing `paths:`
+      filter is designed against. No run has occurred since 04:36:49Z, so the
+      first green run under the required regime is **this archive pull
+      request's own**, and it is cited rather than borrowed. This box is ticked
+      by the commit that follows the pull request's creation, replacing
+      `RUN_ID_PENDING` in the evidence record.
+- [ ] 4.3 **CARRIED FORWARD AS A SUCCESSOR, NOT TICKED, AND ARCHIVE DOES NOT
+      WAIT ON IT.** The FIRST pull request this gate judges for real is the next one that
       touches `contracts/manifest.yaml` or `contracts/releases/**`. **PR #653 is
       NOT it** — the `contract-v3.4` cut merged 2026-09-04 at 19:56Z, before
       this packet was authored; it is used here only as REPLAY evidence
