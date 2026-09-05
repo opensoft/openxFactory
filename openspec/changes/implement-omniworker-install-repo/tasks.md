@@ -286,7 +286,7 @@ group; §6 is where deletion lives, and only after §4 and §5.
 
 ## 6. Retirement — the ONLY destructive step, and it is last
 
-**Amended 2026-09-05, on Brett Heap's two rulings of that day** — one box is
+**Amended 2026-09-05 — RATIFIED 2026-09-05 by Brett Heap, in-session, verbatim "ratify and merge 704, 214 and 18", on openxFactory PR #704 — on Brett Heap's two rulings of that day** — one box is
 inserted BEFORE 6.1, and 6.1's remaining scope narrows by consequence. Neither
 existing box is rewritten.
 

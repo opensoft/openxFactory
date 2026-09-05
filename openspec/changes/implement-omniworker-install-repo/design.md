@@ -92,7 +92,7 @@ tree, filed here rather than rewriting the tables above:
    reference evidence instead, pending its own follow-on if the new
    repository needs its own CI shape for this class of check.
 
-**Amended 2026-09-05, at retirement measurement** — § D2.1 assigns `workers/`,
+**Amended 2026-09-05 — RATIFIED 2026-09-05 by Brett Heap, in-session, verbatim "ratify and merge 704, 214 and 18", on openxFactory PR #704 — at retirement measurement** — § D2.1 assigns `workers/`,
 the host-side `scripts/` and the JUDGED docs to `OmniWorker-Install`, and § D2.2
 assigns the manager-review runtime, the compose and Kubernetes topology and the
 `omnigent-install-manifest` realization to `Omnigent-Install`. **Both
@@ -177,7 +177,7 @@ Two things this sequence deliberately does NOT do:
   and rollback is a separate reviewed change, which the ADDED requirement's
   own scenario demands and which this change MUST NOT be accepted as.
 
-**Amended 2026-09-05, on Brett Heap's ruling "Orchestrator pins
+**Amended 2026-09-05 — RATIFIED 2026-09-05 by Brett Heap, in-session, verbatim "ratify and merge 704, 214 and 18", on openxFactory PR #704 — on Brett Heap's ruling "Orchestrator pins
 OmniWorker-Install"** — the sequence above has nine steps and the retirement is
 step 9. It is now TEN, with a new step between the copy and the retirement:
 
@@ -303,7 +303,7 @@ was paid but not yet discharged: the amendment of that declaration to name
 `OmniWorker-Install` repository, not in this one. This design does not
 perform that amendment; it only records that it is owed and where.
 
-**Amended 2026-09-05, OQ-6 ruled** — Brett Heap ruled § D6's OQ-6 the same day
+**Amended 2026-09-05 — RATIFIED 2026-09-05 by Brett Heap, in-session, verbatim "ratify and merge 704, 214 and 18", on openxFactory PR #704 — OQ-6 ruled** — Brett Heap ruled § D6's OQ-6 the same day
 he ruled the pin, and in the same shape as OQ-7: **"Land it in Omnigent-Install
 first, then copy."** That is sequence **(a)** above, now this repository's rule
 for BOTH in-flight changes rather than a one-off.
