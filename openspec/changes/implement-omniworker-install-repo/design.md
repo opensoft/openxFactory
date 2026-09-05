@@ -221,14 +221,40 @@ file worth a `schemas/` directory in the new repository, or should it live at
 
 **OQ-5 — the GitHub runner label `omnigent`.** Every runner registers
 `self-hosted, omnigent, cloudpc, omni001` (and the rider variant
-`self-hosted, omnigent, artifact-only, doc-analysis, rider, host-<id>`), and
-at least seven xFactory lanes select on it. Under "Omnigent orchestrates;
-omniWorker hosts" the label means the machine, and the machine is now
-`omniWorker` — but it is a live machine key whose change is a coordinated
-runner re-registration plus a workflow sweep, with a window in which no lane
-can dispatch. **Change it, keep it, or add `omniworker` as a second label and
-retire `omnigent` later?** This packet recommends the third, and does not
-assume it.
+`self-hosted, omnigent, artifact-only, doc-analysis, rider, host-<id>`). Under
+"Omnigent orchestrates; omniWorker hosts" the label means the machine, and the
+machine is now `omniWorker`.
+
+**Measured, and the measurement is the useful part: NOTHING IN THE AGGREGATION
+SELECTS ON IT.** All ten self-hosted xFactory lanes dispatch by runner GROUP
+plus a per-host or per-lane label, never by `omnigent`:
+
+| Workflow | `runs-on` group | `runs-on` labels |
+|---|---|---|
+| `clearing-dispatch.yml` (execution job) | `xfactory-execution-lane-workers` | `host-coding-cpc-brett01` |
+| `clearing-dispatch.yml` (artifact job) | `xfactory-artifact-workers` | `host-rider-cpc-brett01` |
+| `council-deliberation-worker.yml` (×2) | `xfactory-artifact-workers` | — |
+| `execution-lane-coding-worker.yml` | `xfactory-execution-lane-workers` | `${{ inputs.dispatch_label }}` |
+| `doc-health-analysis-worker.yml` | `xfactory-artifact-workers` | `${{ inputs.dispatch_label }}` |
+| `doc-health-cataloger-worker.yml` | `xfactory-artifact-workers` | `${{ inputs.dispatch_label }}` |
+| `doc-health-derive-possibles-worker.yml` | `xfactory-artifact-workers` | `${{ inputs.dispatch_label }}` |
+| `doc-health-readiness-worker.yml` | `xfactory-artifact-workers` | `${{ inputs.dispatch_label }}` |
+| `dashboard-image-worker.yml` | `xfactory-artifact-workers` | `${{ inputs.dispatch_label }}` |
+| `review-lane-worker.yml` | `xfactory-artifact-workers` | `${{ inputs.dispatch_label }}` |
+| `ideation-organizer-worker.yml` | `xfactory-artifact-workers` | `${{ inputs.dispatch_label }}` |
+
+`omnigent` is a label the runners REGISTER and nothing here SELECTS. So the
+cost is a runner re-registration plus a doc sweep — **not** a workflow sweep,
+and **no lane loses its dispatch path while it happens.** That is materially
+cheaper than the label lists in the runbooks suggest, and it is why this
+question is worth putting rather than deferring.
+
+**Change it, keep it, or add `omniworker` as a second label and retire
+`omnigent` later?** This packet recommends the third — a runner may hold both,
+so the retirement is free once nothing names the old one — and does not assume
+it. The measurement above is scoped to the xFactory aggregation; a consumer
+outside it (a codexFactory lane, an operator's ad-hoc dispatch) would have to
+be swept before the retirement half.
 
 **OQ-6 — `openspec/changes/add-worker-acr-push/`.** It carries a spec delta
 for a capability named `worker-host-registry-credentials` and edits

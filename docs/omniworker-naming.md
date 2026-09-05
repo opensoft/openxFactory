@@ -204,11 +204,19 @@ GitHub labels:  self-hosted, omnigent, cloudpc, omni001
 GitHub labels:  self-hosted, omnigent, artifact-only, doc-analysis, rider, ...
 ```
 
-and every xFactory worker lane's `runs-on` names it. Under "Omnigent
-orchestrates; omniWorker hosts", that label means "the machine that executes"
-and is therefore a candidate to become `omniworker` — but it is a MACHINE KEY
-with live consumers in at least seven workflows, and changing it is a
-coordinated runner re-registration plus a workflow sweep, not a spelling fix.
+Under "Omnigent orchestrates; omniWorker hosts", that label means "the machine
+that executes" and is therefore a candidate to become `omniworker`.
+
+**Measured before it was assumed, and the measurement changed the answer.** No
+xFactory workflow selects on `omnigent` at all. All ten self-hosted lanes
+dispatch by runner GROUP plus a per-host or per-lane label —
+`group: xfactory-artifact-workers` or `xfactory-execution-lane-workers`, with
+`labels: ${{ inputs.dispatch_label }}` or a literal `host-rider-cpc-brett01` /
+`host-coding-cpc-brett01`. `omnigent` is a label the runners REGISTER and
+nothing in the aggregation SELECTS. Renaming it is therefore a runner
+re-registration plus a doc sweep, not a workflow sweep, and no lane loses its
+dispatch path while it happens — materially cheaper than it looks from the
+label lists in the runbooks.
 
 **This record does not change it, and does not rule on it.** It is raised in
 `implement-omniworker-install-repo`'s design as an open question for Brett.
