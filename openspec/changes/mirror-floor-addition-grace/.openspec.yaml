@@ -1,0 +1,54 @@
+schema: spec-driven
+created: 2026-09-05
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-05-mirror-floor-addition-grace
+  reason: >-
+    Not from an openxFactory staged topic, and that was CHECKED rather than
+    assumed in both directions: this packet carries no Staging ID header, no
+    folder under `ideation/staging/` names the review-lane pin, the repository
+    gate floor or the LQ-A7 completeness assertion, and
+    `ideation/staging/INDEX.md` declares no topic exit naming any of them. No
+    staging origin is claimed because none exists.
+    THE SOURCE MATERIAL IS ANOTHER REPOSITORY'S RATIFIED PACKET, and the
+    forcing fact is that the packet NAMES THIS ONE. codexFactory
+    `openspec/changes/add-floor-addition-grace` — ruled option (c) at
+    codexFactory issue #203 (Brett Heap, 2026-09-05, verbatim "rule c, this lane
+    authors it"), ratified 2026-09-05 ("ratify 205, B1 stands") and realized by
+    codexFactory PR #206, merge commit `712fc8ca` — carries the ratified
+    requirement "The blocking check and the reporting lane implement one
+    completeness rule", whose second lane is openxFactory's. Its tasks 4.1 to
+    4.3 name the companion `openxFactory: mirror-floor-addition-grace` by that
+    id, name the two openxFactory sites it covers
+    (`tests/review_lane_pin/test_floor_snapshot.py`'s LQ-A7 assertion with its
+    two negative controls, and
+    `.github/workflows/merge-master-approval.yml` step 8), and state that
+    neither site is edited there and that the packet claims no authority over
+    openxFactory files. This change is that companion.
+    THE COST OF NOT AUTHORING IT IS MEASURED, NOT HYPOTHETICAL: the floor is an
+    exact enumeration, so every promotion of a new capability arrives OFF the
+    floor and reds the REQUIRED `pytest-suite` (org ruleset 21538893) in three
+    places at once. It was paid five times in two days — codexFactory PRs #183,
+    #195, #197, #198 and #204, four of them on 2026-09-04 — each matched here by
+    an advance moving five pin sites in lockstep. The ordering that forced also
+    left a defect in THIS repository: re-measured 2026-09-05 against
+    `origin/main`, three of the last five declared `generated_at` pins
+    (`3afd8a8c` — the live one — plus `c236c6b1` and `8d893a0f`) are NOT
+    ancestors of `main`. Until this companion lands, the ratified grace is inert
+    in the only lane that blocks.
+    Governing issue: openxFactory #675, which states the four things this
+    companion must do and carries the Rule-1 claim for this authoring.
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — in session on 2026-09-05,
+    verbatim: "companion". THIS IS AN ADMISSION INTO THE PROPOSAL QUEUE AND AN
+    INSTRUCTION TO AUTHOR, NOT A RATIFICATION OF CONTENT. It supplies the origin
+    and approval pair the proposal-origin contract requires and nothing more:
+    the packet remains `Status: draft`, it carries no ratification citation, and
+    none is owed — the promoted lifecycle rule requires one only for
+    `Status: ratified`. Whether this change's content is ratified is a separate
+    act that has not happened and that is Brett Heap's alone.
+  approved_on: 2026-09-05
+related:
+  - openxFactory:change:add-substantive-review-lane   # task 5.1's workflow-instance half is what contracts/review-lane-pin.yaml realizes
+  - openxFactory:change:add-openspec-cli-pin   # the neutral-product-pin sibling this packet examined and declined to file under
+  - openxFactory:change:add-sequenced-after-substrate   # the grammar this packet's first cross-repository `sequenced_after:` entry is declared under

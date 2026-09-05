@@ -482,6 +482,63 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [mirror-floor-addition-grace](openspec/changes/mirror-floor-addition-grace/proposal.md)
+  — authored 2026-09-05, **`Status: draft`**, on Brett Heap's word
+  *"companion"*. **That word authorized the AUTHORING, not the content;
+  ratification is OWED and is his act.**
+  **THE PULL REQUEST THAT PROMOTES A CAPABILITY IS REFUSED FOR CREATING THE PATH
+  THE FLOOR IS SUPPOSED TO PROTECT — AND HERE THE REFUSAL BLOCKS.**
+  codexFactory's `repository_gate_floor` for this repository is an EXACT SET (59
+  generated spec paths inside a 67-entry floor), so a promotion is an ADDITION
+  to the set it enumerates and `surface − entries` reports the new path as
+  uncovered in two places at once: `tests/review_lane_pin/test_floor_snapshot.py`'s
+  LQ-A7 assertion inside the **REQUIRED** `pytest-suite` (org ruleset
+  `21538893`) together with the two negative controls that fail with it by
+  construction, and `.github/workflows/merge-master-approval.yml` step 8 at
+  stage `floor_incomplete`. **THE REPAIR WAS PAID FIVE TIMES IN TWO DAYS** —
+  codexFactory PRs #183/#195/#197/#198/#204, four of them on 2026-09-04, each
+  matched here by an advance moving FIVE SITES IN LOCKSTEP; the floor document
+  concedes it (*"TWO ADVANCES IN ONE DAY IS THE FEATURE'S CADENCE, NOT AN
+  INCIDENT"*). codexFactory has now fixed its half —
+  `add-floor-addition-grace`, ruled option (c) at its issue #203 (*"rule c, this
+  lane authors it"*), ratified (*"ratify 205, B1 stands"*) and realized by its
+  PR #206, merge `712fc8ca` — and its ratified requirement *"The blocking check
+  and the reporting lane implement one completeness rule"* NAMES this repository
+  as the companion and deliberately does not author it (its tasks 4.1–4.3).
+  This is that companion. Governing issue #675.
+  **ONE RULE, TWO LANES**: an off-floor spec path is COVERED-PENDING when the
+  candidate's own diff creates it (git status `added`) or — B1, ratified — when
+  it was added to `main` after the block's `generated_at`; never for a removal,
+  rename, copy or modification; an empty or degenerate surface never passes.
+  **THE FAIL-SAFE IS THE DEFAULT**: no base, no merge base, an unresolvable or
+  non-ancestor pin → NO grace, uncovered, today's behaviour, because *an
+  unresolvable pin is a reason to refuse, never a reason to excuse*.
+  **THE REQUIRED LANE MIRRORS AND REPLAYS; THE ADVISORY LANE IMPORTS**
+  (decision **A**) — the pinned core checkout is `continue-on-error` in
+  `pytest-suite` on purpose, so an IMPORTING blocking assertion could only skip
+  (the blocking check silently stops blocking — the CSC-F16 shape inside the
+  guard against CSC-F16) or fail for a cause no candidate can fix; the mirror is
+  therefore local and its FALSIFIER is foreign, replaying the core's 16 exported
+  vectors plus 5 refused ones, watched by name with `EXPECT_SKIPPED` 21 → 22 in
+  PR #569's own discipline. Step 8, which already treats an unreadable core as
+  fatal, imports and deletes its hand-rolled set difference.
+  **AND THE ADVISORY LANE'S BASE CHECKOUT IS SHALLOW TODAY** (no `fetch-depth:`
+  at all), so B1 would be permanently fail-safed off there while working in the
+  blocking lane — the exact disagreement the ratified requirement forbids.
+  **A MEASURED DEFECT IN THIS REPOSITORY IS RETIRED BY IT**: re-measured
+  2026-09-05, THREE of the last five declared `generated_at` pins — `3afd8a8c`
+  (**the live one**), `c236c6b1`, `8d893a0f` — are NOT ancestors of `main`,
+  because the old order forced regeneration at a pull-request head; with the
+  addition graced the regeneration FOLLOWS the landing and pins at a landed
+  commit. SEVEN `## ADDED Requirements`, 28 scenarios, in a NEW capability
+  `review-lane-floor-mirror` (decision **B**: `neutral-product-pin` was declined
+  because `contracts/review-lane-pin.yaml` deliberately is NOT a
+  `pinned_contract_manifest`, on its own written ground). First
+  CROSS-REPOSITORY `sequenced_after:` in this corpus
+  (`[codexFactory:add-floor-addition-grace]`, well-formedness-checked only).
+  **PROPOSAL ONLY** — no realization code, no pin advance, no regeneration, no
+  D-3 tolerance value, no codexFactory file touched.
+
 - [add-openspec-cli-pin](openspec/changes/add-openspec-cli-pin/proposal.md)
   — authored 2026-09-04, **`Status: draft`**, on Brett Heap's word
   *"draft the openxFactory pin change, pinned at 1.2.0"*. **Not ratified, not
