@@ -606,14 +606,59 @@ Active changes:
   Tests 41 → **81**, including both `--json` array shapes parsed from CAPTURED
   REAL 1.12.0 bytes and an offline reconciliation of the pin's own `finding:`
   strings against them. **The old binary on PATH is now REFUSED**
-  (`pin-version-mismatch`), demonstrated in the record. **Exit 3 is DRAFTED AND
-  NOT FILED** — `evidence/upstream-issue-draft-merged-into-marker.md`, a
-  ready-to-file `fission-ai/openspec` issue with a minimal reproduction; filing
-  it is Brett's act, and if upstream fixes the check the dispositions go stale
-  and the mechanism removes them. **HUMAN-ONLY**, not clearable by a council.
+  (`pin-version-mismatch`), demonstrated in the record. **Exit 3 WAS FILED
+  2026-09-05 as `Fission-AI/OpenSpec#1793`** on Brett Heap's word *"file the
+  upstream issue"*, and #682 (`ff31fc7f`) corrected
+  `evidence/upstream-issue-draft-merged-into-marker.md` from NOT FILED to FILED;
+  this entry said DRAFTED AND NOT FILED until #697 caught the leftover. If
+  upstream lands a way to declare a rename, the dispositions go stale at the next
+  bump and the mechanism removes them. **HUMAN-ONLY**, not clearable by a council.
   Evidence, with the raw `2 failed` shown verbatim beside the reconciled
   `0 undispositioned`:
   `openspec/changes/bump-openspec-cli-pin-to-1.12/evidence/pin-bump-1.12-2026-09-05.md`.
+
+- [disposition-codexfactory-declared-renames](openspec/changes/disposition-codexfactory-declared-renames/proposal.md)
+  — authored 2026-09-05, **`Status: ratified`** (2026-09-05, Brett Heap,
+  first-hand to lane codexfactory-1, verbatim *"ratify 697"*, against head
+  `bfc9451e` after every required check went green on it; record at
+  `openspec/changes/disposition-codexfactory-declared-renames/review/ratification-2026-09-05.md`,
+  written BEFORE any merge), on Brett Heap's earlier plan-level ruling to the
+  same lane *"use recommended name, go on 3 repo shape"* — accepting for
+  codexFactory's pair the same exit he ruled *"take exit 2"* for openxFactory's
+  own pair the same day, and a decision on the substance rather than a
+  ratification of this text. **THE FIRST TIME THE DISPOSITION MECHANISM CROSSES
+  A REPOSITORY BOUNDARY.** codexFactory ran this repository's pinned entrypoint
+  over its own tree at PR #216's head `b2a6af34` and read
+  **`Totals: 23 passed, 2 failed (25 items)`**; the two are the SAME
+  marker-blindness openxFactory's pair is — 1.12.0's scenario-currency check
+  cannot read ``**Merged into `<destination>` by <change-id> (<date>):**`` and
+  so demands the restoration of scenario titles that
+  `add-regular-pr-council-clearance` and `amend-composition-selector-labelling`
+  deliberately narrowed. **So `contracts/openspec-cli-pin.yaml` gains TWO
+  entries, both `repo: codexFactory`**, with 6 and 7 citations each (canon's
+  marker requirement at `openspec/specs/doc-health/spec.md:1770`, its
+  *"a retitle, whatever the marker calls it"* line at `:1750`, council LA-A1,
+  codexFactory PR #216 and its measurement, the marker line in each delta, and
+  Brett's 2026-08-31 roster-flip ruling for the second) and `retires_when:`
+  naming the archive of ITS OWN codexFactory change — on which day
+  **codexFactory's** run refuses `pin-disposition-stale`, not this one's.
+  **NO CODE MOVES.** Per-repository scope, whole-message matching and the
+  staleness asymmetry all already exist in
+  `scripts/validate-openspec-cli-pin.py`; this is their first production use
+  across a boundary. **NO SPEC DELTA**, declared as `skip_specs: true` rather
+  than omitted: `bump-openspec-cli-pin-to-1.12`'s ADDED requirement already
+  states that a disposition is scoped to one repository, that an entry naming
+  another is neither applied nor stale, and that an entry refuses when its
+  change archives — its scenario *"A consuming repository runs the same pin over
+  its own tree"* is literally this packet — so restating it would fork a
+  ratified requirement and a `## MODIFIED` block would target text that is not
+  yet canon. **The property that keeps this repository's own gate green is
+  MEASURED, both ways**, in
+  `openspec/changes/disposition-codexfactory-declared-renames/evidence/codexfactory-dispositions-2026-09-05.md`,
+  and pinned by a new test against the real pin. Step 3 —
+  `adopt-openspec-cli-pin-gate` in codexFactory, the gate leg plus the
+  `stack.yaml` re-pin — is **NOT** here and is why task 6.1 of
+  `add-openspec-cli-pin` and 6.3 of the bump stay UNTICKED.
 
 - [prepare-openspec-1.12-readiness](openspec/changes/prepare-openspec-1.12-readiness/proposal.md)
   — authored 2026-09-05, **`Status: draft`**, on Brett Heap's in-session word
