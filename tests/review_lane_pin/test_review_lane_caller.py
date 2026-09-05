@@ -415,10 +415,23 @@ class TheRealFiles(unittest.TestCase):
         caller invokes them; the record calls the two pull requests one landing.
         Asserted over the caller text so a refactor that quietly drops one is a
         red test rather than a silently weaker lane.
+
+        `candidate_floor_drift` NAMED THIS FUNCTION UNTIL
+        `mirror-floor-addition-grace` (task 3.1): LA-A2's attribution
+        (`caused_by_candidate` / `already_unreachable`) is now read off the
+        SAME `evaluate_floor_completeness` call LQ-A7's completeness direction
+        already needs for the addition grace, rather than from a second,
+        separately-called function — both partitions come from the pinned
+        core's own `_drift_between`, so this is one call reading two facts off
+        it rather than two callers of the same underlying rule. See
+        `test_the_caller_asserts_the_floors_completeness_and_grace` for the
+        grace's own assertions.
         """
         for function, amendment in (
                 ("post_merge_tree_paths", "LA-A2 / CPL-C1 (deletions)"),
-                ("candidate_floor_drift", "LA-A2 (attribution)"),
+                ("evaluate_floor_completeness",
+                 "LA-A2 (attribution) and LQ-A7 (completeness), ONE call since "
+                 "mirror-floor-addition-grace"),
                 ("parse_repository_floor_reporting", "LS-A1 (report before you refuse)")):
             self.assertIn(
                 function, self.caller_text,
@@ -446,7 +459,7 @@ class TheRealFiles(unittest.TestCase):
             "the gather must emit the changed ENTRIES (filename + status + "
             "previous_filename), not only the flattened path list")
 
-    def test_the_caller_asserts_the_floors_completeness(self) -> None:
+    def test_the_caller_asserts_the_floors_completeness_and_grace(self) -> None:
         """LQ-A7 (BLOCKING), homed here by the seat and by the ruling.
 
         LQ: a check that *"fails when a tracked `openspec/specs/**` path is
@@ -455,6 +468,12 @@ class TheRealFiles(unittest.TestCase):
         so the assertion is a set difference over data on hand"*. Ruled BOTH,
         LAYERED at record §6.1 — this half here, the required-check half in
         `pytest-suite` (see `test_floor_snapshot.py`).
+
+        EXTENDED by `mirror-floor-addition-grace`: the completeness direction
+        is no longer a bare set difference, and this asserts the grace's own
+        wiring — the imported measurement function, the reported stage, the
+        `pending_floor_extension` key, and the base checkout's `fetch-depth`
+        the pin window needs (requirement 5 / decision C).
         """
         self.assertIn(
             "FLOORED_PREFIX: openspec/specs", self.caller_text,
@@ -470,6 +489,46 @@ class TheRealFiles(unittest.TestCase):
             "floor_incomplete", self.caller_text,
             "the completeness failure needs its own stage: it is a different "
             "defect from an unreachable floor and the repair is the reverse")
+        self.assertIn(
+            "pin_window_for_document", self.caller_text,
+            "B1's window must be measured through the pinned core's own "
+            "function, not re-derived, so the two floor lanes cannot disagree "
+            "about what it means for a pin to be an ancestor of the base")
+        self.assertIn(
+            "pending_floor_extension", self.caller_text,
+            "the graced stage must be reported by name, distinct from "
+            "floor_incomplete, so a reader or a machine consumer keying on "
+            "the stage cannot mistake a graced path for a floored one")
+
+    def test_the_base_checkout_carries_the_history_the_pin_window_needs(self) -> None:
+        """Decision C: `fetch-depth: 0` on THIS repository's base checkout.
+
+        Measured 2026-09-05 (design.md §4): 2,025 commits, 29.6 MiB packed —
+        the declared cost of a full-history checkout on a step that fetched
+        one commit before this change. A shallow checkout cannot resolve the
+        floor snapshot's declared `generated_at`, so B1's pin window would be
+        permanently fail-safed off in this lane while it worked in
+        `pytest-suite` (already full history) — the disagreement requirement 6
+        of the core packet forbids between the two lanes.
+        """
+        job = (self.document.get("jobs") or {})[REQUIRED_JOB_ID]
+        base_checkout = None
+        for step in job.get("steps") or []:
+            if (step or {}).get("name") == "Checkout base (this repository)":
+                base_checkout = step
+                break
+        self.assertIsNotNone(
+            base_checkout,
+            "the 'Checkout base (this repository)' step is gone or renamed")
+        with_block = (base_checkout or {}).get("with") or {}
+        self.assertEqual(
+            with_block.get("fetch-depth"), 0,
+            "the base checkout must declare fetch-depth: 0, or B1's pin "
+            "window is unmeasurable on every run of this lane")
+        self.assertIsNone(
+            with_block.get("ref"),
+            "the base checkout must take the BASE branch tip — no ref: — "
+            "never the candidate's head")
 
     def test_the_changed_path_gather_masks_no_failure(self) -> None:
         """A `|| echo '[]'` turns a rate-limited read into a false clean set.

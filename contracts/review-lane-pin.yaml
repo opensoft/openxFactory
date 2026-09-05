@@ -57,7 +57,7 @@ repository: opensoft/codexFactory
 # UNCOVERED pin site. `core_commit` is a key the sweep vocabulary did not know,
 # and declaring the member in `scripts/doc_health/pin_class.py` is what teaches
 # it — the same move `carve_commit` made, for the same reason.
-core_commit: "76fa501cd1c846ca9676d901e41e33ae1e730733"
+core_commit: "e57643a79132d11a1b2e1c807b0da589befb3f31"
 revision_kind: commit
 
 # When this pin was declared, and against what observation. Recorded because a
@@ -303,24 +303,78 @@ revision_kind: commit
 # in flight promotes one, so the next advance belongs to whichever future
 # archive first does, and the claim is made no more permanent this time than
 # it was the last.
-declared_at: "2026-09-04"
+#
+# THE EIGHTH ADVANCE, 2026-09-05, AND ITS OBJECT IS THE GRACE, NOT A SPEC.
+# Realization of `openspec/changes/mirror-floor-addition-grace` (task 1,
+# Commit A). Every prior advance in this file moved because a NEW CAPABILITY
+# was promoted and the block's exact enumeration owed the promotion an entry.
+# THIS ONE DOES NOT: codexFactory PR #206 (merge `712fc8ca`) realized the
+# ratified companion packet `add-floor-addition-grace` — B1 stands — adding
+# `scripts/merge_master/repository_floor_drift.py::evaluate_floor_completeness`
+# and `scripts/merge_master/specs_floor_block.py::paths_added_after_pin` /
+# `pin_window_for_document`, and its own floor document gained ONE hand-authored
+# field, `floor.pending_floor_extension_tolerance: 3`, OUTSIDE the
+# machine-generated block. THE GENERATED BLOCK ITSELF IS BYTE-UNCHANGED:
+# `generated_at` stays `3afd8a8c`, `entry_count` stays 59, and the floor total
+# stays 67 — THE FIRST ADVANCE IN THIS FILE'S HISTORY WHOSE FLOOR GREW BY ZERO
+# PATHS. Say so plainly rather than let a reader assume every advance is a
+# promotion: `floor_snapshot.entry_count` below is unchanged at 67, and
+# `floor_snapshot.sha256` moves ONLY because it hashes the whole document —
+# the new field and its header prose are inside those bytes even though the
+# generated block they sit beside is not.
+#
+# THE TARGET IS `origin/main`'s TIP AT REALIZATION TIME, NOT `712fc8ca` ITSELF —
+# task 1.1's own instruction, followed rather than quoted. Re-measured
+# 2026-09-05: codexFactory `origin/main` had advanced past `712fc8ca` to
+# `e57643a7` (merge of PR #208, "035-exercise-gate-footing-core") by way of one
+# intervening merge, PR #207 (`467cec42`, a vendored `uv.lock` file only).
+# `git merge-base --is-ancestor 712fc8ca e57643a7` holds, so the grace is
+# carried. `e57643a7`'s
+# `scripts/merge_master/openxfactory-review-authority-floor.yaml` was diffed
+# byte for byte against the same document at `467cec42` and at `712fc8ca`: ALL
+# THREE ARE IDENTICAL (sha256 `0eba8e58…7ba4be`, 15402 bytes, blob
+# `4d270571…5b5a8`) — PR #207 and PR #208 touch
+# `scripts/merge_master/council_clearance.py`,
+# `scripts/merge_master/exercise_gate_footing.py`,
+# `scripts/merge_master/provenance_axis.py`,
+# `scripts/merge_master/provenance_facts_cli.py` and
+# `scripts/merge_master/provenance_gates.py` — an unrelated feature
+# (`exercise-gate-footing`) — and never touch `repository_floor_drift.py`,
+# `specs_floor_block.py`, the floor document, or
+# `tests/merge-master/fixtures/floor-addition-grace/`, measured by
+# `git diff --stat` over both ranges before this advance. Pinning the moving
+# tip rather than the grace's own landing commit therefore costs nothing this
+# time; it is recorded here so a later reader can tell the difference between
+# "the tip moved and carried unrelated work" and "the tip moved and the grace
+# changed under us" without re-deriving it.
+declared_at: "2026-09-05"
 declared_from: >-
-  codexFactory origin/main HEAD as observed on 2026-09-04 at 23:47:59Z
-  (`76fa501c`, the MERGE COMMIT of PR #204 — merged, not squashed, this
-  repository disallowing squash — verified an ANCESTOR of codexFactory
-  `origin/main` by `git merge-base --is-ancestor` immediately before this
-  advance, and named short here as the six prior advances named theirs, because
-  a second commit-shaped VALUE in this file would be a second pin site owing its
-  own declared derivation-pin-class member). Its
-  `scripts/merge_master/openxfactory-review-authority-floor.yaml` was
-  regenerated at openxFactory `3afd8a8c` and carries 67 entries: EIGHT
-  hand-reasoned chokepoints and 59 generated spec paths, covering every tracked
-  path under `openspec/specs` on this branch's tree — all 59, measured — with
-  nothing left over and no dead entry. It contains `6d35c4fe` (PR #198), and
-  through it `bfb8bde3` (PR #197), `79198ac4` (PR #195), `8f770afb` (PR #186),
+  codexFactory origin/main HEAD as observed on 2026-09-05
+  (`e57643a7`, the MERGE COMMIT of PR #208 —
+  merged, not squashed, this repository disallowing squash — verified an
+  ANCESTOR relationship holds the OTHER way for the packet's own object:
+  `git merge-base --is-ancestor 712fc8ca e57643a7` succeeds, so codexFactory
+  PR #206's merge commit — which REALIZED the ratified
+  `add-floor-addition-grace` and is this advance's actual object — is carried
+  by the tip named here. Both written short, as the seven prior advances
+  named theirs, for the same reason: a second
+  commit-shaped VALUE in this file would be a second pin site owing its own
+  declared derivation-pin-class member. Its
+  `scripts/merge_master/openxfactory-review-authority-floor.yaml` is
+  BYTE-IDENTICAL to the document at `712fc8ca` and at `467cec42` (measured;
+  see the advance note above) and still carries 67 entries: EIGHT
+  hand-reasoned chokepoints and the SAME 59 generated spec paths as the
+  `76fa501c` advance — nothing added, nothing removed, nothing regenerated.
+  It contains `76fa501c` (PR #204), and through it `6d35c4fe` (PR #198),
+  `bfb8bde3` (PR #197), `79198ac4` (PR #195), `8f770afb` (PR #186),
   `605d48ac` (PR #183) and `8cb17373` (PR #184), every commit this repository's
   pin sites have named, by ancestry — so nothing any of them established is
-  given up by advancing past them.
+  given up by advancing past them. NEW to this advance: `repository_floor_drift.py::evaluate_floor_completeness`
+  and `specs_floor_block.py::paths_added_after_pin` / `pin_window_for_document`,
+  which `tests/review_lane_pin/test_floor_snapshot.py` (Commit B, this same pull
+  request) mirrors and replays, and which
+  `.github/workflows/merge-master-approval.yml` step 8 (Commit C) now imports
+  directly.
 
 # The caller this pin governs. The test asserts this file exists AND that its
 # checked-out `ref:` equals `core_commit` above.
@@ -352,6 +406,42 @@ pinned_members:
       apart from what was already dead). `repository_floor.py` statically
       re-exports both, so the caller's import site is unchanged; the module is
       named here because a re-point ceremony must know it is now load-bearing.
+      SINCE codexFactory PR #206 (merge `712fc8ca`, `add-floor-addition-grace`)
+      it also supplies `evaluate_floor_completeness` — THE ONE HOME of the
+      completeness-with-grace rule both openxFactory lanes now apply.
+      `.github/workflows/merge-master-approval.yml` step 8 imports it directly
+      (re-exported through `repository_floor.py`, same import site);
+      `tests/review_lane_pin/test_floor_snapshot.py` does NOT import it —
+      Authoring decision A of `mirror-floor-addition-grace` — and instead
+      mirrors the rule locally, falsified by replaying
+      `tests/merge-master/fixtures/floor-addition-grace/vectors.json`, named
+      below.
+  - path: scripts/merge_master/specs_floor_block.py
+    why: >-
+      B1's measurement, added alongside `evaluate_floor_completeness` by the
+      same PR. Supplies `paths_added_after_pin` (paths added to a base branch
+      after a declared `generated_at`, `None` when the pin does not resolve or
+      is not an ancestor of the base — the fail-safe) and
+      `pin_window_for_document` (the same, reading `generated_at` through
+      `parse_block_header` in one call). `.github/workflows/merge-master-approval.yml`
+      step 8 imports `pin_window_for_document` to measure its own base
+      checkout's window (decision C: that checkout now carries `fetch-depth: 0`
+      for exactly this). `tests/review_lane_pin/test_floor_snapshot.py` does
+      NOT import this module either — it measures the same window from git
+      directly, copying `paths_added_after_pin`'s invocation argument for
+      argument rather than importing the function, for the same reason given
+      above.
+  - path: tests/merge-master/fixtures/floor-addition-grace/
+    why: >-
+      The completeness rule's REPLAYABLE DEFINITION — `vectors.json` (16
+      accepted vectors, 5 refused) and its `README.md`, added by the same PR.
+      READ, never imported: `tests/review_lane_pin/test_floor_snapshot.py`'s
+      vector replay parses `vectors.json` as data and runs this repository's
+      OWN mirrored classification over each vector's `input`, comparing to its
+      `expect` — the FALSIFIER for the mirror, named here because a re-point
+      ceremony must know this fixture is now load-bearing for that replay, and
+      because the replay SKIPS (never fails) when this path is absent from the
+      checkout, same as the freshness verifier below.
   - path: scripts/merge_master/openxfactory-review-authority-floor.yaml
     why: >-
       The `repository_gate_floor` for `opensoft/openxFactory` — SIXTY-SEVEN
@@ -441,17 +531,18 @@ pinned_members:
 floor_snapshot:
   path: contracts/review-lane-floor-snapshot.yaml
   of: scripts/merge_master/openxfactory-review-authority-floor.yaml
-  sha256: "c4a386dbbfff3b35c0ef0afd1b36932e181effb551a69434cb02b25332a59e78"
+  sha256: "0eba8e580928a9474c7c91a98a611621bcf7c101be99633f3ff393ecfa7ba4be"
   entry_count: 67
   taken_at: core_commit
   # THE SNAPSHOT CARRIES ONE COMMIT-SHAPED VALUE OF ITS OWN, AND IT IS DECLARED
   # IN `scripts/doc_health/pin_class.py` AS A NON-MEMBER, NOT AS A MEMBER.
   # Inside the generated block's header the generator writes `generated_at`: the
-  # OPENXFACTORY commit `git ls-tree` was run against (`3afd8a8c` as of this
-  # advance — this pull request's own pushed head, exactly, at the moment
-  # codexFactory PR #204 regenerated, being the first tree carrying
-  # `openspec/specs/chain-anchoring/spec.md`, and the immediate parent of
-  # the commit that lands this file). It therefore RESOLVES
+  # OPENXFACTORY commit `git ls-tree` was run against (`3afd8a8c`, UNCHANGED by
+  # this advance — this pull request neither regenerates the block nor moves
+  # this value; it was set at the moment codexFactory PR #204 regenerated,
+  # being the first tree carrying `openspec/specs/chain-anchoring/spec.md`,
+  # and the immediate parent of the commit that landed this file at the prior
+  # advance). It therefore RESOLVES
   # here, and the sweep's coverage test
   # resolves every 40-hex token in every swept file — so this file cannot simply
   # be left alone. An exclusion is required, and the exclusion had to be
@@ -548,6 +639,15 @@ lockstep:
     owed against a floor that has moved SEVEN times, four of them on this one
     calendar day, which makes converging cheaper to do soon than later and
     dearer with every promotion.
+
+    UNCHANGED IN KIND BY THE EIGHTH ADVANCE, 2026-09-05 (the
+    `mirror-floor-addition-grace` realization): this file now names
+    `e57643a7`, carrying the SAME 67-entry floor as `76fa501c` — the object
+    of this advance is the addition-grace mechanism, not a floor entry, so the
+    gap against `f4702f64` neither widens nor narrows by count. xFactory's two
+    surfaces are NOT re-measured by this advance (out of scope for an
+    openxFactory-only realization); the obligation above is carried forward
+    undischarged, against the same floor size as before.
   converged_with:
     - opensoft/xFactory .github/workflows/merge-master-approval.yml
     - opensoft/xFactory .github/workflows/council-convening-lane.yml

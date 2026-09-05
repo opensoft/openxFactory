@@ -229,6 +229,22 @@
 # change now in flight promotes one, so the next advance again belongs to
 # whichever future archive first does.
 #
+# ADVANCED AN EIGHTH TIME 2026-09-05, from `76fa501c` to `e57643a7`
+# (codexFactory PR #208, merge commit), realizing the ratified
+# `mirror-floor-addition-grace` — and its object is the ADDITION GRACE, not a
+# spec promotion: the floor's generated block is BYTE-UNCHANGED (`generated_at`
+# stays `3afd8a8c`, `entry_count` stays 59, floor total stays 67) — the FIRST
+# advance in this pin's history whose floor grew by zero paths. The pinned
+# core's own `add-floor-addition-grace` (codexFactory PR #206, merge
+# `712fc8ca`, an ancestor of `e57643a7`) is what moved: step 8 below now
+# imports `evaluate_floor_completeness` and `pin_window_for_document` from it
+# directly rather than hand-rolling the completeness set difference, and
+# `tests/review_lane_pin/test_floor_snapshot.py` mirrors the same rule locally,
+# falsified by replaying the core's own exported vectors. See
+# `contracts/review-lane-pin.yaml`'s own comment history for the full
+# ancestry measurement; the five pin sites move together in the one commit
+# that made this note.
+#
 # WHAT THE (b′) ADVANCE MADE OPERATIVE HERE, on 2026-09-01. Until it, this lane
 # reported against a four-entry floor and could refuse only a floor that had
 # gone unreachable on the BASE branch. It now also:
@@ -339,7 +355,7 @@ jobs:
       # the commit `actions/checkout` actually produced. The AUTHORITATIVE copy
       # is `contracts/review-lane-pin.yaml`; this is a second witness and the
       # test asserts the two agree. Keep it byte-identical to the `ref:` below.
-      PINNED_CORE_COMMIT: "76fa501cd1c846ca9676d901e41e33ae1e730733"
+      PINNED_CORE_COMMIT: "e57643a79132d11a1b2e1c807b0da589befb3f31"
     steps:
       # ---- 1. Is there any way to read the decision core at all? ------------
       - name: Preflight — a decision-core read credential must exist
@@ -415,10 +431,33 @@ jobs:
       # No `ref:`. For `pull_request_target` that is the BASE branch tip; for
       # `workflow_dispatch` it is the default branch. Never the candidate's
       # head. `persist-credentials: false` because nothing below pushes.
+      #
+      # `fetch-depth: 0` (decision C of `mirror-floor-addition-grace`,
+      # requirement 5). B1's window —
+      # `git log --diff-filter=A <generated_at>..<base> -- openspec/specs`,
+      # measured in step 8 below via the pinned core's own
+      # `pin_window_for_document` — needs history on THIS checkout back to the
+      # floor snapshot's declared `generated_at`; a shallow checkout (the
+      # default here before this change) cannot resolve it, and the fail-safe
+      # would apply on EVERY run of this lane, silently, which is exactly the
+      # disagreement requirement 6 of the core packet forbids between a lane
+      # that blocks (`pytest-suite`, already `fetch-depth: 0`) and a lane that
+      # only reports.
+      #
+      # MEASURED COST (design.md §4, 2026-09-05): this repository's `main` is
+      # 2,025 commits, packed history 29.6 MiB — the cost of full history on a
+      # step that previously fetched one commit, once per advisory run. The
+      # alternative (deepen only to the declared pin) is cheaper and strictly
+      # more fragile: a depth sufficient today fails INTO the fail-safe later
+      # as the pin ages, and the lane would then report a bystander's path
+      # uncovered with no visible cause. `fetch-depth: 0` makes the
+      # measurement's availability independent of the pin's age; recorded as
+      # the option a reviewer may prefer on cost.
       - name: Checkout base (this repository)
         uses: actions/checkout@v4
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       # ---- 4. The decision core, at the recorded pin ------------------------
       # `ref:` is a LITERAL 40-hex commit, never a branch. It must stay
@@ -431,7 +470,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: opensoft/codexFactory
-          ref: "76fa501cd1c846ca9676d901e41e33ae1e730733"
+          ref: "e57643a79132d11a1b2e1c807b0da589befb3f31"
           path: .merge-master-core
           persist-credentials: false
           token: ${{ steps.repo-token.outputs.token || steps.org-token.outputs.token || github.token }}
@@ -687,13 +726,32 @@ jobs:
       #     FAIL-CLOSED IS PRESERVED IN FULL: nothing below certifies, and every
       #     refusal path still ends in `exit 1`.
       #
-      #   * LQ-A7 (BLOCKING) — COMPLETENESS, the opposite direction. A set
-      #     difference over data this lane already had on hand: every tracked
-      #     path under `openspec/specs` that the floor does not name. LQ's own
-      #     falsification is "seed one uncovered spec path and the lane must go
-      #     red", and it is computed over the POST-MERGE tree for the same
-      #     reason the deletion guard is: the pull request that ADDS the
-      #     uncovered spec is the one that must see it.
+      #   * LQ-A7 (BLOCKING) — COMPLETENESS, the opposite direction: every
+      #     tracked path under `openspec/specs` that the floor does not name,
+      #     computed over the POST-MERGE tree for the same reason the deletion
+      #     guard is: the pull request that ADDS the uncovered spec is the one
+      #     that must see it. SINCE `mirror-floor-addition-grace`, this is no
+      #     longer a hand-rolled set difference: this step imports the pinned
+      #     core's `evaluate_floor_completeness` directly (authoring decision
+      #     A — the advisory lane already refuses to run at all when the core
+      #     is unreadable, so it has nothing to lose by importing and
+      #     everything to lose by keeping a second copy of the classification)
+      #     and it now ALSO reports `pending_floor_extension`: a path this
+      #     candidate's own diff creates, or one that landed on the base
+      #     branch after the floor snapshot's declared `generated_at` (B1,
+      #     measured here via the core's own `pin_window_for_document`, which
+      #     is why step 3's checkout above now carries `fetch-depth: 0`), is
+      #     covered-pending rather than uncovered — named, counted, and NEVER
+      #     added to the floor. The single call also supersedes the separate
+      #     `candidate_floor_drift` call this step used to make for LA-A2 /
+      #     CPL-C1: `evaluate_floor_completeness` computes the SAME drift
+      #     partition from the SAME post-merge facts internally
+      #     (`caused_by_candidate` / `already_unreachable`), so there is one
+      #     call rather than two callers of the same underlying rule.
+      #     `refusals[0].stage` keeps the meaning it had before this change:
+      #     drift first, then already-unreachable, then completeness, with the
+      #     grace's own `pending_floor_extension` stage reported only when
+      #     nothing refuses.
       #
       # THE PREFIX IS A CODE CONSTANT HERE, and deliberately not read from the
       # floor. The floor document is exact paths; the block it generated them
@@ -723,16 +781,20 @@ jobs:
           python3 - <<'PY' > floor.json 2> floor.err
           import json
           import os
+          import pathlib
           import sys
 
           sys.path.insert(0, os.environ["CORE_IMPORT_ROOT"])
 
           from merge_master.repository_floor import (  # noqa: E402
               GovernanceDocumentError,
-              candidate_floor_drift,
+              evaluate_floor_completeness,
               load_governance_paths,
               parse_repository_floor_reporting,
               post_merge_tree_paths,
+          )
+          from merge_master.specs_floor_block import (  # noqa: E402
+              pin_window_for_document,
           )
 
           import yaml  # noqa: E402
@@ -771,20 +833,25 @@ jobs:
                      "for %s (floors present: %s)" % (target, sorted(floors)))
 
           # THE TARGET'S OWN DOCUMENT, located by content rather than by name.
-          floor_path, document = None, None
+          # `text` is kept alongside the parsed mapping: `generated_at` lives
+          # in a YAML COMMENT inside the generated block, not a data field, so
+          # `pin_window_for_document` below reads it from the raw text via
+          # `parse_block_header` rather than from `yaml.safe_load`'s result.
+          floor_path, document, floor_text = None, None, None
           for name in sorted(os.listdir(governance_dir)):
               if not name.endswith((".yaml", ".yml")):
                   continue
               candidate = os.path.join(governance_dir, name)
               with open(candidate, encoding="utf-8") as handle:
-                  parsed = yaml.safe_load(handle)
+                  text = handle.read()
+              parsed = yaml.safe_load(text)
               if not isinstance(parsed, dict):
                   continue
               if parsed.get("kind") != "repository_gate_floor":
                   continue
               if (parsed.get("floor") or {}).get("repository") != target:
                   continue
-              floor_path, document = candidate, parsed
+              floor_path, document, floor_text = candidate, parsed, text
               break
 
           # THE POST-MERGE TREE (LA-A2 / CPL-C1). The core refuses a changed
@@ -830,55 +897,47 @@ jobs:
               "refusals": [],
           }
 
-          # LQ-A7: the completeness direction. `surface - entries`, over the
-          # post-merge tree.
-          tracked = sorted(p for p in post_merge if p.startswith(prefix))
-          uncovered = sorted(set(tracked) - set(floor.never_clearable_paths))
-          verdict["tracked_under_prefix"] = len(tracked)
-          verdict["uncovered_paths"] = uncovered
+          # LQ-A7 + the addition grace + LA-A2/CPL-C1, ONE CALL — the pinned
+          # core's `evaluate_floor_completeness` (authoring decision A: the
+          # advisory lane IMPORTS rather than re-derives). It computes the
+          # completeness direction (`uncovered` / `pending`) and the drift
+          # partition (`refused_removals` / `already_unreachable`) from the
+          # SAME post-merge facts internally, superseding the separate
+          # `candidate_floor_drift` call this step used to make: one home for
+          # the classification, not two callers of it.
+          #
+          # `base_tree_paths=tree` is the BASE tree (this step's own
+          # `git ls-tree` above ran on the base checkout, step 3) —
+          # `evaluate_floor_completeness` reconstructs the post-merge tree
+          # itself from `tree` + `entries`, the same way `post_merge_tree_paths`
+          # above already did, so `post_merge` (used for LS-A1's reachability
+          # report) and `completeness`'s own internal post-merge set are the
+          # SAME computation run twice on the same inputs, never two rules.
+          #
+          # `generated_at` / `window` are B1's measurement: the floor
+          # snapshot's declared pin, and the paths added to `origin/main`
+          # after it, read via the pinned core's OWN
+          # `pin_window_for_document` — never re-derived here. `window` is
+          # `None` (NOT `()`) whenever the pin does not resolve or is not an
+          # ancestor of the base: no grace from that half, fail-safe, exactly
+          # as the core's own contract states. This is why step 3's checkout
+          # of THIS repository now carries `fetch-depth: 0` — the range
+          # `generated_at..origin/main` is unmeasurable on a shallow checkout,
+          # and an unmeasurable pin silently produces `window=None` on every
+          # run rather than only when the pin is genuinely unresolvable.
+          generated_at, window = pin_window_for_document(
+              floor_text, pathlib.Path("."), base_ref="origin/main",
+              prefix=prefix)
 
-          # LA-A2 / CPL-C1: attribute every dead entry.
-          if report.unreachable_paths:
-              drift = candidate_floor_drift(
-                  floor, base_tree_paths=tree, changed_entries=entries)
-              verdict["caused_by_candidate"] = list(drift.caused_by_candidate)
-              verdict["already_unreachable"] = list(drift.already_unreachable)
-              if drift:
-                  verdict["refusals"].append({
-                      "stage": "floor_drift_caused_by_candidate",
-                      "reason": drift.refusal_message(floor.repository),
-                  })
-              if drift.already_unreachable:
-                  verdict["refusals"].append({
-                      "stage": "floor_partially_unreachable",
-                      "reason": (
-                          "floor entr(ies) already unreachable on the base "
-                          "branch, NOT caused by this pull request: %s. A floor "
-                          "that matches nothing is indistinguishable from no "
-                          "floor. See the pinned core's "
-                          "docs/repository-gate-floor-repair-runbook.md."
-                          % list(drift.already_unreachable)),
-                  })
-
-          if uncovered:
-              verdict["refusals"].append({
-                  "stage": "floor_incomplete",
-                  "reason": (
-                      "%d tracked path(s) under %r are ABSENT from "
-                      "floor.never_clearable_paths: %s. The enumeration is "
-                      "exact, so a spec added off the floor is a spec the floor "
-                      "does not protect. The repair is ordered, across two "
-                      "repositories: (1) a codexFactory pull request "
-                      "regenerating the block at an openxFactory commit that "
-                      "carries the new path "
-                      "(scripts/merge_master/generate_specs_floor_block.py); "
-                      "(2) an openxFactory pull request advancing "
-                      "contracts/review-lane-pin.yaml core_commit, the "
-                      "workflow's two pin literals and the vendored floor "
-                      "snapshot in lockstep; (3) this addition. See the pinned "
-                      "core's docs/repository-gate-floor-repair-runbook.md."
-                      % (len(uncovered), prefix.rstrip("/"), uncovered)),
-              })
+          completeness = evaluate_floor_completeness(
+              floor,
+              prefix=prefix,
+              base_tree_paths=tree,
+              changed_entries=entries,
+              generated_at=generated_at,
+              added_since_pin=window,
+          )
+          verdict.update(completeness.report())
 
           if verdict["refusals"]:
               verdict["ok"] = False
@@ -917,10 +976,19 @@ jobs:
                  "tracked under prefix:  " + ((.tracked_under_prefix // 0) | tostring)
                                            + " (" + (.floored_prefix // "-") + ")",
                  "uncovered by floor:    " + ((.uncovered_paths // []) | length | tostring),
+                 "covered-pending:       " + ((.pending_floor_extension.count // 0) | tostring)
+                                           + " (tolerance " + ((.pending_floor_extension.tolerance // 0) | tostring)
+                                           + (if (.pending_floor_extension.escalated // false)
+                                              then ", ESCALATED to floor_incomplete" else "" end)
+                                           + ", pin " + (if (.pending_floor_extension.pin_measured // false)
+                                                         then "measured" else "NOT measured (fail-safe)" end)
+                                           + ")",
                  ((.matched_paths       // [])[] | "  matched:      " + .),
                  ((.caused_by_candidate // [])[] | "  YOU KILLED:   " + .),
                  ((.already_unreachable // [])[] | "  already dead: " + .),
-                 ((.uncovered_paths     // [])[] | "  UNCOVERED:    " + .)' \
+                 ((.uncovered_paths     // [])[] | "  UNCOVERED:    " + .),
+                 ((.pending_floor_extension.reasons // {}) | to_entries[]
+                   | "  PENDING (" + .value + "): " + .key)' \
             floor.json || true
           if [ "$OK" != "true" ]; then
             jq -r '.refusals[]? | "::error title=merge-master-approval::floor evaluation refused at stage " + .stage + ": " + .reason' floor.json >&2
@@ -955,8 +1023,22 @@ jobs:
             echo "| changed paths judged | $(jq -r '.changed_path_count' floor.json) |"
             echo "| floor entries | $(jq -r '.never_clearable_paths | length' floor.json) |"
             echo "| never-clearable paths touched | ${MATCHED} |"
-            echo "| tracked under \`$(jq -r '.floored_prefix' floor.json)\` | $(jq -r '.tracked_under_prefix' floor.json), all on the floor |"
+            PENDING_COUNT="$(jq -r '.pending_floor_extension.count // 0' floor.json)"
+            if [ "$PENDING_COUNT" -gt 0 ]; then
+              echo "| tracked under \`$(jq -r '.floored_prefix' floor.json)\` | $(jq -r '.tracked_under_prefix' floor.json) (${PENDING_COUNT} covered-pending, NOT on the floor — see below) |"
+            else
+              echo "| tracked under \`$(jq -r '.floored_prefix' floor.json)\` | $(jq -r '.tracked_under_prefix' floor.json), all on the floor |"
+            fi
             echo "| tree judged | post-merge ($(jq -r '.post_merge_tree_paths' floor.json) paths; base $(jq -r '.base_tree_paths' floor.json)) |"
+            # THE ADDITION GRACE ROW (`mirror-floor-addition-grace`, task 3.4).
+            # `pending_floor_extension` is ALWAYS present in the report shape,
+            # so this row renders on every ok=true run, at 0 when nothing is
+            # graced — never omitted, so a reader cannot mistake its absence
+            # for "no grace was computed".
+            TOLERANCE="$(jq -r '.pending_floor_extension.tolerance // 0' floor.json)"
+            ESCALATED="$(jq -r '.pending_floor_extension.escalated // false' floor.json)"
+            PIN_MEASURED="$(jq -r '.pending_floor_extension.pin_measured // false' floor.json)"
+            echo "| covered-pending (addition grace) | ${PENDING_COUNT} (tolerance ${TOLERANCE}$([ "$ESCALATED" = "true" ] && echo ", ESCALATED") — B1 pin $([ "$PIN_MEASURED" = "true" ] && echo "measured" || echo "NOT measured, fail-safe")) |"
             echo
             if [ "$MATCHED" -gt 0 ]; then
               echo "**This candidate touches a PERMANENTLY HUMAN-ONLY path.** No"
@@ -975,6 +1057,26 @@ jobs:
               echo "to it, so \`add-substantive-review-lane\` task 3.2 stays"
               echo "OPEN. No envelope decision and no council verdict exist"
               echo "here at all."
+            fi
+            if [ "$PENDING_COUNT" -gt 0 ]; then
+              # `ESCALATED` cannot be `true` on this path: escalation makes
+              # `completeness.refusals()` append `floor_incomplete`, which
+              # makes `ok` false, and this whole step runs only when
+              # `steps.floor.outputs.ok == 'true'`. An escalated, REFUSED run's
+              # escalation state is surfaced instead in the `floor_incomplete`
+              # refusal's own `.reason` text (`OWED_FLOOR_REGENERATION`'s
+              # "ESCALATED: N covered-pending path(s) exceed the tolerance of
+              # T…"), printed as an `::error` annotation by the evaluation
+              # step above — this table renders only the GRACED, NOT-REFUSED
+              # case, so `${ESCALATED}` is asserted rather than branched on.
+              echo
+              echo "**$PENDING_COUNT path(s) are COVERED-PENDING under the addition"
+              echo "grace** — not floored, not matched, not counted in"
+              echo "\`entry_count\`, and THE FLOOR REGENERATION THIS IMPLIES IS OWED"
+              echo "(tolerance ${TOLERANCE}, not exceeded):"
+              echo
+              jq -r '.pending_floor_extension.reasons | to_entries[]
+                     | "- `" + .key + "` (" + .value + ")"' floor.json
             fi
             echo
             echo "The floor, for reference:"
@@ -1029,5 +1131,18 @@ jobs:
             || fail "no tracked path was found under the floored prefix, so the completeness assertion (LQ-A7) compared an empty surface against the floor and would pass over any floor at all"
           [ "$(jq -r 'has("unreachable_paths")' floor.json)" = "true" ] \
             || fail "the reachability report (LS-A1) produced no result"
+          # POSITIVE, not merely "no error" (`mirror-floor-addition-grace`,
+          # requirement 4 / task 3.5): a computation that silently stopped
+          # running must be distinguishable from one that ran and found
+          # nothing to grace. `.pending_floor_extension` is ALWAYS present in
+          # `completeness.report()`'s shape, so `has()` alone would pass even
+          # on a run where the key never got merged in at all — checking the
+          # `count`/`paths` PAIR the same way `TheGraceItself`'s classify
+          # function pairs them is closer to a positive result than existence
+          # alone.
+          [ "$(jq -r 'has("pending_floor_extension")' floor.json)" = "true" ] \
+            || fail "the addition-grace computation (pending_floor_extension) produced no result"
+          [ "$(jq -r '.pending_floor_extension | has("count") and has("paths") and has("reasons") and has("pin_measured")' floor.json)" = "true" ] \
+            || fail "the addition-grace computation ran but its report is missing a field (count/paths/reasons/pin_measured) — a partial result is not distinguishable from a stopped one"
           echo "anti-vacuity: the pinned core's floor for opensoft/openxFactory was read and applied,"
-          echo "  over the post-merge tree, with the completeness and reachability reports both computed."
+          echo "  over the post-merge tree, with the completeness, reachability and addition-grace reports all computed."
