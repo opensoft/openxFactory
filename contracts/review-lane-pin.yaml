@@ -518,7 +518,7 @@ pinned_members:
     why: >-
       The `repository_gate_floor` for `opensoft/openxFactory` — SIXTY-EIGHT
       never-clearable paths as of this advance, and the document says on its own
-      face that it is 8 + 1 rather than 67 equally-reasoned chokepoints. The
+      face that it is 8 + 1 rather than 68 equally-reasoned chokepoints. The
       EIGHT are the hand-reasoned gate chokepoints. FOUR are the original set
       (the register, the two paths that determine which reader opens it, and
       `contracts/review-lane-pin.yaml` itself — added by codexFactory PR #125,
@@ -756,6 +756,22 @@ lockstep:
     narrows by count. xFactory's two surfaces are NOT re-measured by this
     advance either; the obligation above is carried forward undischarged,
     against the same floor size as before.
+
+    THE GAP WIDENS AGAIN, THE TENTH ADVANCE, 2026-09-05 (the second
+    post-grace regeneration, closing openxFactory PR #699's covered-pending
+    deferral rather than repairing a refusal): this file now names
+    `ad15a898`, carrying a SIXTY-EIGHT-entry floor — ONE MORE than
+    `67a6ffc9`'s sixty-seven, the one entry being
+    `openspec/specs/review-lane-floor-mirror/spec.md`, the spec PR #699
+    promoted and this regeneration's own object. Unlike the eighth and ninth
+    advances (whose objects were the grace mechanism and a non-ancestor
+    retirement, neither touching the entry count), THIS advance IS a
+    floor-growing regeneration, exactly like the seven before the eighth, so
+    THE GAP AGAINST `f4702f64` WIDENS AGAIN rather than holding unchanged.
+    xFactory's two surfaces are NOT re-measured by this advance either —
+    re-read from the local aggregation checkout without fetching or writing
+    to it, both still naming `f4702f64` verbatim — and the obligation above
+    is carried forward undischarged, now against a sixty-eight-entry floor.
   converged_with:
     - opensoft/xFactory .github/workflows/merge-master-approval.yml
     - opensoft/xFactory .github/workflows/council-convening-lane.yml
