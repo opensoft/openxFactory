@@ -31,12 +31,26 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
 
 ## 0. Ratification read, the FOUR RULED questions, and Amendment 3's text
 
-- [ ] 0.1 `[oxF]` This packet lands RATIFIED AND PERFORMING NOTHING,
+- [x] 0.1 `[oxF]` This packet lands RATIFIED AND PERFORMING NOTHING,
   `Status: ratified`, at
   `openspec/changes/split-opendox-two-layer-product/`: `proposal.md`,
   `design.md`, this file, `.openspec.yaml` with the staged origin, five spec
   delta files, and `review/ratification-2026-09-05.md`. Plus the staging INDEX
-  row recording the exit and one README "OpenSpec Records" row.
+  row recording the exit and one README "OpenSpec Records" row. **DONE —
+  verified at origin/main `391d2404`, 2026-09-05T23:12Z**: PR #666
+  squash-merged `ceb6dc9e` (`ceb6dc9ebbdc49b40d0d45046f476215a010b713`)
+  2026-09-05T13:37Z (`gh pr view 666 --json mergeCommit`); `proposal.md` front
+  matter reads `Status: ratified`; `review/ratification-2026-09-05.md` present
+  (49460 bytes); `.openspec.yaml` carries `origin.kind: staged`; five spec
+  delta files under `specs/`
+  (`corpus-adapter-seam`, `domain-descendant-boundary`,
+  `domain-mapping-declaration`, `ideation-dashboard`, `neutral-product-pin`);
+  staging INDEX row at `ideation/staging/INDEX.md:80` (exit detail ~2686);
+  README "OpenSpec Records" row at `README.md:711`. Later amendments to the
+  same ratified packet, still performing nothing: PR #684 squash-merged
+  `8b297c2f` 2026-09-05T20:08Z (repository shape) and PR #701 squash-merged
+  `391d2404` 2026-09-05T23:08Z (reality-check corrections) — both confirmed
+  via `gh pr view <n> --json mergeCommit`.
 - [x] 0.2 `[oxF]` **The ratification read is over the 102-row successor map**, not
   only over the doctrine. A reviewer contesting a ROW contests a row; the
   mechanism (REMOVE with a per-requirement map rather than keep a stub) is taken
@@ -74,16 +88,33 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   cannot be assigned a successor home. Discharge by `add-ideation-intent-plane`
   archiving, or by a recorded disposition under `document-lifecycle`'s
   deliberate-non-promotion scenario. **This gates § 3 onward, not this packet.**
-- [ ] 0.7 `[oxF]` Amendment 3's text is DRAFTED at `design.md` § D8 and is NOT
+- [x] 0.7 `[oxF]` Amendment 3's text is DRAFTED at `design.md` § D8 and is NOT
   applied here. It is applied at § 1.6, in the pull request that creates the
   repository, because amending a `ratified` record ahead of the act it describes
-  would leave the record describing a repository that does not exist.
-- [ ] 0.8 `[oxF]` Rule 7 substrate claims posted on issue #630 for **row 2**
+  would leave the record describing a repository that does not exist. **DONE
+  AS SPECIFIED — verified at origin/main `391d2404`, 2026-09-05T23:12Z**:
+  `design.md` line 649 carries the heading `### D8 — Amendment 3, drafted here
+  and APPLIED AT REALIZATION`, followed by the drafted `> Amendment 3 —
+  openDox is taken knowingly` text; `docs/openxdox-naming.md` carries no
+  "Amendment 3" (`grep -n "Amendment 3" docs/openxdox-naming.md` → no match,
+  exit 1). Ticked as done-as-specified: drafted, deliberately unapplied until
+  § 1.6.
+- [x] 0.8 `[oxF]` Rule 7 substrate claims posted on issue #630 for **row 2**
   (`tests/sequenced_after/corpus-ledger.yaml` + the MOVEMENT LOG) and **row 3**
   (README "OpenSpec Records"). **Row 1 (the codexFactory floor) is NOT claimed
   now** — this packet adds and removes no path under `openspec/specs/`; it is
-  claimed at § 5.6.
-- [ ] 0.9 `[oxF]` Ledger row seeded:
+  claimed at § 5.6. **DONE — verified 2026-09-05T23:12Z**: CLAIM comment
+  `5545846232` (2026-09-04T20:04:23Z, lane openxfactory-opendox) carries both
+  "SUBSTRATE CLAIMED" blocks — "Substrate: Row 2 —
+  `tests/sequenced_after/corpus-ledger.yaml` + the MOVEMENT LOG" and
+  "Substrate: Row 3 — `README.md` \"OpenSpec Records\" block" — and states
+  "ROW 1 IS DELIBERATELY NOT CLAIMED NOW"; RELEASE comment `5552188390`
+  (2026-09-05T13:37:59Z, lane openxfactory-4-opendox-extraction) reads "rows
+  2+3 claimed 2026-09-04 (comment 5545846232) for
+  split-opendox-two-layer-product are RELEASED — PR #666 landed as
+  `ceb6dc9e`", posted after #666 landed. Both fetched and quoted via
+  `gh api repos/opensoft/openxFactory/issues/comments/<id>`.
+- [x] 0.9 `[oxF]` Ledger row seeded:
   `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#<PR>'`,
   then `--ledger-diff` clean. **A MOVEMENT LOG entry IS owed here and is
   written** (`tests/sequenced_after/test_sweep.py`): the seeding moved TEN rows,
@@ -94,7 +125,14 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   partner rows moving for somebody else's delta is not legible from the row diff
   alone, which is the condition the log entry exists for. (Corrects an earlier
   reading of this item that said no entry was owed — Copilot round 5, taken
-  2026-09-05.)
+  2026-09-05.) **DONE — verified at origin/main `391d2404`, 2026-09-05T23:12Z**:
+  `tests/sequenced_after/corpus-ledger.yaml:237` carries
+  `split-opendox-two-layer-product: {state: active, class: co-modifier,
+  declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}`;
+  the MOVEMENT LOG entry "TEN ROWS MOVED FOR ONE CHANGE, AND NINE OF THEM ARE
+  SOMEBODY ELSE'S" is present at `tests/sequenced_after/test_sweep.py:1108`;
+  `python3 scripts/validate-sequenced-after.py . --ledger-diff` reports
+  "per-change sweep ledger consistent with the corpus (175 rows)" — clean.
 
 ## 1. Repository bootstrap — TWO ELECTED PROJECTS, SIX repositories, public, Apache-2.0 (RULING Q7, as amended 2026-09-05)
 
