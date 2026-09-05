@@ -175,16 +175,47 @@ divergence, not a mirror.
 
 ## 4. The regeneration this change makes possible
 
-- [ ] 4.1 After the mirror and the pin advance have LANDED, request ONE floor
+- [x] 4.1 After the mirror and the pin advance have LANDED, request ONE floor
   regeneration in codexFactory at a LANDED openxFactory commit — one reachable
   from `main` — being the first repair that does not block the pull request that
   caused it. The generator now refuses `--write` at an unlanded `--ref`, so this
   is enforced there and merely relied upon here.
-- [ ] 4.2 Advance this repository's five pin sites onto the regenerated core
+  **Evidence**: codexFactory PR #212 (MERGE COMMIT `67a6ffc9`, merged
+  2026-09-05T18:08:23Z) regenerated
+  `scripts/merge_master/openxfactory-review-authority-floor.yaml` at
+  openxFactory `f6724f04` — the merge commit of PR #686, this repository's own
+  `mirror-floor-addition-grace` realization, and reachable from openxFactory
+  `main` (`git merge-base --is-ancestor f6724f04 origin/main` holds on THIS
+  repository's tree). The negative control's refusal was OBSERVED, not merely
+  relied upon: the generator's `--write` guard is codexFactory's own, ratified
+  and realized ground, and PR #212 is what a request AT a landed commit
+  produces when it is honored — sha256 `18389a3d…3521a8`, 15402 bytes, blob
+  `fdcd9f7e…5b5a8` at `67a6ffc9`, byte-diffed against `e57643a7`'s copy of the
+  same file: the ONLY change is the block header's `generated_at` / `--ref`
+  lines (`3afd8a8c` -> `f6724f04`); `entry_count` stays 59 and the floor total
+  stays 67 — no `openspec/specs` path exists at `f6724f04` that did not already
+  exist at `3afd8a8c`.
+- [x] 4.2 Advance this repository's five pin sites onto the regenerated core
   commit, in the same one-act form as task 1.2.
-- [ ] 4.3 Record that the live pin `3afd8a8c` — measured 2026-09-05 as NOT an
+  **Evidence**: `contracts/review-lane-pin.yaml` `core_commit`,
+  `.github/workflows/merge-master-approval.yml` `PINNED_CORE_COMMIT` and its
+  core checkout `ref:`, `.github/workflows/pytest-suite.yml`'s core checkout
+  `ref:`, and `contracts/review-lane-floor-snapshot.yaml` (re-copied byte for
+  byte, `sha256` and `entry_count` updated) all advanced `e57643a7` ->
+  `67a6ffc9` in one commit on branch `chore/repin-after-landed-regeneration`,
+  each re-read post-edit and confirmed equal.
+- [x] 4.3 Record that the live pin `3afd8a8c` — measured 2026-09-05 as NOT an
   ancestor of openxFactory `main`, one of three of the last five — is retired by
   4.1, and record the measurement rather than only the repair.
+  **Evidence**: `contracts/review-lane-pin.yaml`'s "THE NINTH ADVANCE" note and
+  `merge-master-approval.yml`'s matching header record that `3afd8a8c` was NOT
+  an ancestor of openxFactory `main` and that `f6724f04` IS (measured by
+  `git merge-base --is-ancestor f6724f04 origin/main` on this repository's own
+  tree before this commit) — the first advance at which the addition-grace's
+  B1 pin window (`specs_floor_block.pin_window_for_document`) is MEASURABLE
+  rather than fail-safed to `None` on this repository's `main`, because the
+  function requires the declared `generated_at` to resolve as an ancestor of
+  the base branch it measures.
 
 ## 5. Observation and evidence (the archive gate)
 
@@ -226,13 +257,21 @@ divergence, not a mirror.
 
 ## 6. Owner's acts (not an agent's)
 
-- [ ] 6.1 Ratify or refuse this packet. It is `Status: draft`; ratification is
+- [x] 6.1 Ratify or refuse this packet. It is `Status: draft`; ratification is
   OWED and is Brett Heap's act. The 2026-09-05 word "companion" authorized the
   AUTHORING, not the content.
-- [ ] 6.2 Rule on the authoring decisions A through F, and in particular on
+  **Evidence**: Brett Heap ratified, verbatim **"ratify the companion when
+  green, then realize it"**, applied at the first head where the condition
+  held, `ce9a81ed` (2026-09-05T14:24:10Z) — recorded in
+  `openspec/changes/mirror-floor-addition-grace/review/ratification-2026-09-05.md`.
+- [x] 6.2 Rule on the authoring decisions A through F, and in particular on
   **A** (mirror-and-replay versus import, and its vendoring sub-decision), on
   **B** (a new capability, and its name) and on **C** (`fetch-depth: 0` versus a
   targeted fetch).
+  **Evidence**: same ratification record — because the ruling word preceded
+  the authoring's completion, decisions A–F STAND AS RECOMMENDED and none was
+  separately ruled; the record's decision table carries each of A–F with its
+  alternative and disposition.
 - [ ] 6.3 NOT OWED HERE, and named so it is not silently assumed: the D-3
   tolerance NUMBER is codexFactory's to set in its own CODEOWNERS-routed
   document, and option (b) from codexFactory issue #203 remains unruled and

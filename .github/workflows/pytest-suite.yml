@@ -190,6 +190,31 @@
 # with openspec absent the file reports 33 passed / 3 skipped; with it present,
 # 36 passed / 0 skipped.
 #
+# HOW IT IS INSTALLED CHANGED ON 2026-09-05, and the version left this file with
+# it. Until then the step was one literal line, `npm install -g
+# @fission-ai/openspec@1.2.0`. That line was a SECOND copy of a pin this
+# repository already held in `contracts/openspec-cli-pin.yaml`, and the two duly
+# moved apart: the pin went to `1.12.0` (#677) while this file still installed
+# `1.2.0`, so the REQUIRED test suite drove one version while the
+# `openspec-cli-pin` gate verified another — the two-copies-of-a-pin defect the
+# pin change named, made visible rather than latent. The step below now runs
+# `scripts/install-pinned-openspec-cli.py`, which resolves the artifact through
+# the pin verifier's OWN code: the tarball is fetched, its SHA-512 and SHA-1 are
+# recomputed against the pin, and only a matching artifact is installed and its
+# directory appended to `$GITHUB_PATH`. The version is therefore written in
+# exactly one place, and this job now drives the same bytes the gate verified.
+# (#667 task 5.1 / #677 task 6.2.)
+#
+# WHAT THAT STEP DOES NOT DO, said here because a reader will reasonably ask.
+# It does not validate the corpus. This job's verdict is the pinned test triple
+# below and nothing else; coupling it to `openspec validate --all --strict`
+# would put a second, foreign judgment inside this repository's most
+# load-bearing required check, and `openspec-cli-pin-gate.yml` already reports
+# that verdict under its own check token. Nor is the installer a `--verify-only`
+# mode of the verifier: that mode is forbidden by `neutral-product-pin` — a
+# pinned validator invoked with no scan target must refuse rather than self-test
+# — and this file does not reopen that decision.
+#
 # WHY NO PATH FILTER. An earlier draft filtered to `tests/**`, `scripts/**`,
 # and `pytest.ini`. That was wrong twice over. First, a large group of tests
 # scans the real repository content rather than a fixture — the trust-anchor
@@ -369,7 +394,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: opensoft/codexFactory
-          ref: "e57643a79132d11a1b2e1c807b0da589befb3f31"
+          ref: "67a6ffc932da44ebe1529d8cc25ab222b60a4ca1"
           path: .merge-master-core
           persist-credentials: false
           token: ${{ steps.app-token.outputs.token || github.token }}
@@ -393,11 +418,34 @@ jobs:
         with:
           python-version: "3.12"
 
+      # Node 22 is here for TWO reasons and both are load-bearing. 41 test files
+      # gate DOM and JS probes on `shutil.which("node")` (see the header), and
+      # the step below needs `npm` to fetch and install the pinned artifact.
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
 
-      - run: npm install -g @fission-ai/openspec@1.2.0
+      # THE CLI COMES FROM THE PIN, NOT FROM A LITERAL. The three
+      # `@unittest.skipUnless(shutil.which("openspec"), …)` tests in
+      # `tests/proposal-support/test_proposal_support.py` drive the real binary
+      # through the archive wrapper, and they are the only reason this job needs
+      # a CLI at all. The version is deliberately NOT written here: it lives in
+      # `contracts/openspec-cli-pin.yaml`, the installer reads it with the
+      # verifier's own parser, and
+      # `tests/openspec_cli_pin/test_openspec_cli_pin.py::
+      # test_the_required_test_workflow_installs_through_the_pin_and_not_by_literal`
+      # asserts the absence against this file's own non-comment bytes — so a
+      # helpful future edit that pastes a version back in fails on the
+      # developer's machine first.
+      #
+      # THE ARTIFACT IS VERIFIED BEFORE IT IS INSTALLED: the installer fetches
+      # the tarball, recomputes its SHA-512 and SHA-1, and refuses unless both
+      # equal the pin. It then appends the executable's directory to
+      # `$GITHUB_PATH` so the pytest step below finds `openspec`. It validates
+      # NOTHING — see the header. `$RUNNER_TEMP` because the install must
+      # outlive this step and the runner is discarded whole afterwards.
+      - name: Install the pinned OpenSpec CLI for tests/proposal-support
+        run: python3 scripts/install-pinned-openspec-cli.py --cache-dir "${RUNNER_TEMP}/openspec-cli-pin"
 
       - run: pip install --require-hashes -r requirements/hermes-runtime-contracts.lock
 
