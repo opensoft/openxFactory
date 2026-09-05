@@ -1,0 +1,48 @@
+schema: spec-driven
+created: 2026-09-05
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-05-bump-openspec-cli-pin-to-1-12
+  reason: >-
+    THE SUCCESSOR WORK #667 NAMED, TAKEN AT THE POINT ITS PRECONDITION WAS MET.
+    `contracts/openspec-cli-pin.yaml` (#667) pinned `@fission-ai/openspec` at
+    `1.2.0` because that is where the estate was green, and named the bump as
+    later, separate, human-only work that must land its target-version evidence
+    with it. The ratified requirement says so in as many words: "A pinned CLI
+    version bump is one human-only act that lands its target-version evidence in
+    the same change". Two readiness packets then closed the gap — #673 here and
+    #220 in OpsxFactory — and re-measurement on 2026-09-05 finds OpsxFactory at
+    47 passed / 0 failed and openxFactory at 88 passed / 2 failed of 90 under
+    `1.12.0`. THE TWO REMAINING FINDINGS ARE NOT DEFECTS. Both are deliberate
+    scenario narrowings declared with this estate's reserved marker
+    ``**Merged into `<destination>` by <change-id> (<date>):**``, a convention
+    `doc-health`'s promoted marker requirement defines and whose WORKED EXAMPLE
+    is one of the two pairs; 1.12.0's scenario-currency check is marker-blind and
+    demands an edit that would revert two ratified decisions. #673's record named
+    three honest exits and took none of them, because none was that lane's to
+    take. This packet takes exit 2.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and `INDEX.md` read on 2026-09-05: no
+    topic carries the OpenSpec CLI pin, a version bump, or a finding-disposition
+    mechanism. `kind: staged` would claim a staging source that does not resolve.
+    The organized source is #673's evidence record and the operator ruling quoted
+    below.
+  approved_by: >-
+    Brett Heap (openxFactory convener) — 2026-09-05, verbatim: "take exit 2",
+    ruling on the three exits #673's evidence record enumerated in
+    § "What this means for the bump, stated so nobody discovers it later":
+    (1) sequence the bump after both changes archive, (2) carry a dispositioned
+    exception for the two, (3) take it upstream so the check reads the reserved
+    marker forms. Exit 2 is the dispositioned exception. THIS IS A RULING ON THE
+    SUBSTANCE AND NOT MERELY AN ADMISSION TO THE QUEUE — it settles which of
+    three named exits is taken — but it is NOT a ratification of this packet's
+    text, which carries `Status: draft` and owes a ratification citation from a
+    separate act. Exit 3 is drafted and NOT filed
+    (`evidence/upstream-issue-draft-merged-into-marker.md`); filing it is Brett's
+    to decide and the two exits are not exclusive.
+  approved_on: 2026-09-05
+related:
+  - openxFactory:change:add-openspec-cli-pin              # ACTIVE. Cut the pin at 1.2.0 (#667) and named this bump as its own successor work; carries the requirement this packet must satisfy literally
+  - openxFactory:change:prepare-openspec-1.12-readiness   # ACTIVE. #673, the measurement this packet's dispositions cite; it cleared 40 of 42 findings and REFUSED the two this packet disposes
+  - openxFactory:change:add-chain-attestation             # ACTIVE. Disposed. Cannot archive soon — eight open boxes incl. §5.8, the canary pair is not producible, issue #579
+  - openxFactory:change:add-composed-view-authoring       # ACTIVE. Disposed. ONE open box (task 3.2, a Brett act); its archive makes this pin REFUSE until the entry is deleted, by design

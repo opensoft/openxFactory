@@ -37,10 +37,10 @@ kind: pinned_contract_manifest
 # argument `contracts/openreposhape-pin.yaml` makes for a tag, transposed to a
 # registry:
 #
-#   * `integrity` is a CONTENT ADDRESS. `sha512-2XDmPZ…` is the SHA-512 of the
+#   * `integrity` is a CONTENT ADDRESS. `sha512-oFE2Lj…` is the SHA-512 of the
 #     published tarball's exact bytes. It cannot be moved, because moving it
 #     would require different bytes and different bytes are a different address.
-#     Every one of the package's 270 files is inside those bytes.
+#     Every one of the package's 389 files is inside those bytes.
 #   * `version` is a NAME. That npm refuses to re-publish over a version is a
 #     REGISTRY POLICY, enforced by an operator, with an unpublish window and an
 #     operator who can act inside it — and a policy is not a content address. It
@@ -54,15 +54,15 @@ kind: pinned_contract_manifest
 # exactly that ordering ("The pin's digests SHALL be verified BEFORE the pinned
 # reader is invoked, by running code rather than by a stated obligation"), and it
 # is the reason this pin does not simply trust `npx` to resolve a version string.
-# A `npx -y @fission-ai/openspec@1.2.0` that fetched the wrong bytes would report
-# nothing; a recomputed digest that disagrees refuses.
+# A `npx -y @fission-ai/openspec@1.12.0` that fetched the wrong bytes would
+# report nothing; a recomputed digest that disagrees refuses.
 #
 # WHY THERE IS NO `files:` LIST AND NO `pinned_by_commit_only:` LIST, and why
 # that is not the omission it looks like. Those two lists exist in the sibling
 # pins because a COMMIT is not a digest a consumer can compare a file against:
 # the surface has to be enumerated so that "an artifact in neither list is an
 # undeclared consumption, not a permitted omission" can be checked at all. A
-# published tarball has no such gap. ONE digest covers ALL 270 files, so the
+# published tarball has no such gap. ONE digest covers ALL 389 files, so the
 # completeness question the two lists answer is answered here by construction and
 # more strongly: there is no file inside the artifact that the referent does not
 # address, and no file can be added to it without changing the referent. The
@@ -70,12 +70,10 @@ kind: pinned_contract_manifest
 # states this in the grammar's own words rather than leaving this file to assert
 # a licence the ratified requirement does not give it.
 #
-# THE DECLARED SHORTFALL, stated here rather than discovered later. The referent
-# addresses the CLI's OWN bytes. It does not address the CLI's DEPENDENCY
-# CLOSURE: `@fission-ai/openspec@1.2.0` declares nine runtime dependencies at
-# caret ranges (`ora ^8.2.0`, `zod ^4.0.17`, `yaml ^2.8.2`, `chalk ^5.5.0`,
-# `commander ^14.0.0`, `fast-glob ^3.3.3`, `posthog-node ^5.20.0`,
-# `@inquirer/core ^10.2.2`, `@inquirer/prompts ^7.8.0`), and npm resolves those
+# THE DECLARED SHORTFALL, stated here rather than discovered later, AND UNCHANGED
+# BY THE BUMP. The referent addresses the CLI's OWN bytes. It does not address the
+# CLI's DEPENDENCY CLOSURE: `@fission-ai/openspec@1.12.0` declares its runtime
+# dependencies at caret ranges exactly as `1.2.0` did, and npm resolves those
 # ranges at install time. Two installs of these identical, verified bytes may
 # therefore run over different dependency trees. This pin does NOT claim
 # otherwise. What it claims — and checks — is that the ADJUDICATING TOOL is the
@@ -86,16 +84,64 @@ kind: pinned_contract_manifest
 # so that an unpinned transitive dependency cannot run a lifecycle script inside
 # a gate; that is a mitigation of the shortfall and not a repair of it.
 #
-# THIS PIN DOES NOT BUMP THE VERSION AND MUST NOT BE READ AS APPROVING ONE.
-# 1.2.0 is what the estate already runs and what every tree in it passes at
-# TODAY. Measured 2026-09-04, the same trees that are clean at 1.2.0 fail under
+# THIS PIN BUMPS THE VERSION, AND THE EVIDENCE IS IN THE CHANGE THAT BUMPS IT.
+# The pin was cut at 1.2.0 (#667) because that is where the estate was GREEN:
+# measured 2026-09-04, the same trees that were clean at 1.2.0 failed under
 # 1.12.0 on PRE-EXISTING conditions — openxFactory 48 passed / 41 failed of 89,
-# OpsxFactory 34 / 10 of 44 — and at least four deltas the newer `archive` would
-# REFUSE outright. An unpinned upgrade turns two repositories red and stalls
-# every archive, and blames whoever upgraded for conditions that predate them.
-# So the pin is set where the estate is GREEN, and the upgrade is a later,
-# separate, human-only governed change that must land its target-version
-# evidence with it.
+# OpsxFactory 34 / 10 of 44 — and the change that cut it named the bump as
+# later, separate, human-only work that must land its target-version evidence
+# with it. That readiness work is now done (#673 here, #220 in OpsxFactory) and
+# this is that bump. Re-measured 2026-09-05: OpsxFactory reads 46 passed /
+# 0 failed at 1.12.0, and openxFactory reads 88 passed / 2 failed of 90 — the
+# two remaining being the DISPOSITIONS below and nothing else.
+#
+# THE TWO DISPOSITIONS, AND WHY THIS PIN CARRIES A DISPOSITION MECHANISM AT ALL.
+# A pinned tool is a foreign judgment about a local corpus, and the two can
+# genuinely disagree. 1.12.0 added a scenario-currency check that is BLIND to
+# this estate's reserved narrowing marker,
+# ``**Merged into `<destination>` by <change-id> (<date>):**``, and therefore
+# re-reports as ERRORs two deliberate, declared, ratified narrowings — one of
+# which `doc-health`'s own promoted marker requirement uses, byte for byte, as
+# its WORKED EXAMPLE (openspec/specs/doc-health/spec.md:1770). The only edit
+# that would satisfy the check is to restore the old scenario titles, which
+# reinstates the permission council LA-A1 was raised to close and contradicts a
+# sibling scenario landed by #444. That is not a defect to fix; it is an
+# exception to ACCEPT, in writing, with a citation. #673's record named three
+# honest exits — sequence the bump after both changes archive, carry a
+# dispositioned exception, or take it upstream. Brett Heap ruled on 2026-09-05:
+# "take exit 2". `dispositions:` below is that ruling, made checkable.
+#
+# THE DISPOSITIONS ARE UPGRADE-COUPLED AND STALE-REFUSED, which is what keeps
+# them from becoming a suppression list.
+#
+#   * UPGRADE-COUPLED. They are enumerated against THIS version's findings, in
+#     the tool's own message text, matched whole. A later CLI that rewords the
+#     message, or drops the check, matches nothing — so every bump RE-DERIVES
+#     the list rather than inheriting it. There is deliberately no pattern, no
+#     wildcard and no family-level suppression: an exception covers one finding
+#     in one delta of one change in one repository, and a second finding needs
+#     a second reading by a human.
+#   * STALE-REFUSED. A disposition whose finding NO LONGER OCCURS makes the run
+#     REFUSE (`pin-disposition-stale`, exit 2) rather than pass. The asymmetry
+#     with an undispositioned finding (exit 1) is deliberate and is argued in
+#     scripts/validate-openspec-cli-pin.py: an unmatched FINDING is a statement
+#     about the deltas, an unmatched DISPOSITION is a statement about this file.
+#     `add-composed-view-authoring` has ONE open task left and archives the
+#     moment a human takes it; on that day its finding vanishes from every run
+#     and this pin must fail until its entry is deleted, so that the archive
+#     itself is the event that forces the re-reading.
+#   * SCOPED BY REPOSITORY, because one pin governs the whole estate and this
+#     entrypoint is invoked with `--repo` against consuming trees that carry
+#     none of openxFactory's changes. Without `repo:`, a change absent because
+#     it was never here would be indistinguishable from a change absent because
+#     it archived — and only the second may refuse.
+#
+# A DISPOSITION WITHOUT A CITATION IS REFUSED, not ignored. `cited_to:` is
+# required and must be non-empty, and one of `ratified_by:`/`recorded_by:` must
+# name who granted it. An uncited exception is the thing this estate refuses
+# everywhere else it appears — `doc-health`'s uncited-resolution rule, the
+# required `cite` in the aggregation's `health/dispositions.yaml` — and it is
+# refused here in the same words.
 # ============================================================================
 
 package: "@fission-ai/openspec"
@@ -105,7 +151,7 @@ registry: https://registry.npmjs.org
 
 # THE LABEL. Recorded so a human, a log line and an `npm install` can all name
 # the same artifact; never the referent. See the header.
-version: "1.2.0"
+version: "1.12.0"
 
 # THE REFERENT, and the kind that says so. `package_integrity` is the
 # content-addressed distribution-artifact referent the accompanying MODIFIED
@@ -115,7 +161,7 @@ version: "1.2.0"
 # fetched.
 revision_kind: package_integrity
 integrity_algorithm: sha512
-integrity: "sha512-2XDmPZcVY0Bs014lP9aoxe3VoEU8hFvqaBFxQaiJO2nhC8vTKCyo6sT/5YpQcOTfR/a64Hht2anTyqLR4eNhlg=="
+integrity: "sha512-oFE2Lj7WVSc87nSibk6qe9HjHIOlxhcPAXbPey44DlLvJzBl5+9BZVrNiozOwv++CQhW+MG0kuP1XLZ/uQrrWw=="
 
 # The registry's LEGACY address for the same bytes, checked as well as — never
 # instead of — the SHA-512. It is recorded because it is what `npm view … dist`
@@ -124,8 +170,29 @@ integrity: "sha512-2XDmPZcVY0Bs014lP9aoxe3VoEU8hFvqaBFxQaiJO2nhC8vTKCyo6sT/5YpQc
 # records a value nothing verifies invites the value to drift into being wrong
 # without anyone noticing. SHA-1 is not relied on for collision resistance: the
 # SHA-512 is the referent and this is corroboration.
-shasum: "0fd5333520c8846f0ac51727379b8812e2f13c1b"
-tarball: https://registry.npmjs.org/@fission-ai/openspec/-/openspec-1.2.0.tgz
+shasum: "c844543999f673cdd72445879b86a4abea4c07ef"
+tarball: https://registry.npmjs.org/@fission-ai/openspec/-/openspec-1.12.0.tgz
+
+# THE PREVIOUS REFERENT, RECORDED AS THE ROLLBACK — in the grammar's own terms
+# and not as prose, because a rollback written as a sentence is a rollback
+# somebody has to re-derive under pressure. These are the exact fields this file
+# carried until 2026-09-05, and restoring the pin means moving them back up:
+# `version`, `integrity`, `shasum` and `tarball` together, never one of them.
+# THE MECHANISM SURVIVES THE ROLLBACK: `1.2.0` and `1.12.0` emit the SAME
+# machine-readable report shape (verified by running both), so a pin returned to
+# `1.2.0` still parses. Its `dispositions:` list, however, does NOT survive: the
+# two entries below exist only because 1.12.0 raises those findings and 1.2.0
+# does not, so a rollback that kept them would refuse `pin-disposition-stale` on
+# its first run. A rollback deletes the dispositions with the version.
+rollback:
+  - version: "1.2.0"
+    integrity: "sha512-2XDmPZcVY0Bs014lP9aoxe3VoEU8hFvqaBFxQaiJO2nhC8vTKCyo6sT/5YpQcOTfR/a64Hht2anTyqLR4eNhlg=="
+    shasum: "0fd5333520c8846f0ac51727379b8812e2f13c1b"
+    tarball: https://registry.npmjs.org/@fission-ai/openspec/-/openspec-1.2.0.tgz
+    pinned_by: add-openspec-cli-pin
+    superseded_on: "2026-09-05"
+    superseded_by: bump-openspec-cli-pin-to-1.12
+    drop_dispositions_on_rollback: "true"
 
 # The executable the package installs, asserted by name so a repointed `bin`
 # block in some future version is a refusal rather than a silent substitution.
@@ -158,3 +225,64 @@ pinned_invocation: openspec validate <target> --strict
 # the act itself; both are named because the refusal trailer names them and a
 # refusal that names a document nobody wrote is worse than one that names none.
 resync_runbook: docs/contract-versioning-policy.md
+
+# THE ENUMERATED DISPOSITIONS. Read the header block above before adding one.
+#
+# Each entry ACCEPTS exactly one ERROR-level finding, in one delta path, of one
+# item, in one repository, at THIS pinned version. The verifier matches on the
+# tuple (`repo`, `item`, `path`, `finding`) with the finding text compared WHOLE
+# after whitespace normalization — no prefix, no pattern, no family. It refuses
+# `pin-disposition-malformed` when `cited_to:` is empty or absent, when no
+# `ratified_by:`/`recorded_by:` names an authority, or when two entries would
+# cover the same finding; and it refuses `pin-disposition-stale` when a declared
+# finding no longer occurs, so an exception cannot outlive its condition.
+#
+# BOTH ENTRIES BELOW ARE THE SAME DISAGREEMENT, twice: 1.12.0's scenario-currency
+# check cannot read this estate's reserved narrowing marker, and so demands the
+# restoration of scenario titles two ratified changes deliberately narrowed. The
+# `finding:` text is quoted from the tool's own JSON report, verbatim.
+dispositions:
+  - repo: openxFactory
+    item: add-chain-attestation
+    path: signed-execution-chain/spec.md
+    level: ERROR
+    finding: 'MODIFIED "A gate validates the short chain as a hash-linked chain" omits scenario(s) the current spec still has: "a tranche-two link does not exist yet". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them).'
+    why: >-
+      The scenario is RENAMED AND RE-CONDITIONED, not dropped, and the rename is
+      declared in the block itself with the reserved `Merged into` marker;
+      restoring the old title would reinstate the very permission council LA-A1
+      was raised to close.
+    cited_to:
+      - openspec/specs/doc-health/spec.md:1770 — the promoted `Merged into` marker requirement, whose two written forms this block uses
+      - council LA-A1 — the contradiction the tranche's re-conditioning was raised to close
+      - openspec/changes/prepare-openspec-1.12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md § "The two refusals" — the measurement and the refusal, #673
+      - openspec/changes/add-chain-attestation/specs/signed-execution-chain/spec.md — the marker, in the block the finding names
+    ratified_by: 'Brett Heap, 2026-09-05, "take exit 2"'
+    retires_when: >-
+      add-chain-attestation archives. It cannot archive soon — eight task boxes
+      remain open, including §5.8, the canary pair is not producible, and
+      issue #579 is unresolved — so this entry is expected to be long-lived and
+      is still re-derived at every bump.
+
+  - repo: openxFactory
+    item: add-composed-view-authoring
+    path: ideation-dashboard/spec.md
+    level: ERROR
+    finding: 'MODIFIED "Composed views are read-only with a repository jump" omits scenario(s) the current spec still has: "Gate verbs hide on a composed view". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them).'
+    why: >-
+      "Gate verbs hide on a composed view" became "Tile-bound gate verbs hide on
+      a composed view" because the same change deliberately ADMITS document
+      creation there; this exact pair is the worked example canon uses to define
+      the marker, so restoring the old title contradicts both the sibling
+      scenario and the requirement that governs the form.
+    cited_to:
+      - openspec/specs/doc-health/spec.md:1770 — canon's worked example IS this rename, byte for byte
+      - PR #444 — the landed change that declared the rename with the `Merged into` marker
+      - council LA-A1 — the ruling that reserved the marker forms
+      - openspec/changes/prepare-openspec-1.12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md § "The two refusals" — the measurement and the refusal, #673
+    ratified_by: 'Brett Heap, 2026-09-05, "take exit 2"'
+    retires_when: >-
+      add-composed-view-authoring archives, which needs ONE open box (task 3.2, a
+      Brett act). ON THAT DAY THIS ENTRY GOES STALE AND EVERY RUN REFUSES until
+      it is deleted. That is the mechanism working, not a defect: the archive is
+      the event that forces somebody to re-read the exception.
