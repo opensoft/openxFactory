@@ -204,7 +204,7 @@ nothing else; § 1.1a carries it.
 openRepoShape `main` is now at `355f6ef4` (#47), which carries both `c2cc9e25`
 and `5ffa8d58`; this repository's `contracts/openreposhape-pin.yaml` still
 pins `122d729bc0c2f2e0ded0bb61b6b97f49512f613e`, a commit that predates both.
-A single re-pin to any commit ≥ `355f6ef4` — its own pin-sync pull request
+A single re-pin to `355f6ef4` or any descendant commit — its own pin-sync pull request
 under `neutral-product-pin`, validated by the `openreposhape-pin` check —
 covers both, and `tasks.md` § 1.1/1.2 name it as the sequencing condition.
 Neither issue is a dependency of THIS pull request, which performs nothing.

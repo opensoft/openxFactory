@@ -139,7 +139,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   `5ffa8d58`, authored by lane `xfactory-2`; openRepoShape `main` is now at
   `355f6ef4` (#47). **The two invocations above are still refused at the
   commit this repository pins** (`122d729bc0c2f2e0ded0bb61b6b97f49512f613e`)
-  **and are accepted at openRepoShape `main`, or any commit ≥ `355f6ef4`**
+  **and are accepted at openRepoShape `main`, `355f6ef4`, or any descendant commit**
   (which carries #45 and, before it, #42 — the pin-chain fix, see 1.10).
   Measured refusal, kept here as history:
 
@@ -157,7 +157,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   the resolution this needed (`also_matches: project-leg/assembly`) and
   `accepts_role()` discarded it. #45 is the admission #41 asked for.
   **The blocker is now a RE-PIN of `opensoft/openRepoShape` in this
-  repository to a commit ≥ `355f6ef4`** (a single re-pin covers both #42 and
+  repository to `355f6ef4` or any descendant commit** (a single re-pin covers both #42 and
   #45) — done as its own pin-sync pull request under `neutral-product-pin`
   (a new `commit:` and refreshed digests in
   `contracts/openreposhape-pin.yaml`; the `openreposhape-pin` check validates
@@ -264,7 +264,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
 - [ ] 1.10 `[oXd]` `[oxF]` **NEW (2026-09-05) — THE PIN CHAIN. `opensoft/openRepoShape`#40
   is RESOLVED**, by openRepoShape PR #42, *Descendant referent follows the
   declared pin chain (#40)*, merge commit `c2cc9e25`, merged 2026-09-05T16:26:49Z
-  — the SAME re-pin that 1.1a names for #41 (to a commit ≥ `355f6ef4`) covers
+  — the SAME re-pin that 1.1a names for #41 (to `355f6ef4` or any descendant commit) covers
   #42 as well, since `355f6ef4` carries both. `openXdox`'s `project.yaml`
   declares `neutral_product_pins: [openDox]` (written by 1.2's `--pin`); every
   descendant declares `neutral_product_pins: [openXdox]` and records the chain

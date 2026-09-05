@@ -904,7 +904,7 @@ openRepoShape `main` is now at `355f6ef4` (#47), which carries both `c2cc9e25`
 and `5ffa8d58`. **The blocker that remains is a RE-PIN**: this repository's
 `contracts/openreposhape-pin.yaml` still pins
 `122d729bc0c2f2e0ded0bb61b6b97f49512f613e`, a commit predating both fixes, and
-a single re-pin to any commit ≥ `355f6ef4` — its own pin-sync pull request
+a single re-pin to `355f6ef4` or any descendant commit — its own pin-sync pull request
 under `neutral-product-pin` — covers both. **`tasks.md` § 1.1a carries it as
 the first act of § 1.** Nothing is blocked today, because this packet
 performs nothing.
