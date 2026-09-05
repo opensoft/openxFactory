@@ -42,10 +42,12 @@ can cite.
 
 ## What the read found, verified rather than assumed
 
-Every fact below was re-measured in this session against
-`/home/brett/projects/openRepoShape` at `main` `f9ff3f8` and, where it matters,
-against `122d729bc0c2f2e0ded0bb61b6b97f49512f613e` — the commit
-`contracts/openreposhape-pin.yaml` pins.
+Every fact below was re-measured in this session against a checkout of
+`opensoft/openRepoShape` at `main` `f9ff3f8` and, where it matters, against
+`122d729bc0c2f2e0ded0bb61b6b97f49512f613e` — the commit
+`contracts/openreposhape-pin.yaml` pins. The commits are named because they are
+what a reader can re-run against; the checkout's location on any one machine is
+not a fact this record has any business carrying.
 
 - **A project is three repositories.** Assembly root `<Project>` carries
   `project.yaml`, the two legs as submodules, `contracts/{shape,spec,code}-pin.yaml`
