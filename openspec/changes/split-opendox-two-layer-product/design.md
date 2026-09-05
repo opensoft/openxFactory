@@ -884,8 +884,9 @@ classification.
 
 **A second dependency, measured while authoring this amendment:
 `opensoft/openRepoShape`#41.** `scaffold-project.py` REFUSES both invocations
-today — `REFUSED naming-role-mismatch: 'openDox' classifies as neutral-product,
-not as the 'assembly' form of a project leg` — because `accepts_role()` admits
+today — it prints `REFUSED naming-role-mismatch` and exits, saying `openDox`
+classifies as a neutral product rather than as the assembly form of a project
+leg — because `accepts_role()` admits
 only `project-leg/<role>` and `domain-descendant/assembly`. Verified at
 openRepoShape `main` `f9ff3f8` and at `122d729bc0c2f2e0ded0bb61b6b97f49512f613e`,
 the commit `contracts/openreposhape-pin.yaml` pins, so it is not a tip

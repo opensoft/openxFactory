@@ -4,9 +4,9 @@ Status: record
 Kind: decision record
 Decision date: 2026-09-05
 Lane: openxfactory-4-opendox-extraction (formerly openxfactory-opendox)
-Ruler: Brett Heap (repository owner), in session, session
-`012WPaY5WyCqq1p46F3Qtd7H`, after a read of `opensoft/openRepoShape` against
-this ratified packet.
+Ruler: Brett Heap (repository owner), in session, lane
+`openxfactory-4-opendox-extraction`, session `012WPaY5WyCqq1p46F3Qtd7H`, after
+a read of `opensoft/openRepoShape` against this ratified packet.
 Ruled: 2026-09-05T14:52Z, verbatim: *"elect the shape for both, follow the pin
 chain, no family yet"*.
 Ruling URL:
@@ -70,21 +70,31 @@ against `122d729bc0c2f2e0ded0bb61b6b97f49512f613e` — the commit
   by item.
 - **`scripts/validate-repository-naming.py --explain openDox openXdox`** → both
   `neutral-product`, each with `also_matches: project-leg/assembly`. CONFIRMED.
-  `codexDox` with NO pin → `MATCH domain-descendant [a CLAIM: needs a declared
-  pin on openDox or openxDox]`, resolving to `project-leg / assembly` with
-  `also_matches: domain-descendant`. CONFIRMED — this is the defect
+  `codexDox` with NO pin reports the descendant form as *a CLAIM: needs a
+  declared pin on openDox or openxDox*, resolving to `project-leg / assembly`
+  with `also_matches: domain-descendant`. CONFIRMED — this is the defect
   `opensoft/openRepoShape`#40 fixes. (The tool is at
   `scripts/validate-repository-naming.py`, not at the repository root; the
   read this amendment was commissioned from named it at the root.)
 - **A CORRECTION TO `opensoft/openRepoShape`#40's OWN ISSUE BODY, measured
   here.** #40 states that `openXdox` *"is never a referent for
   `<Domainx>Dox`"*, so `codexDox` pinning openXdox would classify as a plain
-  assembly root. **It does not: it classifies as `domain-descendant /
-  assembly` today — it PASSES** — with `also_matches: [project-leg/assembly]`,
-  `descendant_referent: openDox`, `referent_declared: true`, and
-  `templates/assembly-root/scripts/validate-manifest.py` accepts that manifest
-  (the pin file it looks for is `contracts/openxdox-pin.yaml`, which the
-  scaffold wrote). **It passes by ACCIDENT.**
+  assembly root. **It does not — it PASSES today**, classifying as
+  `domain-descendant` in the `assembly` role. The `naming:` block it writes:
+
+  ```yaml
+  naming:
+    form: domain-descendant
+    role: assembly
+    also_matches: [project-leg/assembly]
+    descendant_referent: openDox
+    referent_declared: true
+  ```
+
+  and `templates/assembly-root/scripts/validate-manifest.py` accepts that
+  manifest, because the pin file it looks for is
+  `contracts/openxdox-pin.yaml`, which the scaffold wrote. **It passes by
+  ACCIDENT.**
   `contracts/repository-naming.yaml` admits an x-stem spelling of the referent
   (`also_accepted: openx{product}`, present so `codexFactory` may descend from
   `openxFactory`); the referent test compares CASE-FOLDED; and
@@ -204,8 +214,8 @@ Neither is a dependency of THIS pull request, which performs nothing.
 ## Verification, from this session's own runs at the final tree
 
 Every run below is at the branch head after `git merge origin/main`, whose tip
-was `92005d70` ("Merge pull request #677 from
-opensoft/change/bump-openspec-cli-pin-to-1.12") when this record was written.
+was `5a8a89a1` ("Merge pull request #683 from
+opensoft/change/record-677-ratification") when this record was written.
 
 | check | result |
 | --- | --- |
@@ -216,12 +226,12 @@ opensoft/change/bump-openspec-cli-pin-to-1.12") when this record was written.
 | `python3 -m pytest -q tests/doc-health tests/proposal-support` | 1612 passed, 2 subtests passed, 7 warnings |
 | `python3 -m pytest -q tests/avatar_client_validator tests/hermes_runtime_contracts tests/notebooklm tests/scope_globs` (the other modules that read `openspec/changes/*/proposal.md`) | green |
 | `python3 scripts/validate-sequenced-after.py . --ledger-diff` | `per-change sweep ledger consistent with the corpus (171 rows)` — **NO ledger row is owed**: this amendment adds no change directory, moves no requirement key and changes no row's classification, so `split-opendox-two-layer-product`'s existing row (`moved_by: "#666"`) stands unedited |
-| doc-health, `--single-repo`, BASELINE at `origin/main` `92005d70` | 8 critical, 6 error, 30 warning, 13 info |
-| doc-health, `--single-repo`, THIS TREE | 8 critical, 6 error, 30 warning, 13 info — **delta ZERO across every family and every severity, info included**. Diffed finding by finding after normalising the `Repo-Identity` prefix each run stamps from its own directory name: 57 findings each side, IDENTICAL |
+| doc-health, `--single-repo`, BASELINE at `origin/main` `5a8a89a1` | 8 critical, 7 error, 30 warning, 13 info |
+| doc-health, `--single-repo`, THIS TREE | 8 critical, 7 error, 30 warning, 13 info — **delta ZERO across every family and every severity, info included**. Diffed finding by finding after normalising the `Repo-Identity` prefix each run stamps from its own directory name: 58 findings each side, IDENTICAL. (The seventh error is `bump-openspec-cli-pin-to-1.12/review/ratification-2026-09-05.md — missing status header`, which arrived on `main` with #683 and stands on both sides.) |
 
 The counts moved against the numbers an earlier draft of this record carried
-(6 critical, 169 ledger rows, 91 openspec items) because `main` advanced by ten
-commits between the two runs. The table above is the one measured at the tree
+(6 critical, 169 ledger rows, 91 openspec items) because `main` advanced by
+eleven commits between the two runs. The table above is the one measured at the tree
 this pull request proposes; the DELTA — which is what this amendment owes — is
 zero either way.
 

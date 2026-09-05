@@ -134,14 +134,20 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   today the two invocations above are REFUSED.** Measured 2026-09-05 at
   openRepoShape `main` `f9ff3f8` AND at `122d729bc0c2f2e0ded0bb61b6b97f49512f613e`,
   the commit this repository pins, so it is not a tip regression:
-  `REFUSED naming-role-mismatch: 'openDox' classifies as neutral-product, not
-  as the 'assembly' form of a project leg`. `accepts_role()` in
-  `scripts/repo_shape.py` admits only `project-leg/<role>` and
-  `domain-descendant/assembly`, and the offered remediation ("re-run with a
-  --project value that is one CamelCase token") is not takeable — the name is
-  the product's name and is what the ruling elected. `validate-repository-naming.py
-  --explain openDox` already computes the resolution this needs
-  (`also_matches: project-leg/assembly`) and `accepts_role()` discards it.
+
+  ```
+  REFUSED naming-role-mismatch: 'openDox' classifies as neutral-product, not as
+  the 'assembly' form of a project leg (the neutral-product form is unambiguous
+  by construction, so it needs nothing declared)
+  Remediation: re-run with a --project value that is one CamelCase token.
+  ```
+
+  `accepts_role()` in `scripts/repo_shape.py` admits only `project-leg/<role>`
+  and `domain-descendant/assembly`, and the offered remediation is not
+  takeable — the name is the product's name and is what the ruling elected.
+  `scripts/validate-repository-naming.py --explain openDox` already computes
+  the resolution this needs (`also_matches: project-leg/assembly`) and
+  `accepts_role()` discards it.
   **openRepoShape#41 asks for the admission; § 1 starts when it lands**, and the
   pin here bumps in its own commit first. Nothing else in the packet waits on
   it, because the packet performs nothing.
@@ -158,8 +164,9 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
       --pin openDox@<40 hex — the openDox ASSEMBLY ROOT's commit at that moment>
   ```
 
-  `--pin` writes `contracts/opendox-pin.yaml` AND the `neutral_product_pins:
-  [openDox]` entry in `project.yaml` in the same act; an unqualified name
+  `--pin` writes `contracts/opendox-pin.yaml` AND the
+  `neutral_product_pins: [openDox]` entry in `project.yaml` in the same act;
+  an unqualified name
   resolves under `opensoft` by default, which is where openDox lives. **A tag
   or an abbreviated oid is refused by the tool** — pass the full 40 hex of the
   assembly root, never a leg. *(Amended 2026-09-05: this first said "Create
@@ -256,9 +263,10 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   session that hits it. It is also not the interim #40's own issue body
   predicts, and the measurement is recorded here so nobody re-derives it.**
   MEASURED 2026-09-05 at openRepoShape `main` `f9ff3f8`: `codexDox` with
-  `neutral_product_pins: [openXdox]` classifies as **`domain-descendant /
-  assembly` — it PASSES today** (`also_matches: [project-leg/assembly]`,
-  `descendant_referent: openDox`, `referent_declared: true`), and the assembly
+  `neutral_product_pins: [openXdox]` classifies as **a
+  `domain-descendant` in the `assembly` role — it PASSES today**
+  (`also_matches: [project-leg/assembly]`, `descendant_referent: openDox`,
+  `referent_declared: true`), and the assembly
   root's own `scripts/validate-manifest.py` accepts that manifest, because the
   pin file it looks for is `contracts/openxdox-pin.yaml`, which the scaffold
   wrote. **It passes by ACCIDENT, not by the chain:**
