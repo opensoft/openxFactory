@@ -290,7 +290,7 @@ group; §6 is where deletion lives, and only after §4 and §5.
 inserted BEFORE 6.1, and 6.1's remaining scope narrows by consequence. Neither
 existing box is rewritten.
 
-*Why.* `Omnigent-Install` PR #213 attempted 6.1 and measured that it could not
+*Why.* PR opensoft/Omnigent-Install#213 attempted 6.1 and measured that it could not
 finish: thirty-nine of the seventy-two §3.1 Part 1 paths are still read at run
 time by §D2.2 material that STAYS in that repository — `manager_review/runner.py`,
 `agents/manager-review/seat-*.yaml`, both compose stacks,
@@ -301,20 +301,20 @@ its `main`. The inventory is `docs/omniworker-split.md` in that PR. Brett ruled
 the remedy: **"Orchestrator pins OmniWorker-Install."** See design § D2 and
 § D3's amendments.
 
-*What #213 did land, and what it did not.* It retired the 50 paths whose
+*What opensoft/Omnigent-Install#213 did land, and what it did not.* It retired the 50 paths whose
 consumers had all left with them — the §3.2 Worker Host App tree plus two
 orphaned `evidence/worker-host-manifest/` records — and deferred the 70 Part 1
 paths that remain. Those 70 are 6.1's whole remaining content, and they wait on
 6.0.
 
-*The hold on #213.* Brett also ruled OQ-6 (design § D5's amendment): **"Land it
+*The hold on opensoft/Omnigent-Install#213.* Brett also ruled OQ-6 (design § D5's amendment): **"Land it
 in Omnigent-Install first, then copy."** `Omnigent-Install`'s
 `add-worker-acr-push` declares `schemas/worker-host-manifest.schema.yaml` and
-`tests/test_worker_host_manifest.py` as part of its `code_surface`, and #213
-retires both, so **#213 is HELD until that change lands** — otherwise the
+`tests/test_worker_host_manifest.py` as part of its `code_surface`, and
+opensoft/Omnigent-Install#213 retires both, so **opensoft/Omnigent-Install#213 is HELD until that change lands** — otherwise the
 retirement re-homes an active change by side effect, which the ADDED
-requirement forbids. Its repository work is already merged (`Omnigent-Install`
-PR #129 `509b7d65`, PR #143 `5b5592e4`); what remains is a HUMAN/VAULT gate, a
+requirement forbids. Its repository work is already merged
+(PR opensoft/Omnigent-Install#129 `509b7d65`, PR opensoft/Omnigent-Install#143 `5b5592e4`); what remains is a HUMAN/VAULT gate, a
 live-host confirmation and its archive.
 
 - [ ] 6.0 **Realize the `Omnigent-Install` → `OmniWorker-Install` pin**, design
@@ -325,7 +325,7 @@ live-host confirmation and its archive.
       staying consumers to the resolved pinned checkout — one consumer class per
       PR, each green as it lands — plus the CI step that materializes the pinned
       commit. Its packet is `Omnigent-Install` `add-omniworker-install-pin`
-      (PR #214, authored 2026-09-05 by this change's lane; Brett ratifies).
+      (PR opensoft/Omnigent-Install#214, authored 2026-09-05 by this change's lane; Brett ratifies).
       **6.1 depends on this box**, on the ratified "Copy-first migration"
       requirement's own words — *"the source path MUST NOT be deleted from
       `Omnigent-Install` until every declared consumer has been re-pinned and
@@ -333,7 +333,7 @@ live-host confirmation and its archive.
       repository and which binds the ones inside it identically. Order: pin
       lands → consumers re-pointed → every validator green against the pinned
       checkout, proved with the pin RESOLVED and not skipped → THEN 6.1.
-      Also depends on #213 landing, which depends in turn on
+      Also depends on opensoft/Omnigent-Install#213 landing, which depends in turn on
       `add-worker-acr-push` landing (the OQ-6 hold above).
 
 - [ ] 6.1 Delete the §3.1 and §3.2 paths from `Omnigent-Install`, in ONE

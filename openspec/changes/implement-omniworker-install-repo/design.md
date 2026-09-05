@@ -99,7 +99,7 @@ assigns the manager-review runtime, the compose and Kubernetes topology and the
 assignments stand. What neither table measured is that the second set READS the
 first set at run time**, and it does so in thirty-nine places.
 
-`Omnigent-Install` PR #213 measured it by removing the whole copied tree in its
+PR opensoft/Omnigent-Install#213 measured it by removing the whole copied tree in its
 own branch and re-running every validator: **ten of the twelve repository
 validators are green on that repository's `main`, and removing all 120
 candidate paths broke all ten**, including all three the Dartwing workflow runs
@@ -200,7 +200,7 @@ re-pinned and merged (tasks § 4). It binds the consumers INSIDE it in exactly
 the same words, and thirty-nine paths have them. So: **pin lands → consumers
 re-pointed → validators green against the pinned checkout → THEN retirement.**
 
-Step 9 also splits in two by consequence, because `Omnigent-Install` PR #213
+Step 9 also splits in two by consequence, because PR opensoft/Omnigent-Install#213
 performed the half that was already lawful: the 50 Worker Host App paths whose
 consumers had all left with them (Part 2, plus two orphaned evidence records).
 The 70 Part 1 paths that remain are step 9's whole content, and they wait on 8b.
@@ -310,25 +310,25 @@ first, then copy."** That is sequence **(a)** above, now this repository's rule
 for BOTH in-flight changes rather than a one-off.
 
 `Omnigent-Install`'s `add-worker-acr-push` therefore finishes and lands there.
-Measured 2026-09-05: its repository work is already merged — PR #129
+Measured 2026-09-05: its repository work is already merged — PR opensoft/Omnigent-Install#129
 (`509b7d65`, 2026-08-22) landed the schema, the `cpc-omni01` manifest block and
-the four test cases, and PR #143 (`5b5592e4`, 2026-08-24) landed the `hostapp/`
+the four test cases, and PR opensoft/Omnigent-Install#143 (`5b5592e4`, 2026-08-24) landed the `hostapp/`
 delta that consumes them. Nine of its thirteen tasks are ticked and the four
 that remain are not code: a HUMAN/VAULT gate (mint the scoped `AcrPush` token
 into `kv-opensoft-xfactory-qa`), a live-host confirmation, one notification, and
 the archive its `gated-realization` target permits only after those. Its landed
 packet and that `hostapp/` delta are then copied to `OmniWorker-Install` exactly
-as PR #40 was, with the `code_surface:` amendment owed **in the copy**, there —
+as PR opensoft/Omnigent-Install#40 was, with the `code_surface:` amendment owed **in the copy**, there —
 the same debt sequence (a) already left on
 `add-worker-enrollment-broker-integration`.
 
-**Consequence: `Omnigent-Install` PR #213 is HELD until `add-worker-acr-push`
+**Consequence: PR opensoft/Omnigent-Install#213 is HELD until `add-worker-acr-push`
 lands.** That PR retires `schemas/worker-host-manifest.schema.yaml` and
 `tests/test_worker_host_manifest.py`, two of the four paths
 `add-worker-acr-push` declares as its `code_surface`. Retiring them while that
 change is still active there would re-home it as a side effect of a file
 deletion — precisely what this section's rule, and the ADDED requirement that
-encodes it, forbid. The hold is sequencing, not a defect in #213; its Part 2
+encodes it, forbid. The hold is sequencing, not a defect in opensoft/Omnigent-Install#213; its Part 2
 retirement is sound on its merits.
 
 
