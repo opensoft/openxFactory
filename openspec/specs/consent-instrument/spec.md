@@ -1,7 +1,25 @@
 # consent-instrument Specification
 
 ## Purpose
-TBD - created by archiving change add-consent-instrument. Update Purpose after archive.
+
+Define the neutral `xfactory_consent_instrument` that every domain's
+rung-1↔rung-2 instrument instantiates — parties by party-ladder rung
+including a third-party estate host whose authorization a delegation needs,
+scope with stated out-of-scope, delegation clauses, authority basis, a
+revocation right with SLA, signed-original custody held as opaque locator
+plus sha256, and a declared instrument class. Establish the instrument as
+the root of the authority chain: an authority-bearing artifact's consent
+citation must resolve to an instrument in force whose purposes cover the
+requested purpose, and on termination or withdrawal every declared dependent
+— derived consent profiles, credential grants, adapter activations, and
+governed identities standing in the consenting party's tenant — falls due
+under that SLA with cascade evidence. Constrain what each domain's closed
+instrument-class registry must declare without dictating which classes it
+may hold, keep the status lifecycle closed with aliases declared at
+conformance time, and make an amendment a transition on the existing
+instrument so every citation target stays stable. The canonical check
+verifies purpose resolution only; technical access shapes remain
+credential-contracts enforcement.
 ## Requirements
 ### Requirement: The Instrument Is A Neutral Governed Record
 Every domain's rung-1↔rung-2 consent instrument SHALL instantiate the

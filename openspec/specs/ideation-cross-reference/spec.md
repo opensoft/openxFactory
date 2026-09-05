@@ -1,7 +1,27 @@
 # ideation-cross-reference Specification
 
 ## Purpose
-TBD - created by archiving change add-ideation-dashboard. Update Purpose after archive.
+
+Govern the generated cross-stage index over ideation — organized by topic
+cluster rather than by file, with brainstorm, staging and archived members
+bootstrapped from `Topics:` and `Target capabilities:` headers — and the
+canonical possibles register it consolidates from `Possible feats:`
+declarations: one entry per possible, held in `latent`, `picked`, `rejected`
+or `superseded` state, with many-to-many edges to every cluster claiming it
+and a reason plus citation on any terminal transition. Carry the judgements
+about a cluster beside its members: the extension-fit note naming a promoted
+capability or explicitly stating there is none, and the three independent
+Hermes-tier readiness scores — domain, company, project — whose minimum
+drives the "propose for authorization" flag. Hold every producer writing
+here to the same evidence contract and to recommendation rather than action:
+human-seen cluster intake, the bounded AI derivation lane, and the nightly
+readiness pass write only the index and their own evidence artifacts,
+orchestration owns every identifier and hash, derived possibles stay a
+visibly distinct class until a human disposes them one way, and nothing in
+this capability moves, promotes or proposes a document. Keep committed
+derivation pins resolvable from `main` or the retention namespace so an
+artifact's claim about the corpus state it was derived from stays
+verifiable.
 ## Requirements
 ### Requirement: Possibles register consolidation
 The cross-reference index SHALL consolidate every `Possible feats:`

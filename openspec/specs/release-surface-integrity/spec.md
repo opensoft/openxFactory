@@ -1,7 +1,20 @@
 # release-surface-integrity Specification
 
 ## Purpose
-TBD - created by archiving change add-release-inventory-drift-check. Update Purpose after archive.
+
+Hold a repository to the release surface it declares: at any commit,
+every member of the declared contract bundle's digest inventory must
+match its blob at that commit, so the declared version still identifies
+what a consumer would receive. Exempt exactly three editorial members —
+the changelog, the manifest and the contracts README — whose movement
+between cuts is expected and re-baselined at the next cut, and make
+drift in any other member a defect whose remedy is a release cut rather
+than a hand-edit of the inventory to match the tree. Anchor the
+comparison on the inventory file recorded at the commit rather than on a
+published tag, so a bundle that was never tagged stays evaluable and a
+cut that forgot to advance its bundle version surfaces as drift before
+any tag exists. This capability states the obligation only; whether and
+how it is checked is `doc-health`'s to define.
 ## Requirements
 ### Requirement: The declared bundle describes the release surface
 The contract bundle a repository DECLARES at a commit SHALL describe that

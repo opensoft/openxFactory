@@ -1,7 +1,22 @@
 # medxchart-overlay-boundary Specification
 
 ## Purpose
-TBD - created by archiving change create-medxchart-overlay-boundary. Update Purpose after archive.
+
+Bound the Medx clinical-chart composition: MedxChart owns the
+Medx-specific chart composition and holds the independent openChart
+upstream at one immutable commit, through a nested submodule and a
+committed provenance manifest, so an advancing upstream branch never
+silently changes what Medx composes. Move the aggregation's Medx
+clinical entry onto MedxChart and retire the direct
+`xFactories/openChart` gitlink, so the aggregation reaches the chart
+product only through the Medx boundary while the project register and
+documentation still name openChart as its upstream. Record that entry at
+the absolute `git@github.com:opensoft/MedxChart.git` remote its sibling
+submodules use: a relative URL resolves against whatever URL cloned the
+superproject, becoming an `https://` form no `git@`-only token rewrite
+reaches. Keep openChart independently usable after its move to the
+workspace root — unchanged origin, history and tracked content, and no
+stale path left pointing at the former xFactory checkout.
 ## Requirements
 ### Requirement: MedxChart pins an independent openChart repository
 

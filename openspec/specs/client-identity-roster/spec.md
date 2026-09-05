@@ -1,7 +1,22 @@
 # client-identity-roster Specification
 
 ## Purpose
-TBD - created by archiving change add-client-identity-roster. Update Purpose after archive.
+
+Govern the identity layer that credential grants and consent instruments
+presuppose: which provider identities stand inside a paying client's tenant,
+enumerated against admission surfaces that own an independent admission act
+rather than against product names, and kept unique on owning domain,
+surface, authority class, blast-radius unit and duty. Fix admission as a
+verified list of acts carrying evidence of a successful call, because
+provider consent is not provider admission, and require every entry to
+declare the authority it actually achieves, any breadth the provider forces
+on it, whether its bound is provider-enforced or held only by a tested gate,
+its residency model, its lifecycle state, and both roots that justify it —
+the ratified capability and the consent instrument in force. Keep the roster
+observational: drift is reported and answered by refusing our own grant
+issuance, never by mutating another party's tenant, and a client's roster
+composes from fragments published by each domain factory holding identities
+there.
 ## Requirements
 ### Requirement: Identities are enumerated by admission surface, not by product name
 Governed identities in a client tenant SHALL be enumerated against

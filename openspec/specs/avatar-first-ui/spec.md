@@ -1,7 +1,24 @@
 # avatar-first-ui Specification
 
 ## Purpose
-TBD - created by archiving change align-avatar-first-ui-standard. Update Purpose after archive.
+
+Define the reusable avatar-first interface standard layered over the AVC
+protocol: the adaptive shell's neutral regions and the client-local
+conversation, work, and review presentation modes, held strictly orthogonal
+to the authoritative runtime axes that `avatar-client-runtime` owns. Set the
+per-layer defaults — Customer Hermes avatar-first, Client Hermes hybrid,
+Domain Hermes conventional-first with an avatar analyst or copilot, each
+overridable by a DomainxFactory on stated risk and accessibility grounds —
+and the responsibility split that keeps dense administration, policy
+editing, and interactive workflow authoring in the conventional web console
+rather than the avatar client. Carry the duties that make the surface safe
+to put in front of a subject: standard controls with recording awareness and
+fallback, the accessibility and localization baseline, persona presentation
+and disclosure, and inert rendering of untrusted provider content that never
+stands in for an authoritative event. Bind deterministic UI acceptance,
+including presentation-state derivation, to the landed neutral derivation
+table and a fixture corpus that evidences every closed media state through
+kernel fields; Flutter implementation belongs to the client lab, not here.
 ## Requirements
 ### Requirement: Adaptive shell over orthogonal runtime state
 An xFactory avatar client SHALL provide the domain-neutral regions

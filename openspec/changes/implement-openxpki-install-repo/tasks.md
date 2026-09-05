@@ -485,3 +485,27 @@ Each is a separate reviewed change. None is authorized by this ratification.
   justifies its sibling, quoted on this change's own line in its own words:
   "do both install repos", following Brett Heap's same-day rulings on
   install-repository naming and on the identity/PKI workstream as a whole.
+
+## Archive-ordering note (2026-09-05)
+
+Under `@fission-ai/openspec@1.12.0`, `openspec archive` would REFUSE this
+change's `repo-boundary-governance` delta: its `## MODIFIED Requirements`
+block targets `### Requirement: OpenXPKI install repository boundary`, which
+no promoted spec carries. **This is an ordering dependency, not a broken
+pointer.** That requirement is ADDED by `add-trust-anchor`, which is still
+ACTIVE and unarchived. `add-trust-anchor` archives FIRST, and the refusal
+ends there. Its sibling `implement-keycloak-install-repo` carries the
+identical shape against `add-identity-brokering`, and the two were
+dispositioned together: one pattern — an install-repository boundary
+requirement promoted by the change that establishes the product, consumed by
+the change that builds the repository.
+
+Recorded by `prepare-openspec-1.12-readiness`, which measured this corpus
+under `@fission-ai/openspec@1.12.0` while the fleet pin stays at `1.2.0`
+(#667). **NOTHING IN THIS PACKET WAS CHANGED:** the delta is correct as
+written, the finding is `[INFO]` rather than a validation failure, and the
+remedy is archive ORDER, which no other packet may take on this one's behalf.
+**A `sequenced_after:` declaration is OWED here and was deliberately not
+added** — that would edit this ratified proposal's front matter from outside,
+and `add-sequenced-after-substrate`, which builds the validator that reads the
+field, is itself still active and unrealized.
