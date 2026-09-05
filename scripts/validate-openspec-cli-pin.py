@@ -1364,7 +1364,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"Totals: {totals.get('passed', 0)} passed, "
                       f"{totals.get('failed', 0)} failed "
                       f"({totals.get('items', 0)} items)", flush=True)
-                corpus_wide = any("--all" in argv for argv in targets)
+                corpus_wide = any("--all" in target for target in targets)
                 applied, undispositioned, stale = reconcile(          # check 6
                     findings, dispositions, identity, corpus_wide)
                 report_dispositions(identity, applied, stale, corpus_wide)
@@ -1396,29 +1396,26 @@ def main(argv: list[str] | None = None) -> int:
 
     if verdict != 0:
         if not undispositioned:
-            # The disposition-free path, whose message is the one that shipped
-            # with the pin: nothing was reconciled, so nothing may be implied
-            # about what was or was not dispositioned.
+            # THE DISPOSITION-FREE PATH, and its message is the one that shipped
+            # with the pin, unchanged: nothing was reconciled here, so nothing
+            # may be implied about what was or was not dispositioned.
             print(f"openspec-cli-pin: the pinned CLI reported failures (exit "
                   f"{verdict}). The PIN held — this is a finding about the "
                   f"deltas, not about which tool ran.", file=sys.stderr)
             return 1
-        detail = ""
-        if undispositioned:
-            detail = ("\n" + "\n".join(
-                f"  ✗ {row['item']} / {row['path']}: {row['message']}"
-                for row in undispositioned)
-                + "\n  Remedy for each: FIX IT, or DISPOSITION IT in "
-                  "contracts/openspec-cli-pin.yaml with a canon citation "
-                  "(`cited_to:`, non-empty) and an authority (`ratified_by:`). "
-                  "An undispositioned ERROR is not a tolerated one, and a "
-                  "disposition with no citation is refused rather than read as "
-                  "'none needed'.")
-        count = len(undispositioned)
-        print(f"openspec-cli-pin: the pinned CLI reported {count} failure(s) "
-              f"this pin does not disposition. The PIN held — this is a "
-              f"finding about the deltas, not about which tool "
-              f"ran.{detail}", file=sys.stderr)
+        detail = ("\n" + "\n".join(
+            f"  ✗ {row['item']} / {row['path']}: {row['message']}"
+            for row in undispositioned)
+            + "\n  Remedy for each: FIX IT, or DISPOSITION IT in "
+              "contracts/openspec-cli-pin.yaml with a canon citation "
+              "(`cited_to:`, non-empty) and an authority (`ratified_by:`). "
+              "An undispositioned ERROR is not a tolerated one, and a "
+              "disposition with no citation is refused rather than read as "
+              "'none needed'.")
+        print(f"openspec-cli-pin: the pinned CLI reported "
+              f"{len(undispositioned)} failure(s) this pin does not "
+              f"disposition. The PIN held — this is a finding about the "
+              f"deltas, not about which tool ran.{detail}", file=sys.stderr)
         return 1
     if applied:
         print(f"OK openspec-cli-pin: {package}@{version} verified against its "
