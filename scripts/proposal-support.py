@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import difflib
 import gzip
 import hashlib
 import io
@@ -414,6 +415,317 @@ def origin_errors(root: Path, directory: Path, *, strict: bool,
                     f"({m_origin.get(field)!r}) disagrees with the packet "
                     f"declaration ({origin.get(field)!r}) — the origin is "
                     "immutable after ratification")
+    return errors
+
+
+# --------------------------------------------------------------------------
+# ORIGIN RETENTION AT THE ARCHIVE GATE
+# (`release-realization` § "Origin retention at archive"; issue #690)
+#
+# THE REQUIREMENT HAD NO RUNNING IMPLEMENTATION. `origin_errors` above checks
+# PRESENCE AND SHAPE — a declaration exists, its kind is known, its id matches
+# the grammar, the support manifest repeats it — and every one of those reads
+# only the packet in front of it. None of them can see the declaration the
+# change was RATIFIED over, so "Mutation of an origin declaration after
+# ratification SHALL be rejected at the archive gate" was enforced by nobody:
+# PR #685 edited the `origin.approved_by` prose of an already-ratified packet
+# (commit `ab2003aa`, after the ratifying commit `517980e1`) and the archive
+# landed green. The nightly `proposal-origin` family calls its own class-3
+# finding "post-ratification mutation", but that finding compares the manifest
+# against the packet — two copies that a lockstep edit moves together — and
+# never against history.
+#
+# So the baseline is read from HISTORY, which is the one copy an edit at
+# archive time cannot reach: the packet's `.openspec.yaml` AT THE RATIFYING
+# COMMIT, the first commit whose `proposal.md` declares `Status: ratified`.
+#
+# THE CURRENT SIDE IS THE WORKING TREE, NOT `HEAD`, deliberately. The bytes
+# that archive are the bytes on disk; in a clean checkout they are HEAD's, and
+# where they are not, reading HEAD would wave through exactly the edit that is
+# about to be committed as part of the archive.
+#
+# NO BYPASS FLAG. The requirement's own scenario says restoring or accepting a
+# mutation is a contested-class act requiring an explicit disposition, and a
+# flag on this gate would be the disposition nobody records.
+# --------------------------------------------------------------------------
+
+
+class OriginRetentionError(SupportError):
+    """The archive gate refused: the origin declaration moved after
+    ratification.
+
+    A subclass rather than a message, so the CLI can answer with its own exit
+    status (2). A shape error is something the operator fixes and retries; this
+    one is a contested-class finding that leaves the tree alone and goes to a
+    disposition, and the two should not be indistinguishable to a script.
+    """
+
+
+# `ratified`, bare or annotated (`ratified (superseded by <change>)`) — the two
+# grammars `doc_health.promotion_fidelity` already recognizes for one standing,
+# spelled here over this module's own fence-aware row reader rather than as a
+# second private opinion about where a lifecycle header lives.
+_RATIFIED_BODY_RE = re.compile(r"Status:\s*ratified\s*(\(.*\))?\s*")
+
+
+def declares_ratified(text: str) -> bool:
+    """Whether this `proposal.md` text's OWN header declares `ratified`.
+
+    Fence-aware for the reason `_declares_staged_status` states above: a
+    `Status: ratified` line inside a ``` block is an EXAMPLE. A proposal
+    quoting one — this repository's governance prose quotes lifecycle headers
+    constantly — would otherwise resolve a ratifying commit that ratified
+    nothing, and the baseline the whole gate rests on would be a fenced
+    example.
+    """
+    rows = _split_keepends(text)
+    flags = _fenced_flags(rows)
+    for index, (body, _ending) in enumerate(rows):
+        if flags[index]:
+            continue
+        if _RATIFIED_BODY_RE.fullmatch(body):
+            return True
+    return False
+
+
+def git_show_text(root: Path, revision: str, rel_path: str) -> str | None:
+    """`<revision>:<rel_path>` as text, or None when git cannot resolve it."""
+    result = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
+        ["git", "-C", str(root.resolve()), "show", "--end-of-options",
+         f"{revision}:{rel_path}"],
+        capture_output=True, check=False,
+    )
+    if result.returncode != 0:
+        return None
+    return result.stdout.decode("utf-8", "replace")
+
+
+def ratifying_commit(root: Path, change: str) -> str | None:
+    """The FIRST commit whose `openspec/changes/<change>/proposal.md` declares
+    `Status: ratified`, or None when no commit in history does.
+
+    A line-by-line walk over the commits that touched that ONE path, oldest
+    first, reading each blob — not `git log -S`, which would match the string
+    inside a fenced example and inside a `- Status: ratified` bullet alike, and
+    not `git log -G`, which has the same problem. The walk is bounded by the
+    number of commits that touched a single file (a handful, for a change
+    packet), and every candidate is read through `declares_ratified` so the
+    resolver and the lifecycle reader cannot disagree about what a header says.
+
+    `--full-history --topo-order --reverse` rather than a plain `--reverse`,
+    because MISSING the earliest ratified blob is the failure that matters:
+    the walk would then take a LATER commit as the baseline and wave through
+    every mutation made between the real ratification and it. History
+    simplification can prune the commit that changed the file on a merged
+    branch, and commit DATES can run backwards through a rebase, so the
+    ordering is taken from topology (parents before children) rather than from
+    the clock.
+
+    The path read is the ACTIVE one even when the packet being gated is an
+    archived one: the archive move renames it, and the history before that
+    rename is where the ratification lives.
+    """
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", change):
+        raise SupportError(f"invalid change name: {change}")
+    rel = f"openspec/changes/{change}/proposal.md"
+    listed = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
+        ["git", "-C", str(root.resolve()), "log", "--full-history",
+         "--topo-order", "--reverse", "--format=%H", "--", rel],
+        capture_output=True, text=True, check=False,
+    )
+    if listed.returncode != 0:
+        return None
+    for revision in listed.stdout.split():
+        blob = git_show_text(root, revision, rel)
+        if blob is not None and declares_ratified(blob):
+            return revision
+    return None
+
+
+def origin_block_lines(yaml_text: str | None) -> list[str] | None:
+    """The `origin:` mapping's own lines, verbatim but for trailing whitespace.
+
+    TEXT, not the parsed mapping, because the requirement is about the
+    DECLARATION and not only about the values a parser happens to keep: the
+    #685 mutation moved prose inside a folded scalar, which a key-by-key
+    comparison of scalars still sees (the folded value changes) but which a
+    reader deserves to see as the lines it is. Trailing whitespace is
+    normalized away and nothing else is — an origin block that was reflowed,
+    re-indented, or re-quoted after ratification is a changed declaration.
+    """
+    if yaml_text is None:
+        return None
+    rows = _split_keepends(yaml_text)
+    collected: list[str] = []
+    inside = False
+    for body, _ending in rows:
+        if not inside:
+            if re.match(r"^origin\s*:", body):
+                inside = True
+                collected.append(body.rstrip())
+            continue
+        if not body.strip():
+            collected.append("")
+            continue
+        if body[:1] in (" ", "\t"):
+            collected.append(body.rstrip())
+            continue
+        break
+    while collected and not collected[-1]:
+        collected.pop()
+    return collected or None
+
+
+def _origin_mapping(yaml_text: str | None) -> dict | None:
+    """The `origin:` mapping as data, or None when it is absent/unparseable."""
+    if yaml_text is None:
+        return None
+    try:
+        data = yaml.safe_load(yaml_text)
+    except yaml.YAMLError:
+        return None
+    if not isinstance(data, dict):
+        return None
+    origin = data.get("origin")
+    return origin if isinstance(origin, dict) else None
+
+
+def _changed_keys(was: dict | None, now: dict | None) -> list[str]:
+    """The origin keys a mutation touched — added, removed, or re-valued.
+
+    Advisory, and only ever an ADDITION to the line diff below it: a block
+    whose lines moved while every scalar stayed equal (a re-indent, a re-quote)
+    names no keys and is still refused, which is the intended order of
+    authority between the text and the parse.
+    """
+    if was is None or now is None:
+        return []
+    return sorted(key for key in set(was) | set(now)
+                  if was.get(key) != now.get(key))
+
+
+def support_manifest(directory: Path) -> Path | None:
+    """The packet's readable support manifest, active or archived shape.
+
+    The same two paths and the same order as
+    `doc_health.proposal_origin._manifest_origin`: the gate and the family
+    cannot look for the manifest in two different places.
+    """
+    active = directory / "supporting-docs" / "manifest.yaml"
+    if active.is_file():
+        return active
+    archived = directory / "supporting-docs.manifest.yaml"
+    return archived if archived.is_file() else None
+
+
+def _relative(path: Path, root: Path) -> str:
+    """`path` as the repository spells it, so a finding reads the same on a
+    runner and on a developer machine."""
+    try:
+        return path.resolve().relative_to(root).as_posix()
+    except ValueError:
+        return str(path)
+
+
+def origin_retention_errors(root: Path, directory: Path,
+                            change: str | None = None) -> list[str]:
+    """The archive gate's origin-retention findings — empty when retained.
+
+    `directory` may be the active packet or an archived one (the replay of a
+    landed archive reads the archived path); `change` defaults to the packet's
+    own id with any archive date prefix stripped.
+    """
+    root = root.resolve()
+    change = change or re.sub(r"^\d{4}-\d{2}-\d{2}-", "", directory.name)
+    if is_declared_sentinel(repo_revision(root)):
+        return [f"origin retention: {change}: this repository's history is "
+                "unreadable, so the declaration present at ratification "
+                "cannot be resolved — the archive gate cannot verify origin "
+                "retention"]
+    revision = ratifying_commit(root, change)
+    if revision is None:
+        return [f"origin retention: {change}: not ratified — no commit in "
+                f"history carries `Status: ratified` in "
+                f"openspec/changes/{change}/proposal.md, so there is no "
+                "declaration to retain. Commit the ratification before "
+                "archiving."]
+    short = revision[:12]
+    was_text = git_show_text(
+        root, revision, f"openspec/changes/{change}/.openspec.yaml")
+    was = origin_block_lines(was_text)
+    packet_file = directory / ".openspec.yaml"
+    now_text = (packet_file.read_text(encoding="utf-8")
+                if packet_file.is_file() else None)
+    now = origin_block_lines(now_text)
+    if was is None:
+        # NO BASELINE IS NOT A MUTATION, and this arm is measured rather than
+        # assumed. Four of the thirty-five active changes on `main` at the time
+        # of writing — add-composed-view-authoring, add-doxchat-model-intake,
+        # add-lens-document-selection, add-worker-enrollment-broker — carry an
+        # origin their ratifying commit does not, because their `Status:`
+        # headers were written by the lifecycle-header backfill (`da1b0e90`,
+        # `02009d02`) and their origins by the recorded origin sweeps
+        # (`b7513733`, `f9bb1a88`) AFTERWARDS. Refusing them would block four
+        # lawful archives on a defect none of them has: there is no original
+        # declaration for the current one to differ from. The missing-origin
+        # case belongs to `origin_errors` (strict) and to the nightly family's
+        # class 1, both of which still run.
+        print(f"ORIGIN RETENTION NOT COMPARABLE {change}: the packet at the "
+              f"ratifying commit {short} declares no origin (pre-contract "
+              "packet); presence and shape are still gated")
+        return []
+    errors: list[str] = []
+    if now is None:
+        errors.append(
+            f"origin retention: {change}: the origin declaration present at "
+            f"the ratifying commit {short} is GONE from the packet being "
+            "archived")
+    elif now != was:
+        keys = _changed_keys(_origin_mapping(was_text),
+                             _origin_mapping(now_text))
+        detail = "\n".join(difflib.unified_diff(
+            was, now,
+            fromfile=f"{short}:openspec/changes/{change}/.openspec.yaml",
+            tofile=_relative(packet_file, root), lineterm="", n=1))
+        errors.append(
+            f"origin retention: {change}: the origin declaration differs "
+            f"from the one this change was ratified over (ratifying commit "
+            f"{short})"
+            + (f"\n  changed keys: {', '.join(keys)}" if keys else "")
+            + f"\n{detail}")
+    # THE MANIFEST IS THE SECOND COPY THE REQUIREMENT NAMES — "the compressed
+    # supporting-document manifest SHALL retain the same origin id and path".
+    # `origin_errors` already compares it to the PACKET; comparing it to the
+    # RATIFYING DECLARATION is what catches the lockstep edit that moves both
+    # copies together and leaves them agreeing with each other about the wrong
+    # thing.
+    was_map = _origin_mapping(was_text) or {}
+    manifest_path = support_manifest(directory)
+    if manifest_path is not None:
+        try:
+            m_origin = load_manifest(manifest_path).get("origin")
+        except SupportError:
+            m_origin = None
+        if isinstance(m_origin, dict):
+            fields = ["kind", "id"]
+            if was_map.get("kind") == "staged":
+                fields.append("path")
+            for field in fields:
+                if field in was_map and m_origin.get(field) != was_map[field]:
+                    errors.append(
+                        f"origin retention: {change}: support manifest origin "
+                        f"`{field}` ({m_origin.get(field)!r}) is not the one "
+                        f"declared at ratification ({was_map[field]!r}) — "
+                        f"{manifest_path.name}")
+    if errors:
+        errors.append(
+            "restoring or accepting a post-ratification origin mutation is a "
+            "contested-class act requiring an explicit disposition "
+            "(`release-realization` § \"Origin retention at archive\"); this "
+            "gate has no bypass flag")
+    else:
+        print(f"ORIGIN RETAINED {change} (declaration unchanged since the "
+              f"ratifying commit {short})")
     return errors
 
 
@@ -1076,6 +1388,13 @@ def archive_change(root: Path, change: str, packaged_at: str,
     gate = origin_errors(root, directory, strict=True)
     if gate:
         raise SupportError("origin gate: " + "; ".join(gate))
+    # SHAPE FIRST, THEN RETENTION, and in that order on purpose: the retention
+    # comparison reads the declaration as a block of lines and as a mapping,
+    # and both of those presume the packet parses and declares an origin at
+    # all — which is exactly what the call above has just established.
+    retention = origin_retention_errors(root, directory, change=change)
+    if retention:
+        raise OriginRetentionError("\n".join(retention))
     tasks = directory / "tasks.md"
     if tasks.is_file() and re.search(r"^- \[ \]", tasks.read_text(), re.M):
         raise SupportError("change has incomplete tasks")
@@ -1220,6 +1539,18 @@ def main() -> None:
         else:
             archive_change(args.root.resolve(), args.change, args.date,
                            args.final_import_complete, args.yes)
+    except OriginRetentionError as exc:
+        # EXIT 2, NOT 1. A shape error is fixed in the tree and retried; a
+        # post-ratification origin mutation is a contested-class refusal that
+        # goes to a disposition, and a caller scripting this gate should be
+        # able to tell the two apart without parsing prose. Printed here rather
+        # than carried in `SystemExit` because that argument doubles as the
+        # exit status, and an int is the whole point. (argparse spends 2 on
+        # its own usage errors, which this shares rather than fights: a usage
+        # error never reaches this handler, and the two are a sentence apart
+        # in the message either way.)
+        print(str(exc), file=sys.stderr)
+        raise SystemExit(2) from exc
     except (SupportError, subprocess.CalledProcessError) as exc:
         raise SystemExit(str(exc)) from exc
 
