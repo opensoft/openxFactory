@@ -1,20 +1,25 @@
 ---
 code_surface: openxFactory — FIVE artifacts, all of them this repository's own tooling, tests and CI, none of them a neutral contract any consumer pins. (1) `scripts/validate-release-tag-gate.py` is NEW: it diffs the tree under judgment against its base, short-circuits when the pull request touches neither `contracts/manifest.yaml` nor `contracts/releases/**`, and otherwise runs the EXISTING `release-tag-publication` family over the merge tree by overriding exactly one seam method (`remote_main_sha`). (2) `.github/workflows/release-tag-gate.yml` is NEW: `on: pull_request` against `main`, no `paths:` filter, job and check name `release-tag-gate`, `fetch-depth: 0`. (3) `tests/doc-health/test_release_tag_publication.py` loses the zero-findings half of one test and KEEPS its positive control, renamed to say what it now asserts. (4) `tests/doc-health/test_release_tag_gate.py` is NEW: twenty-four tests over real git fixtures with real origins, one per gate condition plus the workflow's wiring. (5) `docs/contract-versioning-policy.md` gains one paragraph inside § Bundle Realization Order naming the gate and the post-merge tag obligation — that document IS a digested member of the published `contract-v3.4` bundle and is not one of the three EDITORIAL members, so this edit raises the designed `release-inventory-drift` `error` that the next cut clears by re-digesting it (§ Impact carries the measurement and the precedent). NOTHING in `scripts/doc_health/` changes — not the family, not a severity, not the threshold, not the enforcement floor, not `Finding`, not the report grammar, not `FAMILIES`, so the family enumeration and its counts do not move. NO NEW BUNDLE IS CUT and no release tag is owed by this change; the one bundle MEMBER it edits is the policy document named above.
 target_release: implemented — the openxFactory main line. Realization = the workflow exists and runs on every pull request against `main`; the gate short-circuits green on pull requests that touch no release path and refuses on each condition its tests name; the suite no longer asserts zero findings over this repository. The archive gate is merge-plus-green PLUS the `[OPERATOR]` evidence in tasks § 4: a check that is not REQUIRED enforces nothing, so the ruleset id and one green run are named before this packet archives. No aggregation-repo bundle is cut: `contracts/manifest.yaml` is untouched, no inventory is written, and the one digested member this change edits is `docs/contract-versioning-policy.md`, whose drift the next cut re-digests.
-Status: draft
+Status: ratified
 Proposed: 2026-09-04
-Origin: openxFactory issue **#664**, and Brett Heap's ruling on it the same day, in session, lane `openxfactory-max001`, verbatim: *"do your recommendation"* — given against three presented options and settling option 2. THAT INSTRUCTION ADMITTED THE PACKET TO THE QUEUE AND DID NOT RATIFY ITS CONTENT; ratification is a separate act and has not happened.
+Ratified: 2026-09-05 by Brett Heap (openxFactory operator authority) — "ratify 668, land it when green"; record at review/ratification-2026-09-05.md
+Origin: openxFactory issue **#664**, and Brett Heap's ruling on it the same day, in session, lane `openxfactory-max001`, verbatim: *"do your recommendation"* — given against three presented options and settling option 2. THAT INSTRUCTION ADMITTED THE PACKET TO THE QUEUE AND DID NOT RATIFY ITS CONTENT; ratification followed as a separate act on 2026-09-05.
 ---
 
 # Proposal: add-release-tag-gate
 
-Status: draft
+Status: ratified
 Proposed: 2026-09-04, on Brett Heap's in-session ruling of the same day — lane
 `openxfactory-max001`, verbatim *"do your recommendation"* — given on
 openxFactory issue **#664**, which states the problem, presents three options
 and records the ruling as option 2. **That instruction supplied the origin and
 approval pair the proposal-origin contract requires and nothing more: it
 ADMITTED this packet to the queue and did not ratify its content.**
+Ratification was a SEPARATE act on 2026-09-05 and it has now happened; the front
+matter carries its citation — ONE citation line for the document, which is what
+`ratified-provenance` requires — and § Ratification records the act, its
+verbatim word, and the two decisions it settled by NOT vetoing them.
 
 ## Why
 
@@ -173,13 +178,37 @@ next pull request that touches the release surface, and the first proof of the
 short-circuit is THIS packet's own pull request, which touches no release path
 and must therefore report green while touching the machinery.
 
-## Orchestrator Decisions — FLAGGED FOR VETO
+## Orchestrator Decisions — FLAGGED FOR VETO, AND NOT VETOED
 
-The four decisions this session took that the ruling did not settle are
-recorded in `design.md` as **D1** (what the gate may honestly fail on),
+The four decisions this session took that the admitting ruling did not settle
+are recorded in `design.md` as **D1** (what the gate may honestly fail on),
 **D2** (the `gate-version-reuse` arm — the one addition beyond the ruling's
 text, and a one-line deletion if vetoed), **D3** (no pull-request comment) and
-**D4** (a `warning` refuses too). D1 and D2 are the ones to read first.
+**D4** (a `warning` refuses too). D1 and D2 were the two put forward as most
+worth a veto.
+
+**None was vetoed.** Ratification on 2026-09-05 — *"ratify 668, land it when
+green"* — was given with D1 and D2 in front of the ratifier and standing, so
+**both are ratified knowingly**: a cutting pull request is NOT required to carry
+its own tag and the obligation is RECORDED instead (D1), and the
+`gate-version-reuse` arm stays, scoped to the moved-declaration case (D2).
+`review/ratification-2026-09-05.md` § 3 carries the framing each was ratified
+under.
+
+## Ratification
+
+**Ratified 2026-09-05 by Brett Heap (openxFactory operator authority), in
+session, verbatim: *"ratify 668, land it when green"*.** The record is
+`review/ratification-2026-09-05.md`; the verification it cites is
+`review/verification-2026-09-05.md`.
+
+The word settles ratification and the landing condition, and it settles nothing
+else. **The `[OPERATOR]` act in `tasks.md` § 4 — adding `release-tag-gate` to
+ruleset `21538893` as a REQUIRED status check — is NOT part of it and remains
+outstanding.** That act gates ARCHIVE, not ratification, and until it is
+performed the obligation this packet moves out of `pytest-suite` is enforced by
+a workflow anyone can merge past. Saying so here is the point of separating the
+two: a ratified packet is not a discharged one.
 
 ## What this proposal does NOT claim
 

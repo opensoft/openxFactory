@@ -483,7 +483,15 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-release-tag-gate](openspec/changes/add-release-tag-gate/proposal.md)
-  — authored 2026-09-04, **`Status: draft`**. **THE RELEASE-TAG ZERO-FINDINGS PIN
+  — authored 2026-09-04, **`Status: ratified`** (2026-09-05, Brett Heap,
+  in-session, on the recorded word *"ratify 668, land it when green"*; record
+  `openspec/changes/add-release-tag-gate/review/ratification-2026-09-05.md`,
+  verification beside it). **D1 and D2 were put forward as veto points and
+  NEITHER was vetoed**, so both are ratified knowingly. **THE `[OPERATOR]` ACT
+  IS NOT PART OF THAT WORD AND IS STILL OWED:** adding `release-tag-gate` to
+  ruleset `21538893` as a REQUIRED check gates **ARCHIVE, not ratification**,
+  and until it is done the moved obligation is enforced by a workflow anyone can
+  merge past. **THE RELEASE-TAG ZERO-FINDINGS PIN
   MOVES OUT OF THE REQUIRED SUITE AND INTO A GATE ON THE CUTTING PULL REQUEST**
   (issue **#664**, Brett Heap's ruling *"do your recommendation"* = option 2 of
   three). `tests/doc-health/test_release_tag_publication.py` asserted, inside

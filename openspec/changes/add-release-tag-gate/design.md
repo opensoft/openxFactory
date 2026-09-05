@@ -1,8 +1,8 @@
 # Design: add-release-tag-gate
 
-Status: draft
+Status: ratified
+Ratified by: add-release-tag-gate — 2026-09-05, Brett Heap, "ratify 668, land it when green" (record `review/ratification-2026-09-05.md`)
 Kind: design
-Draft slice of: openspec/changes/add-release-tag-gate/proposal.md
 
 ## 0. The convener brief
 

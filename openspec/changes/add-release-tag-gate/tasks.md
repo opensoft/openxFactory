@@ -1,8 +1,8 @@
 # Tasks: add-release-tag-gate
 
-Status: draft
+Status: ratified
+Ratified by: add-release-tag-gate — 2026-09-05, Brett Heap, "ratify 668, land it when green" (record `review/ratification-2026-09-05.md`)
 Kind: tasks
-Draft slice of: openspec/changes/add-release-tag-gate/proposal.md
 
 **THE GATE THAT IS NOT OURS: § 4.** Making `release-tag-gate` a REQUIRED status
 check on `main` is a branch-protection ruleset act in Brett's console. No agent
@@ -13,18 +13,28 @@ ruleset id and one green run.
 
 ## 1. Ratification
 
-- [ ] 1.1 RATIFICATION IS OWED AND HAS NOT HAPPENED. Issue #664's *"do your
-      recommendation"* is the ORIGIN and the admission to the queue; it is not
-      a ratification of this packet's content. `proposal.md`, `design.md` and
-      this file carry `Status: draft` until a separate act.
-- [ ] 1.2 THE FOUR ORCHESTRATOR DECISIONS ARE FLAGGED FOR VETO and this box
-      stays open until Brett has read `design.md`. **D1** (the cutting pull
-      request cannot be required to carry its own tag, so the obligation is
-      RECORDED — the packet's veto point) and **D2** (`gate-version-reuse`, the
-      one arm beyond the ruling's text; deleting it is one `if` block, two
-      tests, one scenario and one table row) are the two to read first. **D3**
-      (no pull-request comment) and **D4** (a `warning` refuses too) follow.
-- [ ] 1.3 IF D2 IS VETOED: remove the `gate-version-reuse` arm from
+- [x] 1.1 **RATIFIED 2026-09-05 by Brett Heap** (openxFactory operator
+      authority), in session, verbatim: **_"ratify 668, land it when green"_**.
+      Issue #664's *"do your recommendation"* was the ORIGIN and the admission
+      to the queue and is NOT this; ratification was a separate act, and
+      `proposal.md`, `design.md` and this file now carry `Status: ratified`
+      against ONE citation line each. Record:
+      `review/ratification-2026-09-05.md`; verification:
+      `review/verification-2026-09-05.md`.
+- [x] 1.2 **RATIFIED AS DESIGNED — the four orchestrator decisions were put
+      forward for veto and NONE was vetoed.** The word was given with **D1**
+      (the cutting pull request cannot be required to carry its own tag, so the
+      obligation is RECORDED — the packet's veto point) and **D2**
+      (`gate-version-reuse`, the one arm beyond the admitting ruling's text)
+      standing in front of the ratifier, so both are ratified KNOWINGLY rather
+      than by silence; **D3** (no pull-request comment) and **D4** (a `warning`
+      refuses too) likewise. The framing each was ratified under is
+      `review/ratification-2026-09-05.md` § 3.
+- [x] 1.3 **NOT TAKEN — D2 was not vetoed, so the deletion below was not
+      performed.** It is kept as written because it is the shape of the
+      remedy if the arm is ever withdrawn, and because a ratified decision
+      should carry the cost of reversing it beside it. IF D2 IS EVER VETOED:
+      remove the `gate-version-reuse` arm from
       `scripts/validate-release-tag-gate.py` and its entry from `REFUSALS`,
       delete `test_a_declaration_moved_onto_an_already_published_bundle_is_refused`
       and `test_a_tag_already_peeling_to_the_tree_under_judgment_is_pre_published`,
