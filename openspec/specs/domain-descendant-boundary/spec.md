@@ -1,7 +1,20 @@
 # domain-descendant-boundary Specification
 
 ## Purpose
-TBD - created by archiving change split-openxwallet-repo. Update Purpose after archive.
+
+Bound how a DomainxFactory consumes a neutral `open*` product: through a
+`<Domainx><Product>` descendant repository, never by integrating the
+product's contracts, schemas, corpus or validator into the domain's own
+tree. The capability governs the descendant itself — that it pins the
+product by commit twice, as a nested gitlink and a pin manifest moved in
+the same commit; that it carries profile, overlay, branding, deploy
+configuration and its own validators and never a fork; that it is
+aggregated only at a placement a change has ratified; and that it is
+created lazily on the domain's first profile artifact rather than stood up
+as an empty boundary. openxFactory's own consumption of an external
+neutral product is deliberately outside this boundary, because
+openxFactory is the neutral layer and not a domain, and sits with
+`neutral-product-pin` instead.
 ## Requirements
 ### Requirement: A domain consumes a neutral product through a descendant repository
 A DomainxFactory SHALL consume a neutral `open*` product through a

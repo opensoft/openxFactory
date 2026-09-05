@@ -1,7 +1,25 @@
 # pattern-ledger Specification
 
 ## Purpose
-TBD - created by archiving change add-pattern-ledger. Update Purpose after archive.
+
+Establish the evidence substrate that lets the factory answer whether
+repeated work is worth converting into software: exactly one `episode`
+record per governed job, derived from the runtime's existing audit,
+run-event, metering and label streams rather than written to a second
+authoritative store, carrying its envelope snapshot, plan, step trace, cost
+vector, replayability class and consent scope. Make outcome an append-only
+`outcome_label` stream folded into quality — so praise becomes a record and a
+late correction re-grades history — mine recurrence families as tenant-scoped
+register entries whose merges and splits are recorded transitions, and hold
+forecasts to being scored instruments graded against actuals when their
+horizon elapses. Bound the ledger's autonomy absolutely: it is a governed
+derived projection computed by a read-only nightly sweep that fails closed to
+a reported skip, and its only mutating output is a
+`crystallization_candidate` that nominates on evidence it must cite and can
+schedule no work, consume no budget and execute nothing. Gate every
+downstream use on the episode's default-deny consent tiers. This is the
+sensing half only — deciding, funding and building on these records belong to
+successor capabilities.
 ## Requirements
 ### Requirement: Episode Capture Is Universal And Derived
 Every governed job run SHALL be representable as exactly one `episode`

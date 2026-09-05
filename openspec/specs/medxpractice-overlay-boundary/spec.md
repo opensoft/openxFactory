@@ -1,7 +1,23 @@
 # medxpractice-overlay-boundary Specification
 
 ## Purpose
-TBD - created by archiving change create-medxpractice-overlay-boundary. Update Purpose after archive.
+
+Bound the Medx practice-operations composition, and carry the one
+asymmetry that is its reason for existing: `opensoft/MedxPractice` is
+private and `opensoft/openPractice` is public, so a branded Medx
+composition can be held closed over an upstream that stays open, without
+forking it. Fix the identity of that pin — one named openPractice
+revision, declared in the nested `contracts/openpractice-pin.yaml` and
+equal to the nested gitlink — so the public upstream moving ahead is
+never by itself a re-pin. Make MedxPractice the aggregation's only route
+to openPractice, with no direct `xFactories/openPractice` entry, which
+is the act no promoted requirement covers: `domain-descendant-boundary`
+governs where a descendant sits and how it pins its product, and says
+nothing about how the aggregation reaches the product itself. Everything
+that capability already states — the twice-pinned form, the pin location
+and kind grammar, and the ratified placement — is cited here and
+deliberately not restated, so the two Medx packets can never disagree
+about a rule they share.
 ## Requirements
 ### Requirement: MedxPractice pins openPractice at one named revision
 

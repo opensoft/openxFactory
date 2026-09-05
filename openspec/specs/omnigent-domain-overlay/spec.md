@@ -1,7 +1,23 @@
 # omnigent-domain-overlay Specification
 
 ## Purpose
-TBD - created by archiving change add-omnigent-domain-overlay. Update Purpose after archive.
+
+Bound what a DomainxFactory may say about its own Omnigent workers: the
+`omnigent/` tree it authors at its repository root, consumed by install
+repositories only through digest-pinned references, and composed over core
+worker configuration under `stricter_rule_wins` so a domain may tighten a
+neutral constraint and never loosen one. It holds the Omnigent layer's
+authority boundary in machine-checkable form — every worker class maps to
+exactly one of five neutral archetypes and declares the six-boolean
+permission matrix with `execute_final_action` and `access_secrets`
+constitutionally false, credential families are tiered down to a
+structurally `never_assignable` class, and a crystallized executor binding
+must stay a subset of the configuration it replaces under a declared rung
+ceiling. The optional declarations a domain layers on top — a worker's
+semantic-context profile named by identity, domain-expert display
+terminology, and standards-body crosswalks — are constrained to presentation
+and bounded meaning only, never a permission, an authority, or a
+conformance claim.
 ## Requirements
 ### Requirement: Domain overlay home and pinned consumption
 Each DomainxFactory SHALL author its Omnigent domain content in an `omnigent/` tree at its repository root, and install repositories SHALL consume that content only through digest-pinned overlay references.

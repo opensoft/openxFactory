@@ -482,6 +482,54 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [prepare-openspec-1.12-readiness](openspec/changes/prepare-openspec-1.12-readiness/proposal.md)
+  — authored 2026-09-05, **`Status: draft`**, on Brett Heap's in-session word
+  *"start the 1.12 upgrade fixes"* — an ADMISSION TO THE QUEUE, not a
+  ratification. **THE PIN IS NOT BUMPED AND IS NOT IN THIS DIFF.**
+  `contracts/openspec-cli-pin.yaml` stays at `@fission-ai/openspec@1.2.0`
+  (#667); this packet makes the tree conformant to `1.12.0`'s stricter checks
+  so that the later bump is EVIDENCED rather than argued. Measured on main
+  `26d0a43d` (#672's archive of `add-release-tag-gate`), same tree, two tools:
+  the PINNED entrypoint
+  `scripts/validate-openspec-cli-pin.py --all --strict` reads **89 passed /
+  0 failed** and `1.12.0 --strict` reads **47 passed / 42 failed of 89**.
+  **Not one of the 42 was introduced by any lane**: 1.12.0 added a
+  placeholder-`## Purpose` check over MAIN specs (39 specs still carried the
+  sentence `openspec archive` itself writes, `TBD - created by archiving
+  change <X>`) and a task-group numbering check
+  (`add-doxchat-model-intake` carried `4.1`/`4.2` under `## 3.` because the
+  `## 4.` header was never written). **AFTER: 90/0 under the pin — prior count
+  plus this change — and 88 passed / 2 failed of 90 under 1.12.0.** THIRTY-NINE real
+  Purposes, each derived from its own spec's requirement headers and its
+  CREATING change's archived proposal, **edited in the MAIN specs directly**
+  because a `## Purpose` in a delta is read only when a capability is created.
+  The doxchat header is supplied and **nothing is renumbered** — `4.1`/`4.2`
+  are cited by those numbers in five committed places, one a dated amendment.
+  **ONE requirement ADDED** (`document-lifecycle`, *A promoted specification
+  carries a written Purpose, repaired in the promoted specification*), written
+  because strict validation refuses a delta-less change and stating only the
+  rule the work had to learn. **THE FOUR `[INFO]` ARCHIVE REFUSALS ARE NOT
+  BROKEN POINTERS AND NOTHING IS REPOINTED**: all four are one shape — a
+  MODIFIED delta whose target another STILL-ACTIVE change ADDs
+  (`add-substantive-review-lane`, `add-identity-brokering`, `add-trust-anchor`,
+  `add-clearing-dispatch-boundary`) — which `document-lifecycle` already calls
+  lawful; dated ordering notes were added to each, and a `sequenced_after:`
+  declaration on all four plus a basis MARKER on three are recorded as OWED to
+  those packets. **THE PACKET'S VETO POINT: two ERROR-level items are
+  REFUSED.** `add-chain-attestation` and `add-composed-view-authoring` each
+  omit one scenario canon still carries, each DECLARES the omission in the
+  house's reserved ``**Merged into `<destination>` by <change> (<date>):**``
+  marker, and each rename narrows a rule deliberately (council LA-A1; #444).
+  **`doc-health`'s own promoted marker requirement uses the composed-view pair
+  as its worked example at `openspec/specs/doc-health/spec.md:1770`** — so
+  1.12.0's marker-blind scenario-currency check re-reports as an ERROR exactly
+  what canon holds up as correct, and the only satisfying edit would revert two
+  ratified decisions. **Consequence for the bump, recorded not resolved:**
+  while those two changes are active, `1.12.0 --strict` cannot read 0 here and
+  `openspec archive` at 1.12.0 would refuse both; both findings vanish when the
+  two archive. Evidence, with both BEFORE/AFTER totals verbatim:
+  `openspec/changes/prepare-openspec-1.12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md`.
+
 - [split-opendox-two-layer-product](openspec/changes/split-opendox-two-layer-product/proposal.md)
   — authored 2026-09-04, **`Status: ratified`** (2026-09-05, Brett Heap,
   in-session, verbatim *"ratify #666"* at 01:38Z over head `6935fb8b`; record

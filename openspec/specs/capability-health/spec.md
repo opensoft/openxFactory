@@ -1,7 +1,25 @@
 # capability-health Specification
 
 ## Purpose
-TBD - created by archiving change add-capability-steward. Update Purpose after archive.
+
+Govern the life of a crystallized capability after it is built: the replay →
+shadow → canary proof ladder it must climb, discharging its decision's proof
+obligations, before its authority block may serve any instance, and the
+demotion trigger bundle that must be armed at promotion — authority without
+a wired exit is a gate failure. Keep the evidence falsifiable: parity and
+sentinel disagreements adjudicate bidirectionally so the capability, the
+historical episode, or the spec may be the thing corrected, and a mandatory
+sentinel policy with a nonzero ε floor keeps routing a fraction of every
+serving family to the AI path, without which drift detection, corpus
+freshness, and savings counterfactuals all die. Answer drift up a
+cost-ordered ladder with hysteresis — observe, shrink the fence, regenerate,
+demote, retire — split findings into auto-actionable and contested as
+doc-health's operational sibling, retire disused capabilities with their
+lineage preserved rather than deleted, and verify savings only against a
+fresh sentinel anchor with every ex-ante prediction scored at maturity. The
+steward's exhaust — fallback and sentinel episodes, adjudication relabels,
+calibration scores — flows back to the pattern ledger as a contractual
+obligation, closing the flywheel.
 ## Requirements
 ### Requirement: The Proof Ladder Precedes Authority
 A capability SHALL discharge its decision's proof obligations in order —

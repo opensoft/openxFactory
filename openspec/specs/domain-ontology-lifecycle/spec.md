@@ -1,7 +1,22 @@
 # domain-ontology-lifecycle Specification
 
 ## Purpose
-TBD - created by archiving change add-domain-ontology-layer. Update Purpose after archive.
+
+Govern the life of a DomainxFactory's own ontology package under Domain
+Hermes stewardship: the answer set and source inventory a new domain
+supplies, the idempotent scaffold-and-fill pipeline whose deterministic
+stage is byte-reproducible and whose model-assisted stage may only propose
+candidates, and the seed, extend, refresh, reconcile, correct, deprecate
+and retire modes each domain maps to its own authorities, reviewers and
+cadence. It makes publication an accountable steward act rather than an
+agent's — carrying a computable quality report, an immutable
+content-addressed revision with its compatibility class and migration
+evidence, truthful retention of superseded bytes, and per-term lifecycle
+and `effective_version` movement the canonical validator enforces. It also
+holds the privacy line: subject facts and tenant-local operating detail
+stay in their owning layers and reach the ontology only as reviewed,
+de-identified candidates, with an aggregation floor over every term-level
+signal reported beside them.
 ## Requirements
 ### Requirement: New-domain ontology generation inputs
 The domain starter SHALL collect or import a machine-readable ontology answer

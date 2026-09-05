@@ -199,6 +199,8 @@ verbatim, so the build's own record names the sentence it was built to.
       naming the client turn id, so an operator can join the paid retry to the
       conversation that bought it without opening a browser at all.
 
+## 4. Still owed — the live console, and the realization evidence
+
 - [ ] 4.1 Live-console proof on the real serve — OPEN, and open honestly. This
       build had no browser available, so it was discharged as far as a headless
       run can discharge it and no further.
@@ -296,3 +298,14 @@ verbatim, so the build's own record names the sentence it was built to.
   archives only on merged plus green, and 4.1 additionally owes a human at a
   live console. **Re-verify the delta block against canon before archiving** —
   the standing warning above, unchanged and still live.
+- 2026-09-05 — the missing `## 4.` group header supplied, by
+  `prepare-openspec-1.12-readiness`. Tasks 4.1 and 4.2 had always been a group
+  of their own — the two acts this change still owes — but no header was ever
+  written for them, so they sat physically under `## 3. Proposed, then
+  approved` while their leading number said 4. OpenSpec 1.12.0's task-grouping
+  check reads that as two warnings. **NOTHING IS RENUMBERED AND NOTHING MOVES:**
+  the pair is cited as "4.1" and "4.2" in five places already written down —
+  `proposal.md` twice, task 0.3, and this record twice above — and one of those
+  places is a dated amendment, which renumbering would have falsified. The
+  header is the lossless repair; the tasks, their text and their unticked state
+  are untouched.

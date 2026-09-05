@@ -1,7 +1,23 @@
 # chain-anchoring Specification
 
 ## Purpose
-TBD - created by archiving change add-chain-anchoring. Update Purpose after archive.
+
+Convert the factory's own signed transparency log into evidence a party
+outside the factory cannot revise. Define the chain-agnostic multi-anchor
+receipt FIRST, so the choice of chain stays reversible: the material and
+anchored digests, the mint-time witness configuration the anchored digest
+commits to, the aggregation path, and each witness's four-element
+inclusion evidence. Carry the ruled two-witness configuration — an
+operational witness first in order of arrival, a durability witness on
+every anchored item — the disjoint fail-closed anchor states, and the
+fixed UTC durability batches that account for each accepted event exactly
+once. Draw the on-chain boundary as contract text a validator refuses
+against — salted keyed commitments, consent-log checkpoints and the
+anchors on chain; every payload, consent state and salt in the governed
+permissioned plane — and keep the planes separable, so record and
+demographic analysis is possible without the identity plane. The
+capability names no domain semantics; domains instantiate it through
+digest-pinned overlays their own repositories own.
 ## Requirements
 ### Requirement: The multi-anchor receipt format is defined FIRST and is chain-agnostic
 

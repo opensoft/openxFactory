@@ -1,7 +1,21 @@
 # governed-derived-model Specification
 
 ## Purpose
-TBD - created by archiving change add-governed-derived-model. Update Purpose after archive.
+
+Govern the class of object a domain derives from evidence but must never
+mistake for truth or let act on the world — the shape three domains
+re-derived by hand in their dream objects, personas and counterparty
+profiles (DTN-014). Require one `xfactory_derived_model_conformance`
+declaration per model family, naming its model and scenario members, its
+`governed` or `calibrated` tier, and all six dials: identity, scope,
+truth store, calibration source, promoting authority and person
+modeling. Make the invariants structural rather than advisory —
+`authority_status` a single-value non-authoritative enum with no
+in-place promotion, every fact carrying provenance or a declared
+assumption, read-only truth-store access, no representable action
+authority, and scenario outputs expressible only as hypotheses a named
+human promotes. The calibrated tier adds a calibration writer separate
+from the family, so a model never writes its own confidence.
 ## Requirements
 ### Requirement: Conformance declaration
 
