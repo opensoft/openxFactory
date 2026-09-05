@@ -38,6 +38,20 @@ from pathlib import Path
 
 import pytest
 
+# CAPTURED BEFORE ANY TEST RUNS, and used by `a_change` below instead of the
+# module attribute. `recorded` (further down) monkeypatches `support.subprocess
+# .run` — the SAME module object this file's own `import subprocess` names,
+# since `sys.modules["subprocess"]` is one singleton — to a fake that records
+# and answers every call without executing it, which is exactly what the tests
+# using that fixture are asserting on (`assert recorded == [...]` counts on
+# nothing else having called through it). The origin-retention gate this
+# wrapper's `archive_change` now runs (`release-realization` § "Origin
+# retention at archive") also shells out to real `git`, so a fixture that needs
+# an actual, readable git history has to reach the ORIGINAL function — captured
+# here, once, before `recorded` or anything else can replace the name — rather
+# than whatever `subprocess.run` currently resolves to.
+_REAL_SUBPROCESS_RUN = subprocess.run
+
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts" / "proposal-support.py"
 PIN = ROOT / "contracts" / "openspec-cli-pin.yaml"
@@ -176,12 +190,30 @@ def registry(support, real_pin, tmp_path, monkeypatch):
 
 
 def a_change(root: Path, change: str = "change-a") -> Path:
-    """The smallest tree `archive_change` will carry past its own two gates."""
+    """The smallest tree `archive_change` will carry past its own two gates.
+
+    A REAL GIT REPOSITORY, one commit, already ratified: the origin-retention
+    gate's baseline (`release-realization` § "Origin retention at archive") is
+    the origin block standing at the commit that first declares `Status:
+    ratified`, and nothing here ever mutates the origin afterwards, so the one
+    commit that creates the packet is also its own ratifying commit — no
+    separate draft-then-ratify pair is needed the way the mutation fixtures in
+    `test_proposal_support.py` need one.
+
+    Built through `_REAL_SUBPROCESS_RUN`, not `subprocess.run`: every test that
+    calls this also installs the `recorded` fixture, which fakes and records
+    every call reachable through `subprocess.run` (the module attribute the
+    origin-retention gate's own git calls resolve through too) so that a test
+    can assert the exact sequence of openspec invocations. Routing this
+    fixture's git plumbing through the real function — rather than the current
+    attribute — means it actually runs and leaves nothing in that recording for
+    a caller to see.
+    """
     directory = root / "openspec" / "changes" / change
     directory.mkdir(parents=True)
     (directory / "proposal.md").write_text(
-        "## Why\n\nA fixture.\n\n## What Changes\n\n- Nothing.\n",
-        encoding="utf-8")
+        "Status: ratified\n\n## Why\n\nA fixture.\n\n## What Changes\n\n"
+        "- Nothing.\n", encoding="utf-8")
     (directory / "tasks.md").write_text(
         "## 1. Test\n\n- [x] 1.1 Complete fixture\n", encoding="utf-8")
     (directory / ".openspec.yaml").write_text(
@@ -191,22 +223,44 @@ def a_change(root: Path, change: str = "change-a") -> Path:
         "  reason: fixture\n"
         "  approved_by: fixture\n"
         "  approved_on: '2026-09-05'\n", encoding="utf-8")
+    _REAL_SUBPROCESS_RUN(["git", "init", "-q"], cwd=root, check=True,
+                         capture_output=True, text=True)
+    _REAL_SUBPROCESS_RUN(["git", "-C", str(root), "add", "-A"], check=True,
+                         capture_output=True, text=True)
+    _REAL_SUBPROCESS_RUN(
+        ["git", "-C", str(root), "-c", "user.name=Test", "-c",
+         "user.email=test@example.invalid", "commit", "-q", "-m",
+         "create the fixture, already ratified"],
+        check=True, capture_output=True, text=True)
     return directory
 
 
 @pytest.fixture
 def recorded(support, monkeypatch):
-    """Every `subprocess.run` this wrapper and the entrypoint issue, recorded.
+    """Every `subprocess.run` this wrapper and the entrypoint issue, recorded —
+    EXCEPT `git`, which is passed through to the real function and left off the
+    list.
 
     Patched on the `subprocess` module itself, which both files hold, so the
     entrypoint's own `run_validation` is captured on the same list as the
     wrapper's archive — the point being to compare WHICH BINARY each of them
-    reached for.
+    reached for. `archive_change` now runs the origin-retention gate
+    (`release-realization` § "Origin retention at archive") BEFORE either of
+    those, and that gate reads real git history through this exact attribute —
+    `ratifying_commit`, `git_show_text` and `repo_revision` all call
+    `subprocess.run(["git", …])` too. Faking those the way this fixture fakes
+    openspec/npm would answer every `git log`/`git show` with empty output
+    regardless of what `a_change` committed to disk, so a `git` argv is routed
+    to `_REAL_SUBPROCESS_RUN` and excluded from `ran`: the equality assertions
+    below stay a claim about the openspec/npm calls this fixture exists to
+    watch, not about the fixture's own git plumbing.
     """
     ran: list = []
 
     def fake_run(argv, **kwargs):
         argv = [str(item) for item in argv]
+        if argv[:1] == ["git"]:
+            return _REAL_SUBPROCESS_RUN(argv, **kwargs)
         ran.append(argv)
         return subprocess.CompletedProcess(argv, 0, "", "")
 
