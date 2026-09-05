@@ -287,7 +287,9 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   none exists anywhere in this packet — reproducible as
   `grep -ohE '(^|[^[:alnum:]_])[A-Za-z]+xDox([^[:alnum:]_]|$)'
   proposal.md design.md tasks.md | sed -E 's/^[^A-Za-z]*//; s/[^A-Za-z]*$//' |
-  sort -u` (POSIX ERE — no `\b`, a GNU-only word-boundary token; the
+  sort -u` (POSIX ERE — no `\b`, which is a Perl/PCRE-style word-boundary
+  escape that POSIX ERE does not define; GNU grep accepts it only as an
+  extension, so the earlier command was not portable; the
   boundary is a bracket-class alternative, stripped afterward with `sed`), run
   from `openspec/changes/split-opendox-two-layer-product/`, which returns
   SEVEN distinct strings (`AdxDox`, `LedgerxDox`, `MedxDox`, `OpsxDox`,

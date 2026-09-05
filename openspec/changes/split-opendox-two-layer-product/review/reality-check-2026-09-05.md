@@ -112,8 +112,9 @@ exactly five descendants — `MedxDox`, `codexDox`, `LedgerxDox`, `AdxDox`,
 `OpsxDox` — each three names under the shape (assembly + `-spec` + `-code`,
 confirmed identical at tip and pin by `--dry-run` and by
 `scripts/validate-repository-naming.py --explain`). 5 × 3 = fifteen, not
-eighteen. Reproducible, POSIX ERE only (no `\b`, a GNU-only word-boundary
-token): `grep -ohE '(^|[^[:alnum:]_])[A-Za-z]+xDox([^[:alnum:]_]|$)'
+eighteen. Reproducible, POSIX ERE only (no `\b` — a Perl/PCRE-style
+word-boundary escape that POSIX ERE does not define; GNU grep accepts it only
+as an extension, so the earlier command was not portable): `grep -ohE '(^|[^[:alnum:]_])[A-Za-z]+xDox([^[:alnum:]_]|$)'
 proposal.md design.md tasks.md | sed -E 's/^[^A-Za-z]*//; s/[^A-Za-z]*$//' |
 sort -u` (run from `openspec/changes/split-opendox-two-layer-product/`) returns
 SEVEN distinct strings, not five, because the broad pattern also catches two
