@@ -59,7 +59,7 @@ carries an ORCHESTRATOR — `compose/`, `containers/`, `k8s/`,
 the `omnigent-install-manifest` realization — and a HOST: `hostapp/` (a
 PowerShell module, six deploy scripts and two test harnesses), `workers/`
 (the CloudPC worker pack, fourteen profiles, four prompt sets, the artifact
-heartbeat schema and its nine fixtures), the CloudPC runbooks, the
+heartbeat schema and its eight fixtures), the CloudPC runbooks, the
 worker-host manifests, and the heartbeat publisher. They ship on different
 cadences to different operators and they fail independently. One repository
 name cannot be true of both, which is exactly the condition
