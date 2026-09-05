@@ -169,19 +169,70 @@ ticked and names why.
       retitles none, so it adds NO undispositioned failure. The two the run
       reports are `#677`'s standing dispositions.
 - [x] 5.3 `python3 -m pytest tests/doc-health tests/sequenced_after -q`.
+      Counts carried in openxFactory **PR #703** § Gates (and, for the
+      ratified tree, in **PR #688**).
 - [x] 5.4 `python3 scripts/validate-sequenced-after.py .` and `--ledger-diff`.
 - [x] 5.5 `python3 scripts/doc-health.py --single-repo .` against a SAME-CLOCK
       control at the CURRENT `main` tip, run minutes apart rather than against a
-      stale baseline.
+      stale baseline. Both columns carried in openxFactory **PR #703** § Gates
+      (and, for the ratified tree, in **PR #688**).
 - [x] 5.6 **THE MUTATION PROBE, BOTH WAYS.** `modified-block-currency` reporting
       nothing about this block cannot be told from a block it never read, so the
       marker is removed and the family seen to FIRE on exactly one dropped unit,
       a promoted scenario title is mutated and the family seen to FIRE on the
-      omitted scenario, and the delta is restored to silence. Recorded in the
-      pull request.
+      omitted scenario, and the delta is restored to silence.
+      **THE RESULTS ARE CARRIED IN openxFactory PR #703 § "The mutation probe",
+      WITH THE FINDING TEXT** — and, for the tree they were taken on, in
+      **PR #688** § Verification. They were derived on the ACTIVE delta, which
+      is the only tree on which they CAN be derived: `modified-block-currency`
+      reads active changes, so once this packet is archived the family no longer
+      reads this block at all. Its successor evidence on the archived tree is
+      the byte-identity comparison of the promoted requirement against the
+      archived delta, which #703 also carries.
 - [x] 5.7 The corpus-sweep ledger row, seeded with the real pull request number.
+      **THE TICK PRECEDED THE SEED BY ONE COMMIT, AND THAT IS SAID RATHER THAN
+      SMOOTHED OVER.** This box was ticked in the ratified packet while the row
+      still read `moved_by: "#688"` at `state: active`; the archive act moved it
+      to `state: archived, moved_by: "#703"` one commit later, because the row
+      is seeded with the REAL pull request number and that number does not exist
+      until the pull request does. Defensible, and it is the documented order
+      this repository uses — but it is an order in which a tick briefly runs
+      ahead of the fact, which is exactly what Copilot caught on #678 § 3.6 and
+      again on #703 round 1.
 
 ## 6. What this packet does NOT do, and the successor it names as OWED
+
+**DISPOSITION 2026-09-05 — WHY THESE TWO BOXES ARE TICKED WHEN THE RATIFICATION
+RECORD SAYS THEY ARE NOT.** `review/ratification-2026-09-05.md` § 4 describes
+this section as *"an UNTICKED `tasks.md` § 6 — the same shape #678 used to name
+this packet"*, and that document is `Status: record`: it is immutable and it
+stands exactly as written. **THE INSTRUCTION IN IT WAS NOT SATISFIABLE THROUGH
+THE SANCTIONED ARCHIVE PATH.** `scripts/proposal-support.py:1330-1331` refuses
+any change whose `tasks.md` still matches `^- \[ \]` — *"change has incomplete
+tasks"* — and there is no bypass flag; the archive act this packet's own
+`code_surface` requires therefore cannot be taken while a box here is open. That
+forcing cause was real when the ticks were made, in commit `07b1956a`, and it was
+NOT stated there. It is stated here.
+
+**WHAT THE TICKS MEAN, AND WHAT THEY DO NOT.** They are ticked ON THE RECORDING
+of the owed successor — naming it, with the reading its successor needs, which is
+the precedent `amend-published-tip-unreadable-scenario` § 4.2 set when it used a
+TICKED box to name THIS packet as owed. **THE DEFECT ITSELF IS NOT FIXED.** The
+held-and-absent skip still returns above the `in_scope` loop and still suppresses
+the grading; `design.md` **D6** and `proposal.md` § What this proposal does NOT
+claim carry that unchanged; the work is the next packet's.
+
+**AND THE SENTENCE `07b1956a` DELETED IS QUOTED BACK HERE SO IT IS NOT LOST.**
+The ratified text of § 6.1 ended:
+
+> **This box stays UNTICKED: it is the next packet's, exactly as #678's § 4.2
+> held this one.**
+
+Its substance survives verbatim in the clause that replaced it — *"The WORK is
+the next packet's… only the NAMING of it is this packet's"* — so the record's
+text is not contradicted in substance, only in the mechanical state of a
+checkbox that the archive gate would not accept open. **NOTHING IN
+`review/ratification-2026-09-05.md` IS EDITED, AND NOTHING IN IT WILL BE.**
 
 - [x] 6.1 **THE OWED SUCCESSOR IS RECORDED — and the TICK IS ON THE RECORDING,
       NOT ON THE FIX.** This is the shape `amend-published-tip-unreadable-scenario`
