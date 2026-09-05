@@ -12,8 +12,9 @@ Origin: openxFactory issue **#662**, filed by lane `doxbench-stewardship` as a f
 Status: ratified
 Proposed: 2026-09-05, on Brett Heap's in-session ruling of the same day — lane
 `openxfactory-1` (renamed this day from `openxfactory-max001`; spelled lowercase
-because the required `lane-line` check enforces `^Lane: [a-z0-9-]+$` and every
-lane id in this corpus is lowercase — see § Lane spelling), verbatim *"do both
+because the required `lane-line` check enforces
+`^Lane: [a-z0-9-]+( \(.*\))?$` and every lane id in this corpus is lowercase —
+see § Lane spelling), verbatim *"do both
 as a batch on one word"* — over openxFactory
 issue **#662**, which states the defect and names the remedy. **That instruction
 supplied the origin and approval pair the proposal-origin contract requires and
