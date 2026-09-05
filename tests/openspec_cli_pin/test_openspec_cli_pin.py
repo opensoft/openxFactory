@@ -1,5 +1,7 @@
 """`scripts/validate-openspec-cli-pin.py` — the five checks, each pinned by a
-test that can only pass if that check runs.
+test that can only pass if that check runs; and, since 2026-09-05,
+`scripts/install-pinned-openspec-cli.py`, the INSTALLER `pytest-suite.yml` uses
+to obtain the same bytes without pretending to a verdict about them.
 
 WHY A SYNTHETIC ARTIFACT AND NOT THE REAL PACKAGE. Every refusal here is a
 disagreement between a pin and the bytes a registry served, and manufacturing
@@ -12,10 +14,14 @@ subprocess boundary. `verify_artifact` therefore does real SHA-512 and SHA-1 wor
 on real bytes; only the registry is fictional.
 
 THE REAL PACKAGE IS STILL CHECKED, once, and NOT here: the gate
-(`.github/workflows/openspec-cli-pin-gate.yml`) fetches
-`@fission-ai/openspec@1.2.0` from the registry on every pull request, verifies it
-against `contracts/openspec-cli-pin.yaml`, and runs `validate --all --strict`
-through it. What THIS suite owns is the refusal vocabulary, the ORDERING — that a
+(`.github/workflows/openspec-cli-pin-gate.yml`) fetches the pinned artifact from
+the registry on every pull request, verifies it against
+`contracts/openspec-cli-pin.yaml`, and runs `validate --all --strict`
+through it. (CORRECTED 2026-09-05: this paragraph named `1.2.0` by literal, which
+was already stale at the `1.12.0` bump and was a copy of the pin sitting inside
+the suite that polices copies of the pin. The version is not restated here at
+all now; `VERSION` below is read by the tests that need it.) What THIS suite owns
+is the refusal vocabulary, the ORDERING — that a
 target-less invocation refuses before a registry round trip is spent, and that a
 malformed pin is reported as a defect of the pin rather than of the environment —
 and the two properties the whole change exists for: that the default mode never
@@ -35,6 +41,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts" / "validate-openspec-cli-pin.py"
+INSTALLER = ROOT / "scripts" / "install-pinned-openspec-cli.py"
 PIN = ROOT / "contracts" / "openspec-cli-pin.yaml"
 
 VERSION = "1.12.0"
@@ -54,16 +61,33 @@ PAYLOAD = b"a synthetic tarball standing in for the published artifact"
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
 
+def _load(name: str, path: Path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def _load_module():
-    spec = importlib.util.spec_from_file_location("oscli_pin", SCRIPT)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
+    return _load("oscli_pin", SCRIPT)
 
 
 @pytest.fixture(scope="module")
 def mod():
     return _load_module()
+
+
+@pytest.fixture(scope="module")
+def installer():
+    """`scripts/install-pinned-openspec-cli.py`, loaded the same hyphenated way.
+
+    It is a SEPARATE tool and not a mode of the verifier, on the verifier's own
+    docstring: a `--verify-only` flag is the target-less green check
+    `neutral-product-pin` forbids, so the install that `pytest-suite.yml` needs
+    lives under its own name where nothing can read its exit code as a verdict
+    about the corpus.
+    """
+    return _load("oscli_install", INSTALLER)
 
 
 @pytest.fixture(scope="module")
@@ -190,9 +214,14 @@ def a_disposition(**overrides) -> dict:
     return {key: value for key, value in entry.items() if value is not None}
 
 
-@pytest.fixture
-def fake_npm(mod, monkeypatch):
+def _fake_registry(mod, monkeypatch):
     """Install a fictional registry at the SUBPROCESS boundary.
+
+    A FUNCTION taking the module rather than a fixture closed over one, because
+    there are two modules to serve. `scripts/install-pinned-openspec-cli.py`
+    loads its OWN copy of the verifier by path — a second module object with its
+    own `_run` — so a registry patched into this suite's copy would not be seen
+    by the installer's. `fake_npm` and `installer_npm` are the two bindings.
 
     Everything above the boundary is the real code under test: the real
     `fetch_artifact` shells out, the real `verify_artifact` hashes real bytes,
@@ -239,6 +268,17 @@ def fake_npm(mod, monkeypatch):
     monkeypatch.setattr(mod.shutil, "which",
                         lambda name: f"/usr/bin/{name}" if name == "npm" else None)
     return calls, served
+
+
+@pytest.fixture
+def fake_npm(mod, monkeypatch):
+    return _fake_registry(mod, monkeypatch)
+
+
+@pytest.fixture
+def installer_npm(installer, monkeypatch):
+    """The same fictional registry, served to the module the INSTALLER loaded."""
+    return _fake_registry(installer.verifier, monkeypatch)
 
 
 # ------------------------------------------------------- reading the pin ----
@@ -601,6 +641,117 @@ def test_the_gate_workflow_reads_the_pin_and_carries_no_fourth_copy():
     assert VERSION not in body, \
         "the gate must read the version out of the pin, never restate it"
     assert INTEGRITY not in body
+
+
+# ------------------------------------------- the installer, and the test job --
+# `pytest-suite.yml` needs a REAL `openspec` binary for the three
+# `@unittest.skipUnless(shutil.which("openspec"), …)` tests in
+# `tests/proposal-support/`, and until 2026-09-05 it got one from a literal
+# `npm install -g @fission-ai/openspec@1.2.0` — a second copy of the pin, which
+# duly moved apart from it when the pin went to 1.12.0. What follows pins the
+# repair: the required suite installs THROUGH the pin, and the thing that
+# installs is an INSTALLER whose green says nothing about any corpus.
+
+
+def test_the_required_test_workflow_installs_through_the_pin_and_not_by_literal():
+    """The gate's own argument, applied to the workflow the pin change deferred.
+
+    `pytest-suite.yml` is this repository's most load-bearing required check, so
+    the literal it used to carry was the copy of the pin most likely to be
+    believed. It reads the pin now — and, exactly as with the gate, comments may
+    quote the old line as history while no line that RUNS may name a version.
+    """
+    workflow = (ROOT / ".github" / "workflows"
+                / "pytest-suite.yml").read_text(encoding="utf-8")
+    assert "install-pinned-openspec-cli.py" in workflow
+    body = "\n".join(line for line in workflow.splitlines()
+                     if not line.lstrip().startswith("#"))
+    assert VERSION not in body, \
+        "the test job must read the version out of the pin, never restate it"
+    assert INTEGRITY not in body
+    assert "@fission-ai/openspec@" not in body, \
+        ("the literal install is the defect the pin exists to close; the CLI is "
+         "resolved through scripts/install-pinned-openspec-cli.py")
+
+
+def test_the_installer_puts_the_pinned_executable_on_the_runners_path(
+        installer, installer_npm, tmp_path, monkeypatch, capsys):
+    """The whole contract of the step: verified bytes, and a PATH entry.
+
+    `$GITHUB_PATH` is APPENDED to and not overwritten — the file is the runner's
+    accumulating PATH for later steps, and a tool that truncated it would take
+    away entries it never granted.
+    """
+    calls, _ = installer_npm
+    github_path = tmp_path / "gh_path"
+    github_path.write_text("/opt/hostedtoolcache/node/bin\n", encoding="utf-8")
+    monkeypatch.setenv("GITHUB_PATH", str(github_path))
+
+    assert installer.main(["--cache-dir", str(tmp_path / "cache"),
+                           "--pin", str(write_pin(tmp_path))]) == 0
+
+    executable = Path(capsys.readouterr().out.strip())
+    assert executable.name == "openspec"
+    assert executable.exists(), "the install must outlive the run that made it"
+    assert github_path.read_text(encoding="utf-8").splitlines() == [
+        "/opt/hostedtoolcache/node/bin", str(executable.parent)]
+    # fetched, installed, and ASKED WHAT IT IS — the version assertion is not
+    # skipped merely because the install path is the one that produced it.
+    assert [call for call in calls if call[1:2] == ["pack"]]
+    assert [call for call in calls if call[1:2] == ["install"]]
+    assert [call for call in calls if call[1:2] == ["--version"]] == \
+        [[str(executable), "--version"]]
+
+
+def test_the_installer_refuses_bytes_that_are_not_the_pinned_bytes(
+        installer, installer_npm, tmp_path, monkeypatch, capsys):
+    """Exit 2, the verifier's own message, and NOTHING on PATH.
+
+    A refusal that still appended a directory would put an unverified binary in
+    front of every later step, which is the failure this whole capability is
+    about.
+    """
+    _, served = installer_npm
+    served["payload"] = b"bytes the registry served that the pin does not name"
+    github_path = tmp_path / "gh_path"
+    monkeypatch.setenv("GITHUB_PATH", str(github_path))
+
+    assert installer.main(["--cache-dir", str(tmp_path / "cache"),
+                           "--pin", str(write_pin(tmp_path))]) == 2
+
+    captured = capsys.readouterr()
+    assert "REFUSE pin-integrity-mismatch" in captured.err
+    assert "Remediation:" in captured.err
+    assert captured.out == ""
+    assert not github_path.exists()
+
+
+@pytest.mark.parametrize("argv", [
+    ["--all"],
+    ["--change", "add-openspec-cli-pin"],
+    ["--strict"],
+    ["--repo", "."],
+    ["--path-mode"],
+    ["--tarball", "openspec.tgz"],
+    ["--verify-only"],
+])
+def test_the_installer_offers_no_way_to_validate_anything(installer, argv):
+    """It installs. A verdict comes from `validate-openspec-cli-pin.py --all`.
+
+    An option that looked like a scan target would invite a caller to read this
+    tool's exit code as a statement about a corpus it never opens — which is the
+    green-check-that-verified-nothing shape `neutral-product-pin` forbids, and
+    the reason this is a separate tool rather than a `--verify-only` flag.
+    """
+    with pytest.raises(SystemExit):
+        installer.build_parser().parse_args(argv)
+
+
+def test_the_installers_options_are_exactly_the_three_it_needs(installer):
+    parser = installer.build_parser()
+    assert {string for action in parser._actions
+            for string in action.option_strings} == {
+        "-h", "--help", "--cache-dir", "--npm", "--pin"}
 
 
 # ------------------------------------------------------------- check 6 ------

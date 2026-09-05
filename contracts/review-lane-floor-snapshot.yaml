@@ -157,12 +157,12 @@ floor:
     # ==== BEGIN MACHINE-GENERATED BLOCK — DO NOT HAND-EDIT ====
     # prefix:             openspec/specs
     # source_repository:  opensoft/openxFactory
-    # generated_at:       3afd8a8c2c1221e52f345f7712ac22899b5d3a3c
+    # generated_at:       f6724f0416920ac096194c1aa3cd7ae9e094de8b
     # entry_count:        59
     # regenerate with:
     #   python3 scripts/merge_master/generate_specs_floor_block.py \
     #     --repo <opensoft/openxFactory checkout> \
-    #     --ref 3afd8a8c2c1221e52f345f7712ac22899b5d3a3c --write
+    #     --ref f6724f0416920ac096194c1aa3cd7ae9e094de8b --write
     #
     # ONE GROUND FOR THE WHOLE BLOCK, and it is not the ground above it.
     # The eight entries ABOVE are separately reasoned GATE CHOKEPOINTS: each one

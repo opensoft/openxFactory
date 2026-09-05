@@ -68,6 +68,30 @@ answer cleanly, the file is in § D6 and not in § D2.
 | the remaining `scripts/` (~80) and `tests/` (~30) — the `smoke-*`/`validate_*` pilot, Hermes, merge-council, PR-admission, dartwing, openchart/openemr, dox-auth, intent-inbox and minter families | **JUDGED** |
 | the remaining `openspec/changes/` — `add-dox-gitops-reconciliation`, `add-manager-lane-claim-loop`, `add-manager-review-agent`, `add-manager-seat-persistence`, `add-qa-subscription-environment`, `admit-keycloak-db-to-core-failover`, `generalize-lane-claim-loop`, `migrate-dartwing-to-platform-qa`, `qa-workcore-request-rightsizing`, and the whole `archive/` | **JUDGED** — with `add-worker-acr-push` OPEN (§ D6 OQ-6) |
 
+**Amended 2026-09-05, at copy time** — three corrections surfaced by copying the
+tree, filed here rather than rewriting the tables above:
+
+1. **`schemas/bench-manifest.schema.yaml` and
+   `examples/bench-manifests/python-bench.example.yaml` MOVE**, though D2.2
+   above lists `bench-manifest.schema.yaml` as staying. Both files MUST move
+   because `scripts/validate_worker_host_manifest.py` and
+   `tests/test_worker_host_manifest.py` — both D2.1 host material — consume
+   them by hard-coded path; leaving them behind would break the copied
+   validator and its test the moment it ran anywhere but `Omnigent-Install`.
+   Copied in OmniWorker-Install PR #2 (`d617e68e`).
+2. **`tests/test_worker_auth_bootstrap.py` STAYS with the orchestrator**,
+   though D2.1 above lists it as moving with the eight host-side `tests/`.
+   Re-checked against its own content at copy time (the JUDGED-tree
+   discipline D2 already calls for): its subject is
+   `containers/omnigent-worker/scripts/*`, which is orchestrator material,
+   not a host test that travels with `hostapp/` or `workers/`. Not copied.
+3. **The dartwing CI workflow was copied to `evidence/omnigent-install-ci/`
+   only, not installed as a working workflow.** Five of its steps read
+   orchestrator-only paths, so installing it verbatim in the new repository
+   would either fail on day one or silently no-op; it is carried as
+   reference evidence instead, pending its own follow-on if the new
+   repository needs its own CI shape for this class of check.
+
 ## D3 — Pin choreography
 
 **Copy-first, and retirement LAST.** The ratified "Copy-first migration"
@@ -150,6 +174,25 @@ Outside the aggregation:
 | openxFactory `openspec/specs/{shared-contract-ownership,canonical-contract-migration,repo-boundary-governance,omnigent-install-manifest}/spec.md` | canonical text naming `Omnigent-Install` | **NO text change by this packet.** The ADDED requirement names the new repository; whether the older enumerations are refreshed is a separate act (§ D6 OQ-9) |
 | NotebookLM `xf-ideation-omnigent-install` | one ideation book per governed repo | **Gains a sibling book** at step 8 |
 
+**Amended 2026-09-05, at task 4.6 measurement** — the NotebookLM row above and
+D3 step 8 both assume `Omnigent-Install` already carries a sibling ideation
+book, `xf-ideation-omnigent-install`, for `OmniWorker-Install` to gain a
+sibling of. **That premise does not hold, and it never has.** Read against
+`scripts/sync-notebooklm-books.py` and `docs/lifecycle-notebook-projection.md`
+in this clone: `installs/*` repositories are OUT OF SCOPE for the
+ideation-book projection BY DESIGN, not by omission — the script's own
+`ROOT_LEVEL_GOVERNED_PRODUCTS` comment says the allowlist (`openAvatar`,
+`openXwallet`) exists "never `every root-level `.gitmodules` pin`, which
+would enrol the nine `installs/*` runtime repositories as governed ideation
+repositories" (citing `split-openxwallet-repo` design D11), its `SKIP_PARTS`
+set explicitly skips `installs`, and the projection doc states its scope as
+"`openxFactory/` and `xFactories/*/`, skipping `.git`, `installs/`". Confirmed
+live via `nlm notebook list`: no "xFactory Ideation — Omnigent-Install" book
+exists today. Step 8 and this row are therefore not a task owed by this
+change or its successor — there is nothing for `OmniWorker-Install` to gain a
+sibling of, and running the sync would not create one, because the mechanism
+does not reach `installs/*` at all.
+
 ## D5 — The in-flight change, stated as a rule and NOT decided
 
 `Omnigent-Install`'s `add-worker-enrollment-broker-integration` is ACTIVE and
@@ -186,6 +229,17 @@ explicit act — either sequence (a) or sequence (b) named in the migration
 change — and MUST NOT be left to arrive in the new repository as an untracked
 side effect of a file copy.** Whichever Brett rules, the packet's amendment or
 the re-target is a task, not a discovery.
+
+**Amended 2026-09-05, ruled and executed** — Brett Heap ruled OQ-7 sequence
+**(a)**, "yes, land it and then move it". `Omnigent-Install` PR #40 LANDED,
+merge commit `f585eb2b`; `openspec/changes/add-worker-enrollment-broker-integration/`
+was then copied AS LANDED into `OmniWorker-Install` PR #2 (`d617e68e`),
+alongside `hostapp/` (task 3.1/3.3). **The copy's `code_surface:` declaration
+still names `Omnigent-Install` paths** — sequence (a)'s cost, named above,
+was paid but not yet discharged: the amendment of that declaration to name
+`OmniWorker-Install` is owed in the COPY's own packet, in the
+`OmniWorker-Install` repository, not in this one. This design does not
+perform that amendment; it only records that it is owed and where.
 
 ## D6 — Open questions
 

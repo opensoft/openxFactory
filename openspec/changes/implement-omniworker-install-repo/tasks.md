@@ -37,70 +37,116 @@ which are the two nearest repository-creation precedents in this corpus.
 
 ## 2. Repository creation — Brett Heap's act, not this session's
 
-- [ ] 2.1 Create `opensoft/OmniWorker-Install`. **Visibility per OQ-10**
+- [x] 2.1 Create `opensoft/OmniWorker-Install`. **Visibility per OQ-10**
       (private to match `Keycloak-Install` / `OpenXPKI-Install` unless ruled
       otherwise), default branch `main`, description naming it the worker-host
       install repository for the xFactory fleet. Name spelled exactly
       `OmniWorker-Install` — capitalized on the `<Name>-Install` house form
       that `CloudPC-Install`, `Keycloak-Install` and `OpenXPKI-Install` already
       set, and that OpsxFactory's closed code-surface vocabulary checks against.
-- [ ] 2.2 Independently released, like its siblings: its own `main`, its own
+      Recorded 2026-09-05: `opensoft/OmniWorker-Install` created, private,
+      default branch `main`, seed commit `c5d0f1f6`.
+- [x] 2.2 Independently released, like its siblings: its own `main`, its own
       release line, its own validation. It is NOT a subtree of, and not
       released with, `Omnigent-Install`.
-- [ ] 2.3 Install the governance plumbing AT CREATION, not later — the `main`
+      Recorded 2026-09-05: own `main`, own ruleset, own harnesses (§3.4) —
+      no subtree relationship to `Omnigent-Install` at any point in the copy.
+- [~] 2.3 Install the governance plumbing AT CREATION, not later — the `main`
       ruleset requiring one approving review, the repository added to the
       `openxfactory` GitHub App installation so the content App can author
       PRs, the App secrets, and the `session-open-pr.yml` mirror. The
       authorship route works on day one or the first PR is authored by the
       only human who can approve it (the `implement-keycloak-install-repo`
       lesson, learned there).
-- [ ] 2.4 Seed the README with the ownership boundary quoted VERBATIM from the
+      Recorded 2026-09-05 — HALF DONE: ruleset 22342039 "main review gate"
+      (OrganizationAdmin bypass) and App secrets `OPENXFACTORY_APP_ID` /
+      `OPENXFACTORY_APP_PRIVATE_KEY` are set. **OWED to Brett**: adding the
+      repository to the `openxfactory` GitHub App installation (a web act
+      only an org admin can perform) — until then the content App cannot
+      author PRs there and the `implement-keycloak-install-repo` day-one
+      lesson applies (the first PR is authored by the only human who can
+      approve it).
+- [x] 2.4 Seed the README with the ownership boundary quoted VERBATIM from the
       ratified requirement — `openxFactory` owns factory workflow policy;
       `OmniWorker-Install` owns worker-host install, operations, and DR;
       `Omnigent-Install` remains the orchestrator. Quoted, never paraphrased:
       the "Install repo scope links" requirement wants the link, and the
       Keycloak-Install README is the worked example of quoting rather than
       restating.
-- [ ] 2.5 Pin the compatible openxFactory contract bundle tag plus exact
+      Recorded 2026-09-05: README seeded at repository creation (seed
+      `c5d0f1f6`) quoting the ownership boundary verbatim.
+- [x] 2.5 Pin the compatible openxFactory contract bundle tag plus exact
       contract commit and per-file digests for the neutral contracts the host
       consumes, on the `pinned_contract_manifest` shape.
+      Recorded 2026-09-05: `contract-pin.yaml` at contract-v3.4, contract
+      commit `807a4f47`, per-file digests for the seven worker-enrollment
+      schemas, pinned at `190f5dc`.
 
 ## 3. Copy-first migration (design § D2, § D3 step 2)
 
 **Copy. Do not move.** Nothing is deleted from `Omnigent-Install` in this
 group; §6 is where deletion lives, and only after §4 and §5.
 
-- [ ] 3.1 Copy the RULED tree: `hostapp/`, `workers/`,
+- [x] 3.1 Copy the RULED tree: `hostapp/`, `workers/`,
       `clients/opensoft/worker-hosts/`, `scripts/publish_artifact_worker_heartbeat.py`,
       `docs/runbooks/cloudpc-named-worker-licensing.md`,
       `docs/runbooks/cloudpc-worker-pack.md`,
       `docs/runbooks/doc-health-cloudpc-pilot.md` (with its correction banner
       intact), `docs/worker-deployment-phases.md`.
-- [ ] 3.2 Copy the JUDGED tree, each item re-checked against its content at
+      Recorded 2026-09-05: `workers/`, `clients/opensoft/worker-hosts/`,
+      `scripts/publish_artifact_worker_heartbeat.py`, and the four runbooks
+      copied in OmniWorker-Install PR #1 → `eb0c9675` (72 files). `hostapp/`
+      copied separately in PR #2 → `d617e68e`, sequenced behind Omnigent-Install
+      PR #40 landing (see 3.3) per the OQ-7 ruling.
+- [x] 3.2 Copy the JUDGED tree, each item re-checked against its content at
       copy time and any disagreement raised rather than carried:
       `docs/credential-auth-profiles.md`, the three llm-credential runbooks,
       `docs/worker-hosts.md`, `schemas/worker-host-manifest.schema.yaml`
       (placement per OQ-4), `evidence/worker-host-manifest/`,
       `rendered/effective-profiles/`, the twenty-one host-side `scripts/`, and
       the eight host-side `tests/` including the `pwsh_host.py` harness.
-- [ ] 3.3 Re-home `openspec/changes/add-worker-enrollment-broker-integration/`
+      Recorded 2026-09-05: bulk of the JUDGED tree copied in PR #1 →
+      `eb0c9675`; the manifest schema and its five dependent tests copied in
+      PR #2 → `d617e68e` alongside `hostapp/`. Two disagreements surfaced and
+      are recorded as `Amended:` notes in design.md § D2 rather than carried
+      silently: `schemas/bench-manifest.schema.yaml` and
+      `examples/bench-manifests/python-bench.example.yaml` MOVED (design §
+      D2.2 said stay) because `scripts/validate_worker_host_manifest.py` and
+      `tests/test_worker_host_manifest.py` consume them by hard-coded path;
+      `tests/test_worker_auth_bootstrap.py` STAYED with the orchestrator
+      (design § D2.1 listed it as moving) because its subject is
+      `containers/omnigent-worker/scripts/*`, not host material.
+- [x] 3.3 Re-home `openspec/changes/add-worker-enrollment-broker-integration/`
       by the sequence OQ-7 rules — **(a)** land PR #40 in `Omnigent-Install`
       first and copy the post-merge tree, or **(b)** re-target the change and
       re-open its PR against `OmniWorker-Install` with an amendment to its
       `code_surface:` declaration. Not by default and not by side effect.
-- [ ] 3.4 Prove the copied harnesses GREEN in the new repository before
+      Recorded 2026-09-05: sequence **(a)** — Brett Heap's ruling on OQ-7,
+      "yes, land it and then move it". Omnigent-Install PR #40 LANDED,
+      merge commit `f585eb2b`; the change directory was then copied AS
+      LANDED into OmniWorker-Install PR #2 → `d617e68e`. Its `code_surface:`
+      declaration still names Omnigent-Install paths — the amendment of that
+      declaration is owed in the COPY's own packet (in OmniWorker-Install),
+      recorded here and in design.md § D5, not performed by this PR.
+- [x] 3.4 Prove the copied harnesses GREEN in the new repository before
       anything else depends on them: the PowerShell host-app and deploy
       suites, `test_worker_host_manifest.py`,
       `test_publish_artifact_worker_heartbeat.py`,
       `test_rider_heartbeat_contract.py`, `test_worker_auth_bootstrap.py`,
       `test_artifact_lane_contract.py`. The ratified copy-first requirement's
       second scenario makes this the gate, not a courtesy.
-- [ ] 3.5 Add the repository's own boundary validator refusing a committed
+      Recorded 2026-09-05: every suite green at the new location — HostApp
+      1027 tests, Deploy 256 tests, unittest 76 tests, the manifest validator,
+      and the canonical worker-enrollment validator at 0/0 findings (from
+      pin `190f5dc`); the boundary validator (3.5) reports 0 findings.
+- [x] 3.5 Add the repository's own boundary validator refusing a committed
       credential value — model-provider credential, runner registration token,
       enrollment lease secret, Key Vault secret value, host service-account
       password — reusing the detection classes the estate's existing
       secret-scanners already established rather than inventing a second
       vocabulary for "this is a secret".
+      Recorded 2026-09-05: boundary validator added and run at the new
+      location — 0 findings.
 
 ## 4. Consumer re-pins — EACH ITS OWN PR, in its own repository
 
@@ -108,6 +154,9 @@ group; §6 is where deletion lives, and only after §4 and §5.
       `git@github.com:opensoft/OmniWorker-Install.git` as a SIBLING entry.
       `installs/omnigent-install` is not renamed and not removed. Records the
       exact validated commit; the governed admission record is §8.1, not this.
+      In flight 2026-09-05: xFactory PR #268, "Add installs/omniworker-install
+      sibling submodule + re-point worker-profile comments" (open) — covers
+      this task and 4.2 together.
 - [ ] 4.2 **xFactory workflow comments** — `doc-health-cataloger-worker.yml`,
       `doc-health-readiness-worker.yml`,
       `doc-health-derive-possibles-worker.yml`,
@@ -115,12 +164,15 @@ group; §6 is where deletion lives, and only after §4 and §5.
       `installs/omnigent-install/workers/profiles/*.yaml` references. Comments,
       not checkouts (design § D4 measured it): a comment naming a path nothing
       contains is worse than no comment.
+      In flight 2026-09-05: xFactory PR #268 (see 4.1).
 - [ ] 4.3 **OpsxFactory `models/code-surface-repositories.yaml`** gains one
       entry `- id: OmniWorker-Install / source: aggregation_submodule`, in the
       alphabetical block. **Depends on 4.1**: the
       `code_surface_repository_registry` validator arm re-derives an
       `aggregation_submodule` entry against the aggregation `.gitmodules`, so
       an entry landed before the pin is a finding rather than a claim.
+      In flight 2026-09-05: no PR visible yet in `opensoft/OpsxFactory`
+      (correctly gated on 4.1/xFactory PR #268 landing first).
 - [ ] 4.4 **CloudPC-Install `packs/service-rider/selftest/check_heartbeat_contract.py`**
       — `OMNIGENT_ROOT` gains `OMNIWORKER_ROOT` and the sibling-directory
       candidates gain `OmniWorker-Install` / `omniworker-install`, with the
@@ -128,16 +180,57 @@ group; §6 is where deletion lives, and only after §4 and §5.
       run that does NOT skip**: the selftest skips when the sibling is absent,
       so a green summary cannot distinguish a correct re-pin from a missing
       one.
-- [ ] 4.5 **openxFactory references** to `Omnigent-Install` worker paths.
+      In flight 2026-09-05: no PR visible yet in `opensoft/CloudPC-Install`.
+- [x] 4.5 **openxFactory references** to `Omnigent-Install` worker paths.
       Scoped by measurement at re-pin time; `contracts/manifest.yaml`'s nine
       `Omnigent-Install/schemas|policies/...` source paths are NOT in scope
       (those families stay with the orchestrator — design § D4).
+      Recorded 2026-09-05 — measured by `grep -rn "Omnigent-Install"
+      contracts/ openspec/specs/` in this clone: every reference to
+      `Omnigent-Install` under `contracts/` and `openspec/specs/` (7 files:
+      `contracts/manifest.yaml`, `contracts/README.md`, `contracts/CHANGELOG.md`,
+      `contracts/worker-enrollment/README.md`,
+      `openspec/specs/shared-contract-ownership/spec.md`,
+      `openspec/specs/canonical-contract-migration/spec.md`,
+      `openspec/specs/repo-boundary-governance/spec.md`) names either an
+      ORCHESTRATOR schema/policy family (the Hermes job envelope/event/run
+      schemas, the three clarification schemas, `hermes-operational-postgres`,
+      `hermes-governance-agents`, `merge-risk-policy` — `contracts/manifest.yaml`
+      and `contracts/README.md`), a historical changelog entry
+      (`contracts/CHANGELOG.md`), prose naming Omnigent-Install as the actor
+      that consumes the worker-enrollment broker
+      (`contracts/worker-enrollment/README.md`, not a source-path
+      declaration), or canonical text establishing the general
+      `repo-boundary-governance` capability (the three `openspec/specs/`
+      files, already flagged incomplete by design § D6 OQ-9). **Zero
+      references to worker/host material paths** (`hostapp/`, `workers/`,
+      `schemas/worker-host-manifest.schema.yaml`, etc.) exist under
+      `contracts/` or `openspec/specs/` — nothing in scope for this task.
+      Nothing changed in `contracts/` or `openspec/specs/` by this PR.
 - [ ] 4.6 **NotebookLM projection** — one ideation book per governed repo, so
       the new repository gets `xf-ideation-omniworker-install` /
       *"xFactory Ideation — OmniWorker-Install"*, added via
       `python3 openxFactory/scripts/sync-notebooklm-books.py . --apply` per
       `docs/lifecycle-notebook-projection.md`. Books resolve by TITLE; the
       capacity guard applies.
+      Recorded 2026-09-05 — finding, sync NOT run: `installs/*` repositories
+      are OUT OF SCOPE for the ideation-book projection BY DESIGN, not merely
+      by omission. `scripts/sync-notebooklm-books.py`'s own comment on
+      `ROOT_LEVEL_GOVERNED_PRODUCTS` (only `openAvatar`, `openXwallet`) says
+      an allowlist is used "never `every root-level `.gitmodules` pin`, which
+      would enrol the nine `installs/*` runtime repositories as governed
+      ideation repositories (`split-openxwallet-repo` design D11)"; its
+      `SKIP_PARTS` set explicitly skips `installs`; and
+      `docs/lifecycle-notebook-projection.md` states the scope as
+      "`openxFactory/` and `xFactories/*/`, skipping `.git`, `installs/`".
+      Confirmed live: `nlm notebook list` carries no
+      "xFactory Ideation — Omnigent-Install" book today, and none will be
+      created for `OmniWorker-Install` either — the D3 step 8 / D4 table
+      premise (that Omnigent-Install already has a sibling ideation book to
+      gain a sibling of) does not hold. Recorded as an `Amended:` note in
+      design.md § D3/D4. No list needs to gain `OmniWorker-Install`; there is
+      no automatic discovery to rely on either — the mechanism does not
+      reach `installs/*` at all.
 - [ ] 4.7 **The enrollment broker and CloudPC-Install docs** that name
       `omnigent-install` as the host checkout — `docs/worker-host-pack.md`,
       `docs/host-token-broker.md`, `docs/host-broker-provisioning-prompt.md`,
