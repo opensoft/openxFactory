@@ -43,7 +43,7 @@ floor:
   # to do with the tree the block enumerates. It is hand-authored HERE, beside
   # the eight hand-reasoned entries, in this CODEOWNERS-routed document.
   pending_floor_extension_tolerance: 3
-  # THIS DOCUMENT IS 8 + 1, NOT 67 EQUALLY-REASONED CHOKEPOINTS.
+  # THIS DOCUMENT IS 8 + 1, NOT 68 EQUALLY-REASONED CHOKEPOINTS.
   #
   # EIGHT hand-reasoned gate chokepoints, each with its own ground below: the
   # intake register, the two paths that determine WHICH READER opens it, a
@@ -157,12 +157,12 @@ floor:
     # ==== BEGIN MACHINE-GENERATED BLOCK — DO NOT HAND-EDIT ====
     # prefix:             openspec/specs
     # source_repository:  opensoft/openxFactory
-    # generated_at:       f6724f0416920ac096194c1aa3cd7ae9e094de8b
-    # entry_count:        59
+    # generated_at:       b5eddaa3b8bc2b54fc26bd06a8a466479f6d900c
+    # entry_count:        60
     # regenerate with:
     #   python3 scripts/merge_master/generate_specs_floor_block.py \
     #     --repo <opensoft/openxFactory checkout> \
-    #     --ref f6724f0416920ac096194c1aa3cd7ae9e094de8b --write
+    #     --ref b5eddaa3b8bc2b54fc26bd06a8a466479f6d900c --write
     #
     # ONE GROUND FOR THE WHOLE BLOCK, and it is not the ground above it.
     # The eight entries ABOVE are separately reasoned GATE CHOKEPOINTS: each one
@@ -175,7 +175,7 @@ floor:
     # propose a subset because "a smaller enumeration has the identical failure
     # mode, merely less often").
     #
-    # SO THE READER IS NOT MISLED: this document is 8 + 1, not 67 equally-reasoned
+    # SO THE READER IS NOT MISLED: this document is 8 + 1, not 68 equally-reasoned
     # chokepoints (CSC-C9). Do not hand-edit the block. Do not add a member by
     # hand. Regenerate it with the command above, at a named openxFactory commit.
     #
@@ -240,6 +240,7 @@ floor:
     - openspec/specs/release-realization/spec.md
     - openspec/specs/release-surface-integrity/spec.md
     - openspec/specs/repo-boundary-governance/spec.md
+    - openspec/specs/review-lane-floor-mirror/spec.md
     - openspec/specs/roles-authority-model/spec.md
     - openspec/specs/shared-contract-ownership/spec.md
     - openspec/specs/signed-execution-chain/spec.md
