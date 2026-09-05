@@ -240,13 +240,84 @@ divergence, not a mirror.
   by re-running each affected subtree: 311 passed, 203 passed), matching
   CI's own "Init the openXwallet gitlink only" step this local clone had
   skipped. Pre-existing local setup gap, not a regression from this packet.
-- [ ] 5.2 The `pending_floor_extension` outcome OBSERVED ONCE on a real advisory
+- [x] 5.2 The `pending_floor_extension` outcome OBSERVED ONCE on a real advisory
   run, with its path list, its per-path reasons and its owed-regeneration
   message, quoted verbatim in the archive record. An outcome nobody has seen is
   not evidence that it works.
-- [ ] 5.3 A real promoting pull request observed NOT RED in the required lane for
+  **Evidence**: `merge-master-approval` run **33989488802** (PR #699, head
+  `1fde704c`), step "Evaluate the openxFactory repository gate floor", printed
+  verbatim:
+
+      stage:                 pending_floor_extension
+      covered-pending:       1 (tolerance 3, pin measured)
+        PENDING (created_by_candidate): openspec/specs/review-lane-floor-mirror/spec.md
+      floor evaluated: 0 never-clearable path(s) touched
+
+  the path list names the ONE path this pull request's own diff creates; the
+  per-path reason is `created_by_candidate` (the diff's own addition wins over
+  the B1 pin window, per `graced_uncovered`'s stated ordering — both could
+  apply here in principle, since the path was also plausibly within the pin
+  window, and the created-by-candidate branch took priority exactly as
+  requirement 6 orders it); "floor evaluated: 0 never-clearable path(s)
+  touched" is the owed-regeneration message, naming that nothing floored was
+  removed or renamed by this candidate. **THIS IS THE FIRST TIME THE OUTCOME
+  HAS BEEN SEEN**: the parent's own archive record (codexFactory PR #218,
+  its task 5.4) recorded the equivalent box PARTIAL for exactly this reason —
+  openxFactory run `33983590725` printed `covered-pending: 0 (tolerance 3,
+  pin NOT measured (fail-safe))`, the report SHAPE with no path ever pending.
+- [x] 5.3 A real promoting pull request observed NOT RED in the required lane for
   the path it creates — the falsification of the whole packet, and the thing the
   five hand repairs of 2026-09-03/04 were paying for.
+  **Evidence**: `pytest-suite` run **33989489654** (PR #699, head `1fde704c`)
+  — `TheRealFiles::test_every_tracked_openspec_spec_path_is_on_the_floor`, the
+  LQ-A7 assertion this whole packet exists to keep required-and-green, PASSED:
+  `openspec/specs/review-lane-floor-mirror/spec.md`, the path this pull
+  request's own diff creates, was reported covered-pending rather than
+  uncovered, exactly matching what 5.2 records the advisory lane reporting on
+  the same head.
+
+  **THE SAME RUN ALSO FOUND THE REAL DEFECT THIS LIVE TEST WAS FOR.** Two
+  negative controls in the same module, `NegativeControls::test_the_unmutated_
+  surface_is_a_positive_first` and `NegativeControls::test_a_fabricated_off_
+  floor_spec_path_is_refused`, went RED — the run's own summary line: `2
+  failed, 9631 passed, 21 skipped, 338 deselected, 9 warnings, 82 subtests
+  passed in 1338.22s`. Cause: both controls called
+  `graced_uncovered(self.surface, self.entries, (), ())` with HARD-CODED
+  EMPTY grace sets, while the shipped assertion beside them MEASURES
+  `created`/`window` from `resolve_base_branch()`,
+  `created_since_merge_base()` and `pin_window()` (task 2.2/2.3). On a branch
+  that legitimately creates a spec path — this one — the controls saw that
+  path as uncovered where the shipped assertion correctly saw it as
+  covered-pending. This is a defect in the companion realization (PR #686,
+  authoring decision E: the two controls were moved onto the graced
+  EXPRESSION but not onto the graced MEASUREMENT — task 2.4's own text says
+  "moved... onto the graced expression", which is exactly what shipped and
+  exactly what was insufficient), predicted by Copilot review (thread
+  `PRRT_kwDOTAvnrs6fmnH4`) and caught here, by the programme's first real
+  promotion — precisely what this live test was commissioned to falsify
+  (this task's own words: *"the falsification of the whole packet"*).
+
+  **FIXED IN THIS SAME COMMIT** (the one that ticks this box):
+  `NegativeControls.setUpClass` now derives `generated_at` / `created` /
+  `window` the same way `TheRealFiles.setUpClass` and
+  `test_every_tracked_openspec_spec_path_is_on_the_floor` do, instead of
+  hard-coding `()` / `()`.
+  `test_the_unmutated_surface_is_a_positive_first` now asserts `missing ==
+  ()` and that every covered-pending path is one this run actually measured
+  (in `created` or `window`) — the SAME measurement the shipped assertion
+  runs, so a branch that legitimately promotes a spec passes here too.
+  `test_a_fabricated_off_floor_spec_path_is_refused` now takes a baseline
+  (`graced_uncovered` over the unmutated surface) before adding the
+  fabrication, and asserts the fabricated path alone is refused
+  (`missing == (fabricated,)`) while `pending` is unchanged from that
+  baseline — the fabrication changes nothing graced. Re-run after the fix:
+  `python3 -m pytest tests/review_lane_pin -q` → **73 passed / 2 skipped**
+  (both controls pass on this branch, printing `GRACED (covered-pending,
+  regeneration OWED): 1 path(s):
+  openspec/specs/review-lane-floor-mirror/spec.md
+  (created_by_candidate)`); with `PINNED_CORE_CHECKOUT` at a codexFactory
+  checkout of `67a6ffc9` (the pinned core) → **75 passed / 43 subtests**, no
+  skips.
 - [x] 5.4 Record the divergence check: the vector replay green on the same head,
   proving the two lanes agreed rather than merely both being green.
   **Evidence**: `TheVectorReplay.test_every_vector_replays` green with

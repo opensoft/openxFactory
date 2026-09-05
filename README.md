@@ -2339,12 +2339,21 @@ Archived changes:
   CREATES `openspec/specs/review-lane-floor-mirror/spec.md`, a new tracked path
   under the exactly-enumerated floor — under the old regime a two-repository
   hand repair before the pull request could merge. **THE OBSERVED RESULT IS
-  RECORDED IN THE ARCHIVED `tasks.md` § Archive**, with the run ids and the two
-  lanes' verbatim lines, and tasks **5.2** and **5.3** are ticked from it and
-  from nothing else — no earlier act could close them, which is why codexFactory
-  PR #218 recorded its own equivalent box as PARTIAL (run `33983590725` printed
-  `covered-pending: 0 (tolerance 3, pin NOT measured (fail-safe))`: the shape,
-  never a path). **ARCHIVED VIA THE RECORDED ESCAPE** —
+  RECORDED IN THE ARCHIVED `tasks.md`'s own § 5.2/5.3**, with the run ids and
+  the two lanes' verbatim lines, and tasks **5.2** and **5.3** are ticked from
+  it and from nothing else — no earlier act could close them, which is why
+  codexFactory PR #218 recorded its own equivalent box as PARTIAL (run
+  `33983590725` printed `covered-pending: 0 (tolerance 3, pin NOT measured
+  (fail-safe))`: the shape, never a path). **THE SAME LIVE TEST ALSO FOUND A
+  REAL DEFECT, WHICH IS WHAT IT WAS FOR**: the required lane's own run
+  (`pytest-suite` 33989489654) held the shipped LQ-A7 assertion green while
+  two `NegativeControls` in the same module went red — they drove
+  `graced_uncovered` against hard-coded EMPTY grace sets rather than this
+  candidate's own measured `created`/`window`, a gap in PR #686's authoring
+  decision E that a Copilot review predicted and this packet's first real
+  promotion caught; fixed in the same pull request, with the full account and
+  the re-run counts in task 5.3's evidence. **ARCHIVED VIA THE RECORDED
+  ESCAPE** —
   `proposal-support.py archive` refused (exit 1, `change has incomplete tasks`,
   gate `scripts/proposal-support.py:1079-1081`, unconditional on WHICH box) and
   `openspec archive --yes` was used instead, `26/29 tasks`, `+ 7 added`.
