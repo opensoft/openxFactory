@@ -600,6 +600,18 @@ def pinned_dispositions(pin: dict) -> list[dict]:
                 "the whole difference between an accepted exception and a "
                 "suppression, so an empty one is refused rather than read as "
                 "'none needed'")
+        level = entry.get("level")
+        if level is not None and str(level).upper() not in BLOCKING_LEVELS:
+            # `level:` is human-facing — the matcher reconciles ERROR findings
+            # and nothing else — but a declared level that could never match is
+            # a false statement standing in a file whose whole job is true ones,
+            # and it reads to a reviewer as an exception granted over a warning.
+            raise PinRefusal(
+                "pin-disposition-malformed",
+                f"{where} ({entry.get('item')}) declares level {level!r}. Only "
+                f"{'/'.join(sorted(BLOCKING_LEVELS))} findings are reconciled, "
+                "so a disposition declaring anything else describes a finding "
+                "this tool would never have matched")
         if not any(entry.get(key) for key in DISPOSITION_AUTHORITY):
             raise PinRefusal(
                 "pin-disposition-malformed",

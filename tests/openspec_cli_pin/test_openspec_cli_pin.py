@@ -1082,3 +1082,14 @@ def test_a_malformed_disposition_refuses_before_a_registry_round_trip(
     assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
                      "--pin", str(path)]) == 2
     assert calls == [], "a malformed exception must not spend a registry round trip"
+
+
+def test_a_disposition_declaring_a_level_that_could_never_match_is_refused(
+        mod, tmp_path):
+    """`level:` is human-facing, but a level the matcher could never reconcile
+    reads to a reviewer as an exception granted over a warning."""
+    path = write_pin(tmp_path, dispositions_block=disposition_block(
+        a_disposition(level="WARNING")))
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.pinned_dispositions(mod.read_pin(path))
+    assert exc.value.code == "pin-disposition-malformed"

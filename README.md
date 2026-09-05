@@ -516,7 +516,7 @@ Active changes:
   applies neither and is correctly reported *clean*. **A pin with no
   `dispositions:` takes the original streaming path** — no `--json`, no parsing,
   no git call — so the 1.2.0-era behaviour is a branch rather than a promise.
-  Tests 41 → **78**, including both `--json` array shapes parsed from CAPTURED
+  Tests 41 → **79**, including both `--json` array shapes parsed from CAPTURED
   REAL 1.12.0 bytes and an offline reconciliation of the pin's own `finding:`
   strings against them. **The old binary on PATH is now REFUSED**
   (`pin-version-mismatch`), demonstrated in the record. **Exit 3 is DRAFTED AND

@@ -187,16 +187,16 @@ than the brief expected; the material fact, **0 failed**, is unchanged.
 
 ```
 pytest tests/openspec_cli_pin/ -q
-78 passed
+79 passed
 ```
 
-41 before this packet, 78 after. The 41 that existed are unchanged in substance
+41 before this packet, 79 after. The 41 that existed are unchanged in substance
 and still assert the five original checks, their ORDER, the refusal vocabulary,
 the cache's re-verification property and the gate workflow's freedom from a
 second copy of the version; only the version CONSTANTS moved, and the two
 PATH-mode tests now use `1.2.0` as the wrong version rather than `1.12.0`.
 
-The 37 new ones cover: the disposition grammar and its two admitted YAML forms
+The 38 new ones cover: the disposition grammar and its two admitted YAML forms
 (with a negative control for the forms that are not admitted); the mandatory
 citation and authority, parameterized over every field whose absence makes an
 entry unreviewable; duplicate entries; both `--json` array shapes parsed from

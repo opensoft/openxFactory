@@ -54,8 +54,9 @@ repoint the very tool that judges its own change.
       to in-scope dispositions in BOTH directions.
 - [x] 2.2 `pinned_dispositions` refuses `pin-disposition-malformed` for a
       missing `repo`/`item`/`path`/`finding`/`why`, an absent or EMPTY
-      `cited_to:`, no `ratified_by:`/`recorded_by:`, or two entries covering
-      one finding — evaluated in check 1, BEFORE any registry round trip.
+      `cited_to:`, no `ratified_by:`/`recorded_by:`, a declared `level:` the
+      matcher could never reconcile, or two entries covering one finding —
+      evaluated in check 1, BEFORE any registry round trip.
 - [x] 2.3 `pin-disposition-stale`, exit 2, for a disposition matched by no
       finding in the run, with the asymmetry argued in the code and in
       `design.md` § 2.
@@ -95,7 +96,7 @@ repoint the very tool that judges its own change.
 
 ## 4. Evidence and tests
 
-- [x] 4.1 78 tests in `tests/openspec_cli_pin/` (was 41), green.
+- [x] 4.1 79 tests in `tests/openspec_cli_pin/` (was 41), green.
 - [x] 4.2 Two CAPTURED REAL `1.12.0` reports committed as fixtures, covering
       both array keys the tool emits.
 - [x] 4.3 `evidence/pin-bump-1.12-2026-09-05.md`, `Status: record`: the
