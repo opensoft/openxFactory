@@ -75,6 +75,7 @@ Core domain-neutral docs:
 - [Architecture](docs/architecture.md)
 - [Terminology And Repository Topology](docs/terminology-and-repo-topology.md)
 - [openXdox — Capability Naming Record](docs/openxdox-naming.md) (the neutral review-and-disposition workbench; handle `dox`, surface `doxBench`)
+- [omniWorker — Product And Machine Naming Record](docs/omniworker-naming.md) (the worker-host product; repository `OmniWorker-Install`, machine keys `omniworker`, Cloud PC template `CPC-OXF-%USERNAME:7%`)
 - [openXdox Dispatch-Credential Binding Runbook](docs/openxdox-dispatch-credential-binding.md) (operator-hosted vs self-hosted binding for the intent-plane dispatch credential)
 - [Party Ladder](docs/party-ladder.md) (author/operator → tenant → subject → third parties; frozen-word reading rules)
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
@@ -481,6 +482,41 @@ Every DomainxFactory must validate against the canonical contract:
 ## OpenSpec Records
 
 Active changes:
+
+- [implement-omniworker-install-repo](openspec/changes/implement-omniworker-install-repo/proposal.md)
+  — authored 2026-09-05, **`Status: draft`**, on Brett Heap's in-session
+  rulings of the same day: the name **`omniWorker`** covers *"The worker-host
+  product only"*, so the host material SPLITS out of `opensoft/Omnigent-Install`
+  into a NEW repository `OmniWorker-Install` rather than renaming it —
+  **Omnigent remains the orchestrator's name**, and the neutral
+  `contracts/omnigent/` family, the `omnigent-domain-overlay` and
+  `omnigent-install-manifest` specs and the five domain `omnigent/` overlays are
+  UNTOUCHED. **IT PERFORMS NOTHING.** No repository is created, no file moves,
+  no consumer is re-pinned and `Omnigent-Install` is not touched by one byte;
+  every box in `tasks.md` is unchecked. What it authors is ONE
+  `repo-boundary-governance` requirement (*OmniWorker install repository
+  boundary*, in the family style of its four siblings), the naming record
+  `docs/omniworker-naming.md` (`Status: draft` until this change lands; three
+  casings — `omniWorker` brand, `OmniWorker-Install` repository,
+  `omniworker` machine keys, the last already deployed as `svc-omniworker`), a
+  directory-by-directory split table in which **every row is tagged RULED,
+  JUDGED or OPEN** and nothing is guessed, and a copy-first choreography whose
+  only destructive step is LAST. It also carries Brett's machine ruling: the
+  Windows 365 device-name template becomes `CPC-OXF-%USERNAME:7%` →
+  `CPC-OXF-Omni001`, fifteen characters exactly — which is how the
+  measurement found that CloudPC-Install's governed convention
+  `XFACTORY-OMNI001` is **SIXTEEN characters against a fifteen-character
+  Windows limit and was therefore never applied to any machine** (Windows 365
+  silently used its default `CPC-%USERNAME:5%-%RAND:5%`, which is where
+  `CPC-Omni0-P5AJB` and `CPC-brett-TUBV0` come from); that doc fix ships as a
+  sibling PR against CloudPC-Install. TEN open questions are PUT, not answered
+  — among them the in-flight `Omnigent-Install` change
+  `add-worker-enrollment-broker-integration` (PR #40), whose two lawful
+  sequences are stated with their costs and neither chosen, and the live GitHub
+  runner label `omnigent`. Recorded as OWED and NOT done here: the OpsxFactory
+  fleet re-attestation after omni001's reprovision, which destroys Entra device
+  `08829330-2098-461c-a950-0047e163f2b1` — today the only endpoint in that
+  factory's live targeting scope — and issues a new id.
 
 - [prepare-openspec-1.12-readiness](openspec/changes/prepare-openspec-1.12-readiness/proposal.md)
   — authored 2026-09-05, **`Status: draft`**, on Brett Heap's in-session word

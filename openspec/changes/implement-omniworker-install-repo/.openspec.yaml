@@ -1,0 +1,24 @@
+schema: spec-driven
+created: 2026-09-05
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-05-implement-omniworker-install-repo
+  reason: >-
+    Direct owner ruling rather than the exit of a staged topic. Brett Heap
+    ruled on 2026-09-05, in session, that the name `omniWorker` covers "the
+    worker-host product only" and that the host material therefore leaves
+    `opensoft/Omnigent-Install` for a NEW repository `OmniWorker-Install`,
+    and separately that the Cloud PC machine-name template becomes
+    `CPC-OXF-%USERNAME:7%` with omni001 reprovisioned. There is no staged
+    topic under `ideation/staging/` for this work and declaring `kind:
+    staged` would claim a staging source that cannot resolve, which the
+    `document-lifecycle` proposal-gate scenario rejects. The organized source
+    material is the ruling itself, quoted verbatim in the proposal, plus the
+    already-ratified `repo-boundary-governance` capability whose "Install
+    repository scope" and "Copy-first migration" requirements this change's
+    single ADDED requirement joins in the same family style.
+  approved_by: >-
+    Brett Heap, 2026-09-05 (in-session multiple-choice ruling: scope of the
+    name `omniWorker` = "The worker-host product only"; machine-name template
+    `CPC-OXF-%USERNAME:7%`; omni001 to be reprovisioned now)
+  approved_on: 2026-09-05
