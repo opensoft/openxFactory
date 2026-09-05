@@ -109,6 +109,31 @@ ticked and names why.
       shim now sets `present_commits={"tip"}` and the test asserts
       `fetch_calls == []` — the held-tip words are pinned over a double that
       actually holds the tip, and holds it without a round trip.
+- [x] 3.5 **THE REALIZATION EVIDENCE, WHICH IS WHAT THIS PACKET ARCHIVES ON.**
+      `code_surface: openxFactory` is non-empty, so under `release-realization`
+      § *Realization archive gate* this packet does NOT archive on landing: it
+      archives on MERGE EVIDENCE PLUS A GREEN RUN of the surface, on the
+      implemented target. Both now exist and are cited rather than asserted:
+      - **MERGED** on the implemented target (`openxFactory` main) as
+        **PR #688 → `a59d5463`**, *"Ratify and realize
+        amend-unreadable-read-sibling-scenarios: the changelog read names both
+        facts and its skip says which"*, 2026-09-05 21:53:14Z, through the
+        repository's own required gates (all ten checks green on the merged
+        head `d6fd07b1`).
+      - **GREEN ON MAIN** afterwards: `pytest-suite` run
+        **[33995187827](https://github.com/opensoft/openxFactory/actions/runs/33995187827)**,
+        conclusion `success`, on `main` at `724a2a4f` — a commit that CONTAINS
+        `a59d5463`. The runnable surface is the doc-health test suite that pins
+        this skip's words, so a green run of it on a main containing the merge
+        is the green run the gate names.
+      **Neither half is a local assertion.** Both are references an outside
+      reader can resolve: a merge commit on `main` and a workflow run id. The
+      archive act that promotes this delta cites both.
+- [x] 3.6 **NO DEPLOYMENT HANDOFF IS IN SCOPE.** The realization does not deploy
+      onto a registered managed subject of another factory — it lands in this
+      repository's own `scripts/` and `tests/` — so no correlation identifier is
+      owed under `release-realization`'s managed-subject scenario, and none is
+      claimed.
 
 ## 4. The delta
 
