@@ -126,10 +126,16 @@ def serve_a_fictional_registry(test: unittest.TestCase) -> list:
         setattr(target, attribute, value)
 
     previous_cache = os.environ.get("OPENSPEC_CLI_PIN_CACHE")
-    test.addCleanup(
-        lambda: os.environ.__setitem__("OPENSPEC_CLI_PIN_CACHE", previous_cache)
-        if previous_cache is not None
-        else os.environ.pop("OPENSPEC_CLI_PIN_CACHE", None))
+
+    def restore_cache():
+        if previous_cache is None:
+            os.environ.pop("OPENSPEC_CLI_PIN_CACHE", None)
+        else:
+            os.environ["OPENSPEC_CLI_PIN_CACHE"] = previous_cache
+
+    test.addCleanup(restore_cache)
+    # The install goes under the double's own directory, so a unit test never
+    # writes into the developer's real pin cache.
     os.environ["OPENSPEC_CLI_PIN_CACHE"] = str(workspace / "cache")
 
     # The wrapper memoizes ONE resolution per process, keyed by the pin file;
@@ -619,7 +625,7 @@ class ProposalSupportTests(unittest.TestCase):
         "supporting-docs folder not found", which is the one thing that pushes
         an operator toward a bare `openspec archive` and around the gate.
         Fifteen archived staged-origin changes already have this shape."""
-        npm = serve_a_fictional_registry(self)
+        serve_a_fictional_registry(self)
         with TemporaryDirectory() as td:
             root = Path(td)
             subprocess.run(
@@ -686,7 +692,7 @@ class ProposalSupportTests(unittest.TestCase):
         """`--final-import-complete` records a NotebookLM import for a support
         bundle. With no bundle it records nothing, so it is refused rather than
         silently ignored."""
-        npm = serve_a_fictional_registry(self)
+        serve_a_fictional_registry(self)
         with TemporaryDirectory() as td:
             root = Path(td)
             subprocess.run(
