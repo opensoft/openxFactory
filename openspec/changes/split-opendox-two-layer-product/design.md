@@ -872,30 +872,42 @@ NEUTRAL CORE, and the manifest records `descendant_referent: openDox`,
 classification is right and its stated reason is false — which is worse than a
 refusal, because nothing surfaces it.
 
-That does not weaken #40; it is the argument for it. #40 makes the same
-classification TRUE by naming the chain the descendant actually relies on, and it
-removes a pass that would evaporate the moment anyone tightened the x-stem rule
-or compared spellings exactly. `tasks.md` § 1.10 sequences the descendant work
-after #40 and decides the interim rather than leaving it to the session that hits
-it: the descendant scaffolds, and the chain it relies on is RECORDED in its own
-manifest so the accidental pass is never left standing as the explanation. What
-the interim does not permit is adding a direct `openDox` pin to force the
-classification.
+That does not weaken #40; it is the argument for it, and #40 is now RESOLVED —
+openRepoShape PR #42, merge commit `c2cc9e25`, merged 2026-09-05T16:26:49Z —
+making the same classification TRUE by naming the chain the descendant
+actually relies on, and removing a pass that would have evaporated the moment
+anyone tightened the x-stem rule or compared spellings exactly. `tasks.md`
+§ 1.10 records the interim this lane decided rather than leaving it to the
+session that hit it: the descendant scaffolds, and the chain it relies on is
+RECORDED in its own manifest so the accidental pass is never left standing as
+the explanation, until the re-pin below carries #42's fix into this
+repository. What the interim does not permit is adding a direct `openDox` pin
+to force the classification.
 
-**A second dependency, measured while authoring this amendment:
-`opensoft/openRepoShape`#41.** `scaffold-project.py` REFUSES both invocations
-today — it prints `REFUSED naming-role-mismatch` and exits, saying `openDox`
-classifies as a neutral product rather than as the assembly form of a project
-leg — because `accepts_role()` admits
-only `project-leg/<role>` and `domain-descendant/assembly`. Verified at
-openRepoShape `main` `f9ff3f8` and at `122d729bc0c2f2e0ded0bb61b6b97f49512f613e`,
-the commit `contracts/openreposhape-pin.yaml` pins, so it is not a tip
-regression. The standard already computes the resolution it needs
-(`--explain openDox` reports `also_matches: project-leg/assembly`) and then
-discards it. #41 asks for the admission: a neutral product may elect the shape
-and be its own assembly root, on the same reasoning that already lets a declared
-descendant be one. **`tasks.md` § 1.1a carries it as the first act of § 1.**
-Nothing is blocked today, because this packet performs nothing.
+**A second dependency, measured while authoring this amendment and now also
+RESOLVED: `opensoft/openRepoShape`#41.** `scaffold-project.py` REFUSED both
+invocations at the commit this repository pins — it printed `REFUSED
+naming-role-mismatch` and exited, saying `openDox` classifies as a neutral
+product rather than as the assembly form of a project leg — because
+`accepts_role()` admitted only `project-leg/<role>` and
+`domain-descendant/assembly`. Verified at openRepoShape `main` `f9ff3f8` and at
+`122d729bc0c2f2e0ded0bb61b6b97f49512f613e`, the commit
+`contracts/openreposhape-pin.yaml` pins, so it was not a tip regression. The
+standard already computed the resolution it needed (`--explain openDox`
+reported `also_matches: project-leg/assembly`) and then discarded it. #41
+asked for the admission — a neutral product may elect the shape and be its own
+assembly root, on the same reasoning that already lets a declared descendant
+be one — and openRepoShape PR #45, *A neutral product may elect the shape and
+be its own assembly root (#41)*, merge commit `5ffa8d58`, merged
+2026-09-05T17:19:12Z, authored by lane `xfactory-2`, is that admission.
+openRepoShape `main` is now at `355f6ef4` (#47), which carries both `c2cc9e25`
+and `5ffa8d58`. **The blocker that remains is a RE-PIN**: this repository's
+`contracts/openreposhape-pin.yaml` still pins
+`122d729bc0c2f2e0ded0bb61b6b97f49512f613e`, a commit predating both fixes, and
+a single re-pin to any commit ≥ `355f6ef4` — its own pin-sync pull request
+under `neutral-product-pin` — covers both. **`tasks.md` § 1.1a carries it as
+the first act of § 1.** Nothing is blocked today, because this packet
+performs nothing.
 
 **Where `contracts/manifest.yaml` and the bundle tag live, and why.** In the
 ASSEMBLY ROOT of each project, with the release cut there. The assembly root is

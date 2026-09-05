@@ -112,8 +112,9 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
 
 - [ ] 1.1 `[oD]` **SCAFFOLD the `openDox` project — three repositories in one
   run**, from a clean checkout of `opensoft/openRepoShape` at the commit
-  `contracts/openreposhape-pin.yaml` pins. **BLOCKED UNTIL 1.1a — the tool
-  REFUSES this exact command today; read 1.1a before running it:**
+  `contracts/openreposhape-pin.yaml` pins. **BLOCKED UNTIL the re-pin lands
+  (1.1a) — the tool REFUSES this exact command at the commit this repository
+  pins today; read 1.1a before running it:**
 
   ```
   python3 scaffold-project.py \
@@ -131,10 +132,16 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   organization (RULING C1). *(Amended 2026-09-05: this first said "Create
   `opensoft/openDox`: PUBLIC, Apache-2.0, `opensoft`-owned" — one repository,
   created by hand.)*
-- [ ] 1.1a `[oD]` `[oXd]` **SEQUENCED AFTER `opensoft/openRepoShape`#41 — and
-  today the two invocations above are REFUSED.** Measured 2026-09-05 at
-  openRepoShape `main` `f9ff3f8` AND at `122d729bc0c2f2e0ded0bb61b6b97f49512f613e`,
-  the commit this repository pins, so it is not a tip regression:
+- [ ] 1.1a `[oD]` `[oXd]` **`opensoft/openRepoShape`#41 is RESOLVED — the
+  blocker has MOVED to a re-pin in this repository.** #41 was CLOSED as
+  completed 2026-09-05T17:19:12Z by openRepoShape PR #45, *A neutral product
+  may elect the shape and be its own assembly root (#41)*, merge commit
+  `5ffa8d58`, authored by lane `xfactory-2`; openRepoShape `main` is now at
+  `355f6ef4` (#47). **The two invocations above are still refused at the
+  commit this repository pins** (`122d729bc0c2f2e0ded0bb61b6b97f49512f613e`)
+  **and are accepted at openRepoShape `main`, or any commit ≥ `355f6ef4`**
+  (which carries #45 and, before it, #42 — the pin-chain fix, see 1.10).
+  Measured refusal, kept here as history:
 
   ```
   REFUSED naming-role-mismatch: 'openDox' classifies as neutral-product, not as
@@ -143,18 +150,23 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   Remediation: re-run with a --project value that is one CamelCase token.
   ```
 
-  `accepts_role()` in `scripts/repo_shape.py` admits only `project-leg/<role>`
-  and `domain-descendant/assembly`, and the offered remediation is not
+  `accepts_role()` in `scripts/repo_shape.py` admitted only `project-leg/<role>`
+  and `domain-descendant/assembly`, and the offered remediation was not
   takeable — the name is the product's name and is what the ruling elected.
-  `scripts/validate-repository-naming.py --explain openDox` already computes
-  the resolution this needs (`also_matches: project-leg/assembly`) and
-  `accepts_role()` discards it.
-  **openRepoShape#41 asks for the admission; § 1 starts when it lands**, and the
-  pin here bumps in its own commit first. Nothing else in the packet waits on
-  it, because the packet performs nothing.
+  `scripts/validate-repository-naming.py --explain openDox` already computed
+  the resolution this needed (`also_matches: project-leg/assembly`) and
+  `accepts_role()` discarded it. #45 is the admission #41 asked for.
+  **The blocker is now a RE-PIN of `opensoft/openRepoShape` in this
+  repository to a commit ≥ `355f6ef4`** (a single re-pin covers both #42 and
+  #45) — done as its own pin-sync pull request under `neutral-product-pin`
+  (a new `commit:` and refreshed digests in
+  `contracts/openreposhape-pin.yaml`; the `openreposhape-pin` check validates
+  it). **1.1 and 1.2 are BLOCKED UNTIL the re-pin lands.** Nothing else in the
+  packet waits on it, because the packet performs nothing.
 - [ ] 1.2 `[oXd]` **SCAFFOLD the `openXdox` project — three repositories, and the
   family's ONE pin (RULING OQ-2)**, after 1.1 has landed a commit on
-  `opensoft/openDox`. **BLOCKED UNTIL 1.1a on the same refusal:**
+  `opensoft/openDox`. **BLOCKED UNTIL the re-pin lands (1.1a), on the same
+  refusal:**
 
   ```
   python3 scaffold-project.py \
@@ -249,8 +261,11 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   and the register never originates an election. Where the two disagree, the
   register wins for NAVIGATION only and the disagreement is reported as drift —
   it does not re-elect anything. Lands with 5.8's other aggregation edits.
-- [ ] 1.10 `[oXd]` `[oxF]` **NEW (2026-09-05) — THE PIN CHAIN, and it is
-  SEQUENCED AFTER `opensoft/openRepoShape`#40.** `openXdox`'s `project.yaml`
+- [ ] 1.10 `[oXd]` `[oxF]` **NEW (2026-09-05) — THE PIN CHAIN. `opensoft/openRepoShape`#40
+  is RESOLVED**, by openRepoShape PR #42, *Descendant referent follows the
+  declared pin chain (#40)*, merge commit `c2cc9e25`, merged 2026-09-05T16:26:49Z
+  — the SAME re-pin that 1.1a names for #41 (to a commit ≥ `355f6ef4`) covers
+  #42 as well, since `355f6ef4` carries both. `openXdox`'s `project.yaml`
   declares `neutral_product_pins: [openDox]` (written by 1.2's `--pin`); every
   descendant declares `neutral_product_pins: [openXdox]` and records the chain
   it relies on — `naming.referent_chain: [openXdox, openDox]` — per
@@ -259,7 +274,8 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   REACH the matching `open<Product>` through declared links. This preserves
   RULING OQ-2 exactly: inside the family openDox is pinned only by openXdox, and
   no descendant pins openDox directly.
-  **If #40 has not landed when § 7 runs, that is NOT a blocker — it is a
+  **#40 is resolved upstream (above); if the RE-PIN that carries it into this
+  repository has not landed when § 7 runs, that is NOT a blocker — it is a
   recorded interim, and the decision is taken here rather than left to the
   session that hits it. It is also not the interim #40's own issue body
   predicts, and the measurement is recorded here so nobody re-derives it.**
@@ -281,8 +297,9 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   false.** So the interim is: scaffold, and RECORD the chain actually relied on
   (`naming.referent_chain: [openXdox, openDox]`) in the descendant's own
   manifest, so the accidental pass is never left standing as the explanation;
-  #40 landing later makes the same classification true and re-reads the same
-  tree with no migration. What the interim does NOT permit is adding a direct
+  the re-pin landing later makes the same classification true (#40 already
+  reasons this way upstream) and re-reads the same tree with no migration.
+  What the interim does NOT permit is adding a direct
   `openDox` pin to a descendant to force the classification — that would break
   OQ-2 to satisfy a validator.
 

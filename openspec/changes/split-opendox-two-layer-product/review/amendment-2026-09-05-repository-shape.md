@@ -176,25 +176,38 @@ not a fact this record has any business carrying.
 
 ## Cross-repository dependency
 
+**Both openRepoShape issues are now RESOLVED; what remains is a re-pin.**
+
 **`opensoft/openRepoShape`#40** — *Descendant referent follows the declared pin
-chain*: the mechanics of clause 2, authored in that repository under its own
-lane. `tasks.md` § 1.10 sequences the descendant work after it and DECIDES the
-interim rather than leaving it to whoever hits it — and the interim is the
-MEASURED one above, not the one #40's body predicts: a descendant scaffolded
-today PASSES as a `domain-descendant` on a case-fold collision between
+chain*: RESOLVED by openRepoShape PR #42, merge commit `c2cc9e25`, merged
+2026-09-05T16:26:49Z. `tasks.md` § 1.10 records the interim this lane decided
+rather than leaving it to whoever hit it — and the interim was the MEASURED
+one above, not the one #40's body predicted: a descendant scaffolded before
+the fix PASSES as a `domain-descendant` on a case-fold collision between
 `openXdox` and the also-accepted referent spelling `openxDox`, recording a
 declared `openDox` referent it does not have. The interim is therefore to
 scaffold AND record the chain actually relied on
 (`naming.referent_chain: [openXdox, openDox]`), so the accidental pass is never
-left standing as the explanation; #40 landing later makes the same
-classification true and re-reads the same tree with no migration. It does NOT
-license a direct `openDox` pin to force the classification.
+left standing as the explanation; the re-pin landing makes the same
+classification true (#40 already reasons this way upstream) and re-reads the
+same tree with no migration. It does NOT license a direct `openDox` pin to
+force the classification.
 
 **`opensoft/openRepoShape`#41** — *a neutral-product name refused as an assembly
-root*: filed from this session's own measurement (above). It blocks the FIRST
-ACT of `tasks.md` § 1 and nothing else; § 1.1a carries it.
+root*: filed from this session's own measurement (above); RESOLVED by
+openRepoShape PR #45, *A neutral product may elect the shape and be its own
+assembly root (#41)*, merge commit `5ffa8d58`, merged 2026-09-05T17:19:12Z,
+authored by lane `xfactory-2`. It blocked the FIRST ACT of `tasks.md` § 1 and
+nothing else; § 1.1a carries it.
 
-Neither is a dependency of THIS pull request, which performs nothing.
+**What remains is a RE-PIN of `opensoft/openRepoShape` in this repository.**
+openRepoShape `main` is now at `355f6ef4` (#47), which carries both `c2cc9e25`
+and `5ffa8d58`; this repository's `contracts/openreposhape-pin.yaml` still
+pins `122d729bc0c2f2e0ded0bb61b6b97f49512f613e`, a commit that predates both.
+A single re-pin to any commit ≥ `355f6ef4` — its own pin-sync pull request
+under `neutral-product-pin`, validated by the `openreposhape-pin` check —
+covers both, and `tasks.md` § 1.1/1.2 name it as the sequencing condition.
+Neither issue is a dependency of THIS pull request, which performs nothing.
 
 ## Sibling-lane disclosure
 

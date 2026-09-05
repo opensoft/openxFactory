@@ -115,7 +115,7 @@ requires.
 > narrowed or widened here, it is read as what it always was — a requirement that
 > a referent be DECLARED, not a requirement that it be declared in one hop.
 > Ruled by Brett Heap, 2026-09-05T14:52Z, in session, verbatim: **"elect the
-> shape for both, follow the pin chain, no family yet."** A
+> shape for both, follow the pin chain, no family yet"**. A
 > `<Domainx><Product>` name classifies as a domain descendant
 > where its declared `neutral_product_pins` REACH the matching `open<Product>`
 > through a CHAIN of declared neutral-product pins — `codexDox` declares
