@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "add-chain-attestation",
+      "type": "change",
+      "valid": false,
+      "issues": [
+        {
+          "level": "ERROR",
+          "path": "signed-execution-chain/spec.md",
+          "message": "MODIFIED \"A gate validates the short chain as a hash-linked chain\" omits scenario(s) the current spec still has: \"a tranche-two link does not exist yet\". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them)."
+        }
+      ],
+      "durationMs": 46
+    }
+  ],
+  "summary": {
+    "totals": {
+      "items": 1,
+      "passed": 0,
+      "failed": 1
+    },
+    "byType": {
+      "change": {
+        "items": 1,
+        "passed": 0,
+        "failed": 1
+      }
+    }
+  },
+  "version": "1.0",
+  "root": {
+    "path": "/tmp/claude-1000/-home-brett-projects-xFactory-xFactories-codexFactory/2798f066-ba06-4d5e-bc8e-c4649938d897/scratchpad/oxf-bump",
+    "source": "nearest"
+  }
+}

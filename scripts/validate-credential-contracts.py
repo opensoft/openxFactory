@@ -60,6 +60,7 @@ import yaml
 from jsonschema import Draft202012Validator
 
 SCHEMA = Path(__file__).resolve().parents[1] / "contracts/schemas/xfactory-credential-contracts.schema.yaml"
+MANIFEST = Path(__file__).resolve().parents[1] / "contracts/manifest.yaml"
 KINDS = {
     "xfactory_credential_requirements",
     "xfactory_runtime_capability_grant_template",
@@ -137,9 +138,37 @@ ISSUANCE_PRECONDITIONS = ("accepted_request_required", "registered_active_subjec
 # add-binding-consumer-identity — the consumer block, DECLARED at this minor
 # and CONSTRAINED at the major.
 # --------------------------------------------------------------------------
-# The release every deprecation below names. It is a STRING in one place so a
-# message cannot drift from the policy entry that governs it.
-MAJOR_RELEASE = "contract-v3.0"
+_BUNDLE_VERSION = re.compile(r"^contract-v(\d+)\.\d+$")
+
+
+def _major_release() -> str:
+    """The release every deprecation below names, DERIVED rather than pinned
+    (openxFactory#634). A hand-pinned string went stale the moment
+    `contract-v3.0` — the release it named — was cut without the eight acts it
+    describes: `docs/contract-versioning-policy.md` § Deprecations Currently In
+    Force RESTATES the removal target to the NEXT major every time the current
+    one arrives without them, so the correct name is always "one major past the
+    one this bundle has cut", never a literal a future cut has to remember to
+    move. `tests/credential_contracts/test_major_release_matches_policy.py`
+    checks the derivation against that section's own text, so a restatement
+    that changes the pattern — rather than merely advancing it — is caught
+    there instead of here.
+    """
+    manifest = yaml.safe_load(MANIFEST.read_text())
+    if not isinstance(manifest, dict):
+        raise SystemExit(
+            f"{MANIFEST}: does not parse to a mapping ({type(manifest).__name__}); "
+            f"MAJOR_RELEASE cannot be derived from it")
+    bundle = manifest.get("contract_bundle_version")
+    found = _BUNDLE_VERSION.match(bundle or "")
+    if not found:
+        raise SystemExit(
+            f"{MANIFEST}: contract_bundle_version {bundle!r} is not of the shape "
+            f"contract-v<major>.<minor>; MAJOR_RELEASE cannot be derived from it")
+    return f"contract-v{int(found.group(1)) + 1}.0"
+
+
+MAJOR_RELEASE = _major_release()
 
 # The block's declared member set. Mirrored from the schema's description for
 # the same structural reason ISSUANCE_PRECONDITIONS is mirrored: at this minor

@@ -484,8 +484,9 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [implement-omniworker-install-repo](openspec/changes/implement-omniworker-install-repo/proposal.md)
-  — authored 2026-09-05, **`Status: draft`**, on Brett Heap's in-session
-  rulings of the same day: the name **`omniWorker`** covers *"The worker-host
+  — authored 2026-09-05, **`Status: ratified`** (2026-09-05, Brett Heap, in-session,
+  *"ratify 680 and merge 16"*, against head `91866619`; recorded at `176b3104`),
+  on Brett Heap's in-session rulings of the same day: the name **`omniWorker`** covers *"The worker-host
   product only"*, so the host material SPLITS out of `opensoft/Omnigent-Install`
   into a NEW repository `OmniWorker-Install` rather than renaming it —
   **Omnigent remains the orchestrator's name**, and the neutral
@@ -496,7 +497,7 @@ Active changes:
   every box in `tasks.md` is unchecked. What it authors is ONE
   `repo-boundary-governance` requirement (*OmniWorker install repository
   boundary*, in the family style of its four siblings), the naming record
-  `docs/omniworker-naming.md` (`Status: draft` until this change lands; three
+  `docs/omniworker-naming.md` (`Status: ratified` with the packet; three
   casings — `omniWorker` brand, `OmniWorker-Install` repository,
   `omniworker` machine keys, the last already deployed as `svc-omniworker`), a
   directory-by-directory split table in which **every row is tagged RULED,
@@ -517,6 +518,96 @@ Active changes:
   fleet re-attestation after omni001's reprovision, which destroys Entra device
   `08829330-2098-461c-a950-0047e163f2b1` — today the only endpoint in that
   factory's live targeting scope — and issues a new id.
+
+- [amend-published-tip-unreadable-scenario](openspec/changes/amend-published-tip-unreadable-scenario/proposal.md)
+  — authored 2026-09-05, **`Status: ratified`** (2026-09-05, Brett Heap,
+  in-session, on the recorded word *"ratify 678, use openxfactory-1, land it
+  when green"*; records
+  `openspec/changes/amend-published-tip-unreadable-scenario/review/ratification-2026-09-05.md`
+  and `verification-2026-09-05.md`). Origin: openxFactory issue **#662**, filed
+  by lane `doxbench-stewardship` out of PR #646's reviewer note on #612, and
+  Brett's earlier *"do both as a batch on one word"* — an ADMISSION to the
+  queue, **not** the ratification. **D1 was the packet's veto point and was NOT
+  vetoed**, so the `WHEN`-side reading is ratified knowingly. The same word
+  settled the lane id: **`openxfactory-1` lowercase is canonical**, the spelling
+  the ratified `lane-line` grammar can express, and **`lane-line.yml` is not
+  amended**. **`code_surface: none` means this change ARCHIVES ON LANDING** — a
+  separate archive act promotes the requirement and closes #662.
+  **CANON NAMES A CAUSE THE CHECKER HAS SINCE PROVED IS THE WRONG ONE.**
+  `doc-health`'s *Release-tag publication* scenario *The manifest cannot be read
+  at the published tip* tells its reader that an empty manifest read's
+  "commonest cause" is "a checkout that has not fetched that commit". **The
+  measurement ran the other way** (#612): on the aggregation nightly the commit
+  WAS fetched — the workflow's own fetch step had put all ten published tips in
+  the store — and **nine of the ten governed repositories simply carry no
+  `contracts/manifest.yaml` at all**, so every night those nine were reported in
+  an unfetched checkout's words, sending readers to hunt a fetch defect that did
+  not exist. **PR #646 (`2177b2a2`) taught the family to establish which fact
+  holds before choosing its words**; this packet is canon catching up.
+  **ONE requirement MODIFIED**, restated in full with all 30 promoted scenarios,
+  changing exactly one scenario: the `WHEN` bullet REPLACED to name **both
+  facts** the single answer stands for, plus two `AND` bullets — one requiring
+  the family to have ESTABLISHED which holds (presence, then one bounded fetch)
+  *rather than naming a cause it did not check*, one saying that a tip the
+  checkout HOLDS is an ANSWER and must be reported as such. The promoted `THEN`
+  and the closing `verify_tag`/#338 clause are carried byte-identical.
+  **ONE canon unit is dropped and it is DECLARED** — the block carries the
+  reserved `Removed from canon by` marker naming the old `WHEN` verbatim, which
+  is the difference from `add-release-tag-gate`, whose block only added.
+  **`code_surface: none`** — no script, no test and no contract member moves;
+  the behaviour already exists and the suite already pins the two skip texts
+  apart from each other. No file is added under `openspec/specs/`, so **no
+  codexFactory floor advance**. `design.md` **D1** is flagged for veto: the
+  establishing obligation is written on the `WHEN` side (non-circular, weaker as
+  a compliance hook) rather than as a `THEN`-side `MUST`.
+
+- [bump-openspec-cli-pin-to-1.12](openspec/changes/bump-openspec-cli-pin-to-1.12/proposal.md)
+  — authored 2026-09-05, **`Status: draft`**, on Brett Heap's ruling *"take exit
+  2"* — a decision among the three exits #673 enumerated, **not** a ratification
+  of this text. **THIS IS THE BUMP #667 NAMED.**
+  `contracts/openspec-cli-pin.yaml` moves `@fission-ai/openspec` from `1.2.0`
+  to **`1.12.0`** by CONTENT ADDRESS: both hashes recomputed in-lane over the
+  real 477,381-byte / 389-file tarball
+  (`sha512-oFE2Lj7WVSc87nSi…`, shasum `c844543999…`), the previous referent kept
+  as a `rollback:` block in the pin's own grammar. **THE PRECONDITION IS MET AND
+  MEASURED:** #673 here and #220 in OpsxFactory cleared the pre-existing
+  conditions, and on 2026-09-05 OpsxFactory reads **47 passed / 0 failed** at
+  `1.12.0` outright while openxFactory reads **88 passed / 2 failed of 90**.
+  **THE TWO ARE NOT DEFECTS AND ARE NOT HIDDEN.** Both are deliberate scenario
+  narrowings declared with the reserved
+  ``**Merged into `<destination>` by <change> (<date>):**`` marker (council
+  LA-A1; #444), and `doc-health`'s promoted marker requirement uses the
+  composed-view pair as its **worked example** at
+  `openspec/specs/doc-health/spec.md:1770` — so 1.12.0's marker-blind
+  scenario-currency check re-reports as ERRORs exactly what canon holds up as
+  correct, and the only satisfying edit would revert two ratified decisions.
+  **So the packet adds a cited DISPOSITION mechanism** to
+  `scripts/validate-openspec-cli-pin.py` (check 6) and to the pin: an exception
+  names one repository, one item, one delta path and the finding's text matched
+  WHOLE, carries a non-empty `cited_to:` and a `ratified_by:`, and is PRINTED BY
+  NAME on every run so a pass cannot be mistaken for a clean tree. **A
+  disposition matched by NO finding in a WHOLE-CORPUS run REFUSES**
+  (`pin-disposition-stale`, exit 2; a narrowed `--change` run applies its
+  dispositions, decides no staleness and says so):
+  `add-composed-view-authoring` has one open box left, and the day it archives
+  this pin fails until its entry is deleted — the archive forcing the re-reading,
+  by design. Dispositions are scoped by repository (identity read from the git
+  remote, never the directory name, because every change is authored in a
+  worktree named for its branch), so OpsxFactory's run through the same pin
+  applies neither and is correctly reported *clean*. **A pin with no
+  `dispositions:` takes the original streaming path** — no `--json`, no parsing,
+  no git call — so the 1.2.0-era behaviour is a branch rather than a promise.
+  Tests 41 → **81**, including both `--json` array shapes parsed from CAPTURED
+  REAL 1.12.0 bytes and an offline reconciliation of the pin's own `finding:`
+  strings against them. **The old binary on PATH is now REFUSED**
+  (`pin-version-mismatch`), demonstrated in the record. **Exit 3 is DRAFTED AND
+  NOT FILED** — `evidence/upstream-issue-draft-merged-into-marker.md`, a
+  ready-to-file `fission-ai/openspec` issue with a minimal reproduction; filing
+  it is Brett's act, and if upstream fixes the check the dispositions go stale
+  and the mechanism removes them. **HUMAN-ONLY**, not clearable by a council.
+  Evidence, with the raw `2 failed` shown verbatim beside the reconciled
+  `0 undispositioned`:
+  `openspec/changes/bump-openspec-cli-pin-to-1.12/evidence/pin-bump-1.12-2026-09-05.md`.
 
 - [prepare-openspec-1.12-readiness](openspec/changes/prepare-openspec-1.12-readiness/proposal.md)
   — authored 2026-09-05, **`Status: draft`**, on Brett Heap's in-session word
@@ -667,6 +758,66 @@ Active changes:
   REALIZATION**, because the floor's runbook says DE-FLOOR BEFORE YOU REMOVE and
   this packet adds and removes no path under `openspec/specs/`.
   `Refs #656`.
+
+- [mirror-floor-addition-grace](openspec/changes/mirror-floor-addition-grace/proposal.md)
+  — authored 2026-09-05, **`Status: ratified`** (2026-09-05, Brett Heap,
+  in-session, verbatim *"ratify the companion when green, then realize it"*,
+  applied at head `ce9a81ed`; record
+  `openspec/changes/mirror-floor-addition-grace/review/ratification-2026-09-05.md`).
+  **THE SEVEN ADDED REQUIREMENTS ARE RATIFIED AS WRITTEN; AUTHORING DECISIONS
+  A–F STAND AS RECOMMENDED, VETO-ABLE BY FOLLOW-UP.**
+  **THE PULL REQUEST THAT PROMOTES A CAPABILITY IS REFUSED FOR CREATING THE PATH
+  THE FLOOR IS SUPPOSED TO PROTECT — AND HERE THE REFUSAL BLOCKS.**
+  codexFactory's `repository_gate_floor` for this repository is an EXACT SET (59
+  generated spec paths inside a 67-entry floor), so a promotion is an ADDITION
+  to the set it enumerates and `surface − entries` reports the new path as
+  uncovered in two places at once: `tests/review_lane_pin/test_floor_snapshot.py`'s
+  LQ-A7 assertion inside the **REQUIRED** `pytest-suite` (org ruleset
+  `21538893`) together with the two negative controls that fail with it by
+  construction, and `.github/workflows/merge-master-approval.yml` step 8 at
+  stage `floor_incomplete`. **THE REPAIR WAS PAID FIVE TIMES IN TWO DAYS** —
+  codexFactory PRs #183/#195/#197/#198/#204, four of them on 2026-09-04, each
+  matched here by an advance moving FIVE SITES IN LOCKSTEP; the floor document
+  concedes it (*"TWO ADVANCES IN ONE DAY IS THE FEATURE'S CADENCE, NOT AN
+  INCIDENT"*). codexFactory has now fixed its half —
+  `add-floor-addition-grace`, ruled option (c) at its issue #203 (*"rule c, this
+  lane authors it"*), ratified (*"ratify 205, B1 stands"*) and realized by its
+  PR #206, merge `712fc8ca` — and its ratified requirement *"The blocking check
+  and the reporting lane implement one completeness rule"* NAMES this repository
+  as the companion and deliberately does not author it (its tasks 4.1–4.3).
+  This is that companion. Governing issue #675.
+  **ONE RULE, TWO LANES**: an off-floor spec path is COVERED-PENDING when the
+  candidate's own diff creates it (git status `added`) or — B1, ratified — when
+  it was added to `main` after the block's `generated_at`; never for a removal,
+  rename, copy or modification; an empty or degenerate surface never passes.
+  **THE FAIL-SAFE IS THE DEFAULT**: no base, no merge base, an unresolvable or
+  non-ancestor pin → NO grace, uncovered, today's behaviour, because *an
+  unresolvable pin is a reason to refuse, never a reason to excuse*.
+  **THE REQUIRED LANE MIRRORS AND REPLAYS; THE ADVISORY LANE IMPORTS**
+  (decision **A**) — the pinned core checkout is `continue-on-error` in
+  `pytest-suite` on purpose, so an IMPORTING blocking assertion could only skip
+  (the blocking check silently stops blocking — the CSC-F16 shape inside the
+  guard against CSC-F16) or fail for a cause no candidate can fix; the mirror is
+  therefore local and its FALSIFIER is foreign, replaying the core's 16 exported
+  vectors plus 5 refused ones, watched by name with `EXPECT_SKIPPED` 21 → 22 in
+  PR #569's own discipline. Step 8, which already treats an unreadable core as
+  fatal, imports and deletes its hand-rolled set difference.
+  **AND THE ADVISORY LANE'S BASE CHECKOUT IS SHALLOW TODAY** (no `fetch-depth:`
+  at all), so B1 would be permanently fail-safed off there while working in the
+  blocking lane — the exact disagreement the ratified requirement forbids.
+  **A MEASURED DEFECT IN THIS REPOSITORY IS RETIRED BY IT**: re-measured
+  2026-09-05, THREE of the last five declared `generated_at` pins — `3afd8a8c`
+  (**the live one**), `c236c6b1`, `8d893a0f` — are NOT ancestors of `main`,
+  because the old order forced regeneration at a pull-request head; with the
+  addition graced the regeneration FOLLOWS the landing and pins at a landed
+  commit. SEVEN `## ADDED Requirements`, 28 scenarios, in a NEW capability
+  `review-lane-floor-mirror` (decision **B**: `neutral-product-pin` was declined
+  because `contracts/review-lane-pin.yaml` deliberately is NOT a
+  `pinned_contract_manifest`, on its own written ground). First
+  CROSS-REPOSITORY `sequenced_after:` in this corpus
+  (`[codexFactory:add-floor-addition-grace]`, well-formedness-checked only).
+  **PROPOSAL ONLY** — no realization code, no pin advance, no regeneration, no
+  D-3 tolerance value, no codexFactory file touched.
 
 - [add-openspec-cli-pin](openspec/changes/add-openspec-cli-pin/proposal.md)
   — authored 2026-09-04, **`Status: draft`**, on Brett Heap's word

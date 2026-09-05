@@ -182,7 +182,9 @@ rows:
   align-status-reader-to-real-lines: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   amend-chain-anchoring-readiness-and-durability: {state: archived, class: sole, declares: [add-chain-anchoring], depth: 1, prose: false, moved_by: "#670", moved_on: "2026-09-05"}
   amend-owner-layer-severity: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  amend-published-tip-unreadable-scenario: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#678", moved_on: "2026-09-05"}
   apply-branch-sessions-deltas: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  bump-openspec-cli-pin-to-1.12: {state: active, class: sole, declares: absent, prose: false, moved_by: "#677", moved_on: "2026-09-05"}
   clarify-avatar-revocation-client-enforced: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   clean-doc-health-floor: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   concretize-prose-tagging-syntax: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
@@ -211,6 +213,7 @@ rows:
   implement-omniworker-install-repo: {state: active, class: sole, declares: absent, prose: false, moved_by: "#680", moved_on: "2026-09-05"}
   implement-openxpki-install-repo: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   migrate-canonical-policy-to-openxfactory: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  mirror-floor-addition-grace: {state: active, class: sole, declares: [codexFactory:add-floor-addition-grace], depth: 0, prose: false, moved_by: "#676", moved_on: "2026-09-05"}
   neutralize-job-envelope: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   prepare-openspec-1.12-readiness: {state: active, class: sole, declares: absent, prose: false, moved_by: "#673", moved_on: "2026-09-05"}
   promote-credential-contracts: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
