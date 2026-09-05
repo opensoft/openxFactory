@@ -405,11 +405,16 @@ the manifest read's, and it inherits it COMPLETELY, because the manifest is read
 AT THE SAME COMMIT and must have answered before this arm can be reached. A blob
 cannot be read out of a commit the checkout does not hold, so by the time the
 changelog answers nothing the unfetched fact is not merely the rarer one: IT IS
-EXCLUDED, and the only fact left standing is a tip this checkout holds that
-carries no `contracts/CHANGELOG.md`. Naming the other one is therefore not a bad
-guess but a statement the family's own position already contradicts — so the
-skip SHALL say WHICH FACT HOLDS and SHALL state the presence, rather than leave
-a reader of the report to infer a fetch defect that cannot be there.
+EXCLUDED, and the only fact left standing is a tip this checkout HOLDS at which
+no readable `contracts/CHANGELOG.md` blob came back. Naming the other one is
+therefore not a bad guess but a statement the family's own position already
+contradicts — so the skip SHALL say WHICH FACT HOLDS and SHALL state the
+presence, rather than leave a reader of the report to infer a fetch defect that
+cannot be there. **AND IT SHALL CLAIM NO MORE THAN THE PRESENCE GIVES IT.** A
+held commit licenses "no readable blob came back at this path"; it does not
+license "the commit carries no such file", because a store that holds the commit
+AND its trees can still fail to produce the blob. Reporting that as a clean
+absence would be the same conflation pointed in a third direction.
 
 **Removed from canon by amend-unreadable-read-sibling-scenarios (2026-09-05):**
 ``**WHEN** the blob read for `contracts/CHANGELOG.md` at the published tip answers nothing — the commonest cause being a checkout that has not fetched that commit`` — the
@@ -515,10 +520,10 @@ else in this requirement is dropped.
 - **AND** the SPENT state MUST reach the ABSENT-tag arm and nothing else
 
 #### Scenario: The changelog cannot be read at the published tip
-- **WHEN** the blob read for `contracts/CHANGELOG.md` at the published tip answers nothing — ONE ANSWER STANDING FOR TWO DIFFERENT FACTS: the commit is not in this checkout's object store, or the commit IS held and carries no `contracts/CHANGELOG.md` at all
+- **WHEN** the blob read for `contracts/CHANGELOG.md` at the published tip answers nothing — ONE ANSWER STANDING FOR TWO DIFFERENT FACTS: the commit is not in this checkout's object store, or the commit IS held and NO READABLE `contracts/CHANGELOG.md` BLOB IS REACHABLE AT IT, whether because the tree carries no such entry or because the blob object itself is not in this store
 - **AND** the family has ESTABLISHED WHICH OF THE TWO HOLDS before choosing the words it reports — here by INHERITANCE and completely, the manifest read at that SAME COMMIT having already answered, which a commit this checkout does not hold cannot do — rather than naming a cause it did not check
 - **THEN** the family MUST report a skip naming that read, and MUST NOT treat the absence of a declaration it could not look for as the absence of a declaration
-- **AND** where the commit IS held and simply carries no `contracts/CHANGELOG.md`, the skip MUST SAY THAT and MUST state the presence, because a tip this checkout holds is an ANSWER rather than a read that failed, and reporting it in the unfetched case's words sends a reader to look for a fetch defect that does not exist
+- **AND** where the commit IS held, the skip MUST SAY THAT and MUST state the presence — naming the held commit and the read that returned nothing at it, and NOT asserting a file absence the held commit does not establish — because a tip this checkout holds is an ANSWER rather than a read that failed, and reporting it in the unfetched case's words sends a reader to look for a fetch defect that does not exist
 - **AND** this is the same conflation the manifest read already guards one document over: not fetched is not an answer, in either direction
 
 #### Scenario: The bundles untagged before this state existed are not retrofitted

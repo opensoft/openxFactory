@@ -117,6 +117,20 @@ bounded fetch of exactly that commit was attempted and did not obtain it"*. Two
 skips that are only positively pinned can drift into each other's words, which
 is the defect class this whole family of amendments exists to close.
 
+**AND THE WORDING SAYS ONLY WHAT THE PRESENCE PROVES** (PR #688 adversarial
+review, P3). The first draft of this skip said the commit *"IS present and
+carries no `contracts/CHANGELOG.md`"*, and the second half of that is a claim
+about the TREE which the read cannot support. `blobs_at`'s per-path None is
+answered for a THIRD state as well as the two the scenario names: a store that
+holds the commit AND its trees but not the blob object. It is not hypothetical —
+remove the loose object from a store and `cat-file --batch` answers `<spec>
+missing` for a path `ls-tree` still lists. So the skip is written as the read it
+has, *"the commit is held in this store and no readable `contracts/CHANGELOG.md`
+blob is reachable at it"*, which is TRUE OF BOTH held states; the amended `WHEN`
+folds that third state into its held arm rather than claiming an exhaustiveness
+it does not have; and the over-claiming form is pinned against NEGATIVELY in the
+same test, so it cannot come back.
+
 ## D5 — one unit is dropped, so the marker is owed and is carried
 
 Exactly as #678's D3. The block REPLACES a bullet, so under `doc-health`'s
@@ -139,3 +153,46 @@ not a deletion**, and the marker's reason says so.
 They are **carried byte-identical and are not restated, reworded or merged**;
 the new note is added below them so the two amendments read in the order they
 happened.
+
+## D6 — the skip STILL SUPPRESSES the grading, and that is left to the successor
+
+**The finding (PR #688 adversarial review, P2), stated at full strength.** The
+amended `WHEN`-side `AND` establishes that the only fact reachable at this arm
+is a HELD tip carrying no readable `contracts/CHANGELOG.md`. The promoted `THEN`
+carried byte-identical then says the family *"MUST NOT treat the absence of a
+declaration it could not look for as the absence of a declaration"* — which
+presumes the family COULD NOT LOOK. At this arm it could: the commit is held,
+and a file that is provably not there is not a read that failed.
+
+**And the code still answers it as one.** The `if changelog is None:` guard
+stands ABOVE the `in_scope` loop and RETURNS, so a held tip with an in-scope
+bundle and no changelog is answered with a skip INSTEAD OF the tag findings the
+loop would have emitted. Measured on a shim: tag absent and no changelog blob →
+one `Skip`; the same shim with an EMPTY changelog → one `error` naming the
+untagged bundle. A provably absent changelog SUPPRESSES a finding an empty one
+does not.
+
+**Decision: this packet stops at wording, and the successor is named.**
+
+- It is **NOT A REGRESSION.** The identical shim answers identically at
+  `origin/main`; the position, the gate and the return are carried unchanged
+  (D4), and the packet moves one string and one comment.
+- It is **NOT THIS PACKET'S TO FIX.** Moving that return decides WHICH FINDINGS
+  an in-scope repository receives. That is a behaviour change: it needs its own
+  scenarios (what the family reports for a bundle whose SPENT state genuinely
+  could not be read, versus one where the document is simply not there), its own
+  severity reading, and its own measurement over the nightly. A packet whose
+  whole claim is *"one skip's TEXT, for one reachable state"* cannot carry it
+  without becoming the thing #678's lesson warns against — a scope that grew
+  after the reading that justified it.
+- It is **NOT SILENTLY CARRIED.** The cost is written into `proposal.md`
+  § What this proposal does NOT claim as a named carve-out, and `tasks.md` § 6
+  names the successor as OWED, in the same shape #678 used to name this packet.
+
+**What the successor owes**, so it is not re-derived: split the arm on the fact
+the read already has. A held tip with no readable changelog is an ANSWER — no
+SPENT declaration exists — and the loop should run with no declarations rather
+than be skipped past; a tip that could not be read at all keeps the skip. The
+`THEN` bullet carried here is what that successor amends, and it is the reason
+this packet did not rewrite it.
+

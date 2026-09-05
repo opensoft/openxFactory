@@ -1226,10 +1226,10 @@ def check_repo(repo: str, repo_path: Path, git,
         # IN-SCOPE-NESS RATHER THAN ON POSITION. `blobs_at` answers None PER
         # PATH for a blob it cannot read, and that ONE ANSWER STANDS FOR TWO
         # FACTS: the commit is not in this clone's object store, or the commit
-        # IS held and carries no `contracts/CHANGELOG.md`. NOT FETCHED IS NOT AN
-        # ANSWER, in either direction, because reading a declaration this run
-        # could not LOOK FOR as an absent declaration turns an unfetched clone
-        # into an `error` nobody can act on.
+        # IS held and no readable `contracts/CHANGELOG.md` blob is reachable at
+        # it. NOT FETCHED IS NOT AN ANSWER, in either direction, because reading
+        # a declaration this run could not LOOK FOR as an absent declaration
+        # turns an unfetched clone into an `error` nobody can act on.
         #
         # WHICH OF THE TWO HOLDS IS ALREADY SETTLED HERE, AND IT IS ALWAYS THE
         # SECOND — so the skip says so rather than leaving a reader to guess.
@@ -1243,6 +1243,16 @@ def check_repo(repo: str, repo_path: Path, git,
         # that their tips were unfetched, sending anyone who read the report to
         # look for a fetch defect the workflow's own fetch step had ruled out.
         #
+        # THE HELD ARM IS STATED AS UNREACHABILITY, NOT AS ABSENCE, and the
+        # narrowing is deliberate (PR #688 adversarial review, P3). What the
+        # commit being held licenses is "no readable blob came back at this
+        # path"; it does NOT license "the commit carries no such file". A store
+        # that holds the commit AND its trees can still fail to produce the blob
+        # — delete the loose object and `cat-file --batch` answers `<spec>
+        # missing` for a path the tree plainly carries — so a skip asserting the
+        # file is absent would be making the #338 mistake in the third
+        # direction: reporting a defective object store as a clean answer.
+        #
         # BUT A REPOSITORY WITH NOTHING IN SCOPE IS NOT OWED THAT SKIP, and
         # standing above `parse_bundle` this guard fired before the bundle was
         # known — so a below-floor repository holding no `contracts/CHANGELOG.md`
@@ -1253,11 +1263,12 @@ def check_repo(repo: str, repo_path: Path, git,
             return []
         return Skip(FAMILY, f"{repo}: {CHANGELOG} could not be read at the "
                             f"published tip {tip[:9]}, WHICH THIS CLONE HOLDS "
-                            f"— the commit IS present and carries no "
-                            f"{CHANGELOG}, so the file is absent rather than "
-                            f"the commit unfetched; a SPENT declaration for "
-                            f"{', '.join(in_scope)} could not be looked for, "
-                            f"which is not the same fact as there being none")
+                            f"— the commit is held in this store and no "
+                            f"readable {CHANGELOG} blob is reachable at it, so "
+                            f"this is not an unfetched commit; a SPENT "
+                            f"declaration for {', '.join(in_scope)} could not "
+                            f"be looked for, which is not the same fact as "
+                            f"there being none")
     read = read_changelog(changelog)
     findings, candidates = _refusal_findings(repo, read.declarations, cut,
                                              declared)

@@ -58,8 +58,10 @@ this, in the scenario *The changelog cannot be read at the published tip*:
 - an `AND` bullet is **ADDED** on the `WHEN` side requiring that the family have
   **established which of the two holds** before choosing its words — and saying
   how it is established HERE: by inheritance, and completely;
-- a second `AND` bullet is **ADDED** requiring that where the commit IS held and
-  the file is simply absent, the skip say THAT and state the presence.
+- a second `AND` bullet is **ADDED** requiring that where the commit IS held,
+  the skip say THAT and state the presence — and say it as the READ it has
+  (nothing readable came back at that path) rather than as a file absence the
+  held commit does not establish.
 
 The promoted `THEN` and the promoted closing `AND` (*"not fetched is not an
 answer, in either direction"*) are carried **byte-identical**.
@@ -117,8 +119,8 @@ against.
 **Behaviour: one skip's TEXT, for one reachable state.** A repository whose
 published tip declares an in-scope bundle and carries no
 `contracts/CHANGELOG.md` is skipped exactly as before, at the same place, with
-the same consequence; the reason now says the commit is held and the file is
-absent. No severity, threshold, path, arm or finding moves, and the state is not
+the same consequence; the reason now says the commit is held in this store and
+that no readable `contracts/CHANGELOG.md` blob is reachable at it. No severity, threshold, path, arm or finding moves, and the state is not
 reachable at all for a repository below the enforcement floor (which returns
 `[]`, unchanged).
 
@@ -176,6 +178,25 @@ checker already satisfies.
 - It does not claim the promoted `THEN` bullet reads perfectly under the new
   `WHEN`. It is carried verbatim for the same reason #678 carried its own — see
   `design.md` D1, which inherits that decision rather than re-taking it.
+- **IT DOES NOT MOVE THE SKIP, SO THE HELD-AND-ABSENT CASE GOES ON SUPPRESSING
+  THE GRADING — AND A SUCCESSOR IS OWED FOR IT.** The changelog guard stands
+  ABOVE the `in_scope` loop (`scripts/doc_health/release_tag_publication.py`,
+  the `if changelog is None:` arm), and it RETURNS. So a repository whose
+  published tip this clone holds, which carries an in-scope bundle and no
+  `contracts/CHANGELOG.md`, is answered with a skip INSTEAD OF the tag findings
+  the family would otherwise emit about that bundle. Measured on a shim: tag
+  absent and no changelog blob at a held tip → one `Skip`; the SAME shim with an
+  EMPTY `contracts/CHANGELOG.md` → one `error` (*"contract-v2.0 is declared and
+  has no published annotated tag more than 5 first-parent landings after the
+  commit that declared it"*). A file that is provably not there is being treated
+  as a read that could not be performed, and it costs a finding. **This is NOT a
+  regression and it is NOT fixed here**: the same shim answers identically at
+  `origin/main`, the guard's position and return are carried unchanged by this
+  packet (`design.md` D4), and moving a return that decides which findings an
+  in-scope repository receives is a behaviour change with its own scenarios to
+  write — the shape of the next successor, not of a packet that stops at
+  wording. `design.md` **D6** records the decision and `tasks.md` § 6 names the
+  successor as owed.
 - **It does not amend the archived delta of `amend-published-tip-unreadable-scenario`,
   which carries the same clause at
   `openspec/changes/archive/2026-09-05-amend-published-tip-unreadable-scenario/specs/doc-health/spec.md:484`.**
