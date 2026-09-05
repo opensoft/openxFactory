@@ -8,8 +8,8 @@ origin:
     filed with the measurement rather than argued from impression.
     `contracts/openspec-cli-pin.yaml` pins `@fission-ai/openspec` at
     `1.2.0` (#667), and under that pinned entrypoint this corpus reads
-    90 passed / 0 failed. Run at `1.12.0` on the same tree (main
-    `9e869acc`) it reads 48 passed / 42 failed of 90, because 1.12.0
+    89 passed / 0 failed. Run at `1.12.0` on the same tree (main
+    `26d0a43d`) it reads 47 passed / 42 failed of 89, because 1.12.0
     added two checks 1.2.0 does not carry: a placeholder-`## Purpose`
     check over main specs, and a task-group numbering check. NONE of the
     42 was introduced by any lane and none is a defect the pinned tool

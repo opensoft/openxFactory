@@ -29,10 +29,10 @@ never been measured against the tool it will be pinned to next.**
 `openspec archive` is the act that writes a ratified delta into canon. #667
 pinned that tool at `1.2.0` and made `scripts/validate-openspec-cli-pin.py`
 the one entrypoint through which strict validation runs. Under that
-entrypoint this corpus reads, on main `9e869acc`:
+entrypoint this corpus reads, on main `26d0a43d`:
 
 ```
-Totals: 90 passed, 0 failed (90 items)
+Totals: 89 passed, 0 failed (89 items)
 OK openspec-cli-pin: @fission-ai/openspec@1.2.0 verified against its content
 address and every target validated --strict clean
 ```
@@ -40,7 +40,7 @@ address and every target validated --strict clean
 Run the SAME TREE under `1.12.0`:
 
 ```
-Totals: 48 passed, 42 failed (90 items)
+Totals: 47 passed, 42 failed (89 items)
 ```
 
 **Not one of those 42 is a defect the pinned tool can see, and not one was

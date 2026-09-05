@@ -3,8 +3,13 @@
 Status: record
 Kind: report
 Measured on: 2026-09-05
-Base: openxFactory `main` at `9e869acc` (at or after `7ee0e73d`, the landing of
-#668 `add-release-tag-gate`), branch `change/prepare-openspec-1.12-readiness`
+Base: openxFactory `main` at `26d0a43d` — the landing of #672, which ARCHIVED
+`add-release-tag-gate` (ratified 2026-09-05, realized by #668 `7ee0e73d`).
+Branch `change/prepare-openspec-1.12-readiness`, **rebased on `26d0a43d`** and
+RE-MEASURED there: the archive moved that change out of the ACTIVE corpus, so
+every total below is one item smaller than the same measurement taken on
+`9e869acc` before the archive. The 42 findings themselves did not move — the
+archived change was never one of them.
 Measured by: lane `codexfactory-0d`
 Fleet pin at both measurements: `@fission-ai/openspec@1.2.0`
 (`contracts/openspec-cli-pin.yaml`, #667). **THIS PACKET DOES NOT BUMP IT.**
@@ -23,14 +28,14 @@ OPENSPEC_TELEMETRY=0 npx -y @fission-ai/openspec@1.12.0 validate --all --strict
 BEFORE:
 
 ```
-Totals: 90 passed, 0 failed (90 items)
+Totals: 89 passed, 0 failed (89 items)
 OK openspec-cli-pin: @fission-ai/openspec@1.2.0 verified against its content address and every target validated --strict clean
 ```
 
 AFTER:
 
 ```
-Totals: 91 passed, 0 failed (91 items)
+Totals: 90 passed, 0 failed (90 items)
 OK openspec-cli-pin: @fission-ai/openspec@1.2.0 verified against its content address and every target validated --strict clean
 ```
 
@@ -43,17 +48,27 @@ pinned.
 BEFORE:
 
 ```
-Totals: 48 passed, 42 failed (90 items)
+Totals: 47 passed, 42 failed (89 items)
 ```
 
 AFTER:
 
 ```
-Totals: 89 passed, 2 failed (91 items)
+Totals: 88 passed, 2 failed (90 items)
 ```
 
 **40 of the 42 are cleared. The 2 that remain are REFUSED, deliberately, and
 § The two refusals says why.**
+
+**A NOTE ON THE EARLIER NUMBERS, because they were published before the
+rebase.** This packet was first measured, committed and opened as PR #673 on
+`9e869acc`, where the same two commands read **90/0** and **48 passed / 42
+failed of 90** BEFORE, and **91/0** and **89 passed / 2 failed of 91** AFTER.
+#672 then landed under it, archiving `add-release-tag-gate`. The branch was
+rebased on `26d0a43d` and both baselines re-measured there; the figures above
+are those re-measurements and are the ones this record certifies. **Only the
+denominator moved.** The 42 findings are the same 42, the 40 cleared are the
+same 40, and the 2 refused are the same 2.
 
 ## The 42, itemized against disposition
 

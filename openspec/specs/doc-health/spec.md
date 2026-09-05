@@ -2609,6 +2609,86 @@ any bundle below the enforcement line. `contract-v2.6` is the first bundle of
 this kind in the estate's history, and a state introduced for one instance must
 not acquire a second by being applied to cases that were only late.
 
+**AMENDED BY `add-release-tag-gate` (2026-09-04).** Every paragraph above this
+note stands exactly as promoted and exactly as `declare-spent-bundle-state` left
+it; everything from here to the scenarios is this change's addition, and SIX
+scenarios are added after the ones above. Nothing else in this requirement
+moves: no severity changes, no arm is removed, no threshold moves, no path
+moves, and what the family READS over a tree is not altered by one line. **THIS
+BLOCK DROPS NO UNIT OF CANON** — it restates the requirement in full and adds to
+it — so no `Removed from canon by` and no `Merged into` marker is owed.
+
+THE CONDITION SHALL BE REPORTED NIGHTLY AND ENFORCED AT THE CUT, AND THOSE ARE
+TWO MOMENTS OF ONE OBLIGATION RATHER THAN TWO OBLIGATIONS. The family above is
+the REPORT: it runs in the nightly doc-health lane over published `main`, at the
+severities this requirement already sets, and a cut landed without its tag stays
+visible there however it landed, including on an administrative bypass. The
+ENFORCEMENT is a required status check on the pull request that changes the
+release surface, and it asks the SAME FAMILY the SAME QUESTION about a different
+tree. One family, one definition of "published", two moments — never a second
+implementation, a second severity ladder, or a second notion of when a tag
+counts.
+
+THE ENFORCING MOMENT IS THE PULL REQUEST THAT TOUCHES THE RELEASE SURFACE, AND
+NO OTHER PULL REQUEST. The release surface, for this purpose, is
+`contracts/manifest.yaml` and the release inventories under
+`contracts/releases/`. A pull request that changes neither SHALL be passed
+without the family being consulted about it at all, and this is the point of the
+arrangement rather than an optimisation: the tag is published by a second actor
+AFTER the cut merges, so any enforcement that reached every pull request would
+make one actor's pending act every other lane's merge blocker. **THAT IS NOT
+HYPOTHETICAL AND THE MEASUREMENT IS WHY THIS PARAGRAPH EXISTS.** On 2026-09-03
+`contract-v3.3` was declared at 22:27Z and tagged five and a half hours later,
+and for that whole window every open pull request in the repository failed a
+required check on that one fact.
+
+THE CHECK SHALL BE REQUIRED AND SHALL THEREFORE REPORT ON EVERY PULL REQUEST,
+deciding for itself rather than being filtered by path. A required status
+context that does not report on some pull requests is expected forever and
+blocks them, so the scope rule above SHALL be evaluated INSIDE the check and not
+by the trigger that starts it.
+
+THE BAR IS THE ONE THAT WAS ALREADY BEING ASSERTED, MOVED RATHER THAN WEAKENED:
+no `error` and no `warning` from this family over the tree under judgment. A
+`warning` refuses too. The distance window this requirement grants a fresh cut
+is for LANDINGS THAT LEAVE THE RELEASE SURFACE ALONE; a pull request that
+touches that surface again is asserting the surface is in order, and is answered
+on that assertion.
+
+THE BUNDLE THE PULL REQUEST ITSELF CUTS SHALL NOT BE REQUIRED TO CARRY A TAG,
+AND THE OBLIGATION SHALL BE RECORDED INSTEAD. The tag cannot exist yet: under
+the versioning policy's realization order the reviewed commit lands first and
+the annotated tag is published afterwards at the commit that landed. A check
+demanding it before the merge would be unsatisfiable by construction, and an
+unsatisfiable gate is one that gets configured away. No new rule is needed for
+this, which is the load-bearing part: the bundle a cutting pull request declares
+has its declaring commit AS THE TIP of the tree under judgment, so the distance
+arm above already emits nothing — the scenario *The declaring commit is still
+the published tip* answers it, and it answers it in the same words for a merge
+tree as for published `main`. WHAT THE CHECK ADDS IS THAT THE SILENCE IS
+RECORDED RATHER THAN PASSED OVER: the outstanding tag SHALL be named in the
+check's own report, so that a reader of the passing check is told what is still
+owed and by whom.
+
+WHERE THE QUESTION CANNOT BE ASKED, THE CHECK SHALL FAIL CLOSED, AND THIS IS
+WHERE IT DIVERGES FROM THE NIGHTLY ON PURPOSE. The family reports a SKIP when
+version control cannot answer, and the nightly is right to carry that skip as an
+`info`: it reads an environment it does not control and a skip there is the
+honest answer. The check is the ENFORCING moment for a tree that is about to
+become the published one, so an unasked question SHALL NOT be a pass.
+
+THE CONDITION SHALL NOT ALSO BE PINNED AS A ZERO-FINDINGS ASSERTION OVER THIS
+REPOSITORY IN ITS OWN TEST SUITE, and the prohibition is deliberate rather than
+incidental. A test asserting that the repository currently reads zero findings
+of this family is a pin on a fact that a legitimate, in-progress release makes
+false, held inside a suite that every pull request must pass — so it converts
+one actor's pending act into every lane's failure, which is the defect this
+amendment removes and which it MUST NOT be able to re-acquire by having the
+assertion written back beside the moved one. **WHAT IS KEPT IS THE POSITIVE
+CONTROL.** A probe that only ever reads zero cannot be told apart from a reader
+that answers nothing, so the suite SHALL go on demonstrating, over a tree
+constructed to be untagged, that this family can fire.
+
 #### Scenario: The declaring commit is still the published tip
 - **WHEN** a repository declares a bundle at or above the enforcement line, that bundle has no published annotated tag, and the earliest commit declaring it is still the tip of published `main`
 - **THEN** the family MUST emit no finding, because the cut has only just landed and the owner's tag act legitimately follows it
@@ -2727,6 +2807,38 @@ not acquire a second by being applied to cases that were only late.
 - **WHEN** the git dependency is unavailable, the repository's tag refs cannot be listed, or the declaring commit cannot be resolved
 - **THEN** the family MUST report a skip naming which of those it was, never a finding
 - **AND** the family MUST NOT read a tag's existence from a local ref alone where the published refs could not be consulted, because an unpushed local tag is not a published tag
+
+#### Scenario: A pull request that touches no release surface path while a bundle is untagged
+- **WHEN** a bundle is declared and has no published annotated tag, and a pull request changes neither `contracts/manifest.yaml` nor any file under `contracts/releases/`
+- **THEN** the cut-time check MUST report success on that pull request WITHOUT consulting the family about its tree, so that a pending tag act is never another lane's merge blocker
+- **AND** the nightly report MUST go on carrying that bundle at the severity the scenarios above give it, the relief being to the pull request and never to the record
+
+#### Scenario: A cutting pull request while an earlier bundle is still untagged
+- **WHEN** a pull request changes the release surface and the tree it would produce carries a bundle that this requirement's scenarios above report at `error` or at `warning`
+- **THEN** the cut-time check MUST fail, naming the bundle and the finding in the family's own words
+- **AND** the failure MUST be carried by that pull request alone, because it is the one asserting that the release surface is in order
+
+#### Scenario: A cutting pull request declares a bundle that cannot be tagged yet
+- **WHEN** a pull request changes the release surface, the bundle it declares has no published annotated tag, and the commit declaring it is the tip of the tree under judgment
+- **THEN** the cut-time check MUST report success, because the tag is published after the merge at the commit that landed and demanding it earlier would be unsatisfiable
+- **AND** the check MUST RECORD the outstanding tag in its own report, naming the bundle, so that success is not read as the obligation having been discharged
+- **AND** the nightly report MUST continue to report that bundle until the tag exists
+
+#### Scenario: A cutting pull request moves the declaration onto a bundle that is already published
+- **WHEN** a pull request changes the release surface, the bundle it declares differs from the one its base declares, and that bundle already has a published tag peeling to a commit OTHER than the tree under judgment
+- **THEN** the cut-time check MUST fail, because a version number that has been published is never reused and a defective release is corrected by a superseding one
+- **AND** a tag peeling to the tree under judgment itself MUST NOT be refused this way, that being the obligation met early rather than a number cut twice
+- **AND** this reaches ONLY the MOVED declaration: where the base already declares the same bundle the check MUST NOT be read as covering the case, which the realization order's rebase-and-recheck step answers instead
+
+#### Scenario: The cut-time check cannot ask the family's question
+- **WHEN** a pull request changes the release surface and the family reports a skip over the tree under judgment — the published refs unlistable, a required blob unreadable, or a declaring commit unresolvable
+- **THEN** the cut-time check MUST fail closed, naming the reason, because it is the enforcing moment and an unasked question is not a pass
+- **AND** the nightly report MUST still be permitted to carry that same skip as an `info` with its reason, the two moments answering the same skip differently on purpose
+
+#### Scenario: The repository's own test suite is asked what it asserts about this family
+- **WHEN** the repository's test suite is read for assertions about this family over the repository itself
+- **THEN** it MUST carry no assertion that the repository currently reads zero findings of this family
+- **AND** it MUST still carry a positive control demonstrating, over a tree constructed to be untagged, that the family fires
 
 ### Requirement: A MODIFIED block over an active sibling's addition is evaluated for its pairing, not for its carriage
 The modified-block-currency family SHALL evaluate every `## MODIFIED
