@@ -10,7 +10,7 @@ origin:
     REQUIRED `pytest-suite`, that this repository reads ZERO
     `release-tag-publication` findings. The annotated tag for a new bundle is
     published AFTER the cutting pull request merges, at the merge commit, by a
-    second actor holding tag rights — measured at 6s, 23s, 44s and 68s after
+    second actor holding tag rights — measured at 6s, 23s, 44s and 69s after
     merge for `contract-v3.1`, `contract-v3.2`, `contract-v3.3` and
     `contract-v3.4` — and the versioning policy's own realization order puts
     the tag act at step 5, after the landing at step 4. So the repository

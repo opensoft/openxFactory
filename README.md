@@ -490,7 +490,7 @@ Active changes:
   the required `pytest-suite`, that this repository reads ZERO
   `release-tag-publication` findings — but the annotated tag for a new bundle is
   published AFTER the cutting pull request merges, at the merge commit, by a
-  second actor (measured 6s/23s/44s/68s after merge for `contract-v3.1` through
+  second actor (measured 6s/23s/44s/69s after merge for `contract-v3.1` through
   `contract-v3.4`), so the legitimate window between the two acts reddened EVERY
   open pull request: PR #628 declared `contract-v3.3` untagged at 22:27Z on
   2026-09-03 and every lane failed on that one test until the tag landed after
@@ -518,7 +518,7 @@ Active changes:
   check REQUIRED is Brett's console act**, tasks § 4, evidence before ARCHIVE
   and not before ratification, on `create-medxchart-overlay-boundary` § 5.3's
   `pin-validation` precedent. Side effect measured: the removed assertion made
-  ~46 live `ls-remote` calls per suite run, so
+  ~52 live `ls-remote` calls per suite run, so
   `tests/doc-health/test_release_tag_publication.py` goes 110s → 19s and the
   required suite gets more hermetic.
 

@@ -66,13 +66,15 @@ ruleset id and one green run.
       test renamed `test_the_probe_can_fire_over_a_tree_constructed_to_be_untagged`,
       its docstring carrying the move, the measurement and where the assertion
       went.
-- [x] 3.4 `tests/doc-health/test_release_tag_gate.py`: sixteen tests over real
+- [x] 3.4 `tests/doc-health/test_release_tag_gate.py`: twenty-two tests over real
       git repositories with real origins — the short-circuit with its positive
       control, the path classification, the clean cut with its recorded
       obligation, the stale bundle, the in-window release-surface edit, the
       misplaced tag, version reuse, pre-publication, the below-floor bundle,
-      three fail-closed refusals, the closed refusal set, and the workflow's
-      wiring.
+      four fail-closed refusals (two of them driven by fault injection at the
+      git seam so the refusal table can be asserted as an EQUALITY rather than a
+      subset), the two rename cases, the retired pin's own absence, the closed
+      refusal set, and the workflow's wiring.
 - [x] 3.5 `docs/contract-versioning-policy.md` § Bundle Realization Order names
       the gate and the post-merge tag obligation. `Status: ratified` unchanged,
       the edit minimal — one paragraph, inserted where the realization order
@@ -92,10 +94,16 @@ ruleset id and one green run.
       measurement in it, and Brett's admitting word with its date. Without it the
       family reports the packet as carrying no origin declaration.
 - [x] 3.6 README § OpenSpec Records carries this change's row.
-- [ ] 3.7 The corpus-sweep ledger row: run
-      `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by
-      '#<PR>' --moved-on 2026-09-04` after the pull request is opened, with the
-      REAL number, and read the diff as the list of rows this change moved.
+- [x] 3.7 The corpus-sweep ledger row.
+  - *2026-09-04 — DONE, with the real number.*
+      `validate-sequenced-after.py . --seed-ledger --moved-by '#668' --moved-on
+      2026-09-04` wrote 166 rows and moved exactly ONE:
+      `add-release-tag-gate: {state: active, class: co-modifier, declares:
+      absent, prose: false, moved_by: "#668", moved_on: "2026-09-04"}`. No
+      partner row moved — both other writers of this requirement
+      (`add-release-tag-publication-check`, `declare-spent-bundle-state`) were
+      already `co-modifier` — so NO MOVEMENT LOG entry is owed: the diff states
+      everything. `--ledger-diff` exits 0.
 
 ## 4. Bound follow-on — the required status check (GATES ARCHIVE)
 
@@ -106,10 +114,19 @@ change. Ratification does NOT wait on this group; **ARCHIVE DOES.** The preceden
 is `create-medxchart-overlay-boundary` § 5.3/5.4 (`pin-validation`, ruleset
 `22272824`), and before it LedgerxWallet's `21701436`.
 
-- [ ] 4.1 **[OPERATOR]** Add `release-tag-gate` to the branch-protection ruleset
-      on `opensoft/openxFactory`'s `main` as a REQUIRED status check, beside
-      `pytest-suite` and `pin-validation`. This half is Brett's console act; no
-      agent performs it.
+- [ ] 4.1 **[OPERATOR]** Make `release-tag-gate` a REQUIRED status check on
+      `opensoft/openxFactory`'s `main`. **THE REAL NEIGHBOURS, READ FROM THE
+      API RATHER THAN ASSUMED** — this repository has NO `pin-validation`
+      ruleset, which an earlier draft of this task named by carrying the
+      MedxChart precedent across: the required contexts here live in ruleset
+      **`21538893`** ("openxFactory wallet-gate", contexts `wallet-validation`,
+      `pytest-suite`, `lane-line`) and ruleset **`21957695`** ("openxFactory
+      chain-gate", contexts `signed-execution-chain-gate`, `lane-line`), both
+      `enforcement: active`. Adding the context to `21538893` puts it beside
+      `pytest-suite`, which is where the assertion this packet moves came from.
+      This half is Brett's console act; no agent performs it. (`pin-validation`
+      / ruleset `22272824` is `opensoft/MedxChart`'s and is cited only as the
+      SHAPE precedent for an `[OPERATOR]` task with evidence before archive.)
 - [ ] 4.2 **EVIDENCE, READ BACK RATHER THAN REPORTED.** Record here the ruleset
       id and the API reading that confirms it
       (`gh api repos/opensoft/openxFactory/rulesets/<id>`), plus ONE green
@@ -129,17 +146,35 @@ is `create-medxchart-overlay-boundary` § 5.3/5.4 (`pin-validation`, ruleset
 - [x] 5.2 `python3 -m pytest tests/doc-health tests/sequenced_after -q` green.
 - [x] 5.3 `python3 scripts/validate-sequenced-after.py .` green;
       `--ledger-diff` green after § 3.7.
-- [x] 5.4 `python3 scripts/doc-health.py --single-repo .` counted before and
-      after on the same checkout: **6 critical / 4 error / 27 warning / 13 info
-      → 6 critical / 5 error / 27 warning / 13 info.** The one moved finding is
-      the `release-inventory-drift` `error` on `docs/contract-versioning-policy.md`
-      predicted in § 3.5; every other line is byte-identical. The `## MODIFIED`
-      block raises NO `modified-block-currency` finding — a
-      `--family modified-block-currency` run names this change zero times.
+- [x] 5.4 `python3 scripts/doc-health.py --single-repo .` against a SAME-CLOCK
+      CONTROL, not a stale baseline. **The first measurement of this was taken
+      hours before the branch's last run and was therefore wrong in the
+      `warning` column**: this report ages by the calendar, and three `warning`s
+      (two routing records and one staged topic) crossed the 30-day threshold
+      during authoring, which a before/after taken at two clocks reports as
+      movement this change caused. Re-measured with a worktree at `origin/main`
+      (`9420472e`) run minutes apart from the branch: **main 6 critical / 4
+      error / 30 warning / 13 info → branch 6 critical / 5 error / 30 warning /
+      13 info**, and a line-by-line diff of the two reports differs by EXACTLY
+      ONE finding — the `release-inventory-drift` `error` on
+      `docs/contract-versioning-policy.md` predicted in § 3.5. Everything else
+      is identical but for the repo-name prefix the two checkout directories
+      give it. The `## MODIFIED` block raises NO `modified-block-currency`
+      finding — a `--family modified-block-currency` run names this change zero
+      times.
 - [x] 5.5 The new workflow's FIRST PROOF is this packet's own pull request: it
       touches no release-surface path, so `release-tag-gate` must report green
-      by short-circuit. Record the run.
+      by short-circuit.
+  - *2026-09-04 — RECORDED WITH ITS RUN ID.* PR **#668**, run
+      **`33927889060`** (job `101200264376`), **pass in 9s**, printing
+      `no release surface change: none of the 12 changed path(s) between
+      9420472ea and a396c97bd is contracts/manifest.yaml or under
+      contracts/releases/`. The job log's `Complete job name: release-tag-gate`
+      confirms the check surfaces under the literal token a ruleset pins. Run
+      `33926838509` is the same proof on the branch's first head.
 - [x] 5.6 `actionlint` on the new workflow where available.
+  - *2026-09-04 — RUN, WITH ITS OUTPUT.* `actionlint
+      .github/workflows/release-tag-gate.yml` → **no output, exit 0** (clean).
 - [x] 5.7 INDEPENDENT REVIEW, recorded including its absence. **Codex REFUSED
       on usage limits** (requested 2026-09-04 22:45:52Z, refused 22:46:02Z); no
       Codex round ran. Sourcery is the private-repo upsell stub. **Copilot ran
@@ -154,6 +189,17 @@ is `create-medxchart-overlay-boundary` § 5.3/5.4 (`pin-validation`, ruleset
       verification of process implications"* — which is this packet's own
       pointer: the process implications are D1, D2 and the `[OPERATOR]` act in
       § 4, all three of them the convener's and none of them claimed as done.
+  - *2026-09-04 — AND THE BENCH'S OWN SCORE, RECORDED BECAUSE IT IS THE POINT.*
+      An INDEPENDENT ADVERSARIAL REVIEW found the defect NEITHER bot did: with
+      git's default rename detection a pure `git mv` of a release inventory or
+      of the manifest OUT of `contracts/` printed only the destination path, so
+      the gate short-circuited green on a pull request that had REMOVED a
+      release member (P2-1, fixed with `--no-renames` plus two tests). It also
+      caught the wrong `release-surface-integrity` citation in D8, a FOUR/SIX
+      scenario miscount, an unenforced scenario, and six count and citation
+      errors. **Codex refused on quota; two Copilot rounds did not find P2-1;
+      the adversarial review did.** That is the reading of record for how much
+      the bot bench is worth on this packet.
 - [x] 5.8 A POSITIVE CONTROL ON THE `## MODIFIED` BLOCK ITSELF. The
       `modified-block-currency` family reports nothing about this change, which
       alone cannot be distinguished from a block it never read. One promoted

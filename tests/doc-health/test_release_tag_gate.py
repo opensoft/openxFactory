@@ -379,18 +379,80 @@ def test_a_head_with_no_first_parent_refuses_rather_than_guessing(tmp_path):
     assert result.refusal == "gate-unreadable-base"
 
 
-def test_every_refusal_this_module_can_return_is_enumerated():
-    """The closed set, checked against itself. A refusal added to the code
-    without a line in `REFUSALS` would print an empty meaning in the workflow
-    log, which is how a gate teaches its readers to stop reading it."""
+def test_a_failing_diff_refuses_rather_than_short_circuiting_green(tmp_path,
+                                                                  monkeypatch):
+    """THE WORST DIRECTION FOR THIS ONE TO FAIL. `changed_paths` answering None
+    means the gate does not know what the pull request touches — and the arm
+    directly below it is the SHORT-CIRCUIT, which passes. Reading "git could
+    not tell me" as "nothing under the release surface" would report "no
+    release surface change" precisely when nothing could be looked at, which is
+    the fail-OPEN this whole design refuses. Injected at the seam, on the real
+    code path: only the `diff` invocation fails."""
+    repo, _ = _repo(tmp_path)
+    base = _cut(repo, "contract-v2.0")
+    _tag(repo, "contract-v2.0")
+    head = _cut(repo, "contract-v2.1")
+    _push(repo)
+
+    real = gate.subprocess.run
+
+    def _fail_only_diff(argv, *args, **kwargs):
+        if "diff" in argv:
+            class Failed:
+                returncode = 1
+                stdout = ""
+                stderr = "fatal"
+            return Failed()
+        return real(argv, *args, **kwargs)
+
+    monkeypatch.setattr(gate.subprocess, "run", _fail_only_diff)
+    result = _run(repo, head=head, base=base)
+    assert result.refusal == "gate-unreadable-diff"
+    assert "no release surface change" not in " ".join(result.lines)
+
+
+def test_a_manifest_that_cannot_be_read_refuses_rather_than_reading_no_bundle(
+        tmp_path):
+    """THE #338 CONFLATION AT THE GATE'S OWN DOOR. `blobs_at` collapses to None
+    only when GIT ITSELF failed, and a gate that read that as "this tree
+    declares no bundle" would skip every arm below and pass. `declared_at`
+    returns the read's success SEPARATELY from its answer for exactly this
+    reason, and this test is what holds the two apart."""
+    repo, _ = _repo(tmp_path)
+    base = _cut(repo, "contract-v2.0")
+    _tag(repo, "contract-v2.0")
+    head = _cut(repo, "contract-v2.1")
+    _push(repo)
+
+    class BlindGit(gate.MergeTreeGit):
+        def blobs_at(self, repo, commit, relpaths):
+            return None
+
+    result = gate.evaluate(repo, head=head, base=base,
+                           repo_name="alphaFactory", git=BlindGit(head))
+    assert result.refusal == "gate-unreadable-manifest"
+
+
+def test_every_refusal_this_module_can_return_is_enumerated_and_reachable():
+    """THE CLOSED SET, CHECKED IN BOTH DIRECTIONS.
+
+    `emitted <= REFUSALS` alone is one-directional (adversarial review on PR
+    #668): it catches a refusal the code can return and the table does not
+    describe, and says nothing about a table entry no code path can reach — a
+    documented refusal that is dead is a promise the gate does not keep. Set
+    EQUALITY closes it, and every one of the seven is driven by a test in this
+    file, the two hardest of them by fault injection at the git seam
+    immediately above.
+    """
     source = SCRIPT.read_text()
     emitted = {line.split('"')[1] for line in source.splitlines()
                if 'return Result(REFUSE, "' in line or
                'REFUSE, "gate-' in line}
     emitted = {name for name in emitted if name.startswith("gate-")}
     assert emitted, "the scan found no refusals — it has stopped reading"
-    assert emitted <= set(gate.REFUSALS), (
-        f"undocumented refusal(s): {sorted(emitted - set(gate.REFUSALS))}")
+    assert emitted == set(gate.REFUSALS), (
+        f"undocumented refusal(s): {sorted(emitted - set(gate.REFUSALS))}; "
+        f"documented but unreachable: {sorted(set(gate.REFUSALS) - emitted)}")
 
 
 # ------------------------------------------------------- the workflow's wiring
@@ -472,3 +534,111 @@ def test_an_unrunnable_git_refuses_rather_than_crashing(tmp_path, monkeypatch):
     result = _run(repo, head=head, base=base)
     assert result.code == gate.REFUSE
     assert result.refusal == "gate-unreadable-head"
+
+
+# ------------------------------------------- a rename is a move, not a create
+
+def test_a_release_member_renamed_out_of_the_surface_is_still_seen(tmp_path):
+    """ADVERSARIAL REVIEW ON PR #668, AND IT WAS A REAL HOLE.
+
+    git's `diff` detects renames BY DEFAULT and prints only the DESTINATION
+    path. So a pull request that does nothing but
+    `git mv contracts/releases/<bundle>.digests.yaml docs/…` came back as a
+    single `docs/…` path, the scope test saw nothing under the release surface,
+    and the gate exited 0 reporting "no release surface change" — while the
+    pull request had REMOVED A RELEASE INVENTORY. The same trick moved
+    `contracts/manifest.yaml` out from under the filter.
+
+    The path filter asks WHICH PATHS THIS PULL REQUEST TOUCHES, and a rename
+    touches two. `--no-renames` reports both sides.
+    """
+    repo, _ = _repo(tmp_path)
+    _cut(repo, "contract-v2.0")
+    _tag(repo, "contract-v2.0")
+    base = _cut(repo, "contract-v2.1")
+    _tag(repo, "contract-v2.1")
+    (repo / "docs").mkdir(exist_ok=True)
+    _git(repo, "mv", rtp.inventory_path("contract-v2.1"),
+         "docs/moved-v2.1.yaml")
+    _git(repo, "commit", "-q", "-m", "move an inventory out of the surface")
+    head = _head(repo)
+    _push(repo)
+
+    # THE CONTROL FIRST: git really does hide the source side by default, so
+    # this test is about the flag rather than about a hypothetical.
+    default = _git(repo, "diff", "--name-only", base, head).stdout.split()
+    assert default == ["docs/moved-v2.1.yaml"], default
+
+    paths = gate.changed_paths(repo, base, head)
+    assert rtp.inventory_path("contract-v2.1") in paths, (
+        "the source side of the rename is invisible — the gate would "
+        "short-circuit green on a pull request that removed an inventory")
+    result = _run(repo, head=head, base=base)
+    assert "no release surface change" not in " ".join(result.lines)
+
+
+def test_the_manifest_renamed_out_of_the_surface_is_still_seen(tmp_path):
+    """The same hole through the other member, and the more serious one: with
+    the manifest gone the tree declares no bundle at all."""
+    repo, _ = _repo(tmp_path)
+    base = _cut(repo, "contract-v2.0")
+    _tag(repo, "contract-v2.0")
+    (repo / "docs").mkdir(exist_ok=True)
+    _git(repo, "mv", MANIFEST, "docs/manifest.yaml")
+    _git(repo, "commit", "-q", "-m", "move the manifest out of the surface")
+    head = _head(repo)
+    _push(repo)
+
+    assert MANIFEST in gate.changed_paths(repo, base, head)
+    result = _run(repo, head=head, base=base)
+    assert "no release surface change" not in " ".join(result.lines)
+
+
+# ------------------------------- the assertion this packet moved stays moved
+
+PUBLICATION_SUITE = (Path(REPO_ROOT) / "tests" / "doc-health" /
+                     "test_release_tag_publication.py")
+
+
+def _real_repo_family_call_sites(source: str) -> list[str]:
+    """Lines binding this family's `repo_paths` to THE REPOSITORY ITSELF.
+
+    The retired pin was exactly one such binding — `repo_paths = {"openxFactory":
+    Path(REPO_ROOT)}` — followed by an assertion that the call returned no
+    `error` and no `warning`. Every surviving fixture in that file builds a
+    throwaway repository under `tmp_path` instead, so a `REPO_ROOT` inside a
+    `repo_paths` mapping is the signature of the assertion coming back.
+    """
+    return [line.strip() for line in source.splitlines()
+            if "repo_paths" in line and "REPO_ROOT" in line]
+
+
+def test_the_publication_suite_carries_no_zero_findings_pin_on_this_repository():
+    """THE SCENARIO'S ENFORCEMENT, not just its statement.
+
+    The delta's scenario *The repository's own test suite is asked what it
+    asserts about this family* says the suite MUST carry no assertion that this
+    repository currently reads zero findings, and MUST still carry the positive
+    control. Without a test, that half of the packet is a sentence: the pin
+    could be written back in one line and every check would stay green, which
+    is exactly how the five-and-a-half-hour outage of 2026-09-03 would return.
+
+    THE PROBE IS SHOWN CAPABLE OF FIRING on the retired line itself, so a
+    scanner that has stopped reading cannot pass this test by finding nothing.
+    """
+    source = PUBLICATION_SUITE.read_text()
+    assert _real_repo_family_call_sites(source) == [], (
+        "the release-tag-publication family is being run against THIS "
+        "repository inside the test suite again — that is the pin "
+        "add-release-tag-gate moved into `release-tag-gate`, and it reds every "
+        "open pull request for the length of a legitimate tagging window")
+
+    retired = 'class Ctx:\n        repo_paths = {"openxFactory": Path(REPO_ROOT)}\n'
+    assert _real_repo_family_call_sites(retired), (
+        "the probe cannot see the very line it was written against, so its "
+        "silence above proves nothing")
+
+    # AND THE HALF THAT STAYS. A file that asserted nothing at all would also
+    # satisfy the rule above, which is not what the scenario says.
+    assert "def test_the_probe_can_fire_over_a_tree_constructed_to_be_untagged" \
+        in source

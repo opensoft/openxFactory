@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory — FIVE artifacts, all of them this repository's own tooling, tests and CI, none of them a neutral contract any consumer pins. (1) `scripts/validate-release-tag-gate.py` is NEW: it diffs the tree under judgment against its base, short-circuits when the pull request touches neither `contracts/manifest.yaml` nor `contracts/releases/**`, and otherwise runs the EXISTING `release-tag-publication` family over the merge tree by overriding exactly one seam method (`remote_main_sha`). (2) `.github/workflows/release-tag-gate.yml` is NEW: `on: pull_request` against `main`, no `paths:` filter, job and check name `release-tag-gate`, `fetch-depth: 0`. (3) `tests/doc-health/test_release_tag_publication.py` loses the zero-findings half of one test and KEEPS its positive control, renamed to say what it now asserts. (4) `tests/doc-health/test_release_tag_gate.py` is NEW: sixteen tests over real git fixtures with real origins, one per gate condition plus the workflow's wiring. (5) `docs/contract-versioning-policy.md` gains one paragraph inside § Bundle Realization Order naming the gate and the post-merge tag obligation — that document IS a digested member of the published `contract-v3.4` bundle and is not one of the three EDITORIAL members, so this edit raises the designed `release-inventory-drift` `error` that the next cut clears by re-digesting it (§ Impact carries the measurement and the precedent). NOTHING in `scripts/doc_health/` changes — not the family, not a severity, not the threshold, not the enforcement floor, not `Finding`, not the report grammar, not `FAMILIES`, so the family enumeration and its counts do not move. NO NEW BUNDLE IS CUT and no release tag is owed by this change; the one bundle MEMBER it edits is the policy document named above.
+code_surface: openxFactory — FIVE artifacts, all of them this repository's own tooling, tests and CI, none of them a neutral contract any consumer pins. (1) `scripts/validate-release-tag-gate.py` is NEW: it diffs the tree under judgment against its base, short-circuits when the pull request touches neither `contracts/manifest.yaml` nor `contracts/releases/**`, and otherwise runs the EXISTING `release-tag-publication` family over the merge tree by overriding exactly one seam method (`remote_main_sha`). (2) `.github/workflows/release-tag-gate.yml` is NEW: `on: pull_request` against `main`, no `paths:` filter, job and check name `release-tag-gate`, `fetch-depth: 0`. (3) `tests/doc-health/test_release_tag_publication.py` loses the zero-findings half of one test and KEEPS its positive control, renamed to say what it now asserts. (4) `tests/doc-health/test_release_tag_gate.py` is NEW: twenty-two tests over real git fixtures with real origins, one per gate condition plus the workflow's wiring. (5) `docs/contract-versioning-policy.md` gains one paragraph inside § Bundle Realization Order naming the gate and the post-merge tag obligation — that document IS a digested member of the published `contract-v3.4` bundle and is not one of the three EDITORIAL members, so this edit raises the designed `release-inventory-drift` `error` that the next cut clears by re-digesting it (§ Impact carries the measurement and the precedent). NOTHING in `scripts/doc_health/` changes — not the family, not a severity, not the threshold, not the enforcement floor, not `Finding`, not the report grammar, not `FAMILIES`, so the family enumeration and its counts do not move. NO NEW BUNDLE IS CUT and no release tag is owed by this change; the one bundle MEMBER it edits is the policy document named above.
 target_release: implemented — the openxFactory main line. Realization = the workflow exists and runs on every pull request against `main`; the gate short-circuits green on pull requests that touch no release path and refuses on each condition its tests name; the suite no longer asserts zero findings over this repository. The archive gate is merge-plus-green PLUS the `[OPERATOR]` evidence in tasks § 4: a check that is not REQUIRED enforces nothing, so the ruleset id and one green run are named before this packet archives. No aggregation-repo bundle is cut: `contracts/manifest.yaml` is untouched, no inventory is written, and the one digested member this change edits is `docs/contract-versioning-policy.md`, whose drift the next cut re-digests.
 Status: draft
 Proposed: 2026-09-04
@@ -38,7 +38,9 @@ made, the tag is created AFTER the merge and points AT THE MERGE COMMIT:
 | `contract-v3.1` | `19d00872` (PR #616) | 2026-09-03 20:49:41Z | 20:49:47Z | 6s |
 | `contract-v3.2` | `9a773a31` (PR #624) | 2026-09-03 21:42:57Z | 21:43:20Z | 23s |
 | `contract-v3.3` | `16b85614` (PR #636) | 2026-09-04 03:35:19Z | 03:36:03Z | 44s |
-| `contract-v3.4` | `807a4f47` (PR #653) | 2026-09-04 19:56:22Z | 19:57:30Z | 68s |
+| `contract-v3.4` | `807a4f47` (PR #653) | 2026-09-04 19:56:21Z | 19:57:30Z | 69s |
+
+(Merge-commit committer time to tag creation, one basis for all four.)
 
 So between the cut landing and the tag being published, the repository GENUINELY
 carries the finding — and the pin turned that legitimate window into a failure of
@@ -95,8 +97,8 @@ The realization:
    `test_the_probe_can_fire_over_a_tree_constructed_to_be_untagged`. Its
    docstring carries the whole history of the move so a reader arriving at it is
    not left guessing where the other half went.
-4. **`tests/doc-health/test_release_tag_gate.py`** — sixteen tests over real git
-   repositories with real origins (the sibling file's discipline: this subject
+4. **`tests/doc-health/test_release_tag_gate.py`** — twenty-two tests over real
+   git repositories with real origins (the sibling file's discipline: this subject
    is the difference between a published ref and a local one, and a faked tag
    would prove nothing). One per condition, plus two on the workflow's wiring.
 5. **`docs/contract-versioning-policy.md`** — a minimal addition inside
@@ -107,7 +109,7 @@ The realization:
 **Lanes: nothing goes red outside the cutting pull request.** A pull request
 that touches no release path never consults the family at all. The
 `pytest-suite` stops carrying this repository's live tag state, which also makes
-it hermetic where it was not: the dropped assertion made ~46 `ls-remote` round
+it hermetic where it was not: the dropped assertion made ~52 `ls-remote` round
 trips to the live remote on every run of the suite, and removing it takes
 `tests/doc-health/test_release_tag_publication.py` from **110s to 19s** measured
 locally.
@@ -115,7 +117,12 @@ locally.
 **The cutting pull request carries the red, and only conditions it can act on.**
 Replayed against the real history: openxFactory `807a4f47` — the `contract-v3.4`
 cut, PR #653 — passes this gate (`exit 0`), and its own pull request would have
-passed it before merging too, `contract-v3.3` having been tagged first. PR #636,
+passed it before merging too, `contract-v3.3` having been tagged first. **THE
+REPLAY PASSES THROUGH A DIFFERENT ARM FROM A LIVE CUT, and saying so is the
+difference between evidence and a coincidence:** `contract-v3.4`'s tag now peels
+to that very commit, so the replay is answered PRE-PUBLISHED, while the same
+tree judged before the merge would have taken the distance-zero silence and the
+`TAG OWED` record. PR #636,
 which touched `contracts/releases/contract-v3.3.digests.yaml` while
 `contract-v3.3` was declared and untagged, is exactly the pull request this gate
 is for.
@@ -124,19 +131,25 @@ is for.
 signal; a cut merged on administrative bypass without a tag stays visible in the
 doc-health report.
 
-**Doc-health counts: ONE finding moves, it is predicted here rather than
-discovered, and it is a signal rather than a defect.** Measured
-`--single-repo` before and after on the same checkout: **6 critical / 4 error /
-27 warning / 13 info → 6 critical / 5 error / 27 warning / 13 info.** The one
-new `error` is `release-inventory-drift` on
+**Doc-health counts: ONE finding moves, and it is predicted here rather than
+discovered.** Measured `--single-repo` against a SAME-CLOCK CONTROL — a
+worktree at `origin/main` (`9420472e`) run minutes apart from the branch, rather
+than a baseline taken hours earlier, because this report ages by the calendar
+and three `warning`s crossed a 30-day threshold during authoring: **main
+6 critical / 4 error / 30 warning / 13 info → branch 6 critical / 5 error /
+30 warning / 13 info**, and a line-by-line diff of the two reports differs by
+EXACTLY ONE finding. The one new `error` is `release-inventory-drift` on
 `docs/contract-versioning-policy.md`: that document is a DIGESTED MEMBER of the
 published `contract-v3.4` bundle and is not one of the three EDITORIAL members
-allowed to move between cuts, so editing it is exactly the non-editorial drift
-that family is built to report — *"detectable at the commit rather than only at
-tag-verify time"*, in `release-surface-integrity`'s own words. **It is the
-designed transient and it clears at the next cut, which re-digests the member.**
-The estate does this routinely: `95c2cf6a` (PR #622) and `2898b104` edited this
-same document between cuts. The alternative — hand-editing
+allowed to move between cuts, so editing it is the non-editorial drift
+`release-surface-integrity`'s scenario *A normative contract drifts from the
+declared bundle* says "MUST be reportable as a defect", and
+`docs/contract-versioning-policy.md` says the same of "any OTHER member".
+**It is a DEFECT, accepted knowingly and cleared at the next cut, which
+re-digests the member** — the remedy that scenario itself names, "never a
+hand-edit of the inventory to match the tree". The estate accepts it routinely
+for this same document: `95c2cf6a` (PR #622) and `2898b104` (PR #577) both
+carried it between cuts. The alternative — hand-editing
 `contracts/releases/contract-v3.4.digests.yaml` — is forbidden: that bundle is
 published, tagged and immutable provenance.
 

@@ -277,7 +277,7 @@ not acquire a second by being applied to cases that were only late.
 
 **AMENDED BY `add-release-tag-gate` (2026-09-04).** Every paragraph above this
 note stands exactly as promoted and exactly as `declare-spent-bundle-state` left
-it; everything from here to the scenarios is this change's addition, and FOUR
+it; everything from here to the scenarios is this change's addition, and SIX
 scenarios are added after the ones above. Nothing else in this requirement
 moves: no severity changes, no arm is removed, no threshold moves, no path
 moves, and what the family READS over a tree is not altered by one line. **THIS
@@ -494,6 +494,7 @@ constructed to be untagged, that this family can fire.
 - **WHEN** a pull request changes the release surface, the bundle it declares differs from the one its base declares, and that bundle already has a published tag peeling to a commit OTHER than the tree under judgment
 - **THEN** the cut-time check MUST fail, because a version number that has been published is never reused and a defective release is corrected by a superseding one
 - **AND** a tag peeling to the tree under judgment itself MUST NOT be refused this way, that being the obligation met early rather than a number cut twice
+- **AND** this reaches ONLY the MOVED declaration: where the base already declares the same bundle the check MUST NOT be read as covering the case, which the realization order's rebase-and-recheck step answers instead
 
 #### Scenario: The cut-time check cannot ask the family's question
 - **WHEN** a pull request changes the release surface and the family reports a skip over the tree under judgment — the published refs unlistable, a required blob unreadable, or a declaring commit unresolvable

@@ -37,10 +37,14 @@
 # checkout refuses `gate-unreadable-base` rather than passing blind.
 #
 # WHY IT IS SLOWER THAN IT LOOKS. The family consults the PUBLISHED refs once
-# per cut bundle at or above the enforcement floor — 46 of the 52 inventories in
-# `contracts/releases/` today — and each is an `ls-remote` round trip. Measured
-# against the live repository at ~90s end to end. The timeout below is sized
-# well above that; it is not a hot path and it runs at most once per push.
+# per cut bundle at or above the enforcement floor — all 51 release inventories
+# under `contracts/releases/` today (52 files, one of them the schema) — and each
+# is an `ls-remote` round trip. Measured against the live repository on the gate
+# path: 52 round trips / 75s for a release-surface pull request that is not a
+# cut, 54 / 85s for one that is. The cost grows by ONE round trip per cut,
+# forever, which at ~1.5s each puts the timeout below roughly 600 bundles away.
+# The timeout is sized well above today's figure; this is not a hot path and it
+# runs at most once per push.
 
 name: release-tag-gate
 

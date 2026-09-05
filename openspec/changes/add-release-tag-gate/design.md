@@ -34,7 +34,7 @@ Everything below is what the ruling did not settle.
 when that tree declares a bundle whose tag is not published on the remote"*. Read
 literally and alone, that sentence makes the cutting pull request unpassable: the
 tag for a NEW bundle cannot exist before the merge. Measured over every
-`contract-v3.x` cut, the annotated tag is created 6–68 seconds AFTER the merge
+`contract-v3.x` cut, the annotated tag is created 6–69 seconds AFTER the merge
 and points AT THE MERGE COMMIT (the table is in `proposal.md` § Why). A gate
 demanding it earlier would be unsatisfiable by construction, and an unsatisfiable
 gate is one that gets bypassed, disabled, or worked around — which is the same
@@ -93,10 +93,19 @@ today, four times out of four.
 bundle that ALREADY has a published tag peeling somewhere other than the tree
 under judgment, the gate refuses.
 
-**Why it is here.** It is the one release defect a pre-merge gate can catch that
-nothing else in the estate catches. The family cannot: at a tip where the
+**Why it is here.** It catches a release defect a pre-merge gate can catch and
+nothing else in the estate does. The family cannot: at a tip where the
 declaration and the tag agree, `_tag_state` reads `ok` and the reuse is
-invisible by construction. The policy is explicit — realization order step 1
+invisible by construction.
+
+**ITS REACH IS THE MOVED DECLARATION AND ONLY THAT, stated so nobody reads it as
+a general defence against cutting a number twice.** The arm fires when
+`head_declared != base_declared` — the pull request MOVES the manifest onto a
+published number. It therefore does NOT see the same-number race in which two
+branches allocate one version and the loser's base ALREADY declares it, so
+base and head agree and the arm never runs. That case is caught earlier, by the
+realization order's own step 1 (rebase, then recheck bundle/tag availability),
+and by the tag act failing on a name that exists; this gate does not claim it. The policy is explicit — realization order step 1
 *"recheck bundle/tag availability and allocate the next available version"*, and
 Immutable Tag Correction: a defective release is corrected by a SUPERSEDING one
 and a version number *"is never reused"*. The condition is narrow: the
@@ -197,13 +206,25 @@ the suite's collection shape for no gain.
 
 ## Cost, measured
 
-The family consults the published refs once per in-scope cut bundle — 46 of the
-52 inventories in `contracts/releases/` today — and each is an `ls-remote` round
-trip. Measured end to end against the live repository: **~90s**. The workflow's
+The family consults the published refs once per in-scope cut bundle — all 51 of
+the release inventories under `contracts/releases/` today (52 files, one of them
+the schema) — and each is an `ls-remote` round trip. **Measured on the gate path
+against the live repository: 52 round trips / 75s for a release-surface pull
+request that is not a cut, and 54 / 85s for one that is** (a cut's tree carries
+one more inventory, and the reuse arm adds its own read).
+
+**THE COST GROWS BY ONE ROUND TRIP PER CUT, FOREVER**, because the family
+inspects every bundle the repository has ever cut rather than only the current
+one — which is the property that catches the recurrence and is not in question
+here. At today's ~1.5s per round trip the 15-minute timeout is roughly 600
+bundles away, so nothing is owed now; it is recorded so that whoever meets the
+wall meets a number rather than a surprise, and the obvious remedy — ONE
+`ls-remote --tags origin` listing all refs instead of one call per name — is a
+change to the family's `tag_ref` seam and therefore a different packet. The workflow's
 timeout is 15 minutes. This is the same cost the nightly already pays, and the
 same cost the retired suite pin was paying INSIDE `pytest-suite` on every run:
 removing it takes `tests/doc-health/test_release_tag_publication.py` from 110s
-to 19s and takes ~46 live network calls out of the required suite, which is a
+to 19s and takes ~52 live network calls out of the required suite, which is a
 hermeticity improvement the packet gets for free.
 
 ## Replay evidence, and its honest limit
@@ -235,13 +256,29 @@ bundle is published, tagged, and immutable provenance, and the family's own
 action text forbids editing an inventory to match an absence. Deferring the
 sentence to whoever cuts the next bundle would leave the ratified policy silent
 about a gate that enforces it, in the window where a reader most needs to be
-told. **The finding is the designed transient** —
-`release-surface-integrity`'s own scenario says changed members "appear as
-non-editorial drift against that previous bundle's inventory, and the condition
-is detectable at the commit rather than only at tag-verify time" — and the next
-cut clears it by re-digesting the member. The estate does this routinely with
-this very document: `95c2cf6a` (PR #622) and `2898b104` both moved it between
-cuts.
+told.
+
+**IT IS A DEFECT, AND CALLING IT ANYTHING ELSE WOULD BE THE DISHONEST MOVE.**
+The scenario that governs this case is `release-surface-integrity`'s *A
+normative contract drifts from the declared bundle*: "WHEN a commit declares a
+bundle and a non-editorial member of that bundle's inventory does not match its
+recorded digest at that commit — THEN the declared bundle no longer describes
+the release surface and the condition MUST be reportable as a defect". Its
+sibling *Only the editorial members have moved* is the exemption, and it names
+three members that do not include this document;
+`docs/contract-versioning-policy.md` says the same in its own words — "A
+mismatch on any OTHER member is a defect". (An earlier draft of this section
+cited *A cut forgets to advance the declared bundle* as sanctioning the state.
+That scenario has a different WHEN — a release candidate that updates contracts
+and leaves the version behind — and it was the wrong citation. Corrected on
+adversarial review of PR #668.)
+
+**So it is an ACCEPTED defect, not a benign state**, cleared at the next cut,
+which re-digests the member — the remedy the same scenario names, "never a
+hand-edit of the inventory to match the tree". The estate accepts it routinely
+for this very document: `95c2cf6a` (PR #622) and `2898b104` (PR #577) both
+carried it between cuts. Nothing here reclassifies the finding: it is reported
+at `error`, it is counted at `error` in § Impact, and it is owed a cut.
 
 It is recorded here, in `proposal.md` § Impact with the before/after counts, and
 in `tasks.md` § 3.5, so that it is read as a predicted consequence rather than

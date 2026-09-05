@@ -28,7 +28,7 @@ WHY THE NEW BUNDLE'S OWN TAG IS NOT REQUIRED HERE, and why that is honest
 rather than a hole. The tag cannot exist yet. Measured over every
 `contract-v3.x` cut this repository has made, the annotated tag is created
 AFTER the merge and points AT THE MERGE COMMIT — v3.1 six seconds after, v3.2
-twenty-three, v3.3 forty-four, v3.4 sixty-eight. A pre-merge gate that demanded
+twenty-three, v3.3 forty-four, v3.4 sixty-nine (merge-commit committer time to tag creation). A pre-merge gate that demanded
 it would be unsatisfiable by construction, which is a gate people route around.
 The family already answers this correctly and needs no help: a bundle whose
 EARLIEST DECLARING COMMIT IS THE TIP is at distance zero and emits NO FINDING
@@ -223,8 +223,19 @@ def changed_paths(repo: Path, base: str, head: str) -> list[str] | None:
     different question (changes since the merge base), which on a merge commit
     is the same answer by a longer route and a different one on any other
     revision a caller passes.
+
+    `--no-renames` IS THE SECURITY-RELEVANT HALF, and it was a real hole
+    (adversarial review on PR #668). With rename detection on — git's default
+    for `diff` — a pure rename prints ONLY THE DESTINATION path, so
+    `git mv contracts/releases/contract-v9.1.digests.yaml docs/moved-v9.1.yaml`
+    (or the same move of `contracts/manifest.yaml`) came back as a single
+    `docs/…` path, the scope test saw nothing under the release surface, and the
+    gate exited 0 saying "no release surface change" — while the pull request
+    had removed a release inventory. The path filter asks WHICH PATHS THIS PULL
+    REQUEST TOUCHES, and a rename touches two: `--no-renames` reports both
+    sides, so a member leaving the release surface is seen leaving it.
     """
-    out = _run(repo, "diff", "--name-only", base, head)
+    out = _run(repo, "diff", "--no-renames", "--name-only", base, head)
     if out is None:
         return None
     return [line.strip() for line in out.splitlines() if line.strip()]
