@@ -3,6 +3,46 @@ kind: repository_gate_floor
 floor:
   id: openxfactory-review-authority-register
   repository: opensoft/openxFactory
+  # D-3 OF `add-floor-addition-grace` — THE ESCALATION TOLERANCE, AND IT IS THE
+  # ONE FIELD OF THIS DOCUMENT THE OWNER IS ASKED TO SET.
+  #
+  # The packet was RATIFIED 2026-09-05 by Brett Heap, in session, verbatim
+  # "ratify 205, B1 stands". D-3's escalation MECHANISM was ratified with it;
+  # its NUMBER was expressly not — "a number the owner should set" — and the
+  # ratification record leaves it OPEN "to be proposed for veto by the
+  # realization that sets it". THIS LINE IS THAT PROPOSAL. Change the number, or
+  # delete the line, and nothing else moves.
+  #
+  # WHAT IT DOES. The addition grace reports a path the candidate itself creates
+  # — and, under B1, a path added to the base branch since the block's
+  # `generated_at` — as `pending_floor_extension` rather than refusing it. The
+  # grace DEFERS the regeneration; it does not discharge it. This count is the
+  # bound on the deferral: once MORE than this many paths are covered-pending,
+  # the evaluation escalates back to `floor_incomplete` and refuses again.
+  #
+  # WHY THREE, from the packet's own measured table rather than from taste:
+  #   * the largest SINGLE repair measured moved the block by TWO paths (#195),
+  #     so 3 never escalates on the candidate that caused it, nor on a second
+  #     promotion landing before the sweep;
+  #   * the busiest measured DAY (2026-09-04) added FIVE paths across four
+  #     repairs, so 3 escalates INSIDE that day — a whole day of un-regenerated
+  #     additions goes red, which is the pressure D-3 exists to keep;
+  #   * it is a COUNT, so it is deterministic and reproducible from the report
+  #     alone. A time bound would turn an unrelated pull request red at midnight
+  #     for something nobody did that day, which is what D-3 forbids.
+  #
+  # DELETING THIS LINE IS FAIL-CLOSED, NOT FAIL-OPEN. An absent declaration is
+  # read as a tolerance of ZERO: every covered-pending path escalates and the
+  # evaluation behaves exactly as it did before the grace existed. A floor that
+  # wants the grace has to say so, in a number a reader can see.
+  #
+  # IT IS NOT PART OF THE MACHINE-GENERATED BLOCK, deliberately. The block's
+  # bytes are witnessed by openxFactory's `contracts/review-lane-pin.yaml`
+  # digest and by the generator's byte-identity `--check`; a policy number
+  # rendered into it would move those witnesses on a decision that has nothing
+  # to do with the tree the block enumerates. It is hand-authored HERE, beside
+  # the eight hand-reasoned entries, in this CODEOWNERS-routed document.
+  pending_floor_extension_tolerance: 3
   # THIS DOCUMENT IS 8 + 1, NOT 67 EQUALLY-REASONED CHOKEPOINTS.
   #
   # EIGHT hand-reasoned gate chokepoints, each with its own ground below: the
