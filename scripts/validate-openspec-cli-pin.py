@@ -20,6 +20,14 @@ before it may archive — ran in NO repository's CI at all. Every engineer and
 every agent validated and archived with whatever `openspec` happened to be
 installed.
 
+CORRECTED 2026-09-05: THAT LINE IS GONE, and the paragraph above is kept as the
+state this file was written against rather than as a description of the tree.
+`pytest-suite.yml` now installs through `scripts/install-pinned-openspec-cli.py`,
+which reads this repository's pin with the parser below and verifies the
+artifact's content address before anything is installed (#667 task 5.1, #677
+task 6.2). The copies had already moved apart by then — the pin at `1.12.0`, the
+workflow's literal still at `1.2.0` — which is the defect named above, observed.
+
 THE TRUSTED REFERENT IS THE TARBALL'S INTEGRITY, NOT THE VERSION STRING. A
 version number is a NAME that a registry's policy keeps stable; a SHA-512 over
 the published bytes is a CONTENT ADDRESS that nothing can move. So this tool does

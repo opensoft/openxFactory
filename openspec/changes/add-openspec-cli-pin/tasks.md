@@ -6,7 +6,10 @@ Status: draft
 request and their evidence — command lines and outcomes, measured on the branch —
 is recorded beside each task. Slice 5 is successor work in this repository and
 slice 6 is successor work in five other repositories; neither is ticked and each
-names its owner.
+names its owner. **AMENDED 2026-09-05:** 5.1 is now ticked — it landed in its own
+pull request, which is what the task itself demanded — and its evidence is
+recorded beside it in the same form. The rest of slice 5 and all of slice 6 are
+untouched and still owed.
 
 **RATIFICATION HAS NOT HAPPENED.** Brett Heap authorized the DRAFT on 2026-09-04
 (*"draft the openxFactory pin change, pinned at 1.2.0"*). Task 7.1 records
@@ -101,11 +104,26 @@ ratification when it happens and nothing below decides it.
 
 ## Slice 5 — successor work in THIS repository (not this packet)
 
-- [ ] **5.1** Replace `.github/workflows/pytest-suite.yml:400`'s literal
-      `npm install -g @fission-ai/openspec@1.2.0` with a read of the pin file.
-      **Owner: openxFactory.** Deliberately not done here — that workflow is this
-      repository's most load-bearing required check, and a change to how it
-      obtains the CLI deserves its own diff and its own green run.
+- [x] **5.1** **(DONE 2026-09-05, PR #687 — its own diff and its own green run,
+      exactly as this task required.)** `.github/workflows/pytest-suite.yml`'s
+      literal `npm install -g @fission-ai/openspec@1.2.0` is replaced by
+      `scripts/install-pinned-openspec-cli.py --cache-dir "${RUNNER_TEMP}/openspec-cli-pin"`,
+      a standard-library INSTALLER that loads
+      `scripts/validate-openspec-cli-pin.py` by path and calls its own
+      `read_pin`/`resolve_pinned`/`assert_reported_version` — no second parser,
+      no second copy of the version or the integrity — then appends the verified
+      executable's directory to `$GITHUB_PATH`. It is NOT a `--verify-only` mode
+      of the verifier: that mode is forbidden by `neutral-product-pin` and this
+      task does not reopen the decision, so a green here means "the pinned bytes
+      are on PATH" and never a verdict about the corpus, which still comes only
+      from `validate-openspec-cli-pin.py --all`. Eleven new tests in
+      `tests/openspec_cli_pin/` (81 → 92): the workflow's non-comment bytes carry
+      neither the version, nor the integrity, nor `@fission-ai/openspec@` at all;
+      the installer's `$GITHUB_PATH` append, its exit-2 refusal, and the absence
+      of any scan-target option. Was: **Owner: openxFactory.** Deliberately not
+      done here — that workflow is this repository's most load-bearing required
+      check, and a change to how it obtains the CLI deserves its own diff and its
+      own green run.
 - [ ] **5.2** Decide the dependency closure (design OI-1). **Owner:
       openxFactory.** The referent addresses the CLI's bytes and not its nine
       caret-ranged dependencies; `--ignore-scripts` mitigates and does not repair.
