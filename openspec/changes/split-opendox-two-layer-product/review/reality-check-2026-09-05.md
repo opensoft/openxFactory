@@ -40,13 +40,15 @@ clone of `opensoft/openRepoShape` (`.../scratchpad/verify/oRS`, tip
 worktree at `122d729bc0c2f2e0ded0bb61b6b97f49512f613e` — the commit this
 repository's `contracts/openreposhape-pin.yaml` pins today —
 plus, where a finding turned on it, a third worktree at `355f6ef4`, the exact
-commit `tasks.md` § 1.1a names as the in-flight re-pin target. No network
-call was made against GitHub; `--dry-run` and `--local-remote-dir` (bare
-repositories on disk, the tool's own documented test path) materialized real
-file trees with nothing created upstream. The operator's local
-`openRepoShape` checkout (outside this repository) was never touched. Where a finding turned on this organization's live
-ruleset state, `gh api orgs/opensoft/rulesets` and the two ruleset ids the
-packet's own text names were read (read-only).
+commit `tasks.md` § 1.1a names as the in-flight re-pin target. No
+state-changing call was made against GitHub; the only network reads were the
+initial `git clone` of `opensoft/openRepoShape` and, where a finding turned on
+this organization's live ruleset state, `gh api orgs/opensoft/rulesets` and
+the two ruleset ids the packet's own text names. `--dry-run` and
+`--local-remote-dir` (bare repositories on disk, the tool's own documented
+test path) materialized real file trees with nothing created upstream, and
+the operator's local `openRepoShape` checkout (outside this repository) was
+never touched.
 
 ## The five findings, re-verified
 
