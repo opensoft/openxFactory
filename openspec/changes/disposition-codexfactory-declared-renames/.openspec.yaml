@@ -1,0 +1,64 @@
+schema: spec-driven
+created: 2026-09-05
+
+# NO SPEC DELTA, DECLARED RATHER THAN OMITTED. `bump-openspec-cli-pin-to-1.12`
+# already states every rule this packet exercises — a disposition is scoped to
+# one repository, an entry naming another repository is neither applied nor
+# stale on this tree, and an entry goes stale on the tree it names when its
+# change archives — and its scenario "A consuming repository runs the same pin
+# over its own tree" is literally this situation. So this packet ADDS NO RULE:
+# it is the first APPLICATION of that rule to a second repository, and the
+# honest shape for that is zero deltas declared, not a restatement of ratified
+# text under an `## ADDED Requirements` header. A `## MODIFIED` delta against
+# that requirement is refused on ordering grounds and was not written: the
+# requirement is not yet promoted, the bump being active.
+skip_specs: true
+
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-05-disposition-codexfactory-declared-renames
+  reason: >-
+    TASK 6.1 OF `add-openspec-cli-pin`, TAKEN FROM THE CONSUMER SIDE, STEP 2 OF
+    THREE. #667 named "codexFactory wires the fleet OpenSpec-CLI pin into CI" as
+    owed work. codexFactory measured its own tree through this repository's
+    pinned entrypoint on 2026-09-05 at `1.12.0` and read `Totals: 23 passed,
+    2 failed (25 items)` — 23 of 25 items clean, and the two failures the SAME
+    disagreement openxFactory's own pair is: 1.12.0's scenario-currency check
+    cannot read this estate's reserved narrowing marker
+    ``**Merged into `<destination>` by <change-id> (<date>):**`` and therefore
+    re-reports two declared, ratified retitles as ERRORs. codexFactory PR #216
+    (`prepare-openspec-1.12-readiness`, head `b2a6af34`) cleared everything
+    clearable and converted one marker to the form canon reserves for a retitle;
+    it CANNOT clear these two, because the only edit that satisfies the tool is
+    to copy the superseded scenario titles back, which reinstates bars two
+    ratified changes were written to lower. The disposition mechanism lives in
+    THIS repository's pin file, so the acceptance has to be written HERE. This
+    packet writes it, scoped to codexFactory and to nothing else.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` and its `INDEX.md` were read on 2026-09-05: no topic
+    carries the OpenSpec CLI pin, a consuming repository's wiring, or a
+    finding-disposition. `kind: staged` would claim a staging source that does
+    not resolve. The organized source is codexFactory PR #216's evidence record
+    and the operator ruling quoted below.
+  approved_by: >-
+    Brett Heap (openxFactory convener) — 2026-09-05, verbatim to lane
+    codexfactory-1: "use recommended name, go on 3 repo shape". The words
+    accept, for codexFactory's pair, the same exit he ruled "take exit 2" for
+    openxFactory's own pair on the same day (#677): declare the retitle with the
+    marker canon reserves for it, and DISPOSITION the residual scenario-currency
+    finding rather than copy the superseded scenario back. "3 repo shape" is the
+    three-step realization he commissioned — (1) codexFactory PR #216, the
+    marker conversion and the readiness measurement; (2) THIS packet, the
+    disposition of the two residual findings in the fleet pin; (3)
+    `adopt-openspec-cli-pin-gate` in codexFactory, the gate leg and the stack
+    re-pin. THIS IS A RULING ON THE SUBSTANCE — it settles which exit
+    codexFactory takes and in what order — and it is NOT a ratification of this
+    packet's text, which carries `Status: draft` and owes a ratification
+    citation from a separate act.
+  approved_on: 2026-09-05
+related:
+  - openxFactory:change:add-openspec-cli-pin              # ACTIVE. Cut the pin (#667) and carries task 6.1, the obligation this packet's step 2 discharges half of
+  - openxFactory:change:bump-openspec-cli-pin-to-1.12     # ACTIVE. #677. Moved the pin to 1.12.0 and ADDED the disposition mechanism and its rule; this packet is that rule's first application to a consuming repository
+  - openxFactory:change:prepare-openspec-1.12-readiness   # ACTIVE. #673, openxFactory's own readiness packet; codexFactory's PR #216 packet carries the same change id in ITS corpus and is a different change
+  - openxFactory:change:add-chain-attestation             # ACTIVE. Disposed, openxFactory-scoped; out of scope on codexFactory's tree and named here only so the four entries are read as two pairs
+  - openxFactory:change:add-composed-view-authoring       # ACTIVE. Disposed, openxFactory-scoped; its archive makes openxFactory's own run refuse until its entry is deleted, by design, and does nothing to codexFactory's

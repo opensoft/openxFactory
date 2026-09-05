@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts" / "validate-openreposhape-pin.py"
 PIN = ROOT / "contracts" / "openreposhape-pin.yaml"
 
-COMMIT = "122d729bc0c2f2e0ded0bb61b6b97f49512f613e"
+COMMIT = "e9c4827b85f50503bbdd9e5b4fac9d6c3d0baf63"
 
 
 def _load_module():
@@ -136,16 +136,16 @@ def test_the_real_pin_parses_into_the_expected_shape(pin):
     assert pin["revision_kind"] == "commit"
     assert pin["commit"] == COMMIT
     assert pin["source_repository"] == "opensoft/openRepoShape"
-    assert len(pin["files"]) == 27
-    assert len(pin["pinned_by_commit_only"]) == 33
+    assert len(pin["files"]) == 31
+    assert len(pin["pinned_by_commit_only"]) == 45
     assert all(set(e) == {"path", "sha256"} for e in pin["files"])
 
 
-def test_the_two_lists_are_disjoint_and_cover_sixty_members(pin):
+def test_the_two_lists_are_disjoint_and_cover_seventy_six_members(pin):
     digested = {e["path"] for e in pin["files"]}
     path_only = set(pin["pinned_by_commit_only"])
     assert digested & path_only == set()
-    assert len(digested | path_only) == 60
+    assert len(digested | path_only) == 76
 
 
 def test_the_reader_refuses_a_line_outside_its_grammar(mod, tmp_path):
@@ -166,7 +166,7 @@ def test_an_absent_pin_is_unreadable_and_not_an_unpinned_pass(mod, tmp_path):
 
 @pytest.mark.parametrize("mutation, detail", [
     ({"revision_kind": "tag"}, "a tag is not a commit"),
-    ({"commit": "122d729b"}, "an abbreviated oid is not a commit"),
+    ({"commit": "e9c4827b"}, "an abbreviated oid is not a commit"),
     ({"commit": "main"}, "a branch is not a commit"),
 ])
 def test_a_movable_referent_is_refused_as_tag_only(mod, pin, mutation, detail):
@@ -207,9 +207,9 @@ def test_a_stale_source_is_a_revision_mismatch_not_a_pile_of_digest_failures(
 def test_a_conformant_source_verifies(mod, pin, honouring):
     summary = mod.verify(honouring(pin), pin)
     assert summary["commit"] == COMMIT
-    assert summary["digested"] == 27
-    assert summary["path_only"] == 33
-    assert summary["surface"] == 60
+    assert summary["digested"] == 31
+    assert summary["path_only"] == 45
+    assert summary["surface"] == 76
 
 
 def test_digest_drift_on_one_member_refuses(mod, pin, honouring):

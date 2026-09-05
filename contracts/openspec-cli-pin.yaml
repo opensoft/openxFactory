@@ -106,9 +106,10 @@ kind: pinned_contract_manifest
 # with it. That readiness work is now done (#673 here, #220 in OpsxFactory) and
 # this is that bump. Re-measured 2026-09-05: OpsxFactory reads 46 passed /
 # 0 failed at 1.12.0, and openxFactory reads 88 passed / 2 failed of 90 — the
-# two remaining being the DISPOSITIONS below and nothing else.
+# two remaining being the two openxFactory-scoped DISPOSITIONS below and nothing
+# else.
 #
-# THE TWO DISPOSITIONS, AND WHY THIS PIN CARRIES A DISPOSITION MECHANISM AT ALL.
+# THE DISPOSITIONS, AND WHY THIS PIN CARRIES A DISPOSITION MECHANISM AT ALL.
 # A pinned tool is a foreign judgment about a local corpus, and the two can
 # genuinely disagree. 1.12.0 added a scenario-currency check that is BLIND to
 # this estate's reserved narrowing marker,
@@ -123,6 +124,21 @@ kind: pinned_contract_manifest
 # honest exits — sequence the bump after both changes archive, carry a
 # dispositioned exception, or take it upstream. Brett Heap ruled on 2026-09-05:
 # "take exit 2". `dispositions:` below is that ruling, made checkable.
+#
+# AND THEN THE SAME DISAGREEMENT ARRIVED FROM A CONSUMING REPOSITORY, WHICH IS
+# WHY THE LIST IS NOW FOUR AND NOT TWO. codexFactory ran this entrypoint over its
+# own tree on 2026-09-05 and read `Totals: 23 passed, 2 failed (25 items)` — its
+# readiness packet (codexFactory PR #216, `prepare-openspec-1.12-readiness`)
+# cleared everything clearable and CONVERTED one block's `Removed from canon`
+# marker to `Merged into`, the instrument canon reserves for a retitle
+# (openspec/specs/doc-health/spec.md:1750, "That shape is a retitle, whatever the
+# marker calls it"). What survived is the identical marker-blindness, twice more,
+# against two of Brett's own `Status: draft` changes. Brett Heap ruled the same
+# exit for that pair on 2026-09-05 — "use recommended name, go on 3 repo shape" —
+# and `disposition-codexfactory-declared-renames` is the change that writes it
+# here. THE FOUR ENTRIES ARE TWO PAIRS AND THEY NEVER MIX: `repo:` scopes each,
+# and a run over either tree neither applies nor stales the other's, which is the
+# property that lets ONE pin file govern a fleet at all.
 #
 # THE DISPOSITIONS ARE UPGRADE-COUPLED AND STALE-REFUSED, which is what keeps
 # them from becoming a suppression list.
@@ -197,9 +213,10 @@ tarball: https://registry.npmjs.org/@fission-ai/openspec/-/openspec-1.12.0.tgz
 # THE MECHANISM SURVIVES THE ROLLBACK: `1.2.0` and `1.12.0` emit the SAME
 # machine-readable report shape (verified by running both), so a pin returned to
 # `1.2.0` still parses. Its `dispositions:` list, however, does NOT survive: the
-# two entries below exist only because 1.12.0 raises those findings and 1.2.0
+# four entries below exist only because 1.12.0 raises those findings and 1.2.0
 # does not, so a rollback that kept them would refuse `pin-disposition-stale` on
-# its first run. A rollback deletes the dispositions with the version.
+# its first run — on EVERY tree, since a rollback un-raises the findings in both
+# repositories at once. A rollback deletes the dispositions with the version.
 rollback:
   - version: "1.2.0"
     integrity: "sha512-2XDmPZcVY0Bs014lP9aoxe3VoEU8hFvqaBFxQaiJO2nhC8vTKCyo6sT/5YpQcOTfR/a64Hht2anTyqLR4eNhlg=="
@@ -253,10 +270,15 @@ resync_runbook: docs/contract-versioning-policy.md
 # cover the same finding; and it refuses `pin-disposition-stale` when a declared
 # finding no longer occurs, so an exception cannot outlive its condition.
 #
-# BOTH ENTRIES BELOW ARE THE SAME DISAGREEMENT, twice: 1.12.0's scenario-currency
-# check cannot read this estate's reserved narrowing marker, and so demands the
-# restoration of scenario titles two ratified changes deliberately narrowed. The
-# `finding:` text is quoted from the tool's own JSON report, verbatim.
+# EVERY ENTRY BELOW IS THE SAME DISAGREEMENT, four times: 1.12.0's
+# scenario-currency check cannot read this estate's reserved narrowing marker,
+# and so demands the restoration of scenario titles four declared changes
+# deliberately narrowed. THEY ARE TWO PAIRS IN TWO REPOSITORIES, kept apart by
+# `repo:` and by nothing else: the openxFactory pair (#677, "take exit 2") and
+# the codexFactory pair (`disposition-codexfactory-declared-renames`, "use
+# recommended name, go on 3 repo shape"). Each pair is out of scope — neither
+# applied nor stale — on the other's tree. The `finding:` text is quoted from the
+# tool's own JSON report, verbatim, per repository.
 dispositions:
   - repo: openxFactory
     item: add-chain-attestation
@@ -302,3 +324,73 @@ dispositions:
       Brett act). ON THAT DAY THIS ENTRY GOES STALE AND EVERY RUN REFUSES until
       it is deleted. That is the mechanism working, not a defect: the archive is
       the event that forces somebody to re-read the exception.
+
+  # ---- codexFactory, added 2026-09-05 by disposition-codexfactory-declared-renames.
+  # THE SECOND PAIR, IN A SECOND REPOSITORY, AND THE FIRST TIME THIS MECHANISM
+  # CROSSES A REPOSITORY BOUNDARY. codexFactory ran this entrypoint over its own
+  # tree at PR #216's head `b2a6af34` and read `Totals: 23 passed, 2 failed
+  # (25 items)`. The two failures are the same marker-blindness the pair above
+  # is, against two of Brett Heap's own `Status: draft` changes; neither is near
+  # archive, so neither entry is expected to go stale soon. THE TWO PAIRS DO NOT
+  # INTERACT: on codexFactory's tree the openxFactory pair is out of scope —
+  # neither applied nor stale — and on openxFactory's tree these two are, which
+  # is the property that lets one pin file govern a fleet.
+  - repo: codexFactory
+    item: add-regular-pr-council-clearance
+    path: merge-master-approval/spec.md
+    level: ERROR
+    finding: 'MODIFIED "Bounded autonomous surface" omits scenario(s) the current spec still has: "A human-authored pull request is never auto-approved". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them).'
+    why: >-
+      A RETITLE AND NARROWING declared with the reserved `Merged into` marker —
+      converted from a `Removed from canon` marker by codexFactory PR #216 on
+      Brett Heap's 2026-09-05 ruling, because canon holds that a block adding a
+      title canon does not carry is a retitle whatever the marker calls it. A
+      human-authored pull request is still never approved by the tier-1 envelope
+      alone; approval may now ALSO come from tier-2 council clearance pinned to
+      the candidate's exact head SHA, which is the BREAKING change that packet
+      declares. Copying the old scenario back would reinstate a bar the change
+      was ratified to lower.
+    cited_to:
+      - openspec/specs/doc-health/spec.md:1770 — the promoted `Merged into` marker requirement, whose written form the codexFactory block uses
+      - openspec/specs/doc-health/spec.md:1750 — "That shape is a retitle, whatever the marker calls it", the line that makes `Merged into` the right instrument here and `Removed from canon` the wrong one
+      - council LA-A1 — the ruling that reserved the marker forms
+      - codexFactory PR #216 (prepare-openspec-1.12-readiness, head b2a6af34) — the packet that converted the marker and measured what survived
+      - codexFactory openspec/changes/prepare-openspec-1.12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md — the measurement, `Totals: 23 passed, 2 failed (25 items)`, and § "The two refusals"
+      - codexFactory openspec/changes/add-regular-pr-council-clearance/specs/merge-master-approval/spec.md:139 — the marker itself, in the block the finding names
+    ratified_by: 'Brett Heap, 2026-09-05, "use recommended name, go on 3 repo shape" (the plan) and "ratify 697" (this change; openspec/changes/disposition-codexfactory-declared-renames/review/ratification-2026-09-05.md)'
+    retires_when: >-
+      add-regular-pr-council-clearance archives IN codexFactory — and on that day
+      codexFactory's own `--all` run REFUSES `pin-disposition-stale` until this
+      entry is deleted, which is the mechanism working. It is not near: the
+      change carries `Status: draft` and its ratification is Brett's, unscheduled.
+      Nothing openxFactory does to its own corpus retires this entry, and nothing
+      about this entry can make openxFactory's own gate refuse.
+
+  - repo: codexFactory
+    item: amend-composition-selector-labelling
+    path: domain-hermes-content/spec.md
+    level: ERROR
+    finding: 'MODIFIED "The merge-readiness holder composition is declared from governed sources" omits scenario(s) the current spec still has: "Current aliases do not masquerade as immutable versions". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them).'
+    why: >-
+      The scenario is RETITLED to "A selector is labelled for what it is, and
+      none masquerades as an immutable revision", declared in the block with the
+      reserved `Merged into` marker on Brett Heap's 2026-08-31 ruling that the
+      old title's THEN clause needed a reading to stay true after the roster
+      model-pin flip. The retitle restates the THEN for both exact identifiers
+      and aliases so canon states the rule directly; restoring the old title
+      would put back the clause the ruling found required a reading.
+    cited_to:
+      - openspec/specs/doc-health/spec.md:1770 — the promoted `Merged into` marker requirement, whose written form the codexFactory block uses
+      - openspec/specs/doc-health/spec.md:1750 — "That shape is a retitle, whatever the marker calls it"
+      - council LA-A1 — the ruling that reserved the marker forms
+      - codexFactory hermes/domain/review-councils/records/2026-08-31-enrolled-roster-model-pin-flip.md §5.1/§12.0 — Brett Heap's 2026-08-31 ruling, the reason for the retitle
+      - codexFactory PR #216 (prepare-openspec-1.12-readiness, head b2a6af34) — the packet that measured what survived
+      - codexFactory openspec/changes/prepare-openspec-1.12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md — the measurement, `Totals: 23 passed, 2 failed (25 items)`, and § "The two refusals"
+      - codexFactory openspec/changes/amend-composition-selector-labelling/specs/domain-hermes-content/spec.md:19 — the marker itself, in the block the finding names
+    ratified_by: 'Brett Heap, 2026-09-05, "use recommended name, go on 3 repo shape" (the plan) and "ratify 697" (this change; openspec/changes/disposition-codexfactory-declared-renames/review/ratification-2026-09-05.md)'
+    retires_when: >-
+      amend-composition-selector-labelling archives IN codexFactory — and on that
+      day codexFactory's own `--all` run REFUSES `pin-disposition-stale` until
+      this entry is deleted. It is not near: the change carries `Status: draft`
+      and its ratification is Brett's, unscheduled. As with its sibling, this
+      entry is invisible to a run over any tree that is not codexFactory's.

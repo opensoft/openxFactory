@@ -764,20 +764,64 @@ def test_the_installers_options_are_exactly_the_three_it_needs(installer):
 # its condition REFUSES.
 
 
-def test_the_real_pin_declares_exactly_the_two_dispositions_the_bump_carries(
+def test_the_real_pin_declares_exactly_the_four_dispositions_two_repos_carry(
         mod, pin):
     """The pin's own entries, read through the pin's own reader.
 
-    Asserted against the REAL file because the two entries are the substance of
-    the change: a bump that silently grew a third exception would still be a
-    bump nobody read.
+    Asserted against the REAL file because the entries ARE the substance of
+    every change that touches this list: a bump — or a consumer's packet — that
+    silently grew one more exception would still be a change nobody read. It
+    fired on exactly that account for `disposition-codexfactory-declared-renames`
+    (2 → 4), which is the test working; the growth is READ in that packet's
+    `design.md` § 3 and the assertion is TIGHTENED here rather than merely
+    renumbered.
+
+    WHY THE SPLIT AND NOT A COUNT. The predecessor asserted
+    `{repo} == {"openxFactory"}`, which a growing fleet loosens once and then
+    forever. Pinning WHICH item belongs to WHICH repository keeps the fleet
+    property this list depends on — that the two pairs never mix — inside the
+    assertion, and makes a third repository fire this test too.
     """
     entries = mod.pinned_dispositions(pin)
-    assert [entry["item"] for entry in entries] == [
-        "add-chain-attestation", "add-composed-view-authoring"]
-    assert {entry["repo"] for entry in entries} == {"openxFactory"}
-    assert [entry["path"] for entry in entries] == [
-        "signed-execution-chain/spec.md", "ideation-dashboard/spec.md"]
+    assert [(entry["repo"], entry["item"], entry["path"]) for entry in entries] == [
+        ("openxFactory", "add-chain-attestation",
+         "signed-execution-chain/spec.md"),
+        ("openxFactory", "add-composed-view-authoring",
+         "ideation-dashboard/spec.md"),
+        ("codexFactory", "add-regular-pr-council-clearance",
+         "merge-master-approval/spec.md"),
+        ("codexFactory", "amend-composition-selector-labelling",
+         "domain-hermes-content/spec.md"),
+    ]
+
+
+def test_the_consumers_entries_are_out_of_scope_on_this_repositorys_own_tree(
+        mod, pin):
+    """THE PROPERTY THIS REPOSITORY'S OWN REQUIRED GATE DEPENDS ON, asserted
+    against the REAL pin rather than only against a fixture.
+
+    `contracts/openspec-cli-pin.yaml` carries exceptions for codexFactory's
+    corpus, and openxFactory's `openspec-cli-pin` gate reads that same file on
+    every pull request. If a consumer's entry could go stale here, adding one
+    would turn this repository's gate red for a finding in a tree it does not
+    own — so the reconciliation is run at openxFactory's identity over the
+    CAPTURED real report and the codexFactory pair must land in neither list.
+    """
+    payload = (FIXTURES /
+               "openspec-1.12.0-validate-changes-strict-report-findings.json"
+               ).read_text(encoding="utf-8")
+    items, _ = mod.parse_report(payload, ["validate", "--changes"])
+    findings = mod.collect_findings(items, "--changes")
+    entries = mod.pinned_dispositions(pin)
+    foreign = [entry for entry in entries if entry["repo"] != "openxFactory"]
+    assert foreign, "the fixture for this property is the real pin's own list"
+    applied, undispositioned, stale = mod.reconcile(
+        findings, entries, "openxFactory", corpus_wide=True)
+    assert {entry["repo"] for entry, _ in applied} == {"openxFactory"}
+    assert undispositioned == []
+    assert stale == [], (
+        "a disposition naming another repository went stale on this tree; "
+        "openxFactory's own gate would refuse on a consumer's corpus")
 
 
 def test_every_real_disposition_cites_canon_and_names_who_granted_it(mod, pin):

@@ -481,6 +481,24 @@ _FETCH_TRIED_WORDS = ("a bounded fetch of exactly that commit was attempted "
 _PRESENT_WORDS = "IS present in this clone and carries no contracts/manifest.yaml"
 _ANSWERED_WORDS = "so no contract bundle is declared there"
 
+# THE SAME PAIR AT THE SECOND READ. The changelog read has no presence probe of
+# its own: it INHERITS the manifest read's, and completely, because the manifest
+# is read at the SAME COMMIT and must have answered before that arm is reached —
+# a blob cannot be read out of a commit this clone does not hold. So the
+# unfetched fact is EXCLUDED there, not merely rarer, and the skip states the
+# presence instead of leaving a reader to infer a fetch defect that cannot be.
+#
+# AND IT STATES THE PRESENCE WITHOUT OVER-CLAIMING WHAT PRESENCE PROVES (PR #688
+# adversarial review, P3). A held commit licenses "no readable blob came back at
+# this path", NOT "the commit carries no such file": a store holding the commit
+# and its trees can still fail to produce the blob — remove the loose object and
+# `cat-file --batch` answers `missing` for a path the tree plainly carries — so
+# the over-claiming form is pinned against NEGATIVELY below.
+_CHANGELOG_HELD_WORDS = "WHICH THIS CLONE HOLDS"
+_CHANGELOG_ABSENT_WORDS = ("the commit is held in this store and no readable "
+                           "contracts/CHANGELOG.md blob is reachable at it")
+_CHANGELOG_OVERCLAIM_WORDS = "carries no contracts/CHANGELOG.md"
+
 # A realistic tip: codexFactory's own published tip on the 2026-09-03 nightly,
 # whose report line this fixture reproduces exactly.
 _TIP = "a79ff008b8004f0e1c2d3e4f5a6b7c8d9e0f1a2b"
@@ -2045,6 +2063,45 @@ def test_an_unreadable_changelog_at_the_published_tip_skips(tmp_path):
     # rather than the repository — the skip is the SPENT read's, not the
     # family's.
     assert "contract-v2.0" in out.reason
+
+
+def test_an_absent_changelog_says_the_tip_is_held_rather_than_unfetched(tmp_path):
+    """THE SKIP NAMES THE FACT IT HAS, openxFactory #612 ONE DOCUMENT OVER.
+
+    `blobs_at`'s per-path None stands for two facts — an unfetched commit, and a
+    commit this clone holds at which no readable blob is reachable for that
+    path. At THIS read only the second can hold: `obtain_commit` ran above, and
+    the manifest was read AT THE SAME COMMIT and answered, which a commit the
+    clone does not hold cannot do. So the skip states the presence rather than
+    leaving a reader of the report to go looking for a fetch defect that cannot
+    be there — and it states EXACTLY that, without asserting a file absence the
+    held commit does not prove.
+    """
+    # THE PRECONDITION IS DECLARED, NOT ASSUMED (Copilot, PR #688 round 2). The
+    # skip's whole claim is that the store HOLDS this commit, and `FakeGit`'s
+    # object store is pessimistic by default — nothing present, nothing
+    # fetchable — so a shim that left it empty would be asserting held-tip words
+    # over a tip the double says is absent. `present_commits` puts it there, and
+    # `fetch_calls` below proves it was held rather than fetched into place.
+    git = _NoChangelog(remotes={"r": "tip"}, present_commits={"tip"})
+    out = rtp.check_repo("alphaFactory", Path("r"), git)
+    assert isinstance(out, Skip)
+    assert git.fetch_calls == [], (
+        "the tip is in the store, so this arm must cost no round trip — a "
+        "fetch here would mean the precondition was manufactured"
+    )
+    assert _CHANGELOG_HELD_WORDS in out.reason
+    assert _CHANGELOG_ABSENT_WORDS in out.reason
+    # AND IT IS NOT THE OTHER READ'S WORDS. The manifest arm's unfetched skip is
+    # the one that says a bounded fetch was tried and failed; this skip must
+    # never be mistakable for it, which is the whole of the defect.
+    assert _FETCH_TRIED_WORDS not in out.reason
+    # NOR THE OVER-CLAIMING FORM. "The commit carries no such file" is a fact
+    # about the TREE, and the only fact this arm has is about the READ: a store
+    # holding the commit and its trees can still fail to produce the blob, and a
+    # skip that called that a clean absence would be the #338 conflation pointed
+    # in a third direction.
+    assert _CHANGELOG_OVERCLAIM_WORDS not in out.reason
 
 
 def test_a_below_floor_repository_with_no_changelog_is_not_newly_skipped(tmp_path):

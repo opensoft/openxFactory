@@ -335,6 +335,21 @@ proved rather than the one it broke.
 > force is read. The ratification fact above is unchanged; only the present tense
 > was wrong.
 
+> Amended 2026-09-05. The note above said the pin "now pins `122d729bc0c2…` —
+> openRepoShape `main` of 2026-09-04, twenty-seven digested and thirty-three
+> path-only members over a sixty-file surface". That was true after PR #650 and
+> is no longer:
+> [`contracts/openreposhape-pin.yaml`](../contracts/openreposhape-pin.yaml) now
+> pins `e9c4827b85f5…` — openRepoShape `main` of 2026-09-05, covering
+> openRepoShape #42 (a descendant's referent reached through a declared pin
+> chain) and #45 (a neutral product may elect the shape and be its own assembly
+> root) — thirty-one digested and forty-five path-only members over a
+> seventy-six-file surface. Nothing in this doctrine moves with this bump
+> either: the pin advances within its own ratified grammar, and the PIN FILE
+> rather than either sentence is where the commit in force is read. Both
+> ratification facts above are unchanged; only the present tense was, again,
+> wrong.
+
 ## See also
 
 - [`contracts/openreposhape-pin.yaml`](../contracts/openreposhape-pin.yaml) — the pin
