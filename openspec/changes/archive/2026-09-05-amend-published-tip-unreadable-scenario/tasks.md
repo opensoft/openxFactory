@@ -82,7 +82,7 @@ catching up to it.
       word that ratified it is a different change. The successor owes one
       reading first — the changelog read has no presence probe of its own, it
       inherits the manifest read's.
-- [x] 4.3 **ARCHIVED 2026-09-05 BY openxFactory PR ARCHIVE_PR_PENDING**,
+- [x] 4.3 **ARCHIVED 2026-09-05 BY openxFactory PR #685**,
       `change/archive-amend-published-tip-unreadable-scenario`, cut from `main`
       at `87c15baa`, on Brett Heap's word *"do both as a batch on one word"* and
       the `release-realization` rule that a change with `code_surface: none`
