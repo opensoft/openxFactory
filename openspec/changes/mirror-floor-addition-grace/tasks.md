@@ -188,22 +188,27 @@ divergence, not a mirror.
 
 ## 5. Observation and evidence (the archive gate)
 
-- [ ] 5.1 `python3 -m pytest tests/review_lane_pin -q`, `tests/sequenced_after`,
+- [x] 5.1 `python3 -m pytest tests/review_lane_pin -q`, `tests/sequenced_after`,
   and the full `pytest-suite` green; `OPENSPEC_TELEMETRY=0 openspec validate
   --all --strict` clean; `python3 scripts/validate-sequenced-after.py .` and
   `--ledger-diff` clean.
-  **Partial evidence, NOT ticked** (the full `pytest-suite` green is CI's own
-  required check, not yet observed on this head at authoring time):
+  **Evidence**: `pytest-suite` GREEN on CI at head `8e3910d9`, run 33979893935
+  (22m21s): `selected=9725 passed=9704 skipped=21 failures=0 errors=0`, both
+  named verdicts (`TheFreshnessVerifier`, `TheVectorReplay`) `passed`. Local:
   `tests/review_lane_pin -q` 73 passed/2 skipped/22 subtests (75 passed/43
   subtests with the pinned core); `tests/sequenced_after -q` 162 passed;
   `openspec validate --all --strict` 92 passed/0 failed; `proposal-support.py
   . verify` ok; `validate-sequenced-after.py .` passed (33 active, 2
   declaring); `--ledger-diff` consistent (170 rows, no row moves). A full
-  `python3 -m pytest tests/ -q -m "not postgres"` was ALSO run locally
-  (~9,600 selected); it surfaces ~50 pre-existing errors in `tests/clearing/`
-  that reproduce IDENTICALLY on unmodified `origin/main` (verified via a
-  worktree at `d0a5f396`) — a local pytest/environment issue unrelated to
-  this packet's files, not something this PR introduces or can fix.
+  local `python3 -m pytest tests/ -q -m "not postgres"` (~9,725 selected) was
+  ALSO run twice: first WITHOUT the `openXwallet` submodule initialized,
+  which surfaced ~95 failures and ~50 errors in `tests/trust-anchor/`,
+  `tests/openxwallet_pin/`, `tests/clearing/` and one documented flat-checkout
+  case (`test_find_validator_locates_pinned_checkout`) — ALL of which
+  resolved to green after `git submodule update --init openXwallet` (confirmed
+  by re-running each affected subtree: 311 passed, 203 passed), matching
+  CI's own "Init the openXwallet gitlink only" step this local clone had
+  skipped. Pre-existing local setup gap, not a regression from this packet.
 - [ ] 5.2 The `pending_floor_extension` outcome OBSERVED ONCE on a real advisory
   run, with its path list, its per-path reasons and its owed-regeneration
   message, quoted verbatim in the archive record. An outcome nobody has seen is
