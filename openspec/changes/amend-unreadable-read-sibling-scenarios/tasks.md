@@ -1,6 +1,7 @@
 # Tasks: amend-unreadable-read-sibling-scenarios
 
-Status: draft
+Status: ratified
+Ratified by: amend-unreadable-read-sibling-scenarios — 2026-09-05, Brett Heap, "ratify 688, land it when green" (record `review/ratification-2026-09-05.md`)
 Kind: tasks
 
 `code_surface: openxFactory`, `target_release: implemented`. The realization
@@ -12,19 +13,23 @@ realizes through its own task list rather than through a feature DAG.
 request or a measurement recorded verbatim in the pull request body. § 1 is NOT
 ticked and names why.
 
-## 1. Ratification — OWED, NOT DONE
+## 1. Ratification — GIVEN 2026-09-05
 
-- [ ] 1.1 **NOT RATIFIED.** No word of Brett Heap's admits this packet to the
-      queue or ratifies its text. `.openspec.yaml` carries drafting provenance
-      with NO approval pair — the lawful unapproved shape — and `proposal.md`,
-      `design.md` and this file all carry `Status: draft`.
-- [ ] 1.2 **THE VETO POINT IS `design.md` D2**: whether the third bullet — *the
-      skip MUST say the commit is held and MUST state the presence* — is in
-      scope at all, and with it the `openxFactory` code surface. Options A
-      (two bullets, `code_surface: none`) and B (three bullets, code owing) are
-      written out with their costs; C was taken. Reversing to A is a two-line
-      edit to the delta plus a front-matter change; reversing to B is a
-      front-matter change and a revert of § 3.
+- [x] 1.1 **RATIFIED 2026-09-05 by Brett Heap** (openxFactory operator
+      authority), in session, verbatim *"ratify 688, land it when green"*.
+      `proposal.md`, `design.md` and this file carry `Status: ratified` with ONE
+      citation each, and `.openspec.yaml` gains the approval pair BESIDE the
+      drafting provenance it was authored with — `kind` and `id` unmoved, which
+      is the addition-not-rewrite shape `add-drafted-proposal-origin` defined.
+      Record: `review/ratification-2026-09-05.md`.
+- [x] 1.2 **THE VETO POINT WAS `design.md` D2 AND IT WAS NOT VETOED**: whether
+      the third bullet — *the skip MUST say the commit is held and MUST state
+      the presence* — is in scope at all, and with it the `openxFactory` code
+      surface. Options A (two bullets, `code_surface: none`) and B (three
+      bullets, code owing) were written out with their costs beside C's;
+      **C is RATIFIED AS DESIGNED**, and the cost is ratified with it — under
+      `release-realization` this packet archives on merged-plus-green
+      realization evidence rather than on landing.
 
 ## 2. The sweep, and the false positives it raised
 

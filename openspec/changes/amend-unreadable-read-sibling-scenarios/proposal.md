@@ -1,20 +1,23 @@
 ---
 code_surface: openxFactory — ONE skip string and its comment in `scripts/doc_health/release_tag_publication.py`, plus the test that pins it in `tests/doc-health/test_release_tag_publication.py`. The reading that decides this is § Why the code surface is NOT `none`, and it is the reading `amend-published-tip-unreadable-scenario` said this successor owed before it copied the wording across. The PRESENCE PROBE the amended scenario requires is already there and is NOT added here — `obtain_commit` runs before both `manifest is None` arms (PR #646, `2177b2a2`) and the changelog read inherits it completely. What is NOT already there is the OTHER half of the same shape: the manifest read answers its present-and-empty case in words that STATE the presence, and the changelog read answers the identical state in words that do not, so canon written in the manifest scenario's shape would out-run the checker by one bullet. That bullet is made true in this packet rather than owed by it. NOTHING ELSE MOVES: no severity, no threshold, no enforcement floor, no finding path, no arm, no workflow, no contract member, and no other family. The skip's substrings that the suite already pins (`contracts/CHANGELOG.md could not be read at the published tip`, `not the same fact as there being none`, and the in-scope bundle name) are all still carried, so the existing assertions hold unchanged and the new ones are ADDED beside them.
 target_release: implemented (the openxFactory main line). No contract bundle is cut, no release tag is owed, nothing under `contracts/` is touched, and no digest set moves. Under `release-realization` a non-empty code surface archives only on merged-plus-green realization evidence; the tasks are individually executable, so this packet realizes through its own task list in this pull request and its realization evidence is that pull request's green pytest and doc-health runs.
-Status: draft
+Status: ratified
 Proposed: 2026-09-05
-Origin: openxFactory issue **#662** and the ARCHIVED `amend-published-tip-unreadable-scenario`, whose `tasks.md` § 4.2 records this sibling as an OWED SUCCESSOR and states the one reading it owes first. **THIS PACKET IS NOT APPROVED AND DOES NOT CLAIM TO BE.** `.openspec.yaml` carries drafting provenance and no approval pair — the lawful unapproved shape `add-drafted-proposal-origin` added — and this document carries `Status: draft`. No word of Brett Heap's ratifies it; § Ratification names what is owed.
+Ratified: 2026-09-05 by Brett Heap (openxFactory operator authority) — "ratify 688, land it when green"; record at review/ratification-2026-09-05.md
+Origin: openxFactory issue **#662** and the ARCHIVED `amend-published-tip-unreadable-scenario`, whose `tasks.md` § 4.2 records this sibling as an OWED SUCCESSOR and states the one reading it owes first. THE ORIGIN IS NOT THE RATIFICATION: the archived packet's record of what it left undone put this successor in the queue, and ratification followed as a SEPARATE act on 2026-09-05, cited once in the line above and recorded at `review/ratification-2026-09-05.md`. `.openspec.yaml` keeps the drafting provenance it was authored with — `kind` and `id` never move — and the approval pair is ADDED beside it, which is the shape `add-drafted-proposal-origin` defined for exactly this transition.
 ---
 
 # Proposal: amend-unreadable-read-sibling-scenarios
 
-Status: draft
+Status: ratified
 Proposed: 2026-09-05, in lane `openxfactory-1`, as the successor
 `amend-published-tip-unreadable-scenario` named before it landed.
 Origin: openxFactory issue **#662** (the defect class) and that packet's own
-`tasks.md` § 4.2 (this sibling, named as owed). **NOT RATIFIED.** The origin is
-a record of what is owed, not an approval of this text; ratification is a
-separate act and has not happened.
+`tasks.md` § 4.2 (this sibling, named as owed). The origin is a record of what
+is owed, not an approval of this text; ratification was a separate act, and it
+has now happened — **ONE citation line for this document**, in the front matter,
+which is what `ratified-provenance` counts. § Ratification records the act and
+what it settled; the record is `review/ratification-2026-09-05.md`.
 
 ## Why
 
@@ -159,13 +162,27 @@ change writes *Release-tag publication*; the ledger classes this row
 
 ## Ratification
 
-**NOT RATIFIED. NOTHING BELOW HAS BEEN GIVEN.** This packet is authored and
-pushed for review; it owes a separate ratification act, and until one exists
-every document in it carries `Status: draft` and `.openspec.yaml` carries
-drafting provenance with no approval pair. The decision most worth a veto is
-`design.md` **D2** — whether the third bullet (and with it the code surface) is
-in scope at all, or whether the successor should carry only the two bullets the
-checker already satisfies.
+**RATIFIED 2026-09-05 by Brett Heap (openxFactory operator authority), in
+session, verbatim: _"ratify 688, land it when green"_.** The citation is the
+front matter's single `Ratified:` line and the record is
+`review/ratification-2026-09-05.md`; the verification run captured beside it is
+`review/verification-2026-09-05.md`.
+
+**THE VETO POINT WAS PUT AND WAS NOT TAKEN.** `design.md` **D2** — whether the
+third bullet, and with it `code_surface: openxFactory`, is in scope at all, or
+whether this successor should carry only the two bullets the checker already
+satisfies — was named as this packet's veto point in the pull request body, in
+`tasks.md` § 1.2 and in the README row, with options A and B written out beside
+option C's cost. The word ratifies option C, **and it ratifies the cost with
+it**: under `release-realization` a non-empty code surface archives on
+merged-plus-green realization evidence rather than on landing.
+
+**WHAT THE WORD DOES NOT REACH.** The adversarial review's P2 finding — that the
+held-and-absent skip still returns ABOVE the `in_scope` loop and so suppresses
+findings the family would otherwise emit — is folded into this packet as a
+NAMED CARVE-OUT (§ What this proposal does NOT claim, `design.md` D6,
+`tasks.md` § 6) and is ratified AS AN OWED SUCCESSOR, not as fixed. It was
+present in the text the word was given over.
 
 ## What this proposal does NOT claim
 

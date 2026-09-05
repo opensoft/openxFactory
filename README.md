@@ -484,9 +484,15 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [amend-unreadable-read-sibling-scenarios](openspec/changes/amend-unreadable-read-sibling-scenarios/proposal.md)
-  — authored 2026-09-05, **`Status: draft`**, **NOT RATIFIED AND NOT ADMITTED**:
-  `.openspec.yaml` carries drafting provenance and no approval pair, which is the
-  lawful unapproved shape. **THE SUCCESSOR THE ARCHIVE NAMES AS OWED.**
+  — authored 2026-09-05, **`Status: ratified`** (2026-09-05, Brett Heap,
+  openxFactory operator authority, in-session, *"ratify 688, land it when
+  green"*; records
+  `openspec/changes/amend-unreadable-read-sibling-scenarios/review/ratification-2026-09-05.md`
+  and `verification-2026-09-05.md`). `.openspec.yaml` keeps the drafting
+  provenance it was authored with and the approval pair is ADDED beside it —
+  `kind` and `id` unmoved, the addition-not-rewrite shape
+  `add-drafted-proposal-origin` defined. **THE SUCCESSOR THE ARCHIVE NAMES AS
+  OWED.**
   `amend-published-tip-unreadable-scenario` (#678, archived by #685) retired the
   clause *"the commonest cause being a checkout that has not fetched that
   commit"* from `doc-health`'s *Release-tag publication* — **and that clause was
@@ -505,12 +511,25 @@ Active changes:
   REPLACED to name both facts, plus two `AND` bullets (one establishing, one
   requiring the held-and-absent case to say so). **ONE canon unit is dropped and
   it is DECLARED** by the reserved `Removed from canon by` marker.
-  **`code_surface: openxFactory`, and that is the packet's veto point**
-  (`design.md` **D2**): rather than write a `MUST` canon that the checker does
-  not satisfy — #678 inverted — the third bullet is made true here, in ONE `Skip`
-  reason and its comment in `scripts/doc_health/release_tag_publication.py`, with
-  one test added. No severity, threshold, floor, path, arm or control flow moves.
-  No file is added under `openspec/specs/`, so **no codexFactory floor advance**.
+  **`code_surface: openxFactory`, and that was the packet's veto point**
+  (`design.md` **D2**) — **PUT, AND NOT VETOED**: rather than write a `MUST`
+  canon that the checker does not satisfy — #678 inverted — the third bullet is
+  made true here, in ONE `Skip` reason and its comment in
+  `scripts/doc_health/release_tag_publication.py`, with one test added. The cost
+  is ratified with the decision: under `release-realization` this packet
+  **archives on merged-plus-green realization evidence, not on landing**. No
+  severity, threshold, floor, path, arm or control flow moves. No file is added
+  under `openspec/specs/`, so **no codexFactory floor advance**.
+  **THE ADVERSARIAL REVIEW IS FOLDED, AND ONE OF ITS FINDINGS IS RATIFIED AS
+  OWED RATHER THAN FIXED.** The skip now says only what the read gives it — *"the
+  commit is held in this store and no readable `contracts/CHANGELOG.md` blob is
+  reachable at it"* — because a store holding the commit AND its trees can still
+  fail to produce the blob; and the held-and-absent skip's SUPPRESSION of the
+  in-scope grading (measured: no changelog → `Skip`, empty changelog → one
+  `error`, identically on `main`) is carried as a named carve-out and an OWED
+  SUCCESSOR (`design.md` **D6**, `tasks.md` § 6) rather than fixed under a word
+  that did not reach it. This pull request also REMOVES the stale Active row that
+  still pointed at `amend-published-tip-unreadable-scenario`'s pre-archive path.
 
 - [implement-omniworker-install-repo](openspec/changes/implement-omniworker-install-repo/proposal.md)
   — authored 2026-09-05, **`Status: ratified`** (2026-09-05, Brett Heap, in-session,

@@ -1,6 +1,7 @@
 # Design: amend-unreadable-read-sibling-scenarios
 
-Status: draft
+Status: ratified
+Ratified by: amend-unreadable-read-sibling-scenarios — 2026-09-05, Brett Heap, "ratify 688, land it when green" (record `review/ratification-2026-09-05.md`)
 Date: 2026-09-05
 Kind: design
 

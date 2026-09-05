@@ -36,6 +36,23 @@ origin:
     to match. The decision most worth a veto is `design.md` D2: whether the third
     bullet, and with it the `openxFactory` code surface, is in scope at all.
   proposed_on: 2026-09-05
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — in session on 2026-09-05,
+    lane `openxfactory-1`, verbatim: "ratify 688, land it when green". THIS IS
+    THE RATIFICATION ACT AND IT IS ADDED, NOT SUBSTITUTED. The drafting
+    provenance above is kept exactly as authored and `kind` and `id` never move,
+    which is the shape `add-drafted-proposal-origin` (issue #318) defined for
+    this transition: approval is a pure ADDITION to a fixed origin identity, so
+    the support manifest that repeats `kind` and `id` never comes to disagree
+    with the packet. The decision the word reaches is `design.md` D2 — the third
+    bullet and with it the `openxFactory` code surface — which was carried as
+    the packet's veto point in the pull request body, in `tasks.md` § 1.2 and in
+    the README row, and was NOT vetoed; the cost is ratified with it, namely
+    that under `release-realization` this packet archives on merged-plus-green
+    realization evidence rather than on landing. The adversarial review's P2
+    finding is ratified as an OWED SUCCESSOR (`design.md` D6), not as fixed.
+    Record: `review/ratification-2026-09-05.md`.
+  approved_on: 2026-09-05
 related:
   - openxFactory:change:amend-published-tip-unreadable-scenario  # ARCHIVED 2026-09-05 (#685). The direct predecessor: it retired the same clause one document over and named this packet as owed
   - openxFactory:change:add-release-tag-publication-check        # ARCHIVED. Promoted the requirement this block MODIFIES and wrote the changelog scenario being amended
