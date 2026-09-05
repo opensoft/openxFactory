@@ -25,7 +25,13 @@ origin:
     organized source is the issue and the ruling on it.
   approved_by: >-
     Brett Heap (openxFactory convener) — in session on 2026-09-05, lane
-    `openXfactory-1`, verbatim: "do both as a batch on one word", this packet
+    `openxfactory-1` — renamed this day from `openxfactory-max001`, and spelled
+    LOWERCASE here deliberately: the required `lane-line` check enforces
+    `^Lane: [a-z0-9-]+$` and every lane id in this corpus is lowercase, so the
+    capitalised form circulating in session (`openXfactory-1`) is a display
+    spelling the ratified grammar cannot express. Normalising here keeps one
+    lane's history under one id rather than splitting it across two — verbatim:
+    "do both as a batch on one word", this packet
     being one of the two. THIS IS AN ADMISSION INTO THE PROPOSAL QUEUE AND NOT A
     RATIFICATION OF CONTENT: it supplies the origin and approval pair the
     proposal-origin contract requires and nothing more. The packet carries

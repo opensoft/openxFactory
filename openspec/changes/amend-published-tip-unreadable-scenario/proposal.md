@@ -10,7 +10,10 @@ Origin: openxFactory issue **#662**, filed by lane `doxbench-stewardship` as a f
 
 Status: draft
 Proposed: 2026-09-05, on Brett Heap's in-session ruling of the same day — lane
-`openXfactory-1`, verbatim *"do both as a batch on one word"* — over openxFactory
+`openxfactory-1` (renamed this day from `openxfactory-max001`; spelled lowercase
+because the required `lane-line` check enforces `^Lane: [a-z0-9-]+$` and every
+lane id in this corpus is lowercase — see § Lane spelling), verbatim *"do both
+as a batch on one word"* — over openxFactory
 issue **#662**, which states the defect and names the remedy. **That instruction
 supplied the origin and approval pair the proposal-origin contract requires and
 nothing more: it ADMITTED this packet to the queue and did not ratify its
@@ -94,6 +97,25 @@ is owed.
 `WHEN`-side bullet (what the family has already done by the time the scenario
 applies) or as a `THEN`-side one (what it must do). This packet writes it on the
 `WHEN` side and says why. It is the only decision the issue did not settle.
+
+## Lane spelling — surfaced, not papered over
+
+This lane was renamed on 2026-09-05 and circulated in session as
+**`openXfactory-1`**, with a capital X. **The ratified `lane-line` check cannot
+express that**: `.github/workflows/lane-line.yml` requires a pull request body to
+open with `Lane: <name>` matching `^Lane: [a-z0-9-]+( \(.*\))?$`, lowercase
+only, and every other lane id in this corpus is lowercase
+(`openxfactory-max001`, `openxfactory-opendox`, `doxbench-stewardship`). The
+capitalised spelling failed that required check on this packet's first push
+(run `33970709751`).
+
+**This packet therefore writes `openxfactory-1` and changes no check.**
+Weakening a required gate so a name fits is a governed change, not a side effect
+of an unrelated prose amendment; if the capitalised spelling is the one that
+should stand, `lane-line.yml`'s grammar needs its own packet. Recorded here
+rather than left in a pull request comment, because a lane id split across two
+spellings is exactly the kind of thing that goes unnoticed until someone greps
+for one of them.
 
 ## What this proposal does NOT claim
 
