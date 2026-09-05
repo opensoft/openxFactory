@@ -19,9 +19,8 @@ requirement 6 names this repository's half as the COMPANION CHANGE
 Authored: 2026-09-05, lane `openXfactory-2` (formerly `openxfactory-1d`), on
 Brett Heap's word of the same day, verbatim **"companion"**. **THAT WORD
 AUTHORIZED THE AUTHORING, NOT THE CONTENT. RATIFICATION IS OWED AND IS BRETT
-HEAP'S ACT**; nothing below is
-ratified by being authored, and no requirement here may be cited as approved
-until he rules on this packet itself. Every judgment this authoring session took
+HEAP'S ACT**; nothing below is ratified by being authored, and no requirement
+here may be cited as approved until he rules on this packet itself. Every judgment this authoring session took
 is listed under § Authoring decisions rather than presented as settled.
 
 ## Why
@@ -102,8 +101,12 @@ itself in the same terms.
   merged/checked-out tree, not against a GitHub `pulls/files` listing, so it
   measures from git: the created set is
   `git diff --name-status --diff-filter=A <merge-base>..HEAD -- openspec/specs`
-  against the base branch, and the pin window is
-  `git log --diff-filter=A <generated_at>..<base> -- openspec/specs`.
+  against the base branch, and the pin window is the pinned core's OWN
+  invocation, copied rather than paraphrased —
+  `git log --diff-filter=A --name-only --pretty=format: <generated_at>..<base> -- openspec/specs`
+  (`--name-only --pretty=format:` are not optional: without them `git log`
+  emits commit headers rather than a path list, and the mirror would be reading
+  a different thing from the core it mirrors).
   `pytest-suite.yml` already checks out at `fetch-depth: 0`, so both are
   measurable there today.
 - **FAIL-SAFE, and it is the default.** No base, no merge base, an unresolvable

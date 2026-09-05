@@ -134,9 +134,17 @@ merged/checked-out tree. So it measures from git:
 ```
 created  = git diff --name-status --diff-filter=A \
              $(git merge-base <base> HEAD)..HEAD -- openspec/specs
-window   = git log --diff-filter=A <generated_at>..<base> --name-only \
-             -- openspec/specs
+window   = git log --diff-filter=A --name-only --pretty=format: \
+             <generated_at>..<base> -- openspec/specs
 ```
+
+The window command is the pinned core's OWN, copied argument for argument from
+`specs_floor_block.paths_added_after_pin` rather than paraphrased, and
+`--name-only --pretty=format:` are load-bearing rather than cosmetic: without
+them `git log` emits commit headers interleaved with paths, and a mirror parsing
+that would be reading a different thing from the core it mirrors. Copying the
+invocation is the same discipline as replaying the core's vectors — the rule has
+one home, and so does the command that feeds it.
 
 with `<base>` the base branch ref (`origin/main`, resolved) and `<generated_at>`
 read from the vendored snapshot's generated-block header — the same single value

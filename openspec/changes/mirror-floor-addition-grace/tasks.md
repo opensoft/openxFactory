@@ -42,8 +42,12 @@ divergence, not a mirror.
   with the reason carried per pending path.
 - [ ] 2.2 Add the git measurements, fail-safe by default: the created set from
   `git diff --name-status --diff-filter=A <merge-base>..HEAD -- openspec/specs`
-  against the resolved base branch; the pin window from
-  `git log --diff-filter=A <generated_at>..<base> -- openspec/specs`, with
+  against the resolved base branch; the pin window from the pinned core's OWN
+  invocation, byte for byte rather than paraphrased —
+  `git log --diff-filter=A --name-only --pretty=format: <generated_at>..<base> -- openspec/specs`
+  (`paths_added_after_pin`'s exact argument list; `--name-only
+  --pretty=format:` are load-bearing, since without them `git log` emits commit
+  headers rather than a path list) — with
   `generated_at` read from the vendored snapshot's block header. Each returns
   "not measured" — never an empty set — when the base, the merge base or the pin
   will not resolve, or when the pin is not an ancestor of the base. `git` only:
