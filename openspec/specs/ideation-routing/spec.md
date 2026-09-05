@@ -1,7 +1,26 @@
 # ideation-routing Specification
 
 ## Purpose
-TBD - created by archiving change add-cross-factory-ideation-routing. Update Purpose after archive.
+
+Establish capture-first, route-later ideation across the factory family: an
+idea is captured where it lands — the owning DomainxFactory's brainstorm area,
+openxFactory's when it is already neutral or cross-domain, and openxFactory's
+unclassified inbox as an independently routable item when the owner is
+genuinely unknown — while the xFactory aggregation repository hosts no
+ideation backlog at all. Give every unclassified, mixed, cross-domain or
+claim-split idea exactly one canonical routing record in openxFactory:
+centrally allocated `XFI-` Idea IDs and per-claim Claim IDs, controlled scope
+and routing-status vocabularies with append-only transitions, and structured
+repository, path and revision references that resolve through the
+aggregation's `.gitmodules` gitlinks. Route claim by claim so reusable
+neutral contracts, domain policy, installer and runtime implementation, and
+release assembly keep distinct owners and provenance, and let a record reach
+`routed` only when every claim carries its accepted owner, destination and
+acceptance evidence. Routing coordinates without transferring authority: the
+non-mutating ideation organizer and the document-catalog signals it may
+consume are recommendations pending an authorized human disposition, domain
+origin material stays domain-authoritative, and adoption still runs the
+lifecycle's own promotion gates.
 ## Requirements
 ### Requirement: Capture-first repository routing
 Factory-family ideation SHALL permit capture before final ownership is known.

@@ -1,7 +1,21 @@
 # omnigent-install-manifest Specification
 
 ## Purpose
-TBD - created by archiving change add-omnigent-domain-overlay. Update Purpose after archive.
+
+Define the install side of the Omnigent layer: the manifest that
+digest-pins its stack's Hermes runtime manifest as the single source of
+tenant, domain and subject identity rather than declaring a parallel one,
+fixes stack cardinality at exactly one tenant instance and one domain
+overlay, and answers "what is installed and how live is it" from a subject
+workload registry instead of a GitOps tree diff. It makes composition of
+core, overlay and tenant configuration a fail-closed, digest-verified act
+emitting resolve / fetch / digest-verify / validate / activate evidence,
+and requires the effective worker profiles it produces to be pre-rendered
+and committed with provenance so the enforceable slice is diffable before
+any worker runs. It also carries what an install owes a worker's declared
+meaning — one compiled semantic context per declaring worker, sealed by a
+recomputed digest and complete in both directions — and requires canonical
+`subject`/`tenant`/`domain` spellings from this family's first version.
 ## Requirements
 ### Requirement: Shared stack identity
 An Omnigent install manifest SHALL digest-pin the Hermes runtime manifest of its stack as the single source of stack identity and MUST NOT declare a parallel independent identity document.

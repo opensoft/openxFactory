@@ -1,7 +1,22 @@
 # avatar-client-lab Specification
 
 ## Purpose
-TBD - created by archiving change implement-avatar-client-lab. Update Purpose after archive.
+
+Bound the offline, deterministic avatar client lab that lets a person
+actually exercise the avatar-first interaction, consent, approval, handoff,
+and recovery model — the question YAML contracts and a conformance-only
+reference runtime cannot answer — with no live model, voice, WebRTC media
+plane, session broker, or provider credential in it. Fix what makes that
+proof trustworthy: content-addressed consumption of the released kernel and
+UI profile, fixture-replay determinism through a session core that mirrors
+the reference-runtime invariants, a client that re-derives presentation
+state from authority and never decides it, a replaceable six-state avatar
+seam the renderer cannot reach authority through, and an accessibility
+baseline that gates acceptance. Hold the ownership line — the Flutter
+application lives in codexFactory under `apps/avatar-client-lab/` while
+openxFactory keeps the neutral contracts, conformance fixtures, and
+acceptance requirements — and keep every deferred live capability a
+fail-closed port so the later live seam is a clean line rather than a hole.
 ## Requirements
 ### Requirement: Offline deterministic client-lab boundary
 The avatar client lab SHALL be an offline, deterministic application that

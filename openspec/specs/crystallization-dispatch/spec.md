@@ -1,7 +1,23 @@
 # crystallization-dispatch Specification
 
 ## Purpose
-TBD - created by archiving change add-capability-steward. Update Purpose after archive.
+
+Bound the runtime seam where an arriving instance either meets a
+crystallized capability or goes to the AI path: one junction at job
+admission, before any planner runs — fingerprint, registry lookup,
+deterministic fence check, instance risk check, execution at the
+capability's rung, post-conditions, emit with provenance — with any
+invocation outside it a conformance violation. Keep the AI path permanently
+intact as the resolution of every ambiguity: fences are deterministic
+predicates a classifier may veto toward but never widen, only `pure` and
+`idempotent` effect classes are admitted in this wave, a post-condition
+breach is re-served and filed as drift rather than shipped, and every
+fallback carries a cause from the controlled taxonomy and accumulates in its
+family's frontier queue as evidence for widening. Meter the junction's own
+decision overhead against a declared budget, hold the L2 result cache behind
+the junction rather than beside it, and keep run records path-invariant so
+provenance is the only difference an auditor sees between an AI-served and a
+crystal-served run.
 ## Requirements
 ### Requirement: The Junction Is The Single Entry Before Planning
 Dispatch SHALL sit at job admission, before any planner runs, as the only

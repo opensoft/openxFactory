@@ -1,7 +1,24 @@
 # avatar-reference-runtime Specification
 
 ## Purpose
-TBD - created by archiving change implement-avatar-reference-runtime. Update Purpose after archive.
+
+Establish the deterministic reference implementation that proves the AVC
+protocol behaviors schemas alone cannot: the grant, denial, and terminal
+result function with exact-offer retry equivalence, the media-attempt
+lifecycle kept separate from the logical session, two-channel media
+authorization, lease and epoch fencing, one ordered log with snapshot
+recovery, and fail-closed authority, revocation, usage, and telemetry
+redaction. Bound it to `xfactory/avatar_runtime/` with tests under
+`tests/avatar_runtime/` and keep it non-deployable, carrying no listener,
+deployable application, persistence adapter, provider credential, or live
+provider SDK, with clocks, IDs, provider, policy, and consent-authority
+ports all injected so that no case depends on wall time, randomness, a
+network provider, or Hermes availability. Govern the parallel-work seam: a
+provisional interface adapter confined to the test tree carries
+implementation before the kernel release, and final conformance pins the
+released tag, exact commit, and digests, runs canonical fixtures with that
+adapter disabled, and requires deterministic evidence mapped to every
+applicable acceptance ID.
 ## Requirements
 ### Requirement: Non-deployable reference package boundary
 openxFactory SHALL provide the AVC reference implementation only under

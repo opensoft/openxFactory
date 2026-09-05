@@ -1,7 +1,21 @@
 # crystallization-consent Specification
 
 ## Purpose
-TBD - created by archiving change add-crystallizer-contracts. Update Purpose after archive.
+
+Establish the permission half of crystallization: three independently
+grantable, independently revocable, default-deny tiers — `episode_use` for
+mining a tenant's solved runs into families, forecasts, and corpora;
+`automation` for serving a family category without fresh AI judgment; and
+`pooling`, frozen in the vocabulary now with no consumer until the
+cross-tenant wave. Scope the `automation` tier to a family category rather
+than a tenant-wide grant, carry any condition it declares (a human
+spot-check rate, say) into the proof obligations of every decision that
+cites it, and require the subject consent path and subject-visible
+provenance wherever a crystallized capability's work is subject-affecting —
+tenant automation consent alone never suffices there. Keep the three-strand
+approval braid uncollapsible: Domain fitness, Tenant money and policy, and
+Subject transparency each approve on their own layer's authority, and no one
+strand may stand in for another.
 ## Requirements
 ### Requirement: Consent Is Three Separately Grantable Tiers
 Crystallization consent SHALL consist of three independently grantable,

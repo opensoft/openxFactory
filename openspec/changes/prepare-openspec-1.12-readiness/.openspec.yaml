@@ -1,0 +1,45 @@
+schema: spec-driven
+created: 2026-09-05
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-05-prepare-openspec-1-12-readiness
+  reason: >-
+    A MEASURED READINESS GAP BETWEEN THE PINNED TOOL AND ITS SUCCESSOR,
+    filed with the measurement rather than argued from impression.
+    `contracts/openspec-cli-pin.yaml` pins `@fission-ai/openspec` at
+    `1.2.0` (#667), and under that pinned entrypoint this corpus reads
+    90 passed / 0 failed. Run at `1.12.0` on the same tree (main
+    `9e869acc`) it reads 48 passed / 42 failed of 90, because 1.12.0
+    added two checks 1.2.0 does not carry: a placeholder-`## Purpose`
+    check over main specs, and a task-group numbering check. NONE of the
+    42 was introduced by any lane and none is a defect the pinned tool
+    can see — 39 are the sentence `openspec archive` itself wrote into a
+    new capability's spec and nobody went back to replace, one is a task
+    group whose header was never written, and two are the deliberate,
+    house-declared scenario renames described below.
+    THIS PACKET BUMPS NOTHING. The pin stays at `1.2.0`; the bump is a
+    separate, later, human-ratified change that must land its own
+    target-version evidence. What this packet buys that change is a tree
+    the successor tool already accepts, so the bump is EVIDENCED rather
+    than argued, and a measured, named list of what it still would not.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN
+    ASSUMED. `ideation/staging/` was enumerated and `INDEX.md` read on
+    2026-09-05: no topic carries OpenSpec CLI readiness, spec Purpose
+    remediation, or task-group numbering. `kind: staged` would claim a
+    staging source that does not resolve. The organized source is the
+    measurement and the operator instruction quoted below.
+  approved_by: >-
+    Brett Heap (openxFactory convener) — in session on 2026-09-05,
+    verbatim: "start the 1.12 upgrade fixes". THIS IS AN ADMISSION INTO
+    THE PROPOSAL QUEUE AND NOT A RATIFICATION OF CONTENT: it supplies
+    the origin and approval pair the proposal-origin contract requires
+    and nothing more. The packet carries `Status: draft` and owes no
+    ratification citation until a separate act supplies one. In
+    particular the instruction did NOT settle the two REFUSALS this
+    packet records (§ The two it does not fix), which are the readings
+    most worth a convener's veto and are presented as such.
+  approved_on: 2026-09-05
+related:
+  - openxFactory:change:add-openspec-cli-pin      # ACTIVE. Pins the CLI at 1.2.0 (#667) and is the reason this packet exists; the bump this readiness serves is that packet's own named successor work, not this one's
+  - openxFactory:change:add-chain-attestation     # ACTIVE. One of the two changes this packet REFUSES to alter: its `Merged into` marker is the house instrument 1.12.0 cannot read
+  - openxFactory:change:add-composed-view-authoring  # ACTIVE. The other refusal, and the pair whose titles `doc-health`'s promoted marker requirement uses as its own worked example

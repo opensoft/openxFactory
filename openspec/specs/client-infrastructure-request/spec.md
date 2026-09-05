@@ -1,7 +1,23 @@
 # client-infrastructure-request Specification
 
 ## Purpose
-TBD - created by archiving change add-client-infrastructure-liaison. Update Purpose after archive.
+
+Define the `client_infrastructure_request`: the durable coordination record
+the liaison owns and the request artifact the neutral job envelope is
+deliberately not, carrying six never-conflated identity-reference classes,
+an execution binding, approval and communication blocks, digest-pinned
+package references, evidence references, and no secret value anywhere. Fix
+its closed lifecycle and the actor class authorized for each transition,
+with deadline and escalation expressed as orthogonal conditions rather than
+status values, terminal states immutable, and any material scope change
+riding a superseding request instead of a silent rewrite. Keep the neutral
+record and an external execution system's own work item separately owned and
+correlated across the handoff, so a lost connection moves the request to
+blocked rather than toward success. Gate `completed` on a fresh passing
+`infrastructure_readiness_result` from a non-privileged trusted validator —
+never on submission, acknowledgment, or the execution actor's own claim —
+and enforce deterministically, in one openxFactory-owned validator, what
+schema alone cannot.
 ## Requirements
 ### Requirement: Durable request record
 A `client_infrastructure_request` SHALL be a durable coordination record, distinct from the neutral job envelope (it may authorize and correlate to zero or more bounded jobs, and MUST NOT be one). It SHALL carry six distinct identity-reference classes — `organization_ref`, `subject_ref`, `actor_ref`, `authority_ref`, `capability_ref`, `credential_grant_ref` — never conflated, with subject identifiers forbidden in actor, capability, and authority fields; an `idempotency_key` and `correlation_id`; `managed_subject_refs`; a requirements profile and validation profile (id + version); an `execution_binding` (`mode` ∈ `client_managed | managed_host | opsxfactory_executed`, with organization/actor/capability refs and, where privileged, a grant ref); approval and communication blocks; package references carried only as immutable digests from approved publishers; and evidence references. Secret values are forbidden everywhere in the record — references only.

@@ -1,7 +1,27 @@
 # deployment-handoff-boundary Specification
 
 ## Purpose
-TBD - created by archiving change add-deployment-handoff-boundary. Update Purpose after archive.
+
+Decide who executes a deployment, and make the answer enforceable rather
+than implied: the factory that manages the target surface executes it,
+settled solely by the managed-subject test — does the target resolve to
+a registered subject in the managing factory's service-subject model —
+with environment tier calibrating governance depth and never the
+executor, and the rule binding factory workers, CI pipelines and human
+engineers alike. Cross the boundary as the ratified
+`client_infrastructure_request` rather than a new record kind, ending
+the producing factory's authority at the release artifact, its digests
+and its realization evidence. Enforce it primarily by credential
+non-possession — standing write credentials only inside the managing
+factory, deployment grants issued against an accepted request and
+revoked on completion, human access as break-glass with a retroactive
+request — and prefer structural channels, where merging the governed
+configuration tree is the deployment. Make bypass detectable rather than
+merely forbidden, through correlation identifiers stamped into every
+touched change surface and a periodic audit in which an uncorrelated
+change is a first-class finding, and adopt the boundary phased but never
+gapped: standing admin remains a dispositioned exception until the
+break-glass path provably works.
 ## Requirements
 ### Requirement: The managed-subject test routes deployment execution
 A release deployment SHALL be executed by the factory that manages the target

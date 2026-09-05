@@ -1,7 +1,24 @@
 # layer-vocabulary Specification
 
 ## Purpose
-TBD - created by archiving change adopt-subject-tenant-domain-vocabulary. Update Purpose after archive.
+
+Fix the canonical, domain-neutral names of the three Hermes layers — Subject
+Hermes for the served party or work subject, Tenant Hermes for the
+tenant-operator organization running the installation, and Domain Hermes for
+reusable expert-domain policy — retiring a Customer/Client/Domain vocabulary
+in which the same commercial word denoted opposite layers in different
+DomainxFactories. Change only the names: each layer's responsibility
+boundary is identical before and after, and a domain specializes the
+vocabulary through declared aliases such as Patient Hermes or Project Hermes,
+each bound to exactly one canonical layer, never by redefining or replacing a
+canonical name. Reserve "Customer" and "Client" against reuse as layer names
+on new or substantively revised governance surfaces, while both remain legal
+in prose describing commercial relationships. Freeze the released machine
+identifiers that encode the legacy spellings until the next major contract
+bundle so pinned consumers resolve byte-identically, and publish
+`contracts/policies/layer-vocabulary.yaml` as the mapping through which a
+`customer_subject_ref` or a `client` role kind is interpreted rather than
+rewritten.
 ## Requirements
 ### Requirement: Canonical Hermes layer vocabulary
 The three Hermes layers SHALL be named, in canonical domain-neutral vocabulary, **Subject Hermes**, **Tenant Hermes**, and **Domain Hermes**.

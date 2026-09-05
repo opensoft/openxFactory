@@ -1,7 +1,21 @@
 # signed-execution-chain Specification
 
 ## Purpose
-TBD - created by archiving change add-signed-execution-chain. Update Purpose after archive.
+
+Make the ratification that permits work provable at the point the work
+lands, so the merge gate can ask whose ratification this work descends
+from rather than only whether the work is well-formed. Admit a ratifying
+act only on a wallet-carried grant proven by possession in the shipped
+`openxwallet` vocabulary, bind the actor a link records to the wallet
+whose key signed, and mint the chain identity in the same signed act as
+the ratification, so a ratified-but-uninscribed state is constructively
+impossible. Carry the result with the work as a self-contained traveling
+contract, record every governed act as a signed leaf in an append-only
+transparency log, and walk links one through three as a hash-linked
+chain — continuity, never a bag of signatures — before the terminal act
+is permitted. Keep the ratifying authority human-held, and confer and
+refuse nothing until a named reader of these records runs as a required
+check.
 ## Requirements
 ### Requirement: Ratification presents wallet-carried authority, proven by possession
 

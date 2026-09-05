@@ -1,7 +1,25 @@
 # subject-establishment Specification
 
 ## Purpose
-TBD - created by archiving change add-subject-establishment. Update Purpose after archive.
+
+Define the one neutral pipeline every DomainxFactory instantiates for the
+start-of-life motion of a newly admitted subject, and the two artifact kinds
+that motion carries: the neutral subject design, which says what the
+subject's setup means in domain terms, and the platform realization, which
+maps that design into one named external system of record. Keep the split
+load-bearing, because it is what buys portability across a change of system
+of record, a review in which the domain's expert weighs judgment rather than
+vendor trivia, and second-platform support as a second mapping instead of a
+second design. Bound the motion around it so the split survives contact with
+a real subject: facts carry provenance grades, versioned archetypes
+accelerate and measure but never override an approved design, a deviating
+design parks at the domain's named expert authority through the ratified
+escalation ladder, a realization crossing to a different applying factory
+rides the ratified deployment handoff rather than a new record kind,
+establishing and migrating are distinct authority classes that never share a
+grant, and no apply is conformant until it is read back from the system it
+changed. Fix ownership of these artifacts on the canonical Subject / Tenant
+/ Domain layering while leaving their storage to the realizing repository.
 ## Requirements
 ### Requirement: Subject establishment is one neutral pipeline over two artifact kinds
 Every DomainxFactory's start-of-life motion for a newly admitted subject SHALL

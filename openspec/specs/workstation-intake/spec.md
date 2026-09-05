@@ -1,7 +1,24 @@
 # workstation-intake Specification
 
 ## Purpose
-TBD - created by archiving change add-xfactory-installer-repository. Update Purpose after archive.
+
+Define the product and authority boundary for xFactory workstation intake:
+device eligibility, recorded owner and tenant authorization, the handoff
+into a supported Microsoft enrollment experience, verification by the owning
+tenant that management and compliance actually took, and installer release
+evidence. Fix which repository owns which part, so that an independently
+released public installer never absorbs canonical policy or tenant authority
+— openxFactory owns the intake, consent, enrollment-routing and evidence
+contracts, the neutral installer repository owns the implementation and its
+own build, certification and release lifecycle, OpsxFactory owns tenant
+Intune and Graph administration, and CloudPC-Install owns host eligibility
+and required end state. Keep the shipped product honest about what it is and
+what it holds: it inspects only authorized non-secret device facts, never
+presents itself as an MDM authority, never carries reusable tenant
+enrollment authority or credential material in its package, and every
+release states truthfully which product state it has reached alongside its
+source revision, contract compatibility, validation evidence, distribution
+channel and signing authority.
 ## Requirements
 ### Requirement: Neutral workstation-intake product boundary
 The xFactory workstation-intake implementation SHALL live in an independently
