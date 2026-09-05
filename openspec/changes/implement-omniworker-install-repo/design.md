@@ -102,14 +102,13 @@ first set at run time**, and it does so in thirty-nine places.
 PR opensoft/Omnigent-Install#213 measured it by removing the whole copied tree in its
 own branch and re-running every validator: **ten of the twelve repository
 validators are green on that repository's `main`, and removing all 120
-candidate paths broke all ten**, including all three the Dartwing workflow runs
+candidate paths broke all ten**, including all three the dartwing workflow runs
 by name. The consumers are `manager_review/runner.py`,
 `agents/manager-review/seat-*.yaml`, both compose stacks,
 `k8s/local/worker-lanes.yaml`, `config/omnigent-install-manifest.yaml` and its
 render-verify arm, eleven validators and eight test modules — every one of them
-§ D2.2 material. The full path-by-path inventory is
-[`docs/omniworker-split.md`](https://github.com/opensoft/Omnigent-Install/blob/chore/retire-worker-host-paths-moved-to-omniworker-install/docs/omniworker-split.md)
-in that PR, which is the requirements source for the remedy.
+§ D2.2 material. The full path-by-path inventory is `docs/omniworker-split.md` in
+PR opensoft/Omnigent-Install#213, which is the requirements source for the remedy.
 
 **Brett Heap RULED it 2026-09-05: "Orchestrator pins OmniWorker-Install."**
 `OmniWorker-Install` is CANONICAL for the worker profiles, the schemas

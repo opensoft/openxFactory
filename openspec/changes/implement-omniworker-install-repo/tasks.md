@@ -292,7 +292,7 @@ existing box is rewritten.
 
 *Why.* PR opensoft/Omnigent-Install#213 attempted 6.1 and measured that it could not
 finish: thirty-nine of the seventy-two §3.1 Part 1 paths are still read at run
-time by §D2.2 material that STAYS in that repository — `manager_review/runner.py`,
+time by § D2.2 material that STAYS in that repository — `manager_review/runner.py`,
 `agents/manager-review/seat-*.yaml`, both compose stacks,
 `k8s/local/worker-lanes.yaml`, `config/omnigent-install-manifest.yaml` and its
 render-verify arm, eleven validators and eight test modules. Removing the whole
