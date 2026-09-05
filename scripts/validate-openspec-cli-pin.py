@@ -23,7 +23,7 @@ installed.
 THE TRUSTED REFERENT IS THE TARBALL'S INTEGRITY, NOT THE VERSION STRING. A
 version number is a NAME that a registry's policy keeps stable; a SHA-512 over
 the published bytes is a CONTENT ADDRESS that nothing can move. So this tool does
-NOT trust `npx -y @fission-ai/openspec@1.2.0` to have resolved the right artifact.
+NOT trust `npx -y @fission-ai/openspec@1.12.0` to have resolved the right artifact.
 It FETCHES the tarball, RECOMPUTES its SHA-512 and its SHA-1, refuses
 `pin-integrity-mismatch` unless both equal the pin — and only then installs and
 invokes it. `neutral-product-pin` requires that ordering in as many words: the

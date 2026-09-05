@@ -226,8 +226,14 @@ refuses, because the disposition matches the message whole.
 ## 7. Scope kept
 
 No consuming repository was edited. `.github/workflows/openspec-cli-pin-gate.yml`
-is untouched and needed no edit — it never carried the version, which this bump
-is the first live test of. `.github/workflows/pytest-suite.yml`'s literal
+took NO logic edit — it never carried the version, which this bump is the first
+live test of and which CI confirms green at the new pin. One explanatory comment
+in it is corrected, where it named `1.2.0`'s `engines.node` floor; `1.12.0`
+declares the same floor and the comment now says which artifact it describes.
+The pin header's dependency-closure paragraph is likewise re-derived at the new
+version — TEN dependencies now, nine caret-ranged and one (`cross-spawn 7.0.6`)
+exact, where `1.2.0` declared nine all caret — because a declared shortfall
+restated with stale numbers is not a declared shortfall. `.github/workflows/pytest-suite.yml`'s literal
 `@fission-ai/openspec@1.2.0` is deliberately NOT in this diff: it is #667's open
 task 5.1, it now disagrees with the pin, and that disagreement is recorded in
 this packet's `tasks.md` § 6.2 rather than left to be discovered. No contract

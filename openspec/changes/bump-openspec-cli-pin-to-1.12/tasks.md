@@ -36,9 +36,15 @@ repoint the very tool that judges its own change.
       grammar rather than in prose, with `superseded_on`, `superseded_by`, and
       the fact that a rollback must DROP the dispositions with the version
       (they exist only because `1.12.0` raises findings `1.2.0` does not).
-- [x] 1.4 The header's factual claims re-derived at the new version: 389 files
-      rather than 270, and the dependency-closure shortfall restated as
-      UNCHANGED by the bump rather than silently carried.
+- [x] 1.4 The header's factual claims re-derived at the new version rather
+      than carried: 389 files rather than 270, and the dependency-closure
+      shortfall restated with the real numbers — TEN dependencies, nine caret
+      and one (`cross-spawn 7.0.6`) exact, where `1.2.0` declared nine all
+      caret. Two stale `1.2.0` mentions outside the pin corrected in the same
+      pass: one npx example in the validator's docstring, and one comment in
+      `.github/workflows/openspec-cli-pin-gate.yml` naming the old artifact's
+      `engines.node` floor. Neither is logic; the gate still carries no copy of
+      the version, which its own test asserts.
 
 ## 2. The disposition mechanism
 
