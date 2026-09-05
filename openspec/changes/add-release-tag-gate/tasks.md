@@ -151,7 +151,7 @@ is `create-medxchart-overlay-boundary` § 5.3/5.4 (`pin-validation`, ruleset
       WAS CREATED** — the context joined the one already carrying
       `pytest-suite`, so the gate sits beside the suite the assertion left.
       Full JSON: `review/realization-evidence-2026-09-05.md` § 2–3.
-- [ ] 4.2 **EVIDENCE, READ BACK RATHER THAN REPORTED.** Record here the ruleset
+- [x] 4.2 **EVIDENCE, READ BACK RATHER THAN REPORTED.** Record here the ruleset
       id and the API reading that confirms it
       (`gh api repos/opensoft/openxFactory/rulesets/<id>`), plus ONE green
       `release-tag-gate` run naming its pull request and run id. A guessed
@@ -165,9 +165,19 @@ is `create-medxchart-overlay-boundary` § 5.3/5.4 (`pin-validation`, ruleset
       blocks the merge forever, which is exactly what § 3.2's missing `paths:`
       filter is designed against. No run has occurred since 04:36:49Z, so the
       first green run under the required regime is **this archive pull
-      request's own**, and it is cited rather than borrowed. This box is ticked
-      by the commit that follows the pull request's creation, replacing
-      `RUN_ID_PENDING` in the evidence record.
+      request's own**, and it is cited rather than borrowed.
+  - *2026-09-05 — THE RUN HALF IS NOW DONE, AND IT IS CONFIRMED REQUIRED RATHER
+      THAN ASSUMED REQUIRED.* **Run `33945259576`**, openxFactory **PR #672**,
+      head `ac3d4502`, started 04:41:54Z, completed 04:42:08Z,
+      **`conclusion: success`** — five minutes after the console act and the
+      first run of that workflow anywhere since it. A green tick does not say
+      whether a context is enforced, so the GraphQL `statusCheckRollup` was
+      asked per pull request and answers **`release-tag-gate isRequired: true,
+      SUCCESS`**. It short-circuited, as it must — *"no release surface change:
+      none of the 2 changed path(s) … is contracts/manifest.yaml or under
+      contracts/releases/"* — and its log's `Complete job name:
+      release-tag-gate` confirms the check surfaces under exactly the literal
+      token the ruleset pins.
 ### 4.3 — SUCCESSOR, NAMED AND NOT DRAFTED. Deliberately not a checkbox.
 
 **This packet does not own the event, so it does not carry an open box for it.**

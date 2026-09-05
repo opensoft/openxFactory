@@ -135,14 +135,46 @@ The runs before the console act, for completeness — all `success`, all advisor
 run under the required regime is **this archive pull request's own**, and it is
 cited here rather than borrowed from another branch:
 
-> **FIRST REQUIRED GREEN RUN: RUN_ID_PENDING** — this pull request's own
-> `release-tag-gate` run, filled in by the commit that follows the pull
-> request's creation, with its id, conclusion and completion timestamp, and with
-> `gh pr checks` confirming it is listed as a REQUIRED context.
+> **FIRST REQUIRED GREEN RUN: `33945259576`** — openxFactory **PR #672**
+> (`change/archive-add-release-tag-gate`), head `ac3d4502`, workflow
+> `release-tag-gate`, event `pull_request`, started **2026-09-05T04:41:54Z**,
+> completed **2026-09-05T04:42:08Z**, `status: completed`,
+> **`conclusion: success`**.
 
-It is expected to short-circuit: this pull request touches no release-surface
-path, so the gate must print *"no release surface change"* and exit 0 — which is
-the same proof the packet's own pull request gave, now given under enforcement.
+**IT IS CONFIRMED REQUIRED, NOT ASSUMED REQUIRED.** `gh pr checks` shows a
+green tick; it does not say whether the context is enforced. The GraphQL
+`statusCheckRollup` does, per pull request, and it answers for this one:
+
+```
+wallet-validation            required=true
+pytest-suite                 required=true
+signed-execution-chain-gate  required=true
+lane-line                    required=true   SUCCESS
+release-tag-gate             required=true   SUCCESS
+```
+
+**`release-tag-gate` is `isRequired: true` and `SUCCESS`** on this pull request
+— five minutes after the console act at 04:36:49Z, and the first run of that
+workflow anywhere since it.
+
+It short-circuited, as it must: this pull request touches no release-surface
+path. Its log, verbatim:
+
+```
+Complete job name: release-tag-gate
+no release surface change: none of the 2 changed path(s) between 9e869accf and
+491b27670 is contracts/manifest.yaml or under contracts/releases/
+```
+
+That is the same proof the packet's own pull request gave, now given **under
+enforcement** — and `Complete job name: release-tag-gate` is the second half of
+it: the check surfaces under exactly the literal token the ruleset pins, which
+is what makes the tick above the same object the ruleset names.
+
+**A LATER HEAD ON THIS PULL REQUEST RE-RUNS THE GATE**, the archive act landing
+in a commit after this one. That later run is the same short-circuit over a
+larger diff and is not a second discharge; this run is the one § 4.2 cites,
+because it is the FIRST under the required regime.
 
 ## 6. What this evidence does NOT discharge
 
