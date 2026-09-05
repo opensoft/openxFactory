@@ -463,14 +463,22 @@ carrying it (`9e869acc`, 2026-09-05, on the pin's divergence paragraph).
   requirement present after its ratified removal. `tasks.md` § 8.5 gates on
   all five being dispositioned, with `retire-doxbench-chat-turn-v1` archived
   in `openxFactory` on its own evidence first. **This change archives LAST.**
-- **Two catch-up merges of `origin/main` happened AFTER the word**, and both
-  are re-validations rather than re-decisions: `b68a4e92` (2026-09-05T01:48Z,
-  bringing the branch to 0 behind main) and `e92daabe` (this act, merging the
-  eleven commits main gained after that, including `add-release-tag-gate`'s
-  ratification and realization at `7ee0e73d`). One README conflict, in the
-  "OpenSpec Records" list where both lines had added an entry at the same
-  position; resolved by KEEPING BOTH entries. No packet file conflicted and no
-  ratified byte moved.
+- **THREE catch-up merges of `origin/main` happened AFTER the word**, and every
+  one is a re-validation rather than a re-decision: `b68a4e92`
+  (2026-09-05T01:48Z, bringing the branch to 0 behind main); `e92daabe` (this
+  act, merging the eleven commits main gained after that, including
+  `add-release-tag-gate`'s ratification and realization at `7ee0e73d`); and
+  `739152cb` (this act again, after main moved five more commits while the
+  checks were being watched and left the pull request CONFLICTING — which is
+  why its `pull_request` workflows did not dispatch at all on the first pushed
+  head). Both merges conflicted in exactly one place, the README "OpenSpec
+  Records" list, and neither touched a packet file or moved a ratified byte:
+  the first because both lines added an entry at the same position, resolved by
+  KEEPING BOTH; the second because main had REMOVED the `add-release-tag-gate`
+  entry when that change archived as #672, resolved by keeping this packet's
+  entry and dropping the archived one. The ledger at
+  `tests/sequenced_after/corpus-ledger.yaml` auto-merged both times, its
+  `add-release-tag-gate` row moving `active` → `archived` with main.
 - **Rule 7 substrate**: rows 2 (`tests/sequenced_after/corpus-ledger.yaml` plus
   the MOVEMENT LOG) and 3 (README "OpenSpec Records") are claimed by this
   packet on issue #630. **Row 1 — the codexFactory review-authority floor — is
@@ -585,9 +593,10 @@ ratification edits.
 
 - `OPENSPEC_TELEMETRY=0 openspec validate split-opendox-two-layer-product
   --strict`: **valid**, zero issues.
-- `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`: **91 passed, 0
-  failed** (91 items; 90 before `add-release-tag-gate` landed on main and the
-  merge brought it in).
+- `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`: **90 passed, 0
+  failed** (90 items — 90 before `add-release-tag-gate` landed on main, 91 while
+  it stood active there, and 90 again once it ARCHIVED on 2026-09-05 as #672;
+  the count moved twice under this act and neither move is this packet's).
 - `python3 scripts/proposal-support.py . verify`: **proposal support
   verification ok**.
 - `python3 -m pytest -q`: **THE SUBSET PATH, and it is said rather than
@@ -607,8 +616,13 @@ ratification edits.
 
   | | critical | error | warning | info |
   | --- | --- | --- | --- | --- |
-  | `origin/main` `9e869acc` | 6 | 6 | 30 | 13 |
+  | `origin/main` `26d0a43d` | 6 | 6 | 30 | 13 |
   | this tree | 6 | 6 | **32** | 13 |
+
+  (Measured twice, against two different tips of main — `9e869acc` before
+  `add-release-tag-gate` archived and `26d0a43d` after. The delta is the same
+  both times, which is the point of re-measuring rather than carrying the first
+  number.)
 
   **The delta is +2 `warning`, one family, and it is NOT zero — stated plainly
   rather than rounded to "no regressions".** Both are
