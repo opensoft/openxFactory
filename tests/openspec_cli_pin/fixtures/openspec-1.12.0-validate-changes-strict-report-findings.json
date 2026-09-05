@@ -1,0 +1,107 @@
+{
+  "report": {
+    "kind": "validation-findings",
+    "version": "1.0",
+    "scope": "changes",
+    "returnedItems": 6,
+    "totalItems": 31
+  },
+  "itemFindings": [
+    {
+      "id": "add-chain-attestation",
+      "type": "change",
+      "valid": false,
+      "issues": [
+        {
+          "level": "ERROR",
+          "path": "signed-execution-chain/spec.md",
+          "message": "MODIFIED \"A gate validates the short chain as a hash-linked chain\" omits scenario(s) the current spec still has: \"a tranche-two link does not exist yet\". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them)."
+        }
+      ],
+      "durationMs": 246
+    },
+    {
+      "id": "add-composed-view-authoring",
+      "type": "change",
+      "valid": false,
+      "issues": [
+        {
+          "level": "ERROR",
+          "path": "ideation-dashboard/spec.md",
+          "message": "MODIFIED \"Composed views are read-only with a repository jump\" omits scenario(s) the current spec still has: \"Gate verbs hide on a composed view\". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them)."
+        }
+      ],
+      "durationMs": 245
+    },
+    {
+      "id": "add-cpc-clearing-boundary",
+      "type": "change",
+      "valid": true,
+      "issues": [
+        {
+          "level": "INFO",
+          "path": "clearing-dispatch-boundary/spec.md",
+          "message": "Archive would refuse this delta: clearing-dispatch-boundary: target spec does not exist; only ADDED requirements are allowed for new specs. MODIFIED and RENAMED operations require an existing spec."
+        }
+      ],
+      "durationMs": 306
+    },
+    {
+      "id": "add-wallet-carried-review-authority",
+      "type": "change",
+      "valid": true,
+      "issues": [
+        {
+          "level": "INFO",
+          "path": "roles-authority-model/spec.md",
+          "message": "Archive would refuse this delta: roles-authority-model MODIFIED failed for header \"### Requirement: Pilot repository and reviewing domain\" - not found"
+        }
+      ],
+      "durationMs": 112
+    },
+    {
+      "id": "implement-keycloak-install-repo",
+      "type": "change",
+      "valid": true,
+      "issues": [
+        {
+          "level": "INFO",
+          "path": "repo-boundary-governance/spec.md",
+          "message": "Archive would refuse this delta: repo-boundary-governance MODIFIED failed for header \"### Requirement: Keycloak install repository boundary\" - not found"
+        }
+      ],
+      "durationMs": 78
+    },
+    {
+      "id": "implement-openxpki-install-repo",
+      "type": "change",
+      "valid": true,
+      "issues": [
+        {
+          "level": "INFO",
+          "path": "repo-boundary-governance/spec.md",
+          "message": "Archive would refuse this delta: repo-boundary-governance MODIFIED failed for header \"### Requirement: OpenXPKI install repository boundary\" - not found"
+        }
+      ],
+      "durationMs": 69
+    }
+  ],
+  "summary": {
+    "totals": {
+      "items": 31,
+      "passed": 29,
+      "failed": 2
+    },
+    "byType": {
+      "change": {
+        "items": 31,
+        "passed": 29,
+        "failed": 2
+      }
+    }
+  },
+  "root": {
+    "path": "/tmp/claude-1000/-home-brett-projects-xFactory-xFactories-codexFactory/2798f066-ba06-4d5e-bc8e-c4649938d897/scratchpad/oxf-bump",
+    "source": "nearest"
+  }
+}
