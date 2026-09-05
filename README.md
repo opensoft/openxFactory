@@ -2339,6 +2339,48 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [amend-published-tip-unreadable-scenario](openspec/changes/archive/2026-09-05-amend-published-tip-unreadable-scenario/proposal.md)
+  — **ARCHIVED 2026-09-05 ON LANDING**, which is what `code_surface: none` means
+  under `release-realization`: there is no realization to wait for, because the
+  realization is what this amendment catches up to. Proposed 2026-09-05 and
+  **ADMITTED** the same day on Brett Heap's *"do both as a batch on one word"*
+  (openxFactory issue **#662**, filed by lane `doxbench-stewardship` out of
+  PR #646's reviewer note on **#612**) — origin metadata only, not a
+  ratification; **RATIFIED 2026-09-05** on his *"ratify 678, use openxfactory-1,
+  land it when green"* (records `review/ratification-2026-09-05.md` and
+  `review/verification-2026-09-05.md`, archived with the packet); **LANDED by
+  PR #678**, merge **`87c15baa`** (2026-09-05T16:41:11Z).
+  **CANON NAMED A CAUSE THE CHECKER HAD PROVED WAS THE WRONG ONE.**
+  `doc-health`'s *Release-tag publication* scenario *The manifest cannot be read
+  at the published tip* told its reader that an empty manifest read's "commonest
+  cause" is "a checkout that has not fetched that commit". The measurement ran
+  the other way (**#612**): on the aggregation nightly the commit WAS fetched —
+  the workflow's own fetch step had put all ten published tips in the store —
+  and **nine of the ten governed repositories simply carry no
+  `contracts/manifest.yaml` at all**, so every night those nine were reported in
+  an unfetched checkout's words, sending readers to hunt a fetch defect that did
+  not exist. **PR #646 (`2177b2a2`) taught the family to establish which fact
+  holds before choosing its words**; this packet is canon catching up.
+  **ONE requirement MODIFIED** — restated in full with all 30 promoted
+  scenarios, changing exactly one: the `WHEN` bullet REPLACED to name **both
+  facts** the single answer stands for, plus two `AND` bullets — one requiring
+  the family to have ESTABLISHED which holds (presence, then one bounded fetch)
+  *rather than naming a cause it did not check*, one saying a tip the checkout
+  HOLDS is an ANSWER and owes those words. The promoted `THEN` and the closing
+  `verify_tag`/#338 clause are carried byte-identical. **ONE canon unit dropped
+  and DECLARED** by the reserved `Removed from canon by` marker, which promotes
+  into canon with the block — the difference from `add-release-tag-gate`, whose
+  block only added. **`code_surface: none`**: no script, test, workflow or
+  contract member moved, and **no file was added under `openspec/specs/`**, so
+  **no codexFactory floor advance** — the promoted-capability count is unchanged
+  at 59. **STILL OWED, and named rather than closed:** the SIBLING scenario *The
+  changelog cannot be read at the published tip*
+  (`openspec/specs/doc-health/spec.md`) carries the identical misnamed clause
+  over `contracts/CHANGELOG.md`; the ratified proposal's claim that it did not
+  was FALSE, was corrected before landing, and the successor owes one reading
+  first — the changelog read has no presence probe of its own, it inherits the
+  manifest read's.
+
 - [add-release-tag-gate](openspec/changes/archive/2026-09-05-add-release-tag-gate/proposal.md)
   — **ARCHIVED 2026-09-05 ON BRETT HEAP'S WORD**, in session, verbatim
   *"ruleset updated, do the evidence and archive it"*, given after his
