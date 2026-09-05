@@ -106,11 +106,17 @@ this standard is built for.
 descendant because it pins the product — which is what that capability already
 requires.
 
-> Amended 2026-09-05. The rule above is unchanged and the sentence it rests on —
-> ***"Descendant only if it pins open&lt;Product&gt;"*** — still governs. What is
-> added is HOW FAR the pin may reach. Ruled by Brett Heap, 2026-09-05T14:52Z, in
-> session, verbatim: ***"elect the shape for both, follow the pin chain, no
-> family yet."*** A `<Domainx><Product>` name classifies as a domain descendant
+> Amended 2026-09-05. **The rule above is unchanged: a descendant form is a
+> CLAIM, and the claim is answered only by a PIN the project declares — never by
+> the spelling, and never by asking a host anything.** What this note adds is one
+> thing and only one: **HOW FAR that pin may reach.** The 2026-09-02 sentence
+> `"Descendant only if it pins open<Product>"` states the rule in its DIRECT
+> case, which was the only case that existed when it was written; it is not
+> narrowed or widened here, it is read as what it always was — a requirement that
+> a referent be DECLARED, not a requirement that it be declared in one hop.
+> Ruled by Brett Heap, 2026-09-05T14:52Z, in session, verbatim: **"elect the
+> shape for both, follow the pin chain, no family yet."** A
+> `<Domainx><Product>` name classifies as a domain descendant
 > where its declared `neutral_product_pins` REACH the matching `open<Product>`
 > through a CHAIN of declared neutral-product pins — `codexDox` declares
 > `openXdox`, whose own manifest declares `openDox` — and a DIRECT pin remains

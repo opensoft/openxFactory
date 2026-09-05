@@ -112,7 +112,8 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
 
 - [ ] 1.1 `[oD]` **SCAFFOLD the `openDox` project — three repositories in one
   run**, from a clean checkout of `opensoft/openRepoShape` at the commit
-  `contracts/openreposhape-pin.yaml` pins:
+  `contracts/openreposhape-pin.yaml` pins. **BLOCKED UNTIL 1.1a — the tool
+  REFUSES this exact command today; read 1.1a before running it:**
 
   ```
   python3 scaffold-project.py \
@@ -153,7 +154,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   it, because the packet performs nothing.
 - [ ] 1.2 `[oXd]` **SCAFFOLD the `openXdox` project — three repositories, and the
   family's ONE pin (RULING OQ-2)**, after 1.1 has landed a commit on
-  `opensoft/openDox`:
+  `opensoft/openDox`. **BLOCKED UNTIL 1.1a on the same refusal:**
 
   ```
   python3 scaffold-project.py \
