@@ -66,6 +66,8 @@ which are the two nearest repository-creation precedents in this corpus.
       author PRs there and the `implement-keycloak-install-repo` day-one
       lesson applies (the first PR is authored by the only human who can
       approve it).
+      Confirmed 2026-09-05: still OWED — the App-repository-access half
+      remains Brett Heap's web act, unchanged by the §4 re-pins below.
 - [x] 2.4 Seed the README with the ownership boundary quoted VERBATIM from the
       ratified requirement — `openxFactory` owns factory workflow policy;
       `OmniWorker-Install` owns worker-host install, operations, and DR;
@@ -150,37 +152,50 @@ group; §6 is where deletion lives, and only after §4 and §5.
 
 ## 4. Consumer re-pins — EACH ITS OWN PR, in its own repository
 
-- [ ] 4.1 **xFactory `.gitmodules`** gains `installs/omniworker-install` →
+- [x] 4.1 **xFactory `.gitmodules`** gains `installs/omniworker-install` →
       `git@github.com:opensoft/OmniWorker-Install.git` as a SIBLING entry.
       `installs/omnigent-install` is not renamed and not removed. Records the
       exact validated commit; the governed admission record is §8.1, not this.
-      In flight 2026-09-05: xFactory PR #268, "Add installs/omniworker-install
-      sibling submodule + re-point worker-profile comments" (open) — covers
-      this task and 4.2 together.
-- [ ] 4.2 **xFactory workflow comments** — `doc-health-cataloger-worker.yml`,
+      Recorded 2026-09-05: xFactory PR #268, "Add installs/omniworker-install
+      sibling submodule + re-point worker-profile comments" → squash
+      `2f767ac8` — gitlink `160000` at OmniWorker-Install `d617e68e`, verified
+      `git cat-file -t` = commit; covers this task and 4.2 together. Substrate
+      row 5 on xFactory #227 claimed and released.
+- [x] 4.2 **xFactory workflow comments** — `doc-health-cataloger-worker.yml`,
       `doc-health-readiness-worker.yml`,
       `doc-health-derive-possibles-worker.yml`,
       `ideation-organizer-worker.yml` — re-point the four
       `installs/omnigent-install/workers/profiles/*.yaml` references. Comments,
       not checkouts (design § D4 measured it): a comment naming a path nothing
       contains is worse than no comment.
-      In flight 2026-09-05: xFactory PR #268 (see 4.1).
-- [ ] 4.3 **OpsxFactory `models/code-surface-repositories.yaml`** gains one
+      Recorded 2026-09-05: xFactory PR #268 → squash `2f767ac8` (see 4.1) —
+      four workflow comments re-pointed.
+- [x] 4.3 **OpsxFactory `models/code-surface-repositories.yaml`** gains one
       entry `- id: OmniWorker-Install / source: aggregation_submodule`, in the
       alphabetical block. **Depends on 4.1**: the
       `code_surface_repository_registry` validator arm re-derives an
       `aggregation_submodule` entry against the aggregation `.gitmodules`, so
       an entry landed before the pin is a finding rather than a claim.
-      In flight 2026-09-05: no PR visible yet in `opensoft/OpsxFactory`
-      (correctly gated on 4.1/xFactory PR #268 landing first).
-- [ ] 4.4 **CloudPC-Install `packs/service-rider/selftest/check_heartbeat_contract.py`**
+      Recorded 2026-09-05: OpsxFactory PR #228 → merge commit `6a0d9467` —
+      entry `- id: OmniWorker-Install / source: aggregation_submodule` added;
+      landed AFTER xFactory PR #268 because
+      `scripts/release_realization_axis.py::_aggregation_gitmodules`
+      re-derives from the workspace `.gitmodules` (a standalone clone/CI
+      recorded a skip before then); proven in a simulated workspace — before
+      #268 a finding, after #268 "21 declared, 21 present, exact match".
+- [x] 4.4 **CloudPC-Install `packs/service-rider/selftest/check_heartbeat_contract.py`**
       — `OMNIGENT_ROOT` gains `OMNIWORKER_ROOT` and the sibling-directory
       candidates gain `OmniWorker-Install` / `omniworker-install`, with the
       old names kept as a deprecating fallback for one release. **Verify by a
       run that does NOT skip**: the selftest skips when the sibling is absent,
       so a green summary cannot distinguish a correct re-pin from a missing
       one.
-      In flight 2026-09-05: no PR visible yet in `opensoft/CloudPC-Install`.
+      Recorded 2026-09-05: CloudPC-Install PR #17 → squash `bba9da8a` —
+      `find_worker_root()`: `OMNIWORKER_ROOT` / `OmniWorker-Install` /
+      `omniworker-install` primary; `OMNIGENT_ROOT` and the old siblings kept
+      one release as a DEPRECATED fallback with a notice. Three-run proof:
+      new root RUNS PASS 31/0/0 skips; fallback RUNS PASS 31 with the notice;
+      neither present → SKIPPED, exit 1.
 - [x] 4.5 **openxFactory references** to `Omnigent-Install` worker paths.
       Scoped by measurement at re-pin time; `contracts/manifest.yaml`'s nine
       `Omnigent-Install/schemas|policies/...` source paths are NOT in scope
@@ -207,13 +222,13 @@ group; §6 is where deletion lives, and only after §4 and §5.
       `schemas/worker-host-manifest.schema.yaml`, etc.) exist under
       `contracts/` or `openspec/specs/` — nothing in scope for this task.
       Nothing changed in `contracts/` or `openspec/specs/` by this PR.
-- [ ] 4.6 **NotebookLM projection** — one ideation book per governed repo, so
+- [x] 4.6 **NotebookLM projection** — one ideation book per governed repo, so
       the new repository gets `xf-ideation-omniworker-install` /
       *"xFactory Ideation — OmniWorker-Install"*, added via
       `python3 openxFactory/scripts/sync-notebooklm-books.py . --apply` per
       `docs/lifecycle-notebook-projection.md`. Books resolve by TITLE; the
       capacity guard applies.
-      Recorded 2026-09-05 — finding, sync NOT run: `installs/*` repositories
+      Recorded 2026-09-05 — DISCHARGED by finding, sync NOT run: `installs/*` repositories
       are OUT OF SCOPE for the ideation-book projection BY DESIGN, not merely
       by omission. `scripts/sync-notebooklm-books.py`'s own comment on
       `ROOT_LEVEL_GOVERNED_PRODUCTS` (only `openAvatar`, `openXwallet`) says
@@ -231,13 +246,19 @@ group; §6 is where deletion lives, and only after §4 and §5.
       design.md § D3/D4. No list needs to gain `OmniWorker-Install`; there is
       no automatic discovery to rely on either — the mechanism does not
       reach `installs/*` at all.
-- [ ] 4.7 **The enrollment broker and CloudPC-Install docs** that name
+- [x] 4.7 **The enrollment broker and CloudPC-Install docs** that name
       `omnigent-install` as the host checkout — `docs/worker-host-pack.md`,
       `docs/host-token-broker.md`, `docs/host-broker-provisioning-prompt.md`,
       `docs/doc-analysis-worker-host.md`, `README.md`. **Gated on OQ-3**: if
       the host continues to check out the orchestrator repository for its
       compose stack, most of these are CORRECT as they stand and only the
       moved-path references change.
+      Recorded 2026-09-05: CloudPC-Install PR #17 (see 4.4) — moved-path
+      references re-pointed in `README.md`, `docs/worker-host-pack.md`,
+      `docs/host-token-broker.md`, `docs/doc-analysis-worker-host.md` (7
+      refs total); an orientation note added to
+      `docs/host-broker-provisioning-prompt.md`; orchestrator/compose-checkout
+      wording kept per the OQ-3 gate this task names.
 
 ## 5. Machine reprovision and its consequence (operator acts)
 
