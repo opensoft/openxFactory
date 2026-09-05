@@ -287,11 +287,12 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   none exists anywhere in this packet — reproducible as
   `grep -ohE '(^|[^[:alnum:]_])[A-Za-z]+xDox([^[:alnum:]_]|$)'
   proposal.md design.md tasks.md | sed -E 's/^[^A-Za-z]*//; s/[^A-Za-z]*$//' |
-  sort -u` (POSIX ERE — no `\b`, which is a Perl/PCRE-style word-boundary
-  escape that POSIX ERE does not define; GNU grep accepts it only as an
-  extension, so the earlier command was not portable; the
-  boundary is a bracket-class alternative, stripped afterward with `sed`), run
-  from `openspec/changes/split-opendox-two-layer-product/`, which returns
+  sort -u`, run from `openspec/changes/split-opendox-two-layer-product/` — the
+  pattern is POSIX ERE with no Perl-style escapes (no `\b`, which POSIX ERE
+  does not define and GNU grep accepts only as an extension; the boundary here
+  is a bracket-class alternative, stripped afterward with `sed`); the `-o`/`-h`
+  options are GNU/BSD grep extensions (available on Linux and macOS), not
+  POSIX-required, and returns
   SEVEN distinct strings (`AdxDox`, `LedgerxDox`, `MedxDox`, `OpsxDox`,
   `codexDox`, `medxDox`, `openxDox`), not five, because the broad pattern also
   catches two non-descendant artifacts: `medxDox`, a lowercase casing variant
@@ -303,9 +304,10 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   discussion (`tasks.md`:347, `design.md`:868 — "`openXdox`.casefold() equals
   `openxDox`.casefold()"), not a sixth descendant. Excluding those two
   artifacts, `grep -owhE 'MedxDox|codexDox|LedgerxDox|AdxDox|OpsxDox'
-  proposal.md design.md tasks.md | sort -u | wc -l` (`-w` — whole-word match, a
-  portable grep OPTION rather than a regex token, so no `\b` is needed here
-  either) returns **5**: the five names above are the only
+  proposal.md design.md tasks.md | sort -u | wc -l` — the pattern is POSIX ERE
+  with no Perl-style escapes, so no `\b` is needed; the `-o`/`-h`/`-w` options
+  are GNU/BSD grep extensions (available on Linux and macOS), not
+  POSIX-required. Returns **5**: the five names above are the only
   declared descendant base names in the packet. Read "fifteen descendant names —
   five descendants × three names each, the assembly name plus its two leg
   names — plus one install name, zero repositories" in place of the

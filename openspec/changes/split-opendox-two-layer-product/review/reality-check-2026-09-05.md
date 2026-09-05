@@ -112,11 +112,13 @@ exactly five descendants — `MedxDox`, `codexDox`, `LedgerxDox`, `AdxDox`,
 `OpsxDox` — each three names under the shape (assembly + `-spec` + `-code`,
 confirmed identical at tip and pin by `--dry-run` and by
 `scripts/validate-repository-naming.py --explain`). 5 × 3 = fifteen, not
-eighteen. Reproducible, POSIX ERE only (no `\b` — a Perl/PCRE-style
-word-boundary escape that POSIX ERE does not define; GNU grep accepts it only
-as an extension, so the earlier command was not portable): `grep -ohE '(^|[^[:alnum:]_])[A-Za-z]+xDox([^[:alnum:]_]|$)'
+eighteen. Reproducible: `grep -ohE '(^|[^[:alnum:]_])[A-Za-z]+xDox([^[:alnum:]_]|$)'
 proposal.md design.md tasks.md | sed -E 's/^[^A-Za-z]*//; s/[^A-Za-z]*$//' |
-sort -u` (run from `openspec/changes/split-opendox-two-layer-product/`) returns
+sort -u` (run from `openspec/changes/split-opendox-two-layer-product/`) — the
+pattern is POSIX ERE with no Perl-style escapes (no `\b`, which POSIX ERE does
+not define and GNU grep accepts only as an extension); the `-o`/`-h` options
+are GNU/BSD grep extensions (available on Linux and macOS), not
+POSIX-required. Returns
 SEVEN distinct strings, not five, because the broad pattern also catches two
 non-descendant artifacts: `medxDox`, a lowercase casing variant appearing
 exactly once inside Brett Heap's verbatim quoted founding utterance
@@ -124,10 +126,12 @@ exactly once inside Brett Heap's verbatim quoted founding utterance
 registration in `tasks.md` § 1.7 spells it `MedxDox`); and `openxDox`, the
 case-folded ALSO-ACCEPTED spelling of `openXdox` itself, named twice in the
 pin-chain discussion (`tasks.md`:347, `design.md`:868), not a sixth descendant.
-Excluding those two artifacts, `grep -owhE
+Excluding those two artifacts: `grep -owhE
 'MedxDox|codexDox|LedgerxDox|AdxDox|OpsxDox' proposal.md design.md tasks.md |
-sort -u | wc -l` (`-w`, a portable grep OPTION rather than a regex token)
-returns 5 — no sixth descendant exists anywhere in the packet. Corrected in
+sort -u | wc -l` — the pattern is POSIX ERE with no Perl-style escapes; the
+`-o`/`-h`/`-w` options are GNU/BSD grep extensions (available on Linux and
+macOS), not POSIX-required. Returns 5 — no sixth descendant exists anywhere in
+the packet. Corrected in
 `tasks.md` § 1.7 with
 a dated parenthetical giving the arithmetic, so the next amendment that adds
 or drops a descendant can re-derive the count instead of inheriting a stale
