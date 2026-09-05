@@ -483,54 +483,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [amend-unreadable-read-sibling-scenarios](openspec/changes/amend-unreadable-read-sibling-scenarios/proposal.md)
-  — authored 2026-09-05, **`Status: ratified`** (2026-09-05, Brett Heap,
-  openxFactory operator authority, in-session, *"ratify 688, land it when
-  green"*; records
-  `openspec/changes/amend-unreadable-read-sibling-scenarios/review/ratification-2026-09-05.md`
-  and `verification-2026-09-05.md`). `.openspec.yaml` keeps the drafting
-  provenance it was authored with and the approval pair is ADDED beside it —
-  `kind` and `id` unmoved, the addition-not-rewrite shape
-  `add-drafted-proposal-origin` defined. **THE SUCCESSOR THE ARCHIVE NAMES AS
-  OWED.**
-  `amend-published-tip-unreadable-scenario` (#678, archived by #685) retired the
-  clause *"the commonest cause being a checkout that has not fetched that
-  commit"* from `doc-health`'s *Release-tag publication* — **and that clause was
-  written TWICE.** The sibling scenario *The changelog cannot be read at the
-  published tip* carries it word for word over `contracts/CHANGELOG.md`
-  (`openspec/specs/doc-health/spec.md:2818`); #678 found it after ratification,
-  refused to widen its own ratified scope, and recorded the sibling as an owed
-  successor with one reading owed first. **THE READING, ANSWERED IN BOTH
-  HALVES.** The probe IS inherited and is COMPLETE — `obtain_commit` runs above
-  and the manifest is read at the SAME COMMIT, which `cat-file --batch` cannot do
-  for a commit the clone does not hold, so at that read the unfetched fact is
-  EXCLUDED rather than rarer. The WORDS are not inherited: the manifest read
-  states the presence and the changelog read does not. **ONE requirement
-  MODIFIED**, restated in full with all 30 promoted scenarios and #678's own note
-  and marker carried byte-identical, changing exactly one scenario — `WHEN`
-  REPLACED to name both facts, plus two `AND` bullets (one establishing, one
-  requiring the held-and-absent case to say so). **ONE canon unit is dropped and
-  it is DECLARED** by the reserved `Removed from canon by` marker.
-  **`code_surface: openxFactory`, and that was the packet's veto point**
-  (`design.md` **D2**) — **PUT, AND NOT VETOED**: rather than write a `MUST`
-  canon that the checker does not satisfy — #678 inverted — the third bullet is
-  made true here, in ONE `Skip` reason and its comment in
-  `scripts/doc_health/release_tag_publication.py`, with one test added. The cost
-  is ratified with the decision: under `release-realization` this packet
-  **archives on merged-plus-green realization evidence, not on landing**. No
-  severity, threshold, floor, path, arm or control flow moves. No file is added
-  under `openspec/specs/`, so **no codexFactory floor advance**.
-  **THE ADVERSARIAL REVIEW IS FOLDED, AND ONE OF ITS FINDINGS IS RATIFIED AS
-  OWED RATHER THAN FIXED.** The skip now says only what the read gives it — *"the
-  commit is held in this store and no readable `contracts/CHANGELOG.md` blob is
-  reachable at it"* — because a store holding the commit AND its trees can still
-  fail to produce the blob; and the held-and-absent skip's SUPPRESSION of the
-  in-scope grading (measured: no changelog → `Skip`, empty changelog → one
-  `error`, identically on `main`) is carried as a named carve-out and an OWED
-  SUCCESSOR (`design.md` **D6**, `tasks.md` § 6) rather than fixed under a word
-  that did not reach it. This pull request also REMOVES the stale Active row that
-  still pointed at `amend-published-tip-unreadable-scenario`'s pre-archive path.
-
 - [implement-omniworker-install-repo](openspec/changes/implement-omniworker-install-repo/proposal.md)
   — authored 2026-09-05, **`Status: ratified`** (2026-09-05, Brett Heap, in-session,
   *"ratify 680 and merge 16"*, against head `91866619`; recorded at `176b3104`),
@@ -2333,6 +2285,38 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [amend-unreadable-read-sibling-scenarios](openspec/changes/archive/2026-09-05-amend-unreadable-read-sibling-scenarios/proposal.md)
+  — **ARCHIVED 2026-09-05**, on Brett Heap's ratification of the same day
+  (*"ratify 688, land it when green"*) and the `release-realization` rule that a
+  change with a NON-EMPTY code surface archives on **merged-plus-green
+  realization evidence, not on landing**. **THE EVIDENCE, BOTH HALVES, CITED
+  RATHER THAN ASSERTED:** merged as **PR #688 → `a59d5463`** (2026-09-05
+  21:53:14Z, ten checks green on the ratification head `d6fd07b1`), and
+  **`pytest-suite` run
+  [33995187827](https://github.com/opensoft/openxFactory/actions/runs/33995187827)
+  `success` on `main` at `724a2a4f`** — a commit that CONTAINS `a59d5463`.
+  Governing issue **#662**.
+  **THE SUCCESSOR THE ARCHIVE NAMED AS OWED, DISCHARGED.**
+  `amend-published-tip-unreadable-scenario` (#678, archived by #685) retired the
+  clause *"the commonest cause being a checkout that has not fetched that
+  commit"* from `doc-health`'s *Release-tag publication* — **and that clause was
+  written TWICE.** The sibling scenario *The changelog cannot be read at the
+  published tip* carried it word for word over `contracts/CHANGELOG.md`. **ONE
+  requirement MODIFIED and PROMOTED BYTE-IDENTICAL** — 30 scenarios, #678's own
+  note and marker carried, one scenario changed (`WHEN` REPLACED to name both
+  facts, plus two `AND` bullets). **ONE canon unit dropped and DECLARED** by a
+  second `Removed from canon by` marker, so the retired clause now survives in
+  canon at exactly TWO sites and both are marker code spans — **zero live
+  occurrences**. Spec count **60 → 60**, so **no codexFactory floor advance**.
+  **`code_surface: openxFactory`** was the packet's veto point (`design.md`
+  **D2**) and was **not vetoed**: ONE `Skip` reason and its comment in
+  `scripts/doc_health/release_tag_publication.py` plus one test, so canon never
+  out-ran the checker. **ONE FINDING IS ARCHIVED AS OWED RATHER THAN FIXED**
+  (`design.md` **D6**): the held-and-absent skip still returns ABOVE the
+  `in_scope` loop and so SUPPRESSES the grading — measured, no changelog →
+  `Skip`, empty changelog → one `error`, **identically on `main`, so not a
+  regression** — and the successor that splits that arm is named, not done.
 
 - [mirror-floor-addition-grace](openspec/changes/archive/2026-09-05-mirror-floor-addition-grace/proposal.md)
   — **ARCHIVED 2026-09-05 ON BRETT HEAP'S WORD**, in session, verbatim

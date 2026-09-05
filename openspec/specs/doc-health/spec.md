@@ -6,7 +6,9 @@ Define the deterministic health-check contract for the factory family's
 governance corpus: the check families, finding severities, the dated report
 and ranked plan, the headline canon-share metric, and the ownership split
 between contract, implementation, and the nightly runner.
+
 ## Requirements
+
 ### Requirement: Deterministic check families
 The doc-health deterministic pass SHALL implement twenty-three check families over
 the whole factory family's governance corpus: status validity, standard
@@ -2719,6 +2721,45 @@ the `WHEN` that names both facts and the `AND` that requires the family to
 establish which holds before it speaks. Nothing else in this requirement is
 dropped.
 
+**AMENDED BY `amend-unreadable-read-sibling-scenarios` (2026-09-05).** Every
+paragraph and every scenario above this note stands exactly as promoted —
+including the note and the marker `amend-published-tip-unreadable-scenario` left
+here, which promote with the requirement and are carried, not restated — and the
+ONLY change this block makes is to the scenario *The changelog cannot be read at
+the published tip*: its `WHEN` bullet is replaced and two `AND` bullets are
+added. No other scenario moves, no severity changes, no arm is removed, no
+threshold moves, and the set of trees over which this family speaks is not
+altered by one line.
+
+THE SAME RULE, AT THE SECOND READ THAT ANSWERS NOTHING. The clause the note
+above retired for the manifest read had been written a second time, word for
+word, over `contracts/CHANGELOG.md`; the amendment that removed one left the
+other standing, and said so before it landed. **THE TWO READS ARE NOT IN THE
+SAME POSITION, AND THAT DIFFERENCE IS WHAT THIS AMENDMENT RECORDS RATHER THAN
+COPIES OVER.** The changelog read has no presence probe of its own — it INHERITS
+the manifest read's, and it inherits it COMPLETELY, because the manifest is read
+AT THE SAME COMMIT and must have answered before this arm can be reached. A blob
+cannot be read out of a commit the checkout does not hold, so by the time the
+changelog answers nothing the unfetched fact is not merely the rarer one: IT IS
+EXCLUDED, and the only fact left standing is a tip this checkout HOLDS at which
+no readable `contracts/CHANGELOG.md` blob came back. Naming the other one is
+therefore not a bad guess but a statement the family's own position already
+contradicts — so the skip SHALL say WHICH FACT HOLDS and SHALL state the
+presence, rather than leave a reader of the report to infer a fetch defect that
+cannot be there. **AND IT SHALL CLAIM NO MORE THAN THE PRESENCE GIVES IT.** A
+held commit licenses "no readable blob came back at this path"; it does not
+license "the commit carries no such file", because a store that holds the commit
+AND its trees can still fail to produce the blob. Reporting that as a clean
+absence would be the same conflation pointed in a third direction.
+
+**Removed from canon by amend-unreadable-read-sibling-scenarios (2026-09-05):**
+``**WHEN** the blob read for `contracts/CHANGELOG.md` at the published tip answers nothing — the commonest cause being a checkout that has not fetched that commit`` — the
+clause after the dash names one of two causes as the commonest, and at this read
+the one it names is the one that cannot hold at all; the unit is REPLACED rather
+than deleted, by the `WHEN` that names both facts and the `AND` that requires
+the family to have established which of them holds before it speaks. Nothing
+else in this requirement is dropped.
+
 #### Scenario: The declaring commit is still the published tip
 - **WHEN** a repository declares a bundle at or above the enforcement line, that bundle has no published annotated tag, and the earliest commit declaring it is still the tip of published `main`
 - **THEN** the family MUST emit no finding, because the cut has only just landed and the owner's tag act legitimately follows it
@@ -2815,8 +2856,10 @@ dropped.
 - **AND** the SPENT state MUST reach the ABSENT-tag arm and nothing else
 
 #### Scenario: The changelog cannot be read at the published tip
-- **WHEN** the blob read for `contracts/CHANGELOG.md` at the published tip answers nothing — the commonest cause being a checkout that has not fetched that commit
+- **WHEN** the blob read for `contracts/CHANGELOG.md` at the published tip answers nothing — ONE ANSWER STANDING FOR TWO DIFFERENT FACTS: the commit is not in this checkout's object store, or the commit IS held and NO READABLE `contracts/CHANGELOG.md` BLOB IS REACHABLE AT IT, whether because the tree carries no such entry or because the blob object itself is not in this store
+- **AND** the family has ESTABLISHED WHICH OF THE TWO HOLDS before choosing the words it reports — here by INHERITANCE and completely, the manifest read at that SAME COMMIT having already answered, which a commit this checkout does not hold cannot do — rather than naming a cause it did not check
 - **THEN** the family MUST report a skip naming that read, and MUST NOT treat the absence of a declaration it could not look for as the absence of a declaration
+- **AND** where the commit IS held, the skip MUST SAY THAT and MUST state the presence — naming the held commit and the read that returned nothing at it, and NOT asserting a file absence the held commit does not establish — because a tip this checkout holds is an ANSWER rather than a read that failed, and reporting it in the unfetched case's words sends a reader to look for a fetch defect that does not exist
 - **AND** this is the same conflation the manifest read already guards one document over: not fetched is not an answer, in either direction
 
 #### Scenario: The bundles untagged before this state existed are not retrofitted
@@ -3466,4 +3509,3 @@ usual, because the first instance is an archive act that cannot be taken back.
 #### Scenario: No active change writes a title canon carries
 - **WHEN** every active `## ADDED Requirements` block names a title the promoted specification does not carry, and every active `## RENAMED Requirements` block names a `TO:` title it does not carry
 - **THEN** this check MUST emit nothing, and its class MUST still render in the family's class block at a count of zero
-
