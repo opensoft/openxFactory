@@ -806,15 +806,15 @@ ACTIVE once it has reported, and — for openXdox — `contracts/opendox-pin.yam
 | row | substrate | claimed when | why |
 | --- | --- | --- | --- |
 | **1** | codexFactory review-authority floor + its openxFactory pin | **AT REALIZATION, not now** | This packet adds and removes NO path under `openspec/specs/`. The archive does BOTH — it removes `openspec/specs/ideation-dashboard/` and adds two capability directories — and the floor is exact-set-equality. Its own runbook says **DE-FLOOR BEFORE YOU REMOVE**: the codexFactory pull request lands FIRST, then the openxFactory pin's five sites in one reviewed diff, then the removal. `tasks.md` § 5.6 and § 8.4. |
-| **2** | `tests/sequenced_after/corpus-ledger.yaml` + the MOVEMENT LOG | **NOW** | This packet adds one change directory, so it adds one ledger row and may flip partners' `class` where its REMOVED block shares requirement keys. Seeded with `--seed-ledger --moved-by '#<PR>'` once the PR number exists. No MOVEMENT LOG entry is owed: a row added is a move the diff itself states. |
+| **2** | `tests/sequenced_after/corpus-ledger.yaml` + the MOVEMENT LOG | **NOW** | This packet adds one change directory, so it adds one ledger row and may flip partners' `class` where its REMOVED block shares requirement keys. Seeded with `--seed-ledger --moved-by '#<PR>'` once the PR number exists. **Amended 2026-09-05.** This row first said *"No MOVEMENT LOG entry is owed: a row added is a move the diff itself states."* That was measured wrong and `tasks.md` § 0.9 already carries the correction (Copilot round 5, 2026-09-05): the seeding moved TEN rows, not one — this change's own row enters as an ACTIVE co-modifier and NINE ARCHIVED rows flip `sole` -> `co-modifier` in the same act, because a `## REMOVED Requirements` block naming all 102 `ideation-dashboard` titles shares a requirement key with every change that ever solely added one. Nine partner rows moving for somebody else's delta is not legible from the row diff alone, which is the condition the log entry exists for, **so an entry IS owed and § 0.9 writes it.** Nothing else in this row moves, and this correction is not part of the shape ruling — it is a stale sentence in a table the shape amendment was editing anyway, fixed rather than left to contradict the tasks file. |
 | **3** | README "OpenSpec Records" block | **NOW** | One row under Active changes. Two PRs editing the same lines conflict on merge; Rule 6's landing window is the merge-time half. |
 | **4** | contract cuts | **AT THE CUT** | The MAJOR is claimed by NUMBER at § 5.7, not by this packet. |
 
 ### D12 — Repository shape: both layers elect the three-repository shape (2026-09-05)
 
 **RULED — Brett Heap, 2026-09-05T14:52Z, in session, after a read of
-`opensoft/openRepoShape` against this ratified packet, verbatim: *"elect the
-shape for both, follow the pin chain, no family yet"*** — recorded on
+`opensoft/openRepoShape` against this ratified packet.** Verbatim: **"elect the
+shape for both, follow the pin chain, no family yet"** — recorded on
 `opensoft/openxFactory` issue #656, comment `5552614170`. This section records
 the decision, what was put beside it, and what it costs. It is an AMENDMENT to a
 ratified document: nothing above is rewritten, and D1's topology, D2's seam,

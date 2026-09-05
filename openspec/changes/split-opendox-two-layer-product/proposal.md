@@ -434,11 +434,13 @@ than left to be noticed.
 ## Realization evidence
 
 Under `release-realization`'s archive gate this change is NOT archivable on
-landing. The evidence, per `tasks.md` § 8, is: both repositories exist, public,
-Apache-2.0, each with a required check that has reported once — **AMENDED
-2026-09-05 — repository shape: all SIX exist, public, Apache-2.0, each with a
-required check that has reported once, each assembly root's `validate` gate
-green over its own legs, and each `project.yaml` recording the election**; the behavioural
+landing. The evidence, per `tasks.md` § 8, is: **all SIX repositories exist,
+public, Apache-2.0, each with a required check that has reported once, each
+assembly root's `validate` gate green over its own legs, and each
+`project.yaml` recording the election** (**AMENDED 2026-09-05 — repository
+shape**; this first read *"both repositories exist, public, Apache-2.0, each
+with a required check that has reported once"*, on the reading that each layer
+was one repository); the behavioural
 floor's three parts each produced their own artifact (§ D6); `openxFactory`'s
 shed merged and its MAJOR cut, tagged and verified from an independently
 refreshed checkout; the aggregation's gitlinks landed; every one of the five
