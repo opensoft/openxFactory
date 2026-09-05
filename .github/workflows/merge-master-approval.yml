@@ -245,6 +245,29 @@
 # ancestry measurement; the five pin sites move together in the one commit
 # that made this note.
 #
+# ADVANCED A NINTH TIME 2026-09-05, from `e57643a7` to `67a6ffc9` — task 4.2 of
+# `mirror-floor-addition-grace` (codexFactory PR #212, merge commit,
+# 2026-09-05T18:08:23Z), the ONE regeneration task 4.1 requested at a LANDED
+# openxFactory commit rather than at any pull request's own unlanded head:
+# `f6724f04`, this repository's own `mirror-floor-addition-grace` realization
+# (PR #686). The generated block again grew by ZERO paths — `f6724f04` adds no
+# `openspec/specs` entry the tree at `3afd8a8c` lacked, so `generated_at` and
+# the regenerate command's `--ref` re-timestamp `3afd8a8c` -> `f6724f04` while
+# `entry_count` stays 59 and the floor total stays 67 — the SECOND advance
+# whose floor grew by zero paths, and this time deliberately: the object is
+# retiring `3afd8a8c`, which task 4.3 records was NOT an ancestor of
+# openxFactory `main`, in favor of `f6724f04`, which IS. THAT is what this
+# advance changes operationally: `specs_floor_block.pin_window_for_document`
+# fail-safes to `None` ("not measured") whenever the declared `generated_at`
+# will not resolve as an ancestor of the base branch being measured, so step 8
+# below could only ever report `pin_measured: false` against the eighth
+# advance's `3afd8a8c` on this repository's own `main`. Against `f6724f04` the
+# window is measurable for the first time — the addition-grace mechanism the
+# eighth advance made operative finally has a resolvable pin to measure from.
+# See `contracts/review-lane-pin.yaml`'s own comment history for the full
+# measurement; the five pin sites move together in the one commit that made
+# this note.
+#
 # WHAT THE (b′) ADVANCE MADE OPERATIVE HERE, on 2026-09-01. Until it, this lane
 # reported against a four-entry floor and could refuse only a floor that had
 # gone unreachable on the BASE branch. It now also:
@@ -355,7 +378,7 @@ jobs:
       # the commit `actions/checkout` actually produced. The AUTHORITATIVE copy
       # is `contracts/review-lane-pin.yaml`; this is a second witness and the
       # test asserts the two agree. Keep it byte-identical to the `ref:` below.
-      PINNED_CORE_COMMIT: "e57643a79132d11a1b2e1c807b0da589befb3f31"
+      PINNED_CORE_COMMIT: "67a6ffc932da44ebe1529d8cc25ab222b60a4ca1"
     steps:
       # ---- 1. Is there any way to read the decision core at all? ------------
       - name: Preflight — a decision-core read credential must exist
@@ -470,7 +493,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: opensoft/codexFactory
-          ref: "e57643a79132d11a1b2e1c807b0da589befb3f31"
+          ref: "67a6ffc932da44ebe1529d8cc25ab222b60a4ca1"
           path: .merge-master-core
           persist-credentials: false
           token: ${{ steps.repo-token.outputs.token || steps.org-token.outputs.token || github.token }}
