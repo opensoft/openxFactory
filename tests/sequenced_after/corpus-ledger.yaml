@@ -208,6 +208,7 @@ rows:
   implement-avatar-client-lab: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   implement-avatar-reference-runtime: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   implement-keycloak-install-repo: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  implement-omniworker-install-repo: {state: active, class: sole, declares: absent, prose: false, moved_by: "#680", moved_on: "2026-09-05"}
   implement-openxpki-install-repo: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   migrate-canonical-policy-to-openxfactory: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   neutralize-job-envelope: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
