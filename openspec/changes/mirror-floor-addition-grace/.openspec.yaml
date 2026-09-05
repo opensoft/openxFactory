@@ -47,6 +47,11 @@ origin:
     none is owed — the promoted lifecycle rule requires one only for
     `Status: ratified`. Whether this change's content is ratified is a separate
     act that has not happened and that is Brett Heap's alone.
+    THE PACKET HAS SINCE BEEN RATIFIED — Brett Heap, 2026-09-05, in session,
+    verbatim "ratify the companion when green, then realize it", applied at
+    head `ce9a81ed`; record `review/ratification-2026-09-05.md`. THIS FIELD
+    STILL RECORDS AUTHORIZATION TO FILE ONLY; the ratification is a separate
+    act and is recorded there.
   approved_on: 2026-09-05
 related:
   - openxFactory:change:add-substantive-review-lane   # task 5.1's workflow-instance half is what contracts/review-lane-pin.yaml realizes
