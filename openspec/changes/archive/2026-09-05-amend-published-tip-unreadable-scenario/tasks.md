@@ -63,3 +63,38 @@ catching up to it.
       promoted scenario title is deliberately mutated, the family re-run and
       seen to FIRE, and the delta restored. Recorded in the pull request.
 - [x] 3.6 The corpus-sweep ledger row, seeded with the real pull request number.
+
+## 4. The landing and archive acts
+
+- [x] 4.1 **RATIFIED AND LANDED BY openxFactory PR #678**, merge
+      **`87c15baa`** (2026-09-05T16:41:11Z), on Brett Heap's word *"ratify 678,
+      use openxfactory-1, land it when green"*. That pull request carried the
+      delta, the two records, the README row, the ledger row, the merge of
+      `main` after #677, and the correction of § 4.2's false claim.
+- [x] 4.2 **A FALSE CLAIM IN THE RATIFIED PROSE WAS CORRECTED BEFORE LANDING,
+      AND THE SIBLING IT MISSED IS AN OWED SUCCESSOR.** `proposal.md` § *What
+      this proposal does NOT claim* had said the sibling scenario *The changelog
+      cannot be read at the published tip* carries no equivalent misnamed cause.
+      It does — the identical clause, over `contracts/CHANGELOG.md`. Found by
+      REHEARSING this archive act on a throwaway worktree, whose assertion that
+      the retired clause no longer appears in canon found it still there, in the
+      sibling. The scope was NOT widened: widening a ratified packet after the
+      word that ratified it is a different change. The successor owes one
+      reading first — the changelog read has no presence probe of its own, it
+      inherits the manifest read's.
+- [x] 4.3 **ARCHIVED 2026-09-05 BY openxFactory PR ARCHIVE_PR_PENDING**,
+      `change/archive-amend-published-tip-unreadable-scenario`, cut from `main`
+      at `87c15baa`, on Brett Heap's word *"do both as a batch on one word"* and
+      the `release-realization` rule that a change with `code_surface: none`
+      archives ON LANDING. Performed with
+      `scripts/proposal-support.py . archive amend-published-tip-unreadable-scenario
+      --date 2026-09-05 --yes`, never a bare `openspec archive`.
+- [x] 4.4 **THE PROMOTION IS DIFF-CLEAN AND THE SPEC COUNT DID NOT MOVE.** The
+      requirement as promoted into `openspec/specs/doc-health/spec.md` is
+      BYTE-IDENTICAL to the delta's `## MODIFIED` block — 535 lines, 30
+      scenarios, compared programmatically rather than eyeballed — the
+      `Removed from canon by` marker promotes WITH the block, and the retired
+      clause survives in canon only inside that marker's code span, with ZERO
+      live bullets carrying it in the amended scenario. `openspec/specs/` holds
+      the same **59** capability directories before and after, so **no
+      codexFactory floor advance is owed**.

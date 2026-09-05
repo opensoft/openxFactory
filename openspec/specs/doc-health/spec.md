@@ -2689,6 +2689,36 @@ CONTROL.** A probe that only ever reads zero cannot be told apart from a reader
 that answers nothing, so the suite SHALL go on demonstrating, over a tree
 constructed to be untagged, that this family can fire.
 
+**AMENDED BY `amend-published-tip-unreadable-scenario` (2026-09-05).** Every
+paragraph above this note stands exactly as promoted, and the ONLY change this
+block makes is to the scenario *The manifest cannot be read at the published
+tip*: its `WHEN` bullet is replaced and two `AND` bullets are added. No other
+scenario moves, no severity changes, no arm is removed, no threshold moves, and
+what the family READS over a tree is not altered by one line — this is CANON
+CATCHING UP WITH THE CHECKER, not a change to the checker.
+
+THE FAMILY SHALL NOT NAME A CAUSE IT HAS NOT ESTABLISHED. A per-path answer of
+nothing carries two facts at once — an unfetched commit, and a commit this
+checkout holds that simply has no manifest — and the promoted wording named the
+first as the commonest without the family being able to tell them apart. It can
+now: it asks whether the commit is present and attempts one bounded fetch where
+it is not, and reports each fact in its own words. **THE MEASUREMENT THAT
+SETTLED WHICH IS COMMONER RAN THE OTHER WAY** — on the aggregation nightly the
+commit WAS fetched, the workflow's own fetch step having put all ten published
+tips in the store, and nine of the ten governed repositories simply carry no
+`contracts/manifest.yaml` at all (openxFactory #612, remedied by #646). A
+parenthetical that misnames the common case sends every reader of the report to
+look for a fetch defect that is not there, which is the cost this amendment
+removes.
+
+**Removed from canon by amend-published-tip-unreadable-scenario (2026-09-05):**
+``**WHEN** the blob read for the manifest at the published tip answers nothing — the commonest cause being a checkout that has not fetched that commit`` — the
+clause after the dash asserts which cause is commonest, and the measurement
+above shows it is the other one; the unit is REPLACED rather than deleted, by
+the `WHEN` that names both facts and the `AND` that requires the family to
+establish which holds before it speaks. Nothing else in this requirement is
+dropped.
+
 #### Scenario: The declaring commit is still the published tip
 - **WHEN** a repository declares a bundle at or above the enforcement line, that bundle has no published annotated tag, and the earliest commit declaring it is still the tip of published `main`
 - **THEN** the family MUST emit no finding, because the cut has only just landed and the owner's tag act legitimately follows it
@@ -2795,8 +2825,10 @@ constructed to be untagged, that this family can fire.
 - **AND** the SPENT state MUST NOT be read backwards onto them, nor onto any bundle below the enforcement line
 
 #### Scenario: The manifest cannot be read at the published tip
-- **WHEN** the blob read for the manifest at the published tip answers nothing — the commonest cause being a checkout that has not fetched that commit
+- **WHEN** the blob read for the manifest at the published tip answers nothing — ONE ANSWER STANDING FOR TWO DIFFERENT FACTS: the commit is not in this checkout's object store, or the commit IS held and carries no manifest at all
+- **AND** the family has ESTABLISHED WHICH OF THE TWO HOLDS before choosing the words it reports — asking whether the commit is present, and attempting ONE BOUNDED FETCH of exactly that commit where it is not — rather than naming a cause it did not check
 - **THEN** the family MUST report a skip saying so, and MUST NOT report it as the repository declaring no bundle
+- **AND** where the commit IS present and simply carries no manifest, the skip MUST say THAT instead and MUST state the presence, because a tip this checkout holds is an ANSWER rather than a read that failed, and reporting it in the unfetched case's words sends a reader to look for a fetch defect that does not exist
 - **AND** the same MUST hold for the commit a tag peels to, so a tag pointing at an unfetched commit is never reported as a tag pointing at a commit that declares nothing — this is the conflation `verify_tag` is filed for at #338, and a family that repeated it would be reporting the benign case in the serious case's words
 
 #### Scenario: A repository declares no bundle
