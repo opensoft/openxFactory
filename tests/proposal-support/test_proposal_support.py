@@ -58,6 +58,7 @@ def ratify(proposal: Path) -> None:
     proposal.write_text(text.replace("Status: draft", "Status: ratified", 1),
                         encoding="utf-8")
 
+
 class ProposalSupportTests(unittest.TestCase):
     def fixture(self, root: Path) -> None:
         (root / "openspec/changes/change-a").mkdir(parents=True)
