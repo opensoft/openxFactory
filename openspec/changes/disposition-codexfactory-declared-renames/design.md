@@ -52,8 +52,7 @@ after ruling *"take exit 2"* for openxFactory's. This packet writes it down.
 
 ---
 
-## 2. Why scope by repository identity, and why an out-of-scope entry can never
-be stale
+## 2. Why scope by repository identity, and why out of scope is never stale
 
 One pin file governs the estate, and `scripts/validate-openspec-cli-pin.py` is
 invoked with `--repo` against trees that carry none of openxFactory's changes.
