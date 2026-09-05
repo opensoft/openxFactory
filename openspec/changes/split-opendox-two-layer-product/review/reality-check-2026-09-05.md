@@ -38,7 +38,8 @@ Each of the five was re-measured directly, in this session, from a fresh
 clone of `opensoft/openRepoShape` (`.../scratchpad/verify/oRS`, tip
 `e9c4827b85f50503bbdd9e5b4fac9d6c3d0baf63` at read time) and a detached
 worktree at `122d729bc0c2f2e0ded0bb61b6b97f49512f613e` — the commit this
-repository's `contracts/openreposhape-pin.yaml` pins today —
+repository's `contracts/openreposhape-pin.yaml` pinned when this check ran
+(2026-09-05, before PR #700 re-pinned to `e9c4827b` at 21:50Z) —
 plus, where a finding turned on it, a third worktree at `355f6ef4`, the exact
 commit `tasks.md` § 1.1a names as the in-flight re-pin target. No
 state-changing call was made against GitHub; the only network reads were the
@@ -55,8 +56,9 @@ never touched.
 **`c4` (`proposal.md`:2, front matter) — REPRODUCED, split verdict.**
 Claim: all six repositories are created by `scaffold-project.py`, PUBLIC and
 Apache-2.0. Observed: `--dry-run` at tip prints the neutral-product/assembly
-admission and the six names; the identical command at the pinned `122d729b`
-exits 2 with `REFUSED naming-role-mismatch` (a CamelCase control name
+admission and the six names; the identical command, run at `122d729b`
+(pinned when this check ran — 2026-09-05, before PR #700 re-pinned to
+`e9c4827b` at 21:50Z), exits 2 with `REFUSED naming-role-mismatch` (a CamelCase control name
 succeeds at the same commit, isolating the refusal to the `open<Product>`
 form). Apache-2.0 is false at BOTH revisions: `find templates -iname
 'LICENSE*'` returns nothing at either commit, and `scaffold-project.py`'s
@@ -95,9 +97,10 @@ is an ancestor of `355f6ef4`. Corrected in `tasks.md` § 1.3 with one combined
 note (see `c19` below — the two share the same paragraph).
 
 **`c19` (`tasks.md` §1.3, ~201-206) — REPRODUCED, false in operation.**
-Claim: `AGENTS.md`/`CLAUDE.md` remain a hand act. True at the currently
-pinned `122d729b` (`git ls-tree -r --name-only` there shows no AGENTS/CLAUDE
-path anywhere under `templates/`). False from `355f6ef4` onward — which is
+Claim: `AGENTS.md`/`CLAUDE.md` remain a hand act. True at `122d729b` (the
+pin of that moment — 2026-09-05, before PR #700 re-pinned to `e9c4827b` at
+21:50Z; `git ls-tree -r --name-only` there shows no AGENTS/CLAUDE path
+anywhere under `templates/`). False from `355f6ef4` onward — which is
 the only revision `tasks.md` § 1.1a will ever let 1.1/1.2 run at, since those
 tasks are explicitly BLOCKED UNTIL the re-pin lands. `git merge-base
 --is-ancestor 99b3774 355f6ef4` confirms the enabling commit predates the

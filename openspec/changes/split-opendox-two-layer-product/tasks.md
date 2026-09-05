@@ -208,9 +208,11 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   *(Corrected by reality check 2026-09-05 (lane
   openxfactory-4-opendox-extraction), re-measured against a fresh
   `openRepoShape` clone at tip `e9c4827b85f50503bbdd9e5b4fac9d6c3d0baf63` and,
-  in a worktree, at the currently-pinned `122d729bc0c2f2e0ded0bb61b6b97f49512f613e`
-  — the "and nothing else" list above is wrong at BOTH revisions, and
-  differently. AT THE PIN, a `--local-remote-dir` materialization (no network,
+  in a worktree, at `122d729bc0c2f2e0ded0bb61b6b97f49512f613e` — pinned when
+  this check ran (2026-09-05, before PR #700 re-pinned to `e9c4827b` at
+  21:50Z) — the "and nothing else" list above is wrong at BOTH revisions, and
+  differently. AT THE PIN OF THAT MOMENT, `122d729b`, a `--local-remote-dir`
+  materialization (no network,
   nothing created on GitHub) writes three assembly-root files the list above
   omits: `scripts/repo_shape.py`, `scripts/validate-repository-naming.py` and
   `contracts/repository-naming.yaml` — copied out of `openRepoShape`'s own
@@ -277,8 +279,9 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   CREATING NONE: eighteen descendant names plus one install name, zero
   repositories.)* *(Corrected by reality check 2026-09-05 (lane
   openxfactory-4-opendox-extraction): "eighteen" is arithmetic wrong, at every
-  `openRepoShape` revision checked (tip `e9c4827b` and the pinned `122d729b`
-  give byte-identical leg counts). Five descendants are named above — `MedxDox`,
+  `openRepoShape` revision checked (tip `e9c4827b` and `122d729b` — the pin
+  of that moment, before PR #700 re-pinned to `e9c4827b` at 21:50Z — give
+  byte-identical leg counts). Five descendants are named above — `MedxDox`,
   `codexDox`, `LedgerxDox`, `AdxDox`, `OpsxDox` — each three names (the assembly
   name plus its two leg names, confirmed by `scaffold-project.py --dry-run` at
   both revisions and by `scripts/validate-repository-naming.py --explain`
