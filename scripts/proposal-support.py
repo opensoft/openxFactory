@@ -7,6 +7,7 @@ import argparse
 import difflib
 import gzip
 import hashlib
+import importlib.util
 import io
 import json
 import os
@@ -15,6 +16,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 
 # THE DECLARED SENTINEL VOCABULARY, CONSULTED RATHER THAN RESPELLED
 # (`declare-sentinel-pin-vocabulary` § 2.7). The three revision guards below
@@ -1392,8 +1394,256 @@ def verify(root: Path, change: str | None) -> list[str]:
     return errors
 
 
+# --------------------------------------------------------------------------
+# THE OpenSpec CLI THIS SCRIPT DRIVES — RESOLVED THROUGH THE PIN, NEVER FROM
+# PATH (issue #691)
+#
+# WHAT WAS WRONG. This wrapper is the SANCTIONED archive path: it runs the
+# origin gate, refuses a change with open task boxes, packages supporting
+# documents into a deterministic bundle, and only then archives. Every one of
+# those checks was performed against a corpus adjudicated by
+# `["openspec", …]` — the name, resolved by the shell out of whatever happened
+# to be on PATH. `contracts/openspec-cli-pin.yaml` had meanwhile made
+# `@fission-ai/openspec` a CONTENT-ADDRESSED consumption and named
+# `scripts/validate-openspec-cli-pin.py` as the one entrypoint through which
+# the estate obtains and runs it — and this file, the tool that performs the
+# irreversible half of the act the pin exists to govern, read none of it. On
+# the workstation this was found on, PATH answered `1.2.0` while the pin
+# recorded `1.12.0`: the archive ran a version the repository does not pin, and
+# nothing said so.
+#
+# WHAT RUNS NOW, AND IN WHICH ROLE.
+#
+#   * STRICT VALIDATION runs through the CONSUMER ENTRYPOINT itself
+#     (`validate_through_the_pin` below), not through a `validate` argv this
+#     file assembles. The pin's `consumer_entrypoint:` says every strict
+#     validation in the estate goes through that file "and through nothing
+#     else", and the reason is not ceremony: the entrypoint is where the pin's
+#     `dispositions:` are applied. A finding this repository has ACCEPTED in
+#     writing, with a citation and a named authority, must not block an archive
+#     merely because the wrapper re-asked the question with a rawer tool.
+#   * THE ARCHIVE ITSELF runs the PINNED EXECUTABLE, resolved by the
+#     entrypoint's own `resolve_pinned` — fetched, hashed against the recorded
+#     SHA-512 and SHA-1, installed, and asserted to report the pinned version
+#     before it is invoked. The entrypoint has no archive mode and deliberately
+#     never grows one (`neutral-product-pin` forbids a target-less run there),
+#     so what is reused here is its RESOLVER, never a second implementation of
+#     it. Nothing about which bytes the pin names is written in this file.
+#
+# NEVER A SILENT FALLBACK. If the pinned artifact cannot be obtained, or the
+# resolved binary reports a different version, this refuses with the verifier's
+# own named code and its remediation trailer, printed verbatim, and exits 2 —
+# the exit `scripts/validate-openspec-cli-pin.py` and
+# `scripts/install-pinned-openspec-cli.py` already use for a refusal, kept
+# distinct from the exit 1 this script has always used for "your change is not
+# archivable". An unanswerable question about which tool would run is never an
+# implicit permission to run whichever one is nearest.
+#
+# THE ONE ESCAPE IS THE ENTRYPOINT'S OWN. `--path-mode` is not invented here:
+# it is the verifier's flag, with the verifier's semantics and the verifier's
+# limits — it uses the `openspec` on PATH and REFUSES unless that binary reports
+# the pinned version, which checks the LABEL and not the referent. It exists for
+# a developer who is offline with the pinned version already installed, it is
+# passed straight through to the entrypoint for the validation half so the two
+# halves can never run different binaries, and it is never a governed check.
+# --------------------------------------------------------------------------
+
+PIN_VERIFIER = Path(__file__).resolve().parent / "validate-openspec-cli-pin.py"
+
+_PIN_VERIFIER_MODULE = None
+_RESOLVED_OPENSPEC: dict[tuple, Path] = {}
+
+
+# THE TWO CODES THIS FILE ORIGINATES, and the reason there are two rather than
+# one. The refusal VOCABULARY belongs to the pin verifier: where this wrapper
+# catches a `PinRefusal` it carries that code and that message through unchanged
+# (`pin-tag-only`, `pin-integrity-mismatch`, `pin-unresolvable`,
+# `pin-version-mismatch`, …). These two are the conditions the verifier cannot
+# report about itself:
+#
+#   pin-entrypoint-unavailable  the entrypoint could not be LOADED, so no
+#                               refusal of its own could be raised at all
+#   pin-refused                 the entrypoint was called as a whole
+#                               (`validate_through_the_pin`) and returned its
+#                               exit 2 rather than an exception. The named code
+#                               and the remediation are already on stderr,
+#                               printed by the verifier; re-deriving them here
+#                               would be a second copy of a vocabulary this file
+#                               does not own, so what this code says is only
+#                               "the entrypoint refused, and this archive stops"
+#
+# `tests/proposal-support/test_pinned_openspec_cli.py::
+# test_the_wrapper_originated_refusal_codes_are_exactly_what_it_raises` asserts
+# this tuple against the codes actually raised in this file, so a third one
+# cannot be added without adding it here — which is the drift Copilot caught on
+# PR #694, when this list said "exactly one" and the code raised two.
+WRAPPER_REFUSAL_CODES: tuple[str, ...] = (
+    "pin-entrypoint-unavailable", "pin-refused")
+
+
+class PinnedCliRefusal(RuntimeError):
+    """A refusal to invoke OpenSpec because the PINNED CLI is not what would run.
+
+    Deliberately NOT a `SupportError`. That class means "this change cannot be
+    archived", which `main` reports as exit 1; this one means "which tool would
+    adjudicate the change is unsettled", which exits 2. A caller that branched
+    on the first and got the second would read an unresolved pin as a defect in
+    somebody's proposal.
+
+    `code` is the verifier's own refusal code wherever this wrapper caught a
+    `PinRefusal` — carried unchanged so a caller may branch on it — and
+    otherwise one of the two in `WRAPPER_REFUSAL_CODES` above. `str()` is the
+    verifier's whole message where there was one, code, detail and the fixed
+    remediation trailer reproduced verbatim rather than reworded here.
+    """
+
+    def __init__(self, code: str, message: str) -> None:
+        self.code = code
+        super().__init__(message)
+
+
+def pin_verifier():
+    """The pin verifier module, LOADED rather than re-implemented.
+
+    The same `spec_from_file_location` route `scripts/install-pinned-openspec-
+    cli.py` and `tests/openspec_cli_pin/` already take to reach a hyphenated
+    file. Loading it — rather than copying its parser, its hashing, its install
+    or its refusal vocabulary — is the whole point: a second implementation of
+    "which bytes does the pin name" would be the second copy of the pin that
+    `contracts/openspec-cli-pin.yaml`'s own header describes moving apart.
+
+    Loaded LAZILY, on first use, so that importing this script — which
+    `tests/doc-health/test_proposal_origin.py` and `tests/proposal-support/` both
+    do, and which every non-archive subcommand does — costs nothing and reads no
+    contract it will not use.
+    """
+    global _PIN_VERIFIER_MODULE
+    if _PIN_VERIFIER_MODULE is not None:
+        return _PIN_VERIFIER_MODULE
+    if not PIN_VERIFIER.is_file():
+        raise PinnedCliRefusal(
+            "pin-entrypoint-unavailable",
+            f"REFUSE pin-entrypoint-unavailable: {PIN_VERIFIER} is missing, so "
+            "the pinned OpenSpec CLI cannot be resolved and this archive would "
+            "run whatever binary a shell found first. Restore the entrypoint "
+            "named by `consumer_entrypoint:` in "
+            "contracts/openspec-cli-pin.yaml; it is not optional tooling.")
+    spec = importlib.util.spec_from_file_location(
+        "openspec_cli_pin_verifier", PIN_VERIFIER)
+    if spec is None or spec.loader is None:  # pragma: no cover - unreachable
+        raise PinnedCliRefusal(
+            "pin-entrypoint-unavailable",
+            f"REFUSE pin-entrypoint-unavailable: {PIN_VERIFIER} could not be "
+            "loaded as a module; the pinned CLI cannot be resolved without it.")
+    module = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(module)
+    except Exception as exc:  # pragma: no cover - a broken entrypoint
+        raise PinnedCliRefusal(
+            "pin-entrypoint-unavailable",
+            f"REFUSE pin-entrypoint-unavailable: {PIN_VERIFIER} raised "
+            f"{exc!r} while loading; the pinned CLI cannot be resolved through "
+            "an entrypoint that does not import.") from exc
+    _PIN_VERIFIER_MODULE = module
+    return module
+
+
+def pinned_openspec(path_mode: bool = False, npm: str = "npm") -> Path:
+    """The pinned `openspec` EXECUTABLE, as a path, or a named refusal.
+
+    MEMOIZED PER PROCESS, keyed by the pin file and the mode. One archive run
+    resolves once, and a test session that archives several fixtures pays for
+    one `npm pack` rather than one per fixture. The memo is a cache of the
+    RESOLUTION, never of the verdict about the bytes: `resolve_pinned`
+    re-verifies the artifact's content address on every call it is actually
+    given, and the install it reuses is one named and stamped with that address.
+
+    THE FETCH IS THROWAWAY AND THE INSTALL IS NOT, which is the split
+    `resolve_pinned` is built around. The tarball lands in a
+    `TemporaryDirectory` this call owns — never in a directory another tool
+    also empties, because `fetch_artifact` refuses an ambiguous fetch and two
+    processes sweeping one fetch directory would turn a normal run into
+    `pin-unresolvable` — while the INSTALL goes to the verifier's own cache
+    root, shared with `scripts/install-pinned-openspec-cli.py` rather than
+    duplicated beside it, and named and stamped with the address that was
+    verified.
+    """
+    verifier = pin_verifier()
+    key = (bool(path_mode), npm, str(verifier.PIN_PATH))
+    cached = _RESOLVED_OPENSPEC.get(key)
+    if cached is not None:
+        return cached
+    try:
+        pin = verifier.read_pin(verifier.PIN_PATH)
+        version = verifier.pinned_version(pin)
+        integrity, shasum = verifier.pinned_integrity(pin)
+        package = verifier.pinned_package(pin)
+        binary = verifier.pinned_binary(pin)
+        if path_mode:
+            executable = verifier.path_executable(binary)
+        else:
+            with tempfile.TemporaryDirectory(prefix="proposal-support-cli-") \
+                    as scratch:
+                executable = verifier.resolve_pinned(
+                    package, version, integrity, shasum, binary, Path(scratch),
+                    verifier.default_cache_root(), npm=npm)
+        reported = verifier.assert_reported_version(executable, version)
+    except verifier.PinRefusal as exc:
+        # Re-typed, NEVER reworded: `str(exc)` is the verifier's whole message
+        # and `exc.code` its own vocabulary. This file owns the exit code it
+        # maps to and nothing else about the refusal.
+        raise PinnedCliRefusal(exc.code, str(exc)) from exc
+    if path_mode:
+        print(f"proposal-support: {package}@{reported} from PATH "
+              f"({executable}). --path-mode checks the LABEL and not the "
+              f"referent: these bytes were NOT hashed against the pin.",
+              flush=True)
+    else:
+        print(f"proposal-support: {package}@{reported} from the pinned "
+              f"artifact ({executable}); integrity {integrity[:23]}… verified",
+              flush=True)
+    _RESOLVED_OPENSPEC[key] = executable
+    return executable
+
+
+def validate_through_the_pin(root: Path, change: str,
+                             path_mode: bool = False) -> None:
+    """`openspec validate <change> --strict`, run BY THE CONSUMER ENTRYPOINT.
+
+    Called rather than re-assembled, so this archive is adjudicated by exactly
+    the run the pin governs — dispositions included. `--change` narrows the scan
+    to the change being archived, which is a target the entrypoint provides for
+    and which decides no staleness (only an `--all` run may, and this is not
+    one).
+
+    The entrypoint's exit codes are its own and are mapped, not collapsed:
+    2 is a refusal about WHICH TOOL would run and re-raises as one here; 1 is a
+    finding about THIS CHANGE and becomes the `SupportError` every other gate in
+    this wrapper raises.
+    """
+    verifier = pin_verifier()
+    argv = ["--change", change, "--repo", str(root)]
+    if path_mode:
+        argv.append("--path-mode")
+    verdict = verifier.main(argv)
+    if verdict == 2:
+        raise PinnedCliRefusal(
+            "pin-refused",
+            f"REFUSE pin-refused: the pinned OpenSpec CLI refused strict "
+            f"validation of {change}; the named refusal and its remediation are "
+            f"printed above. This archive is REFUSED rather than retried "
+            f"against whatever `openspec` a shell would find on PATH.")
+    if verdict != 0:
+        raise SupportError(
+            f"openspec validate {change} --strict failed through the pinned "
+            f"CLI (exit {verdict}); the findings are printed above. An archive "
+            f"is the act that moves a delta into canon, so it does not proceed "
+            f"over a strict failure")
+
+
 def archive_change(root: Path, change: str, packaged_at: str,
-                   final_import_complete: bool, yes: bool) -> None:
+                   final_import_complete: bool, yes: bool,
+                   path_mode: bool = False) -> None:
     directory = active_change_dir(root, change)
     gate = origin_errors(root, directory, strict=True)
     if gate:
@@ -1408,9 +1658,21 @@ def archive_change(root: Path, change: str, packaged_at: str,
     tasks = directory / "tasks.md"
     if tasks.is_file() and re.search(r"^- \[ \]", tasks.read_text(), re.M):
         raise SupportError("change has incomplete tasks")
-    subprocess.run(
-        ["openspec", "validate", change, "--strict"], cwd=root, check=True
-    )
+    # RESOLVED BEFORE ANYTHING IS VALIDATED, so that a pin that cannot be
+    # satisfied is reported as the named refusal it is — `pin-integrity-
+    # mismatch`, `pin-unresolvable`, `pin-version-mismatch` — rather than as the
+    # entrypoint's undifferentiated exit 2 further down. It is also the honest
+    # order: the first question an archive asks is which tool will perform it.
+    #
+    # THE ENTRYPOINT RESOLVES AGAIN FOR ITS OWN HALF, and that is not waste to
+    # be optimised away: it is a separate tool with its own contract, and one
+    # that trusted a caller's handed-in executable would be a pinned validator
+    # running a binary it did not verify. The two share the verifier's cache
+    # root, so the second resolution reuses the first install and costs one
+    # `npm pack` — and the artifact is re-hashed both times, which is
+    # `resolve_pinned`'s property and the reason the reuse is not a shortcut.
+    executable = pinned_openspec(path_mode=path_mode)
+    validate_through_the_pin(root, change, path_mode=path_mode)
     # PACKAGING IS FOR A CHANGE THAT HAS SUPPORTING DOCUMENTS, and only for one.
     # The promoted rule says so in its first clause — "An OpenSpec change WITH
     # proposal supporting documents SHALL NOT archive until ... the supporting
@@ -1454,10 +1716,14 @@ def archive_change(root: Path, change: str, packaged_at: str,
     else:
         print(f"NO SUPPORTING DOCS {directory} (origin retained, nothing to "
               "package)")
-    command = ["openspec", "archive", change]
+    command = [str(executable), "archive", change]
     if yes:
         command.append("--yes")
-    subprocess.run(command, cwd=root, check=True)
+    # The entrypoint's own environment, so this process does not archive under
+    # one environment having validated under another; `OPENSPEC_TELEMETRY=0` is
+    # the only thing it settles, and it settles it for both halves.
+    subprocess.run(command, cwd=root, check=True,
+                   env=pin_verifier().validation_environment())
 
 
 def parser() -> argparse.ArgumentParser:
@@ -1503,6 +1769,15 @@ def parser() -> argparse.ArgumentParser:
     archive.add_argument("--date", default=date.today().isoformat())
     archive.add_argument("--final-import-complete", action="store_true")
     archive.add_argument("--yes", action="store_true")
+    # THE ENTRYPOINT'S OWN ESCAPE, PASSED THROUGH — not a bypass invented here.
+    # It uses the `openspec` on PATH and refuses unless that binary reports the
+    # pinned version, so it checks the label rather than the referent; there is
+    # deliberately no flag that skips the pin altogether.
+    archive.add_argument(
+        "--path-mode", action="store_true",
+        help=("resolve the CLI from PATH, refusing unless it reports the "
+              "pinned version; for an offline developer, never for a "
+              "governed archive"))
     return ap
 
 
@@ -1548,7 +1823,8 @@ def main() -> None:
             print("proposal support verification ok")
         else:
             archive_change(args.root.resolve(), args.change, args.date,
-                           args.final_import_complete, args.yes)
+                           args.final_import_complete, args.yes,
+                           args.path_mode)
     except OriginRetentionError as exc:
         # EXIT 2, NOT 1: THE ORIGIN-RETENTION GATE REFUSED. Every arm of it
         # lands here — a declaration that moved after ratification, no
@@ -1561,7 +1837,22 @@ def main() -> None:
         # because that argument doubles as the exit status, and an int is the
         # whole point. (argparse spends 2 on its own usage errors, which this
         # shares rather than fights: a usage error never reaches this
-        # handler.)
+        # handler.) `archive_change` raises this BEFORE the pin is ever
+        # resolved — retention is checked first, so this arm is reached
+        # first when both could apply.
+        print(str(exc), file=sys.stderr)
+        raise SystemExit(2) from exc
+    except PinnedCliRefusal as exc:
+        # EXIT 2, AND ALSO NOT 1, BUT A DIFFERENT REFUSAL FROM THE ONE ABOVE.
+        # Exit 1 here has always meant "this change is not archivable"; this is
+        # "which tool would archive it is unsettled", which is the exit the pin
+        # verifier and the pinned installer both already use. The message is
+        # the verifier's own, printed verbatim. This and `OriginRetentionError`
+        # share the number because neither is the "fix the packet and retry"
+        # shape exit 1 means — one says the origin comparison could not be
+        # trusted, the other says the tool that would adjudicate the change
+        # could not be resolved — and which one it was is in the message,
+        # never in the number.
         print(str(exc), file=sys.stderr)
         raise SystemExit(2) from exc
     except (SupportError, subprocess.CalledProcessError) as exc:

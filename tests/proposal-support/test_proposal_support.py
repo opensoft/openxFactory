@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import importlib.util
+import os
 from pathlib import Path
 import os
 import shutil
@@ -16,11 +18,141 @@ from unittest import mock
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = REPO_ROOT / "scripts" / "proposal-support.py"
+PIN = REPO_ROOT / "contracts" / "openspec-cli-pin.yaml"
 spec = importlib.util.spec_from_file_location("proposal_support", SCRIPT)
 support = importlib.util.module_from_spec(spec)
 assert spec.loader is not None
 sys.modules[spec.name] = support
 spec.loader.exec_module(support)
+
+# The bytes a fictional registry serves in place of the published artifact. The
+# pin the double writes records their REAL SHA-512 and SHA-1, so
+# `verify_artifact` does real hashing over real bytes on every archive test
+# below; only the registry is invented.
+PINNED_CLI_PAYLOAD = b"a synthetic tarball standing in for @fission-ai/openspec"
+
+
+def serve_a_fictional_registry(test: unittest.TestCase) -> list:
+    """Give the archive wrapper a PINNED CLI without touching the network.
+
+    WHY THE THREE ARCHIVE TESTS BELOW NEED THIS AT ALL. Since #691 the wrapper
+    resolves its `openspec` THROUGH `contracts/openspec-cli-pin.yaml` — it
+    fetches the published tarball, hashes it against the recorded content
+    address and installs it — instead of running whatever the shell finds. That
+    is the property those tests now depend on, and satisfying it literally would
+    mean a registry round trip from a unit test, which this suite's hermeticity
+    posture refuses (`tests/openspec_cli_pin/test_openspec_cli_pin.py` states
+    the same rule and takes the same route).
+
+    So the fiction is installed at the SUBPROCESS BOUNDARY of the verifier
+    module `proposal-support.py` loads, exactly as the sibling suite does: the
+    real `fetch_artifact` shells out, the real `verify_artifact` hashes real
+    bytes against a pin that really records their address, the real
+    `resolve_pinned` caches by that address, and the real
+    `assert_reported_version` asks the resolved binary what it is. What the
+    fictional `npm install` puts at the resolved path is a SHIM that forwards to
+    the `openspec` on PATH — the binary these tests have always driven, and the
+    reason for their `skipUnless` guard — so the archive they assert about is
+    still performed by a real CLI, reached only through the pin's own resolver.
+
+    Returns the recorded npm argv lists, so a caller may assert WHAT was run.
+    """
+    # ITS OWN directory, never the fixture root: the synthetic pin and the
+    # install cache are the double's furniture, and a governance tool's
+    # repository root is not the place to leave furniture.
+    holder = TemporaryDirectory()
+    test.addCleanup(holder.cleanup)
+    workspace = Path(holder.name)
+
+    verifier = support.pin_verifier()
+    real_pin = verifier.read_pin(PIN)
+    version = verifier.pinned_version(real_pin)
+    binary = verifier.pinned_binary(real_pin)
+    forwarded = shutil.which(binary)
+    assert forwarded is not None, "guarded by skipUnless"
+
+    digest = base64.b64encode(hashlib.sha512(PINNED_CLI_PAYLOAD).digest()).decode()
+    pin_path = workspace / "pin.yaml"
+    pin_path.write_text(
+        "# a synthetic pin, in the real pin's own grammar\n"
+        "schema_version: 1\n"
+        "kind: pinned_contract_manifest\n"
+        f"package: \"{verifier.pinned_package(real_pin)}\"\n"
+        "source_repository: Fission-AI/OpenSpec\n"
+        "registry: https://registry.npmjs.org\n"
+        f"version: \"{version}\"\n"
+        "revision_kind: package_integrity\n"
+        "integrity_algorithm: sha512\n"
+        f"integrity: \"sha512-{digest}\"\n"
+        f"shasum: \"{hashlib.sha1(PINNED_CLI_PAYLOAD).hexdigest()}\"\n"
+        f"binary: {binary}\n"
+        "verify_pin: scripts/validate-openspec-cli-pin.py\n"
+        "consumer_entrypoint: scripts/validate-openspec-cli-pin.py\n",
+        encoding="utf-8")
+
+    calls: list = []
+    real_which = shutil.which
+    # A real file under the double's own directory, never a hard-coded system
+    # path: the constitution forbids a host-absolute path in a committed file
+    # (§ IV), and `fetch_artifact` only asks whether npm is obtainable at all.
+    fake_npm = workspace / "bin" / "npm"
+    fake_npm.parent.mkdir(parents=True, exist_ok=True)
+    fake_npm.write_text("#!/bin/sh\n", encoding="utf-8")
+    fake_npm.chmod(0o755)
+
+    def fake_run(argv, **kwargs):
+        argv = [str(item) for item in argv]
+        calls.append(argv)
+        if argv[1:2] == ["pack"]:
+            destination = Path(argv[argv.index("--pack-destination") + 1])
+            destination.mkdir(parents=True, exist_ok=True)
+            (destination / "openspec.tgz").write_bytes(PINNED_CLI_PAYLOAD)
+            return subprocess.CompletedProcess(argv, 0, "", "")
+        if argv[1:2] == ["install"]:
+            prefix = Path(argv[argv.index("--prefix") + 1])
+            (prefix / "bin").mkdir(parents=True, exist_ok=True)
+            shim = prefix / "bin" / binary
+            shim.write_text(f'#!/bin/sh\nexec "{forwarded}" "$@"\n',
+                            encoding="utf-8")
+            shim.chmod(0o755)
+            return subprocess.CompletedProcess(argv, 0, "", "")
+        if argv[1:2] == ["--version"]:
+            return subprocess.CompletedProcess(argv, 0, version + "\n", "")
+        return subprocess.CompletedProcess(argv, 0, "", "")
+
+    def restore(target, attribute, previous):
+        setattr(target, attribute, previous)
+
+    for target, attribute, value in (
+            (verifier, "PIN_PATH", pin_path),
+            (verifier, "_run", fake_run),
+            (shutil, "which",
+             lambda name, *a, **k: (str(fake_npm) if name == "npm"
+                                    else real_which(name, *a, **k))),
+    ):
+        previous = getattr(target, attribute)
+        test.addCleanup(restore, target, attribute, previous)
+        setattr(target, attribute, value)
+
+    previous_cache = os.environ.get("OPENSPEC_CLI_PIN_CACHE")
+
+    def restore_cache():
+        if previous_cache is None:
+            os.environ.pop("OPENSPEC_CLI_PIN_CACHE", None)
+        else:
+            os.environ["OPENSPEC_CLI_PIN_CACHE"] = previous_cache
+
+    test.addCleanup(restore_cache)
+    # The install goes under the double's own directory, so a unit test never
+    # writes into the developer's real pin cache.
+    os.environ["OPENSPEC_CLI_PIN_CACHE"] = str(workspace / "cache")
+
+    # The wrapper memoizes ONE resolution per process, keyed by the pin file;
+    # cleared on both sides so neither a previous test's fiction nor this one's
+    # can be answered from a cache built under different bytes.
+    support._RESOLVED_OPENSPEC.clear()
+    test.addCleanup(support._RESOLVED_OPENSPEC.clear)
+    return calls
 
 
 # --------------------------------------------------------------------------
@@ -464,6 +596,7 @@ class ProposalSupportTests(unittest.TestCase):
 
     @unittest.skipUnless(shutil.which("openspec"), "openspec CLI required")
     def test_archive_wrapper_preserves_bundle(self):
+        npm = serve_a_fictional_registry(self)
         with TemporaryDirectory() as td:
             root = Path(td)
             subprocess.run(
@@ -536,6 +669,11 @@ class ProposalSupportTests(unittest.TestCase):
             self.assertEqual(len(archived), 1)
             self.assertTrue((archived[0] / "supporting-docs.tar.gz").is_file())
             self.assertEqual(support.verify_archive(archived[0]), [])
+            # …and it got there through the PIN: the artifact was fetched and
+            # installed by the verifier's own resolver, which is a fact about
+            # this run rather than an inference from its result.
+            self.assertTrue(any(argv[1:2] == ["pack"] for argv in npm), npm)
+            self.assertTrue(any(argv[1:2] == ["install"] for argv in npm), npm)
 
     @unittest.skipUnless(shutil.which("openspec"), "openspec CLI required")
     def test_archive_wrapper_archives_a_change_that_has_no_supporting_docs(self):
@@ -548,6 +686,7 @@ class ProposalSupportTests(unittest.TestCase):
         "supporting-docs folder not found", which is the one thing that pushes
         an operator toward a bare `openspec archive` and around the gate.
         Fifteen archived staged-origin changes already have this shape."""
+        serve_a_fictional_registry(self)
         with TemporaryDirectory() as td:
             root = Path(td)
             subprocess.run(
@@ -621,6 +760,7 @@ class ProposalSupportTests(unittest.TestCase):
         """`--final-import-complete` records a NotebookLM import for a support
         bundle. With no bundle it records nothing, so it is refused rather than
         silently ignored."""
+        serve_a_fictional_registry(self)
         with TemporaryDirectory() as td:
             root = Path(td)
             subprocess.run(
