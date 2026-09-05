@@ -105,13 +105,23 @@ divergence, not a mirror.
   recorded beside the existing one. Add the live-node-id assertion for the new
   pair beside `test_the_required_suite_watches_the_verifier_by_name`, so a
   rename reds on a developer's machine naming the strings to move.
-  **Evidence**: `VECTOR_REPLAY_CLASSNAME`/`VECTOR_REPLAY_TESTNAME`,
-  `EXPECT_SKIPPED: "22"`, `test_the_required_suite_watches_the_vector_replay_by_name`,
-  commit `f6185a11`.
+  **Evidence, WITH A CORRECTION TO THIS TASK'S OWN TEXT**:
+  `VECTOR_REPLAY_CLASSNAME`/`VECTOR_REPLAY_TESTNAME` and
+  `test_the_required_suite_watches_the_vector_replay_by_name` land as
+  written, commit `f6185a11`. `EXPECT_SKIPPED` does NOT move to 22 — it
+  STAYS 21, verified on CI (PR #686, run 33978773175:
+  `skipped=21`, both named verdicts `passed`). This task's own prose assumed
+  the replay always contributes a skip; it does not, by the same design as
+  the freshness verifier beside it (both skip ONLY on a core-checkout
+  failure, and skip TOGETHER when that happens, sharing
+  `locate_pinned_core()` — so the aggregate moves by two on that path, not
+  by one on every path). Fixed in a follow-up commit on this same PR after
+  CI caught the mismatch red; see that commit's message for the corrected
+  reasoning.
 - [x] 2.8 `python3 -m pytest tests/review_lane_pin -q` green, and green a second
   time with `PINNED_CORE_CHECKOUT` pointed at a real codexFactory checkout so
   the replay actually runs rather than skipping.
-  **Evidence**: 72 passed / 2 skipped / 22 subtests (no core); 74 passed / 43
+  **Evidence**: 73 passed / 2 skipped / 22 subtests (no core); 75 passed / 43
   subtests (core at `e57643a7`).
 
 ## 3. The advisory lane

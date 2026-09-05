@@ -548,13 +548,19 @@ class TheRealFiles(unittest.TestCase):
     def test_the_required_suite_watches_the_vector_replay_by_name(self) -> None:
         """The SECOND watched pair, task 2.7 — same discipline, applied again.
 
-        `mirror-floor-addition-grace` moves `EXPECT_SKIPPED` 21 -> 22 and adds
-        a second named watch, `VECTOR_REPLAY_CLASSNAME` / `VECTOR_REPLAY_TESTNAME`,
-        for the same reason `FRESHNESS_CLASSNAME` / `FRESHNESS_TESTNAME` exist:
-        an aggregate skip count cannot tell "the vector replay stopped running"
-        from "the vector replay stopped running AND some other conditional skip
-        started", and goes green on the canceling pair. Asserted here against
-        the LIVE class and method objects, same as the freshness pair above.
+        `mirror-floor-addition-grace` adds a second named watch,
+        `VECTOR_REPLAY_CLASSNAME` / `VECTOR_REPLAY_TESTNAME`, for the same
+        reason `FRESHNESS_CLASSNAME` / `FRESHNESS_TESTNAME` exist: an
+        aggregate skip count cannot tell "the vector replay stopped running"
+        from "the vector replay stopped running AND some other conditional
+        skip started", and goes green on the canceling pair. `EXPECT_SKIPPED`
+        does NOT move for this addition — verified on CI (PR #686, run
+        33978773175: `skipped=21` with both named verdicts `passed`) — because
+        the replay, like the freshness verifier beside it, does not skip on
+        the normal path (pinned core present); both skip TOGETHER only on a
+        core-checkout failure, which reports 23 and reds against the pin
+        exactly as a lone +1 would. Asserted here against the LIVE class and
+        method objects, same as the freshness pair above.
         """
         text = PYTEST_SUITE.read_text(encoding="utf-8")
         module_path = pathlib.Path(__file__).resolve().relative_to(REPO_ROOT)
@@ -636,12 +642,16 @@ class TheFreshnessVerifier(unittest.TestCase):
        skipped, failed and errored each fail the job with
        *"snapshot freshness verifier did not run — pinned core checkout
        unavailable or test removed"*. This is the load-bearing signal.
-    2. `EXPECT_SKIPPED` remains pinned exactly, and the skip still moves it to
-       22. That is the backstop and the general skip discipline, no longer the
+    2. `EXPECT_SKIPPED` remains pinned exactly, and the skip still moves it
+       up. That is the backstop and the general skip discipline, no longer the
        primary signal: an aggregate cannot distinguish this skip appearing from
        this skip appearing WHILE another conditional skip starts running, and
        goes green on the pair. Codex raised it as P2 on PR #569; the named
        assertion above is the answer, and the reason it is stated first.
+       (Since `mirror-floor-addition-grace`: `TheVectorReplay` shares this
+       test's own `locate_pinned_core()` guard, so the two skip TOGETHER on a
+       core-checkout failure — the aggregate moves by two, not one, on that
+       path, and `EXPECT_SKIPPED` catches the deviation either way.)
 
     That trade is the whole design: *"the exact skip pin converts 'the
     cross-repository fetch quietly stopped working' from a silent degradation

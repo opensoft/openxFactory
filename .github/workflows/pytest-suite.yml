@@ -489,17 +489,24 @@ jobs:
           # (MIN_SELECTED and MIN_PASSED are FLOORS and need no edit: the new
           # module only raises the actuals, which widens the printed margin.)
           #
-          # MOVED 21 -> 22 by `mirror-floor-addition-grace`: the required
-          # assertion's mirrored completeness rule is FALSIFIED by replaying
-          # the pinned core's own exported vectors
+          # UNCHANGED AT 21 BY `mirror-floor-addition-grace`, AND THAT IS THE
+          # DESIGN — the same note the (b′) advance made about the freshness
+          # verifier applies a second time. The required assertion's mirrored
+          # completeness rule is FALSIFIED by replaying the pinned core's own
+          # exported vectors
           # (`tests/review_lane_pin/test_floor_snapshot.py::TheVectorReplay
           # ::test_every_vector_replays`), and that replay SKIPS — never
           # fails — under the SAME condition the freshness verifier already
           # does: no pinned core on disk. On the normal path here the core
-          # checkout succeeds and BOTH run, so this number does not move on a
-          # normal run; it moves only when that checkout fails, exactly as
-          # `TheFreshnessVerifier`'s skip already does, one skip at a time.
-          EXPECT_SKIPPED: "22"
+          # checkout succeeds and BOTH the freshness verifier and the vector
+          # replay RUN, so this number does not move on a normal run. It
+          # moves only when that checkout fails — and then by TWO, not one:
+          # both watched tests share the same `locate_pinned_core()` guard and
+          # skip TOGETHER, so a core-checkout failure reports 23 here, which
+          # reds against this pin exactly as a lone +1 would. Verified on PR
+          # #686's own head, run 33978773175: `skipped=21` on a normal run,
+          # both named verdicts `passed`.
+          EXPECT_SKIPPED: "21"
           # THE NAMED VERDICT — the freshness verifier watched as itself rather
           # than as one unit of an aggregate it can hide inside.
           #
