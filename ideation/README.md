@@ -261,6 +261,24 @@ below with its lifecycle notes.
   `opensoft/openxFactory` issue #656; staged topic
   [`opendox-two-layer-product`](staging/opendox-two-layer-product/opendox-two-layer-product.md)
   (2026-09-04).
+- [Omni Unattended Worker Overview](brainstorm/omni-unattended-worker-overview.md)
+  — entry point for the eighteen-document Omni packet (fourteen atomic docs,
+  three syntheses, one overview): one signed host manager that lets a personal
+  Windows workstation or a dedicated Cloud PC contribute bounded spare compute,
+  enrolled under a server-assigned installation identity with SPKI-bound
+  credential versions and a PROPOSED `device_certificate` mTLS mode at the
+  enrollment broker, running arbitrary engineering code only inside a qualified
+  disposable executor (`hyperv_vm`, `wsl2`, `native_service_account`), receiving
+  work through the existing clearing-dispatch door as a single-job ephemeral
+  runner minted from a server-side attempt-authorization record, and returning
+  candidates that governed infrastructure accepts. Carries Brett's two 2026-09-05
+  rulings verbatim — "Documented partial WSL2 class" for Windows Home and "New
+  public repo in opensoft" for the volunteer workflows — and preserves the
+  alternatives the review lineage rejected (Keycloak on the machine path,
+  Hyper-V-only coverage, a bespoke device API, a SYSTEM-owned distro). Captured
+  from the design review lineage (Codex lane `omni-gap-plan` original → Fable →
+  gpt6-xhigh → Fable → gpt6Max → Brett's rulings); non-normative, and it opens no
+  change and stages no topic (2026-09-05).
 - [Agent-Assisted App Testing Overview](brainstorm/agent-assisted-app-testing-overview.md)
   — anchors a twenty-document packet (sixteen atomic docs, three syntheses, and
   one overview) for turning browser annotations, Hermes UI audits, and
