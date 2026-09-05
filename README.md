@@ -580,6 +580,55 @@ Active changes:
   REALIZATION**, because the floor's runbook says DE-FLOOR BEFORE YOU REMOVE and
   this packet adds and removes no path under `openspec/specs/`.
   `Refs #656`.
+
+- [add-release-tag-gate](openspec/changes/add-release-tag-gate/proposal.md)
+  — authored 2026-09-04, **`Status: ratified`** (2026-09-05, Brett Heap,
+  in-session, on the recorded word *"ratify 668, land it when green"*; record
+  `openspec/changes/add-release-tag-gate/review/ratification-2026-09-05.md`,
+  verification beside it). **D1 and D2 were put forward as veto points and
+  NEITHER was vetoed**, so both are ratified knowingly. **THE `[OPERATOR]` ACT
+  IS NOT PART OF THAT WORD AND IS STILL OWED:** adding `release-tag-gate` to
+  ruleset `21538893` as a REQUIRED check gates **ARCHIVE, not ratification**,
+  and until it is done the moved obligation is enforced by a workflow anyone can
+  merge past. **THE RELEASE-TAG ZERO-FINDINGS PIN
+  MOVES OUT OF THE REQUIRED SUITE AND INTO A GATE ON THE CUTTING PULL REQUEST**
+  (issue **#664**, Brett Heap's ruling *"do your recommendation"* = option 2 of
+  three). `tests/doc-health/test_release_tag_publication.py` asserted, inside
+  the required `pytest-suite`, that this repository reads ZERO
+  `release-tag-publication` findings — but the annotated tag for a new bundle is
+  published AFTER the cutting pull request merges, at the merge commit, by a
+  second actor (measured 6s/23s/44s/69s after merge for `contract-v3.1` through
+  `contract-v3.4`), so the legitimate window between the two acts reddened EVERY
+  open pull request: PR #628 declared `contract-v3.3` untagged at 22:27Z on
+  2026-09-03 and every lane failed on that one test until the tag landed after
+  PR #636 — five and a half hours. **ONE requirement MODIFIED**
+  (`doc-health` § *Release-tag publication*, restated in full with all 24
+  promoted scenarios and adding six; it drops no canon unit, so no
+  `Removed from canon by` marker is owed) and **no file added under
+  `openspec/specs/`**, so no codexFactory floor advance. Realization:
+  `.github/workflows/release-tag-gate.yml` (`on: pull_request`, **no `paths:`
+  filter** so the required context always reports, **not on `push: main`**, job
+  and check name the literal `release-tag-gate`) and
+  `scripts/validate-release-tag-gate.py`, which short-circuits green unless the
+  pull request touches `contracts/manifest.yaml` or `contracts/releases/**` and
+  otherwise runs THE SAME FAMILY over the pull request's merge tree by
+  overriding one seam method — **one clock, not two** (#614), the family's tip
+  resolution read one step further (#639). **THE BAR IS THE ONE THAT WAS BEING
+  ASSERTED — no `error`, no `warning` — moved, not weakened.** The bundle the
+  pull request itself CUTS is not required to carry a tag (it cannot yet; the
+  family's own promoted *declaring commit is still the published tip* scenario
+  already says nothing about it) and the obligation is RECORDED in the check
+  summary and as a `::notice` instead — the packet's **veto point**, with
+  `gate-version-reuse` (a declaration moved onto an already-published number,
+  the one defect the family cannot see) as the second, deletable in one `if`
+  block. Nightly reporting is unchanged at unchanged severities. **Making the
+  check REQUIRED is Brett's console act**, tasks § 4, evidence before ARCHIVE
+  and not before ratification, on `create-medxchart-overlay-boundary` § 5.3's
+  `pin-validation` precedent. Side effect measured: the removed assertion made
+  ~52 live `ls-remote` calls per suite run, so
+  `tests/doc-health/test_release_tag_publication.py` goes 110s → 19s and the
+  required suite gets more hermetic.
+
 - [add-openspec-cli-pin](openspec/changes/add-openspec-cli-pin/proposal.md)
   — authored 2026-09-04, **`Status: draft`**, on Brett Heap's word
   *"draft the openxFactory pin change, pinned at 1.2.0"*. **Not ratified, not

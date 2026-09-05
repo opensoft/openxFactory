@@ -1,0 +1,75 @@
+# The RELEASE-TAG GATE: the release-tag-publication obligation, asked of the
+# pull request that changes the release surface (openxFactory #664).
+#
+# WHAT THIS REPLACES. `tests/doc-health/test_release_tag_publication.py` used to
+# assert, inside the REQUIRED `pytest-suite`, that this repository reads ZERO
+# `release-tag-publication` findings. The tag for a new bundle is published
+# AFTER the cutting pull request merges, by a second actor with tag rights, so
+# that assertion turned EVERY open pull request red for the length of the
+# window. Measured 2026-09-03/04: PR #628 declared `contract-v3.3` untagged at
+# 22:27Z and main plus every lane failed on that one test until the tag was
+# published after PR #636 — five and a half hours, every lane. Brett Heap ruled
+# on 2026-09-04 that the assertion MOVES here, where only the cutting pull
+# request carries it.
+#
+# NO `paths:` FILTER, DELIBERATELY, and this is the reason the short-circuit
+# lives in the job instead. A REQUIRED status check that does not report on some
+# pull requests is "expected forever" and blocks the merge, so a required
+# context must run on every pull request and decide for itself. The job's first
+# real step asks whether this pull request touches `contracts/manifest.yaml` or
+# `contracts/releases/**` and exits 0 saying so when it does not.
+#
+# NOT ON `push: main` EITHER. A gate that ran on main after a cut merged would
+# re-create exactly the red this packet removes, in the window between the
+# landing and the tag. The nightly doc-health run keeps reporting that window at
+# its ratified severity — the signal is not lost, it is simply not a merge
+# blocker for lanes that had nothing to do with the cut.
+#
+# THE JOB CARRIES NO DISPLAY NAME ON PURPOSE: the status check must surface as
+# exactly `release-tag-gate`, the literal token the branch-protection ruleset
+# pins. A distinct job display name silently de-advises the gate — the rule
+# `openxwallet-consumer-gate.yml` and `pytest-suite.yml` both write down for
+# themselves.
+#
+# `fetch-depth: 0` IS LOAD-BEARING TWICE. The gate diffs the merge commit
+# against its FIRST PARENT (the base tip) to find the changed paths, and the
+# family walks first-parent history to grade the declaring distance. A shallow
+# checkout refuses `gate-unreadable-base` rather than passing blind.
+#
+# WHY IT IS SLOWER THAN IT LOOKS. The family consults the PUBLISHED refs once
+# per cut bundle at or above the enforcement floor — all 51 release inventories
+# under `contracts/releases/` today (52 files, one of them the schema) — and each
+# is an `ls-remote` round trip. Measured against the live repository on the gate
+# path: 52 round trips / 75s for a release-surface pull request that is not a
+# cut, 54 / 85s for one that is. The cost grows by ONE round trip per cut,
+# forever, which at ~1.5s each puts the timeout below roughly 600 bundles away.
+# The timeout is sized well above today's figure; this is not a hot path and it
+# runs at most once per push.
+
+name: release-tag-gate
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-tag-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-tag-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Judge the merge tree
+        run: python3 scripts/validate-release-tag-gate.py .

@@ -314,6 +314,16 @@ Contract-bundle realization is serialized and allocates versions late:
 5. Publish the annotated tag pointing at the exact published commit and
    verify it from an independently refreshed checkout.
 
+Step 3's gates include `release-tag-gate`, which runs on every pull request and
+evaluates only those that change `contracts/manifest.yaml` or
+`contracts/releases/`. It refuses a cut standing on an EARLIER bundle that is
+still unpublished, and a declaration moved onto a version whose tag already
+exists. It does NOT require a tag for the bundle being cut: step 5 follows step
+4, so that tag cannot exist yet. **The gate records it as OWED instead, and step
+5 remains an obligation on the person who lands step 4** — reported nightly by
+doc-health's `release-tag-publication` family until it is met, and refused by the
+gate on the next pull request that touches the release surface.
+
 Release metadata rejects host-absolute paths, and the legacy
 `local_source_path` field is removed only after a recorded
 supported-consumer audit proves no supported consumer requires it.

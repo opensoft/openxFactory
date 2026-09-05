@@ -140,6 +140,7 @@ rows:
   add-register-edit-lane: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}
   add-release-inventory-drift-check: {state: archived, class: co-modifier, declares: absent, prose: true, moved_by: "#623", moved_on: "2026-09-03"}
   add-release-realization-flow: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-release-tag-gate: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#668", moved_on: "2026-09-04"}
   add-release-tag-publication-check: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-repository-lens: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}
   add-requirement-ref-resolution-integrity: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
