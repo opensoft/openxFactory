@@ -497,12 +497,17 @@ floor_snapshot:
 # one family. Pinning the SAME commit here was the lockstep-preserving choice
 # and it is, again, impossible: at xFactory's pinned commit — `f4702f64`, where
 # the 2026-08-28 ceremony left all three surfaces, measured on xFactory `main`
-# 2026-09-01 and RE-MEASURED on xFactory main 2026-09-03 and again 2026-09-04 —
-# the floor document above carries FOUR entries, not 64, and the
-# three core functions this caller now calls (`post_merge_tree_paths`,
-# `candidate_floor_drift`, `parse_repository_floor_reporting`) do not exist.
+# 2026-09-01 and RE-MEASURED on xFactory main 2026-09-03 and again 2026-09-04
+# and again 2026-09-05 — the floor document above carries FOUR entries, not
+# SIXTY-SEVEN, and the three core functions this caller now calls
+# (`post_merge_tree_paths`, `candidate_floor_drift`,
+# `parse_repository_floor_reporting`) do not exist.
 # Since the floor evaluation is the ONLY thing this caller does, and the (b′)
 # extension is the whole object of this advance, the older commit cannot run it.
+# (Count re-measured 2026-09-05 at the 76fa501c advance: this sentence had read
+# "64" since the 12:25Z advance of 2026-09-04 and was carried stale through the
+# 14:05Z, 16:02Z and 23:47Z advances that followed; the live figure is this
+# file's own `floor_snapshot.entry_count` above.)
 #
 # So the divergence is FORCED BY THE FEATURE, not chosen for freshness — and
 # saying so is not the same as discharging it. This is the SECOND time the same
