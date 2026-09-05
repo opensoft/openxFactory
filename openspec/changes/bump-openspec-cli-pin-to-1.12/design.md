@@ -102,6 +102,18 @@ that branches on 0/1/2, `.github/workflows/openspec-cli-pin-gate.yml` included,
 which is a compatibility break bought for a distinction the refusal CODE
 (`pin-disposition-stale`) already draws inside exit 2.
 
+**Only `--all` decides staleness, and the narrowing was found by running the
+tool rather than by reasoning about it.** `--change add-composed-view-authoring`
+against the real corpus REFUSED, because `add-chain-attestation`'s finding is not
+produced by a scan that never opens that change. A narrowed run legitimately does
+not see the findings of items it was not asked about, so it cannot make a claim
+about the whole corpus — and refusing there would make the entrypoint unusable
+for exactly the single-change validation `neutral-product-pin` provides for. So a
+narrowed run APPLIES dispositions (an author validating one dispositioned change
+must not be told to fix a finding this pin has accepted) and SAYS in its output
+that it checked none for staleness, so a green narrowed run is never mistaken for
+an audit of the list. Two tests hold both halves.
+
 **What stale-refusal actually buys, concretely.**
 `add-composed-view-authoring` has ONE open task box left — 3.2, a Brett act. On
 the day he takes it and the change archives, that change leaves the `--all`

@@ -790,7 +790,8 @@ def test_the_real_pin_disposes_exactly_the_captured_findings(mod, pin):
     items, _ = mod.parse_report(payload, ["validate", "--changes"])
     findings = mod.collect_findings(items, "--changes")
     applied, undispositioned, stale = mod.reconcile(
-        findings, mod.pinned_dispositions(pin), "openxFactory")
+        findings, mod.pinned_dispositions(pin), "openxFactory",
+        corpus_wide=True)
     assert len(applied) == 2
     assert undispositioned == []
     assert stale == []
@@ -1093,3 +1094,51 @@ def test_a_disposition_declaring_a_level_that_could_never_match_is_refused(
     with pytest.raises(mod.PinRefusal) as exc:
         mod.pinned_dispositions(mod.read_pin(path))
     assert exc.value.code == "pin-disposition-malformed"
+
+
+def test_a_narrowed_run_applies_dispositions_and_declares_none_stale(
+        mod, tmp_path, fake_npm, capsys):
+    """STALENESS IS A CLAIM ABOUT THE WHOLE CORPUS, so only `--all` may make it.
+
+    A `--change <id>` run legitimately never opens the changes it was not asked
+    about. Reporting those dispositions as stale would refuse every single-change
+    validation this entrypoint exists to provide — the failure this test was
+    written after reproducing against the real corpus, where
+    `--change add-composed-view-authoring` refused over
+    `add-chain-attestation`'s untouched entry.
+    """
+    calls, served = fake_npm
+    served["verdict"] = 1
+    served["report"] = report((FINDING_ITEM, FINDING_PATH, FINDING_TEXT),
+                              items=1)
+    (tmp_path / "openspec").mkdir()
+    path = write_pin(tmp_path, dispositions_block=disposition_block(
+        a_disposition(),
+        a_disposition(item="add-a-change-this-run-never-opened",
+                      path="other/spec.md",
+                      finding="a finding only --all would produce",
+                      why="the second declared narrowing")))
+    assert mod.main(["--change", FINDING_ITEM, "--no-cache",
+                     "--repo", str(tmp_path), "--pin", str(path)]) == 0
+    printed = capsys.readouterr().out
+    assert "1 applied" in printed
+    assert "NO disposition was checked for staleness here" in printed
+
+
+def test_a_whole_corpus_run_still_decides_staleness(mod, tmp_path, fake_npm,
+                                                    capsys):
+    """The other half of the same rule, so the narrowing above cannot be read as
+    switching stale-refusal off."""
+    calls, served = fake_npm
+    served["verdict"] = 1
+    served["report"] = report((FINDING_ITEM, FINDING_PATH, FINDING_TEXT),
+                              items=90)
+    (tmp_path / "openspec").mkdir()
+    path = write_pin(tmp_path, dispositions_block=disposition_block(
+        a_disposition(),
+        a_disposition(item="add-a-change-that-archived", path="other/spec.md",
+                      finding="a finding this corpus no longer produces",
+                      why="the second declared narrowing")))
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == 2
+    assert "pin-disposition-stale" in capsys.readouterr().err

@@ -58,8 +58,11 @@ repoint the very tool that judges its own change.
       matcher could never reconcile, or two entries covering one finding —
       evaluated in check 1, BEFORE any registry round trip.
 - [x] 2.3 `pin-disposition-stale`, exit 2, for a disposition matched by no
-      finding in the run, with the asymmetry argued in the code and in
-      `design.md` § 2.
+      finding in a WHOLE-CORPUS run, with the asymmetry argued in the code and
+      in `design.md` § 2. A NARROWED (`--change`) run applies its dispositions
+      and decides no staleness, and says so in its output — found by running
+      `--change add-composed-view-authoring` against the real corpus and
+      watching it refuse over the other, untouched entry.
 - [x] 2.4 `repository_identity` reads `git config --get remote.origin.url`, so
       a disposition is scoped to one repository and a worktree named for its
       branch is not mistaken for a different tree. `pin-repo-unidentified`
@@ -96,7 +99,7 @@ repoint the very tool that judges its own change.
 
 ## 4. Evidence and tests
 
-- [x] 4.1 79 tests in `tests/openspec_cli_pin/` (was 41), green.
+- [x] 4.1 81 tests in `tests/openspec_cli_pin/` (was 41), green.
 - [x] 4.2 Two CAPTURED REAL `1.12.0` reports committed as fixtures, covering
       both array keys the tool emits.
 - [x] 4.3 `evidence/pin-bump-1.12-2026-09-05.md`, `Status: record`: the
@@ -109,7 +112,9 @@ repoint the very tool that judges its own change.
       **47 passed / 0 failed (47 items)**, exit 0, no disposition in scope.
 - [x] 4.5 The stale path is exercised by a test that runs the SAME pin against a
       corpus in which the finding no longer occurs — the state the day
-      `add-composed-view-authoring` archives — and asserts exit 2.
+      `add-composed-view-authoring` archives — and asserts exit 2; and its
+      counterpart asserts that a NARROWED run applies its dispositions, decides
+      no staleness, and declares that it did not.
 
 ## 5. Exit 3 — drafted, NOT taken
 

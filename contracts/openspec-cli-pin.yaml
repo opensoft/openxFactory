@@ -133,7 +133,10 @@ kind: pinned_contract_manifest
 #     `add-composed-view-authoring` has ONE open task left and archives the
 #     moment a human takes it; on that day its finding vanishes from every run
 #     and this pin must fail until its entry is deleted, so that the archive
-#     itself is the event that forces the re-reading.
+#     itself is the event that forces the re-reading. ONLY A WHOLE-CORPUS
+#     (`--all`) RUN DECIDES THIS: a `--change <id>` run legitimately never
+#     opens the items it was not asked about, so it applies its dispositions,
+#     decides no staleness, and says in its output that it checked none.
 #   * SCOPED BY REPOSITORY, because one pin governs the whole estate and this
 #     entrypoint is invoked with `--repo` against consuming trees that carry
 #     none of openxFactory's changes. Without `repo:`, a change absent because

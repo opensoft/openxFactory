@@ -40,7 +40,8 @@ SIX CHECKS, ORDERED, FIRST FAILURE WINS.
   4. the resolved binary REPORTS the pinned version
   5. `openspec validate <target> --strict` runs, and its findings are read
   6. every ERROR-level finding is matched by exactly one IN-SCOPE disposition,
-     and every in-scope disposition is matched by a finding that STILL OCCURS
+     and — on a WHOLE-CORPUS scan — every in-scope disposition is matched by a
+     finding that STILL OCCURS
 
 DISPOSITIONS, AND WHY THE MECHANISM EXISTS AT ALL. A pinned tool is a foreign
 judgment about a local corpus, and the two can genuinely disagree. Measured at
@@ -78,6 +79,13 @@ suppressing a class of finding nobody re-examined. Refusing makes the archive
 itself the event that forces the re-examination. Dispositions are therefore
 UPGRADE-COUPLED and ARCHIVE-COUPLED: they are re-derived at every pin bump and
 retired the moment their finding stops occurring.
+
+ONLY `--all` DECIDES STALENESS. "This finding no longer occurs" is a claim about
+the whole corpus, so a `--change <id>` run — which legitimately never opens the
+changes it was not asked about — APPLIES dispositions and reports none stale,
+and says in its output that it checked none. A narrowed run that refused would
+make the entrypoint unusable for exactly the single-change validation this pin
+provides for.
 
 SCOPE, AND WHY A DISPOSITION NAMES A REPOSITORY. One pin file governs every
 repository in the estate, and this entrypoint is invoked with `--repo` against
@@ -1089,9 +1097,9 @@ def render_findings(findings: list[dict]) -> None:
 # check 6 — findings against declared dispositions, in both directions
 # --------------------------------------------------------------------------
 
-def reconcile(findings: list[dict], dispositions: list[dict],
-              identity: str) -> tuple[list[tuple[dict, dict]], list[dict],
-                                      list[dict]]:
+def reconcile(findings: list[dict], dispositions: list[dict], identity: str,
+              corpus_wide: bool) -> tuple[list[tuple[dict, dict]], list[dict],
+                                          list[dict]]:
     """Match blocking findings to in-scope dispositions, BOTH WAYS.
 
     Returns `(applied, undispositioned, stale)`:
@@ -1113,6 +1121,18 @@ def reconcile(findings: list[dict], dispositions: list[dict],
     and the redundant one would then never go stale — a permanent, invisible
     suppression sitting behind a live one. So a duplicate is refused as a
     malformed pin rather than tolerated as harmless.
+
+    STALENESS IS ONLY DECIDED BY A WHOLE-CORPUS SCAN, and `corpus_wide` is what
+    says whether this run was one. "This finding no longer occurs" is a claim
+    about the WHOLE corpus, and only `--all` scans the whole corpus: a
+    `--change <id>` run legitimately does not produce the findings of the
+    changes it did not open, and reporting those dispositions as stale would
+    make the entrypoint unusable for the single-change validation
+    `neutral-product-pin` explicitly provides for. Dispositions still APPLY in a
+    narrowed run — an author validating one dispositioned change must not be
+    told to fix a finding this pin has accepted — and the caller SAYS SO in the
+    output, so a green narrowed run is never mistaken for having audited the
+    list.
     """
     in_scope = [entry for entry in dispositions if entry.get("repo") == identity]
     keyed: dict[tuple[str, str, str], dict] = {}
@@ -1141,12 +1161,13 @@ def reconcile(findings: list[dict], dispositions: list[dict],
             continue
         matched.add(key)
         applied.append((entry, row))
-    stale = [entry for key, entry in keyed.items() if key not in matched]
+    stale = ([entry for key, entry in keyed.items() if key not in matched]
+             if corpus_wide else [])
     return applied, undispositioned, stale
 
 
 def report_dispositions(identity: str, applied: list[tuple[dict, dict]],
-                        stale: list[dict]) -> None:
+                        stale: list[dict], corpus_wide: bool) -> None:
     """Print every applied exception BY NAME, before any verdict is announced.
 
     THIS IS NOT DECORATION AND IT IS NOT OPTIONAL. A run that suppresses two
@@ -1174,6 +1195,10 @@ def report_dispositions(identity: str, applied: list[tuple[dict, dict]],
         print(f"        cited to: {'; '.join(entry.get('cited_to') or [])}",
               flush=True)
         print(f"        accepted by: {authority}", flush=True)
+    if not corpus_wide:
+        print("  (this run scanned named targets, not the whole corpus, so "
+              "NO disposition was checked for staleness here — only `--all` "
+              "can establish that a finding no longer occurs)", flush=True)
 
 
 # --------------------------------------------------------------------------
@@ -1339,9 +1364,10 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"Totals: {totals.get('passed', 0)} passed, "
                       f"{totals.get('failed', 0)} failed "
                       f"({totals.get('items', 0)} items)", flush=True)
+                corpus_wide = any("--all" in argv for argv in targets)
                 applied, undispositioned, stale = reconcile(          # check 6
-                    findings, dispositions, identity)
-                report_dispositions(identity, applied, stale)
+                    findings, dispositions, identity, corpus_wide)
+                report_dispositions(identity, applied, stale, corpus_wide)
                 if stale:
                     raise PinRefusal(
                         "pin-disposition-stale",

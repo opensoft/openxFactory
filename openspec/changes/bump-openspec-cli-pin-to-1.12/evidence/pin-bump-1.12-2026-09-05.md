@@ -187,16 +187,16 @@ than the brief expected; the material fact, **0 failed**, is unchanged.
 
 ```
 pytest tests/openspec_cli_pin/ -q
-79 passed
+81 passed
 ```
 
-41 before this packet, 79 after. The 41 that existed are unchanged in substance
+41 before this packet, 81 after. The 41 that existed are unchanged in substance
 and still assert the five original checks, their ORDER, the refusal vocabulary,
 the cache's re-verification property and the gate workflow's freedom from a
 second copy of the version; only the version CONSTANTS moved, and the two
 PATH-mode tests now use `1.2.0` as the wrong version rather than `1.12.0`.
 
-The 38 new ones cover: the disposition grammar and its two admitted YAML forms
+The 40 new ones cover: the disposition grammar and its two admitted YAML forms
 (with a negative control for the forms that are not admitted); the mandatory
 citation and authority, parameterized over every field whose absence makes an
 entry unreviewable; duplicate entries; both `--json` array shapes parsed from
@@ -220,6 +220,23 @@ run must exit 2 with `pin-disposition-stale`, name the orphaned entry, and carry
 the remediation trailer. A second test proves the upgrade-coupling half of the
 same property: a finding whose message has been REWORDED (a later CLI) also
 refuses, because the disposition matches the message whole.
+
+**And its boundary, found by running the tool.** `--change
+add-composed-view-authoring` against the real corpus REFUSED, over
+`add-chain-attestation`'s untouched entry, because a scan that never opens that
+change cannot produce its finding. Staleness is a claim about the WHOLE corpus,
+so only `--all` decides it: a narrowed run now applies the dispositions it
+matches, decides no staleness, and PRINTS that it checked none, so a green
+narrowed run is never mistaken for an audit of the list. Both halves are held by
+tests. Verified against the real corpus after the fix:
+
+```
+$ python3 scripts/validate-openspec-cli-pin.py --change add-composed-view-authoring
+  ✗→D add-composed-view-authoring / ideation-dashboard/spec.md …
+  (this run scanned named targets, not the whole corpus, so NO disposition was checked for staleness here — only `--all` can establish that a finding no longer occurs)
+OK openspec-cli-pin: … 0 UNDISPOSITIONED failures. THIS IS NOT A CLEAN TREE: 1 finding(s) are ACCEPTED EXCEPTIONS, named above.
+                                                                        (exit 0)
+```
 
 ---
 

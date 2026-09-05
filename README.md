@@ -507,7 +507,9 @@ Active changes:
   names one repository, one item, one delta path and the finding's text matched
   WHOLE, carries a non-empty `cited_to:` and a `ratified_by:`, and is PRINTED BY
   NAME on every run so a pass cannot be mistaken for a clean tree. **A
-  disposition matched by NO finding REFUSES** (`pin-disposition-stale`, exit 2):
+  disposition matched by NO finding in a WHOLE-CORPUS run REFUSES**
+  (`pin-disposition-stale`, exit 2; a narrowed `--change` run applies its
+  dispositions, decides no staleness and says so):
   `add-composed-view-authoring` has one open box left, and the day it archives
   this pin fails until its entry is deleted — the archive forcing the re-reading,
   by design. Dispositions are scoped by repository (identity read from the git
@@ -516,7 +518,7 @@ Active changes:
   applies neither and is correctly reported *clean*. **A pin with no
   `dispositions:` takes the original streaming path** — no `--json`, no parsing,
   no git call — so the 1.2.0-era behaviour is a branch rather than a promise.
-  Tests 41 → **79**, including both `--json` array shapes parsed from CAPTURED
+  Tests 41 → **81**, including both `--json` array shapes parsed from CAPTURED
   REAL 1.12.0 bytes and an offline reconciliation of the pin's own `finding:`
   strings against them. **The old binary on PATH is now REFUSED**
   (`pin-version-mismatch`), demonstrated in the record. **Exit 3 is DRAFTED AND

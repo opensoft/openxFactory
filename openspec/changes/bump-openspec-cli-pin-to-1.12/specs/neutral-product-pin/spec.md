@@ -25,7 +25,13 @@ check produces findings the old exceptions do not describe. A pin that carried
 its predecessor's exceptions forward unexamined would be granting exemptions in
 the name of a judgment nobody made.
 
-A DISPOSITION MATCHED BY NO FINDING SHALL REFUSE THE RUN. An exception that
+A DISPOSITION MATCHED BY NO FINDING IN A WHOLE-CORPUS SCAN SHALL REFUSE THE
+RUN, and a NARROWED scan SHALL NOT decide staleness at all — "this finding no
+longer occurs" is a claim about the whole corpus, and a run over named targets
+legitimately never opens the items it was not asked about. A narrowed run SHALL
+still APPLY the dispositions it matches, and SHALL state that it checked none
+for staleness, so a green narrowed run is never mistaken for an audit of the
+list. An exception that
 outlives the condition it was granted for is a standing exemption nobody
 re-reads, and the moment that makes it stale — the change archiving out of the
 scanned corpus, or the tool ceasing to report it — is precisely the moment a
@@ -61,6 +67,11 @@ false by omission.
 - **WHEN** a declared disposition is matched by no finding in the run — its change archived, or the tool no longer reports it
 - **THEN** the run REFUSES with a named exit until the disposition is removed
 - **AND** the refusal is a defect of the pin rather than of the deltas, so its remedy is an edit to the pin file
+
+#### Scenario: A run opens only named targets
+- **WHEN** the pinned validator is invoked over named items rather than the whole corpus
+- **THEN** the dispositions matching those items are applied, and NO disposition is reported stale
+- **AND** the run states that staleness was not checked, a narrowed scan being unable to establish that a finding no longer occurs
 
 #### Scenario: A finding is reported that no disposition covers
 - **WHEN** the pinned tool reports a blocking finding that no in-scope disposition matches
