@@ -127,7 +127,9 @@ repoint the very tool that judges its own change.
 
 ## 6. Owed, and named rather than discovered later
 
-- [ ] 6.1 Ratification of this packet's text by Brett Heap, recorded as a
+- [x] 6.1 **(DONE 2026-09-05 — `review/ratification-2026-09-05.md`, verbatim "ratify 677"
+      heard first-hand by opsXfactory-1; the merge preceded the record on Brett's word
+      in the authoring lane, and the record says so.)** Ratification of this packet's text by Brett Heap, recorded as a
       `Ratified by:` line and a `review/` record. *"take exit 2"* settled the
       approach and not the text.
 - [ ] 6.2 `.github/workflows/pytest-suite.yml`'s literal
