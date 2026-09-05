@@ -5,7 +5,11 @@ target_release: repository-bootstrap — the `implement-keycloak-install-repo` /
 
 # Proposal: implement-omniworker-install-repo
 
-Status: draft
+Status: ratified
+Ratified: Brett Heap, 2026-09-05 — "ratify 680 and merge 16", on openxFactory PR #680
+at head `91866619` (ratified AS AUTHORED; the commit carrying this line lands after that
+head and records it). The naming record `docs/omniworker-naming.md` flips to `Status:
+ratified` in the same commit; task 1.1 is ticked; nothing else moves.
 Proposed: 2026-09-05 — Brett Heap's in-session rulings of ~14:15Z, quoted
 verbatim under "Origin" below. Not the exit of a staged topic; the origin
 declaration is `ad_hoc` and says why.

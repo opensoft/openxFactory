@@ -1,6 +1,6 @@
 # omniWorker — Product And Machine Naming Record
 
-Status: draft
+Status: ratified
 Ratified by: implement-omniworker-install-repo
 Kind: reference
 Repository context: openxFactory
@@ -10,15 +10,14 @@ host material out of `Omnigent-Install`, the reprovision of the first Cloud
 PC, and every consumer re-pin all build on one settled term instead of three
 spellings settled separately.
 
-**This record is `Status: draft` and it is draft on purpose.** The decision
-below is LOCKED — it is Brett Heap's, taken in session on 2026-09-05, and
-nothing here is offered for reconsideration. What is not yet true is the
-lifecycle ratification: `Ratified by:` names
+**This record is `Status: ratified` as of 2026-09-05.** The decision below is LOCKED — it is
+Brett Heap's, taken in session on 2026-09-05 — and its lifecycle ratification is his word
+"ratify 680 and merge 16" on openxFactory PR #680 (head `91866619`), the PR of
 [`implement-omniworker-install-repo`](../openspec/changes/implement-omniworker-install-repo/proposal.md),
-the change that performs the split, and this header flips to
-`Status: ratified` when that change lands. Naming a change that has not landed
-is the same shape `docs/openxdox-naming.md` used at its own authoring, and for
-the same reason: the ruling is the authority, the change is the record.
+the change that performs the split; `Ratified by:` names that change and its landing carries
+this record. The record was authored `Status: draft` naming a change that had not landed,
+the same shape `docs/openxdox-naming.md` used at its own authoring and for the same reason:
+the ruling is the authority, the change is the record.
 
 ## Decision (LOCKED — Brett Heap, 2026-09-05)
 

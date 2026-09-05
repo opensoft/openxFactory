@@ -19,11 +19,13 @@ which are the two nearest repository-creation precedents in this corpus.
 
 ## 1. Naming ratification and boundary (openxFactory; this change's own PR)
 
-- [ ] 1.1 Ratify this packet. Brett Heap's word on the PR or on the governing
+- [x] 1.1 Ratify this packet. Brett Heap's word on the PR or on the governing
       issue; the packet is `Status: draft` until then, and the four rulings it
       quotes (name, scope, template, reprovision) are the authority for those
       four facts only — not for the boundary, the split table, or the
       choreography, which are this packet's proposals.
+      Recorded 2026-09-05: Brett Heap, "ratify 680 and merge 16", on PR #680 at head
+      `91866619`; proposal `Status: ratified` + `Ratified:` line; naming record `Status: ratified`.
 - [ ] 1.2 On landing, flip `docs/omniworker-naming.md` from `Status: draft` to
       `Status: ratified`. `Ratified by: implement-omniworker-install-repo`
       already names this change; the lifecycle ratification IS this change
