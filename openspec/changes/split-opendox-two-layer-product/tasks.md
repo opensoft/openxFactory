@@ -205,6 +205,38 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   assembly root, a pytest suite and a required check in each of the FOUR legs
   (the scaffold's `validate.yml` covers the two assembly roots only), and 1.5's
   rulesets.
+  *(Corrected by reality check 2026-09-05 (lane
+  openxfactory-4-opendox-extraction), re-measured against a fresh
+  `openRepoShape` clone at tip `e9c4827b85f50503bbdd9e5b4fac9d6c3d0baf63` and,
+  in a worktree, at `122d729bc0c2f2e0ded0bb61b6b97f49512f613e` — pinned when
+  this check ran (2026-09-05, before PR #700 re-pinned to `e9c4827b` at
+  21:50Z) — the "and nothing else" list above is wrong at BOTH revisions, and
+  differently. AT THE PIN OF THAT MOMENT, `122d729b`, a `--local-remote-dir`
+  materialization (no network,
+  nothing created on GitHub) writes three assembly-root files the list above
+  omits: `scripts/repo_shape.py`, `scripts/validate-repository-naming.py` and
+  `contracts/repository-naming.yaml` — copied out of `openRepoShape`'s own
+  tree so the project carries the standard it was cut from, each carrying a
+  row in the project's own `contracts/shape-pin.yaml` (9 rows at the pin), so
+  a realizer who deletes one as unaccounted-for turns `scripts/validate-pins.py`
+  red on the first push. Fifteen assembly-root files at the pin, not twelve;
+  the three-file leg list IS exact there. AT `355f6ef4` — the exact commit
+  `tasks.md` § 1.1a already names as the re-pin target, so it is the revision
+  1.1/1.2 will actually run at once unblocked, never the pin above — the tool
+  ALSO writes `AGENTS-shape.md`, `AGENTS.md` and `CLAUDE.md` into the assembly
+  root (ten `shape-pin.yaml` rows) and a rendered `AGENTS.md` plus a one-line
+  `CLAUDE.md` (`Read AGENTS.md.`) into EACH leg (openRepoShape PR #30,
+  `99b3774`, an ancestor of `355f6ef4`): eighteen assembly-root files, five per
+  leg. This makes "`AGENTS.md`/`CLAUDE.md`" in the hand-act sentence above
+  FALSE in operation — the tool writes them from `355f6ef4` onward, the only
+  revision the blocked 1.1/1.2 will ever run at. `AGENTS-shape.md` is itself
+  digest-pinned in the scaffolded project's own `contracts/shape-pin.yaml` —
+  never hand-edit it; edits belong in the generated `AGENTS.md`, deliberately
+  left unpinned. Every other item in the hand-act sentence (LICENSE, 1.4's
+  four posture files, `.github/CODEOWNERS`, the OpenSpec instance,
+  `contracts/manifest.yaml`/`CHANGELOG.md`, the FOUR legs' pytest suite and
+  required check, 1.5's rulesets) is unaffected and holds at every revision
+  checked.)*
 - [ ] 1.4 `[oD]` `[oXd]` **PUBLIC FROM DAY ONE MEANS A POSTURE EXISTS AT CREATION**,
   not after the first outside issue: `CONTRIBUTING.md`, `SECURITY.md` (a
   security-report path that is not an issue) and `CODE_OF_CONDUCT.md`. Retro-fitting
@@ -245,7 +277,44 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   because a descendant scaffolded the same way is three repositories, and a leg
   name nobody registered is exactly the name somebody creates by hand. STILL
   CREATING NONE: eighteen descendant names plus one install name, zero
-  repositories.)*
+  repositories.)* *(Corrected by reality check 2026-09-05 (lane
+  openxfactory-4-opendox-extraction): "eighteen" is arithmetic wrong, at every
+  `openRepoShape` revision checked (tip `e9c4827b` and `122d729b` — the pin
+  of that moment, before PR #700 re-pinned to `e9c4827b` at 21:50Z — give
+  byte-identical leg counts). Five descendants are named above — `MedxDox`,
+  `codexDox`, `LedgerxDox`, `AdxDox`, `OpsxDox` — each three names (the assembly
+  name plus its two leg names, confirmed by `scaffold-project.py --dry-run` at
+  both revisions and by `scripts/validate-repository-naming.py --explain`
+  classifying all fifteen as `project-leg`): 5 × 3 = **fifteen** descendant
+  names, not eighteen. A sixth descendant would be needed to reach eighteen, and
+  none exists anywhere in this packet — reproducible as
+  `grep -ohE '(^|[^[:alnum:]_])[A-Za-z]+xDox([^[:alnum:]_]|$)'
+  proposal.md design.md tasks.md | sed -E 's/^[^A-Za-z]*//; s/[^A-Za-z]*$//' |
+  sort -u`, run from `openspec/changes/split-opendox-two-layer-product/` — the
+  pattern is POSIX ERE with no Perl-style escapes (no `\b`, which POSIX ERE
+  does not define and GNU grep accepts only as an extension; the boundary here
+  is a bracket-class alternative, stripped afterward with `sed`); the `-o`/`-h`
+  options are GNU/BSD grep extensions (available on Linux and macOS), not
+  POSIX-required, and returns
+  SEVEN distinct strings (`AdxDox`, `LedgerxDox`, `MedxDox`, `OpsxDox`,
+  `codexDox`, `medxDox`, `openxDox`), not five, because the broad pattern also
+  catches two non-descendant artifacts: `medxDox`, a lowercase casing variant
+  appearing exactly ONCE, inside Brett Heap's verbatim quoted founding utterance
+  at `proposal.md`:59 ("We then further pin that down to medxDox and CodeXdox
+  …"), never as a declared descendant name (the packet's own registration in
+  `tasks.md` § 1.7 spells it `MedxDox`); and `openxDox`, the case-folded
+  ALSO-ACCEPTED spelling of `openXdox` itself named twice in the pin-chain
+  discussion (`tasks.md`:347, `design.md`:868 — "`openXdox`.casefold() equals
+  `openxDox`.casefold()"), not a sixth descendant. Excluding those two
+  artifacts, `grep -owhE 'MedxDox|codexDox|LedgerxDox|AdxDox|OpsxDox'
+  proposal.md design.md tasks.md | sort -u | wc -l` — the pattern is POSIX ERE
+  with no Perl-style escapes, so no `\b` is needed; the `-o`/`-h`/`-w` options
+  are GNU/BSD grep extensions (available on Linux and macOS), not
+  POSIX-required. Returns **5**: the five names above are the only
+  declared descendant base names in the packet. Read "fifteen descendant names —
+  five descendants × three names each, the assembly name plus its two leg
+  names — plus one install name, zero repositories" in place of the
+  eighteen-count above; the rest of the sentence is unaffected.)*
 - [ ] 1.8 `[xF]` Aggregation `CLAUDE.md` working rule #1 amended: it accommodates a
   neutral `open*` product `openxFactory` pins, and does NOT yet accommodate a
   neutral product that is an APPLICATION WITH A SCHEMA rather than a contract
