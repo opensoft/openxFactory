@@ -1093,6 +1093,27 @@ class TheLaneRunsUnderADeclaredBinding(unittest.TestCase):
                          floored["grants"])
         self.assertTrue(floored["reason"].strip())
 
+    def test_the_token_is_scoped_to_the_bindings_two_repositories(self) -> None:
+        """Scenario: The binding is least-privilege and says what it is for.
+
+        The MINT is held to the binding too, not just the workflow's
+        `permissions:` block. `owner:` alone yields a token good for every
+        repository the App is installed on in this organization; this token can
+        push and open pull requests, so it is scoped to exactly the two
+        repositories the binding's `privileges:` entries name — and the two
+        lists are required to be equal here rather than merely both present.
+        """
+        mint = next(step for step in LANE_DOC["jobs"]["review-lane-repin"]["steps"]
+                    if str(step.get("uses", "")).startswith(
+                        "actions/create-github-app-token"))
+        scoped = {line.strip() for line in mint["with"]["repositories"].split()
+                  if line.strip()}
+
+        declared = {
+            self.binding["privileges"][key]["repository"].split("/", 1)[1]
+            for key in ("source_repository", "floored_repository")}
+        self.assertEqual(declared, scoped)
+
     def test_the_workflow_grants_exactly_what_the_binding_declares(self) -> None:
         """Scenario: The binding is least-privilege and says what it is for.
 

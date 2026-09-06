@@ -179,6 +179,23 @@ jobs:
           app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
           private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
+          # SCOPED TO THE TWO REPOSITORIES THE BINDING NAMES, AND NOT ONE MORE.
+          # `pytest-suite.yml:318-324` mints the same App with `owner:` alone,
+          # which yields a token good for EVERY repository the App is installed
+          # on in this organization. That is right there — it is a read for a
+          # `continue-on-error` step — and it is too wide here, because this
+          # token can PUSH and OPEN PULL REQUESTS. A binding that declares
+          # least privilege and then mints an org-wide token would be declaring
+          # one thing and doing another.
+          #
+          # The list is the binding's own two `privileges:` entries, in the
+          # same order, and `test_the_token_is_scoped_to_the_bindings_two_repositories`
+          # holds the two in agreement. If the App is not installed on both,
+          # this step FAILS — which is the loud refusal the binding asks for,
+          # not a degradation.
+          repositories: |
+            openxFactory
+            codexFactory
 
       - name: Check out this repository
         uses: actions/checkout@v4

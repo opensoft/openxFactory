@@ -132,6 +132,17 @@ resolution:
   resolved_by: review_lane_repin_workflow_only
   fetch_identity: github_actions_repository_secret
   materialization: ephemeral_job_scope
+  # THE MINT IS SCOPED TO THE TWO REPOSITORIES `privileges:` NAMES, and to no
+  # other. `owner:` alone would yield a token good for every repository this App
+  # is installed on in the organization -- acceptable for a read in a
+  # `continue-on-error` step, which is what `pytest-suite.yml:318-324` does with
+  # it, and too wide for a token that can PUSH and OPEN PULL REQUESTS. The
+  # workflow's `repositories:` list and the two `privileges:` entries below are
+  # held EQUAL by
+  # `tests/review_lane_pin/test_repin_lane.py::test_the_token_is_scoped_to_the_bindings_two_repositories`,
+  # so this declaration cannot drift from the mint. An App not installed on both
+  # makes the mint FAIL, which is the refusal this binding asks for.
+  scoped_to: [openxFactory, codexFactory]
   # REFERENCES, NEVER VALUES. These are the names the workflow reads; the key
   # material lives in GitHub's secret store and in the owner's custody.
   references:
