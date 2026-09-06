@@ -59,7 +59,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from conftest import REPO_ROOT  # noqa: F401  (sys.path side effect)
+from conftest import REPO_ROOT  # used below to read the serving path's own sources
 
 from ideation_dashboard import gate_console as gc
 from ideation_dashboard import intent_apply_lane as lane
@@ -467,6 +467,21 @@ def _import_roots(tree) -> set[str]:
 
 
 def _assert_no_authority(tree, label: str) -> None:
+    # Forbidden import ROOTS first (Copilot round 1): `_import_roots` reads
+    # `alias.name` / `node.module` — the spelling of the MODULE being
+    # imported — never the locally bound name, so it catches `import os as o`
+    # and `from os import environ as e` alike. Named-spelling scanning below
+    # cannot: an aliased `from os import environ as e` binds `e`, and `e` is
+    # not `environ`, so the second pass would see nothing to object to.
+    forbidden_roots = sorted(_import_roots(tree) & FORBIDDEN_IMPORT_ROOTS)
+    assert not forbidden_roots, (
+        f"{label} imports {forbidden_roots} — a credential/process/network-"
+        "bearing module, however the name is bound locally (an aliased "
+        "`from X import Y as Z` or `import X as Y` still names the root "
+        "module X) — the hosted serving path must hold no credential, spawn "
+        "nothing, open no socket and write nothing (design D16; spec 'The "
+        "serving pod stays credential-free')")
+
     spellings = _named_spellings(tree)
     for forbidden in FORBIDDEN_SPELLINGS:
         offenders = sorted(n for n in spellings
@@ -475,6 +490,29 @@ def _assert_no_authority(tree, label: str) -> None:
             f"{label} names {offenders} — the hosted serving path must hold "
             "no credential, spawn nothing, open no socket and write nothing "
             "(design D16; spec 'The serving pod stays credential-free')")
+
+
+def test_assert_no_authority_catches_an_aliased_forbidden_import():
+    """Negative control (Copilot round 1). `_assert_no_authority` scanned only
+    Name/Attribute spellings, so an aliased import escaped it entirely:
+    `from os import environ as e` binds `e`, which matches no entry in
+    FORBIDDEN_SPELLINGS, even though the import is of `os`. The fix reads the
+    import statement itself (`_import_roots`, keyed on the MODULE name, not
+    the bound name) rather than trusting the AST spellings the module's body
+    happens to use — `import os as o` is the same escape and is checked too.
+    """
+    aliased_from = ast.parse(
+        "from os import environ as e\n"
+        "\n"
+        "def handler():\n"
+        "    return e.get('DISPATCH_TOKEN')\n")
+    with pytest.raises(AssertionError, match=r"imports \['os'\]"):
+        _assert_no_authority(aliased_from, "fixture")
+
+    aliased_import = ast.parse("import os as o\n\ndef handler():\n"
+                               "    return o.environ.get('DISPATCH_TOKEN')\n")
+    with pytest.raises(AssertionError, match=r"imports \['os'\]"):
+        _assert_no_authority(aliased_import, "fixture")
 
 
 def test_serving_pod_is_credential_free(tmp_path, monkeypatch):
@@ -519,9 +557,9 @@ def test_serving_pod_is_credential_free(tmp_path, monkeypatch):
     feed_src = (REPO_ROOT / "scripts" / "ideation_dashboard"
                 / "intent_feed.py").read_text("utf-8")
     feed_tree = ast.parse(feed_src)
-    assert not (_import_roots(feed_tree) & FORBIDDEN_IMPORT_ROOTS), (
-        "intent_feed imports a credential/process/network-bearing module: "
-        f"{sorted(_import_roots(feed_tree) & FORBIDDEN_IMPORT_ROOTS)}")
+    # (the import-root check folded into `_assert_no_authority` below covers
+    # what a standalone `_import_roots(feed_tree) & FORBIDDEN_IMPORT_ROOTS`
+    # assertion used to check here, and catches an aliased import too)
     _assert_no_authority(feed_tree, "intent_feed")
 
     # ...and the serve handler that calls it: parsing a query string and
