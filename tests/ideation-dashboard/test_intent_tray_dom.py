@@ -121,7 +121,8 @@ const json = (status, payload) => async () => ({
 _HARNESS = _DOM_SHIM + """
 import { mountDisposeTray, GATE_DISPOSE_ROUTE } from './dispose.js';
 import { mergeFeeds, readEmission, renderIntentChips, refusalLine,
-         startIntentFeed, intentCapable, statesByTarget } from './intent-feed.js';
+         startIntentFeed, intentCapable, statesByTarget,
+         emitIntent } from './intent-feed.js';
 
 const results = {};
 const REV = '0123456789abcdef0123456789abcdef01234567';
@@ -443,6 +444,38 @@ const POSSIBLE = { id: 'pos-derived-x' };
     results.i13_stalled_kind, results.i13_error_kind]).size === 5;
 }
 
+// ---- snapshot_rev_seen must be the FULL commit id, not an abbreviation -----
+{
+  const abbrevFetcher = recorder({});      // any call reaching here is the bug
+  const rowAbbrev = new Node('div');
+  mountDisposeTray(rowAbbrev, POSSIBLE, { fetcher: abbrevFetcher,
+    intent: { snapshotRev: '0123456789abcdef', rows: [], error: null } });
+  await click(byClass(rowAbbrev, 'dispose-accepted')[0]);
+  results.snaprev_abbrev_calls = abbrevFetcher.calls.length;
+  results.snaprev_abbrev_kind = panelKinds()[0];
+  results.snaprev_abbrev_msg = panelText()[0];
+
+  const fullFetcher = recorder({
+    '/intents': json(202, { intent: { schema_version: 1, kind: 'gate-intent',
+      actor: 'brett', verb: 'dispose-possible',
+      target: { possible_id: POSSIBLE.id }, args: { outcome: 'accepted' } } }),
+  });
+  const rowFull = new Node('div');
+  mountDisposeTray(rowFull, POSSIBLE, { fetcher: fullFetcher,
+    intent: { snapshotRev: REV, rows: [], error: null } });
+  await click(byClass(rowFull, 'dispose-accepted')[0]);
+  results.snaprev_full_calls = fullFetcher.calls.length;
+  results.snaprev_full_kind = panelKinds()[0];
+
+  // Unit-level too: `emitIntent` itself never reaches the wire on an
+  // abbreviated rev, independent of the tray that calls it.
+  const directFetcher = recorder({});
+  const direct = await emitIntent({ verb: 'dispose-possible',
+    targetId: POSSIBLE.id, snapshotRev: 'abc123', fetcher: directFetcher });
+  results.snaprev_direct_calls = directFetcher.calls.length;
+  results.snaprev_direct_state = direct.state;
+}
+
 console.log(JSON.stringify(results));
 """
 
@@ -708,3 +741,30 @@ def test_i8_the_capability_probe_reads_the_new_key_only(tmp_path):
     mutually exclusive and a tray that confused them would execute locally what
     it was asked to request."""
     assert _run(tmp_path)["i8_capability"] == [False, False, True]
+
+
+# ---- snapshot_rev_seen: full commit id, not an abbreviation ----------------
+
+def test_an_abbreviated_snapshot_rev_never_reaches_the_wire(tmp_path):
+    """Design D4's stale-view guarantee only holds for the FULL revision the
+    header renders: the lane resolves an abbreviated rev to a full one before
+    digesting, so a truthy-but-abbreviated rev would still decide correctly
+    server-side but join wrongly against the header's own full rendering.
+    `emitIntent` used to accept anything truthy; it must refuse an
+    abbreviation locally, before the wire, exactly like a missing revision —
+    so the click never becomes a POST and the panel says why."""
+    r = _run(tmp_path)
+    assert r["snaprev_abbrev_calls"] == 0
+    assert r["snaprev_abbrev_kind"] == "not sent"
+    assert "not a full commit id" in r["snaprev_abbrev_msg"]
+    # Unit-level, independent of the tray that calls it.
+    assert r["snaprev_direct_calls"] == 0
+    assert r["snaprev_direct_state"] == "error"
+
+
+def test_a_full_commit_id_snapshot_rev_still_posts(tmp_path):
+    """The ordinary path — a full 40-hex `snapshotRev` — is unaffected: the
+    click still reaches the inbox and the panel still reports "queued"."""
+    r = _run(tmp_path)
+    assert r["snaprev_full_calls"] == 1
+    assert r["snaprev_full_kind"] == "queued"

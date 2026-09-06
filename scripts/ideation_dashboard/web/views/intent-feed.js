@@ -55,6 +55,12 @@ export const COMMITTED_INTENTS_ROUTE = "/committed-intents.json";
 export const POLL_MS = 15000;
 export const MAX_POLL_MS = 120000;   // backoff ceiling after repeated errors
 
+// design D4's shape for `snapshotRev`: the FULL commit id, never an
+// abbreviation. The lane resolves an abbreviated rev to a full one before
+// digesting, so an abbreviated submission would still decide correctly but
+// join wrongly against the header's own (full) rendering of the revision.
+const FULL_COMMIT_ID = /^[0-9a-f]{40}$/;
+
 // The verb's one target key - mirrored from the kernel schema and from
 // intent_apply_lane.VERB_TARGET_KEY. The target object MUST carry this key and
 // NOTHING else: the inbox digests the raw target it is handed while the lane
@@ -102,7 +108,9 @@ export function feedActor(caps) {
  * LOOKING at (design D4) and must be the full revision the header renders
  * from, unabbreviated: the lane resolves an abbreviated rev to a full one
  * before digesting, so an abbreviated submission decides correctly but joins
- * wrongly.
+ * wrongly. Checked here against the full 40-hex shape, not merely for
+ * presence, so an abbreviated rev is refused LOCALLY rather than let through
+ * on a truthy check.
  *
  * Returns a normalized outcome - never throws, never leaves a failure on the
  * console only:
@@ -118,6 +126,15 @@ export async function emitIntent(opts) {
     // intent with no viewed revision cannot carry D4's stale-view guarantee.
     return { state: "error",
              message: "no snapshot revision on screen - reload before deciding" };
+  }
+  if (!FULL_COMMIT_ID.test(o.snapshotRev)) {
+    // Same refusal, different reason: a truthy-but-abbreviated rev would
+    // still decide correctly (the lane resolves it) but join wrongly
+    // against the header's own full rendering (design D4) — so this is
+    // refused locally rather than let a shortened id reach the wire.
+    return { state: "error",
+             message: "the snapshot revision is not a full commit id - " +
+               "reload before deciding" };
   }
   const body = {
     verb: o.verb,

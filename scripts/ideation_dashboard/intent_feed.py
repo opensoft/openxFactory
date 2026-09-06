@@ -510,6 +510,53 @@ def bounded_paths(walk, limit: int | None = None) -> tuple[list[Path], bool]:
     return sorted(taken[:cap]), len(taken) > cap
 
 
+def _is_symlink_escape(candidate: Path, base: Path, resolved_base: Path) -> bool:
+    """True if `candidate` (one `base.rglob(...)` match) reaches outside
+    `base` by way of a symlink anywhere along the way. This route is served
+    to an unauthenticated-to-this-pod browser over a directory the reader
+    does not otherwise control, so any one of three things is reason enough
+    to refuse the file rather than read it:
+
+    * the match itself is a symlink (a `*.gate-intent.yaml` symlink planted
+      under the intents tree, pointing anywhere);
+    * a directory BETWEEN `base` and the match is a symlink — i.e. the match
+      was only reached by descending through a symlinked directory, which
+      `rglob` will otherwise follow;
+    * belt and suspenders for both: the fully resolved match is not inside
+      the fully resolved `base` at all (`Path.resolve()` follows every
+      symlink in the path, ordinary-looking components included).
+    """
+    if candidate.is_symlink():
+        return True
+    try:
+        parts = candidate.relative_to(base).parts[:-1]
+    except ValueError:                            # pragma: no cover - defensive
+        return True
+    probe = base
+    for part in parts:
+        probe = probe / part
+        if probe.is_symlink():
+            return True
+    try:
+        resolved = candidate.resolve()
+    except OSError:
+        return True
+    return not resolved.is_relative_to(resolved_base)
+
+
+def _walk_intent_candidates(base: Path, resolved_base: Path,
+                            skip_counter: list[int]):
+    """`base.rglob(...)`, minus anything `_is_symlink_escape` refuses.
+    Skips are tallied into `skip_counter[0]` (a one-element list rather than
+    a return value, so this stays a plain generator the cap-then-open
+    contract in `bounded_paths` can pull from lazily)."""
+    for candidate in base.rglob("*" + INTENT_SUFFIX):
+        if _is_symlink_escape(candidate, base, resolved_base):
+            skip_counter[0] += 1
+            continue
+        yield candidate
+
+
 def read_committed_intents(checkout_root, *, actor: str | None = None,
                            status: str | None = None,
                            target: str | None = None,
@@ -526,11 +573,16 @@ def read_committed_intents(checkout_root, *, actor: str | None = None,
     scanned = 0
     skipped = 0
     truncated = False
+    symlink_skips = [0]
     try:
-        walk = base.rglob("*" + INTENT_SUFFIX) if base.is_dir() else iter(())
+        if base.is_dir():
+            walk = _walk_intent_candidates(base, base.resolve(), symlink_skips)
+        else:
+            walk = iter(())
         paths, truncated = bounded_paths(walk)
     except OSError:
         paths = []
+    skipped += symlink_skips[0]
     for path in paths:
         scanned += 1
         try:

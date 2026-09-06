@@ -352,6 +352,92 @@ def test_an_oversized_file_is_skipped_rather_than_read(tmp_path, monkeypatch):
 
 
 # ==========================================================================
+# symlinks: this route is served to an unauthenticated-to-this-pod browser
+# over a directory the reader does not otherwise control, so a symlink
+# planted under it (file or directory) must never let the reader escape
+# `ideation/dashboard/intents/`.
+# ==========================================================================
+
+def test_a_symlinked_intent_file_pointing_outside_base_is_not_read(tmp_path):
+    """The leaf itself is a symlink: refused before it is ever opened,
+    regardless of what it points at or what it contains."""
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    target = outside / "secret.gate-intent.yaml"
+    target.write_text(
+        BANNER + yaml.safe_dump(_terminal(idempotency_key="k-outside"),
+                                sort_keys=False),
+        encoding="utf-8")
+    where = tmp_path / intent_feed.INTENTS_DIR / "pos-derived-x"
+    where.mkdir(parents=True)
+    (where / "evil.gate-intent.yaml").symlink_to(target)
+    document = intent_feed.read_committed_intents(tmp_path)
+    assert document["intents"] == []
+    assert document["skipped"] == 1
+
+
+def test_a_symlinked_directory_is_not_descended(tmp_path):
+    """A symlinked directory under the intents tree must not be walked at
+    all — nothing behind it may reach the feed. (`Path.rglob` itself already
+    refuses to recurse into a symlinked directory, so nothing is even
+    offered to the reader's own filter to skip; `skipped` stays 0 and the
+    only observable guarantee that matters — nothing behind the symlink
+    leaked into the feed — holds either way.)"""
+    outside = tmp_path / "outside-dir"
+    outside.mkdir()
+    (outside / "k-outside.gate-intent.yaml").write_text(
+        BANNER + yaml.safe_dump(_terminal(idempotency_key="k-outside"),
+                                sort_keys=False),
+        encoding="utf-8")
+    base = tmp_path / intent_feed.INTENTS_DIR
+    base.mkdir(parents=True)
+    (base / "pos-derived-x").symlink_to(outside, target_is_directory=True)
+    document = intent_feed.read_committed_intents(tmp_path)
+    assert document["intents"] == []
+    assert document["skipped"] == 0
+
+
+def test_a_regular_file_is_still_read_beside_a_symlink_escape_attempt(tmp_path):
+    """The fix must not cost the ordinary case: a real committed intent beside
+    a symlink escape attempt is still served, and only the attempt is
+    dropped."""
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    target = outside / "secret.gate-intent.yaml"
+    target.write_text(
+        BANNER + yaml.safe_dump(_terminal(idempotency_key="k-outside"),
+                                sort_keys=False),
+        encoding="utf-8")
+    _write(tmp_path, _terminal(idempotency_key="k-good"))
+    where = tmp_path / intent_feed.INTENTS_DIR / "pos-derived-x"
+    (where / "evil.gate-intent.yaml").symlink_to(target)
+    document = intent_feed.read_committed_intents(tmp_path)
+    assert [r["idempotency_key"] for r in document["intents"]] == ["k-good"]
+    assert document["skipped"] == 1
+
+
+# ==========================================================================
+# the MAX_FILES walk cap, at its real (unmocked) value
+# ==========================================================================
+
+def test_more_than_max_files_intents_is_capped_and_marked_truncated(tmp_path):
+    """`test_the_walk_itself_stops_at_the_cap_rather_than_listing_the_corpus`
+    covers the cap MECHANISM with `MAX_FILES` monkeypatched down to 3; this
+    covers the cap at its real production value, with a real corpus that
+    exceeds it, so the response's own diagnostics (not a patched constant)
+    are what confirm the walk stopped short of the whole directory."""
+    n = intent_feed.MAX_FILES + 2
+    for i in range(n):
+        _write(tmp_path, _terminal(idempotency_key=f"k-{i:05d}"))
+    document = intent_feed.read_committed_intents(
+        tmp_path, limit=intent_feed.MAX_LIMIT)
+    assert document["truncated"] is True
+    assert document["skipped"] == 0
+    assert document["scanned"] == intent_feed.MAX_FILES
+    assert len(document["intents"]) == intent_feed.MAX_LIMIT
+
+
+# ==========================================================================
 # the route
 # ==========================================================================
 
