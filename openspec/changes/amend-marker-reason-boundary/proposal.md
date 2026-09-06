@@ -1,17 +1,21 @@
 ---
 code_surface: openxFactory — `parse_marker` in `scripts/doc_health/modified_block_currency.py` and the tests that pin it in `tests/doc-health/test_modified_block_currency.py`. ONE split is moved: the tail after a unit-naming marker's closing colon is divided at the FIRST ` — ` standing OUTSIDE every code span rather than after the LAST code span, and one new module-level helper (`_reason_boundary`) implements the test. The `Merged into` destination is matched in the PREFIX and is untouched; the third reserved form (`Modified over`) returns before this split and still takes its whole tail, its branch comment corrected where it described the retired rule. NOTHING ELSE MOVES: no severity, no threshold, no arm, no finding class, no path, no disposition rule, no workflow, no contract member and no other family. Seven tests are ADDED beside the existing ones (`tests/doc-health/test_modified_block_currency.py` 121 → 128) and no existing test is edited, because the amended rule agrees with the retired one on every marker whose reason quotes nothing. The delta ALSO ADDS TWO SCENARIOS to the MODIFIED block, at its end, pinning the amended sentence in canon rather than in code alone; no promoted scenario moves, is retitled or loses a bullet.
 target_release: implemented (the openxFactory main line). No contract bundle is cut, nothing under `contracts/` is touched, no digest set moves and no release tag is owed. Under `release-realization` a non-empty code surface archives on merged-plus-green realization evidence rather than on landing; the tasks are individually executable, so this packet realizes through its own task list in this pull request and its realization evidence is that pull request's green `pytest-suite` and doc-health runs.
-Status: draft
+Status: ratified
 Proposed: 2026-09-06
-Origin: openxFactory issue **#692**, filed out of the adversarial review of PR **#685**. THE ORIGIN IS NOT A RATIFICATION: the issue records a defect and a proposed remedy, and no word of Brett Heap's ratifies this text or its design choice. `.openspec.yaml` carries drafting provenance only — no `approved_by`, no `approved_on` — and every document in the packet carries `Status: draft` to match. The decision most worth a veto is `design.md` **D1**: option A (the boundary) against option B (a fenced list of removed units).
+Ratified: 2026-09-06 by Brett Heap (openxFactory operator authority) — "merge 705 when green, then ratify 692"; record at review/ratification-2026-09-06.md
+Origin: openxFactory issue **#692**, filed out of the adversarial review of PR **#685**. THE ORIGIN IS NOT THE RATIFICATION: the issue records a defect and a proposed remedy, and that record is what put this packet in the queue; ratification followed as a SEPARATE act on 2026-09-06, cited ONCE in the line above and recorded at `review/ratification-2026-09-06.md`. `.openspec.yaml` keeps the drafting provenance it was authored with — `kind` and `id` never move — and the approval pair is ADDED beside it, which is the shape `add-drafted-proposal-origin` defined for exactly this transition. The decision the word reaches is `design.md` **D1**: option A (the boundary) against option B (a fenced list of removed units), carried as this packet's veto point in the pull request body, in `tasks.md` § 1.2 and in the README row — **and NOT vetoed**.
 ---
 
 # Proposal: amend-marker-reason-boundary
 
-Status: draft
+Status: ratified
 Proposed: 2026-09-06, in lane `openxfactory-1`.
 Origin: openxFactory issue **#692**. The origin is a defect report, not an
-approval: nothing here is ratified, and § Ratification records what is owed.
+approval; ratification was a SEPARATE act and it has now happened — **ONE
+citation line for this document**, in the front matter, which is what
+`ratified-provenance` counts. § Ratification records the act and what it
+settled; the record is `review/ratification-2026-09-06.md`.
 
 ## Why
 
@@ -219,19 +223,34 @@ MOVEMENT LOG entry is owed.
 
 ## Ratification
 
-**NOT RATIFIED. NO WORD HAS BEEN GIVEN OVER THIS TEXT, and none is implied by
-anything in this packet.** Brett Heap ruled *"do 3 and 4"* — which admits issue
-**#692** to work and instructs a lane to author a remedy; it decides no wording
-and takes no design decision. `tasks.md` § 1 is UNTICKED and names ratification
-as owed, `.openspec.yaml` carries drafting provenance with no approval pair, and
-every document here carries `Status: draft`.
+**RATIFIED 2026-09-06 by Brett Heap (openxFactory operator authority), in
+session, verbatim: _"merge 705 when green, then ratify 692"_.** The citation is
+the front matter's single `Ratified:` line and the record is
+`review/ratification-2026-09-06.md`; the verification run captured beside it is
+`review/verification-2026-09-06.md`. The earlier *"do 3 and 4"* is the ORIGIN —
+it admitted issue **#692** to work and instructed a lane to author a remedy, and
+it decided no wording; this word is the separate act that ratifies the text.
 
-**THE VETO POINT IS `design.md` D1 — option A against option B**, and it is put
-rather than assumed: A moves the boundary and leaves every marker's written form
-alone; B requires the removed units in a fenced list and rewrites every existing
-marker plus the two prose templates that promote into canon. A is designed; B is
-written out beside it with its cost. A veto of A is a veto of this delta's one
-sentence, and the packet does not land on it.
+**THE VETO POINT WAS PUT AND WAS NOT TAKEN.** `design.md` **D1** — option A
+(the reason begins at the first ` — ` standing outside every code span) against
+option B (require the removed units in a fenced list) — was named as this
+packet's veto point in the pull request body, in `tasks.md` § 1.2 and in the
+README row, with B written out beside A carrying its four costs. The word
+ratifies **option A as designed**, **and it ratifies A's stated cost with it**:
+the conservative narrowing recorded above under *What that sentence does not
+say* — a code span standing AFTER the boundary names nothing, so a
+`document-lifecycle`-conforming author who separates two names with ` — ` now
+declares only the first — is a NEW failure mode this amendment creates, it is
+SILENTLY corrected today, and its reporting is scoped into the owed successor at
+`tasks.md` § 5.1 rather than taken here.
+
+**WHAT THE WORD DOES NOT REACH.** It does not archive this packet: `code_surface`
+is non-empty, so under `release-realization` the archive is a separate act on
+merged-plus-green realization evidence and on a separate word (`tasks.md` § 5.5).
+It does not reach `specs/019-modified-block-currency-family` FR-016 and reading
+A1 (§ 5.3), the estate-wide run (§ 5.4), or `suppression`'s third resolution
+(§ 5.1). All four were present in the text the word was given over, and all four
+remain owed.
 
 ## What this proposal does NOT claim
 

@@ -499,11 +499,18 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [amend-marker-reason-boundary](openspec/changes/amend-marker-reason-boundary/proposal.md)
-  — authored 2026-09-06, **`Status: draft`** (NOT ratified; no word has been
-  given over this text), lane `openxfactory-1`, on Brett Heap's *"do 3 and 4"*,
-  which admits openxFactory
-  [#692](https://github.com/opensoft/openxFactory/issues/692) to work and
-  instructs a lane to author a remedy — an ORIGIN, not an approval. **ONE
+  — authored 2026-09-06, **`Status: ratified`** (2026-09-06, Brett Heap,
+  openxFactory operator authority, in-session, *"merge 705 when green, then
+  ratify 692"*; records
+  `openspec/changes/amend-marker-reason-boundary/review/ratification-2026-09-06.md`
+  and `verification-2026-09-06.md`). `.openspec.yaml` keeps the drafting
+  provenance it was authored with and the approval pair is ADDED beside it —
+  `kind` and `id` unmoved, the addition-not-rewrite shape
+  `add-drafted-proposal-origin` defined. Lane `openxfactory-1`; the ORIGIN is
+  openxFactory [#692](https://github.com/opensoft/openxFactory/issues/692) and
+  Brett Heap's earlier *"do 3 and 4"*, which admitted the issue to work and
+  instructed a lane to author a remedy — an origin, not an approval, and the
+  ratification is the separate act above. **ONE
   PROMOTED SENTENCE, AND IT IS THE ONE THE CHECKER CONFORMS TO.** `doc-health`'s
   *Currency of an active change's MODIFIED requirement blocks* says with a SHALL
   that a reserved marker's *"reason is everything after the last code span's
@@ -532,10 +539,14 @@ Active changes:
   no existing test edited — one of the seven added tests running at
   `suppression` level, where the defect's harm lands. The block ALSO ADDS TWO
   SCENARIOS at its end, pinning the amended sentence in canon rather than in
-  code alone; no promoted scenario moves, is retitled or loses a bullet. **THE VETO POINT IS `design.md` D1** — option A (the
+  code alone; no promoted scenario moves, is retitled or loses a bullet.
+  **THE VETO POINT WAS `design.md` D1 — PUT, AND NOT VETOED** — option A (the
   boundary) against option B (require the removed units in a fenced list, which
   rewrites every existing marker including those inside
   `openspec/changes/archive/` and both prose templates that promote into canon).
+  **A is ratified AS DESIGNED, and its cost is ratified with it.** Under
+  `release-realization` the packet still archives on merged-plus-green
+  realization evidence rather than on landing, on a separate word.
   Measured corpus effect: SEVEN unit-naming markers, TWO change (3 names → 1),
   FIVE unaffected, and no marker anywhere separates its NAMES with ` — `, so
   none loses a name its author meant to declare. The amendment does NARROW what

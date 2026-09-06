@@ -1,6 +1,7 @@
 # Tasks: amend-marker-reason-boundary
 
-Status: draft
+Status: ratified
+Ratified by: amend-marker-reason-boundary — 2026-09-06, Brett Heap, "merge 705 when green, then ratify 692" (record `review/ratification-2026-09-06.md`)
 Kind: tasks
 
 `code_surface: openxFactory`, `target_release: implemented`. The realization
@@ -10,30 +11,40 @@ realizes through its own task list rather than through a feature DAG.
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in
 this pull request or a measurement recorded verbatim in the pull request body.
-**§ 1 IS NOT TICKED AND NAMES WHY**: ratification has not happened.
+**§ 5.3 AND § 5.4 STAY UNTICKED AND NAME WHY**: they are residue and an owed
+successor, not work this packet performs.
 
-## 1. Ratification — OWED, NOT GIVEN
+## 1. Ratification — GIVEN 2026-09-06
 
-- [ ] 1.1 **RATIFICATION IS OWED AND NOTHING HERE PERFORMS IT.** Brett Heap's
-      *"do 3 and 4"* admits openxFactory issue **#692** to work and instructs a
-      lane to author a remedy. It decides no wording, takes no design decision,
-      and is recorded as the ORIGIN in `proposal.md` front matter and in
-      `.openspec.yaml` — which carries drafting provenance ONLY, with no
-      `approved_by` and no `approved_on`, the lawful unapproved shape
-      `add-drafted-proposal-origin` defined. Every document in this packet
-      carries `Status: draft`. When a word is given, this box is ticked with the
-      verbatim utterance, ONE citation line is added to each document's front
-      matter, the approval pair is ADDED beside the drafting provenance
-      (`kind` and `id` never move), and the record is written to
-      `review/ratification-<date>.md`.
-- [ ] 1.2 **THE VETO POINT IS `design.md` D1** — option **A** (the reason begins
-      at the first separator standing outside every code span) against option
-      **B** (require the removed units in a fenced list). A is designed and
-      encoded; B is written out beside it with four costs, the first being that
-      it rewrites every existing marker including those inside
-      `openspec/changes/archive/`, which are records of ratified acts. **A veto
-      of A is a veto of this delta's one sentence**, and the packet does not
-      land on it.
+- [x] 1.1 **RATIFIED 2026-09-06 by Brett Heap** (openxFactory operator
+      authority), in session, verbatim *"merge 705 when green, then ratify
+      692"*. The earlier *"do 3 and 4"* is the ORIGIN and remains recorded as
+      one — it admitted openxFactory issue **#692** to work and instructed a
+      lane to author a remedy, deciding no wording and taking no design
+      decision. `proposal.md`, `design.md` and this file now carry
+      `Status: ratified` with **ONE** citation line each — `Ratified:` in
+      `proposal.md`'s front matter, `Ratified by:` here and in `design.md` —
+      which is what `ratified-provenance` counts. `.openspec.yaml` gains the
+      approval pair (`approved_by`, `approved_on`) **BESIDE** the drafting
+      provenance it was authored with, `kind` and `id` unmoved, which is the
+      addition-not-rewrite shape `add-drafted-proposal-origin` defined for this
+      transition and the shape the archive gate's origin-retention arm reads.
+      Record: `review/ratification-2026-09-06.md`, with the verification run
+      captured beside it at `review/verification-2026-09-06.md`.
+- [x] 1.2 **THE VETO POINT WAS `design.md` D1 AND IT WAS NOT VETOED** — option
+      **A** (the reason begins at the first separator standing outside every
+      code span) against option **B** (require the removed units in a fenced
+      list). It was carried as the veto point in the pull request body, in this
+      file and in the README row, with B written out beside A and its four
+      costs, the first being that it rewrites every existing marker including
+      those inside `openspec/changes/archive/`, which are records of ratified
+      acts. **A is RATIFIED AS DESIGNED**, and A's stated cost is ratified with
+      it: the conservative narrowing named in `proposal.md` § *What that
+      sentence does not say* — a code span standing after the boundary declares
+      nothing, so an author who separates two names with ` — ` now declares only
+      the first — is a NEW failure mode this amendment creates, is SILENTLY
+      corrected today, and its reporting is scoped into the owed successor at
+      § 5.1 rather than taken here.
 
 ## 2. The measurement, taken before the design
 

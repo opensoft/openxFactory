@@ -48,6 +48,29 @@ origin:
     fenced list, which would rewrite every existing marker including those inside
     `openspec/changes/archive/` and both prose templates that promote into canon.
   proposed_on: 2026-09-06
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — in session on 2026-09-06,
+    lane `openxfactory-1`, verbatim: "merge 705 when green, then ratify 692".
+    THIS IS THE RATIFICATION ACT AND IT IS ADDED, NOT SUBSTITUTED. The drafting
+    provenance above is kept exactly as authored and `kind` and `id` never move,
+    which is the shape `add-drafted-proposal-origin` (issue #318) defined for
+    this transition: approval is a pure ADDITION to a fixed origin identity, so
+    the support manifest that repeats `kind` and `id` never comes to disagree
+    with the packet, and the archive gate's origin-retention arm reads the
+    declaration this commit establishes. The decision the word reaches is
+    `design.md` D1 — option A, the reason beginning at the first ` — ` standing
+    outside every code span, against option B, the fenced list — which was
+    carried as the packet's veto point in the pull request body, in `tasks.md`
+    § 1.2 and in the README row, and was NOT vetoed; A is ratified AS DESIGNED
+    and its stated cost is ratified with it, namely the conservative narrowing
+    of what `document-lifecycle`'s "naming each deleted unit as a CommonMark
+    code span" reaches — a NEW failure mode this amendment creates, silently
+    corrected today, whose reporting is the owed successor at `tasks.md` § 5.1.
+    Under `release-realization` a non-empty `code_surface` means this packet
+    archives on merged-plus-green realization evidence rather than on landing,
+    on a separate word; this one does not archive it.
+    Record: `review/ratification-2026-09-06.md`.
+  approved_on: 2026-09-06
 related:
   - openxFactory:change:archive/2026-09-05-amend-published-tip-unreadable-scenario   # ARCHIVED. Promoted the first of the two markers this packet's rule re-reads; its bytes are NOT edited here
   - openxFactory:change:archive/2026-09-05-amend-unreadable-read-sibling-scenarios   # ARCHIVED (PR #688). Promoted the sibling marker, and is the shape this packet is authored on: an amend of doc-health canon realized in the same pull request

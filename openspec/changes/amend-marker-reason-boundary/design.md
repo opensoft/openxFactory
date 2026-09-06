@@ -1,6 +1,7 @@
 # Design: amend-marker-reason-boundary
 
-Status: draft
+Status: ratified
+Ratified by: amend-marker-reason-boundary — 2026-09-06, Brett Heap, "merge 705 when green, then ratify 692" (record `review/ratification-2026-09-06.md`)
 Date: 2026-09-06
 Kind: design
 
@@ -55,10 +56,11 @@ failure direction empty on the present corpus rather than merely conservative.
 
 ## D1 — THE VETO POINT: option A (the boundary) against option B (a fenced list)
 
-**A — RECOMMENDED, AND WHAT THE DELTA ENCODES.** The names are the code spans
-following the colon that CLOSE BEFORE the first ` — ` standing OUTSIDE any code
-span; the reason is everything after that separator; a code span inside the
-reason is prose the reason quotes and is never a name. A marker with no such
+**A — RECOMMENDED, WHAT THE DELTA ENCODES, AND RATIFIED AS DESIGNED on
+2026-09-06.** The names are the code spans following the colon that CLOSE
+BEFORE the first ` — ` standing OUTSIDE any code span; the reason is everything
+after that separator; a code span inside the reason is prose the reason quotes
+and is never a name. A marker with no such
 separator names every span and has no reason, which is exactly what canon's own
 written-out `Merged into` example is and leaves it unchanged.
 
@@ -106,9 +108,15 @@ because names live in a list and the reason does not. What it costs:
    trails the list and still needs a boundary rule — so B is A plus a rewrite of
    the corpus.
 
-**The veto is between A and B, and a veto of A is a veto of the delta.** If B is
-ruled, this packet is withdrawn and re-authored; nothing here is salvageable
-into it except the measurement.
+**THE VETO WAS BETWEEN A AND B, AND IT WAS NOT TAKEN.** The choice was put
+rather than assumed — carried in the pull request body, in `tasks.md` § 1.2 and
+in the README row — and Brett Heap ratified **A as designed** on 2026-09-06
+(*"merge 705 when green, then ratify 692"*; record
+`review/ratification-2026-09-06.md`). **A's stated cost is ratified with it**:
+the conservative narrowing above is a NEW failure mode this amendment creates,
+it is silently corrected today, and its reporting is the owed successor at
+`tasks.md` § 5.1. Had B been ruled, this packet would have been withdrawn and
+re-authored with nothing salvageable into it except the measurement.
 
 ## D2 — the boundary tests SPAN MEMBERSHIP, never "the last separator"
 
