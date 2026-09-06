@@ -13,7 +13,7 @@ turns "a refusal renders as text" from a promise into a mechanical guarantee —
 and a refusal reason on this plane is written by a DIFFERENT SERVICE (the intent
 inbox) or by the apply lane, so it is the least trusted string on the page.
 
-Pins I1-I9.
+Pins I1-I11.
 """
 
 from __future__ import annotations
@@ -332,6 +332,48 @@ const POSSIBLE = { id: 'pos-derived-x' };
   results.i9_size = states.size;
 }
 
+// ---- I10: the two feeds spell RFC 3339 differently; order by INSTANT -------
+{
+  // The inbox stamps `isoformat()` (+00:00); the apply lane stamps a Z form.
+  // These three are 00:01, 00:02 and 00:03 UTC, deliberately interleaved so a
+  // LEXICAL sort ("Z" > "+") would get them wrong.
+  const rows = mergeFeeds(
+    [{ verb: 'dispose-possible', target: { possible_id: 'p-mid' },
+       actor: 'brett', status: 'pending', idempotency_key: 'k-mid',
+       requested_at: '2026-09-06T00:02:00+00:00', snapshot_rev_seen: REV }],
+    [{ verb: 'dispose-possible', target: { possible_id: 'p-old' },
+       target_id: 'p-old', actor: 'brett', status: 'applied',
+       idempotency_key: 'k-old', requested_at: '2026-09-06T00:00:30Z',
+       applied_at: '2026-09-06T00:01:00Z', snapshot_rev_seen: REV,
+       applied_record: 'r.yaml' },
+     { verb: 'dispose-possible', target: { possible_id: 'p-new' },
+       target_id: 'p-new', actor: 'brett', status: 'applied',
+       idempotency_key: 'k-new', requested_at: '2026-09-06T00:02:30Z',
+       applied_at: '2026-09-06T00:03:00Z', snapshot_rev_seen: REV,
+       applied_record: 'r.yaml' }]);
+  results.i10_order = rows.map((r) => r.targetId);
+}
+
+// ---- I11: a subscriber that throws must not stop the poll loop ------------
+{
+  const fetcher = recorder({
+    '/intents': json(200, { intents: [] }),
+    '/committed-intents.json': json(200, { intents: [] }),
+  });
+  const scheduled = [];
+  const feed = startIntentFeed({
+    fetcher, intervalMs: 1000,
+    timer: (fn, ms) => { scheduled.push(ms); if (scheduled.length === 1) fn();
+                         return scheduled.length; },
+    clearTimer: () => {},
+  });
+  feed.subscribe(() => { throw new Error('render blew up'); });
+  await feed.refresh();
+  results.i11_rescheduled = scheduled.length >= 2;
+  results.i11_error = feed.error();
+  feed.stop();
+}
+
 console.log(JSON.stringify(results));
 """
 
@@ -516,6 +558,29 @@ def test_i9_the_tile_index_takes_the_newest_decision_per_target(tmp_path):
     assert r["i9_index"] == {"pos-a": "applied", "pos-b": "pending",
                              "pos-none": None}
     assert r["i9_size"] == 2
+
+
+# ---- I10 ------------------------------------------------------------------
+
+def test_i10_the_feeds_are_ordered_by_instant_not_by_string(tmp_path):
+    """The inbox stamps `datetime.now(timezone.utc).isoformat()` ("+00:00")
+    and the apply lane stamps `%Y-%m-%dT%H:%M:%SZ`. Those two spellings of the
+    same instant do not compare correctly as strings — "Z" sorts after "+" —
+    so a lexical sort floats every lane row above every inbox row whatever the
+    clock said, and the newest-wins tile index inherits the mistake."""
+    assert _run(tmp_path)["i10_order"] == ["p-new", "p-mid", "p-old"]
+
+
+# ---- I11 ------------------------------------------------------------------
+
+def test_i11_a_throwing_subscriber_does_not_stop_the_poll_loop(tmp_path):
+    """`announce` calls into rendering. A render that throws used to take the
+    rescheduling with it, freezing the overlay on whatever it last drew —
+    silently, permanently, and looking exactly like "nothing has happened
+    yet", which is the one failure mode this feed exists to prevent."""
+    r = _run(tmp_path)
+    assert r["i11_rescheduled"] is True
+    assert "could not render" in (r["i11_error"] or "")
 
 
 def test_i8_the_capability_probe_reads_the_new_key_only(tmp_path):

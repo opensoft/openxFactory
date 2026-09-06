@@ -194,6 +194,21 @@ export function intentKeys(row) {
   return keys;
 }
 
+/** The instant a record is ordered by, as a NUMBER.
+ *
+ *  The two feeds spell RFC 3339 differently — the inbox stamps
+ *  `datetime.now(timezone.utc).isoformat()` ("...+00:00") and the apply lane
+ *  stamps `strftime("%Y-%m-%dT%H:%M:%SZ")` ("...Z") — and those two spellings
+ *  of the SAME instant do not compare correctly as strings ("Z" sorts after
+ *  "+"), so a lexical sort would always float the lane's rows above the
+ *  inbox's whatever the clock said. Parsed, both are one number. An
+ *  unparseable stamp sorts oldest rather than throwing. */
+export function instantOf(row) {
+  const raw = row.appliedAt || row.requestedAt || "";
+  const at = Date.parse(raw);
+  return Number.isNaN(at) ? 0 : at;
+}
+
 function normalize(row, source) {
   const targetKey = VERB_TARGET_KEY[row && row.verb];
   const targetId = row && (row.target_id ||
@@ -219,6 +234,11 @@ function normalize(row, source) {
   };
 }
 
+function withInstant(rec) {
+  rec.at = instantOf(rec);
+  return rec;
+}
+
 /**
  * Join the inbox rows with the committed rows. Pure, so the precedence rule is
  * testable without a server.
@@ -234,21 +254,16 @@ export function mergeFeeds(inboxRows, committedRows) {
     const rec = normalize(row, "corpus");
     if (!rec) continue;
     for (const k of rec.keys) claimed.add(k);
-    merged.push(rec);
+    merged.push(withInstant(rec));
   }
   for (const row of inboxRows || []) {
     const rec = normalize(row, "inbox");
     if (!rec) continue;
     if (rec.keys.some((k) => claimed.has(k))) continue;   // decided already
     for (const k of rec.keys) claimed.add(k);
-    merged.push(rec);
+    merged.push(withInstant(rec));
   }
-  merged.sort((a, b) => {
-    const at = a.appliedAt || a.requestedAt;
-    const bt = b.appliedAt || b.requestedAt;
-    if (at === bt) return 0;
-    return at < bt ? 1 : -1;                              // newest first
-  });
+  merged.sort((a, b) => b.at - a.at);                     // newest first
   return merged;
 }
 
@@ -348,11 +363,20 @@ export function startIntentFeed(opts) {
                         (corpus && corpus.intents) || []);
       error = null;
       wait = base;
-      announce();
     } catch (err) {
       error = (err && err.message) || "the intent feed is unreachable";
       wait = Math.min(wait * 2, MAX_POLL_MS);
+    }
+    // A SUBSCRIBER'S failure must not stop the poll loop. `announce` calls
+    // into rendering, and a render that throws used to take the rescheduling
+    // line below with it — the overlay would then freeze on whatever it last
+    // drew, silently and permanently, which is the one failure mode this feed
+    // exists to prevent. It becomes feed state like any other error instead.
+    try {
       announce();
+    } catch (err) {
+      error = "the intent overlay could not render (" +
+        ((err && err.message) || "error") + ")";
     }
     if (!stopped) handle = timer(poll, wait);
   }
