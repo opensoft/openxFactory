@@ -117,12 +117,18 @@ def test_the_reader_finds_what_the_writer_just_wrote_through_an_exotic_header():
     document as lacking a status entirely -- the exact false finding this
     change closes.
 
-    Lazy import, matching this package's existing back-reference convention
-    (`# lazy: house guard` in `ideation_readiness.py` / `derive_possibles.py`):
-    `doc_health` reaches into `ideation_dashboard` only inside a function, never
-    at module level.
+    Lazy import, and deliberately a TEST-ONLY one. The two production sites
+    this convention used to point at (`ideation_readiness.make_boundary` /
+    `derive_possibles.make_boundary`) no longer reach into
+    `ideation_dashboard` at all: `split-opendox-two-layer-product` § 2.1 moved
+    the write guard they wanted to the neutral `output_boundary`, and
+    `tests/doc-health/test_import_direction.py` now asserts that
+    `scripts/doc_health/` imports NOTHING from that package. This import is a
+    test reaching across to compare a reader with its writer, which is what
+    the comparison IS; keeping it function-local keeps it visibly one, and
+    nothing under `scripts/doc_health/` may follow it.
     """
-    from ideation_dashboard import gate_console as gc  # lazy: house guard
+    from ideation_dashboard import gate_console as gc  # lazy: test-only
 
     header = "".join(f"Field{i}: v {chr(0x2028)}\n" for i in range(9))
     src = "# Staged: t\n" + header + "Status: draft\n\n## Why\n"
