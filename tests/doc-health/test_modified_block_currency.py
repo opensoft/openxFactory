@@ -485,6 +485,57 @@ def test_names_separated_by_the_separator_fail_in_the_CONSERVATIVE_direction():
     assert defective == []
 
 
+def test_a_reason_quoting_a_REAL_canon_unit_suppresses_it_under_the_retired_rule():
+    """THE HARM THIS PACKET EXISTS TO PREVENT, PINNED WHERE IT LANDS.
+
+    The tests above hold the boundary at PARSE level. The damage is one level
+    down: the names a marker derives are exactly what it SUPPRESSES, so a
+    reason that quotes a unit canon actually carries declares that unit removed
+    by mentioning it, and the carriage arms fall silent about a unit nobody
+    declared gone. Here canon carries the bullet the reason quotes, the block
+    carries neither unit, and the two rules are run over the SAME marker
+    paragraph:
+
+    - RETIRED (names = every span in the tail): the quoted bullet is suppressed
+      — silently, because `suppression` reports nothing for a name it resolves.
+    - AMENDED (names = the spans closing before the boundary): the bullet is
+      NOT suppressed, so the carriage ledger reports it, which is what a block
+      that dropped it deserves.
+
+    Today's corpus escapes this by luck alone — no derived unit is literally
+    `WHEN` or `AND`, the two words the two live markers quote — and luck is not
+    a rule.
+    """
+    paragraph = (
+        "**Removed from canon by add-example-change (2026-08-27):** "
+        "`A unit.` — replaced by the `**THEN** the run reports` bullet, which "
+        "carries the obligation whole")
+    canon_units = [mbc.Unit(mbc.BODY, "A unit."),
+                   mbc.Unit(mbc.SCENARIO_BULLET, "**THEN** the run reports",
+                            "A scenario")]
+
+    amended = mbc.parse_marker(paragraph)
+    assert amended.names == ["A unit."]
+    suppressed, defective = mbc.suppression([amended], canon_units, [])
+    assert (mbc.SCENARIO_BULLET, "**THEN** the run reports") not in suppressed
+    assert suppressed == {(mbc.BODY, "A unit.")}
+    assert defective == []
+
+    # THE SAME MARKER READ THE RETIRED WAY — every code span in the tail is a
+    # name — and the bullet its author only quoted goes silently missing.
+    retired = mbc.parse_marker(paragraph)
+    retired.names = [mbc.normalize(c)
+                     for _s, _e, c in mbc.extract_code_spans(paragraph)]
+    assert retired.names == ["A unit.", "**THEN** the run reports"]
+    suppressed_retired, defective_retired = mbc.suppression(
+        [retired], canon_units, [])
+    assert (mbc.SCENARIO_BULLET,
+            "**THEN** the run reports") in suppressed_retired
+    assert defective_retired == [], (
+        "and nothing is reported about it — which is what makes the defect "
+        "silent rather than noisy")
+
+
 def _corpus_markers():
     """Every unit-naming marker in every promoted spec and every active delta.
 
@@ -520,11 +571,23 @@ def test_no_marker_in_this_corpus_loses_a_name_it_meant_to_declare():
     marker. So nothing any author declared is lost by the amendment: what is
     dropped is prose the reason quotes.
 
-    Measured 2026-09-06: SEVEN unit-naming markers, TWO of them misread by the
-    retired rule (both in `openspec/specs/doc-health/spec.md`, three names each
-    where their authors declared one). A FLOOR rather than an exact count, so an
-    unrelated archive that promotes a marker is not read as this rule's
-    regression.
+    Measured 2026-09-06 over the corpus AS IT STOOD BEFORE THIS PACKET: SEVEN
+    unit-naming markers, TWO of them misread by the retired rule (both in
+    `openspec/specs/doc-health/spec.md`, three names each where their authors
+    declared one). This packet's own delta carries an eighth, which brings the
+    walk to eight here. A FLOOR rather than an exact count, so an unrelated
+    archive that promotes a marker is not read as this rule's regression.
+
+    THE UNIT SET IS A PROXY, SAID SO RATHER THAN IMPLIED. Each dropped name is
+    checked against the units of the SAME DOCUMENT, whereas `suppression`
+    matches names against the PROMOTED requirement's canon units. For a marker
+    inside an active delta the two sets are only incidentally equal, so this
+    asserts something WIDER and cheaper than the shipping resolution: a dropped
+    name matches nothing anywhere in the document that carries it, let alone
+    the one requirement it would have suppressed against. The narrow property —
+    a quoted span that IS a canon unit gets suppressed under the retired rule
+    and not under the amended one — is pinned directly by
+    `test_a_reason_quoting_a_REAL_canon_unit_suppresses_it_under_the_retired_rule`.
     """
     markers = _corpus_markers()
     assert len(markers) >= 5, [str(p) for p, _m, _u in markers]

@@ -20,7 +20,8 @@ out beside it with its cost, and names the choice as the packet's veto point.
 
 ## D0 — the measurement, taken before the design
 
-Every unit-naming marker in `openspec/specs/*/spec.md` and every active
+Every unit-naming marker (as the corpus stood BEFORE this packet, whose own
+delta carries an eighth — see D4) in `openspec/specs/*/spec.md` and every active
 `openspec/changes/*/specs/*/spec.md`, parsed under both rules on 2026-09-06:
 
 | marker | names BEFORE | names AFTER | reason |
@@ -33,14 +34,17 @@ Every unit-naming marker in `openspec/specs/*/spec.md` and every active
 | `add-chain-attestation` | 1 | 1 | unchanged |
 | `add-composed-view-authoring` | 1 | 1 | unchanged |
 
-**SEVEN markers, TWO misread, FIVE unaffected.** Both misreadings are the same
+**SEVEN markers, TWO misread, FIVE unaffected** (eight with this packet's own,
+identical under both rules by construction)**.** Both misreadings are the same
 shape and the same two words: an amendment marker whose reason explains that the
 retired `WHEN` bullet was replaced *"by the `WHEN` that names both facts and the
 `AND` that requires the family to establish which holds"*.
 
 **AND THE SECOND HALF OF THE MEASUREMENT IS WHY IT IS INERT.** Across the same
-population, `derive_units` yields **17,566** units and **none** of them is
-literally `WHEN` or `AND`. `suppression`'s third resolution — *"the name matches
+population — the corpus BEFORE this packet, 108 files — `derive_units` yields
+**17,566** units and **none** of them is literally `WHEN` or `AND`; none of the
+units this packet's own delta adds is either, so the claim holds on the branch
+as well and only the figure is scoped. `suppression`'s third resolution — *"the name matches
 NO canon unit → nothing suppressed, nothing reported"* — is what has been
 absorbing the defect, silently and by luck.
 

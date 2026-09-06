@@ -513,8 +513,11 @@ Active changes:
   each declared ONE unit and each resolves to **THREE** — the intended `WHEN`
   bullet plus the words `WHEN` and `AND` their reasons quote — with no reason at
   all. **INERT BY ACCIDENT AND NOT BY DESIGN**: of **17,566** derived units
-  across every promoted specification and every active delta on 2026-09-06,
-  none is literally `WHEN` or `AND`, so the surplus names match nothing and
+  across every promoted specification and every active delta OTHER THAN THIS
+  PACKET'S OWN on 2026-09-06 — the scope every figure here is stated at, this
+  delta itself carrying an eighth marker — none is literally `WHEN` or `AND`,
+  and none of the units this delta adds is either, so the surplus names match
+  nothing and
   suppress nothing; the next author whose reason quotes a real unit declares
   that unit removed by mentioning it. The MODIFIED block restates the
   requirement in full — 50 body units, 14 scenario titles, 40 scenario bullets,
@@ -525,14 +528,21 @@ Active changes:
   shape (`code_surface: openxFactory`, `target_release: implemented`, archiving
   on merged-plus-green evidence): `_reason_boundary` added to
   `scripts/doc_health/modified_block_currency.py`, the unit-naming split moved
-  to it, and `tests/doc-health/test_modified_block_currency.py` 121 → 127 with
-  no existing test edited. **THE VETO POINT IS `design.md` D1** — option A (the
+  to it, and `tests/doc-health/test_modified_block_currency.py` 121 → 128 with
+  no existing test edited — one of the seven added tests running at
+  `suppression` level, where the defect's harm lands. The block ALSO ADDS TWO
+  SCENARIOS at its end, pinning the amended sentence in canon rather than in
+  code alone; no promoted scenario moves, is retitled or loses a bullet. **THE VETO POINT IS `design.md` D1** — option A (the
   boundary) against option B (require the removed units in a fenced list, which
   rewrites every existing marker including those inside
   `openspec/changes/archive/` and both prose templates that promote into canon).
   Measured corpus effect: SEVEN unit-naming markers, TWO change (3 names → 1),
   FIVE unaffected, and no marker anywhere separates its NAMES with ` — `, so
-  none loses a name its author meant to declare. `sequenced_after` elective and
+  none loses a name its author meant to declare. The amendment does NARROW what
+  `document-lifecycle`'s *"naming each deleted unit as a CommonMark code span"*
+  reaches — a span after the boundary declares nothing — which is disclosed in
+  the proposal and whose reporting is scoped into the owed successor at
+  `tasks.md` § 5.1. `sequenced_after` elective and
   undeclared: no active change carries a MODIFIED block for the requirement.
 
 - [mirror-floor-regeneration-automation](openspec/changes/mirror-floor-regeneration-automation/proposal.md)

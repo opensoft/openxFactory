@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory — `parse_marker` in `scripts/doc_health/modified_block_currency.py` and the tests that pin it in `tests/doc-health/test_modified_block_currency.py`. ONE split is moved: the tail after a unit-naming marker's closing colon is divided at the FIRST ` — ` standing OUTSIDE every code span rather than after the LAST code span, and one new module-level helper (`_reason_boundary`) implements the test. The `Merged into` destination is matched in the PREFIX and is untouched; the third reserved form (`Modified over`) returns before this split and still takes its whole tail, its branch comment corrected where it described the retired rule. NOTHING ELSE MOVES: no severity, no threshold, no arm, no finding class, no path, no disposition rule, no workflow, no contract member and no other family. Six tests are ADDED beside the existing ones (`tests/doc-health/test_modified_block_currency.py` 121 → 127) and no existing test is edited, because the amended rule agrees with the retired one on every marker whose reason quotes nothing.
+code_surface: openxFactory — `parse_marker` in `scripts/doc_health/modified_block_currency.py` and the tests that pin it in `tests/doc-health/test_modified_block_currency.py`. ONE split is moved: the tail after a unit-naming marker's closing colon is divided at the FIRST ` — ` standing OUTSIDE every code span rather than after the LAST code span, and one new module-level helper (`_reason_boundary`) implements the test. The `Merged into` destination is matched in the PREFIX and is untouched; the third reserved form (`Modified over`) returns before this split and still takes its whole tail, its branch comment corrected where it described the retired rule. NOTHING ELSE MOVES: no severity, no threshold, no arm, no finding class, no path, no disposition rule, no workflow, no contract member and no other family. Seven tests are ADDED beside the existing ones (`tests/doc-health/test_modified_block_currency.py` 121 → 128) and no existing test is edited, because the amended rule agrees with the retired one on every marker whose reason quotes nothing. The delta ALSO ADDS TWO SCENARIOS to the MODIFIED block, at its end, pinning the amended sentence in canon rather than in code alone; no promoted scenario moves, is retitled or loses a bullet.
 target_release: implemented (the openxFactory main line). No contract bundle is cut, nothing under `contracts/` is touched, no digest set moves and no release tag is owed. Under `release-realization` a non-empty code surface archives on merged-plus-green realization evidence rather than on landing; the tasks are individually executable, so this packet realizes through its own task list in this pull request and its realization evidence is that pull request's green `pytest-suite` and doc-health runs.
 Status: draft
 Proposed: 2026-09-06
@@ -44,8 +44,11 @@ separator in front of it. Its sibling marker at `:2755`, promoted by **#688**, i
 the same shape and reads the same way.
 
 **IT IS INERT TODAY AND THAT IS AN ACCIDENT OF THE CORPUS.** Measured on this
-tree on 2026-09-06: of **17,566** derived units across every promoted
-specification and every active delta, **none** is literally `WHEN` or `AND`, so
+tree on 2026-09-06, across every promoted specification and every active delta
+OTHER THAN THIS ONE (this packet's own delta carries an eighth marker, handled
+under *The self-reference hazard*): of **17,566** derived units, **none** is
+literally `WHEN` or `AND` — nor is any of the units this packet's own text adds
+— so
 `suppression` finds no match for either name, suppresses nothing and reports
 nothing (`--family modified-block-currency` reports identically before and
 after). What is not inert is the next marker. The names a marker derives are
@@ -72,6 +75,22 @@ CommonMark code span"*) says nothing about where the reason begins, so it needs
 no amendment and none is made. `doc-health` is where the reading lives, and this
 packet touches only it.
 
+**WHAT THAT SENTENCE DOES NOT SAY, SAID HERE RATHER THAN LEFT TO BE FOUND.**
+`document-lifecycle` requires the declaration to name *"each deleted unit as a
+CommonMark code span"*, which under the retired rule was true of EVERY span in
+the tail. Under the amended rule a span standing AFTER the boundary names
+nothing, so a `document-lifecycle`-conforming author who separates two names
+with ` — ` now declares only the first. **That is a NEW failure mode this
+amendment creates, and it is deliberate**: it is the conservative direction —
+the second unit suppresses nothing and is therefore REPORTED, never silently
+dropped (measured: no marker in this corpus is written that way, and the
+amended names are always a subset of the retired ones). It is nevertheless a
+SILENT correction today, because `suppression`'s third resolution says nothing
+about a name that matches no unit, so the author sees only this family's fixed
+action string telling them to add a marker they already wrote. Reporting it is
+scoped into the owed successor at `tasks.md` § 5.1, named there as this
+amendment's own consequence rather than only as the pre-existing silence.
+
 ## What Changes
 
 **ONE body sentence, inside ONE `## MODIFIED` requirement.**
@@ -79,7 +98,7 @@ packet touches only it.
 The delta restates *Currency of an active change's MODIFIED requirement blocks*
 in full — all 50 body units, all 14 scenario titles and all 40 scenario bullets,
 byte-faithful, INCLUDING the fenced block that writes the two marker forms out —
-and changes exactly this:
+and changes exactly this in the promoted text:
 
 - **RETIRED:** *"The parser SHALL extract the code spans following the colon, in
   order, per CommonMark; the reason is everything after the last code span's
@@ -121,7 +140,10 @@ described the retired rule is corrected in the realization.
 ## The corpus measurement
 
 Every unit-naming marker in `openspec/specs/*/spec.md` and every active
-`openspec/changes/*/specs/*/spec.md`, parsed under both rules:
+`openspec/changes/*/specs/*/spec.md` AS THE CORPUS STOOD BEFORE THIS PACKET,
+parsed under both rules. The packet's own delta adds an EIGHTH marker, which is
+the one *The self-reference hazard* below is about and which is excluded here so
+that the figures re-derive against the tree the design was taken on:
 
 | marker | document | names BEFORE | names AFTER | reason BEFORE → AFTER |
 |---|---|---|---|---|
@@ -133,7 +155,9 @@ Every unit-naming marker in `openspec/specs/*/spec.md` and every active
 | `add-chain-attestation` (2026-09-01) | `openspec/changes/add-chain-attestation/specs/signed-execution-chain/spec.md` | 1 | 1 | unchanged |
 | `add-composed-view-authoring` (2026-08-27) | `openspec/changes/add-composed-view-authoring/specs/ideation-dashboard/spec.md` | 1 | 1 | unchanged |
 
-**SEVEN markers; TWO change; FIVE are unaffected.** The four names the two lose
+**SEVEN markers; TWO change; FIVE are unaffected** — eight markers with this
+packet's own, whose one name and one reason are identical under both rules by
+construction. The four names the two lose
 are `WHEN` and `AND` twice over, and **no marker in this corpus separates its
 NAMES with ` — `** — so no marker loses a name its author meant to declare. That
 is asserted as a test, not only measured:
@@ -152,23 +176,29 @@ reports identically at `origin/main` and on this branch. What moves is the
 read today only by `_pairing_state`, which handles the third form alone, so the
 change is diagnostic on this corpus and normative for the next marker written.
 
-**Tests:** `tests/doc-health/test_modified_block_currency.py` 121 → 127. No
+**Tests:** `tests/doc-health/test_modified_block_currency.py` 121 → 128. No
 existing test is edited: the amended rule agrees with the retired one on every
 case the file already pinned, including the wrapped-marker case and the
-two-name `REMOVED` example whose names are separated by `; `.
+two-name `REMOVED` example whose names are separated by `; `. One of the seven
+runs at SUPPRESSION level rather than at parse level, because that is where the
+defect's harm lands: canon carries a bullet the reason quotes, and the retired
+names suppress it silently while the amended names leave it reported.
 
 **Doc-health:** the `modified-block-currency` family reads this new active delta.
 It drops one canon unit, that unit is named by the reserved marker, every other
-unit and all 14 scenario titles are carried — so the block is expected to raise
-**no** carriage finding. **AND THIS BLOCK IS ITS OWN SELF-REFERENCE TEST**: the
+unit and all 14 scenario titles are carried, and the two scenario titles the
+block ADDS are titles the arms never report — so the block is expected to raise
+**no** carriage finding, which is measured rather than expected in the pull
+request. **AND THIS BLOCK IS ITS OWN SELF-REFERENCE TEST**: the
 marker is parsed by the RETIRED grammar when the family runs from `main` and by
 the AMENDED grammar when it runs from this branch, so its reason is written
 free of code spans and both grammars derive exactly one name and the same
 reason. That equality is verified in the pull request under both parsers.
 
 **OpenSpec 1.12:** the block omits no scenario and retitles none — it replaces
-one body sentence — so it adds no undispositioned failure to
-`scripts/validate-openspec-cli-pin.py --all --no-cache`.
+one body sentence and appends two scenarios — so it adds no undispositioned
+failure to `scripts/validate-openspec-cli-pin.py --all --no-cache`, which is
+run in the pull request rather than assumed.
 
 **No file is added under `openspec/specs/`**, so no codexFactory floor advance is
 owed.

@@ -233,12 +233,15 @@ editorial band is the honest launch state; a later flip remains available and
 is a ruling like any other.
 
 **AMENDED BY `amend-marker-reason-boundary` (2026-09-06).** Every paragraph and
-every scenario above this note stands exactly as promoted, and the ONLY change
-this block makes is to ONE body sentence: the one that told the parser to
-measure a marker's reason from BEHIND, from its LAST code span. No scenario
-moves, no arm is removed, no severity changes, no threshold moves, no
-disposition rule changes, and the set of trees over which this family speaks is
-not altered by one line.
+every scenario above this note stands exactly as promoted, and the only change
+this block makes to promoted text is to ONE body sentence: the one that told the
+parser to measure a marker's reason from BEHIND, from its LAST code span. TWO
+SCENARIOS ARE ADDED, at the END of the block, and they pin that sentence rather
+than restate it — a normative rule no scenario exercises is a rule the next
+author re-deriving this parser has nothing to test against. No promoted scenario
+moves, is retitled or loses a bullet; no arm is removed, no severity changes, no
+threshold moves, no disposition rule changes, and the set of trees over which
+this family speaks is not altered by one line.
 
 MEASURING THE REASON FROM BEHIND MAKES EVERY CODE SPAN AN AUTHOR WRITES INSIDE
 IT A NAME. A reason is prose, and prose in this corpus quotes: the two markers
@@ -246,10 +249,13 @@ IT A NAME. A reason is prose, and prose in this corpus quotes: the two markers
 they retire and then, in the reason that explains the retirement, quote the
 words `WHEN` and `AND` as code spans — so the promoted parser reads THREE
 declared-removed names where each author declared one, and reads the explanation
-as no reason at all. Measured on this corpus on 2026-09-06: SEVEN unit-naming
-markers across the promoted specifications and every active delta, of which TWO
-are misread this way and FIVE are unaffected; and of 17,566 derived units NONE
-is literally `WHEN` or `AND`, so today every wrongly-derived name matches no
+as no reason at all. Measured on this corpus on 2026-09-06, ACROSS THE PROMOTED
+SPECIFICATIONS AND EVERY ACTIVE DELTA OTHER THAN THIS ONE — this block carries
+an eighth marker, the one below, and a figure a reader is invited to re-derive
+must name the tree it was taken on: SEVEN unit-naming markers, of which TWO are
+misread this way and FIVE are unaffected; and of 17,566 derived units NONE
+is literally `WHEN` or `AND`, and neither is any unit this block's own text
+adds, so today every wrongly-derived name matches no
 canon unit, suppresses nothing and is reported as nothing. **THE DEFECT IS
 INERT AND IS NOT HARMLESS.** The names a marker derives are what it suppresses,
 and the next author whose reason quotes a real unit — a scenario title, a clause
@@ -330,3 +336,14 @@ to establish.
 - **WHEN** no repository in the run's scope has an `openspec/changes/` directory the family can read
 - **THEN** the family MUST be reported as skipped with its reason, never silently omitted
 - **AND** a scope that carries active changes but no `## MODIFIED Requirements` block among them MUST NOT be reported as skipped, the family having run and found nothing
+
+#### Scenario: A marker's reason quotes a code span
+- **WHEN** a unit-naming marker's tail carries a ` — ` separator standing outside every code span, and a code span falls after that separator
+- **THEN** that span MUST NOT be read as a unit the marker names, a reason being prose that quotes rather than a declaration
+- **AND** the units named MUST be exactly the spans that close before that separator, and the reason MUST be everything after it
+- **AND** the units the span would have named MUST therefore remain subject to the carriage arms, an author who only mentioned a unit having declared nothing about it
+
+#### Scenario: A marker's tail carries no separator outside a code span
+- **WHEN** a unit-naming marker's tail carries no ` — ` separator standing outside every code span, a separator INSIDE a span being that unit's own bytes rather than a boundary
+- **THEN** every code span after the closing colon MUST name a unit
+- **AND** the marker MUST carry no reason, which is the form the written-out `Merged into` example above is in

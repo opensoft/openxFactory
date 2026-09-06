@@ -863,7 +863,12 @@ def parse_marker(paragraph: str) -> Marker | None:
         # misdeclared ground. An empty reason declares exactly what an absent
         # one does, and the disclosure that would have lived in it has no
         # clause to live in.
-        reason = normalize(tail[3:]) or None if tail.startswith(" — ") else None
+        # ONE GRAMMAR TOKEN, ONE SPELLING. The separator is `_REASON_SEP` here
+        # as it is in the unit-naming path below; the literal this branch used
+        # to carry, and its hardcoded `[3:]`, were correct only because the em
+        # dash happens to be one code point. The parse is unchanged.
+        reason = (normalize(tail[len(_REASON_SEP):]) or None
+                  if tail.startswith(_REASON_SEP) else None)
         return Marker(form, change_id, date, [], None, reason, text, basis)
     # THE TWO UNIT-NAMING FORMS, `Removed from canon` and `Merged into`, SPLIT
     # AT THE SAME BOUNDARY. `Merged into`'s destination is matched in the prefix
