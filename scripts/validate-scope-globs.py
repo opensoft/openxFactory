@@ -30,13 +30,21 @@ Usage:
         `<date>-<id>` directory), never by reusing CHANGE_DIR's current path, so
         the gate still runs after the change has moved from its active location
         to `openspec/changes/archive/<date>-<id>/` between ratification and
-        archive. When the id has no proposal.md at REF at all — or the ratified
-        or current front-matter cannot be read — this prints a named finding and
-        exits 2 rather than tracing back.
+        archive. CHANGE_DIR may be absolute or relative (including `.` from
+        inside the change directory itself) and MUST live under
+        `openspec/changes/` of its repository, because the ratified-side lookup
+        is anchored there.
+
+        EVERY failure of this gate to RUN is a named finding with exit 2, never
+        a traceback: the id has no proposal.md at REF, REF does not name a
+        commit, CHANGE_DIR is not inside a git work tree, or the ratified or
+        current front-matter cannot be read. A scope MUTATION — the gate
+        running and finding a broken freeze — is exit 1.
 """
 from __future__ import annotations
 
 import argparse
+import subprocess
 import sys
 from pathlib import Path
 
@@ -87,12 +95,21 @@ def validate_corpus(repo_root: Path) -> int:
 def _archive_gate(change_dir: Path, ratified_ref: str) -> int:
     try:
         problem = sg.scope_retention_at_archive(change_dir, ratified_ref)
-    except sg.ScopeGlobsError as exc:
+    except (sg.ScopeGlobsError, subprocess.CalledProcessError) as exc:
         # UNRUNNABLE IS NOT A MUTATION FINDING (exit 1) AND NOT A TRACEBACK: the
-        # id names no proposal.md at `ratified_ref`, or a proposal on either
+        # id names no proposal.md at `ratified_ref`, `ratified_ref` names no
+        # commit, CHANGE_DIR is not inside a work tree, or a proposal on either
         # side cannot be read at all. That is a distinct fact, reported the way
         # every other refusal in this CLI is — a named finding and exit 2, the
         # same shape `validate-sequenced-after.py` uses for its own gate.
+        #
+        # The catch is on `ScopeGlobsError`, the module's BROAD class, not only
+        # on the `ScopeGlobsResolutionError` subclass — so a malformed or
+        # non-dialect declaration on EITHER side arrives here too, where before
+        # it raised out of `main()` as a traceback (exit 1). `CalledProcessError`
+        # is caught beside it as a backstop: no git call on this path is
+        # expected to reach the caller unhandled, and if one ever does it is
+        # still reported rather than traced.
         print("scope_globs SCOPE-RETENTION gate CANNOT RUN:")
         print(f"  - {exc}")
         return 2

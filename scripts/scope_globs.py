@@ -150,8 +150,13 @@ def _sequenced_after():
     reused here so both routes name one module.
     """
     name = "sequenced_after_substrate"
+    # EVERY attribute this module uses from the sibling, probed as a set: a
+    # cached module carrying only some of them would surface as an
+    # AttributeError traceback at the call site instead of the named
+    # `ScopeGlobsResolutionError` this function exists to guarantee.
+    required = ("change_id_of_dir", "proposal_path_at_ref", "SequencedAfterError")
     module = sys.modules.get(name)
-    if module is not None and hasattr(module, "proposal_path_at_ref"):
+    if module is not None and all(hasattr(module, attr) for attr in required):
         return module
     path = Path(__file__).resolve().parent / "sequenced_after.py"
     try:
@@ -159,14 +164,32 @@ def _sequenced_after():
         if spec is None or spec.loader is None:  # pragma: no cover - defensive
             raise ImportError(f"cannot locate the sibling module at {path}")
         module = importlib.util.module_from_spec(spec)
+        # REGISTERED BEFORE `exec_module`, as importlib's own loader does, and
+        # MEASURED to be necessary: executing the sibling while it is absent
+        # from `sys.modules` dies with "'NoneType' object has no attribute
+        # '__dict__'" (a decorator resolving its own module by name mid-exec).
+        # The failure path below therefore pops the entry, so a failed load
+        # never leaves a half-initialized stub for the next caller to reuse.
         sys.modules[name] = module
         spec.loader.exec_module(module)
-    except (ImportError, OSError) as exc:  # pragma: no cover - vendored-copy path
+    except Exception as exc:  # pragma: no cover - vendored-copy path
+        # BROAD ON PURPOSE: an absent sibling (the vendored copy) raises
+        # OSError, but ANY module-level failure in the sibling — a SyntaxError
+        # after an edit, an assertion at import — must still reach the caller
+        # as this module's named "could not run" fact rather than as a raw
+        # traceback out of a gate.
         sys.modules.pop(name, None)
         raise ScopeGlobsResolutionError(
             "the archive-gate needs the sibling module 'sequenced_after' to "
             "locate the ratified-side proposal by change id, and it could not "
             f"be loaded from {path}: {exc}") from exc
+    missing = [attr for attr in required if not hasattr(module, attr)]
+    if missing:  # pragma: no cover - defensive
+        sys.modules.pop(name, None)
+        raise ScopeGlobsResolutionError(
+            f"the sibling module loaded from {path} provides no "
+            f"{', '.join(missing)} — the archive-gate cannot locate the "
+            "ratified-side proposal by change id")
     return module
 
 
@@ -453,12 +476,42 @@ def scope_retention_problem(ratified: object, current: object) -> str | None:
 
 
 def _git_toplevel(path: Path) -> Path:
+    """The work-tree root containing `path`.
+
+    Raises `ScopeGlobsResolutionError` — never a `CalledProcessError`
+    traceback — when `path` is not inside a git work tree at all. A mistyped
+    or non-existent CHANGE_DIR is the SAME CLASS of operator error #705 filed,
+    and it must arrive at the CLI as a named "could not run" finding (exit 2)
+    rather than as a stack trace.
+    """
+    directory = path if path.is_dir() else path.parent
     out = subprocess.run(
-        ["git", "-C", str(path if path.is_dir() else path.parent),
-         "rev-parse", "--show-toplevel"],
-        capture_output=True, text=True, check=True,
+        ["git", "-C", str(directory), "rev-parse", "--show-toplevel"],
+        capture_output=True, text=True,
     )
+    if out.returncode != 0:
+        detail = out.stderr.strip() or f"git rev-parse exited {out.returncode}"
+        raise ScopeGlobsResolutionError(
+            f"{str(directory)!r} is not inside a git work tree, so the "
+            f"ratified-side proposal cannot be read: {detail}")
     return Path(out.stdout.strip())
+
+
+def _ref_names_a_commit(repo_root: Path, ref: str) -> bool:
+    """Whether `ref` resolves to a COMMIT in `repo_root`.
+
+    Checked BEFORE the by-id lookup so an unresolvable ref (a typo, a deleted
+    branch) or a ref naming a non-commit object is reported as what it is. The
+    lookup's own probes deliberately swallow git's exit status, so without this
+    a bad ref would be reported in the wording of a change that is absent at a
+    good one — pointing the operator at the wrong thing.
+    """
+    out = subprocess.run(
+        ["git", "-C", str(repo_root), "rev-parse", "--verify", "--quiet",
+         f"{ref}^{{commit}}"],
+        capture_output=True, text=True,
+    )
+    return out.returncode == 0
 
 
 def scope_globs_at_ref(repo_root: Path, ref: str, proposal_rel: str) -> object | None:
@@ -490,11 +543,30 @@ def scope_retention_at_archive(change_dir: str | Path, ratified_ref: str) -> str
     `CalledProcessError` traceback (issue #705), on exactly the archived
     directory the gate exists to check.
 
+    `change_dir` is RESOLVED to an absolute path before its change id is read.
+    The id is decided from the directory's own name and its PARENT's name
+    (`archive` or not), so a cwd-relative spelling — `.` from inside the
+    archived directory, or `<date>-<id>` from inside `archive/` — would
+    otherwise be read against components the relative path does not carry, and
+    the gate would refuse a directory it can perfectly well check.
+
+    CHANGE_DIR must live under `openspec/changes/` of its repository: the
+    ratified-side lookup is anchored there (active path first, then
+    `openspec/changes/archive/<date>-<id>/`), which is the same anchoring the
+    sibling gate uses and the only layout this corpus has.
+
     Raises `ScopeGlobsResolutionError` (never a traceback) when the change id
-    has no `proposal.md` at `ratified_ref` at all."""
-    change_path = Path(change_dir)
+    has no `proposal.md` at `ratified_ref`, when `ratified_ref` does not name a
+    commit, or when `change_dir` is not inside a git work tree at all."""
+    change_path = Path(change_dir).resolve()
     proposal = change_path / "proposal.md"
     repo_root = _git_toplevel(change_path)
+    if not _ref_names_a_commit(repo_root, ratified_ref):
+        raise ScopeGlobsResolutionError(
+            f"the ratified ref {ratified_ref!r} does not name a commit in "
+            f"{str(repo_root)!r} — the ratified-side proposal was not looked "
+            "up at all; this is an unresolvable ref, NOT a change that is "
+            "absent at a resolvable one")
     sa = _sequenced_after()
     change_id = sa.change_id_of_dir(change_path)
     try:

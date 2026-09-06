@@ -298,6 +298,135 @@ def test_the_sequenced_after_sibling_is_NOT_imported_at_module_import_time():
     assert result.stdout.strip() == "False", result.stdout
 
 
+# --- the gate's OWN refusals are findings, never tracebacks ------------------
+#
+# #705 was an operator running the gate on a real archived directory and being
+# handed a stack trace. Every OTHER way that same operator can hold the gate
+# wrong — a cwd-relative CHANGE_DIR, a path outside any work tree, a ref that
+# names nothing — must therefore land as a NAMED finding too, and the
+# cwd-relative shapes must simply WORK, since they are how a person standing in
+# the directory actually types it.
+
+
+def test_the_archive_gate_RUNS_when_CHANGE_DIR_IS_DOT_from_inside_the_archived_dir(tmp_path):
+    # `cd openspec/changes/archive/<date>-<id> && ... --archive-gate .` — the
+    # change id is decided from the directory's own name and its PARENT's name,
+    # so an UNRESOLVED '.' carries neither and the id would read as ''. The
+    # directory is resolved before the id is read; this is the shape that
+    # regressed when the by-id resolution was first adopted.
+    change = _init_change(tmp_path, _SCOPE)
+    ratified_ref = _head(tmp_path)
+    archive = _archive_move(tmp_path, change, "2026-09-01-add-example")
+
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), "--archive-gate", ".",
+         "--ratified-ref", ratified_ref],
+        capture_output=True, text=True, cwd=str(archive),
+    )
+    assert result.returncode == 0, (result.returncode, result.stdout, result.stderr)
+    assert "Traceback" not in result.stderr, result.stderr
+    assert "passed" in result.stdout, result.stdout
+
+
+def test_the_archive_gate_RUNS_on_a_RELATIVE_dated_dir_name_from_inside_archive(tmp_path):
+    # `cd openspec/changes/archive && ... --archive-gate <date>-<id>` — here the
+    # relative path DOES carry the directory's own name but not its parent's,
+    # so unresolved it reads as an id that still carries the date prefix.
+    change = _init_change(tmp_path, _SCOPE)
+    ratified_ref = _head(tmp_path)
+    archive = _archive_move(tmp_path, change, "2026-09-01-add-example")
+
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), "--archive-gate", archive.name,
+         "--ratified-ref", ratified_ref],
+        capture_output=True, text=True, cwd=str(archive.parent),
+    )
+    assert result.returncode == 0, (result.returncode, result.stdout, result.stderr)
+    assert "Traceback" not in result.stderr, result.stderr
+    assert "passed" in result.stdout, result.stdout
+
+
+def test_a_CHANGE_DIR_OUTSIDE_A_WORK_TREE_is_a_finding_not_a_CalledProcessError(tmp_path):
+    # A mistyped CHANGE_DIR is the same class of operator error #705 filed. The
+    # work-tree probe runs BEFORE any by-id resolution, so its failure has to be
+    # converted here or it escapes as a raw `CalledProcessError`.
+    change = _init_change(tmp_path, _SCOPE)
+    ratified_ref = _head(tmp_path)
+    missing = tmp_path / "no" / "such" / "add-example"
+
+    with pytest.raises(sg.ScopeGlobsResolutionError) as excinfo:
+        sg.scope_retention_at_archive(missing, ratified_ref)
+    assert "git work tree" in str(excinfo.value)
+
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), "--archive-gate", str(missing),
+         "--ratified-ref", ratified_ref],
+        capture_output=True, text=True,
+    )
+    assert result.returncode == 2, (result.returncode, result.stdout, result.stderr)
+    assert "Traceback" not in result.stdout, result.stdout
+    assert "Traceback" not in result.stderr, result.stderr
+    assert "CANNOT RUN" in result.stdout, result.stdout
+    # The change dir the operator actually typed is named back to them.
+    assert str(missing.parent) in result.stdout, result.stdout
+    # Untouched: the change itself is fine, so this must not read as a mutation.
+    assert "contested" not in result.stdout, result.stdout
+    assert change.is_dir()
+
+
+def test_an_UNRESOLVABLE_RATIFIED_REF_is_named_as_such_not_as_an_absent_change(tmp_path):
+    # The by-id probes swallow git's exit status, so without a commit check a
+    # bad ref is reported in the wording of a change that is absent at a good
+    # one — pointing the operator at the wrong thing entirely.
+    change = _init_change(tmp_path, _SCOPE)
+
+    with pytest.raises(sg.ScopeGlobsResolutionError) as excinfo:
+        sg.scope_retention_at_archive(change, "no-such-ref")
+    message = str(excinfo.value)
+    assert "does not name a commit" in message, message
+    assert "no-such-ref" in message, message
+    assert "has no proposal.md" not in message, message
+
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), "--archive-gate", str(change),
+         "--ratified-ref", "no-such-ref"],
+        capture_output=True, text=True,
+    )
+    assert result.returncode == 2, (result.returncode, result.stdout, result.stderr)
+    assert "Traceback" not in result.stderr, result.stderr
+    assert "CANNOT RUN" in result.stdout, result.stdout
+    assert "does not name a commit" in result.stdout, result.stdout
+
+
+def test_a_ref_naming_a_NON_COMMIT_OBJECT_is_refused_as_an_unresolvable_ref(tmp_path):
+    # A blob sha resolves as an object but is not a commit; `<sha>^{commit}`
+    # fails, so it lands in the same named refusal rather than being reported
+    # as "the change is not there".
+    change = _init_change(tmp_path, _SCOPE)
+    blob = subprocess.run(
+        ["git", "-C", str(tmp_path), "rev-parse",
+         "HEAD:openspec/changes/add-example/proposal.md"],
+        capture_output=True, text=True, check=True).stdout.strip()
+
+    with pytest.raises(sg.ScopeGlobsResolutionError) as excinfo:
+        sg.scope_retention_at_archive(change, blob)
+    assert "does not name a commit" in str(excinfo.value)
+
+
+def test_the_sibling_loader_REQUIRES_every_attribute_the_gate_uses(tmp_path):
+    # The cache probe accepts a module under `sequenced_after_substrate` only
+    # when it carries EVERY attribute this module calls: a partial module
+    # reused from the cache would raise an AttributeError traceback at the call
+    # site instead of the named finding the gate promises.
+    module = sg._sequenced_after()
+    for attr in ("change_id_of_dir", "proposal_path_at_ref", "SequencedAfterError"):
+        assert hasattr(module, attr), attr
+    # And the loaded module IS the sibling implementation, not the test package
+    # that shares the bare name `sequenced_after`.
+    assert Path(module.__file__).name == "sequenced_after.py"
+    assert Path(module.__file__).parent.name == "scripts"
+
+
 # --- trust-root floor doctrine record (task 4.2) -----------------------------
 
 
