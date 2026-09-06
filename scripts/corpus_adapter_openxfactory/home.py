@@ -7,15 +7,27 @@ adapter class cannot behave differently over the home corpus, because it cannot
 see it. `tests/corpus-adapter/test_no_privileged_route.py` asserts that
 direction.
 
-EVERY CONSTANT IS DERIVED, NEVER RESTATED. `corpus_root.py` already wrote the
-rule down for this exact class of value — the scanned roots are "DERIVED from
-`corpus.GOVERNED_ROOTS` rather than restated, so a root added to the doc-health
-scan is a root this predicate accepts" — and this repository spends real effort
-killing co-authoritative constants (§ 2.3 exists to kill one). So the roots, the
-exclusion sets, the header window and the required-field tuple all come from the
-modules that own them, and the two values that CANNOT be derived (the kind
-header's name, and the fact that this corpus is versioned) are pinned by parity
-tests against the readers that own them.
+EVERY CONSTANT IS DERIVED WHERE A MODULE OWNS IT. `corpus_root.py` already
+wrote the rule down for this exact class of value — the scanned roots are
+"DERIVED from `corpus.GOVERNED_ROOTS` rather than restated, so a root added to
+the doc-health scan is a root this predicate accepts" — and this repository
+spends real effort killing co-authoritative constants. So the roots, the
+exclusion sets and the header window all come from the modules that own them.
+
+THE HEADER BLOCK IS THE EXCEPTION, AND THE EXCEPTION IS § 2.3 ITSELF. Until
+that task the six field names were `authoring.REQUIRED_HEADER_FIELDS` and this
+module imported them; the create gate then applied them with its own scan, over
+`doc_health.corpus.STATUS_SCAN_LINES` — one contract with two authors in two
+packages, agreeing by convention. § 2.3 inverts the direction: the field block
+is a fact about THIS CORPUS's shape, so it is authored here, and the dashboard
+asks `classify` for it (`design.md` § D2: "the operation `authoring.py`'s
+`REQUIRED_HEADER_FIELDS` becomes, instead of a constant co-authoritative with
+`doc_health.corpus.STATUS_SCAN_LINES`"). Deriving it from the dashboard now
+would be a cycle, not a derivation: the dashboard's answer comes from this
+value. Three values therefore cannot be derived — the field block, the kind
+header's name, and the tree the block governs — and each is pinned by a parity
+test in `tests/corpus-adapter/test_openxfactory_adapter.py` against the reader
+or the gate that must agree with it.
 
 THE TWO SCOPES ARE NOT MERGED, AND THAT IS A RULING, NOT A STYLE.
 `govern-openspec-corpus-membership` (OQ-2, ruled 2026-08-23) settled that the
@@ -30,9 +42,12 @@ WHY THE FIELD OBLIGATION IS BOUNDED BY PREFIX. The six-field header block is the
 IDEATION header contract (`ideation/README.md`, "Ideation Header Format") — it
 governs documents under that tree, not the whole governed corpus. Reporting a
 `docs/` document as missing `Topics:` would be a FALSE FINDING, which this
-repository has already learned costs more trust than a crash. The prefix comes
-from `authoring.IDEATION_PREFIX`, the constant the create path already enforces
-it with.
+repository has already learned costs more trust than a crash. The tree is named
+here and `authoring.IDEATION_PREFIX` names it too, for a different question —
+which tree a create may WRITE into, a gate that exists whether or not any header
+is obliged there. Two questions, two definitions, one tree, and a parity test
+holds them equal; importing one from the other would put back the edge § 2.3
+removed and answer the second question with the first.
 """
 
 from __future__ import annotations
@@ -71,6 +86,21 @@ LIFECYCLE = "lifecycle"
 #: instead.
 KIND_FIELD = "Kind"
 
+#: The header block this corpus obliges of a document under `OBLIGED_PREFIX`,
+#: in the order the contract declares it (`ideation/README.md`, "Ideation Header
+#: Format"). AUTHORED HERE, and the inversion is § 2.3's whole content — see the
+#: module docstring. A field added here is a field the create gate enforces on
+#: the next call, without a second edit anywhere.
+HEADER_FIELDS: tuple[str, ...] = (
+    "Status", "Kind", "Summary", "Topics", "Repository context", "Captured",
+)
+
+#: The tree `HEADER_FIELDS` governs. NOT derivable from the create gate's own
+#: constant without recreating the cycle § 2.3 removed, so it is pinned equal to
+#: it by a parity test instead — the same treatment `scan_roots` gets against
+#: `corpus_root.SCANNED_ROOTS` under RULING OQ-4.
+OBLIGED_PREFIX = "ideation/"
+
 
 def home_shape(*, verdict_groups: tuple[str, ...] | None = None) -> CorpusShape:
     """This corpus's shape.
@@ -101,8 +131,8 @@ def home_shape(*, verdict_groups: tuple[str, ...] | None = None) -> CorpusShape:
         },
         header_scan_lines=corpus.STATUS_SCAN_LINES,
         kind_field=KIND_FIELD,
-        required_fields_by_kind={None: _required_header_fields()},
-        obliged_prefixes=(_obliged_prefix(),),
+        required_fields_by_kind={None: HEADER_FIELDS},
+        obliged_prefixes=(OBLIGED_PREFIX,),
         verdict=doc_health_verdict(groups=verdict_groups),
         write_path=apply_lane_write_path(),
     )
@@ -131,26 +161,6 @@ def home_corpus(location: Path | str | None = None, *,
         adapter=OpenxFactoryCorpusAdapter(shape),
         ref=CorpusRef(name=path.name, location=str(path)),
     )
-
-
-def _required_header_fields() -> tuple[str, ...]:
-    """The six-field header block, from the module that owns it.
-
-    Function-local so this module's dependence on the dashboard package sits at
-    ONE readable point. `home.py` is the only module in this package that
-    depends on it, and nothing in the package imports `home.py` — so the adapter
-    itself still imports cleanly in a tree that does not carry the dashboard,
-    which is the tree the neutral conformance corpus stands in for.
-    """
-    from ideation_dashboard.authoring import REQUIRED_HEADER_FIELDS
-    return tuple(REQUIRED_HEADER_FIELDS)
-
-
-def _obliged_prefix() -> str:
-    """The tree the header block governs, from the constant the create path
-    already enforces it with."""
-    from ideation_dashboard.authoring import IDEATION_PREFIX
-    return IDEATION_PREFIX
 
 
 #: The shape as this repository actually stands: every check grouping, and the

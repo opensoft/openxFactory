@@ -130,7 +130,12 @@ DESTINATION_KEYS: tuple[str, ...] = ("capabilities", "changes", "staged_topics")
 #: (`authoring.REQUIRED_HEADER_FIELDS`, `doc_health.corpus.STATUS_SCAN_LINES`);
 #: they are restated here — rather than imported — to keep this module's import
 #: graph empty of anything that touches the filesystem, and a test cross-checks
-#: the two definitions so they cannot drift.
+#: the two definitions so they cannot drift. Since
+#: `split-opendox-two-layer-product` § 2.3 the first of those two is the
+#: CORPUS's own answer (`classify`) rather than a constant of the dashboard's,
+#: so that cross-check now measures this restatement against the corpus
+#: itself — which is why keeping this module filesystem-free costs nothing in
+#: authority.
 GOVERNANCE_HEADER_FIELDS: tuple[str, ...] = (
     "Status", "Kind", "Summary", "Topics", "Repository context", "Captured",
 )
