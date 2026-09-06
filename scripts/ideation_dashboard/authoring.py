@@ -26,7 +26,11 @@ split so per-actor authority is structural, not a runtime flag:
       ENTRYPOINT — a header-incomplete submission is refused (recorded on the
       boundary's ledger, same as every other refusal) before it ever reaches
       `boundary.create_document`, so an agent cannot backdoor a malformed
-      capture through this path. `agent_attempt_edit`/`agent_attempt_delete`
+      capture through this path. WHICH headers, and whether a line carries one,
+      is the CORPUS's answer since `split-opendox-two-layer-product` § 2.3:
+      `missing_required_headers` asks the corpus-adapter seam's `classify`
+      rather than applying a list of its own (see that function, and the
+      contract comment below). `agent_attempt_edit`/`agent_attempt_delete`
       are named passthroughs to the boundary's explicit refusals — this
       module has NO route that mutates or removes an existing corpus
       document; every "attempt" is wired only to a refusal (spec "Agent
@@ -47,23 +51,37 @@ verifies this against the real `sync_book` function).
 from __future__ import annotations
 
 import shlex
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Sequence
-
-from doc_health import corpus
-from doc_health.lines import split_keepends
 
 from .boundary import HEADER_INCOMPLETE, AGENT, OutputBoundary
 from .workbench import slug
 
 # --------------------------------------------------------------------------
 # shared header contract (openxFactory ideation/README.md "Ideation Header
-# Format"): H1 (`— Brainstorm` suffix) then these six fields, in this order.
+# Format"): H1 (`— Brainstorm` suffix) then the obliged fields, in the order
+# the contract declares them.
+#
+# THE FIELD LIST IS NOT WRITTEN DOWN HERE ANY MORE
+# (`split-opendox-two-layer-product` § 2.3; design § D2). It was, until this
+# task, and the pair it formed was the defect: this module authored the six
+# names and applied them with a scan of its own over
+# `doc_health.corpus.STATUS_SCAN_LINES` — one header contract with two authors
+# in two packages, agreeing by convention and by nothing else. Convention is
+# what `align-status-reader-to-real-lines` already found ten disagreeing
+# spellings of, and the damage there was FALSE FINDINGS: a correct document
+# reported as lacking a header it plainly carried.
+#
+# So the question is put to the corpus instead, through the one interface that
+# answers it — `classify`, whose response carries both which fields a document's
+# kind requires and which of them it is missing (`design.md` § D2: "what KIND is
+# this document, and which fields does its kind require — the operation
+# `authoring.py`'s `REQUIRED_HEADER_FIELDS` becomes, instead of a constant").
+# `REQUIRED_HEADER_FIELDS` survives as a NAME (see `__getattr__` at the foot of
+# this module) and no longer as a value: reading it asks the corpus.
 # --------------------------------------------------------------------------
-REQUIRED_HEADER_FIELDS: tuple[str, ...] = (
-    "Status", "Kind", "Summary", "Topics", "Repository context", "Captured",
-)
 BRAINSTORM_SUFFIX = " — Brainstorm"
 # The status EVERY created document carries unless a human names another one
 # (add-workbench-bullseye-and-create, Brett's 2026-07-25 ruling on open
@@ -264,31 +282,85 @@ def edit_command(repo_root: Path | str, relpath: str, *, editor: str | None = No
 # AGENT PATH — create-only capture (scenario 1) + edit/delete refusal (scenario 2)
 # --------------------------------------------------------------------------
 
+#: Where a proposal is staged when the corpus is asked about it. Under
+#: `IDEATION_PREFIX` because that is the tree this create path writes into and
+#: the tree the header contract governs; the basename is arbitrary and never
+#: reaches the answer.
+PROPOSAL_KEY = IDEATION_PREFIX + "proposal.md"
+
+
+def _classify_proposal(text: str):
+    """What this corpus makes of a body it does not hold yet.
+
+    A CORPUS OF ONE, AND THE ALTERNATIVE WAS A PRIVATE DOOR. The corpus-adapter
+    interface answers about documents a corpus HOLDS — `classify` reads through
+    `read`, so an identity the corpus does not list refuses rather than being
+    invented. A create gate's whole question is about a body that is not in the
+    corpus yet, so the proposal is presented as a corpus of one: staged in a
+    throwaway tree under the same prefix the create path writes into, resolved
+    through `home_corpus()` like any other location, and classified through the
+    same six operations every other caller gets. The shortcut — importing the
+    package's classifier and calling it on a string — is exactly the route
+    `corpus-adapter-seam` requirement 4 forbids ("no privileged direct call, no
+    bypass of the interface for openxFactory's own corpus"), and
+    `tests/corpus-adapter/test_no_privileged_route.py` fails the build for it.
+
+    The imports are function-local for the reason `home.py`'s own were: this
+    module's dependence on the seam sits at ONE readable point, and no import
+    ordering between the two packages can turn into a cycle.
+
+    Bodies are staged as UTF-8 with `errors="replace"`, the same decoding the
+    corpus loader uses on the way back, so a body that survives a round trip is
+    read exactly as it was written and one that cannot be encoded is read the
+    way this corpus would read it rather than raising inside a gate.
+    """
+    from corpus_adapter import DocumentId
+    from corpus_adapter_openxfactory import home_corpus
+
+    with tempfile.TemporaryDirectory(prefix="xf-proposal-") as staged:
+        document = Path(staged) / PROPOSAL_KEY
+        document.parent.mkdir(parents=True, exist_ok=True)
+        document.write_bytes(text.encode("utf-8", errors="replace"))
+        adapter, ref = home_corpus(staged)
+        resolved = adapter.resolve(ref)
+        return adapter.classify(resolved,
+                                DocumentId(corpus=ref.name, key=PROPOSAL_KEY))
+
+
+def required_header_fields() -> tuple[str, ...]:
+    """The header fields this corpus obliges of a new ideation document.
+
+    `classify`'s answer, asked of the corpus itself, never restated here — which
+    is the whole of `split-opendox-two-layer-product` § 2.3. An empty body is
+    the cheapest thing to ask about: the obligation is a property of the kind
+    and the tree, not of what the body happens to carry.
+    """
+    return _classify_proposal("").required_fields
+
+
 def missing_required_headers(text: str) -> list[str]:
     """Required ideation headers absent — OR value-empty — in `text`'s header
-    window. Faithfully mirrors `doc_health.corpus`'s header scan, which
-    requires a non-empty VALUE (`STATUS_RE = ^Status:\\s*(.+?)\\s*$`;
-    `parse_kind` returns `None` for a bare `Kind:`): a header line with no
-    value is NOT a carried header. Enforcing this at the agent gate closes
-    the empty-header bypass — a valueless `Status:` would otherwise pass the
-    gate yet make the generator emit `stage: null`, failing the pinned
-    snapshot schema (`stage` is required and enumerated).
+    window.
 
-    "Faithfully mirrors" now also means the same REAL-line window
-    (`doc_health.lines.split_keepends`), not `str.splitlines()` fragments —
-    a wider split here than `corpus.parse_status` uses would let a
-    header-complete submission through the gate on an exotic-separator
-    header and then fail the corpus reader's own idea of completeness
-    downstream, which is the mirror this docstring already promised.
+    THE ANSWER IS THE CORPUS'S, not this module's: it is the `missing_fields`
+    of `classify`'s response (§ 2.3). What that buys is stated most simply as a
+    subtraction — this function used to be one of the readers
+    `doc_health.lines` enumerates as "readers of a lifecycle header that must
+    agree", carrying its own window and its own present-rule, and it is not one
+    any more. It cannot drift from the corpus's reader because it no longer
+    reads.
+
+    The rule it delegates to is unchanged and still requires a non-empty VALUE
+    (`STATUS_RE = ^Status:\\s*(.+?)\\s*$`; `parse_kind` returns `None` for a bare
+    `Kind:`): a header line with no value is NOT a carried header. Enforcing
+    that at the agent gate closes the empty-header bypass — a valueless
+    `Status:` would otherwise pass the gate yet make the generator emit
+    `stage: null`, failing the pinned snapshot schema (`stage` is required and
+    enumerated) — and the window is still the REAL-line one
+    (`doc_health.lines.split_keepends`), because that is the window the corpus
+    itself scans.
     """
-    lines = split_keepends(text)[:corpus.STATUS_SCAN_LINES]
-    present: set[str] = set()
-    for body, _ending in lines:
-        for field in REQUIRED_HEADER_FIELDS:
-            prefix = field + ":"
-            if body.startswith(prefix) and body[len(prefix):].strip():
-                present.add(field)
-    return [f for f in REQUIRED_HEADER_FIELDS if f not in present]
+    return list(_classify_proposal(text).missing_fields)
 
 
 def agent_capture(boundary: OutputBoundary, *, path: str, text: str) -> Path:
@@ -327,3 +399,28 @@ def agent_boundary(root: Path | str, allowlist: Sequence[str] = ()) -> OutputBou
     """Convenience constructor: an `OutputBoundary` tagged `actor=AGENT`, the
     only actor label the agent capture path uses."""
     return OutputBoundary(root, allowlist, actor=AGENT)
+
+
+def __getattr__(name: str):
+    """`REQUIRED_HEADER_FIELDS` — the NAME, kept; the constant, gone (§ 2.3).
+
+    PEP 562, and the laziness is the point rather than a flourish. A
+    module-level `REQUIRED_HEADER_FIELDS = required_header_fields()` would ask
+    the corpus at IMPORT time, which is both a filesystem read during an import
+    and an ordering hazard between this module and the adapter package that
+    answers it. Resolved on access, the name is a thin alias for the corpus's
+    own answer: `tests/ideation-dashboard/test_authoring_classify_derivation.py`
+    proves it by making `classify` answer differently and watching the alias
+    follow, and by parsing this file for an assignment that no longer exists.
+
+    It is kept rather than deleted because `completeness.GOVERNANCE_HEADER_FIELDS`
+    deliberately RESTATES the block to keep its own import graph free of
+    anything that touches the filesystem, and `test_completeness.py`
+    cross-checks the two so they cannot drift. Keeping the name turns that
+    existing cross-check into a check against the CORPUS's answer; deleting it
+    would either delete the cross-check or force into `completeness.py` the
+    import it was written not to have.
+    """
+    if name == "REQUIRED_HEADER_FIELDS":
+        return required_header_fields()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
