@@ -706,7 +706,7 @@ travels with the act it describes. **The text below is DRAFTED, NOT APPLIED;
 > `openDox`, `openDox-spec`, `openDox-code`, `openXdox`, `openXdox-spec` and
 > `openXdox-code`. The election is recorded where the doctrine says it lives —
 > each assembly root's `project.yaml`, `elected_by: Brett Heap`,
-> `elected_on: 2026-09-05`, `reference: docs/project-repo-schema.md` — and this
+> `elected_on: 2026-09-05`, `reference: openxFactory docs/project-repo-schema.md` — and this
 > record only registers the NAMES.
 >
 > **The leg suffixes are not new brands.** `-spec` and `-code` are lowercase and
@@ -878,10 +878,11 @@ making the same classification TRUE by naming the chain the descendant
 actually relies on, and removing a pass that would have evaporated the moment
 anyone tightened the x-stem rule or compared spellings exactly. `tasks.md`
 § 1.10 records the interim this lane decided rather than leaving it to the
-session that hit it: the descendant scaffolds, and the chain it relies on is
-RECORDED in its own manifest so the accidental pass is never left standing as
-the explanation, until the re-pin below carries #42's fix into this
-repository. What the interim does not permit is adding a direct `openDox` pin
+session that hit it: the descendant scaffolds WITH `--referent-chain
+openXdox,openDox`, and the chain it relies on is RECORDED in its own manifest —
+written by that flag alone, never inferred — so the accidental pass is never
+left standing as the explanation, until the re-pin below carries #42's fix into
+this repository. What the interim does not permit is adding a direct `openDox` pin
 to force the classification.
 
 **A second dependency, measured while authoring this amendment and now also
@@ -899,15 +900,16 @@ asked for the admission — a neutral product may elect the shape and be its own
 assembly root, on the same reasoning that already lets a declared descendant
 be one — and openRepoShape PR #45, *A neutral product may elect the shape and
 be its own assembly root (#41)*, merge commit `5ffa8d58`, merged
-2026-09-05T17:19:12Z, authored by lane `xfactory-2`, is that admission.
-openRepoShape `main` is now at `355f6ef4` (#47), which carries both `c2cc9e25`
-and `5ffa8d58`. **The blocker that remains is a RE-PIN**: this repository's
-`contracts/openreposhape-pin.yaml` still pins
-`122d729bc0c2f2e0ded0bb61b6b97f49512f613e`, a commit predating both fixes, and
-a single re-pin to `355f6ef4` or any descendant commit — its own pin-sync pull request
-under `neutral-product-pin` — covers both. **`tasks.md` § 1.1a carries it as
-the first act of § 1.** Nothing is blocked today, because this packet
-performs nothing.
+2026-09-05T17:19:11Z (issue #41 closed 17:19:12Z), authored by lane `xfactory-2`, is that admission.
+`355f6ef4` (#47) and every descendant commit carry both `c2cc9e25`
+and `5ffa8d58`. **That re-pin has LANDED** *(reality check 2026-09-05, second
+run, claims C38/C39)*: PR #700, commit `303bfd53` (2026-09-05T17:50-04:00),
+moved this repository's `contracts/openreposhape-pin.yaml` to
+`e9c4827b85f50503bbdd9e5b4fac9d6c3d0baf63` — a descendant of `355f6ef4`
+carrying both #42 and #45, verifying clean (31 digests / 45 path-only / 76
+files declared). **No blocker remains; `tasks.md` § 1.1a records the
+discharge.** This packet performs nothing, so nothing else was ever blocked
+by it.
 
 **Where `contracts/manifest.yaml` and the bundle tag live, and why.** In the
 ASSEMBLY ROOT of each project, with the release cut there. The assembly root is
@@ -917,7 +919,11 @@ release identity can describe THE PROJECT rather than half of it; a tag on
 `neutral-product-pin` makes a consumer pin a commit and a digest, so the commit a
 consumer pins has to be the one that answers *what was this project at that
 moment* — which is the assembly root's commit, and it is what openXdox's
-`contracts/opendox-pin.yaml` and `openxFactory`'s two pin files therefore name.
+`contracts/opendox-pin.yaml` names, and what `openxFactory`'s ONE pin file —
+`contracts/openxdox-pin.yaml` — also names for openXdox (RULING F, `#656`,
+2026-09-05, "rule F openXdox only"): `openxFactory` carries no
+`contracts/opendox-pin.yaml` of its own, and openDox's commit there is a
+DERIVED value read through openXdox's own pin.
 The legs are pinned by their own assembly root, twice and in one commit (gitlink
 plus `contracts/<role>-pin.yaml`), under the lockstep invariant the doctrine
 already ratified.
@@ -925,8 +931,13 @@ already ratified.
 **The cost accepted, stated rather than discovered.** A change to openDox's code
 is not visible to openXdox until TWO pins move: openDox's assembly root advances
 its own `code` pin (gitlink plus `contracts/code-pin.yaml`, same commit), and
-openXdox then bumps `contracts/opendox-pin.yaml`. A single-repository product has
-neither move. This is the aggregation's own gitlink-trap discipline one level
+openXdox then bumps `contracts/opendox-pin.yaml`. A single-repository `openDox`
+would still need the second move — a consumer pins a neutral product by commit
+and tree digest whatever its internal shape, which is why `openxFactory` bumps
+`contracts/openreposhape-pin.yaml` and `contracts/openxwallet-pin.yaml` by hand
+for two single-repository products today. What the shape election adds is the
+first move alone. *(reality check 2026-09-05, second run, claims C27/C41.)*
+This is the aggregation's own gitlink-trap discipline one level
 down — the invariant that went unwritten for months and left `validate` red on
 seven consecutive pin-syncs — and the reason the doctrine makes the assembly
 root's gate refuse when the three parts disagree. It is a real cost and it buys a

@@ -300,3 +300,92 @@ nineteen that held. `c26` (already `holds=true`) needs no further action.
 | `python3 -m pytest -q tests/sequenced_after tests/doc-health tests/proposal-support` | `1774 passed, 7 warnings, 2 subtests passed` |
 | doc-health, `--single-repo`, fresh `origin/main` worktree (`8b297c2f`) | 8 critical, 7 error, 30 warning, 13 info |
 | doc-health, `--single-repo`, this tree | 8 critical, 7 error, 30 warning, 13 info — **delta ZERO across every family and every severity, info included**, diffed line by line after normalizing the `Repo-Identity` prefix each run stamps from its own directory name. The new `review/reality-check-2026-09-05.md` file, carrying the same lifecycle header form as the other `review/` records, adds no finding.
+
+## Second run — 2026-09-06T00:00Z at `391d2404`
+
+**What happened.** A second, independent workflow session (`wf_ba66b10a-c44`)
+re-extracted the packet's `opensoft/openRepoShape` claims from scratch against
+the state landed by the first run above plus PR #706 (tick group 0), at commit
+`391d2404`. This is a fresh extraction, not a continuation: the claim ids below
+(`C1`–`C47`, forty-seven claims) are this run's own numbering and do NOT
+correspond position-for-position to the first run's lowercase `c1`–`c48`
+above — do not cross-reference by number between the two runs, only by the
+quoted claim text.
+
+Of the forty-seven: **thirty-one HOLD** (the packet's claim is true as
+written, no action) and **sixteen were flagged CHECKER-FALSE** by the
+automated checker stage. The adversarial refutation pass that is supposed to
+stress-test every checker-false verdict before it is trusted ran against only
+three of the sixteen before the session hit the Opus usage-window limit
+mid-run, stopping the refuters, the critic and the report-writer together:
+
+- **`C4` — REFUTED.** The refuters determined the checker's false call was
+  itself a false positive (the packet's original text holds); no correction
+  was made for `C4`.
+- **`C6` and `C7` — CONFIRMED.** The refuters independently reproduced the
+  checker's false verdict: both are genuinely false as written (the pin-currency
+  claims at the heart of Finding A below).
+- **The remaining THIRTEEN checker-false claims went UNREFUTED** — not
+  confirmed, not overturned, simply never reached before the limit stopped the
+  pipeline.
+
+This corrections PR does not treat "unrefuted" as "unconfirmed and therefore
+untouched." Every one of the thirteen this PR corrects (`C10`, `C11`, `C17`,
+`C22`, `C26`, `C27`, `C30`, `C34`, `C38`, `C39`, `C41`, `C42` — twelve of the
+thirteen; the thirteenth surfaced no packet text to correct) was independently
+re-verified in this session by direct, live measurement against a real
+`openRepoShape` checkout at the commit this repository now pins (fresh clones,
+worktrees, `--dry-run` and `--local-remote-dir` scaffold runs, `git log`/`git
+show`/`gh api` — no claim taken on the checker's or the stalled refuter
+pipeline's word alone), the same discipline the first run above used. Any of
+the thirteen NOT independently re-verified this way remains open and is not
+corrected here.
+
+### Corrections made, by finding
+
+- **Finding A** (`C6`, `C7`, `C38`, `C39`, `C42`) — the packet still asserted
+  the tool is blocked at `122d729b` and that a re-pin remains outstanding;
+  PR #700 (`303bfd53`) already discharged it. Corrected in `tasks.md` (§ 1.1,
+  § 1.1a, § 1.2, § 1.10) and `design.md` (the `#41`/`#45` blocker paragraph and
+  its merge-timestamp label).
+- **Finding B** (`C17`) — the second surviving "eighteen descendant names"
+  base sentence, arithmetic wrong at 5 descendants × 3 names = 15. Corrected in
+  `tasks.md` § 1.7.
+- **Finding C** (`C10`, `C11`) — the § 1.3 file-set note compared two stale
+  revisions (`122d729b` vs `355f6ef4`) instead of the actual pin; restated once
+  at `e9c4827b`, with the exact assembly-root and per-leg file lists measured
+  live. Corrected in `tasks.md` § 1.3.
+- **Finding D** (`C22`, `C30`) — `naming.referent_chain` is written only when
+  `--referent-chain` is passed, but § 1.10's own required interim and § 7.3's
+  printed `codexDox` command neither passed nor mentioned the flag. Corrected
+  in `tasks.md` (§ 1.10, twice, and the § 7.3 scaffold command) and `design.md`
+  (the § 1.10 interim retelling).
+- **Finding E** (`C34`) — the recorded election `reference:` string was given
+  unqualified (`docs/project-repo-schema.md`) where the packet's own commands
+  and the tool's own default use the qualified `openxFactory
+  docs/project-repo-schema.md`. Corrected in `design.md` (~L709) and `tasks.md`
+  § 1.6.
+- **Finding F** (RULING F, no independent claim id — see below) —
+  `openxFactory` was still declared as pinning `openDox` directly in five
+  places. Corrected in `tasks.md` (§ 5.1, § 5.8, § 8.7), `design.md` (the
+  "where `contracts/manifest.yaml`... live" passage), and `proposal.md`
+  (items (1) and (3) of the Impact section).
+- **Finding G** (`C26`, `C27`, `C41`) — "per-file digest" overstates what a
+  `--pin` file actually carries (one whole-tree digest, `sorted-ls-tree-r-v1`,
+  no per-file rows), and "a single-repository product has neither move"
+  overstates the shape's marginal cost (a single-repository `openDox` would
+  still need the consumer's own commit-bump — `openxFactory` performs that
+  identical hand bump today for `openRepoShape` and `openXwallet`). Corrected
+  in `tasks.md` § 4.2 and `design.md` (~L925).
+
+### RULING F, quoted
+
+> RULINGS (Brett Heap, `opensoft/openxFactory` issue `#656`, 2026-09-05):
+> OQ-2 "one pin chain: inside the family openDox is pinned ONLY by openXdox
+> and every descendant pins openXdox". F (23:5xZ, verbatim "rule F openXdox
+> only, then do the corrections PR"): inside the family openxFactory pins
+> openXdox ONLY — one `contracts/openxdox-pin.yaml` + one gitlink, file and
+> gitlink moving in the same commit; openDox's commit is READ THROUGH
+> openXdox's own pin and is never declared, pinned or mounted by openxFactory.
+
+Refs `#656`.
