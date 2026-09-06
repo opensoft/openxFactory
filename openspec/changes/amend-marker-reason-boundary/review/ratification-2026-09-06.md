@@ -34,11 +34,15 @@ green and the verification run captured beside this file at
 PRE-CAPTURE.** `record-immutability` forbids editing a `Status: record` document
 AFTER capture; capture is the merge of the pull request that establishes it, and
 nothing is merged yet. Every number in `verification-2026-09-06.md` was
-re-derived on the tree this record sits in, after this branch's merge from `main`
-taking `origin/main` **`6295e387`** — the head that carries #723 (the scope-globs
-archive-gate repair), #721, #724, #720 and #716. A commit cannot write its own
-hash into its own tree, so the ratification commit is named by its subject and
-its position on the branch rather than by a hash.
+re-derived on the tree this record sits in, after this branch's **SECOND** merge
+from `main` taking `origin/main` **`d179cc0d`** (#717
+`register-gate-rules-council-seats` and #718 intent-plane 4.4 PR-1, on top of
+`6295e387`, which the first merge took and which carried #723's scope-globs
+archive-gate repair, #721, #724, #720 and #716). The second merge took ONE
+conflict — #717 inserted its own README Active row at the same insertion point as
+this packet's — and it was resolved by keeping BOTH rows, this branch's first. A
+commit cannot write its own hash into its own tree, so the ratification commit is
+named by its subject and its position on the branch rather than by a hash.
 
 ## 1. What was ratified, and what it says
 
@@ -210,8 +214,8 @@ reviews"*; a second request at 12:09:00Z drew the identical refusal
   module; the estate-wide MEASUREMENT itself, which is outside this lane's clone
   and is therefore RECORDED as owed rather than claimed; and the merge-from-`main`
   and re-measure, which was owed at landing on Brett Heap's word — **and which
-  this ratification commit's parent merge has now taken, against `origin/main`
-  `6295e387`, with every number re-derived in `verification-2026-09-06.md`.**
+  this branch has now taken TWICE, against `origin/main` `6295e387` and then
+  `d179cc0d`, with every number re-derived in `verification-2026-09-06.md`.**
 - **Copilot: two rounds, one thread, taken and resolved.** Round 1 (10:19:12Z) and
   round 2 (11:30:49Z). The one inline thread it opened was a precedence pitfall in
   the pairing branch's conditional — `normalize(tail[3:])` evaluated even when the
