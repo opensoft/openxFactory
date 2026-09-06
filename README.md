@@ -148,6 +148,21 @@ Core domain-neutral docs:
   program cannot run. The record's `Ruled by:` line quotes the operator's own
   `--ruling` and names whoever the custody attestation's `verified_by.name`
   names, so the program invents neither a quotation nor an attribution)
+- [Review-Lane Re-Pin Runbook](docs/review-lane-repin-runbook.md)
+  (advancing the pinned decision core: the FIVE sites that name the
+  codexFactory commit judging this repository, the bot cycle
+  `.github/workflows/review-lane-repin.yml` now proposes, and the hand cycle
+  that is still supported and still required whenever the lane refuses. The
+  lane resolves codexFactory's default branch ITSELF on every firing and never
+  reads its trigger's payload; it moves all five sites or opens nothing; it
+  re-copies the vendored snapshot and recomputes `sha256`/`entry_count` from
+  the bytes it wrote; it submits itself to `tests/review_lane_pin` before
+  proposing; and it NEVER merges — a human word does, because a lane that could
+  both propose and land a change to `contracts/review-lane-pin.yaml` would be a
+  lane choosing its own judge. Realizes
+  `mirror-floor-regeneration-automation` tasks 3-4; `Status: draft`, because
+  its § 5 first-unattended-cycle boxes are open by design and no refusal has
+  yet been observed on a real run)
 - [The Project Repository Schema](docs/project-repo-schema.md)
   (the ELECTIVE three-repository shape — `<Project>` assembly root,
   `<Project>-spec`, `<Project>-code` — and the doctrine that electing it
