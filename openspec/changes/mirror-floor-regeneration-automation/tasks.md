@@ -10,6 +10,20 @@ did not follow. Group 6 is the owner's, and its boxes stay unticked even once
 taken: an agent may not tick an owner's-act box, so those acts are recorded as
 dated notes beneath them instead.
 
+**2026-09-06 — THE PARAGRAPH ABOVE IS THE RECORD OF THIS FILE AT AUTHORING AND
+IS KEPT UNCHANGED; what follows is its state now.** The packet was RATIFIED
+(Brett Heap, "ratify both when green, then land them"), and the realization has
+been performed and is proposed at openxFactory PR
+[#715](https://github.com/opensoft/openxFactory/pull/715). Group 1's boxes are
+therefore ticked: the condition the paragraph named — *"the moment a
+ratification did not follow"* — did not occur, so they are no longer false
+completions. Groups 3 and 4 are ticked with their evidence. **Group 5 stays
+entirely unticked and Group 6 stays unticked by rule**; each says why in its own
+place, and NOTHING IS ARCHIVED — `release-realization` archives a code surface
+only on merged plus green realization evidence, and this packet's own
+`target_release:` names ONE COMPLETE CYCLE OBSERVED UNATTENDED as that
+evidence.
+
 ## 1. The proposal itself
 
 - [x] 1.1 Author the packet — `proposal.md`, `design.md`, the
