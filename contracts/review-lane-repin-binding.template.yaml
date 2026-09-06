@@ -119,10 +119,17 @@ privileges:
       it.
   floored_repository:
     repository: opensoft/openxFactory
-    grants: [contents:write, pull-requests:write]
+    # `workflows:write` was added on the measurement run 34033398015 made
+    # (2026-09-06): two of the five pinned sites are workflow files, and GitHub
+    # refuses an App push that touches `.github/workflows/**` without it. It is
+    # write on the lane's OWN BRANCH; the line below still refuses it on main.
+    grants: [contents:write, pull-requests:write, workflows:write]
     never_grants: [administration:write, workflows:write-to-default-branch]
     reason: >-
       `contents: write` pushes the lane's own branch `bot/review-lane-repin`;
+      `workflows: write` lets that push carry the two pinned sites that live
+      in `.github/workflows/` (the core checkout `ref:` in
+      merge-master-approval.yml and pytest-suite.yml) — on the bot branch only;
       `pull-requests: write` opens and updates the ONE pull request that branch
       carries. The lane never merges, never approves, never enables auto-merge
       and never writes to `main` — requirement 1, asserted by
