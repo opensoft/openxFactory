@@ -18,7 +18,7 @@ Amended: 2026-09-05 by Brett Heap — four dated amendments (design.md § D2 ret
 measurement; the ten-step sequence under the ruling "Orchestrator pins OmniWorker-Install";
 § D6 OQ-6 "Land it in Omnigent-Install first, then copy"; tasks.md § 6 pin step before 6.1),
 RATIFIED 2026-09-05 in-session, verbatim "ratify and merge 704, 214 and 18", on openxFactory
-PR #704 (Rule 6 landing window at merge). Omnigent-Install #213 is HELD until
+PR #704 (Rule 6 landing window at merge). opensoft/Omnigent-Install#213 is HELD until
 `add-worker-acr-push` lands there.
 
 ## Origin — Brett Heap's rulings of 2026-09-05
