@@ -312,10 +312,29 @@ revert. The corrected revert is the row above.
       registration narrative (row 93/94 of the table, §"deliberation becomes
       clearing register ENTRY NUMBER TWO", the D10 route-retirement note, and
       the manifest-row provenance table crediting #652).
-- [ ] 3.4 **`contracts/releases/<tag>.digests.yaml`** and the **annotated tag
+- [x] 3.4 **`contracts/releases/<tag>.digests.yaml`** and the **annotated tag
       `contract-v<major>.<minor>` at the landed sha**, per the policy: the
       manifest version, changelog heading and tag must match, and the tag points
-      at the realized commit.
+      at the realized commit. **VERIFIED 2026-09-06** (ruling on the row's own
+      wording, which requires only these five facts, not clearing-family
+      coverage of the digests inventory — see below): `git cat-file -t
+      contract-v3.4` → `tag`; `git rev-parse contract-v3.4^{commit}` →
+      `807a4f47288b2849701a16cefe6c5794b045eca8`; `git ls-tree contract-v3.4
+      contracts/releases/` lists `contract-v3.4.digests.yaml`; `git show
+      contract-v3.4:contracts/manifest.yaml | grep contract_bundle_version` →
+      `contract_bundle_version: contract-v3.4`; the CHANGELOG heading is `##
+      contract-v3.4 — 2026-09-04 (...)`; `git merge-base --is-ancestor
+      0df522eb contract-v3.4` → true (the tag contains #652's realization
+      commit; cut by openxFactory PR #653). All five agree.
+      **NOTE, filed separately:** `contract-v3.4.digests.yaml` does not list
+      the new clearing schema by name — `contracts/releases/` inventory is
+      scoped to `contracts/hermes-runtime/` only (per
+      `scripts/hermes_runtime_validation/release.py`'s `FAMILY_PREFIX`) and has
+      never covered `contracts/clearing/` (same zero count at the
+      `contract-v3.3` baseline). This row's own wording does not require that
+      coverage, so it is ticked on the facts above; the scope mismatch itself
+      is tracked at openxFactory issue #722
+      (https://github.com/opensoft/openxFactory/issues/722).
 
 ## Phase 4 — Downstream notice (name it, do not do it)
 
