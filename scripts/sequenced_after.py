@@ -728,10 +728,14 @@ def retention_at_archive(change_dir: str | Path, ratified_ref: str) -> str | Non
     entries as authored, any date-prefixing, re-pointing or normalization
     performed on archival would register here as a mutation.
 
-    Raises `SequencedAfterError` (never a traceback) when `change_id` has no
-    proposal.md at `ratified_ref` at all, or when `change_dir` carries no
-    `proposal.md` IN THE WORKING TREE — the CURRENT declaration cannot be read,
-    so the gate cannot run.
+    Raises `SequencedAfterError` (never a traceback) whenever it cannot READ
+    what it compares: when `change_id` has no proposal.md at `ratified_ref` at
+    all, when `change_dir` carries no `proposal.md` IN THE WORKING TREE — the
+    CURRENT declaration cannot be read, so the gate cannot run — and when the
+    front matter on EITHER side is malformed or unparseable (`read_declaration`
+    refuses it). A `change_dir` outside any git work tree is NOT converted and
+    still surfaces git's own error; the sibling `scope_globs` gate names that
+    case too, and aligning it is a separate arm.
     """
     change_path = Path(change_dir)
     proposal = change_path / "proposal.md"
