@@ -63,6 +63,7 @@ from ideation_dashboard.intent_apply_lane import (  # noqa: E402
     shape_error,
 )
 
+import header_contract_oracle as oracle  # noqa: E402
 from import_scan import imported_modules  # noqa: E402
 
 PACKAGE = REPO_ROOT / "scripts" / "corpus_adapter_openxfactory"
@@ -144,18 +145,45 @@ def test_all_is_the_union_of_the_declared_scopes(home):
 # -- classify says what the corpus's own header readers say -----------------
 
 
-def test_the_required_field_table_is_the_authoring_contract_itself():
-    """§ 2.3's precondition. `REQUIRED_HEADER_FIELDS` stays a constant in this
-    change and the adapter MIRRORS it under this pin; the migration to a
-    classify RESPONSE is § 2.3's own PR, and this assertion is what makes that
-    migration a deletion rather than a re-derivation."""
-    assert HOME_SHAPE.required_fields_by_kind[None] == \
-        tuple(authoring.REQUIRED_HEADER_FIELDS)
+def test_the_required_field_table_is_the_contract_it_always_was():
+    """§ 2.3, LANDED: the table is the authority now, and it is unchanged.
+
+    Until § 2.3 this assertion read the other way round — the table MIRRORED
+    `authoring.REQUIRED_HEADER_FIELDS`, which was the constant. The migration
+    inverted it: the field block is a fact about this corpus's shape, the create
+    gate asks `classify` for it, and deriving the table from the gate would now
+    be a cycle rather than a derivation. Two things must therefore hold, and
+    they are different things:
+
+      * the contract did not CHANGE while its authorship moved — measured
+        against the frozen pre-migration answer, not against the consumer, which
+        would be a tautology now that the consumer's answer comes from here;
+      * the two things that could not be derived either way still agree with the
+        readers that own them: the tree the create path writes into, and the
+        window the corpus's own header readers scan.
+    """
+    assert HOME_SHAPE.required_fields_by_kind[None] == oracle.FIELDS, (
+        "the header block this corpus obliges is not the block it obliged "
+        "before § 2.3 — the migration was a re-derivation of one contract, not "
+        "a change to it")
     assert HOME_SHAPE.obliged_prefixes == (authoring.IDEATION_PREFIX,), (
         "the header block governs the tree the create path enforces it over, "
         "and reporting a document outside it as field-incomplete would be a "
-        "false finding")
+        "false finding. Two definitions of one tree, pinned here because the "
+        "import that used to make them one would now be a cycle")
     assert HOME_SHAPE.header_scan_lines == corpus.STATUS_SCAN_LINES
+
+
+def test_the_authoring_gate_now_answers_out_of_this_table():
+    """The other end of § 2.3, asserted where the table lives.
+
+    `tests/ideation-dashboard/test_authoring_classify_derivation.py` proves the
+    direction (no assignment survives, and a different table changes the gate's
+    answer). This is the cheap standing check that the two ends are wired to
+    each other at all — a broken wiring would otherwise show up only as a gate
+    that quietly stopped following the corpus."""
+    assert tuple(authoring.REQUIRED_HEADER_FIELDS) == \
+        HOME_SHAPE.required_fields_by_kind[None]
 
 
 def test_classify_agrees_with_the_corpus_own_header_readers(home):
@@ -163,9 +191,16 @@ def test_classify_agrees_with_the_corpus_own_header_readers(home):
 
     `align-status-reader-to-real-lines` found ten Python spellings of "what is
     a line" over this header window, disagreeing with each other, and the damage
-    was FALSE FINDINGS. So `classify` is asserted against `parse_kind` and
-    `missing_required_headers` over real documents rather than merely written to
-    look like them."""
+    was FALSE FINDINGS. So `classify` is asserted against `parse_kind` and the
+    field reader over real documents rather than merely written to look like
+    them.
+
+    THE FIELD HALF MEASURES AGAINST THE FROZEN ORACLE, NOT AGAINST THE CALLER.
+    It used to compare with `authoring.missing_required_headers`; since § 2.3
+    that function IS this call, so the comparison would be a function against
+    itself. `tests/header_contract_oracle.py` holds the answer that reader gave
+    before the migration, so the parity keeps measuring the same thing it always
+    did: this reader against the one the corpus trusted."""
     adapter, resolved = home
     location = Path(resolved.location)
     sample = [doc for doc in adapter.list_documents(resolved, DOCUMENTS)
@@ -179,7 +214,7 @@ def test_classify_agrees_with_the_corpus_own_header_readers(home):
         result = adapter.classify(resolved, document)
         assert result.kind == corpus.parse_kind(text), document.key
         assert result.missing_fields == \
-            tuple(authoring.missing_required_headers(text)), document.key
+            tuple(oracle.missing_required_headers(text)), document.key
         # `Status` is one of the required fields, so the field reader and the
         # status reader must agree about its presence too.
         assert ("Status" in result.missing_fields) is \
