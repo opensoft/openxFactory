@@ -148,7 +148,20 @@ It needs, and the binding declares, exactly:
 | repository | permissions | why |
 |---|---|---|
 | `opensoft/codexFactory` | `contents: read` | resolve the default branch, fetch the floor document |
-| `opensoft/openxFactory` | `contents: write`, `pull-requests: write` | push `bot/review-lane-repin`, open and update the one pull request |
+| `opensoft/openxFactory` | `contents: write`, `pull-requests: write`, `workflows: write` | push `bot/review-lane-repin` — including the two pinned sites that live in `.github/workflows/` — and open and update the one pull request |
+
+`workflows: write` is not decorative. Two of the five pinned sites are workflow
+files (the core checkout `ref:` in `merge-master-approval.yml` and
+`pytest-suite.yml`), and GitHub refuses an App push that touches
+`.github/workflows/**` without that permission — run 34033398015 (2026-09-06)
+advanced all five sites and passed the judge, then was refused at the push with
+exactly that message. The permission has to exist in TWO places: on the
+`openxfactory` GitHub App's installation (App settings → Permissions →
+Repository permissions → Workflows → Read and write, then accepted on the org
+installation — an owner's act), and on the lane's mint (`permission-workflows:
+write`, scoped to this repository only). Without the installation grant the
+mint itself refuses with a named error; the lane never degrades to a token that
+could push part of an advance.
 
 **It has no write privilege over codexFactory and is declared not to have one.**
 That is stated as a refusal in the binding so a later widening has to delete a

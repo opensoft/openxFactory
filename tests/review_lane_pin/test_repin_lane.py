@@ -1169,47 +1169,138 @@ class TheLaneRunsUnderADeclaredBinding(unittest.TestCase):
 
         floored = self.binding["privileges"]["floored_repository"]
         self.assertEqual("opensoft/openxFactory", floored["repository"])
-        self.assertEqual(["contents:write", "pull-requests:write"],
+        self.assertEqual(["contents:write", "pull-requests:write", "workflows:write"],
                          floored["grants"])
         self.assertTrue(floored["reason"].strip())
+
+    @staticmethod
+    def _mints() -> list[dict]:
+        return [step for step in LANE_DOC["jobs"]["review-lane-repin"]["steps"]
+                if str(step.get("uses", "")).startswith(
+                    "actions/create-github-app-token")]
+
+    @staticmethod
+    def _requested_grants(mint: dict) -> list[str]:
+        """A mint's `permission-<key>: <level>` inputs as the binding spells
+        them (`key:level`, hyphenated key)."""
+        return sorted(f"{key[len('permission-'):]}:{value}"
+                      for key, value in mint["with"].items()
+                      if key.startswith("permission-"))
 
     def test_the_token_is_scoped_to_the_bindings_two_repositories(self) -> None:
         """Scenario: The binding is least-privilege and says what it is for.
 
         The MINT is held to the binding too, not just the workflow's
         `permissions:` block. `owner:` alone yields a token good for every
-        repository the App is installed on in this organization; this token can
-        push and open pull requests, so it is scoped to exactly the two
-        repositories the binding's `privileges:` entries name — and the two
-        lists are required to be equal here rather than merely both present.
+        repository the App is installed on in this organization, and ONE token
+        over both repositories carries the same permissions over both — which
+        would mint `contents: write` over codexFactory, the write the binding
+        refuses. So there is one mint per repository the binding's
+        `privileges:` entries name, each scoped to exactly that repository, and
+        the set of minted repositories equals the set declared.
         """
-        mint = next(step for step in LANE_DOC["jobs"]["review-lane-repin"]["steps"]
-                    if str(step.get("uses", "")).startswith(
-                        "actions/create-github-app-token"))
-        scoped = {line.strip() for line in mint["with"]["repositories"].split()
-                  if line.strip()}
-
+        mints = self._mints()
+        self.assertEqual(2, len(mints), [m.get("name") for m in mints])
+        minted = []
+        for mint in mints:
+            scoped = [line.strip() for line in str(mint["with"]["repositories"]).split()
+                      if line.strip()]
+            self.assertEqual(1, len(scoped), mint.get("name"))
+            minted.extend(scoped)
         declared = {
             self.binding["privileges"][key]["repository"].split("/", 1)[1]
             for key in ("source_repository", "floored_repository")}
-        self.assertEqual(declared, scoped)
+        self.assertEqual(declared, set(minted))
+        self.assertEqual(len(minted), len(set(minted)))
+
+    def test_each_mint_requests_exactly_its_repository_grants(self) -> None:
+        """Scenario: The binding is least-privilege and says what it is for.
+
+        Each token requests EXACTLY the `grants:` the binding declares for the
+        one repository it is scoped to — no permission-* input the binding does
+        not list, none missing. A mint with no permission-* inputs at all would
+        inherit every permission the installation carries (the shape the first
+        realization had), so an empty request set is a failure here too.
+        """
+        by_repo = {
+            self.binding["privileges"][key]["repository"].split("/", 1)[1]:
+                sorted(self.binding["privileges"][key]["grants"])
+            for key in ("source_repository", "floored_repository")}
+        for mint in self._mints():
+            repo = str(mint["with"]["repositories"]).strip()
+            requested = self._requested_grants(mint)
+            self.assertTrue(requested, f"{mint.get('name')} requests no permission")
+            self.assertEqual(by_repo[repo], requested, mint.get("name"))
 
     def test_the_workflow_grants_exactly_what_the_binding_declares(self) -> None:
         """Scenario: The binding is least-privilege and says what it is for.
 
-        The declaration and the grant are held equal. A workflow that quietly
-        widened itself past its own binding would be the failure this pairing
-        exists to catch, and `permissions:` at the top of the file stays READ.
+        The declaration and the grant are held together. The `permissions:`
+        block at the top of the file stays READ; the job's GITHUB_TOKEN block
+        never exceeds the binding's grants for this repository (GITHUB_TOKEN has
+        no `workflows` key — the App token, not it, pushes the workflow-file
+        sites); and the authoring mint requests the binding's grants exactly.
         """
         self.assertEqual({"contents": "read"}, LANE_DOC["permissions"])
         job = LANE_DOC["jobs"]["review-lane-repin"]
         self.assertEqual({"contents": "write", "pull-requests": "write"},
                          job["permissions"])
 
-        floored = self.binding["privileges"]["floored_repository"]["grants"]
-        self.assertEqual(
-            sorted(floored),
-            sorted(f"{key}:{value}" for key, value in job["permissions"].items()))
+        floored = sorted(self.binding["privileges"]["floored_repository"]["grants"])
+        job_grants = sorted(f"{key}:{value}" for key, value in job["permissions"].items())
+        self.assertTrue(set(job_grants) <= set(floored), (job_grants, floored))
+
+        authoring = next(m for m in self._mints()
+                         if str(m["with"]["repositories"]).strip() == "openxFactory")
+        self.assertEqual(floored, self._requested_grants(authoring))
+
+    @staticmethod
+    def _assert_workflow_file_sites_are_granted(binding: dict, authoring_mint: dict) -> None:
+        """THE CHECK, as a function both the positive test and its negative
+        control call: if any pinned site lives under `.github/workflows/`, the
+        floored grants MUST include `workflows:write` and the authoring mint
+        MUST request `permission-workflows: write` — GitHub refuses an App push
+        touching a workflow file without it (run 34033398015, 2026-09-06). It
+        first proves such a site exists, so a site list that dropped both
+        workflow files fails here rather than passing by absence."""
+        workflow_sites = [site for site in R.PINNED_SITES
+                          if ".github/workflows/" in str(site.path)]
+        assert workflow_sites, "no pinned site is a workflow file; the premise is gone"
+        floored = binding["privileges"]["floored_repository"]
+        assert "workflows:write" in floored["grants"], floored["grants"]
+        assert authoring_mint["with"].get("permission-workflows") == "write", \
+            authoring_mint["with"]
+        # Never on the default branch: the refusal stays beside the grant.
+        assert "workflows:write-to-default-branch" in floored["never_grants"]
+
+    def _authoring_mint(self) -> dict:
+        return next(m for m in self._mints()
+                    if str(m["with"]["repositories"]).strip() == "openxFactory")
+
+    def test_workflow_file_sites_require_the_workflows_grant(self) -> None:
+        """MEASURED from the site list, not asserted — see
+        `_assert_workflow_file_sites_are_granted`. Runs against the REAL
+        binding and the REAL authoring mint."""
+        self._assert_workflow_file_sites_are_granted(self.binding, self._authoring_mint())
+
+    def test_negative_control_a_binding_without_the_workflows_grant_is_caught(self) -> None:
+        """The same check, run against a copy of the real binding with
+        `workflows:write` removed, MUST raise — and again against a copy of the
+        real mint without `permission-workflows` — proving it measures the
+        grant on each side rather than passing on the shape of the file."""
+        import copy
+        stripped_binding = copy.deepcopy(self.binding)
+        stripped_binding["privileges"]["floored_repository"]["grants"].remove("workflows:write")
+        with self.assertRaises(AssertionError):
+            self._assert_workflow_file_sites_are_granted(stripped_binding, self._authoring_mint())
+
+        stripped_mint = copy.deepcopy(self._authoring_mint())
+        del stripped_mint["with"]["permission-workflows"]
+        with self.assertRaises(AssertionError):
+            self._assert_workflow_file_sites_are_granted(self.binding, stripped_mint)
+
+        # And the real pair still passes, so the control is about the mutation.
+        self._assert_workflow_file_sites_are_granted(self.binding, self._authoring_mint())
 
 
 # ===========================================================================

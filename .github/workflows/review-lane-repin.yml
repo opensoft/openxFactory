@@ -172,6 +172,42 @@ jobs:
           fi
           echo "credential binding ${BINDING} resolves; both references are set."
 
+      # TWO TOKENS, ONE PER REPOSITORY THE BINDING NAMES — the shape the
+      # codexFactory regeneration lane already uses. `pytest-suite.yml:318-324`
+      # mints this App with `owner:` alone, a token good for EVERY repository
+      # the App is installed on; too wide here, because one of these tokens
+      # can PUSH and OPEN PULL REQUESTS. A single two-repository token was too
+      # wide in the other direction too: its permissions applied to BOTH
+      # repositories, so `contents: write` would have been minted over
+      # codexFactory, which the binding forbids (`never_grants`). Each token
+      # below is scoped to ONE repository and requests EXACTLY that
+      # repository's `grants:` in the binding — held equal by
+      # `test_each_mint_requests_exactly_its_repository_grants`.
+      - name: Mint the codexFactory READ token
+        id: source-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
+          private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: codexFactory
+          permission-contents: read
+
+      # `permission-workflows: write` IS REQUIRED, and run 34033398015
+      # (2026-09-06 12:32Z) is the measurement: the lane advanced all five
+      # sites and the judge passed, then GitHub refused the push — "refusing to
+      # allow a GitHub App to create or update workflow
+      # `.github/workflows/merge-master-approval.yml` without `workflows`
+      # permission". Two of the five pinned sites ARE workflow files (the core
+      # checkout `ref:` in merge-master-approval.yml and pytest-suite.yml).
+      # FAIL-LOUD: `create-github-app-token` refuses to mint a permission the
+      # installation does not carry, so until the `openxfactory` App is granted
+      # Workflows: Read and write (App settings → Permissions → Repository
+      # permissions → Workflows) and the grant is accepted on the org
+      # installation, this step fails with a named error — never a silent
+      # degradation. The lane writes workflow files on ITS OWN BRANCH only; main
+      # stays behind the repository rulesets (the binding's
+      # `workflows:write-to-default-branch` refusal).
       - name: Mint the lane's App token
         id: app-token
         uses: actions/create-github-app-token@v2
@@ -179,23 +215,10 @@ jobs:
           app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
           private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
-          # SCOPED TO THE TWO REPOSITORIES THE BINDING NAMES, AND NOT ONE MORE.
-          # `pytest-suite.yml:318-324` mints the same App with `owner:` alone,
-          # which yields a token good for EVERY repository the App is installed
-          # on in this organization. That is right there — it is a read for a
-          # `continue-on-error` step — and it is too wide here, because this
-          # token can PUSH and OPEN PULL REQUESTS. A binding that declares
-          # least privilege and then mints an org-wide token would be declaring
-          # one thing and doing another.
-          #
-          # The list is the binding's own two `privileges:` entries, in the
-          # same order, and `test_the_token_is_scoped_to_the_bindings_two_repositories`
-          # holds the two in agreement. If the App is not installed on both,
-          # this step FAILS — which is the loud refusal the binding asks for,
-          # not a degradation.
-          repositories: |
-            openxFactory
-            codexFactory
+          repositories: openxFactory
+          permission-contents: write
+          permission-pull-requests: write
+          permission-workflows: write
 
       - name: Check out this repository
         uses: actions/checkout@v4
@@ -236,7 +259,7 @@ jobs:
       - name: Resolve codexFactory's default branch and head, at run time
         id: source
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ steps.source-token.outputs.token }}
         run: |
           set -euo pipefail
           BRANCH="$(gh api "repos/${SOURCE_REPOSITORY}" --jq .default_branch)"
@@ -270,7 +293,7 @@ jobs:
       - name: Fetch the authoritative floor document at that commit
         id: floor
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ steps.source-token.outputs.token }}
           BRANCH_SHA: ${{ steps.source.outputs.sha }}
         run: |
           set -euo pipefail
@@ -363,7 +386,7 @@ jobs:
           ref: ${{ steps.source.outputs.sha }}
           path: .merge-master-core
           persist-credentials: false
-          token: ${{ steps.app-token.outputs.token }}
+          token: ${{ steps.source-token.outputs.token }}
 
       - name: Submit the advance to the checks that will judge it
         if: steps.repin.outputs.action == 'advance'
