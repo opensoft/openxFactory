@@ -668,8 +668,12 @@ Active changes:
   `openspec/changes/disposition-codexfactory-declared-renames/evidence/codexfactory-dispositions-2026-09-05.md`,
   and pinned by a new test against the real pin. Step 3 —
   `adopt-openspec-cli-pin-gate` in codexFactory, the gate leg plus the
-  `stack.yaml` re-pin — is **NOT** here and is why task 6.1 of
-  `add-openspec-cli-pin` and 6.3 of the bump stay UNTICKED.
+  `stack.yaml` re-pin — **LANDED 2026-09-06 as codexFactory #227
+  (`bb66d85c`)**: `scripts/validate-docs.sh` now runs
+  `validate-openspec-cli-pin.py --all` fail-closed in CI and `stack.yaml`'s
+  `xfactory.contract_ref` moved to `724a2a4f`, this change's own merge commit.
+  Task 6.1 of `add-openspec-cli-pin` is now ticked; 6.3 of the bump stays
+  UNTICKED — MedxFactory, LedgerxFactory and AdxFactory are still unwired.
 
 - [prepare-openspec-1.12-readiness](openspec/changes/prepare-openspec-1.12-readiness/proposal.md)
   — authored 2026-09-05, **`Status: draft`**, on Brett Heap's in-session word

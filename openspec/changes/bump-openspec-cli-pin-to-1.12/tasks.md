@@ -157,5 +157,9 @@ repoint the very tool that judges its own change.
 - [ ] 6.3 The remaining consuming repositories (codexFactory, MedxFactory,
       LedgerxFactory, AdxFactory) still have no wiring to this entrypoint. Named
       by #667 as per-repository successor work; unchanged by this bump.
+      **AMENDED 2026-09-06:** codexFactory is now wired — codexFactory #227
+      `adopt-openspec-cli-pin-gate` (`bb66d85c`), ticked at
+      `add-openspec-cli-pin` task 6.1. MedxFactory, LedgerxFactory and
+      AdxFactory remain; the box stays UNTICKED for them.
 - [ ] 6.4 The pinned artifact's DEPENDENCY CLOSURE is still unpinned. Declared
       in the pin's header, unchanged by the version move, still successor work.
