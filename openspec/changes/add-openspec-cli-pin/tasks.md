@@ -133,8 +133,27 @@ ratification when it happens and nothing below decides it.
 Each is a change in that repository, because each has its own CI, its own
 validator conventions and its own `stack.yaml`.
 
-- [ ] **6.1** `codexFactory` — wire the pinned entrypoint into CI; pin the
-      consumed `openxFactory` version in `stack.yaml`.
+- [x] **6.1** **(DONE 2026-09-06, via four landings.)** `codexFactory` — wire
+      the pinned entrypoint into CI; pin the consumed `openxFactory` version in
+      `stack.yaml`. codexFactory #216 `prepare-openspec-1.12-readiness`
+      (`06935a4a`, merged 2026-09-05) authored four real Purposes and declared
+      the council-clearance rename with the `Merged into` marker, measuring
+      23 passed / 2 declared-rename findings of 25 under the pinned 1.12.0.
+      openxFactory #697 `disposition-codexfactory-declared-renames`
+      (`724a2a4f`, merged 2026-09-05) recorded the two `repo: codexFactory`
+      entries in `contracts/openspec-cli-pin.yaml`, ratified "ratify 697".
+      xFactory (aggregation) #275 (`5deaf90`, merged 2026-09-05) moved the
+      openxFactory submodule pointer `3d7b8f3b` → `724a2a4f`, so the doc-health
+      nightly resolves the four-entry pin. codexFactory #227
+      `adopt-openspec-cli-pin-gate` (`bb66d85c`, merged 2026-09-06) wired
+      `scripts/validate-docs.sh` to run `validate-openspec-cli-pin.py --all`
+      fail-closed in CI from the pinned checkout, pinned Node to 24.18.0, moved
+      `stack.yaml`'s `xfactory.contract_ref` `bbbbeda9` → `724a2a4f`, and added
+      `tests/test_openspec_cli_pin_gate.py`; ratified "ratify 227", merged on
+      "merge 227 when the pilot is green". CI's gate at that pin:
+      `openspec-cli-pin: @fission-ai/openspec@1.12.0 … verified`,
+      `DISPOSITIONED FINDINGS in codexFactory (2 applied)`,
+      `0 UNDISPOSITIONED failures`.
 - [ ] **6.2** `OpsxFactory` — same. Its corpus is the one measured at
       `34 passed, 10 failed (44 items)` under 1.12.0, so it is where the pin's
       value is felt first.
