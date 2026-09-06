@@ -268,8 +268,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   8358900476aa95de1c5055fead8836d26c04d5bb / code
   3f0c11774709baebbe8b31f137f189d4a290be71" at `commit.author.date
   2026-09-06T01:29:01Z` — inside the claimed window; both leg seed commits
-  resolve. `gh api
-  repos/opensoft/openXdox/contents/contracts/opendox-pin.yaml?ref=<root main>`
+  resolve. `gh api repos/opensoft/openXdox/contents/contracts/opendox-pin.yaml?ref=0365cea5db7c203bc10b0aabefd99e8a1e17866e`
   (root main `0365cea5db7c203bc10b0aabefd99e8a1e17866e`, the PR#2 tip after the
   later re-pin-legs-to-tips hand act) reads `commit:
   "bad2d2ad4c93c2d0cc3ed82ec56de3e5eecbc2fe"` and `digests.tree_sha256:
@@ -370,8 +369,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   ASSEMBLY ROOTS, with each leg's `README.md` pointing at its root's copy: one
   contribution posture per project, not per repository.)*
 
-  **DONE — verified live 2026-09-06T04:58Z**: `gh api
-  repos/opensoft/<repo> --jq '.license.spdx_id'` reads `Apache-2.0` on all six
+  **DONE — verified live 2026-09-06T04:58Z**: `gh api repos/opensoft/<repo> --jq '.license.spdx_id'` reads `Apache-2.0` on all six
   (`openDox`, `openDox-spec`, `openDox-code`, `openXdox`, `openXdox-spec`,
   `openXdox-code`), confirming a detected `LICENSE` file in each; the same six
   git-tree reads used for 1.3's evidence each list a `SECURITY.md` blob
@@ -390,8 +388,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   pairs need theirs before their assembly root's `validate` gate can be trusted
   to mean anything.)*
 
-  Evidence, verified live 2026-09-06T04:58Z via `gh api
-  repos/opensoft/<repo>/rulesets/<id> --jq '{name,enforcement}'`: **openDox
+  Evidence, verified live 2026-09-06T04:58Z via `gh api repos/opensoft/<repo>/rulesets/<id> --jq '{name,enforcement}'`: **openDox
   ACTIVE** — `openDox` `22364975`, `openDox-spec` `22364961`, `openDox-code`
   `22364973`, all `{"name":"Require validate check","enforcement":"active"}`
   (promoted by an agent after `validate` reported on PR #2 of each; disclosed
@@ -425,8 +422,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   of them.`), with `2026-<MM>-<DD>` filled as `2026-09-06` (the date the six
   repositories were created — confirmed live above: `openDox`/`openDox-spec`/
   `openDox-code` `created_at 2026-09-06T01:28:0xZ`, `openXdox`/`openXdox-spec`/
-  `openXdox-code` `created_at 2026-09-06T01:28:4x–01:28:5xZ`, all via `gh api
-  repos/opensoft/<repo> --jq .created_at`). `Status: ratified` is untouched —
+  `openXdox-code` `created_at 2026-09-06T01:28:4x–01:28:5xZ`, all via `gh api repos/opensoft/<repo> --jq .created_at`). `Status: ratified` is untouched —
   this is an amendment, not a rewrite; no front-matter line was added noting
   when the amendment applied, because Amendments 1 and 2 carry no such line
   either (checked by reading the whole file before editing) — mirroring their
@@ -501,8 +497,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   `OpsxDox-code` — fifteen names — each "with no repository created"; the "leg
   suffixes are not new brands" paragraph separately names `openXdox-Install`
   as unchanged and still "registered with no repository created". Verified
-  live 2026-09-06T04:58Z: `gh api repos/opensoft/<name>` returns `404 Not
-  Found` for all twenty-six — the five bases, the ten leg names, and
+  live 2026-09-06T04:58Z: `gh api repos/opensoft/<name>` returns `404 Not Found` for all twenty-six — the five bases, the ten leg names, and
   `openXdox-Install` — checked individually — zero repositories, as required.
 - [ ] 1.8 `[xF]` Aggregation `CLAUDE.md` working rule #1 amended: it accommodates a
   neutral `open*` product `openxFactory` pins, and does NOT yet accommodate a
