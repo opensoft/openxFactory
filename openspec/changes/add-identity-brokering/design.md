@@ -252,13 +252,15 @@ was:
 +    `Keycloak-Install` runtime (exit 3) are named successors that
 ```
 
-so `origin.reason` came to read "the `Keycloak-Install` runtime (exit 3)
-are named successors that consume this contract's vocabulary, which is why
-it ratifies first". That edit is a post-ratification mutation of a ratified
-origin declaration, which `release-realization` § "Origin retention at
-archive" forbids and the gate landed by #695 refuses. The declaration has
-been restored byte-for-byte to its bytes at `1570ff7e`; the sentence above
-is where the renamed name now lives, so nothing the sweep said is lost. The
+One line, mid-scalar: the `origin.reason` clause that the ratified bytes
+spell "the OpsxFactory `keycloak-administration` workflow (exit 2) and the
+`xFactory-Keycloak-Install` runtime (exit 3) are named successors" came to
+say `Keycloak-Install` there instead, and nothing else in the block moved.
+That edit is a post-ratification mutation of a ratified origin declaration,
+which `release-realization` § "Origin retention at archive" forbids and the
+gate landed by #695 refuses. The declaration has been restored
+byte-for-byte to its bytes at `1570ff7e`; the sentence above is where the
+renamed name now lives, so nothing the sweep said is lost. The
 disposition for the restoration is Brett Heap's ruling of 2026-09-05,
 "restore all four, land them when green" (issue #709).
 
