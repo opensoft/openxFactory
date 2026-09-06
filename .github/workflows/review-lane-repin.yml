@@ -303,6 +303,46 @@ jobs:
           python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"]+"/plan.json"))["reason"])' \
             | tee -a "$GITHUB_STEP_SUMMARY"
 
+      # ---- 5b. RUN THE JUDGE BEFORE PROPOSING -------------------------------
+      # THE LANE DOES NOT GET AN EXEMPTION AND DOES NOT WANT ONE (requirement 5,
+      # decision M-4). What it does instead is submit to the judge BEFORE it
+      # opens anything, so an advance that would be red arrives as a failed run
+      # rather than as a red pull request somebody has to triage.
+      #
+      # NOTE WHAT IS AND IS NOT HAPPENING HERE. This runs the EXISTING
+      # `tests/review_lane_pin/` suite, unmodified, against the tree the lane
+      # just wrote — the same assertions, at the same strictness, that will run
+      # again on the pull request. It adds no assertion, relaxes none, and
+      # skips none. If these two things ever disagree, the pull request's run
+      # is the authority and this one is the early warning.
+      #
+      # THE CORE CHECKOUT IS AT THE CANDIDATE COMMIT, WHICH IS THE POINT. The
+      # byte-identity verifier compares the snapshot the lane just wrote
+      # against the authoritative document in a real checkout; checking out the
+      # OLD pinned core would compare the new snapshot against the old document
+      # and fail every honest advance. `tasks.md` 4.7 asks for exactly this
+      # second run "with a codexFactory checkout on disk".
+      #
+      # `.merge-master-core` is never staged: step 6 stages four named paths.
+      - name: Check out the candidate core so the freshness verifier can run
+        if: steps.repin.outputs.action == 'advance'
+        uses: actions/checkout@v4
+        with:
+          repository: opensoft/codexFactory
+          ref: ${{ steps.source.outputs.sha }}
+          path: .merge-master-core
+          persist-credentials: false
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Submit the advance to the checks that will judge it
+        if: steps.repin.outputs.action == 'advance'
+        env:
+          PINNED_CORE_CHECKOUT: ${{ github.workspace }}/.merge-master-core
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check --quiet pytest
+          python3 -m pytest tests/review_lane_pin -q
+
       # ---- 6. Propose, and stop ---------------------------------------------
       # REQUIREMENT 1: "it opens a pull request carrying that advance and takes
       # no further action on it AND it neither merges nor approves that pull

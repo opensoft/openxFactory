@@ -736,6 +736,48 @@ class TheBotIsJudgedWithNoExemption(unittest.TestCase):
                          "".join(R.WRITABLE_PATHS))
         self.assertIn(".github/workflows/pytest-suite.yml", R.WRITABLE_PATHS)
 
+    def test_the_lane_submits_itself_to_the_judge_before_proposing(self) -> None:
+        """Scenario: The bot's pull request meets the same bar.
+
+        The lane runs the EXISTING `tests/review_lane_pin` suite against the
+        tree it wrote, before it opens anything, with the core checked out at
+        the CANDIDATE commit — checking out the old pinned core would compare
+        the new snapshot against the old document and red every honest advance.
+        The step names no test and excludes none, so it cannot become a
+        narrower judge than the pull request's own run.
+        """
+        steps = LANE_DOC["jobs"]["review-lane-repin"]["steps"]
+        by_name = {step.get("name", ""): index
+                   for index, step in enumerate(steps)}
+
+        judge = next(step for step in steps
+                     if "judge it" in step.get("name", ""))
+        invocation = next(line.strip() for line in judge["run"].splitlines()
+                          if "-m pytest" in line)
+        self.assertEqual("python3 -m pytest tests/review_lane_pin -q",
+                         invocation)
+        # Measured on the INVOCATION LINE, not the whole block: `-m ` also
+        # spells `python3 -m pip`, and a blanket search would forbid the
+        # installer.
+        for narrowing in ("-k ", "--deselect", "--ignore", "-m not",
+                          "--lf", "--sw"):
+            self.assertNotIn(narrowing, invocation)
+        self.assertEqual(
+            "${{ github.workspace }}/.merge-master-core",
+            judge["env"]["PINNED_CORE_CHECKOUT"])
+
+        core = next(step for step in steps
+                    if "candidate core" in step.get("name", ""))
+        self.assertEqual("opensoft/codexFactory", core["with"]["repository"])
+        self.assertEqual("${{ steps.source.outputs.sha }}", core["with"]["ref"])
+        self.assertFalse(core["with"]["persist-credentials"])
+
+        opener = next(step for step in steps
+                      if "Open or update" in step.get("name", ""))
+        self.assertLess(
+            steps.index(judge), steps.index(opener),
+            "the judge must run BEFORE the pull request is opened")
+
     def test_a_failing_automated_advance_is_repaired_not_waived(self) -> None:
         """Scenario: A failing automated advance is repaired, not waived.
 
