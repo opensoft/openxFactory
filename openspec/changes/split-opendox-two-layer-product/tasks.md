@@ -550,7 +550,7 @@ else in the arc can start while the two packages import each other.**
   two pin moves where a single-repository openDox would still need one — the
   consumer bump is owed regardless of the pinned product's shape (`openxFactory`
   performs the identical hand bump today for the single-repository
-  `openRepoShape` and `openxWallet` pins); what the shape election ADDS is the
+  `openRepoShape` and `openXwallet` pins); what the shape election ADDS is the
   first move, the assembly root's own leg lockstep. *(reality check 2026-09-05,
   second run, claims C27/C41.)*
 - [ ] 4.3 `[oXd]` The routes and subcommands openXdox CONTRIBUTES to openDox's
