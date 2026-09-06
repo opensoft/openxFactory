@@ -242,12 +242,24 @@ class OpenxFactoryCorpusAdapter:
         is built, so a refusal cannot have produced a side effect on the way to
         being raised.
 
-        Today every call on this repository's own corpus reaches the second
-        guard — the declared path does not yet carry this verb. That is the
-        conformant answer, not a gap: the requirement's own third scenario is a
-        declared path that cannot be reached, and it says the write refuses,
-        names the path, and the document remains unsaved rather than being
-        written by a fallback.
+        REACHABILITY IS THE ADAPTER'S OWN ANSWER, NEVER THE CALLER'S.
+        `ResolvedCorpus` is plain data: a caller can build one by hand and never
+        pass through `resolve` at all, so `corpus.write_path_available` is a
+        REPORT of what this adapter said, not an authorization. Gating the
+        dispatch on it let a forged reference reach `write_path.dispatch` — a
+        `TypeError` today, because nothing is injected, and a REAL DISPATCH the
+        moment § 2.5 injects one. So the guards below read
+        `write_path.available`, which is the adapter's own descriptor, and the
+        reference is checked FOR AGREEMENT rather than trusted: a reference
+        naming a different path than this adapter declares is a refusal, never a
+        dispatch through the path it happens to hold.
+
+        Today every call on this repository's own corpus reaches the
+        availability guard — the declared path does not yet carry this verb.
+        That is the conformant answer, not a gap: the requirement's own third
+        scenario is a declared path that cannot be reached, and it says the
+        write refuses, names the path, and the document remains unsaved rather
+        than being written by a fallback.
         """
         write_path = self._shape.write_path
         if write_path is None or corpus.write_path is None:
@@ -255,10 +267,25 @@ class OpenxFactoryCorpusAdapter:
                 CORPUS_READ_ONLY, corpus.ref.name,
                 "this corpus declares no governed write path, and resolution "
                 "already reported it as read-only")
-        if not corpus.write_path_available:
+        if corpus.write_path != write_path.name:
+            raise _refuse(
+                WRITE_PATH_UNREACHABLE, corpus.write_path,
+                "this reference names a write path this adapter does not "
+                f"serve; it declares {write_path.name!r}. A mismatch is a "
+                "refusal, never a dispatch through whichever path the adapter "
+                "happens to hold")
+        if not write_path.available:
             raise _refuse(WRITE_PATH_UNREACHABLE, write_path.name,
                           write_path.unavailable_reason
                           or "the declared write path cannot be reached")
+        if not corpus.write_path_available:
+            # The adapter's own path IS reachable and this reference says it is
+            # not. Fail closed on the disagreement rather than picking a winner.
+            raise _refuse(
+                WRITE_PATH_UNREACHABLE, write_path.name,
+                "the reference this write was made against reports the "
+                "declared path unavailable, and a write is not the place to "
+                "resolve that disagreement — resolve the corpus again")
         target = write_path.routes(document.key)
         if target is None:
             raise _refuse(
@@ -280,23 +307,34 @@ class OpenxFactoryCorpusAdapter:
     def _revision(self, location: Path, requested: str | None) -> str | None:
         """The commit this corpus is read at, or None where it carries none.
 
-        A tree with no version marker at its ROOT is a corpus with no revision
-        notion, which the interface declares legal — and a caller that named a
-        revision anyway is refused rather than served the bytes of a different
-        one.
+        `None` MEANS ONE THING ONLY: this tree carries no version marker at its
+        ROOT, so it has no revision notion at all — which the interface declares
+        legal. It does NOT mean "it has revisions and I could not work out
+        which", and the difference is the seam's second requirement in
+        miniature: a versioned corpus whose ref will not resolve is an
+        UNRESOLVABLE corpus, and an unresolvable corpus REFUSES rather than
+        degrading to a weaker answer that reads exactly like a legitimate one.
+
+        The case that made this concrete: a checkout with an UNBORN HEAD (git
+        initialized, nothing committed). The marker is there, `HEAD` resolves to
+        nothing, and the old reading answered "no revision notion" — so every
+        read served bytes stamped with a revision of None, indistinguishable
+        from the plain directory tree next to it. The default ref is refused by
+        NAME for the same reason a requested one is.
         """
-        versioned = (location / VERSION_MARKER).exists()
-        if not versioned:
+        if not (location / VERSION_MARKER).exists():
             if requested is not None:
                 raise _refuse(REVISION_UNKNOWN, requested,
                               f"{location} carries no revisions to resolve against")
             return None
-        resolved = RealGit().resolve_ref(location, requested or DEFAULT_REF)
+        ref = requested or DEFAULT_REF
+        resolved = RealGit().resolve_ref(location, ref)
         if resolved is None:
-            if requested is not None:
-                raise _refuse(REVISION_UNKNOWN, requested,
-                              f"{location} does not carry that revision")
-            return None
+            raise _refuse(
+                REVISION_UNKNOWN, ref,
+                f"{location} carries revisions and {ref!r} resolves to none of "
+                "them, so this corpus cannot be read at a revision anyone can "
+                "name")
         return resolved
 
     def _keys(self, corpus: ResolvedCorpus, scope: str) -> tuple[str, ...]:

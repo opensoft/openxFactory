@@ -16,6 +16,7 @@ move; this file stays here with the adapter it pins.
 
 from __future__ import annotations
 
+import subprocess
 import sys
 from dataclasses import replace
 from datetime import date
@@ -28,6 +29,7 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 sys.path.insert(0, str(REPO_ROOT / "tests"))
 
 from corpus_adapter import (  # noqa: E402
+    REVISION_UNKNOWN,
     SCOPE_ALL,
     WRITE_PATH_UNREACHABLE,
     CorpusRef,
@@ -242,6 +244,49 @@ def test_a_document_with_no_kind_header_is_reported_not_omitted(tmp_path):
     assert "Kind" in result.missing_fields, (
         "and the absent kind header is also an absent required field, which is "
         "why the default row of the table covers an unclassifiable document too")
+
+
+# -- resolving a revision ---------------------------------------------------
+
+
+def test_an_unversioned_tree_has_no_revision_and_that_is_legal(tmp_path):
+    """`None` is a legitimate answer, and this is the ONLY thing it may mean."""
+    (tmp_path / authoring.IDEATION_PREFIX).mkdir(parents=True)
+    adapter = OpenxFactoryCorpusAdapter(HOME_SHAPE)
+    resolved = adapter.resolve(CorpusRef(name="plain", location=str(tmp_path)))
+    assert resolved.revision is None
+    with pytest.raises(CorpusRefused) as excinfo:
+        adapter.resolve(CorpusRef(name="plain", location=str(tmp_path),
+                                  revision="a" * 40))
+    assert excinfo.value.refusal.kind == REVISION_UNKNOWN, (
+        "a tree with no revisions refuses a caller who names one, rather than "
+        "serving the bytes of something else")
+
+
+def test_a_versioned_tree_whose_ref_will_not_resolve_refuses(tmp_path):
+    """An UNBORN HEAD: initialized, nothing committed. Seam requirement 2.
+
+    The marker is present, so this corpus HAS a revision notion; `HEAD` simply
+    resolves to nothing yet. Answering `None` here would be a degradation
+    wearing a legitimate answer's clothes — indistinguishable from the plain
+    directory tree in the test above, and every subsequent `read` would stamp
+    its bytes with a revision of `None`. An unresolvable corpus refuses, and it
+    names the ref it could not resolve."""
+    (tmp_path / authoring.IDEATION_PREFIX).mkdir(parents=True)
+    initialized = subprocess.run(["git", "init", "-q", str(tmp_path)],
+                                 capture_output=True, text=True)
+    assert initialized.returncode == 0, initialized.stderr
+    assert (tmp_path / ".git").exists(), "the fixture must carry a version marker"
+    assert corpus.RealGit().resolve_ref(tmp_path, "HEAD") is None, (
+        "the fixture must have an UNBORN HEAD, or it proves nothing")
+
+    adapter = OpenxFactoryCorpusAdapter(HOME_SHAPE)
+    with pytest.raises(CorpusRefused) as excinfo:
+        adapter.resolve(CorpusRef(name="unborn", location=str(tmp_path)))
+    assert excinfo.value.refusal.kind == REVISION_UNKNOWN
+    assert excinfo.value.refusal.subject == "HEAD", (
+        "the DEFAULT ref is refused by name for the same reason a requested one "
+        f"is; got {excinfo.value.refusal.subject!r}")
 
 
 # -- the verdict mapping ----------------------------------------------------

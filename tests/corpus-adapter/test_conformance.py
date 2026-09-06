@@ -39,6 +39,7 @@ happens to behave; with it, the suite is the thing enforcing requirements 2 and
 from __future__ import annotations
 
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -219,6 +220,69 @@ def check_write_back_honours_what_resolve_declared(adapter, ref) -> None:
             "'refused even where it would produce the identical bytes, because "
             "the gate is the act of passing through the path and not the shape "
             "of the result'")
+
+
+def check_a_forged_reference_cannot_open_the_write_path(adapter, ref) -> None:
+    """Requirement 3, against a caller that did not come through `resolve`.
+
+    `ResolvedCorpus` is PLAIN DATA. Nothing stops a caller — or a consumer that
+    cached one, or a future route that reconstructs one from a request body —
+    from handing an adapter a reference it never issued. An implementation that
+    decides whether the governed write path is reachable by READING that
+    reference has made the gate advisory: set one boolean and the write goes
+    through, "even where it would produce the identical bytes, because the gate
+    is the act of passing through the path and not the shape of the result".
+
+    So both forgeries below must REFUSE. A `TypeError` is not a refusal and does
+    not satisfy this check — it is what an implementation raises on its way to a
+    dispatch it should never have reached, and it stops being raised at all the
+    moment a real dispatcher is injected.
+    """
+    resolved = adapter.resolve(ref)
+    listed = adapter.list_documents(resolved, SCOPE_ALL)
+    if not listed:
+        return
+
+    # A SPREAD across the listing, not its head. An implementation may refuse
+    # some documents for an unrelated reason — this one has no target on the
+    # declared path, say — and if the sample happened to hold only those, every
+    # forgery would meet that refusal instead and the check would pass over an
+    # adapter that trusts the reference completely. Deterministic (a fixed
+    # stride over a sorted listing), bounded, and it knows nothing about WHICH
+    # documents an implementation treats how.
+    stride = max(1, len(listed) // SAMPLE)
+    sample = listed[::stride][:SAMPLE]
+    before = {document.key: (Path(resolved.location) / document.key).read_bytes()
+              for document in sample
+              if (Path(resolved.location) / document.key).is_file()}
+
+    forgeries = (
+        ("available", replace(resolved, write_path_available=True)),
+        ("renamed", replace(resolved, write_path="a-path-this-adapter-never-declared",
+                            write_path_available=True)),
+    )
+    for label, forged in forgeries:
+        for document in sample:
+            try:
+                adapter.write_back(forged, document, b"forged\n", actor="forger",
+                                   basis_revision=resolved.revision or "0" * 40)
+            except CorpusRefused:
+                continue
+            except Exception as unexpected:        # noqa: BLE001 - that is the point
+                raise AssertionError(
+                    f"the {label} forgery over {document.key} raised "
+                    f"{type(unexpected).__name__} rather than refusing: "
+                    f"{unexpected}. Reachability must be the adapter's own "
+                    "answer, so a forged reference meets a REFUSAL and not the "
+                    "inside of a dispatch") from unexpected
+            else:
+                raise AssertionError(
+                    f"the {label} forgery over {document.key} was accepted. A "
+                    "reference the adapter did not issue must never open the "
+                    "governed write path")
+    for key, bytes_before in before.items():
+        assert (Path(resolved.location) / key).read_bytes() == bytes_before, (
+            f"a forged write changed {key} on disk")
 
 
 # -- the standard ----------------------------------------------------------
@@ -430,6 +494,12 @@ def test_check_refuses_a_subject_the_corpus_does_not_list(name):
 def test_write_back_never_writes_the_corpus_tree(name):
     adapter, ref = dict(FACTORIES)[name]()
     check_write_back_honours_what_resolve_declared(adapter, ref)
+
+
+@pytest.mark.parametrize("name", IDS)
+def test_a_forged_reference_cannot_open_the_write_path(name):
+    adapter, ref = dict(FACTORIES)[name]()
+    check_a_forged_reference_cannot_open_the_write_path(adapter, ref)
 
 
 # -- the teeth --------------------------------------------------------------
