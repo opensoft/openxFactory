@@ -43,9 +43,18 @@ no `contracts/` byte moves before task 1.1 is done.
 - [x] 1.6 **OQ2 resolved by measurement** (design D11): the live pin is the
       per-change ledger, this packet adds ONE row, flips no partner, and owes no
       MOVEMENT LOG entry.
-- [ ] 1.7 **The consumer's dependency ticks when 1.1 lands.** codexFactory #165
+- [x] 1.7 **The consumer's dependency ticks when 1.1 lands.** codexFactory #165
       tasks.md 1.6 is a DEPENDENCY task on this change; report the ratified head
-      and the merge sha there.
+      and the merge sha there. **VERIFIED 2026-09-06:** codexFactory
+      `origin/main` `openspec/changes/adopt-bundle-shaped-deliberation/tasks.md`
+      task 1.6 is ticked `[x]` and carries both **LANDED 2026-09-04** (ratified
+      12:37Z, merge `3cf917b7`; realized by #652, merge `0df522eb` 18:05Z) and
+      **PINNED 2026-09-06** (the entry's bytes ride openxFactory tag
+      `contract-v3.4` → `807a4f47`, verified ancestor of `0df522eb`; cut by
+      lane xFactory-1 via openxFactory PR #653) —
+      `git -C codexFactory show origin/main:openspec/changes/adopt-bundle-shaped-deliberation/tasks.md
+      | grep -n 'PINNED 2026-09-06'` → line 144, `| grep -n 'LANDED 2026-09-04'`
+      → line 115.
 
 ## Phase 2 — Realization (a Speckit slice, AFTER 1.1)
 
@@ -249,7 +258,7 @@ revert. The corrected revert is the row above.
 
 ## Phase 3 — The contract cut
 
-- [ ] 3.1 **Claim the version number, not the files**, on openxFactory issue #630
+- [x] 3.1 **Claim the version number, not the files**, on openxFactory issue #630
       row 4 (Rule 7: a version number can be claimed once, and the tag is
       immutable). The minor is ALLOCATED AT REALIZATION by merge order:
       `docs/contract-versioning-policy.md` forbids a proposal reserving one.
@@ -269,13 +278,40 @@ revert. The corrected revert is the row above.
       are this change's and 110 are `add-chain-anchoring`'s — is recorded at
       `specs/029-admit-deliberation-realization/research.md` § O8 so it is not
       re-derived. **This whole phase therefore stays OPEN after Phase 2 lands.**
-- [ ] 3.2 **`contracts/manifest.yaml`** — register the new return schema and
+      **VERIFIED 2026-09-06 — the condition above has since closed.** Row 4
+      was claimed by lane repo-shape on Brett Heap's word "cut contract-v3.4"
+      (openxFactory issue #630, comment 2026-09-04T12:40:26Z,
+      https://github.com/opensoft/openxFactory/issues/630#issuecomment-5540561424);
+      this lane stood down its own attempt in favor of that FIFO-first claim
+      (comment 2026-09-04T13:56:02Z,
+      https://github.com/opensoft/openxFactory/issues/630#issuecomment-5541473659,
+      confirming this change's realization reserves no number, per this row's
+      own text); the cut LANDED as openxFactory PR #653, squash-merge
+      `807a4f47288b2849701a16cefe6c5794b045eca8` (2026-09-04T19:58:51Z,
+      https://github.com/opensoft/openxFactory/issues/630#issuecomment-5545792726),
+      annotated tag `contract-v3.4` at that sha, bundle content explicitly
+      naming "deliberation as clearing entry two (#652)". This change claimed
+      no number itself, exactly as required; the number is now settled and
+      this change's bytes ride that cut (§3.2/3.3 below).
+- [x] 3.2 **`contracts/manifest.yaml`** — register the new return schema and
       advance `contract_bundle_version` to the allocated minor, committed
-      ATOMICALLY with the contract files.
-- [ ] 3.3 **`contracts/CHANGELOG.md`** — one entry for the release, class
+      ATOMICALLY with the contract files. **VERIFIED 2026-09-06:**
+      `git show contract-v3.4:contracts/manifest.yaml | grep -n deliberation`
+      shows the `clearing-deliberation-return` row (id, path
+      `contracts/clearing/deliberation-return.schema.yaml`, registration
+      comment naming this change) AND `contract_bundle_version: contract-v3.4`
+      at the file's head — both present in the same tree at tag
+      `contract-v3.4` (`807a4f47`).
+- [x] 3.3 **`contracts/CHANGELOG.md`** — one entry for the release, class
       **ADDITIVE (minor)**: a register gains a member and a new contract arrives;
       no shape is removed and no required field is added, so domain repos on the
-      same major stay conformant without changes.
+      same major stay conformant without changes. **VERIFIED 2026-09-06:**
+      `git show contract-v3.4:contracts/CHANGELOG.md | grep -n -i deliberation`
+      shows the `## contract-v3.4 — 2026-09-04 (additive; ... `deliberation`
+      becomes clearing register entry two ...)` heading plus the full
+      registration narrative (row 93/94 of the table, §"deliberation becomes
+      clearing register ENTRY NUMBER TWO", the D10 route-retirement note, and
+      the manifest-row provenance table crediting #652).
 - [ ] 3.4 **`contracts/releases/<tag>.digests.yaml`** and the **annotated tag
       `contract-v<major>.<minor>` at the landed sha**, per the policy: the
       manifest version, changelog heading and tag must match, and the tag points
@@ -283,16 +319,30 @@ revert. The corrected revert is the row above.
 
 ## Phase 4 — Downstream notice (name it, do not do it)
 
-- [ ] 4.1 **codexFactory #165 tasks.md 1.6 ticks** — report the ratified head, the
+- [x] 4.1 **codexFactory #165 tasks.md 1.6 ticks** — report the ratified head, the
       merge sha, and the entry's declared facts on that PR so its legs 1–4 are
       written against the register rather than against this packet's prose.
-- [ ] 4.2 **NAME, DO NOT DO: `opensoft/xFactory`'s `clearing-dispatch.yml`
+      **VERIFIED 2026-09-06:** codexFactory `origin/main` tasks.md 1.6 is
+      ticked `[x]`, carries **LANDED 2026-09-04** (ratified 12:37Z, merge
+      `3cf917b7`; realized #652, merge `0df522eb`) with the entry's declared
+      facts written out in full (`class_constraints`, `token_scopes`,
+      `worker_profile`, lane, `output_schema_ref`, kind
+      `xfactory_clearing_deliberation_return`, three record grounds), and
+      **PINNED 2026-09-06** (`contract-v3.4` → `807a4f47`) — reported against
+      the register, not this packet's prose, as required.
+- [x] 4.2 **NAME, DO NOT DO: `opensoft/xFactory`'s `clearing-dispatch.yml`
       operation choice list.** `add-clearing-dispatch-boundary` tasks.md § 3.7
       makes it that lane's plumbing and states the consequence itself — once the
       registry instance exists, the workflow must validate the dispatched
       operation against the registry INSTANCE and stop relying on its own literal
       choice list as the authority. A green gate here does not discharge it.
-- [ ] 4.2a **NAME, DO NOT DO — but WATCH: three packaged attestation fixtures in
+      **DISCHARGED BY NAMING, 2026-09-06:** xFactory issue #244
+      (opensoft/xFactory, OPEN, filed 2026-09-04T12:36:05Z by this lane,
+      https://github.com/opensoft/xFactory/issues/244) names the §3.7
+      migration obligation verbatim as a HAND-OFF to the clearing lane, not a
+      claim; `gh issue view 244 --repo opensoft/xFactory --json title,state`
+      confirms `state: OPEN`. Not performed here.
+- [x] 4.2a **NAME, DO NOT DO — but WATCH: three packaged attestation fixtures in
       THIS repository carry `council-deliberation-worker.yml` as a LIVE
       allowlisted member of `xfactory-artifact-workers`**
       (`examples/negative/attestation-claiming-full-completeness-before-admission.yaml`,
@@ -303,22 +353,58 @@ revert. The corrected revert is the row above.
       that act and go stale the moment it lands, so the retiring change owes a
       follow-up openxFactory change refreshing them — named here so the staleness
       is scheduled rather than discovered.
-- [ ] 4.3 **NAME, DO NOT DO: the route retirement.** The xFactory change that
+      **WATCHED 2026-09-06:** the obligation is named at ratification (this
+      row) and its follow-up is tracked at xFactory #244 (OPEN, unclaimed).
+      Current state fetched directly from `opensoft/xFactory` main
+      (`gh api repos/opensoft/xFactory/contents/.github/workflows/council-deliberation-worker.yml`):
+      the workflow still declares live `deliberate:` and `smoke-seat:` jobs
+      both targeting runner group `xfactory-artifact-workers` — the 4.3
+      retirement has NOT landed, so all four named fixtures remain correct as
+      of this check. They go stale the moment 4.3's act lands; that act is
+      scheduled (named in #244), not yet performed.
+- [x] 4.3 **NAME, DO NOT DO: the route retirement.** The xFactory change that
       declares the `deliberation` host job must, in the same act, remove
       `council-deliberation-worker.yml`'s host jobs (`deliberate`, `smoke-seat`),
       remove its workflow-allowlist entry on `xfactory-artifact-workers`, and
       shrink the grandfather enumeration by that member (design D10; the entry's
       own scenario). Post the obligation on that repository's tracking record.
+      **DISCHARGED BY NAMING, 2026-09-06:** xFactory issue #244's body states
+      the D10 route-retirement obligation verbatim — retire
+      `council-deliberation-worker.yml`'s host jobs, its
+      `xfactory-artifact-workers` allowlist entry, and its grandfather-
+      enumeration row, in the same act as the `deliberation` host job — and is
+      posted on that repository's own tracking record
+      (https://github.com/opensoft/xFactory/issues/244), per this row's
+      requirement. The act itself is NOT performed by this PR.
 
 ## Archive gate
 
-- [ ] 5.1 **`release-realization`: a change with a non-empty code surface SHALL
+- [x] 5.1 **`release-realization`: a change with a non-empty code surface SHALL
       NOT archive until realization evidence is merged and green.** Evidence =
       Phase 2 merged on `main` with `pytest tests/clearing` and
       `clearing-dispatch-gate` green, plus Phase 3's cut.
+      **VERIFIED 2026-09-06:** Phase 2 merged on `main` via PR #652 (merge
+      `0df522eb54ed959042a67b5cc24c91aaf67d7c16`, 2026-09-04T18:05:15Z, `gh pr
+      view 652 --json mergeCommit,mergedAt`); `origin/main`
+      `contracts/clearing/permitted-operations.registry.yaml` carries entry
+      two (`operation_id: deliberation`); `clearing-dispatch-gate` is green
+      both immediately after the merge (run 33904003409, head `0df522eb`,
+      2026-09-04T18:05:19Z, conclusion `success`) and on the latest `main` run
+      checked (run 34025921547, 2026-09-06, conclusion `success`); in this
+      worktree (after `git submodule update --init openXwallet`),
+      `python3 -m pytest tests/clearing -q` → **203 passed**, and
+      `python3 scripts/validate-clearing-dispatch.py .` → `0 error(s), 0
+      warning(s)`, `2 registered operations`, `26/26 closed refusal codes
+      red-proven`. Phase 3's cut landed as openxFactory PR #653
+      (`contract-v3.4` → `807a4f47`, §3.1–3.3 above).
 - [ ] 5.2 **ORDERED AFTER `add-clearing-dispatch-boundary` ARCHIVES.** This
       packet's ADDED block rests on that change's unarchived addition; archiving
       first would promote an entry into a capability canon does not yet carry.
+      **2026-09-06: archive act HELD** — `add-clearing-dispatch-boundary`
+      (#555) is still active on main (`openspec/changes/add-clearing-dispatch-boundary/`
+      exists; `tests/sequenced_after/corpus-ledger.yaml` row `state: active`);
+      this row is the only remaining gate; the archive is one `openspec
+      archive` + README record + 5.3 ledger row once #555 archives.
 - [ ] 5.3 **Ledger row on archive.** Re-run
       `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#<PR>'`
       so this change's row flips `state: active` → `archived`; that move is
