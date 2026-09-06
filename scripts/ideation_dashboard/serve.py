@@ -150,6 +150,20 @@ SNAPSHOT_INDEX_ROUTE = "/snapshot-index.json"
 # image, which never serves this route) -> 404 -> the picker hides and the
 # selector degrades to today's ungrouped roster.
 PROJECT_REGISTER_ROUTE = "/project-register.json"
+# add-ideation-intent-plane task 4.4 (Brett Heap's ruling D-1, openxFactory
+# #656): the COMMITTED half of the hosted intent feed — the applied/refused
+# intents the apply lane already wrote under `ideation/dashboard/intents/`,
+# served read-only from the SAME checkout `/source/` is served from. No new
+# write path and no credential: the pod reads files it already has (D16).
+#
+# DELIBERATELY NOT `/intents`. That path belongs to the intent INBOX: the
+# dox-auth gateway routes `/intents`, `/intents/*` and `/intents?*` to the
+# inbox pod and everything else here (Omnigent-Install `dox_auth/server.py`
+# `upstream_for`), so a route of that name would be unreachable in the only
+# deployment that needs it. The two feeds are two origins-of-truth reachable
+# same-origin, and the browser joins them; naming this one after the inbox
+# would have made that join impossible to test and impossible to serve.
+COMMITTED_INTENTS_ROUTE = "/committed-intents.json"
 SOURCE_PREFIX = "/source/"
 CAPABILITIES_ROUTE = "/capabilities"
 ACTIONS_NOTEBOOK_ROUTE = "/actions/notebook"
@@ -307,7 +321,8 @@ class _CredentialStream:
 
 
 _DEFAULT_CAPABILITIES = {"actions": {"notebook": False, "gate": False, "refresh": False,
-                                    "session": False, "edit": False},
+                                    "session": False, "edit": False,
+                                    "intent": False},
                          "actor": None, "refresh": {"binding": None, "loopback_only": True}}
 
 
@@ -1592,7 +1607,34 @@ def compute_capabilities(*, nlm_present: bool, checkout_real: bool, loopback: bo
 
     It is INDEPENDENT of `nlm`: a local plane with no notebook still has full
     sessions, because FR-042 already requires a session without its notebook to be
-    a complete session."""
+    a complete session.
+
+    INTENT (add-ideation-intent-plane task 4.4, design D5) is the gate seam's
+    OTHER binding, and it is the photographic negative of the gate leg: the
+    SERVED plane emits intents, the loopback plane executes. D5 fixes the pair
+    — "the LOCAL dashboard gets executing gate routes + the dispose tray FIRST
+    ... and the identical tray then targets the intent API when hosted" — so
+    exactly one of `gate` and `intent` is ever true, and a local session's
+    `gate = local_human` verdict is unchanged by this key's existence.
+
+    Three things it deliberately does NOT depend on, each for its own reason:
+
+      * `hosted_actor`. That field is stamped PER REQUEST from the gateway
+        header and is DISPLAY-ONLY: `add-dashboard-account-menu` Requirement 2
+        says the header flips no capability verdict, and the `/capabilities`
+        handler says the same in its own comment. Keying intent emission on it
+        would make a display fact into an authorization input and would make
+        the `actions` map differ between two requests to one server. The inbox
+        is the identity authority: an unauthenticated POST gets its own 401
+        there, which is a refusal the tray RENDERS rather than a capability the
+        dashboard withholds.
+      * `actor`. That is the LOCAL identity resolved from the checkout; a
+        hosted plane has none by construction and must still emit.
+      * `checkout_real`. Intent emission is a POST to another pod; it needs no
+        corpus. (The committed-intent FEED does read the checkout, but a feed
+        with nothing in it is an empty feed, not an absent capability.)
+
+    So the predicate is the plane itself, and nothing else."""
     binding = refresh_binding
     if binding == registry_mod.BINDING_REGENERATE and not (loopback and checkout_real):
         binding = None
@@ -1604,6 +1646,12 @@ def compute_capabilities(*, nlm_present: bool, checkout_real: bool, loopback: bo
             "refresh": bool(binding),
             "session": local_human,
             "edit": local_human,
+            # THE HOSTED WRITE-REQUEST SEAM, and the only capability here that
+            # is true OFF loopback. It grants no write: an intent is a REQUEST
+            # the apply lane revalidates and may refuse (kernel schema: "an
+            # intent is NEVER a write"), which is why it does not join the
+            # account menu's WRITE_ACTIONS list either.
+            "intent": not loopback,
         },
         "actor": actor if (actor and checkout_real and loopback) else None,
         "refresh": {
@@ -5169,6 +5217,9 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         if path == PROJECT_REGISTER_ROUTE:
             self._serve_project_register(head_only)
             return True
+        if path == COMMITTED_INTENTS_ROUTE:
+            self._serve_committed_intents(head_only)
+            return True
         if path == CAPABILITIES_ROUTE:
             # The loopback console token is process-launch authority. Never
             # disclose it to a DNS-rebinding Host, even though the connection
@@ -6157,6 +6208,61 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             "pending": pending,
             "pending_edits": pending_edits,
         }
+        self._serve_bytes(json.dumps(document).encode("utf-8"), JSON_CTYPE,
+                          head_only)
+
+    def _serve_committed_intents(self, head_only: bool) -> None:
+        """`/committed-intents.json` — the CORPUS half of the intent feed
+        (add-ideation-intent-plane task 4.4; Brett Heap's ruling D-1 on
+        openxFactory #656: "the applied/refused feed is SERVED FROM THE CORPUS
+        ... read-only beside the inbox's pending list — no new write path, the
+        hosted pod stays credential-free").
+
+        The apply lane commits every decision it makes — applied AND refused —
+        under `ideation/dashboard/intents/`, and that directory is inside the
+        checkout this serve already exposes read-only through `/source/` (the
+        hosted image bakes `openxFactory/ideation/` and points
+        `--checkout-root` at it). So the feed is a directory walk of files this
+        process can already read, and the pod gains no authority it did not
+        have: no network call, no token, no write.
+
+        Read PER REQUEST rather than at startup, exactly as
+        `_serve_project_register` is: the lane commits between polls, and on the
+        hosted plane a rebake replaces the baked tree under a running pod.
+
+        An absent or empty directory is an EMPTY FEED, not a 404 — a checkout
+        with no intents yet is the ordinary first state, and the overlay must
+        be able to say "nothing yet" rather than "the feed is broken". The only
+        404 here is a serve with no checkout root at all.
+
+        Filters mirror the inbox's `GET /intents?actor=&status=` so one client
+        can ask both feeds the same question, plus `?target=` (the tile the
+        overlay is decorating) and `?limit=`. Bounded on every axis by
+        `intent_feed`; `truncated` says so when a bound bit.
+
+        DISCLOSES NOTHING NEW. Every byte this returns is already readable at
+        `/source/ideation/dashboard/intents/...` on the same serve — this route
+        parses those files rather than reaching new ones, which is why it sits
+        with the other unguarded read routes rather than behind the loopback
+        console token (that token guards process-launch authority, and this
+        route carries none).
+        """
+        from ideation_dashboard import intent_feed
+        if not self.checkout_root:
+            self.send_error(404, "no checkout")
+            return
+        params = urllib.parse.parse_qs(
+            urllib.parse.urlsplit(self.path).query)
+        try:
+            limit = int((params.get("limit") or [intent_feed.DEFAULT_LIMIT])[0])
+        except (TypeError, ValueError):
+            limit = intent_feed.DEFAULT_LIMIT
+        document = intent_feed.read_committed_intents(
+            Path(self.checkout_root),
+            actor=(params.get("actor") or [None])[0],
+            status=(params.get("status") or [None])[0],
+            target=(params.get("target") or [None])[0],
+            limit=limit)
         self._serve_bytes(json.dumps(document).encode("utf-8"), JSON_CTYPE,
                           head_only)
 
