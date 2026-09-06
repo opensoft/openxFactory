@@ -24,6 +24,40 @@ that performed the retirements.
 Sections 2-5 are the realization; § 7 is the archive gate that the realization
 must clear before this change may archive at all.
 
+**REALIZATION NOTE, RELOCATED HERE 2026-09-05 FROM `.openspec.yaml` (issue
+#709).** The paragraph quoted below was appended to `origin.reason` in this
+packet's `.openspec.yaml` by commit `a951be76` (PR #562, 2026-09-01) — AFTER the
+ratifying commit `59eb913e`. An origin declaration is fixed at ratification:
+`release-realization` § "Origin retention at archive" says mutation of an origin
+declaration after ratification is rejected at the archive gate, and the landed
+`proposal-support` gate refused this packet for it (`changed keys: reason`). The
+origin block has therefore been restored byte-for-byte to its ratifying bytes,
+and the text is kept HERE — nothing is dropped — in the home the remedy names:
+the realization group of `tasks.md`, which is what §§ 2, 3 and 6.1 are. The
+explicit disposition for the restoration is Brett Heap's ruling of 2026-09-05 on
+issue #709: *"restore all four, land them when green"*. Quoted verbatim, exactly
+as `a951be76` wrote it:
+
+> REALIZATION NOTE, added 2026-09-01 after the fact and scoped so the
+> paragraph above stays readable as what it is — a description of the
+> RATIFYING ACT, every clause of which remains true of that act. The later
+> commission it named has since been carried out, in a SEPARATE pull request
+> from an independent clone: `tasks.md` §§ 2 (the validator retirements and
+> their coverage), 3 (the policy rows, both Executed and the restated In
+> Force entry) and 6.1 (the D4 issue, filed as openxFactory #561) are
+> PERFORMED and ticked with their evidence. §§ 4 and 5 — the `contract-v3.0`
+> cut and its post-cut verification — and § 7's archive gate are UNTOUCHED
+> and open, so the change stays ACTIVE. The realization spends no bundle
+> number, publishes no tag and moves no CHANGELOG row.
+
+One reference in the quotation is positional and does not travel: *"the
+paragraph above"* meant the ratification paragraph of `origin.reason` — the one
+beginning *"THIS PACKET IS RATIFIED — 2026-09-01, Brett Heap, repository
+owner…"* — which the note originally followed and which is still there, intact,
+in the restored declaration. Nothing else in the quotation is scoped to its old
+position, and every claim it makes is the same claim the AMENDED header above
+makes; the relocation moves the text, not its meaning.
+
 **EVIDENCE CONVENTION**, the family's standard: a box closes on a FACT that
 survives the session — a merged commit, a named run, a recorded command output,
 a file path — never on an intention.
