@@ -14,7 +14,7 @@ origin:
     The rulings carried: the image-custody/deployment-topology seam with
     the active OpsxFactory `add-openxpki-qa-image-pipeline` change (image
     custody stays in `opensoft/Opensoft-Tenant`; QA deployment topology
-    moves to `OpenXPKI-Install`, whose Impact must be amended
+    moves to `xFactory-OpenXPKI-Install`, whose Impact must be amended
     before that change ratifies), composition with `openxwallet` (declared
     custody derives what a certificate evidences; revocation propagation)
     and `credential-contracts` (CA material custody, never committed), and
