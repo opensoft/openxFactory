@@ -683,6 +683,50 @@ def extract_code_spans(text: str) -> list[tuple[int, int, str]]:
     return out
 
 
+# THE REASON SEPARATOR, and the boundary it draws is a GRAMMAR RULE rather than
+# a heuristic. `dh` (Currency of an active change's MODIFIED requirement blocks,
+# as amended by `amend-marker-reason-boundary` 2026-09-06): "THE REASON SHALL
+# BEGIN AT THE FIRST ` — ` SEPARATOR STANDING OUTSIDE EVERY CODE SPAN: the units
+# named are the spans that close before that separator, the reason is everything
+# after it, and a code span that falls inside the reason is prose the reason
+# quotes rather than a unit the marker names."
+#
+# WHAT THE RETIRED SENTENCE DID. It measured the reason from BEHIND — "everything
+# after the LAST code span's following ` — `" — so every code span an author
+# wrote INSIDE the reason was harvested as a declared-removed NAME and the reason
+# was shortened to whatever trailed it. Measured 2026-09-06 over this corpus:
+# seven unit-naming markers, TWO of them misread that way, each deriving THREE
+# names where its author declared one (openxFactory issue #692).
+_REASON_SEP = " — "
+
+
+def _reason_boundary(text: str, spans: list[tuple[int, int, str]]) -> int | None:
+    """The offset of the first `_REASON_SEP` in `text` that stands OUTSIDE every
+    code span, or None where no separator stands outside one.
+
+    PRIVATE ON PURPOSE. It is one split inside `parse_marker`, not a new public
+    reading of a document, and the module's public surface is snapshotted by
+    `test_modified_block_currency_fixtures.py::
+    test_this_feature_touches_no_production_module`. A helper that changes no
+    public callable keeps that guard meaningful for the next name that does.
+
+    A separator INSIDE a span is part of a unit's own bytes — a unit that cites
+    `` ` — ` `` is a unit like any other — and the amended rule says so in as
+    many words, which is why the test is span membership and never a search for
+    the last one. The separator's three characters can never begin a span
+    (neither a space nor an em dash is a backtick), so every span lies wholly
+    before or wholly after the boundary and `end <= cut` partitions them exactly.
+    """
+    i = 0
+    while True:
+        cut = text.find(_REASON_SEP, i)
+        if cut == -1:
+            return None
+        if not any(s < cut and cut + len(_REASON_SEP) <= e for s, e, _c in spans):
+            return cut
+        i = cut + 1
+
+
 def fenced_regions(lines) -> set[int]:
     """The indices of every line inside a fenced code block, fences included.
 
@@ -802,11 +846,16 @@ def parse_marker(paragraph: str) -> Marker | None:
     tail = text[m.end():]
     if form == _PAIRING_FORM:
         # THE REASON IS THE WHOLE TAIL AFTER ` — `, HARVESTED ALWAYS AND
-        # NEVER OPTIONALLY. The two unit-naming forms take their reason from
-        # after the LAST code span, and reusing that here would read a code
-        # span an author wrote INSIDE the reason as a named unit and shorten
-        # the reason to nothing. This form names no units, so there is nothing
-        # in the tail to measure it from behind.
+        # NEVER OPTIONALLY. This form names NO units, so the split the two
+        # unit-naming forms make below — names before the first separator
+        # standing outside a code span, reason after it — has nothing to
+        # divide here: every code span in this tail is prose the reason
+        # quotes, wherever it falls. Reusing that path would let a span
+        # written BEFORE the separator be harvested as a name this form is
+        # forbidden to have. (Before `amend-marker-reason-boundary`
+        # 2026-09-06 the unit-naming forms measured the reason from the LAST
+        # code span, and the note here said so; the reason this branch is
+        # separate is unchanged by that amendment.)
         #
         # AND AN ABSENT TAIL IS A VALUE, NOT A PARSE OUTCOME: `reason` is
         # `None` where there is no separator, or one with nothing but
@@ -814,15 +863,35 @@ def parse_marker(paragraph: str) -> Marker | None:
         # misdeclared ground. An empty reason declares exactly what an absent
         # one does, and the disclosure that would have lived in it has no
         # clause to live in.
-        reason = normalize(tail[3:]) or None if tail.startswith(" — ") else None
+        # ONE GRAMMAR TOKEN, ONE SPELLING. The separator is `_REASON_SEP` here
+        # as it is in the unit-naming path below; the literal this branch used
+        # to carry, and its hardcoded `[3:]`, were correct only because the em
+        # dash happens to be one code point. The parse is unchanged.
+        reason = (normalize(tail[len(_REASON_SEP):]) or None
+                  if tail.startswith(_REASON_SEP) else None)
         return Marker(form, change_id, date, [], None, reason, text, basis)
+    # THE TWO UNIT-NAMING FORMS, `Removed from canon` and `Merged into`, SPLIT
+    # AT THE SAME BOUNDARY. `Merged into`'s destination is matched in the prefix
+    # and never here, so the tail after the closing colon is parsed identically
+    # in both — which is what the amended sentence states ("The boundary is read
+    # the same way in both forms"). The pairing form returned above and takes
+    # the WHOLE tail, because it names no units at all.
     spans = extract_code_spans(tail)
-    names = [normalize(c) for _s, _e, c in spans]
-    reason = None
-    if spans:
-        after = tail[spans[-1][1]:]
-        if after.startswith(" — "):
-            reason = normalize(after[3:]) or None
+    cut = _reason_boundary(tail, spans)
+    if cut is None:
+        # NO SEPARATOR OUTSIDE A SPAN: every span names a unit and the marker
+        # carries no reason — the form the written-out `Merged into` example in
+        # canon is in, and unchanged by the amendment.
+        names = [normalize(c) for _s, _e, c in spans]
+        reason = None
+    else:
+        # THE FAILURE DIRECTION IS THE CONSERVATIVE ONE. A marker that separated
+        # its NAMES with ` — ` has the later ones read as reason: they suppress
+        # nothing, and the units their author meant to name are REPORTED rather
+        # than silently dropped. No marker in this corpus is written that way
+        # (measured 2026-09-06, seven markers).
+        names = [normalize(c) for _s, e, c in spans if e <= cut]
+        reason = normalize(tail[cut + len(_REASON_SEP):]) or None
     return Marker(form, change_id, date, names, destination, reason, text)
 
 
