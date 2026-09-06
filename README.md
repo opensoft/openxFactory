@@ -119,6 +119,20 @@ Core domain-neutral docs:
   [`rulings-2026-08-29.md`](openspec/changes/add-wallet-carried-review-authority/rulings-2026-08-29.md)
   R8/R9; `Status: draft`, because neither ruling is enforced until the change
   carrying R6–R12 is ratified and task 7.6 stays OPEN by its own text)
+- [Council Seat Signing Keys — Mint and Register Act](docs/council-seat-key-mint-runbook.md)
+  (the operator ceremony for commissioning a COUNCIL BODY into the intake
+  register: read the roster by seat identifier, mint one Ed25519 keypair per
+  seat offline, declare them in the body's wallet, attest the custody, issue one
+  root grant, write ONE authority row plus its `seat_keys` entries, move the
+  consuming gate's LITERAL note counts in the same act, run the pinned reader
+  locally and read the log rather than the exit code, then record the walk. Five
+  preconditions gate it, the first being that the PINNED reader can represent
+  the shape at all — a refusal there is an openXwallet change and a pin advance,
+  never a workaround. Written for
+  `register-gate-rules-council-seats` §3 against the 2026-08-28
+  merge-readiness seat-key mint; `Status: draft`, because a runbook authored by
+  an unratified proposal that ratified itself would be the described-control
+  defect this estate has already named twice)
 - [Factory Origin Key — Mint Runbook](docs/factory-origin-key-mint-runbook.md)
   (the operator ceremony for the ONE Ed25519 origin key an originating
   repository holds: generate the seed offline, derive `did` / fingerprint /
@@ -497,6 +511,40 @@ Every DomainxFactory must validate against the canonical contract:
 ## OpenSpec Records
 
 Active changes:
+
+- [register-gate-rules-council-seats](openspec/changes/register-gate-rules-council-seats/proposal.md)
+  — authored 2026-09-06, **`Status: draft`**, lane `hermes-wallet-exercise`. The
+  S5-family change Brett Heap's OQ-C ruling on codexFactory PR #165 QUEUED
+  (2026-09-05T17:15Z, verbatim *"operator ratification now, seats later …
+  Registering gate-rules seats (mint + rows in openxFactory
+  `governance/review-authority/register.yaml`) is QUEUED as its own S5-family
+  openxFactory change so later convenings are signed"*). **IT PERFORMS
+  NOTHING**: no key is minted, no wallet/grant/attestation/row is written, no
+  pin moves — the register is a PERMANENTLY HUMAN-ONLY surface and a
+  never-clearable floor member by exact path, so every write is Brett's operator
+  act, specified and sequenced here as a WALK. **Its headline is a MEASURED
+  finding**: at the pinned reader (`b7b0fbb3`, `wallet-v1.4`) the gate-rules
+  seats are unregisterable for TWO reasons — `register-minimal-shape-exceeded`
+  (a second body needs a second AUTHORITY row and cannot descend from
+  `row-mrc-0001`, whose `holder_ref` is the other council) and
+  `register-seat-duplicate` (seat-name uniqueness is GLOBAL, and gate-rules
+  seats `lead-security`, `lead-quality` and `company-policy-lead`, three names
+  merge-readiness already records). Both defects live in `opensoft/openXwallet`,
+  so the reader widening is that repository's own change and this one advances
+  only the pin and the consumer gate's literal counts. The runtime side is
+  ALREADY multi-council ready — hermes-install's `derive_projection` keys on
+  `(council_id, seat_id)` and reports `councils` as a set. FOUR seats are
+  registered (`lead-architect`, `lead-security`, `lead-quality`,
+  `company-policy-lead`); TWO are deferred with reasons
+  (`intent_owner_role_slot` is symbolic, `client-security-compliance-officer` is
+  a persona with no seat identifier). **7 ADDED requirements** on
+  `review-authority-intake`, no `## MODIFIED` and no `## REMOVED` — the parent's
+  own *"the additional scope is a named successor"* scenario is the door this
+  walks through. Five open questions Q-GRC-1..5, each with a recommendation and
+  none decided; Q8(d) (exact model versions only) is ALREADY RULED and is not
+  reopened. `sequenced_after: [add-wallet-carried-review-authority,
+  openXwallet:widen-register-reader-for-a-second-council]`; `code_surface` is
+  NOT `none`, so it archives only on merged, green realization evidence.
 
 - [mirror-floor-regeneration-automation](openspec/changes/mirror-floor-regeneration-automation/proposal.md)
   — authored 2026-09-06, **`Status: ratified`** (2026-09-06, Brett Heap
