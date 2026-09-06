@@ -26,14 +26,15 @@ found verbatim in the cited source voids the run (stronger than organizer's
 trust-the-worker posture, per the change's "hash actual doc sections").
 
 NON-MUTATION IS STRUCTURAL (task 3.5). The module's ONLY write surface is
-`persist`, which writes solely through one `OutputBoundary` (the landed
-ideation-dashboard house guard) whose allowlist is the index yaml, its `.md`
-projection, and `health/ideation-readiness/`. There is no code path that edits,
-moves, promotes, or deletes a source document; archived material is read-only
-reference for the extension-fit check. The assembled index is validated against
-the openxFactory index schema (the pinned `validate-ideation-cross-reference.py`)
-BEFORE persistence, and any contract failure is reject-and-reported — the index
-stays at its prior state.
+`persist`, which writes solely through one `OutputBoundary` (the landed write
+guard, neutral at `scripts/output_boundary.py` since
+`split-opendox-two-layer-product` § 2.1) whose allowlist is the index yaml,
+its `.md` projection, and `health/ideation-readiness/`. There is no code path
+that edits, moves, promotes, or deletes a source document; archived material
+is read-only reference for the extension-fit check. The assembled index is
+validated against the openxFactory index schema (the pinned
+`validate-ideation-cross-reference.py`) BEFORE persistence, and any contract
+failure is reject-and-reported — the index stays at its prior state.
 
 FAILURE ISOLATION (like `semantic.run_sweep` / `organizer.run_organizer`). A
 worker failure or invalid/rejected output records a skip and persists nothing;
@@ -1348,7 +1349,12 @@ def make_boundary(root):
     three write targets — the index yaml, its `.md` projection, and
     `health/ideation-readiness/`. Anything else is refused, recorded, and
     raised."""
-    from ideation_dashboard.boundary import OutputBoundary  # lazy: house guard
+    # The guard is NEUTRAL as of `split-opendox-two-layer-product` § 2.1:
+    # it lives at `scripts/output_boundary.py`, in neither package, so
+    # `doc_health` no longer imports anything from `ideation_dashboard`
+    # (tests/doc-health/test_import_direction.py). Still function-local:
+    # the write guard is needed only when this pass actually persists.
+    from output_boundary import OutputBoundary
     return OutputBoundary(root, [INDEX_REL, INDEX_MD_REL, f"{EVIDENCE_DIR}/"])
 
 

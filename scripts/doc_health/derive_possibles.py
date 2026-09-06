@@ -854,7 +854,12 @@ def make_boundary(root):
     three write targets — the index yaml, its `.md` projection, and
     `health/derive-possibles/`. Anything else is refused, recorded, and
     raised."""
-    from ideation_dashboard.boundary import OutputBoundary  # lazy: house guard
+    # The guard is NEUTRAL as of `split-opendox-two-layer-product` § 2.1:
+    # it lives at `scripts/output_boundary.py`, in neither package, so
+    # `doc_health` no longer imports anything from `ideation_dashboard`
+    # (tests/doc-health/test_import_direction.py). Still function-local:
+    # the write guard is needed only when this pass actually persists.
+    from output_boundary import OutputBoundary
     return OutputBoundary(root, [INDEX_REL, INDEX_MD_REL, f"{EVIDENCE_DIR}/"])
 
 
