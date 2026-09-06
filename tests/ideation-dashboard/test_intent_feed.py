@@ -323,7 +323,8 @@ def test_bounded_paths_never_drains_the_walk_it_is_handed():
         nonlocal pulled
         while True:
             pulled += 1
-            yield Path(f"/corpus/{pulled:09d}.gate-intent.yaml")
+            yield (Path(intent_feed.INTENTS_DIR)
+                   / f"{pulled:09d}.gate-intent.yaml")
 
     paths, truncated = intent_feed.bounded_paths(endless(), limit=5)
     assert pulled == 6                            # limit + 1 look-ahead
@@ -333,9 +334,10 @@ def test_bounded_paths_never_drains_the_walk_it_is_handed():
 
 
 def test_a_walk_inside_the_cap_is_not_reported_truncated():
+    where = Path(intent_feed.INTENTS_DIR)
     paths, truncated = intent_feed.bounded_paths(
-        iter([Path("/corpus/b.gate-intent.yaml"),
-              Path("/corpus/a.gate-intent.yaml")]), limit=5)
+        iter([where / "b.gate-intent.yaml",
+              where / "a.gate-intent.yaml"]), limit=5)
     assert truncated is False
     assert [p.name for p in paths] == ["a.gate-intent.yaml",
                                        "b.gate-intent.yaml"]
