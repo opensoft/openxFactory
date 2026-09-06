@@ -1,0 +1,2 @@
+A file where a corpus is expected. Resolving against it must refuse as
+UNREADABLE and name the path, never degrade to an empty listing.
