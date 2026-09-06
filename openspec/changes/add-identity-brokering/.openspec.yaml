@@ -19,7 +19,7 @@ origin:
     install repo). Also ruled beyond what the brainstorm asked: workloads
     are NOT persona users. This change carries the neutral half only; the
     OpsxFactory `keycloak-administration` workflow (exit 2) and the
-    `Keycloak-Install` runtime (exit 3) are named successors that
+    `xFactory-Keycloak-Install` runtime (exit 3) are named successors that
     consume this contract's vocabulary, which is why it ratifies first.
   approved_by: >-
     Brett Heap (xFactory family session rulings R1, R3, R4, R5 and R7,

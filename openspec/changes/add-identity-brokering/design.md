@@ -216,6 +216,62 @@ to have a resolved authorization decision. Whichever way OQ-2 goes, the
 silent transition from read-only login to write-enabled login stops being
 possible.
 
+### Post-ratification note, 2026-09-05 — the install-repo rename (#242) and the origin declaration
+
+The origin declaration in `.openspec.yaml` names
+`xFactory-Keycloak-Install`, and that is the name it will keep. It is the
+name Brett Heap's 2026-08-21 rulings were recorded under at the ratifying
+commit `1570ff7e`, and an origin declaration is the record of why this
+change was created — not a description of the world as it stands today.
+
+**What was renamed.** Later the same day, Brett Heap ruled the broker and
+CA install repositories Opensoft-level operator infrastructure rather than
+xFactory-product repositories, and the sweep in commit `e11a057b` (PR #242,
+"Amend install-repo naming to Opensoft-level: Keycloak-Install +
+OpenXPKI-Install") renamed them unprefixed on the CloudPC-Install /
+Omnigent-Install precedent. The names that hold from that ruling forward:
+
+- `opensoft/Keycloak-Install` (was `opensoft/xFactory-Keycloak-Install`),
+  aggregation path `installs/keycloak-install`, admitted by the ADDED
+  `repo-boundary-governance` requirement this change carries and created by
+  the successor `implement-keycloak-install-repo`.
+- `opensoft/OpenXPKI-Install` (was `opensoft/xFactory-OpenXPKI-Install`),
+  the sibling `add-trust-anchor` admits.
+
+Aggregation paths and successor change ids were unchanged by the rename;
+the amendment is recorded in this packet's `proposal.md` closing paragraph,
+and D6 / D7 above are unaffected — the split and the per-repo admission are
+what they were, under a different repository name.
+
+**What that sweep also touched, and why it is being undone.** `e11a057b`
+applied the rename to the origin declaration as well. Its one hunk there
+was:
+
+```text
+-    `xFactory-Keycloak-Install` runtime (exit 3) are named successors that
++    `Keycloak-Install` runtime (exit 3) are named successors that
+```
+
+so `origin.reason` came to read "the `Keycloak-Install` runtime (exit 3)
+are named successors that consume this contract's vocabulary, which is why
+it ratifies first". That edit is a post-ratification mutation of a ratified
+origin declaration, which `release-realization` § "Origin retention at
+archive" forbids and the gate landed by #695 refuses. The declaration has
+been restored byte-for-byte to its bytes at `1570ff7e`; the sentence above
+is where the renamed name now lives, so nothing the sweep said is lost. The
+disposition for the restoration is Brett Heap's ruling of 2026-09-05,
+"restore all four, land them when green" (issue #709).
+
+This is the same treatment the rest of the packet's historical material
+already gets: `supporting-docs/source-snapshots/identity-brokering-plane.md`
+and `review/co-residence-finding-2026-08-21.md` both keep the pre-amendment
+name as provenance, and `e11a057b` left them alone for that reason. The
+origin block belongs in that set and is now back in it.
+
+**The operational rule, going forward.** A corpus-wide sweep MUST NOT touch
+a ratified packet's origin block: the sweep's own subject matter — current
+names, current paths — is exactly what an origin declaration is not about.
+
 ## Open questions carried forward
 
 Each has a recommendation. None is settled by this change; OQ-5 is a gate
