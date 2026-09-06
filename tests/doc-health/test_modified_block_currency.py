@@ -526,6 +526,9 @@ def test_a_reason_quoting_a_REAL_canon_unit_suppresses_it_under_the_retired_rule
     retired = mbc.parse_marker(paragraph)
     retired.names = [mbc.normalize(c)
                      for _s, _e, c in mbc.extract_code_spans(paragraph)]
+    # Faithful in `names` only unless `reason` moves too: under the retired
+    # rule no ` — ` follows the LAST span here, so the reason is None.
+    retired.reason = None
     assert retired.names == ["A unit.", "**THEN** the run reports"]
     suppressed_retired, defective_retired = mbc.suppression(
         [retired], canon_units, [])
