@@ -98,9 +98,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   repository, because amending a `ratified` record ahead of the act it describes
   would leave the record describing a repository that does not exist. **DONE
   AS SPECIFIED — verified at origin/main `391d2404`, 2026-09-05T23:12Z**:
-  `design.md` line 649 carries the heading `### D8 — Amendment 3, drafted here
-  and APPLIED AT REALIZATION`, followed by the drafted `> Amendment 3 —
-  openDox is taken knowingly` text; `docs/openxdox-naming.md` carries no
+  `design.md` line 649 carries the heading `### D8 — Amendment 3, drafted here and APPLIED AT REALIZATION`, followed by the drafted `> Amendment 3 — openDox is taken knowingly` text; `docs/openxdox-naming.md` carries no
   "Amendment 3" (`grep -n "Amendment 3" docs/openxdox-naming.md` → no match,
   exit 1). Ticked as done-as-specified: drafted, deliberately unapplied until
   § 1.6.
@@ -132,8 +130,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   reading of this item that said no entry was owed — Copilot round 5, taken
   2026-09-05.) **DONE — verified at origin/main `391d2404`, 2026-09-05T23:12Z**:
   `tests/sequenced_after/corpus-ledger.yaml:237` carries
-  `split-opendox-two-layer-product: {state: active, class: co-modifier,
-  declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}`;
+  `split-opendox-two-layer-product: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}`;
   the MOVEMENT LOG entry "TEN ROWS MOVED FOR ONE CHANGE, AND NINE OF THEM ARE
   SOMEBODY ELSE'S" is present at `tests/sequenced_after/test_sweep.py:1108`;
   `python3 scripts/validate-sequenced-after.py . --ledger-diff` reports
@@ -169,12 +166,9 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   reads the scaffold commit message "Scaffold openDox: manifest, two legs,
   three pins / Shape opensoft/openRepoShape @ e9c4827b… / spec
   beba24d45a7494e9070ff69f3e011de6f237a9c3 / code
-  4e278d3619c2c3da2ad7eb188895e8dafee2991c" at `commit.author.date
-  2026-09-06T01:28:10Z` — inside the claimed window; `gh api
-  repos/opensoft/openDox-spec/commits/beba24d4…` and
+  4e278d3619c2c3da2ad7eb188895e8dafee2991c" at `commit.author.date 2026-09-06T01:28:10Z` — inside the claimed window; `gh api repos/opensoft/openDox-spec/commits/beba24d4…` and
   `repos/opensoft/openDox-code/commits/4e278d36…` both resolve (01:28:06Z /
-  01:28:08Z). `gh api repos/opensoft/openDox --jq
-  '{visibility,license:.license.spdx_id,topics}'` reads `public` /
+  01:28:08Z). `gh api repos/opensoft/openDox --jq '{visibility,license:.license.spdx_id,topics}'` reads `public` /
   `Apache-2.0` / `["xf-project-opendox"]`, and the same call on `openDox-spec`
   and `openDox-code` reads the same topic. No claim made on the `opendox`
   GitHub organization (unchanged, per RULING C1). No `RULESET_HINT` text
@@ -229,15 +223,12 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   re-author this re-pin, and do not re-pin backward to `355f6ef4`. Nothing
   else in the packet ever waited on it, because the packet performs nothing.
 
-  **DONE — bookkeeping, verified live 2026-09-06T04:58Z**: `gh pr view 45 -R
-  opensoft/openRepoShape --json state,mergeCommit` reads `MERGED`, merge
-  commit `5ffa8d58d1d5853f262bd11bc192e36f3dfd3b3d`; `gh pr view 700 -R
-  opensoft/openxFactory --json state,mergeCommit,mergedAt` reads `MERGED`,
+  **DONE — bookkeeping, verified live 2026-09-06T04:58Z**: `gh pr view 45 -R opensoft/openRepoShape --json state,mergeCommit` reads `MERGED`, merge
+  commit `5ffa8d58d1d5853f262bd11bc192e36f3dfd3b3d`; `gh pr view 700 -R opensoft/openxFactory --json state,mergeCommit,mergedAt` reads `MERGED`,
   merge commit `303bfd5322f64dad9945467e911d91a90475e938`, merged
   `2026-09-05T21:50:02Z`; this worktree's own
   `contracts/openreposhape-pin.yaml:114` (checked out at `origin/main`) reads
-  `commit: "e9c4827b85f50503bbdd9e5b4fac9d6c3d0baf63"`, matching. `gh api
-  repos/opensoft/openRepoShape/commits/e9c4827b85f50503bbdd9e5b4fac9d6c3d0baf63`
+  `commit: "e9c4827b85f50503bbdd9e5b4fac9d6c3d0baf63"`, matching. `gh api repos/opensoft/openRepoShape/commits/e9c4827b85f50503bbdd9e5b4fac9d6c3d0baf63`
   resolves to a real commit descended from `5ffa8d58`. Unblocked and landed;
   ticked as bookkeeping per the item's own text.
 - [x] 1.2 `[oXd]` **SCAFFOLD the `openXdox` project — three repositories, and the
@@ -263,21 +254,17 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   assembly root, never a leg. *(Amended 2026-09-05: this first said "Create
   `opensoft/openXdox`: PUBLIC, Apache-2.0, `opensoft`-owned".)*
 
-  **DONE — hand-acts evidence (dry-run with `--pin
-  openDox@bad2d2ad4c93c2d0cc3ed82ec56de3e5eecbc2fe` + real run)
+  **DONE — hand-acts evidence (dry-run with `--pin openDox@bad2d2ad4c93c2d0cc3ed82ec56de3e5eecbc2fe` + real run)
   2026-09-06T01:28:44–01:29:07Z; re-verified live 2026-09-06T04:58Z**: the
   real run's scaffold commit,
   `gh api repos/opensoft/openXdox/commits/460f2692a8dec3794ca8019e8cd982bfdd6b1fca`,
   reads "Scaffold openXdox: manifest, two legs, three pins / Shape
   opensoft/openRepoShape @ e9c4827b… / spec
   8358900476aa95de1c5055fead8836d26c04d5bb / code
-  3f0c11774709baebbe8b31f137f189d4a290be71" at `commit.author.date
-  2026-09-06T01:29:01Z` — inside the claimed window; both leg seed commits
+  3f0c11774709baebbe8b31f137f189d4a290be71" at `commit.author.date 2026-09-06T01:29:01Z` — inside the claimed window; both leg seed commits
   resolve. `gh api repos/opensoft/openXdox/contents/contracts/opendox-pin.yaml?ref=0365cea5db7c203bc10b0aabefd99e8a1e17866e`
   (root main `0365cea5db7c203bc10b0aabefd99e8a1e17866e`, the PR#2 tip after the
-  later re-pin-legs-to-tips hand act) reads `commit:
-  "bad2d2ad4c93c2d0cc3ed82ec56de3e5eecbc2fe"` and `digests.tree_sha256:
-  "5acff0af63d262bb2e48f90b5e9c8cafab260d383e5bc2a0c4a30b5e89f25308"`;
+  later re-pin-legs-to-tips hand act) reads `commit: "bad2d2ad4c93c2d0cc3ed82ec56de3e5eecbc2fe"` and `digests.tree_sha256: "5acff0af63d262bb2e48f90b5e9c8cafab260d383e5bc2a0c4a30b5e89f25308"`;
   `project.yaml` at the same ref reads `neutral_product_pins: [openDox]`,
   `elected_by: "Brett Heap"`, `elected_on: 2026-09-05`. Full 40-hex commit
   passed, no tag or abbreviated oid.
@@ -338,8 +325,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
 
   **DONE — restated file sets confirmed against the six real repositories,
   live `gh api` reads 2026-09-06T04:58Z (citing the brief's hand-acts evidence
-  for PR numbers/shas):** `gh api
-  repos/opensoft/openDox/git/trees/1f0a7693824b01dbb7246701d02eccd0a729a769`
+  for PR numbers/shas):** `gh api repos/opensoft/openDox/git/trees/1f0a7693824b01dbb7246701d02eccd0a729a769`
   (root main, after PR #1 `1c82b422` + PR #2 `1f0a7693`) lists exactly
   `.github`, `.gitignore`, `.gitmodules`, `AGENTS-shape.md`, `AGENTS.md`,
   `CLAUDE.md`, `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `LICENSE`, `Makefile`,
@@ -432,9 +418,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   `## Amendment 3 — \`openDox\` is taken knowingly (2026-09-06)` section,
   appended after `## Amendment 2` in Amendment 2's own format (heading, then
   bolded lead-in paragraphs), de-blockquoted from the exact text drafted at
-  `design.md` lines 666–729 (the blockquote running from `> ## Amendment 3 —
-  \`openDox\` is taken knowingly (2026-<MM>-<DD>)` through `> created for any
-  of them.`), with `2026-<MM>-<DD>` filled as `2026-09-06` (the date the six
+  `design.md` lines 666–729 (the blockquote running from `> ## Amendment 3 — \`openDox\` is taken knowingly (2026-<MM>-<DD>)` through `> created for any of them.`), with `2026-<MM>-<DD>` filled as `2026-09-06` (the date the six
   repositories were created — confirmed live above: `openDox`/`openDox-spec`/
   `openDox-code` `created_at 2026-09-06T01:28:0xZ`, `openXdox`/`openXdox-spec`/
   `openXdox-code` `created_at 2026-09-06T01:28:4x–01:28:5xZ`, all via `gh api repos/opensoft/<repo> --jq .created_at`). `Status: ratified` is untouched —
@@ -473,9 +457,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   classifying all fifteen as `project-leg`): 5 × 3 = **fifteen** descendant
   names, not eighteen. A sixth descendant would be needed to reach eighteen, and
   none exists anywhere in this packet — reproducible as
-  `grep -ohE '(^|[^[:alnum:]_])[A-Za-z]+xDox([^[:alnum:]_]|$)'
-  proposal.md design.md tasks.md | sed -E 's/^[^A-Za-z]*//; s/[^A-Za-z]*$//' |
-  sort -u`, run from `openspec/changes/split-opendox-two-layer-product/` — the
+  `grep -ohE '(^|[^[:alnum:]_])[A-Za-z]+xDox([^[:alnum:]_]|$)' proposal.md design.md tasks.md | sed -E 's/^[^A-Za-z]*//; s/[^A-Za-z]*$//' | sort -u`, run from `openspec/changes/split-opendox-two-layer-product/` — the
   pattern is POSIX ERE with no Perl-style escapes (no `\b`, which POSIX ERE
   does not define and GNU grep accepts only as an extension; the boundary here
   is a bracket-class alternative, stripped afterward with `sed`); the `-o`/`-h`
@@ -491,8 +473,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   ALSO-ACCEPTED spelling of `openXdox` itself named twice in the pin-chain
   discussion (`tasks.md`:347, `design.md`:868 — "`openXdox`.casefold() equals
   `openxDox`.casefold()"), not a sixth descendant. Excluding those two
-  artifacts, `grep -owhE 'MedxDox|codexDox|LedgerxDox|AdxDox|OpsxDox'
-  proposal.md design.md tasks.md | sort -u | wc -l` — the pattern is POSIX ERE
+  artifacts, `grep -owhE 'MedxDox|codexDox|LedgerxDox|AdxDox|OpsxDox' proposal.md design.md tasks.md | sort -u | wc -l` — the pattern is POSIX ERE
   with no Perl-style escapes, so no `\b` is needed; the `-o`/`-h`/`-w` options
   are GNU/BSD grep extensions (available on Linux and macOS), not
   POSIX-required. Returns **5**: the five names above are the only
@@ -512,7 +493,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   `OpsxDox-code` — fifteen names — each "with no repository created"; the "leg
   suffixes are not new brands" paragraph separately names `openXdox-Install`
   as unchanged and still "registered with no repository created". Verified
-  live 2026-09-06T04:58Z: `gh api repos/opensoft/<name>` returns `404 Not Found` for all twenty-six — the five bases, the ten leg names, and
+  live 2026-09-06T04:58Z: `gh api repos/opensoft/<name>` returns `404 Not Found` for all sixteen — the five bases, the ten leg names, and
   `openXdox-Install` — checked individually — zero repositories, as required.
 - [ ] 1.8 `[xF]` Aggregation `CLAUDE.md` working rule #1 amended: it accommodates a
   neutral `open*` product `openxFactory` pins, and does NOT yet accommodate a
@@ -568,8 +549,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   manifest asserts a declared `openDox` referent in a tree that declares no
   openDox pin. **The classification is right and the reason it records is
   false.** So the interim is: scaffold with `--referent-chain openXdox,openDox`,
-  and RECORD the chain actually relied on (`naming.referent_chain: [openXdox,
-  openDox]`) in the descendant's own manifest — written by that flag alone; it
+  and RECORD the chain actually relied on (`naming.referent_chain: [openXdox, openDox]`) in the descendant's own manifest — written by that flag alone; it
   is never inferred, and a run without it records no chain and exits 0 — so the
   accidental pass is never left standing as the explanation;
   the re-pin landing later makes the same classification true (#40 already
@@ -580,8 +560,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
 
   **DONE — bookkeeping, verified live 2026-09-06T04:58Z**: `#40` is resolved
   upstream by openRepoShape PR #42, merge commit `c2cc9e25` (checked as an
-  ancestor of the pin landed here — see 1.1a's evidence for the `gh pr view
-  45`/`700` reads that confirm the same lineage). **The re-pin HAS landed** in
+  ancestor of the pin landed here — see 1.1a's evidence for the `gh pr view 45`/`700` reads that confirm the same lineage). **The re-pin HAS landed** in
   this repository (`contracts/openreposhape-pin.yaml` reads
   `e9c4827b85f50503bbdd9e5b4fac9d6c3d0baf63`, a descendant of `c2cc9e25`), so
   the item's own "not a blocker — recorded interim" condition is now moot for
@@ -590,8 +569,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   `neutral_product_pins: [openDox]`, and `openDox` pins nothing — matching
   RULING OQ-2 exactly: inside the family, only `openXdox` pins `openDox`, and
   no descendant pins it directly (there being no descendant repository yet,
-  per 1.7). The interim note — scaffold with `--referent-chain
-  openXdox,openDox` and record `naming.referent_chain` rather than adding a
+  per 1.7). The interim note — scaffold with `--referent-chain openXdox,openDox` and record `naming.referent_chain` rather than adding a
   direct `openDox` pin to force classification — stands unmodified for the
   first descendant that IS scaffolded; ticked as bookkeeping per the item's
   own framing ("not a blocker … the decision is taken here").
@@ -883,13 +861,11 @@ movements claimed at the time they land.
   ```
 
   *(reality check 2026-09-05, second run, claims C22/C30: without
-  `--referent-chain`, the scaffold exits 0 and writes `descendant_referent:
-  openDox` / `referent_declared: true` with NO `referent_chain` key — the
+  `--referent-chain`, the scaffold exits 0 and writes `descendant_referent: openDox` / `referent_declared: true` with NO `referent_chain` key — the
   same case-folding-coincidence pass § 1.10 documents, left standing with no
   chain recorded. The flag is required for this command to satisfy § 1.10.
   The run also prints `WARNING declared-unverified` when openXdox's tree is
-  not reachable from the scaffold host — not a finding; `--link-source
-  openXdox=<path>` or `SHAPE_PIN_SOURCE_OPENXDOX` clears it.)*
+  not reachable from the scaffold host — not a finding; `--link-source openXdox=<path>` or `SHAPE_PIN_SOURCE_OPENXDOX` clears it.)*
 
   Three repositories, THIN: the `-code` leg carries deploy configuration and
   branding, the `-spec` leg the one domain-mapping declaration, the assembly
