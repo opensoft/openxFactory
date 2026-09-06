@@ -367,6 +367,10 @@ def test_a_MISSING_WORKING_TREE_PROPOSAL_is_a_CANNOT_RUN_finding_not_a_verdict(t
     message = str(excinfo.value)
     assert "no proposal.md in the working tree" in message, message
     assert str(change) in message, message
+    # THE MISSING FILE ITSELF, not merely its directory: the diagnostic's whole
+    # job is to tell an operator which path the gate went looking for, and a
+    # directory-only assertion would still pass if that half were dropped.
+    assert str(change / "proposal.md") in message, message
 
     result = subprocess.run(
         [sys.executable, str(VALIDATOR), "--archive-gate", str(change),
@@ -378,6 +382,7 @@ def test_a_MISSING_WORKING_TREE_PROPOSAL_is_a_CANNOT_RUN_finding_not_a_verdict(t
     assert "Traceback" not in result.stderr, result.stderr
     assert "CANNOT RUN" in result.stdout, result.stdout
     assert str(change) in result.stdout, result.stdout
+    assert str(change / "proposal.md") in result.stdout, result.stdout
     # And NOT as the mutation the old reading mistook it for.
     assert "contested" not in result.stdout, result.stdout
 
