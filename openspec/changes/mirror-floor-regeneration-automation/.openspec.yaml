@@ -44,6 +44,15 @@ origin:
     requires one only for Status: ratified. Whether this change's content is
     ratified is a separate act that has not happened and that is Brett Heap's
     alone.
+    THE PACKET HAS SINCE BEEN RATIFIED — Brett Heap, 2026-09-06, in session,
+    verbatim "ratify both when green, then land them", a PAIR word over this
+    companion and codexFactory #235 together, recorded 2026-09-06T01:18Z on
+    PR #708 and applied at head `e4ef8ade` on the condition that `pytest-suite`
+    pass, which it did; record `review/ratification-2026-09-06.md`. Decisions
+    M-1 through M-7 stand as recommended and no veto was exercised. THIS FIELD
+    STILL RECORDS AUTHORIZATION TO FILE ONLY; the ratification is a separate act
+    and is recorded there, and NOTHING IS REALIZED BY EITHER — no pin moves and
+    every box in tasks.md remains unticked.
   approved_on: 2026-09-05
 related:
   - openxFactory:change:mirror-floor-addition-grace   # the archived companion this one is sequenced after; it promoted `review-lane-floor-mirror`

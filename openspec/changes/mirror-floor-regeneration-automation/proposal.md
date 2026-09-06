@@ -6,7 +6,7 @@ sequenced_after: [codexFactory:add-floor-regeneration-automation, mirror-floor-a
 
 # Proposal: mirror-floor-regeneration-automation
 
-Status: draft
+Status: ratified
 Proposed: 2026-09-06
 Origin: codexFactory issue
 [#232](https://github.com/opensoft/codexFactory/issues/232) — the governing
@@ -20,6 +20,16 @@ deliberately does not author it. **No separate openxFactory governing issue was
 filed**: the orchestrating lane's instruction was to file none and to cite #232
 in both repositories, and this line is that citation rather than an omission.
 
+Ratified: 2026-09-06, Brett Heap (openxFactory repository owner), in session,
+verbatim **"ratify both when green, then land them"** — a PAIR word given over
+this companion and its parent codexFactory #235 together, recorded
+2026-09-06T01:18Z on PR #708 (comment beginning "RULING — RATIFIED") and applied
+at head `e4ef8ade` on the condition that `pytest-suite` pass, which it did;
+record `review/ratification-2026-09-06.md`. **AUTHORING DECISIONS M-1 THROUGH
+M-7 STAND AS RECOMMENDED** under that word and none is separately ruled; the
+owner may veto any of them by follow-up. **NOTHING IS REALIZED BY THE
+RATIFICATION** — it ratifies the PROPOSAL, and realization is a later word.
+
 Authored: 2026-09-06, lane `openxfactory-2` (display `openXfactory-2`), on Brett
 Heap's word in session, verbatim **"merge 231 when green, then propose option
 (b)"** (2026-09-05 ~23:5xZ). **THE WORD AUTHORIZED THE PROPOSING, NOT THE
@@ -29,6 +39,8 @@ he rules on this packet itself, and NOTHING IS REALIZED — this packet adds no
 workflow file, no test, moves no pin, and ticks no box. Every judgment this
 authoring session took is listed under § Authoring decisions rather than
 presented as settled.
+**Ratified 2026-09-06 — see `Ratified:` above; the paragraph above is kept as
+the record of the packet's state at authoring.**
 
 ## Why
 
@@ -182,6 +194,11 @@ in the clone rather than assumed.
   box in `tasks.md` is unticked.
 
 ## Authoring decisions — put for veto, not presented as settled
+
+**2026-09-06 — under the ratification word "ratify both when green, then land
+them", decisions M-1 through M-7 below STAND AS RECOMMENDED; none is separately
+ruled and no veto was exercised. Each remains one edit away.** This note answers
+the section's own heading; it rewrites no decision below.
 
 Brett Heap's word settled WHICH option to propose. It settled none of these.
 Each is stated with the alternative it beat, so a veto has something to veto.

@@ -484,15 +484,22 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [mirror-floor-regeneration-automation](openspec/changes/mirror-floor-regeneration-automation/proposal.md)
-  — authored 2026-09-06, **`Status: draft`**, lane `openxfactory-2`, on Brett
-  Heap's word in session, verbatim *"merge 231 when green, then propose option
-  (b)"*. Governing issue codexFactory
+  — authored 2026-09-06, **`Status: ratified`** (2026-09-06, Brett Heap
+  (repository owner), in session, verbatim *"ratify both when green, then land
+  them"* — a PAIR word over this companion and codexFactory #235 together,
+  recorded 2026-09-06T01:18Z on PR #708 over head `e4ef8ade`, its
+  `pytest-suite` condition met; record
+  `openspec/changes/mirror-floor-regeneration-automation/review/ratification-2026-09-06.md`),
+  lane `openxfactory-2`, authored on his earlier word *"merge 231 when green,
+  then propose option (b)"*. **RATIFICATION PERFORMS NO REALIZATION** — no
+  workflow file, no test, NO PIN MOVED, every box in `tasks.md` still unticked;
+  decisions **M-1..M-7 stand as recommended**, no veto exercised. Governing
+  issue codexFactory
   [#232](https://github.com/opensoft/codexFactory/issues/232) (no separate
   openxFactory issue was filed, by instruction); origin codexFactory
   [#203](https://github.com/opensoft/codexFactory/issues/203). **THE COMPANION
-  HALF OF A PROPOSAL, AND NOTHING ELSE IS DONE** — no workflow file, no test, no
-  pin moved, every box in `tasks.md` unticked, ratification OWED and Brett
-  Heap's alone. The primary is codexFactory `add-floor-regeneration-automation`
+  HALF, AND NOTHING IS BUILT BY IT.** The primary is codexFactory
+  `add-floor-regeneration-automation`
   (option (b) of #203, the one the ruled option (c) left *"not ruled and not
   designed"*): there, a lane that runs the shipped generator at a LANDED
   openxFactory `main` commit; **here, the RE-PIN half** — a lane that, on the
