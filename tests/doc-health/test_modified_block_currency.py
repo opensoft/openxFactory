@@ -412,6 +412,167 @@ def test_the_deltas_own_fenced_marker_examples_never_reach_the_parser():
     assert {3, 4} <= fenced, "the two example lines must be inside the fence"
 
 
+# --------------------------------- 3b. the marker: where the reason begins
+#
+# `amend-marker-reason-boundary` (openxFactory issue #692). The promoted
+# sentence measured the reason from BEHIND — "everything after the LAST code
+# span's following ` — `" — so every code span an author wrote INSIDE the reason
+# was harvested as a declared-removed NAME. The amended sentence puts the
+# boundary at the FIRST ` — ` standing OUTSIDE every code span; the names are
+# the spans that close before it, and a span inside the reason names nothing.
+
+
+def test_a_code_span_inside_the_reason_is_prose_and_names_nothing():
+    """THE DEFECT, in one line. The reason is prose, and prose in this corpus
+    quotes: a reason explaining that a `WHEN` bullet was replaced would, under
+    the retired rule, declare `WHEN` itself removed."""
+    m = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** "
+        "`Gate verbs hide on a composed view` — the unit is REPLACED, by the "
+        "`WHEN` that names both facts and the `AND` beside it")
+    assert m is not None
+    assert m.names == ["Gate verbs hide on a composed view"]
+    assert m.reason == ("the unit is REPLACED, by the `WHEN` that names both "
+                        "facts and the `AND` beside it")
+
+
+def test_a_separator_inside_a_code_span_is_a_unit_s_own_bytes():
+    """The boundary tests SPAN MEMBERSHIP, never "the last one". A named unit
+    that cites the separator itself — this very corpus carries one — must not
+    be split at its own quotation."""
+    m = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** "
+        "``the reason is everything after the last code span's following "
+        "` — `.`` — the sentence measures the reason from behind")
+    assert m is not None
+    assert m.names == ["the reason is everything after the last code span's "
+                       "following ` — `."]
+    assert m.reason == "the sentence measures the reason from behind"
+
+
+def test_a_marker_with_no_separator_still_names_every_span():
+    """UNCHANGED BY THE AMENDMENT, and it is the form canon's own written-out
+    `Merged into` example is in: where no separator stands outside a span,
+    every span names a unit and the marker carries no reason."""
+    m = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** `A unit.`; "
+        "`A second unit.`; `A third unit.`")
+    assert m.names == ["A unit.", "A second unit.", "A third unit."]
+    assert m.reason is None
+
+    merged = mbc.parse_marker(MERGED)
+    assert merged.names == ["Gate verbs hide on a composed view"]
+    assert merged.reason is None
+
+
+def test_names_separated_by_the_separator_fail_in_the_CONSERVATIVE_direction():
+    """THE COST OF THE RULE, WRITTEN DOWN. An author who separated NAMES with
+    ` — ` has the later ones read as reason. They suppress nothing, so the units
+    that author meant to declare are REPORTED rather than silently dropped —
+    which is the direction a carriage check must fail in. No marker in this
+    corpus is written that way (measured; see the corpus test below)."""
+    m = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** `A unit.` "
+        "— `A second unit.` — `A third unit.`")
+    assert m.names == ["A unit."]
+    assert m.reason == "`A second unit.` — `A third unit.`"
+
+    # ...and the two that were dropped are therefore NOT suppressed
+    canon_units = [mbc.Unit(mbc.BODY, "A unit."),
+                   mbc.Unit(mbc.BODY, "A second unit.")]
+    suppressed, defective = mbc.suppression([m], canon_units, [])
+    assert suppressed == {(mbc.BODY, "A unit.")}
+    assert defective == []
+
+
+def _corpus_markers():
+    """Every unit-naming marker in every promoted spec and every active delta.
+
+    Read through `derive_units`, which is the shipping path: it drops fenced
+    regions first, so this requirement's own written-out examples — complete
+    markers that promote into canon — are never offered, exactly as they are
+    never offered to a run.
+    """
+    from pathlib import Path
+
+    from conftest import REPO_ROOT
+
+    root = Path(REPO_ROOT)
+    paths = sorted(root.glob("openspec/specs/*/spec.md"))
+    paths += sorted(root.glob("openspec/changes/*/specs/*/spec.md"))
+    out = []
+    for path in paths:
+        lines = path.read_text(encoding="utf-8").splitlines()
+        units, markers = mbc.derive_units(lines)
+        for marker in markers:
+            if marker.form != mbc._PAIRING_FORM:
+                out.append((path.relative_to(root), marker, units))
+    return out
+
+
+def test_no_marker_in_this_corpus_loses_a_name_it_meant_to_declare():
+    """THE MEASUREMENT THE AMENDMENT RESTS ON, run as a test rather than quoted.
+
+    For every unit-naming marker the corpus carries, the names the amended rule
+    derives are a SUBSET of what the retired rule derived — the boundary can
+    only move names into the reason, never the other way — and every name it
+    drops matches NO derived unit anywhere in the document that carries the
+    marker. So nothing any author declared is lost by the amendment: what is
+    dropped is prose the reason quotes.
+
+    Measured 2026-09-06: SEVEN unit-naming markers, TWO of them misread by the
+    retired rule (both in `openspec/specs/doc-health/spec.md`, three names each
+    where their authors declared one). A FLOOR rather than an exact count, so an
+    unrelated archive that promotes a marker is not read as this rule's
+    regression.
+    """
+    markers = _corpus_markers()
+    assert len(markers) >= 5, [str(p) for p, _m, _u in markers]
+
+    for rel, marker, units in markers:
+        spans = mbc.extract_code_spans(marker.paragraph)
+        old_names = [mbc.normalize(c) for _s, _e, c in spans
+                     if mbc.normalize(c) != marker.destination]
+        for name in marker.names:
+            assert name in old_names, (rel, name)
+        dropped = [n for n in old_names if n not in marker.names
+                   and n != marker.destination]
+        real = {u.text for u in units}
+        for name in dropped:
+            assert name not in real, (
+                f"{rel}: the amended boundary drops `{name}`, which IS a unit "
+                f"of that document — a declaration would be lost")
+
+
+def test_the_promoted_markers_this_corpus_carries_parse_to_their_authors_names():
+    """THE TWO LIVE INSTANCES, located by CONTENT and never by line number.
+
+    `doc-health`'s *Release-tag publication* carries two `Removed from canon`
+    markers whose reasons quote the words `WHEN` and `AND`. Each declared ONE
+    unit — the `WHEN` bullet it retired — and the retired rule read THREE.
+    """
+    from pathlib import Path
+
+    from conftest import REPO_ROOT
+
+    lines = Path(REPO_ROOT, "openspec/specs/doc-health/spec.md").read_text(
+        encoding="utf-8").splitlines()
+    _units, markers = mbc.derive_units(lines)
+    live = [m for m in markers
+            if m.change_id in ("amend-published-tip-unreadable-scenario",
+                               "amend-unreadable-read-sibling-scenarios")]
+    assert len(live) == 2, [m.change_id for m in markers]
+
+    for marker in live:
+        assert len(marker.names) == 1, marker.names
+        assert marker.names[0].startswith("**WHEN** the blob read for"), marker
+        assert marker.reason is not None
+        assert marker.reason.startswith("the clause after the dash"), marker
+        # the two words the retired rule harvested are in the REASON, not named
+        assert "WHEN" not in marker.names and "AND" not in marker.names
+        assert "`WHEN`" in marker.reason and "`AND`" in marker.reason
+
+
 # ----------------------------------------------- 1. the derivation: dated notes
 
 

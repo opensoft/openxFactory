@@ -1,0 +1,53 @@
+schema: spec-driven
+created: 2026-09-06
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-06-amend-marker-reason-boundary
+  reason: >-
+    THE ADVERSARIAL REVIEW OF A LANDED AMENDMENT, filed as openxFactory issue
+    #692. PR #685 archived `amend-published-tip-unreadable-scenario` and promoted
+    its `Removed from canon` marker into `doc-health`'s *Release-tag
+    publication*. The review of that landing found that `parse_marker`
+    (`scripts/doc_health/modified_block_currency.py`) collects EVERY code span in
+    the marker paragraph, the reason tail included, so a marker whose author
+    declared ONE unit resolves to THREE — the intended `WHEN` bullet plus the
+    words `WHEN` and `AND` that the reason quotes while explaining the
+    replacement. The sibling marker #688 promoted is the same shape.
+    THE CHECKER IS NOT WRONG ABOUT CANON, WHICH IS WHY THIS IS A PACKET AND NOT A
+    PATCH. The promoted requirement says with a SHALL that "the reason is
+    everything after the last code span's following ` — `", and `parse_marker`
+    conforms to that sentence exactly. Measuring the reason from BEHIND is what
+    makes every quotation inside it a name. Changing the parser alone would put
+    running code out of agreement with promoted canon — the checker out-running
+    canon, the inverse of the defect #678 and #688 were written to avoid — so the
+    remedy is a MODIFIED requirement retiring the sentence, with the realization
+    in the same pull request under `release-realization`'s merged-plus-green rule.
+    IT IS INERT TODAY AND THAT IS AN ACCIDENT OF THE CORPUS, measured rather than
+    assumed: of 17,566 derived units across every promoted specification and every
+    active delta on 2026-09-06, none is literally `WHEN` or `AND`, so the two
+    surplus names match nothing, suppress nothing and are reported as nothing. The
+    next author whose reason quotes a real unit declares that unit removed by
+    mentioning it.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and `INDEX.md` read on 2026-09-06: no topic
+    carries the marker grammar, the reason boundary, or doc-health's carriage
+    arms. `kind: staged` would claim a staging source that does not resolve. The
+    organized source is issue #692 and the review that filed it.
+  proposed_by: >-
+    Lane `openxfactory-1` (session `01H9aKd8YF3ktcLmVJJxQYKv`), authoring the
+    remedy issue #692 proposes. NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED:
+    Brett Heap's *"do 3 and 4"* admits the issue to work and instructs a lane to
+    author; it ratifies no text and takes no design decision. The lawful
+    unapproved shape is the one `add-drafted-proposal-origin` added — drafting
+    provenance, no `approved_by`, no `approved_on` — and every document in the
+    packet carries `Status: draft` to match. The decision most worth a veto is
+    `design.md` D1: option A, the reason beginning at the first ` — ` standing
+    outside every code span, against option B, requiring the removed units in a
+    fenced list, which would rewrite every existing marker including those inside
+    `openspec/changes/archive/` and both prose templates that promote into canon.
+  proposed_on: 2026-09-06
+related:
+  - openxFactory:change:archive/2026-09-05-amend-published-tip-unreadable-scenario   # ARCHIVED. Promoted the first of the two markers this packet's rule re-reads; its bytes are NOT edited here
+  - openxFactory:change:archive/2026-09-05-amend-unreadable-read-sibling-scenarios   # ARCHIVED (PR #688). Promoted the sibling marker, and is the shape this packet is authored on: an amend of doc-health canon realized in the same pull request
+  - openxFactory:change:archive/2026-08-27-add-modified-block-currency-check         # ARCHIVED. Promoted the requirement this block MODIFIES and wrote the retired sentence
+  - openxFactory:change:archive/2026-09-02-govern-sibling-added-modified-deltas      # ARCHIVED. Added the third reserved form, whose whole-tail reason rule this packet leaves untouched
