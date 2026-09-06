@@ -36,6 +36,14 @@ from __future__ import annotations
 import ast
 
 from conftest import REPO_ROOT
+# The two scanners below were defined HERE first, for this file's own direction
+# (`split-opendox-two-layer-product` § 2.1); § 2.2/2.2a needs the identical pair
+# for a different direction, so they moved to a shared helper rather than being
+# copied. The three tests and every assertion in them are unchanged.
+from import_scan import (
+    imported_modules as _imported_modules,
+    names_a_forbidden_package as _names_a_forbidden_package,
+)
 
 DOC_HEALTH = REPO_ROOT / "scripts" / "doc_health"
 NEUTRAL_GUARD = REPO_ROOT / "scripts" / "output_boundary.py"
@@ -46,29 +54,6 @@ NEUTRAL_GUARD = REPO_ROOT / "scripts" / "output_boundary.py"
 # too and would reintroduce the same edge by a route a one-spelling test would
 # miss.
 FORBIDDEN_ROOTS = ("ideation_dashboard", "scripts.ideation_dashboard")
-
-
-def _imported_modules(path):
-    """Every module name a file IMPORTS, with the line it does it on.
-
-    Relative imports (`from .corpus import ...`, `level > 0`) are resolved
-    within `doc_health` itself and can never name another top-level package, so
-    they are reported under their own dotted form and simply never match.
-    """
-    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            for alias in node.names:
-                yield alias.name, node.lineno
-        elif isinstance(node, ast.ImportFrom):
-            if node.level:            # relative: confined to this package
-                continue
-            if node.module:
-                yield node.module, node.lineno
-
-
-def _names_a_forbidden_package(module: str, forbidden) -> bool:
-    return any(module == f or module.startswith(f + ".") for f in forbidden)
 
 
 def test_doc_health_imports_nothing_from_ideation_dashboard():
