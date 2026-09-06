@@ -25,3 +25,11 @@
 # what the required assertion is asserting. The digest in the pin and the
 # freshness verifier both refuse a drifted copy; this routes the human.
 /contracts/review-lane-floor-snapshot.yaml @brettheap
+# The merge-approval envelope (act A4, openxFactory #656, 2026-09-06). The one
+# file that decides WHICH pull requests this repository may approve without a
+# human, enrolled on Brett Heap's word for a single candidate class. Same ground
+# as the pin above: `.github/workflows/` is already owned, but that entry does
+# not cover a file sitting beside the workflows directory, and widening the
+# grant must be a reviewed human act rather than a one-line edit nobody is
+# obliged to see.
+/.github/merge-approval-envelope.yml @brettheap

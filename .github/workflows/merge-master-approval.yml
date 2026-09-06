@@ -1,9 +1,51 @@
-# openxFactory's own Merge Master review lane — ADVISORY, and only advisory.
+# openxFactory's own Merge Master review lane. ADVISORY over every pull
+# request; OPERABLE for the ONE candidate class
+# `.github/merge-approval-envelope.yml` enrolls, and for nothing else.
 #
 # Realizes the WORKFLOW-INSTANCE HALF of `add-substantive-review-lane` task 5.1
 # ("`opensoft/openxFactory` gets its own workflow instance ... since
 # `pull_request_target` fires in the repo the PR targets"). The RULESET HALF of
-# that task is deliberately NOT here — see WHAT THIS DOES NOT DO below.
+# that task is deliberately NOT here — see WHAT THIS STILL DOES NOT DO below.
+#
+# ── AMENDED 2026-09-06 — ACT A4 (openxFactory #656) ──────────────────────────
+#
+# Until this change the lane approved nothing and the absence was STRUCTURAL:
+# no token mint, no review submission, no merge call, and a test that asserted
+# every one of those absences. It now MINTS THE MERGE-MASTER APP TOKEN AND
+# SUBMITS AN APPROVE REVIEW — for a candidate matching the enrolled envelope
+# class, and only when every envelope condition conjunctively holds.
+#
+# THE AUTHORITY, stated where a reader meets the code. Brett Heap, 2026-09-06,
+# on openxFactory #656: *"author the envelope PR now as a narrow first
+# candidate"*. HIS MERGE WORD ON THAT PULL REQUEST IS THE GRANT — for the
+# single candidate `intent-rolling-custody` and for nothing else. The
+# Gate-Rules Council's 2026-08-28 UNANIMOUS REFUSAL STANDS for the class it
+# refused (a class over `openspec/changes/**`, whose admitted surface lies
+# wholly inside the canonical GATE_INTEGRITY_FLOOR and so can never convene),
+# and `add-substantive-review-lane` task 3.2 — the council's general grant of
+# an operable candidate class for this repository — REMAINS OPEN beyond this
+# one candidate.
+#
+# WHAT DID NOT CHANGE, because these are what keep the grant narrow:
+#   * THE JOB ID, HENCE THE CHECK-RUN NAME. Still the single job
+#     `merge-master-approval`. No required-check context moves and no ruleset
+#     is touched by this file.
+#   * THE WORKFLOW'S OWN TOKEN IS STILL READ-ONLY. `permissions:` below grants
+#     `contents: read`, `pull-requests: read`, `checks: read`,
+#     `statuses: read` and nothing else. THE ONLY WRITE AUTHORITY IN THIS LANE
+#     is a per-run GitHub App token, minted from `MERGE_MASTER_APP_ID` /
+#     `MERGE_MASTER_APP_KEY` only AFTER the pinned core has decided, scoped to
+#     `permission-pull-requests: write` on this repository alone. That is a
+#     STRICTER posture than xFactory's caller, which carries
+#     `pull-requests: write` on its own `GITHUB_TOKEN`.
+#   * THE ADVISORY FLOOR VERDICT still runs on every pull request exactly as
+#     before, and is now COMPOSED OVER the envelope: a candidate touching ANY
+#     never-clearable path is refused before the envelope decides, so an
+#     approval requires the floor AND the envelope to hold together.
+#   * NO MERGE, EVER. This lane submits a review and stops. It issues no merge
+#     call and enables no auto-merge — the aggregation's own intent-apply lane
+#     arms GitHub's auto-merge on its side (ruling D-3 on #656) — and the test
+#     still refuses every merge-shaped string in this file.
 #
 # WHAT IT DOES. On every pull request against the default branch it checks out
 # codexFactory's decision core at a RECORDED PIN, gathers the pull request's
@@ -14,28 +56,40 @@
 # codexFactory since the `015-widen-review-authority-floor` work and NOTHING in
 # openxFactory read it until this file.
 #
-# WHAT THIS DOES NOT DO, itemized because every one of them is a thing a reader
-# would otherwise assume landed:
-#   * NO APPROVAL. There is no step that mints the merge-master App token, no
-#     step that submits a review, no merge call, no auto-merge enablement. The
-#     absence is STRUCTURAL, not a disabled condition, and
-#     `tests/review_lane_pin/test_review_lane_caller.py` asserts the absence.
+# APPROVAL, AND ITS ONE DOOR. The approval is reachable ONLY through the
+# envelope: every approval-shaped step below carries
+# `steps.envelope.outputs.decision == 'approve'` in its `if:`, and that output
+# is written by nothing but the pinned core's own exit code. A pull request
+# that matches no enrolled surface reaches `skip` and no fact about it is
+# gathered at all; a candidate that matches but fails any condition reaches
+# `park`, which submits nothing and explains itself on the pull request.
+# `tests/review_lane_pin/test_review_lane_caller.py` asserts that single door,
+# the exact envelope shape it opens for, and the continued absence of every
+# merge-shaped step.
+#
+# WHAT THIS STILL DOES NOT DO, itemized because every one of them is a thing a
+# reader would otherwise assume landed:
+#   * NO MERGE AND NO AUTO-MERGE. There is no merge call and no auto-merge
+#     enablement anywhere below. The absence is STRUCTURAL, not a disabled
+#     condition, and the test asserts it over the file text.
 #   * NO RULESET CHANGE. This check is required by nothing, satisfies nothing,
 #     and blocks nobody. The human review gate on this repository is untouched.
 #     It stays that way until S3 and S5 of `add-wallet-carried-review-authority`
 #     land AND a ratified ruleset change says otherwise.
-#   * NO ENROLLED CANDIDATE CLASS, and no `.github/merge-approval-envelope.yml`.
-#     codexFactory's envelope schema requires `candidates` with `minItems: 1`
-#     and `envelope.py` mirrors that at runtime, so there is no legal empty
-#     envelope — and the `gate_rules_council` has defined no OPERABLE candidate
-#     class for openxFactory (`add-substantive-review-lane` task 3.2). A record
-#     DOES exist as of 2026-08-28: the council convened and REFUSED the class
-#     proposed to it, unanimously, because a class over `openspec/changes/**`
-#     can never convene — its admitted surface lies wholly inside the canonical
-#     GATE_INTEGRITY_FLOOR. A class that can never convene is not an operable
-#     class, so that record defines none and task 3.2 stays OPEN. A placeholder
-#     candidate would be inventing the enrollment that task 3.2 exists to grant.
-#     So no tier-1 envelope decision is computed here at all.
+#   * NO SECOND CANDIDATE CLASS. `.github/merge-approval-envelope.yml` carries
+#     EXACTLY ONE candidate, `intent-rolling-custody`, enrolled on Brett Heap's
+#     word of 2026-09-06 and confined to `ideation/dashboard/intents/**` and
+#     `ideation/dashboard/gate-records/**`. Adding a second is not a
+#     configuration change but a NEW GRANT, needing its own word or its own
+#     council record; the file is code-owned and the test pins its shape.
+#     The 2026-08-28 refusal is undisturbed and task 3.2 stays OPEN.
+#   * NO TIER-2 COUNCIL CLEARANCE. xFactory's caller composes a ratified
+#     council-clearance rule over its envelope, with a verdict transport, an
+#     anti-spoofing identity binding and a consecutive-clearance derivation.
+#     None of that is here: this lane evaluates the tier-1 envelope alone, so
+#     a condition that fails simply parks and no clearance path exists to
+#     re-decide it. A narrow first candidate does not need a clearance
+#     mechanism, and one it does not have cannot be misused.
 #   * NO WALLET-BOUND EXERCISE RECORD. `governance/review-authority/register.yaml`
 #     records `act`-tier review authority for the merge-readiness council over
 #     `opensoft/openxFactory` (row `row-mrc-0001`). This lane claims no exercise
@@ -333,9 +387,14 @@
 #     the default branch). The first live report is the next pull request after
 #     this one lands. What stands in for the demo pre-merge is the static test:
 #     it pins the trigger set, the single-job invariant, the exact job id, the
-#     pin agreement, and the absence of every approval-shaped step.
-#   * A fork pull request reaches this workflow, is evaluated from metadata
-#     only, and — like every other candidate — is approved by nothing here.
+#     pin agreement, the enrolled envelope's exact shape, the single door the
+#     approval is reachable through, and the absence of every merge-shaped
+#     step.
+#   * A fork pull request reaches this workflow and is evaluated from metadata
+#     only. It can never be approved: the enrolled surface pins an exact
+#     same-repository head ref AND the content App's exact author login, and a
+#     fork satisfies neither, so it resolves to `skip` before any fact about
+#     it is gathered.
 #
 # WHY A MISSING CREDENTIAL FAILS RED HERE, WHERE codexFactory's OWN CALLER GOES
 # GREEN. codexFactory treats absent App config as a green "pre-registration"
@@ -369,12 +428,20 @@ concurrency:
   group: merge-master-approval-${{ github.event.pull_request.number || inputs.pr_number || github.ref }}
   cancel-in-progress: true
 
-# READ-ONLY, DELIBERATELY. Not one scope here can submit a review, merge, or
-# enable auto-merge. `checks:` and `issues:` are absent too: this lane writes no
-# check-run payload and files no notice.
+# READ-ONLY, DELIBERATELY, AND STILL READ-ONLY AFTER ACT A4. Not one scope
+# here can submit a review, post a comment, merge, or enable auto-merge — the
+# approval and its explanatory comment are written with a separately minted,
+# per-repository App token scoped to `pull-requests: write`, and nothing else in
+# this job can reach that token. `issues:` is absent (this lane files no notice)
+# and no `write` scope appears anywhere. The two READ scopes added by act A4 are
+# what the envelope's all-checks-green condition quantifies over; a declared
+# `permissions:` block sets every undeclared scope to `none`, so they have to be
+# named to be readable at all.
 permissions:
   contents: read # base checkout + the pinned decision core
   pull-requests: read # candidate metadata and the changed-file listing
+  checks: read # head check-runs, for the envelope's all-checks-green condition
+  statuses: read # head commit statuses, for the same condition
 
 jobs:
   # JOB ID IS LOAD-BEARING, TWICE. GitHub names the check-run after the job id.
@@ -403,6 +470,14 @@ jobs:
       # it is visibility-`selected` and openxFactory is NOT in its list today.
       HAS_REPO_APP_KEY: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY != '' && secrets.OPENXFACTORY_APP_ID != '' }}
       HAS_ORG_APP_KEY: ${{ secrets.XFACTORY_APP_PRIVATE_KEY != '' && secrets.XFACTORY_APP_ID != '' }}
+      # THE APPROVAL IDENTITY (act A4), guarded in the same idiom. A DISTINCT
+      # App from the two content identities above: those read codexFactory, this
+      # one submits the review. Accepted from EITHER a repository/org VARIABLE
+      # (xFactory's spelling, `vars.MERGE_MASTER_APP_ID`) or a SECRET of the
+      # same name, because act A1 shares the credential with this repository and
+      # an App id is not sensitive either way — an id that arrives as a secret
+      # must not silently disable the lane. The KEY is only ever a secret.
+      HAS_MERGE_MASTER_APP: ${{ (vars.MERGE_MASTER_APP_ID != '' || secrets.MERGE_MASTER_APP_ID != '') && secrets.MERGE_MASTER_APP_KEY != '' }}
       # The pin, restated as an env value so the shell can compare it against
       # the commit `actions/checkout` actually produced. The AUTHORITATIVE copy
       # is `contracts/review-lane-pin.yaml`; this is a second witness and the
@@ -602,12 +677,58 @@ jobs:
       - name: Resolve the candidate pull request
         id: candidate
         env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch || 'main' }}
           EVENT_PR: ${{ github.event.pull_request.number }}
           INPUT_PR: ${{ inputs.pr_number }}
+          CONFIG: .github/merge-approval-envelope.yml
+          CORE: .merge-master-core/scripts/merge_master/envelope.py
+          PYTHONPATH: .merge-master-core/scripts
         run: |
           set -euo pipefail
           PR_NUMBER="${EVENT_PR:-}"
           if [ -z "$PR_NUMBER" ]; then PR_NUMBER="${INPUT_PR:-}"; fi
+          # ---- THE DISPATCH PATH (act A4) ----------------------------------
+          # `workflow_dispatch` carries no pull-request payload, and the
+          # aggregation's intent-apply lane dispatches this workflow with NO
+          # inputs at all (`gh workflow run merge-master-approval.yml --repo
+          # opensoft/openxFactory --ref main`) — the same shape this
+          # repository's own `doc-health-reusable.yml` uses to chain xFactory's
+          # approver, and for the same reason: an App-authored push raises a
+          # `pull_request_target` run that evaluates BEFORE the required checks
+          # finish, and Actions-created check suites never retrigger
+          # `check_suite`, so the explicit dispatch is the trigger that
+          # actually approves.
+          #
+          # A dispatch with no number therefore resolves its candidate the way
+          # xFactory's caller does: from the GOVERNED HEAD REFS the
+          # BASE-BRANCH envelope declares, read by the PINNED core. Never from
+          # the event payload, never from a pull-request head, and never from a
+          # branch the envelope does not enroll. With no envelope committed
+          # this whole block is inert and the dispatch is a no-op exactly as
+          # before.
+          if [ -z "$PR_NUMBER" ] && [ -f "$CONFIG" ]; then
+            if ! python3 "$CORE" --config "$CONFIG" --list-head-refs \
+                 --repo "$REPO" > envelope-head-refs.txt; then
+              echo "::error title=merge-master-approval::the pinned core could not read $CONFIG, so no candidate can be resolved from the envelope. A malformed envelope is loud rather than silently inert." >&2
+              exit 1
+            fi
+            while IFS= read -r governed_ref; do
+              [ -n "$governed_ref" ] || continue
+              # `// empty` so an empty result set reads as EMPTY rather than the
+              # four characters `null` that raw-output jq renders for a JSON
+              # null — which the emptiness test below would read as present.
+              found="$(gh pr list --repo "$REPO" --head "$governed_ref" \
+                --base "$DEFAULT_BRANCH" --state open --json number \
+                -q '.[0].number // empty' || true)"
+              if [ -n "$found" ]; then
+                PR_NUMBER="$found"
+                echo "dispatch resolved candidate #$PR_NUMBER on governed head ref '$governed_ref'"
+                break
+              fi
+            done < envelope-head-refs.txt
+          fi
           # Closed-world shape check before the value reaches any API path.
           case "$PR_NUMBER" in
             "" )
@@ -742,6 +863,11 @@ jobs:
             echo "parked=false"
             echo "head_sha=$HEAD_SHA"
             echo "declared_total=$DECLARED_TOTAL"
+            # The ENTRY count, not `changed_paths | length`: a rename is ONE
+            # entry contributing TWO paths, so the path count would make every
+            # rename look like an over-count. The envelope core re-proves the
+            # declared/gathered pair itself and parks if they disagree.
+            echo "entry_count=$ENTRY_COUNT"
           } >> "$GITHUB_OUTPUT"
           echo "changed paths gathered: $ENTRY_COUNT entries, declared total $DECLARED_TOTAL, head $HEAD_SHA"
 
@@ -1103,12 +1229,12 @@ jobs:
               echo
               echo "That is NOT a clearance and NOT an approval. It means only"
               echo "that the repository gate floor does not, by itself, forbid"
-              echo "one. No candidate class is enrolled for this repository:"
-              echo "the \`gate_rules_council\` has defined no OPERABLE class for"
-              echo "it. A record exists (2026-08-28) and REFUSED the class put"
-              echo "to it, so \`add-substantive-review-lane\` task 3.2 stays"
-              echo "OPEN. No envelope decision and no council verdict exist"
-              echo "here at all."
+              echo "one. Whether an approval FOLLOWS is decided separately, by"
+              echo "the envelope evaluation below, and only for the one"
+              echo "candidate class \`.github/merge-approval-envelope.yml\`"
+              echo "enrolls. Every other pull request reaches \`skip\` there and"
+              echo "is approved by nothing. No council verdict and no tier-2"
+              echo "clearance exist on this repository at all."
             fi
             if [ "$PENDING_COUNT" -gt 0 ]; then
               # `ESCALATED` cannot be `true` on this path: escalation makes
@@ -1137,13 +1263,16 @@ jobs:
             echo
             echo "---"
             echo
-            echo "**ADVISORY ONLY.** This lane approved nothing, submitted no"
-            echo "review, called no merge, and enabled no auto-merge. It is"
-            echo "required by no ruleset. The human review gate on this"
-            echo "repository is unchanged. Binding operation waits on S3 and S5"
-            echo "of \`add-wallet-carried-review-authority\` and a ratified"
-            echo "ruleset change; the ruleset half of"
-            echo "\`add-substantive-review-lane\` task 5.1 is still owed."
+            echo "**THIS SECTION IS THE ADVISORY FLOOR VERDICT ONLY.** It"
+            echo "approves nothing by itself. It is required by no ruleset, it"
+            echo "calls no merge and it enables no auto-merge; the human review"
+            echo "gate on this repository is unchanged, and the ruleset half of"
+            echo "\`add-substantive-review-lane\` task 5.1 is still owed. What"
+            echo "CAN follow is one autonomous APPROVE review, for the single"
+            echo "candidate class enrolled on Brett Heap's word of 2026-09-06"
+            echo "(openxFactory #656, act A4) — see the envelope section below."
+            echo "Wallet-bound exercise recording still waits on S3 and S5 of"
+            echo "\`add-wallet-carried-review-authority\`."
           } >> "$GITHUB_STEP_SUMMARY"
 
       # ---- 10. Anti-vacuity ------------------------------------------------
@@ -1198,3 +1327,464 @@ jobs:
             || fail "the addition-grace computation ran but its report is missing a field (count/paths/reasons/pin_measured) — a partial result is not distinguishable from a stopped one"
           echo "anti-vacuity: the pinned core's floor for opensoft/openxFactory was read and applied,"
           echo "  over the post-merge tree, with the completeness, reachability and addition-grace reports all computed."
+
+      # ---- 11. THE ENVELOPE, for the one enrolled candidate class ----------
+      # ACT A4 (openxFactory #656, Brett Heap 2026-09-06). Everything above is
+      # unchanged and still runs on every pull request; everything from here on
+      # can only ever act on a candidate the BASE-BRANCH envelope enrolls.
+      #
+      # THE CONFIG AND THE CORE BOTH COME FROM THE BASE BRANCH. `$CONFIG` is
+      # read out of the base checkout made in step 3 (no `ref:`, never the
+      # candidate's head) and `$CORE` out of the pinned codexFactory checkout
+      # made in step 4. A pull request can alter neither the rules nor the code
+      # that govern its own approval — and a pull request that EDITS the
+      # envelope lands outside the envelope's own `path_allowlist`, so it can
+      # never be autonomously approved by the class it is editing.
+      #
+      # THE FLOOR IS COMPOSED OVER THE ENVELOPE, not beside it. A candidate
+      # whose changed paths touch ANY never-clearable path parks here before
+      # the envelope is consulted. The enrolled allowlist
+      # (`ideation/dashboard/**`) and the floor (`openspec/specs/**` plus eight
+      # hand-reasoned chokepoints) are disjoint today, so this gate can only
+      # fire on a future widening — which is precisely when it is needed, and
+      # precisely when nobody would remember to add it.
+      #
+      # NO FACT ABOUT AN UNENROLLED PULL REQUEST IS GATHERED. The head ref is
+      # tested against the envelope's own governed set FIRST; a non-candidate
+      # emits `skip` and stops, so this step costs an unenrolled pull request
+      # one core invocation and no API calls.
+      - name: Evaluate the merge-approval envelope (tier 1)
+        id: envelope
+        if: steps.candidate.outputs.resolved == 'true' && steps.paths.outputs.parked == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.candidate.outputs.pr_number }}
+          HEAD_SHA: ${{ steps.paths.outputs.head_sha }}
+          DECLARED_TOTAL: ${{ steps.paths.outputs.declared_total }}
+          ENTRY_COUNT: ${{ steps.paths.outputs.entry_count }}
+          FLOOR_MATCHED: ${{ steps.floor.outputs.matched }}
+          CONFIG: .github/merge-approval-envelope.yml
+          CORE: .merge-master-core/scripts/merge_master/envelope.py
+          PYTHONPATH: .merge-master-core/scripts
+        run: |
+          set -euo pipefail
+          # --- FAIL-CLOSED OUTPUT EMISSION ----------------------------------
+          # EVERY `$GITHUB_OUTPUT` write in this step goes through `emit` and
+          # nothing else, and the reason is xFactory's hard-won one restated
+          # for this lane. `$GITHUB_OUTPUT` is a newline-delimited `key=value`
+          # file and the LAST write of a key WINS, so any value carrying a
+          # newline appends its own `key=value` pair AFTER the real one. A
+          # naive park that wrote `decision=park` first and `reason=$1` last
+          # would turn ONE newline in a reason into `decision=approve`, which
+          # is this step's entire authority.
+          #
+          # `reason` is NOT produced here: it is `.reason` out of the PINNED
+          # core, which interpolates externally-supplied identifiers into it
+          # (`check-run '<name>' concluded ...`, `status '<context>' is ...` —
+          # names chosen by whichever App wrote the check or posted the
+          # status). It is therefore not trusted to be single-line.
+          #
+          # A value that cannot be rendered on one line is REFUSED, never
+          # escaped and never truncated: the emitter publishes `decision=park`
+          # and nothing the caller supplied, so a hostile or malformed value
+          # can only ever WITHHOLD an approval, never authorise one. And
+          # `decision` carries a closed-world shape — one of four literals,
+          # never interpolated text — so a laundered string cannot become a
+          # verdict either.
+          emit() {
+            OUT_DECISION="$1" OUT_CANDIDATE="${2-}" OUT_REASON="${3-}" \
+            python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import os
+          import re
+          import sys
+
+          ORDER = ("decision", "candidate", "reason")
+          # Closed-world shapes for every field a downstream `if:` compares
+          # against a literal. `reason` carries no shape — it is free prose and
+          # decides nothing — but it must still render on one line.
+          SHAPES = {
+              "decision": re.compile(r"\A(approve|already|skip|park)\Z"),
+              "candidate": re.compile(r"\A[A-Za-z0-9._-]{0,64}\Z"),
+          }
+
+          values = {key: os.environ.get("OUT_" + key.upper(), "")
+                    for key in ORDER}
+          unsafe = any(("\n" in text or "\r" in text)
+                       for text in values.values())
+          unusable = not unsafe and any(
+              not shape.match(values[key]) for key, shape in SHAPES.items())
+          if unsafe or unusable:
+              refusal = "output_unsafe" if unsafe else "output_unusable"
+              print("merge-master: REFUSING the step outputs (%s) — parked."
+                    % refusal, file=sys.stderr)
+              print("decision=park")
+              print("candidate=")
+              print("reason=%s" % refusal)
+          else:
+              for key in ORDER:
+                  print("%s=%s" % (key, values[key]))
+          PY
+          }
+          # A fact that cannot be OBTAINED is not a fact that is EMPTY. Every
+          # gather failure below parks: no approval, a named reason, a sticky
+          # comment on the candidate, and a GREEN job — the park is the
+          # outcome, not an infrastructure error.
+          park() {
+            emit park "" "$1"
+            echo "::warning title=merge-master-approval::envelope parked: $1"
+            {
+              echo "### merge-master-approval — envelope PARKED"
+              echo
+              echo "- candidate: #${PR_NUMBER} @ \`${HEAD_SHA}\`"
+              echo "- reason: $1"
+              echo
+              echo "Fail-closed: no approval was submitted and the pull request"
+              echo "waits for the human gate exactly as before."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          }
+          if [ ! -f "$CONFIG" ]; then
+            emit skip
+            {
+              echo "### merge-master-approval — no envelope on the base branch"
+              echo
+              echo "\`$CONFIG\` is absent, so no candidate class is enrolled and"
+              echo "no envelope decision exists. Advisory verdict only."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # ---- is this pull request even enrolled? --------------------------
+          if ! python3 "$CORE" --config "$CONFIG" --list-head-refs \
+               --repo "$REPO" > envelope-head-refs.txt; then
+            echo "::error title=merge-master-approval::the pinned core could not read $CONFIG. A malformed envelope is a red run, never a silent one — nothing was evaluated and nothing was approved." >&2
+            exit 1
+          fi
+          HEAD_REF="$(jq -r '.head.ref' pr.json)" \
+            || park "could not read the candidate head ref for #$PR_NUMBER"
+          if ! grep -Fxq -- "$HEAD_REF" envelope-head-refs.txt; then
+            emit skip
+            {
+              echo "### merge-master-approval — not an enrolled candidate"
+              echo
+              echo "Head ref \`$HEAD_REF\` is not one of the governed head refs"
+              echo "the base-branch envelope declares, so no envelope decision"
+              echo "is computed and no fact about this pull request is"
+              echo "gathered. Approved by nothing."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # ---- the floor, composed OVER the envelope ------------------------
+          # `matched` is the number of never-clearable paths this candidate
+          # touches, computed by the pinned core in step 8. Anything but a
+          # literal `0` — including an EMPTY value, which is what a skipped or
+          # failed floor step leaves — refuses.
+          if [ "${FLOOR_MATCHED:-}" != "0" ]; then
+            park "the candidate touches the repository gate floor (matched=${FLOOR_MATCHED:-unavailable}); a never-clearable path is never autonomously approvable, whatever the envelope says"
+          fi
+          # ---- head check-runs and commit statuses, PROVABLY COMPLETE -------
+          # All-checks-green quantifies over EVERY non-excluded entry in these
+          # two listings exactly as the path condition quantifies over every
+          # changed path, so they carry the same proof. Each endpoint declares
+          # its own authoritative `total_count`, and the core compares it
+          # against the number of entries this gather actually followed.
+          #
+          # THE TRAP THIS CLOSES, inherited from xFactory's caller rather than
+          # rediscovered: an unpaginated status read while the check-run read
+          # paginates. The combined status resource pages at 30, so a failing
+          # legacy status past entry 30 is invisible and the condition reports
+          # satisfied. `--slurp` cannot be combined with `-q` (gh rejects the
+          # pair), so each listing is slurped raw as an array of PAGE OBJECTS
+          # and a separate jq both proves its shape and projects the fields the
+          # envelope reads. A `total_count` that moves between pages means the
+          # listing changed underneath the pagination: that parks too, rather
+          # than mixing two snapshots.
+          #
+          # NO FAILURE MASKING. `gh api` writes its error body to stdout and
+          # exits non-zero, so a `|| echo '[]'` fallback would convert a failed
+          # or rate-limited query into a clean, empty, apparently-green fact
+          # set. Failures park.
+          gh api "repos/$REPO/commits/$HEAD_SHA/check-runs?per_page=100" \
+            --paginate --slurp > envelope-check-runs.pages.json \
+            || park "could not read the head check-runs — the all-checks-green condition cannot be evaluated"
+          jq -e 'if type != "array" or length == 0 then error("check-run listing is not a non-empty page array") else . end
+                 | if ([.[].total_count] | unique | length) != 1 then error("check-run total_count moved between pages") else . end
+                 | (.[0].total_count) as $total
+                 | if ($total | type) != "number" then error("check-run listing declares no numeric total_count") else . end
+                 | [.[] | .check_runs[]] as $runs
+                 | {total: $total, entry_count: ($runs | length),
+                    entries: [$runs[] | {name: .name, status: .status,
+                                         conclusion: .conclusion,
+                                         started_at: .started_at, id: .id}]}' \
+            envelope-check-runs.pages.json > envelope-check-runs.json \
+            || park "the head check-run listing was not the expected shape — the all-checks-green condition cannot be evaluated"
+          gh api "repos/$REPO/commits/$HEAD_SHA/status?per_page=100" \
+            --paginate --slurp > envelope-statuses.pages.json \
+            || park "could not read the head commit statuses — the all-checks-green condition cannot be evaluated"
+          jq -e 'if type != "array" or length == 0 then error("status listing is not a non-empty page array") else . end
+                 | if ([.[].total_count] | unique | length) != 1 then error("status total_count moved between pages") else . end
+                 | (.[0].total_count) as $total
+                 | if ($total | type) != "number" then error("status listing declares no numeric total_count") else . end
+                 | [.[] | .statuses[]] as $entries
+                 | {total: $total, entry_count: ($entries | length),
+                    entries: [$entries[] | {context: .context, state: .state}]}' \
+            envelope-statuses.pages.json > envelope-statuses.json \
+            || park "the head commit-status listing was not the expected shape — the all-checks-green condition cannot be evaluated"
+          # ---- the author, from REST ----------------------------------------
+          # `.user.login` out of the pull-request RESOURCE, never `gh pr view
+          # --json author` (GraphQL): for a GitHub App the GraphQL author
+          # renders as `app/<slug>` (e.g. `app/openxfactory`), whereas the
+          # envelope's `expected_author` is the REST bot login
+          # `openxfactory[bot]` and the core compares by exact equality. The
+          # submit step below reads the same REST field for its idempotence
+          # check, so the two can never disagree about who authored what.
+          AUTHOR_LOGIN="$(jq -r '.user.login' pr.json)" \
+            || park "could not read the candidate author for #$PR_NUMBER"
+          # ---- the fact set --------------------------------------------------
+          # `open_findings` is deliberately EMPTY and gathered from nothing: the
+          # enrolled candidate declares no `open_finding_title_prefixes` and no
+          # `open_finding_labels`, so the core's open-finding condition can
+          # never block on it and reading every open issue in this repository
+          # would buy an `issues: read` scope that decides nothing. The envelope
+          # file records that choice and what would change it.
+          # `existing_reviews` is likewise empty: idempotence is enforced in the
+          # submit step below, at the identity that actually approves, which is
+          # the only place the approver login is known.
+          jq -n \
+            --arg repo "$REPO" \
+            --arg author "$AUTHOR_LOGIN" \
+            --argjson declared_total "$DECLARED_TOTAL" \
+            --argjson entry_count "$ENTRY_COUNT" \
+            --slurpfile pr pr.json \
+            --slurpfile paths changed_paths.json \
+            --slurpfile checks envelope-check-runs.json \
+            --slurpfile statuses envelope-statuses.json \
+            '{
+              repo: $repo,
+              pr: {
+                number: $pr[0].number,
+                author_login: $author,
+                head_ref: ($pr[0].head | .ref),
+                base_ref: ($pr[0].base | .ref),
+                head_sha: ($pr[0].head | .sha),
+                head_repo: ($pr[0].head | .repo | .full_name),
+                title: $pr[0].title
+              },
+              changed_paths: $paths[0],
+              changed_files_total: $declared_total,
+              changed_paths_entry_count: $entry_count,
+              check_runs: $checks[0].entries,
+              check_runs_total: $checks[0].total,
+              check_runs_entry_count: $checks[0].entry_count,
+              statuses: $statuses[0].entries,
+              statuses_total: $statuses[0].total,
+              statuses_entry_count: $statuses[0].entry_count,
+              open_findings: [],
+              existing_reviews: []
+            }' > envelope-facts.json \
+              || park "could not assemble the candidate fact set"
+          # ---- the decision, computed by the PINNED core --------------------
+          rm -f envelope-decision.json
+          set +e
+          python3 "$CORE" --config "$CONFIG" --facts envelope-facts.json \
+            --output envelope-decision.json
+          rc=$?
+          set -e
+          if [ "$rc" -eq 2 ]; then
+            echo "::error title=merge-master-approval::the pinned envelope core could not evaluate the candidate (config or facts error, exit 2). Nothing was approved; this is red rather than green because a lane that cannot judge must not look like one that judged and found nothing." >&2
+            exit 1
+          fi
+          [ -f envelope-decision.json ] || echo '{}' > envelope-decision.json
+          REASON="$(jq -r '.reason // ""' envelope-decision.json)"
+          CANDIDATE="$(jq -r '.candidate_id // ""' envelope-decision.json)"
+          FAILED="$(jq -r '.failed_condition // ""' envelope-decision.json)"
+          case "$rc" in
+            0)  DECISION=approve ;;
+            12) DECISION=already ;;
+            11) DECISION=skip ;;
+            10) DECISION=park ;;
+            *)
+              echo "::error title=merge-master-approval::the pinned envelope core exited $rc, which is outside its documented contract (0 approve / 10 park / 11 skip / 12 already / 2 error). Nothing was approved." >&2
+              exit 1
+              ;;
+          esac
+          emit "$DECISION" "$CANDIDATE" "$REASON"
+          {
+            echo "### merge-master-approval — ENVELOPE decision"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| candidate | #${PR_NUMBER} @ \`${HEAD_SHA}\` |"
+            echo "| enrolled class | \`${CANDIDATE:-none}\` |"
+            echo "| decision | \`${DECISION}\` |"
+            echo "| failed condition | \`${FAILED:-none}\` |"
+            echo "| reason | ${REASON} |"
+            echo "| envelope | \`${CONFIG}\` on the base branch |"
+            echo "| decision core | \`opensoft/codexFactory@${PINNED_CORE_COMMIT}\` |"
+            echo "| repository gate floor | \`${FLOOR_MATCHED}\` never-clearable path(s) touched |"
+            echo
+            if [ "$DECISION" = "approve" ] && [ "${HAS_MERGE_MASTER_APP}" != "true" ]; then
+              echo "**Every envelope condition holds, but NO APPROVAL WAS"
+              echo "SUBMITTED**: the merge-master App is not configured on this"
+              echo "repository (\`MERGE_MASTER_APP_ID\` as a variable or secret,"
+              echo "plus \`secrets.MERGE_MASTER_APP_KEY\`). That sharing is act A1"
+              echo "on openxFactory #656. Until it lands the candidate parks for"
+              echo "the human gate, which is exactly where it sat before."
+              echo
+            fi
+            echo "The full decision, as the pinned core wrote it:"
+            echo
+            echo '```json'
+            cat envelope-decision.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # ---- 12. THE ONLY WRITE AUTHORITY IN THIS LANE ------------------------
+      # A DEDICATED merge-master App token, never the default `GITHUB_TOKEN`
+      # (whose approvals do not satisfy a required review, and which this
+      # workflow holds read-only anyway).
+      #
+      # MINTED ONLY AFTER THE PINNED CORE HAS DECIDED, and only for a decision
+      # that needs to write: `approve` submits the review, `park` explains
+      # itself on the pull request. Every other decision — `skip`, `already`,
+      # or no decision at all — mints nothing.
+      #
+      # PER-MINT NARROWING. The App installation itself needs `contents: write`
+      # for GitHub to COUNT its approval (counting is computed from the
+      # installation's permissions, live-proven on xFactory). The TOKEN this
+      # step mints needs none of that: it submits one review and posts one
+      # comment, both `pull-requests`. Scoping the mint means a compromised
+      # downstream step holds a token that cannot write contents anywhere.
+      - name: Mint the merge-master App token
+        id: mm-token
+        if: >-
+          env.HAS_MERGE_MASTER_APP == 'true' &&
+          (steps.envelope.outputs.decision == 'approve' ||
+           steps.envelope.outputs.decision == 'park')
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.MERGE_MASTER_APP_ID || secrets.MERGE_MASTER_APP_ID }}
+          private-key: ${{ secrets.MERGE_MASTER_APP_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name || 'openxFactory' }}
+          permission-pull-requests: write
+
+      # ---- 13. THE APPROVAL ------------------------------------------------
+      # THE ONE DOOR. `steps.envelope.outputs.decision == 'approve'` is written
+      # by nothing but the pinned core's exit code, through the guarded emitter
+      # in step 11, and it is the sole condition on which any review is ever
+      # submitted from this repository.
+      - name: Submit the approval review (idempotent)
+        id: submit
+        if: env.HAS_MERGE_MASTER_APP == 'true' && steps.envelope.outputs.decision == 'approve'
+        env:
+          GH_TOKEN: ${{ steps.mm-token.outputs.token }}
+          APP_SLUG: ${{ steps.mm-token.outputs.app-slug }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.candidate.outputs.pr_number }}
+          HEAD_SHA: ${{ steps.paths.outputs.head_sha }}
+          CANDIDATE: ${{ steps.envelope.outputs.candidate }}
+          REASON: ${{ steps.envelope.outputs.reason }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          APPROVER="${APP_SLUG}[bot]"
+          # IDEMPOTENCE AT THE IDENTITY THAT ACTUALLY APPROVES. Re-approving the
+          # same head is harmless but noisy, and the repository's own ruleset
+          # dismisses approvals on a previous head, so the pair (approver, head)
+          # is the only correct key. REST `.user.login`, matching the author
+          # read in step 11 — the GraphQL `app/<slug>` shape would never match.
+          ALREADY="$(gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" --paginate \
+            -q "[.[] | select(.user.login==\"$APPROVER\" and .commit_id==\"$HEAD_SHA\" and .state==\"APPROVED\")] | length" \
+            | jq -s 'add // 0')"
+          if [ "${ALREADY:-0}" -gt 0 ]; then
+            echo "submitted=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::already approved \`$HEAD_SHA\` as $APPROVER — idempotent no-op."
+            echo "Already approved \`$HEAD_SHA\` as \`$APPROVER\` — idempotent no-op." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # THE BODY IS ASSEMBLED WITH `printf` INTO A FILE, never as a
+          # multi-line shell literal. A YAML block scalar ends at the first
+          # line indented below its own base, so a literal whose continuation
+          # lines start at column 0 silently truncates the workflow — the
+          # failure looks like a YAML syntax error a hundred lines away.
+          {
+            printf '%s\n\n' "Autonomously approved by \`$APPROVER\` under the enrolled candidate class \`$CANDIDATE\`: every condition of the reviewed low-risk envelope holds for this exact head (\`$HEAD_SHA\`), and the candidate touches none of the repository gate floor's never-clearable paths. $REASON."
+            printf '%s\n\n' "The envelope and the decision core were both read from the BASE BRANCH, so this pull request did not govern its own approval. THE GRANT IS NARROW: Brett Heap's word of 2026-09-06 on openxFactory#656 enrolls this ONE candidate class and no other, and the Gate-Rules Council's 2026-08-28 unanimous refusal stands for the class it refused. This review is CUSTODY of an already-authenticated decision, not a decision (add-ideation-intent-plane design D1)."
+            printf '%s\n' "This lane approved and stopped: it issued no merge call and enabled no auto-merge. Evidence: $RUN_URL"
+          } > approval-review-body.md
+          gh api -X POST "repos/$REPO/pulls/$PR_NUMBER/reviews" \
+            -f event=APPROVE -f "body=$(cat approval-review-body.md)" \
+            -f "commit_id=$HEAD_SHA"
+          echo "submitted=true" >> "$GITHUB_OUTPUT"
+          {
+            echo "### merge-master-approval — APPROVED"
+            echo
+            echo "Approved #$PR_NUMBER at \`$HEAD_SHA\` as \`$APPROVER\` under"
+            echo "candidate class \`$CANDIDATE\`. No merge was called and no"
+            echo "auto-merge was enabled by this lane."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # ---- 14. THE EXPLANATORY COMMENT --------------------------------------
+      # ONE sticky comment, updated in place, so the candidate carries exactly
+      # one bot comment that always states the CURRENT outcome rather than a
+      # growing pile of stale ones. It covers both writing decisions: a human
+      # reading a parked custody pull request learns WHY it parked without
+      # opening a run log, and a human reading an approved one learns under
+      # whose word it was approved.
+      #
+      # Best-effort by construction: a failed comment emits a warning and never
+      # fails the run — the approval (or the park) already happened and its
+      # record is the review and the job summary.
+      - name: Record the envelope outcome on the candidate (sticky comment)
+        if: >-
+          env.HAS_MERGE_MASTER_APP == 'true' &&
+          (steps.envelope.outputs.decision == 'approve' ||
+           steps.envelope.outputs.decision == 'park')
+        env:
+          GH_TOKEN: ${{ steps.mm-token.outputs.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.candidate.outputs.pr_number }}
+          HEAD_SHA: ${{ steps.paths.outputs.head_sha }}
+          DECISION: ${{ steps.envelope.outputs.decision }}
+          CANDIDATE: ${{ steps.envelope.outputs.candidate }}
+          REASON: ${{ steps.envelope.outputs.reason }}
+          SUBMITTED: ${{ steps.submit.outputs.submitted }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          MARKER="<!-- merge-master-approval -->"
+          if [ "$DECISION" = "approve" ]; then
+            if [ "${SUBMITTED:-}" = "true" ]; then
+              HEADLINE="**merge-master: APPROVED.** Every condition of the reviewed low-risk envelope holds for the current head (\`$HEAD_SHA\`) under the enrolled candidate class \`$CANDIDATE\`."
+            else
+              HEADLINE="**merge-master: already approved** for the current head (\`$HEAD_SHA\`) under the enrolled candidate class \`$CANDIDATE\` — this run submitted nothing."
+            fi
+          else
+            HEADLINE="**merge-master: parked for the human gate.** The reviewed low-risk envelope did not hold for the current head (\`$HEAD_SHA\`)."
+          fi
+          # Same rule as the review body above: `printf` into a file, never a
+          # multi-line shell literal inside a YAML block scalar.
+          {
+            printf '%s\n' "$MARKER"
+            printf '%s\n\n' "$HEADLINE"
+            if [ "$DECISION" = "approve" ]; then
+              printf '%s\n' "- The grant is narrow: Brett Heap's word of 2026-09-06 on openxFactory#656 enrolls this ONE candidate class and no other; the Gate-Rules Council's 2026-08-28 unanimous refusal stands for the class it refused."
+              printf '%s\n' "- The envelope and the decision core were both read from the BASE BRANCH, so this pull request did not govern its own approval."
+              printf '%s\n' "- This lane approved and stopped: no merge call, no auto-merge."
+            else
+              printf '%s\n' "- Reason: ${REASON:-the evaluation could not complete}"
+              printf '%s\n' "- Fail-closed: no approval was submitted; this pull request waits for your review exactly as it did before the lane became operable."
+            fi
+            printf '%s\n' "- Evidence: $RUN_URL"
+          } > sticky-comment-body.md
+          BODY="$(cat sticky-comment-body.md)"
+          EXISTING="$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" --paginate \
+            -q ".[] | select(.body|startswith(\"$MARKER\")) | .id" | head -n1 || true)"
+          if [ -n "$EXISTING" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$EXISTING" -f "body=$BODY" >/dev/null \
+              || echo "::warning title=merge-master-approval::could not update the sticky comment on #$PR_NUMBER; the decision stands and is recorded in the job summary."
+          else
+            gh api -X POST "repos/$REPO/issues/$PR_NUMBER/comments" -f "body=$BODY" >/dev/null \
+              || echo "::warning title=merge-master-approval::could not post the sticky comment on #$PR_NUMBER; the decision stands and is recorded in the job summary."
+          fi
