@@ -23,25 +23,45 @@ files.
 
 ## 1. Governance — this change's own work
 
-- [ ] 1.1 **[OPERATOR] [GOVERNANCE]** Ratify or return this proposal. Nothing
+- [x] 1.1 **[OPERATOR] [GOVERNANCE]** Ratify or return this proposal. Nothing
       below §1 is legal until this is ticked. Ratification alone REALIZES
       NOTHING — no key is minted, no row is written, no pin moves.
-- [ ] 1.2 **[OPERATOR] [GOVERNANCE]** Rule **Q-GRC-1** — where the four private
+      **RATIFIED 2026-09-06T14:13:46Z, Brett Heap, verbatim: "lets take them in
+      your recommended order all approved"** —
+      `review/ratification-2026-09-06.md`.
+- [x] 1.2 **[OPERATOR] [GOVERNANCE]** Rule **Q-GRC-1** — where the four private
       halves live, given that `gate_rules_council` has no automated lane.
       Recommendation on record: mint into codexFactory `worker-credentials` now,
       `holder_readable`, with the custody attestation naming the OWED job as the
       holder execution context and saying plainly that it does not exist yet.
-- [ ] 1.3 **[OPERATOR] [GOVERNANCE]** Rule **Q-GRC-2** — the composition pin for
+      **RULED (i)** — 2026-09-06T14:13:46Z: "mint the four private halves into
+      codexFactory's `worker-credentials` now, `holder_readable`; the custody
+      attestation names the OWED job (codexFactory task 5.9a) as the holder
+      execution context and states plainly that it does not exist yet."
+- [x] 1.3 **[OPERATOR] [GOVERNANCE]** Rule **Q-GRC-2** — the composition pin for
       a rule-setting body that has none, and the two-body blast radius of one
       shared-roster flip. Q8(d) (exact versions only) is ALREADY RULED and is
       not reopened by this row.
-- [ ] 1.4 **[OPERATOR] [GOVERNANCE]** Rule **Q-GRC-3** — the expiry horizon for
+      **RULED** — 2026-09-06T14:13:46Z: "pin the composition exactly, from the
+      same enrolled roster (Q8(d) of 2026-08-26 stands; not reopened). The
+      two-body coupling is accepted openly: a roster pin flip revokes both
+      bodies' grants and parks both; re-issuance is a scheduled two-body
+      ceremony with one walk record per body."
+- [x] 1.4 **[OPERATOR] [GOVERNANCE]** Rule **Q-GRC-3** — the expiry horizon for
       `grant-grc-0001`. Recommendation on record: `2027-06-30T00:00:00Z`,
       matching `grant-mrc-0002` so one ceremony covers both bodies.
-- [ ] 1.5 **[OPERATOR] [GOVERNANCE]** Rule **Q-GRC-4** — the two deferred seats
+      **RULED** — 2026-09-06T14:13:46Z: "`expires_at: 2027-06-30T00:00:00Z`,
+      the same date as `grant-mrc-0002`, so one re-issuance ceremony covers
+      both bodies."
+- [x] 1.5 **[OPERATOR] [GOVERNANCE]** Rule **Q-GRC-4** — the two deferred seats
       (`intent_owner_role_slot`, `client-security-compliance-officer`):
       confirm they are NOT registered now and that whichever codexFactory roster
       act binds them registers their keys in the same governed act.
+      **RULED** — 2026-09-06T14:13:46Z: "register neither deferred seat now;
+      delete neither. `intent_owner_role_slot` and
+      `client-security-compliance-officer` are recorded as owed registrations
+      that trigger on a codexFactory roster act, which must register the key
+      in the same governed act."
 - [ ] 1.6 On ratification, flip `docs/council-seat-key-mint-runbook.md` from
       `Status: draft` to `Status: ratified` and add
       `Ratified by: register-gate-rules-council-seats`.

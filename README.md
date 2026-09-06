@@ -513,7 +513,14 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [register-gate-rules-council-seats](openspec/changes/register-gate-rules-council-seats/proposal.md)
-  — authored 2026-09-06, **`Status: draft`**, lane `hermes-wallet-exercise`. The
+  — authored 2026-09-06, **`Status: ratified`** (2026-09-06, Brett Heap
+  (repository owner), in-session at 2026-09-06T14:13:46Z, verbatim *"lets take
+  them in your recommended order all approved"*; ratified head `169f84ef`;
+  record
+  `openspec/changes/register-gate-rules-council-seats/review/ratification-2026-09-06.md`),
+  lane `hermes-wallet-exercise`. **RATIFICATION PERFORMS NO REALIZATION** —
+  no key is minted, no row is written, no pin moves; merge is approved in the
+  same word but awaits the Lane Collision Protocol Rule 6 landing window. The
   S5-family change Brett Heap's OQ-C ruling on codexFactory PR #165 QUEUED
   (2026-09-05T17:15Z, verbatim *"operator ratification now, seats later …
   Registering gate-rules seats (mint + rows in openxFactory
@@ -540,8 +547,12 @@ Active changes:
   a persona with no seat identifier). **7 ADDED requirements** on
   `review-authority-intake`, no `## MODIFIED` and no `## REMOVED` — the parent's
   own *"the additional scope is a named successor"* scenario is the door this
-  walks through. Five open questions Q-GRC-1..5, each with a recommendation and
-  none decided; Q8(d) (exact model versions only) is ALREADY RULED and is not
+  walks through. **Five open questions Q-GRC-1..5, each RULED as recommended**
+  on the same 2026-09-06T14:13:46Z word (mint into `worker-credentials` now;
+  pin the composition exactly, coupling accepted; `expires_at:
+  2027-06-30T00:00:00Z`; register neither deferred seat, delete neither; the
+  scalar cap replaced by its invariants, openXwallet's own change to make);
+  Q8(d) (exact model versions only) is ALREADY RULED and is not
   reopened. `sequenced_after: [add-wallet-carried-review-authority,
   openXwallet:widen-register-reader-for-a-second-council]`; `code_surface` is
   NOT `none`, so it archives only on merged, green realization evidence.

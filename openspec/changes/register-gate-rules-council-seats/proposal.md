@@ -6,8 +6,12 @@ sequenced_after: [add-wallet-carried-review-authority, openXwallet:widen-registe
 
 # Proposal: register-gate-rules-council-seats
 
-Status: draft
+Status: ratified
 Proposed: 2026-09-06, on Brett Heap's queuing ruling of 2026-09-05 (below).
+Ratified: 2026-09-06 by Brett Heap (repository owner) — in-session at
+2026-09-06T14:13:46Z, verbatim *"lets take them in your recommended order all
+approved"*, ratified head `169f84ef`; record at
+`openspec/changes/register-gate-rules-council-seats/review/ratification-2026-09-06.md`.
 Lane: hermes-wallet-exercise
 Family: S5 of `add-wallet-carried-review-authority` — the register-act family,
   following `add-per-seat-register-entries` (openXwallet, wallet-v1.2) and the
