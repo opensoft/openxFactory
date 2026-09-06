@@ -697,13 +697,20 @@ class TheBotIsJudgedWithNoExemption(unittest.TestCase):
     def test_the_bots_pull_request_meets_the_same_bar(self) -> None:
         """Scenario: The bot's pull request meets the same bar.
 
-        The required suite's own gate is unchanged by this realization:
-        `EXPECT_SKIPPED` still pins exactly `21`, and the byte-identity
-        verifier is still watched BY NAME. Either of those moving is how an
-        exemption would actually arrive, so both are held here as values.
+        The two mechanisms that stop an exemption arriving quietly are still in
+        place: the skip count is PINNED to an exact integer, and the
+        byte-identity verifier is watched BY NAME.
+
+        WHAT IS DELIBERATELY NOT ASSERTED: that the pin equals `21`. The count
+        legitimately moves whenever a conditional skip is added or removed
+        anywhere in the suite, WITH its reason — the required workflow says so
+        itself. Pinning the number here would red an unrelated lane's honest
+        pull request and teach everyone to edit this file, which is the
+        opposite of a guard. What must not happen is the pin DISAPPEARING or
+        the named watch being dropped, and that is what is measured.
         """
         required = REQUIRED_SUITE.read_text("utf-8")
-        self.assertIn('EXPECT_SKIPPED: "21"', required)
+        self.assertRegex(required, r'EXPECT_SKIPPED: "\d+"')
         self.assertIn("test_the_snapshot_is_byte_identical_to_the_pinned_core",
                       required)
 
@@ -731,10 +738,31 @@ class TheBotIsJudgedWithNoExemption(unittest.TestCase):
         writes only the four declared paths, and neither judge file is among
         them.
         """
-        self.assertNotIn("tests/review_lane_pin", "".join(R.WRITABLE_PATHS))
-        self.assertNotIn(str(REQUIRED_SUITE.relative_to(REPO_ROOT)) + "x",
-                         "".join(R.WRITABLE_PATHS))
-        self.assertIn(".github/workflows/pytest-suite.yml", R.WRITABLE_PATHS)
+        writable = set(R.WRITABLE_PATHS)
+
+        # The judge TEST is not writable by the lane at all.
+        self.assertNotIn(str(JUDGE_TEST.relative_to(REPO_ROOT)), writable)
+        self.assertFalse(
+            any(path.startswith("tests/") for path in writable),
+            f"the lane may not write any test: {writable}")
+
+        # The required WORKFLOW is writable — it is pinned site 4 — and that is
+        # the one place this distinction has to be drawn carefully: the lane
+        # rewrites ONE line in it, the core checkout `ref:`, through a pattern
+        # anchored to that line's shape. It does not and cannot reach
+        # `EXPECT_SKIPPED`, the named-testcase watch, or any assertion.
+        self.assertIn(R.PYTEST_SUITE_WORKFLOW, writable)
+        site = next(s for s in R.PINNED_SITES
+                    if s.path == R.PYTEST_SUITE_WORKFLOW)
+        required = REQUIRED_SUITE.read_text("utf-8")
+        matched = site.pattern.findall(required)
+        self.assertEqual(
+            1, len(matched),
+            "the lane's pattern must reach exactly one line of the required "
+            "workflow")
+        line = next(l for l in required.splitlines() if site.pattern.match(l))
+        self.assertIn("ref:", line)
+        self.assertNotIn("EXPECT_SKIPPED", line)
 
     def test_the_lane_submits_itself_to_the_judge_before_proposing(self) -> None:
         """Scenario: The bot's pull request meets the same bar.
