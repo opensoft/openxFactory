@@ -110,6 +110,12 @@ as concrete obligations in § 3 and § 5.
       modified-block-currency`. The gate compares the ledger by EXACT SET, so an
       unregistered block reds the suite by design — this is the mechanism
       working, not a test edited to pass.
+- [x] 2.7 The SECOND approval act of 2026-08-28 — the one that closed the veto
+      window — is recorded at `review/approval-act-2026-08-28.md`, not in
+      `.openspec.yaml`: an origin declaration is fixed at ratification, so the
+      text commit `f5e53364` wrote into it was moved to that record and the
+      declaration restored to its ratifying bytes (`0e2de331`), on Brett's
+      disposition of 2026-09-05 (#709).
 
 ## 3. Successor packet (`add-credential-escrow-registry`)
 

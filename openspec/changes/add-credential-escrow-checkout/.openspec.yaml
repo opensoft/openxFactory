@@ -17,26 +17,6 @@ origin:
     `declare-sentinel-pin-vocabulary` and both packets of the 2026-08-28
     measured-latents set set. The two voices are kept apart deliberately.
     THE FOUR RULINGS, as selected.
-    A SECOND ACT THE SAME DAY, ON THE SAME MECHANISM, CLOSED THE VETO WINDOW
-    AND CHANGED THE PACKET. The orchestrating session put a further four-question
-    multi-choice to Brett over pull request #479 and relayed it the same day.
-    OD-2 was VETOED — ruling A's escrow relationship block and escrow-entry
-    record kind come into THIS packet on A's literal shape, and Brett accepted
-    the stated consequence that realization now owes the additive contract cut at
-    the NEXT ADDITIVE MINOR, whose number is allocated at realization by merge
-    order and is deliberately not spent here. OD-4 was APPROVED as authored. OD-1, OD-3,
-    OD-5, OD-6 and OD-7 were CLEARED as authored, with OD-3's deferral of ruling
-    C — the registry home, the grandfathered openxpki exception and the three
-    escalation tests — expressly STANDING: only the SCHEMA HALF moved here. All
-    five open questions were ruled, four of them on this packet's own
-    recommendations and ONE AGAINST IT (the drill must also prove a live refusal,
-    where the packet had recommended proving refusals by fixture only) — recorded
-    as a reversal rather than smoothed into agreement. Merge on green was
-    approved, to be performed by the orchestrating session; realization stays a
-    later commission because the drill needs Brett's hands on real material.
-    THE TWO ACTS ARE KEPT DISTINCT because they authorized different things: the
-    first ADMITTED the packet and ratified the four rulings below; the second
-    CLOSED the veto window and MOVED DELTA TEXT.
     A — DELTA SHAPE. `credential-contracts` gains an additive optional `escrow:`
     relationship block on the existing `xfactory_credential_binding_template`
     PLUS one new record kind for the escrow entry itself (inventory + restore
@@ -47,10 +27,6 @@ origin:
     is the negative fixture
     `contracts/trust-anchor/examples/negative/custody-registry-escrow-as-a-custody-tier.yaml`
     and whose consumption rule is restated in `contracts/manifest.yaml:2477`.
-    AS AUTHORED THIS PACKET CARRIED NONE OF A, on OD-2, deferring both halves to
-    the successor; the OD-2 VETO of the same day reversed that, and A is realized
-    here in full as a MODIFIED block (the schema owns six kinds, not five) plus
-    two ADDED requirements.
     B — KEY TOPOLOGY. A per-client escrow recipient PLUS one operator root
     recipient on every escrowed object, with DRILLS restricted to the
     per-client key; the escrow recipient set must be disjoint from every
@@ -114,15 +90,8 @@ origin:
     the proposed policy-window NUMBERS, of the decision to carry NO schema
     surface in this first packet, or of any other decision in
     `proposal.md` § Orchestrator decisions — every one of those was taken by
-    the authoring session and WAS FLAGGED FOR VETO there, as were the open
-    questions, each of which carried a recommendation and no decision.
-    THAT VETO WINDOW IS NOW CLOSED, by the second act recorded in the reason
-    above. All seven orchestrator decisions are ruled and all five open questions
-    answered: the policy-window numbers were APPROVED as authored and the
-    no-schema decision was VETOED. The paragraph above is kept in its original
-    tense because it records what the FIRST citation covered, which is what a
-    later reader needs from it; what the SECOND act covered is stated separately
-    so the two are never read as one approval.
+    the authoring session and stays FLAGGED FOR VETO there, as do the open
+    questions, each of which carries a recommendation and no decision.
   approved_on: 2026-08-28
 related:
   - openxFactory:change:add-credential-escrow-registry      # the ruled successor (packet two): ruling C's registry home and grandfathered exception, inventory completeness, the readiness binding and the decryption-free lint. NO LONGER the escrow relationship block or the escrow-entry record kind — the OD-2 veto of 2026-08-28 moved both into this packet
