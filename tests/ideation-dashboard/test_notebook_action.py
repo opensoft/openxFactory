@@ -125,10 +125,16 @@ def test_compute_capabilities_requires_nlm_checkout_and_loopback():
     # These assertions stay EXACT dict equality — the pin is not relaxed, it
     # measures one more thing (the hosted-confinement cases have their own tests
     # in test_session_snapshot.py).
+    #
+    # It GREW by one key again on 2026-09-06 (add-ideation-intent-plane task
+    # 4.4): `intent`, the SERVED plane's write-REQUEST seam, and the only
+    # entry here that is true OFF loopback — which is why the third
+    # missing-leg case below is the one that carries it. Still exact equality.
     no_refresh = {"binding": None, "loopback_only": True}
     assert serve_mod.compute_capabilities(nlm_present=True, checkout_real=True, loopback=True) == {
         "actions": {"notebook": True, "gate": False, "refresh": False,
-                    "session": False, "edit": False}, "actor": None,
+                    "session": False, "edit": False, "intent": False},
+        "actor": None,
         "refresh": no_refresh}
     # any missing leg -> the action is absent (the served image lacks all three)
     for kwargs in (
@@ -138,7 +144,8 @@ def test_compute_capabilities_requires_nlm_checkout_and_loopback():
     ):
         assert serve_mod.compute_capabilities(**kwargs) == {
             "actions": {"notebook": False, "gate": False, "refresh": False,
-                        "session": False, "edit": False}, "actor": None,
+                        "session": False, "edit": False,
+                        "intent": not kwargs["loopback"]}, "actor": None,
             "refresh": no_refresh}
     # the gate leg (intent-plane §3): loopback + real checkout + resolved actor.
     # The session leg carries the SAME three conditions — a session write IS a
@@ -448,7 +455,7 @@ def test_capabilities_route_reports_available_when_nlm_present(checkout):
     assert caps.pop("hosted_actor") is None
     assert caps == {
         "actions": {"notebook": True, "gate": True, "refresh": True,
-                    "session": True, "edit": True},
+                    "session": True, "edit": True, "intent": False},
         "actor": "tester",
         # THE ONE REPOSITORY THIS SERVE WRITES TO (add-composed-view-authoring).
         # Declared rather than inferred: under a composed project view the
