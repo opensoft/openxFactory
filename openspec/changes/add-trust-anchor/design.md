@@ -338,3 +338,55 @@ canary's declaration turns out to be mostly gaps, the contract will look
 like it was written for the planned realization. Answering OQ1 with the
 declaration floor spelled out — before the schema — is what keeps that from
 being decided by omission.
+
+## Post-ratification record
+
+### 2026-09-05 — the install-repo rename sweep, moved out of the origin block (#709)
+
+The `origin.reason` in this packet's `.openspec.yaml` says the QA deployment
+topology "moves to `xFactory-OpenXPKI-Install`". That is the name the change
+was RATIFIED over (`1570ff7e`, 2026-08-21), and it is deliberately still there.
+It is not the repository's name today.
+
+The install-repo rename sweep — `e11a057b`, PR #242, "Amend install-repo naming
+to Opensoft-level: Keycloak-Install + OpenXPKI-Install" — carried Brett Heap's
+2026-08-21 ruling that the broker and CA install repositories are
+Opensoft-level operator infrastructure rather than xFactory-product repos, and
+renamed them unprefixed on the CloudPC-Install / Omnigent-Install precedent.
+**The rename stands** and is applied throughout this packet: the repositories
+are `opensoft/OpenXPKI-Install` and, for the sibling `add-identity-brokering`,
+`opensoft/Keycloak-Install`. The aggregation path (`installs/openxpki-install`)
+and the successor change id (`implement-openxpki-install-repo`) never moved;
+the ruling itself is recorded in this change's `proposal.md` closing amendment
+and carried in D7 and D8 above.
+
+What does NOT stand is that the sweep also rewrote the ORIGIN BLOCK. An origin
+declaration is fixed at ratification — `release-realization` § "Origin
+retention at archive": *"Mutation of an origin declaration after ratification
+SHALL be rejected at the archive gate"* — so a corpus-wide sweep must not touch
+a ratified packet's origin block, however right the sweep is about the name.
+The one hunk `e11a057b` made in `openspec/changes/add-trust-anchor/.openspec.yaml`,
+verbatim:
+
+```diff
+@@ -14,7 +14,7 @@ origin:
+     The rulings carried: the image-custody/deployment-topology seam with
+     the active OpsxFactory `add-openxpki-qa-image-pipeline` change (image
+     custody stays in `opensoft/Opensoft-Tenant`; QA deployment topology
+-    moves to `xFactory-OpenXPKI-Install`, whose Impact must be amended
++    moves to `OpenXPKI-Install`, whose Impact must be amended
+     before that change ratifies), composition with `openxwallet` (declared
+     custody derives what a certificate evidences; revocation propagation)
+     and `credential-contracts` (CA material custody, never committed), and
+```
+
+That hunk has been reversed exactly, and nothing else in the file was touched —
+no key outside `origin:` changed after ratification, so the whole
+`.openspec.yaml` is once again byte-for-byte the ratifying commit's. The new
+name is therefore not lost, it is here: **read the origin block's
+`xFactory-OpenXPKI-Install` as the historical spelling of
+`opensoft/OpenXPKI-Install`.**
+
+Disposition (the contested-class act the retention requirement names): Brett
+Heap, 2026-09-05 — "restore all four, land them when green", recorded on
+issue #709.
