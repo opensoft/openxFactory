@@ -1,0 +1,896 @@
+===== ideation-dashboard =====
+usage: ideation-dashboard [-h] {generate,generate-and-open,create,edit,model-binding,gate} ...
+
+`generate` + (later) `generate-and-open` action subcommands (plan "cli.py";
+change task 3.3).
+
+Path-agnostic argparse front-end: `--output`-style arguments, no baked-in
+snapshot path (the aggregation nightly lane wires the committed path). The
+`generate` subcommand (this wave, T006) regenerates the deterministic snapshot
+from the working tree, writes it through the interactivity boundary, and
+validates it against the pinned openxFactory validator. The `generate-and-open`
+subcommand (T012, US2) will layer `serve.py` + browser open on top of the same
+generation path.
+
+Runnable both as a module (`python3 -m ideation_dashboard.cli`) and as a script
+(`python3 scripts/ideation_dashboard/cli.py`); it self-inserts `scripts/` onto
+the import path so the sibling `doc_health` package resolves either way.
+
+positional arguments:
+  {generate,generate-and-open,create,edit,model-binding,gate}
+    generate            regenerate the deterministic snapshot
+    generate-and-open   regenerate the snapshot, serve it locally, and open the browser
+    create              scaffold a new header-compliant ideation doc and open it for editing
+    edit                select-to-edit: launch the human's editor over a listed document
+    model-binding       model-provider settings: list / add / edit / remove bindings, and hand a
+                        credential to the broker
+    gate                human-only gate console actions (US9): demote / ratify / edit-apply /
+                        kickoff
+
+options:
+  -h, --help            show this help message and exit
+
+===== ideation-dashboard create =====
+usage: ideation-dashboard create [-h] --repo-root REPO_ROOT [--area AREA] --title TITLE --summary
+                                 SUMMARY --topics TOPICS --repository-context REPOSITORY_CONTEXT
+                                 [--kind KIND] [--possible-feat POSSIBLE_FEAT] [--editor EDITOR]
+                                 [--no-open]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        repository to scaffold into
+  --area AREA           target ideation area (default: ideation/brainstorm/)
+  --title TITLE         document title (H1, without the — Brainstorm suffix)
+  --summary SUMMARY     Summary: one sentence
+  --topics TOPICS       comma-separated Topics: list
+  --repository-context REPOSITORY_CONTEXT
+                        Repository context: value
+  --kind KIND           Kind: value
+  --possible-feat POSSIBLE_FEAT
+                        a ## Possible feats bullet (repeatable)
+  --editor EDITOR       override $EDITOR / xdg-open
+  --no-open             scaffold only; do not launch an editor
+
+===== ideation-dashboard edit =====
+usage: ideation-dashboard edit [-h] --repo-root REPO_ROOT [--editor EDITOR] [--no-open] path
+
+positional arguments:
+  path                  repo-relative path to the document
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --editor EDITOR       override $EDITOR / xdg-open
+  --no-open             print the resolved path only
+
+===== ideation-dashboard gate =====
+usage: ideation-dashboard gate [-h]
+                               {demote,ratify,edit-apply,dispose-possible,kickoff,propose,promote-to-staging,research-brief,derive-possibles,create-project,edit-project,lens-save-recipe,lens-add-as-cluster,create-document,edit-document,open-pr,share-session,abandon-session,cleanup-abandoned-branch}
+                               ...
+
+positional arguments:
+  {demote,ratify,edit-apply,dispose-possible,kickoff,propose,promote-to-staging,research-brief,derive-possibles,create-project,edit-project,lens-save-recipe,lens-add-as-cluster,create-document,edit-document,open-pr,share-session,abandon-session,cleanup-abandoned-branch}
+    demote              reject a proposal back to staging (mechanized reverse transition); peer of
+                        the executing dashboard route POST /actions/gate/demote, which PLANS and
+                        RECORDS only — this command is the only surface that can also --execute
+                        the recorded plan
+    ratify              approve a proposal (write the ratification record + register update)
+    edit-apply          apply a HUMAN-approved redline to a change document
+    dispose-possible    dispose a pending_review ai-derived possible (accept / reject / defer)
+    kickoff             dispatch a ratified change's next step (refused without ratification)
+    propose             commission proposal authoring for a staging topic (add-propose-verb)
+    promote-to-staging  commission a staging fragment for an ACCEPTED possible (add-wheel-action-
+                        verbs)
+    research-brief      commission a PRE-VERDICT evidence brief for a possible (add-wheel-action-
+                        verbs)
+    derive-possibles    commission a CLUSTER-SCOPED run of the possibles-derivation lane (add-
+                        wheel-action-verbs)
+    create-project      commission a project-register edit creating one project (add-project-
+                        scoped-selection)
+    edit-project        commission a membership edit of an existing project (add-opendox-project-
+                        header)
+    lens-save-recipe    save a keyword-lens recipe as a workbench manifest (add-lens-gate-verbs)
+    lens-add-as-cluster
+                        add a keyword-lens set as a pending_review human-seen cluster (add-lens-
+                        gate-verbs)
+    create-document     create a NEW header-compliant ideation document through the gate (create-
+                        only, recorded; add-workbench-bullseye-and-create)
+    edit-document       rewrite an EXISTING document inside the tile's branch session (session-
+                        only, recorded, one commit; 007-workbench-branch-sessions)
+    open-pr             push the tile's session branch and open (or update) its pull request into
+                        the existing Merge-Master ritual
+    share-session       commit the session's dirty thread sidecars and push the branch so a
+                        colleague can resume the session (opens NO pull request)
+    abandon-session     end the tile's branch session without saving, with the required reason
+                        (recorded on `main`; the branch survives)
+    cleanup-abandoned-branch
+                        delete an ABANDONED session's surviving local branch after durable
+                        retention release (human-invoked, never automatic)
+
+options:
+  -h, --help            show this help message and exit
+
+===== ideation-dashboard gate abandon-session =====
+usage: ideation-dashboard gate abandon-session [-h] --repo-root REPO_ROOT --actor ACTOR
+                                               [--records-dir RECORDS_DIR] --scope-kind
+                                               {staged-topic,cluster,possible} --scope-id SCOPE_ID
+                                               --reason REASON [--notes NOTES]
+                                               [--repository REPOSITORY]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --actor ACTOR         the acting human's identity, checked against the authenticated principal
+                        (gateway user, $XF_GATE_PRINCIPAL,
+                        $XF_GATE_PRINCIPALS/$XF_GATE_ACTOR_ALLOWLIST, or the checkout's git
+                        identity) and recorded in the gate-action record
+  --records-dir RECORDS_DIR
+                        records output directory (default: ideation/dashboard/gate-records/)
+  --scope-kind {staged-topic,cluster,possible}
+                        the tile's scope kind — resolves the session to end
+  --scope-id SCOPE_ID   the tile id: a staging FOLDER name, a cl-*, or a pos-*
+  --reason REASON       the durable why this exploration stopped (required, exactly as a
+                        demotion's reason is)
+  --notes NOTES         optional free-text note recorded on the action
+  --repository REPOSITORY
+                        the registry key's repository half (default: the checkout directory's
+                        name)
+
+===== ideation-dashboard gate cleanup-abandoned-branch =====
+usage: ideation-dashboard gate cleanup-abandoned-branch [-h] --repo-root REPO_ROOT --actor ACTOR
+                                                        [--records-dir RECORDS_DIR] --scope-kind
+                                                        {staged-topic,cluster,possible} --scope-id
+                                                        SCOPE_ID --ref REF
+                                                        [--retention-release-reason RETENTION_RELEASE_REASON]
+                                                        [--superseding-reference SUPERSEDING_REFERENCE]
+                                                        [--repository REPOSITORY]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --actor ACTOR         the acting human's identity, checked against the authenticated principal
+                        (gateway user, $XF_GATE_PRINCIPAL,
+                        $XF_GATE_PRINCIPALS/$XF_GATE_ACTOR_ALLOWLIST, or the checkout's git
+                        identity) and recorded in the gate-action record
+  --records-dir RECORDS_DIR
+                        records output directory (default: ideation/dashboard/gate-records/)
+  --scope-kind {staged-topic,cluster,possible}
+                        the tile's scope kind — the branch is checked against the tile that OWNS
+                        it
+  --scope-id SCOPE_ID   the tile id: a staging FOLDER name, a cl-*, or a pos-*
+  --ref REF             the abandoned session branch to delete (must be this tile's own branch or
+                        one of its ordinal forms)
+  --retention-release-reason RETENTION_RELEASE_REASON
+                        explicit human release for a true orphan, duplicate, superseded, cluster,
+                        possible, or missing tile; machine-resolved proposal or demotion evidence
+                        does not require it
+  --superseding-reference SUPERSEDING_REFERENCE
+                        optional durable reference supporting an explicit release; repeat for
+                        multiple references
+  --repository REPOSITORY
+                        the registry key's repository half (default: the checkout directory's
+                        name)
+
+===== ideation-dashboard gate create-document =====
+usage: ideation-dashboard gate create-document [-h] --repo-root REPO_ROOT --actor ACTOR
+                                               [--records-dir RECORDS_DIR]
+                                               [--scope-kind {staged-topic,cluster,possible}]
+                                               [--scope-id SCOPE_ID] [--area AREA] --title TITLE
+                                               --summary SUMMARY --topics TOPICS
+                                               --repository-context REPOSITORY_CONTEXT
+                                               [--repository REPOSITORY] [--kind KIND]
+                                               [--status {brainstorm,staged,draft}]
+                                               [--source SOURCE] [--possible-feat POSSIBLE_FEAT]
+                                               [--continuation {resume,new}]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --actor ACTOR         the acting human's identity, checked against the authenticated principal
+                        (gateway user, $XF_GATE_PRINCIPAL,
+                        $XF_GATE_PRINCIPALS/$XF_GATE_ACTOR_ALLOWLIST, or the checkout's git
+                        identity) and recorded in the gate-action record
+  --records-dir RECORDS_DIR
+                        records output directory (default: ideation/dashboard/gate-records/)
+  --scope-kind {staged-topic,cluster,possible}
+                        the tile's scope kind — resolves the branch session (requires --scope-id;
+                        omit both for a main-resident create)
+  --scope-id SCOPE_ID   the tile id: a staging FOLDER name, a cl-*, or a pos-* (requires --scope-
+                        kind)
+  --area AREA           target ideation area (default: ideation/brainstorm/)
+  --title TITLE         document title (H1, without the — Brainstorm suffix)
+  --summary SUMMARY     Summary: one sentence
+  --topics TOPICS       comma-separated Topics: list
+  --repository-context REPOSITORY_CONTEXT
+                        Repository context: value — a DOCUMENT HEADER field (the route defaults it
+                        from the served snapshot; the CLI asks for it). It is not the registry
+                        key: see --repository
+  --repository REPOSITORY
+                        the registry key's repository half (default: the checkout directory's
+                        name, the same convention the worktree container is derived from)
+  --kind KIND           Kind: value
+  --status {brainstorm,staged,draft}
+                        Status: value (default: brainstorm, in EVERY area — a created document's
+                        tie to a staging packet is its placement in that folder, not its status
+                        header)
+  --source SOURCE       optional Source: provenance citation (the workbench scope, or the keyword-
+                        lens recipe at a source_revision)
+  --possible-feat POSSIBLE_FEAT
+                        a ## Possible feats bullet (repeatable)
+  --continuation {resume,new}
+                        answer the resume-or-new report on a tile whose abandoned branch survives:
+                        `resume` keeps the existing branch and its history, `new` opens the next
+                        ordinal (FR-025; omit it to be SHOWN the choice)
+
+===== ideation-dashboard gate create-project =====
+usage: ideation-dashboard gate create-project [-h] --repo-root REPO_ROOT --actor ACTOR
+                                              [--records-dir RECORDS_DIR] [--repo REPO]
+                                              [--project-register PROJECT_REGISTER]
+                                              [--outline OUTLINE] [--workflow WORKFLOW]
+                                              [--note NOTE]
+                                              name
+
+positional arguments:
+  name                  the project display name (the id is slugged from it)
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --actor ACTOR         the acting human's identity, checked against the authenticated principal
+                        (gateway user, $XF_GATE_PRINCIPAL,
+                        $XF_GATE_PRINCIPALS/$XF_GATE_ACTOR_ALLOWLIST, or the checkout's git
+                        identity) and recorded in the gate-action record
+  --records-dir RECORDS_DIR
+                        records output directory (default: ideation/dashboard/gate-records/)
+  --repo REPO           a member repository id (repeatable; OPTIONAL — an empty project gains
+                        members later via edit-project)
+  --project-register PROJECT_REGISTER
+                        explicit register path (default: discovered from the checkout upward)
+  --outline OUTLINE     the commissioning outline (default: a standard register-edit commission)
+  --workflow WORKFLOW   workflow id (default: project-register-edit)
+  --note NOTE           optional free-text note recorded on the action
+
+===== ideation-dashboard gate demote =====
+usage: ideation-dashboard gate demote [-h] --repo-root REPO_ROOT --actor ACTOR
+                                      [--records-dir RECORDS_DIR] --repository REPOSITORY
+                                      [--source-revision SOURCE_REVISION]
+                                      [--project-register PROJECT_REGISTER]
+                                      [--possibles POSSIBLES] --change-id CHANGE_ID --reason
+                                      REASON [--staging-topic STAGING_TOPIC] [--execute]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --actor ACTOR         the acting human's identity, checked against the authenticated principal
+                        (gateway user, $XF_GATE_PRINCIPAL,
+                        $XF_GATE_PRINCIPALS/$XF_GATE_ACTOR_ALLOWLIST, or the checkout's git
+                        identity) and recorded in the gate-action record
+  --records-dir RECORDS_DIR
+                        records output directory (default: ideation/dashboard/gate-records/)
+  --repository REPOSITORY
+                        canonical repository id for the snapshot
+  --source-revision SOURCE_REVISION
+                        pin the source_revision anchor (default: git HEAD)
+  --project-register PROJECT_REGISTER
+                        override the project-register source
+  --possibles POSSIBLES
+                        override the possibles-register source
+  --change-id CHANGE_ID
+                        the change to demote
+  --reason REASON       the required reason a change went back to staging
+  --staging-topic STAGING_TOPIC
+                        target staging topic (default: the change's recorded origin staging id)
+  --execute             apply the moves to this checkout (default: emit the plan only)
+
+===== ideation-dashboard gate derive-possibles =====
+usage: ideation-dashboard gate derive-possibles [-h] --repo-root REPO_ROOT --actor ACTOR
+                                                [--records-dir RECORDS_DIR] --repository
+                                                REPOSITORY [--source-revision SOURCE_REVISION]
+                                                [--project-register PROJECT_REGISTER]
+                                                [--possibles POSSIBLES] --cluster-id CLUSTER_ID
+                                                [--outline OUTLINE] [--workflow WORKFLOW]
+                                                [--note NOTE]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --actor ACTOR         the acting human's identity, checked against the authenticated principal
+                        (gateway user, $XF_GATE_PRINCIPAL,
+                        $XF_GATE_PRINCIPALS/$XF_GATE_ACTOR_ALLOWLIST, or the checkout's git
+                        identity) and recorded in the gate-action record
+  --records-dir RECORDS_DIR
+                        records output directory (default: ideation/dashboard/gate-records/)
+  --repository REPOSITORY
+                        canonical repository id for the snapshot
+  --source-revision SOURCE_REVISION
+                        pin the source_revision anchor (default: git HEAD)
+  --project-register PROJECT_REGISTER
+                        override the project-register source
+  --possibles POSSIBLES
+                        override the possibles-register source
+  --cluster-id CLUSTER_ID
+                        the topic cluster to scope the derivation run to
+  --outline OUTLINE     the commissioning outline (default: a standard derivation commission)
+  --workflow WORKFLOW   workflow id (default: derive-possibles)
+  --note NOTE           optional free-text note recorded on the action
+
+===== ideation-dashboard gate dispose-possible =====
+usage: ideation-dashboard gate dispose-possible [-h] --repo-root REPO_ROOT --actor ACTOR
+                                                [--records-dir RECORDS_DIR] --possible-id
+                                                POSSIBLE_ID --outcome {accepted,rejected,deferred}
+                                                [--reason REASON] [--citation CITATION]
+                                                [--note NOTE]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --actor ACTOR         the acting human's identity, checked against the authenticated principal
+                        (gateway user, $XF_GATE_PRINCIPAL,
+                        $XF_GATE_PRINCIPALS/$XF_GATE_ACTOR_ALLOWLIST, or the checkout's git
+                        identity) and recorded in the gate-action record
+  --records-dir RECORDS_DIR
+                        records output directory (default: ideation/dashboard/gate-records/)
+  --possible-id POSSIBLE_ID
+                        the possibles-register entry id (pos-derived-...)
+  --outcome {accepted,rejected,deferred}
+                        the human verdict (one-way; only deferred may be re-disposed)
+  --reason REASON       REQUIRED with --outcome rejected: the durable why
+  --citation CITATION   REQUIRED with --outcome rejected: what the rejection cites
+  --note NOTE           optional free-text note on the disposition
+
+===== ideation-dashboard gate edit-apply =====
+usage: ideation-dashboard gate edit-apply [-h] --repo-root REPO_ROOT --actor ACTOR
+                                          [--records-dir RECORDS_DIR] --change-id CHANGE_ID
+                                          --document DOCUMENT [--old-file OLD_FILE]
+                                          [--new-file NEW_FILE] [--full-text-file FULL_TEXT_FILE]
+                                          [--concept CONCEPT]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --actor ACTOR         the acting human's identity, checked against the authenticated principal
+                        (gateway user, $XF_GATE_PRINCIPAL,
+                        $XF_GATE_PRINCIPALS/$XF_GATE_ACTOR_ALLOWLIST, or the checkout's git
+                        identity) and recorded in the gate-action record
+  --records-dir RECORDS_DIR
+                        records output directory (default: ideation/dashboard/gate-records/)
+  --change-id CHANGE_ID
+                        the change owning the document
+  --document DOCUMENT   repo-relative path of the change document to revise
+  --old-file OLD_FILE   file holding the exact block to replace (replacement-block form)
+  --new-file NEW_FILE   file holding the replacement block
+  --full-text-file FULL_TEXT_FILE
+                        file whose contents replace the whole document (full-text form)
+  --concept CONCEPT     the listed concept this redline revises (optional)
+
+===== ideation-dashboard gate edit-document =====
+usage: ideation-dashboard gate edit-document [-h] --repo-root REPO_ROOT --actor ACTOR
+                                             [--records-dir RECORDS_DIR] --scope-kind
+                                             {staged-topic,cluster,possible} --scope-id SCOPE_ID
+                                             --document DOCUMENT --content-file CONTENT_FILE
+                                             [--notes NOTES] [--repository REPOSITORY]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --actor ACTOR         the acting human's identity, checked against the authenticated principal
+                        (gateway user, $XF_GATE_PRINCIPAL,
+                        $XF_GATE_PRINCIPALS/$XF_GATE_ACTOR_ALLOWLIST, or the checkout's git
+                        identity) and recorded in the gate-action record
+  --records-dir RECORDS_DIR
+                        records output directory (default: ideation/dashboard/gate-records/)
+  --scope-kind {staged-topic,cluster,possible}
+                        the tile's scope kind — resolves the branch session this rewrite happens
+                        in
+  --scope-id SCOPE_ID   the tile id: a staging FOLDER name, a cl-*, or a pos-*
+  --document DOCUMENT   the document to rewrite, as a path inside the session worktree (a path
+                        outside it refuses)
+  --content-file CONTENT_FILE
+                        file whose contents REPLACE the document (never inline text; an empty file
+                        is refused as a delete in disguise)
+  --notes NOTES         optional free-text note recorded on the action
+  --repository REPOSITORY
+                        the registry key's repository half (default: the checkout directory's
+                        name, the same convention the worktree container is derived from)
+
+===== ideation-dashboard gate edit-project =====
+usage: ideation-dashboard gate edit-project [-h] --repo-root REPO_ROOT --actor ACTOR
+                                            [--records-dir RECORDS_DIR] [--add ADD]
+                                            [--remove REMOVE]
+                                            [--project-register PROJECT_REGISTER]
+                                            [--outline OUTLINE] [--workflow WORKFLOW]
+                                            [--note NOTE]
+                                            project_id
+
+positional arguments:
+  project_id            the register project to edit
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --actor ACTOR         the acting human's identity, checked against the authenticated principal
+                        (gateway user, $XF_GATE_PRINCIPAL,
+                        $XF_GATE_PRINCIPALS/$XF_GATE_ACTOR_ALLOWLIST, or the checkout's git
+                        identity) and recorded in the gate-action record
+  --records-dir RECORDS_DIR
+                        records output directory (default: ideation/dashboard/gate-records/)
+  --add ADD             a repository id to add (repeatable)
+  --remove REMOVE       a repository id to remove (repeatable)
+  --project-register PROJECT_REGISTER
+                        explicit register path (default: discovered from the checkout upward)
+  --outline OUTLINE     the commissioning outline (default: a standard register-edit commission)
+  --workflow WORKFLOW   workflow id (default: project-register-edit)
+  --note NOTE           optional free-text note recorded on the action
+
+===== ideation-dashboard gate kickoff =====
+usage: ideation-dashboard gate kickoff [-h] --repo-root REPO_ROOT --actor ACTOR
+                                       [--records-dir RECORDS_DIR] --repository REPOSITORY
+                                       [--source-revision SOURCE_REVISION]
+                                       [--project-register PROJECT_REGISTER]
+                                       [--possibles POSSIBLES] --change-id CHANGE_ID
+                                       [--outline OUTLINE] [--workflow WORKFLOW]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --actor ACTOR         the acting human's identity, checked against the authenticated principal
+                        (gateway user, $XF_GATE_PRINCIPAL,
+                        $XF_GATE_PRINCIPALS/$XF_GATE_ACTOR_ALLOWLIST, or the checkout's git
+                        identity) and recorded in the gate-action record
+  --records-dir RECORDS_DIR
+                        records output directory (default: ideation/dashboard/gate-records/)
+  --repository REPOSITORY
+                        canonical repository id for the snapshot
+  --source-revision SOURCE_REVISION
+                        pin the source_revision anchor (default: git HEAD)
+  --project-register PROJECT_REGISTER
+                        override the project-register source
+  --possibles POSSIBLES
+                        override the possibles-register source
+  --change-id CHANGE_ID
+                        the ratified change to kick off
+  --outline OUTLINE     the realization outline (default: a Speckit realization descriptor)
+  --workflow WORKFLOW   workflow id (default: speckit-realization)
+
+===== ideation-dashboard gate lens-add-as-cluster =====
+usage: ideation-dashboard gate lens-add-as-cluster [-h] --repo-root REPO_ROOT --actor ACTOR
+                                                   [--records-dir RECORDS_DIR] --repository
+                                                   REPOSITORY [--source-revision SOURCE_REVISION]
+                                                   [--project-register PROJECT_REGISTER]
+                                                   [--possibles POSSIBLES] --name NAME --checked
+                                                   CHECKED [--pinned PINNED] [--include INCLUDE]
+                                                   [--exclude EXCLUDE] [--proposer PROPOSER]
+                                                   [--evidence-repository EVIDENCE_REPOSITORY]
+                                                   [--evidence-path EVIDENCE_PATH]
+                                                   [--revision REVISION] [--section SECTION]
+                                                   [--passage-sha256 PASSAGE_SHA256]
+                                                   [--rationale RATIONALE]
+                                                   [--confidence CONFIDENCE]
+                                                   [--alternative ALTERNATIVE]
+                                                   [--recipe-reference RECIPE_REFERENCE]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --actor ACTOR         the acting human's identity, checked against the authenticated principal
+                        (gateway user, $XF_GATE_PRINCIPAL,
+                        $XF_GATE_PRINCIPALS/$XF_GATE_ACTOR_ALLOWLIST, or the checkout's git
+                        identity) and recorded in the gate-action record
+  --records-dir RECORDS_DIR
+                        records output directory (default: ideation/dashboard/gate-records/)
+  --repository REPOSITORY
+                        canonical repository id for the snapshot
+  --source-revision SOURCE_REVISION
+                        pin the source_revision anchor (default: git HEAD)
+  --project-register PROJECT_REGISTER
+                        override the project-register source
+  --possibles POSSIBLES
+                        override the possibles-register source
+  --name NAME           the workbench set name (slugged for the manifest path)
+  --checked CHECKED     a checked keyword (stratify); repeatable — at least one required
+  --pinned PINNED       a pinned keyword (require = hard filter); repeatable (MUST be a subset of
+                        --checked)
+  --include INCLUDE     a manual-include override document=reason (near-miss pulled in; reason
+                        required); repeatable
+  --exclude EXCLUDE     an excluded override document=reason (recipe match removed; reason
+                        required); repeatable
+  --proposer PROPOSER   the proposing human (default: --actor)
+  --evidence-repository EVIDENCE_REPOSITORY
+                        the evidence source_ref repository (default: --repository)
+  --evidence-path EVIDENCE_PATH
+                        the evidence source_ref repo-relative path
+  --revision REVISION   the FULL committed revision the passage is pinned at (40/64-hex)
+  --section SECTION     the evidence source_ref section
+  --passage-sha256 PASSAGE_SHA256
+                        the 64-hex sha256 of the pinned passage
+  --rationale RATIONALE
+                        the organizer rationale for the cluster
+  --confidence CONFIDENCE
+                        the organizer confidence in [0, 1]
+  --alternative ALTERNATIVE
+                        an alternative interpretation considered (repeatable; may be empty)
+  --recipe-reference RECIPE_REFERENCE
+                        optional re-runnable recipe pointer (default: derived from the set name +
+                        keywords)
+
+===== ideation-dashboard gate lens-save-recipe =====
+usage: ideation-dashboard gate lens-save-recipe [-h] --repo-root REPO_ROOT --actor ACTOR
+                                                [--records-dir RECORDS_DIR] --repository
+                                                REPOSITORY [--source-revision SOURCE_REVISION]
+                                                [--project-register PROJECT_REGISTER]
+                                                [--possibles POSSIBLES] --name NAME --checked
+                                                CHECKED [--pinned PINNED] [--include INCLUDE]
+                                                [--exclude EXCLUDE]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --actor ACTOR         the acting human's identity, checked against the authenticated principal
+                        (gateway user, $XF_GATE_PRINCIPAL,
+                        $XF_GATE_PRINCIPALS/$XF_GATE_ACTOR_ALLOWLIST, or the checkout's git
+                        identity) and recorded in the gate-action record
+  --records-dir RECORDS_DIR
+                        records output directory (default: ideation/dashboard/gate-records/)
+  --repository REPOSITORY
+                        canonical repository id for the snapshot
+  --source-revision SOURCE_REVISION
+                        pin the source_revision anchor (default: git HEAD)
+  --project-register PROJECT_REGISTER
+                        override the project-register source
+  --possibles POSSIBLES
+                        override the possibles-register source
+  --name NAME           the workbench set name (slugged for the manifest path)
+  --checked CHECKED     a checked keyword (stratify); repeatable — at least one required
+  --pinned PINNED       a pinned keyword (require = hard filter); repeatable (MUST be a subset of
+                        --checked)
+  --include INCLUDE     a manual-include override document=reason (near-miss pulled in; reason
+                        required); repeatable
+  --exclude EXCLUDE     an excluded override document=reason (recipe match removed; reason
+                        required); repeatable
+
+===== ideation-dashboard gate open-pr =====
+usage: ideation-dashboard gate open-pr [-h] --repo-root REPO_ROOT --actor ACTOR
+                                       [--records-dir RECORDS_DIR] --scope-kind
+                                       {staged-topic,cluster,possible} --scope-id SCOPE_ID
+                                       [--title TITLE] [--body-file BODY_FILE]
+                                       [--repository REPOSITORY]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --actor ACTOR         the acting human's identity, checked against the authenticated principal
+                        (gateway user, $XF_GATE_PRINCIPAL,
+                        $XF_GATE_PRINCIPALS/$XF_GATE_ACTOR_ALLOWLIST, or the checkout's git
+                        identity) and recorded in the gate-action record
+  --records-dir RECORDS_DIR
+                        records output directory (default: ideation/dashboard/gate-records/)
+  --scope-kind {staged-topic,cluster,possible}
+                        the tile's scope kind — resolves the session to save
+  --scope-id SCOPE_ID   the tile id: a staging FOLDER name, a cl-*, or a pos-*
+  --title TITLE         the pull request's title. Omitted: the FIRST save names the session branch
+                        and its tile, a LATER save leaves the existing title unchanged
+  --body-file BODY_FILE
+                        file whose contents become the pull request BODY (never inline text).
+                        Omitted: the FIRST save carries the merge-commit-never-squash notice
+                        (D18), a LATER save leaves the existing body unchanged — a save never
+                        overwrites reviewer-facing text a human wrote
+  --repository REPOSITORY
+                        the registry key's repository half (default: the checkout directory's
+                        name)
+
+===== ideation-dashboard gate promote-to-staging =====
+usage: ideation-dashboard gate promote-to-staging [-h] --repo-root REPO_ROOT --actor ACTOR
+                                                  [--records-dir RECORDS_DIR] --possible-id
+                                                  POSSIBLE_ID [--topic TOPIC] [--outline OUTLINE]
+                                                  [--workflow WORKFLOW] [--note NOTE]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --actor ACTOR         the acting human's identity, checked against the authenticated principal
+                        (gateway user, $XF_GATE_PRINCIPAL,
+                        $XF_GATE_PRINCIPALS/$XF_GATE_ACTOR_ALLOWLIST, or the checkout's git
+                        identity) and recorded in the gate-action record
+  --records-dir RECORDS_DIR
+                        records output directory (default: ideation/dashboard/gate-records/)
+  --possible-id POSSIBLE_ID
+                        the possibles-register id to promote
+  --topic TOPIC         optional proposed destination topic slug (the fulfilling step chooses when
+                        omitted)
+  --outline OUTLINE     the commissioning outline (default: a standard organize commission)
+  --workflow WORKFLOW   workflow id (default: staging-fragment-authoring)
+  --note NOTE           optional free-text note recorded on the action
+
+===== ideation-dashboard gate propose =====
+usage: ideation-dashboard gate propose [-h] --repo-root REPO_ROOT --actor ACTOR
+                                       [--records-dir RECORDS_DIR] --topic-id TOPIC_ID
+                                       [--outline OUTLINE] [--workflow WORKFLOW] [--note NOTE]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --actor ACTOR         the acting human's identity, checked against the authenticated principal
+                        (gateway user, $XF_GATE_PRINCIPAL,
+                        $XF_GATE_PRINCIPALS/$XF_GATE_ACTOR_ALLOWLIST, or the checkout's git
+                        identity) and recorded in the gate-action record
+  --records-dir RECORDS_DIR
+                        records output directory (default: ideation/dashboard/gate-records/)
+  --topic-id TOPIC_ID   the staging topic to take toward proposal (ideation/staging/<topic-id>/)
+  --outline OUTLINE     the authoring outline (default: a standard OpenSpec-change commission)
+  --workflow WORKFLOW   workflow id (default: proposal-authoring)
+  --note NOTE           optional free-text note recorded on the action
+
+===== ideation-dashboard gate ratify =====
+usage: ideation-dashboard gate ratify [-h] --repo-root REPO_ROOT --actor ACTOR
+                                      [--records-dir RECORDS_DIR] --change-id CHANGE_ID
+                                      [--ratifier RATIFIER] [--date DATE]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --actor ACTOR         the acting human's identity, checked against the authenticated principal
+                        (gateway user, $XF_GATE_PRINCIPAL,
+                        $XF_GATE_PRINCIPALS/$XF_GATE_ACTOR_ALLOWLIST, or the checkout's git
+                        identity) and recorded in the gate-action record
+  --records-dir RECORDS_DIR
+                        records output directory (default: ideation/dashboard/gate-records/)
+  --change-id CHANGE_ID
+                        the change to ratify
+  --ratifier RATIFIER   the ratifying authority (default: --actor)
+  --date DATE           ratification date YYYY-MM-DD (default: today)
+
+===== ideation-dashboard gate research-brief =====
+usage: ideation-dashboard gate research-brief [-h] --repo-root REPO_ROOT --actor ACTOR
+                                              [--records-dir RECORDS_DIR] --possible-id
+                                              POSSIBLE_ID [--outline OUTLINE]
+                                              [--workflow WORKFLOW] [--note NOTE]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --actor ACTOR         the acting human's identity, checked against the authenticated principal
+                        (gateway user, $XF_GATE_PRINCIPAL,
+                        $XF_GATE_PRINCIPALS/$XF_GATE_ACTOR_ALLOWLIST, or the checkout's git
+                        identity) and recorded in the gate-action record
+  --records-dir RECORDS_DIR
+                        records output directory (default: ideation/dashboard/gate-records/)
+  --possible-id POSSIBLE_ID
+                        the possibles-register id to research
+  --outline OUTLINE     the commissioning outline (default: a standard research commission)
+  --workflow WORKFLOW   workflow id (default: possible-research-brief)
+  --note NOTE           optional free-text note recorded on the action
+
+===== ideation-dashboard gate share-session =====
+usage: ideation-dashboard gate share-session [-h] --repo-root REPO_ROOT --actor ACTOR
+                                             [--records-dir RECORDS_DIR] --scope-kind
+                                             {staged-topic,cluster,possible} --scope-id SCOPE_ID
+                                             [--notes NOTES] [--repository REPOSITORY]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the pinned checkout root
+  --actor ACTOR         the acting human's identity, checked against the authenticated principal
+                        (gateway user, $XF_GATE_PRINCIPAL,
+                        $XF_GATE_PRINCIPALS/$XF_GATE_ACTOR_ALLOWLIST, or the checkout's git
+                        identity) and recorded in the gate-action record
+  --records-dir RECORDS_DIR
+                        records output directory (default: ideation/dashboard/gate-records/)
+  --scope-kind {staged-topic,cluster,possible}
+                        the tile's scope kind — resolves the session to share
+  --scope-id SCOPE_ID   the tile id: a staging FOLDER name, a cl-*, or a pos-*
+  --notes NOTES         optional note recorded on the gate-action record — why this session is
+                        being handed over
+  --repository REPOSITORY
+                        the registry key's repository half (default: the checkout directory's
+                        name)
+
+===== ideation-dashboard generate =====
+usage: ideation-dashboard generate [-h] --repo-root REPO_ROOT --repository REPOSITORY
+                                   [--source-revision SOURCE_REVISION] [--generated-at RFC3339]
+                                   [--project-register PROJECT_REGISTER] [--possibles POSSIBLES]
+                                   [--strict] [--no-validate] --output OUTPUT
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        repository to scan
+  --repository REPOSITORY
+                        canonical repository id for the snapshot
+  --source-revision SOURCE_REVISION
+                        pin the source_revision anchor (default: the repo's git HEAD)
+  --generated-at RFC3339
+                        pin the generated_at anchor, recorded verbatim (default: --source-
+                        revision's committer date read from the scanned tree's git, omitted when
+                        that tree is not a checkout)
+  --project-register PROJECT_REGISTER
+                        override the project-register source (default: discovered under repo-root)
+  --possibles POSSIBLES
+                        override the possibles-register source (default: discovered under repo-
+                        root)
+  --strict              treat validator warnings as failures — and make a validation that could
+                        not RUN AT ALL (the validator is unreachable, or its python dependencies
+                        are missing) fatal too, instead of the warning an ordinary run gets
+  --no-validate         skip post-render validation
+  --output OUTPUT       snapshot output path (JSON)
+
+===== ideation-dashboard generate-and-open =====
+usage: ideation-dashboard generate-and-open [-h] --repo-root REPO_ROOT --repository REPOSITORY
+                                            [--source-revision SOURCE_REVISION]
+                                            [--generated-at RFC3339]
+                                            [--project-register PROJECT_REGISTER]
+                                            [--possibles POSSIBLES] [--strict] [--no-validate]
+                                            [--run-dir RUN_DIR] [--actor ACTOR] [--host HOST]
+                                            [--port PORT] [--no-open] [--no-serve]
+                                            [--model-session-root MODEL_SESSION_ROOT]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        repository to scan
+  --repository REPOSITORY
+                        canonical repository id for the snapshot
+  --source-revision SOURCE_REVISION
+                        pin the source_revision anchor (default: the repo's git HEAD)
+  --generated-at RFC3339
+                        pin the generated_at anchor, recorded verbatim (default: --source-
+                        revision's committer date read from the scanned tree's git, omitted when
+                        that tree is not a checkout)
+  --project-register PROJECT_REGISTER
+                        override the project-register source (default: discovered under repo-root)
+  --possibles POSSIBLES
+                        override the possibles-register source (default: discovered under repo-
+                        root)
+  --strict              treat validator warnings as failures — and make a validation that could
+                        not RUN AT ALL (the validator is unreachable, or its python dependencies
+                        are missing) fatal too, instead of the warning an ordinary run gets
+  --no-validate         skip post-render validation
+  --run-dir RUN_DIR     run-local output directory for the snapshot (default: a temp dir)
+  --actor ACTOR         human identity for loopback gate actions (default: the checkout's git
+                        user.name)
+  --host HOST           bind host (default: 127.0.0.1, loopback only)
+  --port PORT           bind port (default: ephemeral)
+  --no-open             do not launch a browser (print the URL only)
+  --no-serve            generate + print the URL, then exit without serving (non-blocking)
+  --model-session-root MODEL_SESSION_ROOT
+                        where the model adapter's harness sessions live (default: <run-dir>/model-
+                        sessions)
+
+===== ideation-dashboard model-binding =====
+usage: ideation-dashboard model-binding [-h] {list,add,edit,remove,set-credential} ...
+
+positional arguments:
+  {list,add,edit,remove,set-credential}
+    list                disclose every declared binding
+    add                 declare a new binding
+    edit                replace an existing binding
+    remove              retire a binding
+    set-credential      read a credential from STANDARD INPUT, hand it to the broker, and keep
+                        only the reference it returns
+
+options:
+  -h, --help            show this help message and exit
+
+===== ideation-dashboard model-binding add =====
+usage: ideation-dashboard model-binding add [-h] --repo-root REPO_ROOT [--bindings BINDINGS] --id
+                                            ID --label LABEL --provider PROVIDER --credential-ref
+                                            CREDENTIAL_REF --auth-kind {api_key,oauth}
+                                            --credential-approver APPROVED_BY --endpoint ENDPOINT
+                                            --dialect {xfactory-prompt-v1}
+                                            -- BROKER ARGV [-- BROKER ARGV ...]
+
+positional arguments:
+  -- BROKER ARGV        the broker invocation, as argv members, after a bare `--`. Placeholders
+                        ('binding_id', 'label', 'provider', 'credential_ref', 'auth_kind',
+                        'approved_by', 'endpoint', 'dialect') are filled from this binding's own
+                        fields
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the checkout whose bindings are being read
+  --bindings BINDINGS   the bindings document (default: <repo-root>/ideation/dashboard/model-
+                        provider-bindings.yaml)
+  --id ID               the binding's id
+  --label LABEL         the label the model menu shows
+  --provider PROVIDER   the provider name the broker takes custody for (the broker's declared
+                        `--provider`)
+  --credential-ref CREDENTIAL_REF
+                        the reference the broker resolves; NEVER the credential itself
+  --auth-kind {api_key,oauth}
+                        the authentication kind the broker holds
+  --credential-approver APPROVED_BY
+                        the human principal who approved this credential; the broker requires one
+                        at intake and records it on every grant
+  --endpoint ENDPOINT   the provider endpoint this binding's minted token is presented at
+  --dialect {xfactory-prompt-v1}
+                        the request grammar that endpoint speaks
+
+===== ideation-dashboard model-binding edit =====
+usage: ideation-dashboard model-binding edit [-h] --repo-root REPO_ROOT [--bindings BINDINGS] --id
+                                             ID --label LABEL --provider PROVIDER --credential-ref
+                                             CREDENTIAL_REF --auth-kind {api_key,oauth}
+                                             --credential-approver APPROVED_BY --endpoint ENDPOINT
+                                             --dialect {xfactory-prompt-v1}
+                                             -- BROKER ARGV [-- BROKER ARGV ...]
+
+positional arguments:
+  -- BROKER ARGV        the broker invocation, as argv members, after a bare `--`. Placeholders
+                        ('binding_id', 'label', 'provider', 'credential_ref', 'auth_kind',
+                        'approved_by', 'endpoint', 'dialect') are filled from this binding's own
+                        fields
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the checkout whose bindings are being read
+  --bindings BINDINGS   the bindings document (default: <repo-root>/ideation/dashboard/model-
+                        provider-bindings.yaml)
+  --id ID               the binding's id
+  --label LABEL         the label the model menu shows
+  --provider PROVIDER   the provider name the broker takes custody for (the broker's declared
+                        `--provider`)
+  --credential-ref CREDENTIAL_REF
+                        the reference the broker resolves; NEVER the credential itself
+  --auth-kind {api_key,oauth}
+                        the authentication kind the broker holds
+  --credential-approver APPROVED_BY
+                        the human principal who approved this credential; the broker requires one
+                        at intake and records it on every grant
+  --endpoint ENDPOINT   the provider endpoint this binding's minted token is presented at
+  --dialect {xfactory-prompt-v1}
+                        the request grammar that endpoint speaks
+
+===== ideation-dashboard model-binding list =====
+usage: ideation-dashboard model-binding list [-h] --repo-root REPO_ROOT [--bindings BINDINGS]
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the checkout whose bindings are being read
+  --bindings BINDINGS   the bindings document (default: <repo-root>/ideation/dashboard/model-
+                        provider-bindings.yaml)
+
+===== ideation-dashboard model-binding remove =====
+usage: ideation-dashboard model-binding remove [-h] --repo-root REPO_ROOT [--bindings BINDINGS]
+                                               --id ID
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the checkout whose bindings are being read
+  --bindings BINDINGS   the bindings document (default: <repo-root>/ideation/dashboard/model-
+                        provider-bindings.yaml)
+  --id ID               the binding to retire
+
+===== ideation-dashboard model-binding set-credential =====
+usage: ideation-dashboard model-binding set-credential [-h] --repo-root REPO_ROOT
+                                                       [--bindings BINDINGS] --id ID
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+                        the checkout whose bindings are being read
+  --bindings BINDINGS   the bindings document (default: <repo-root>/ideation/dashboard/model-
+                        provider-bindings.yaml)
+  --id ID               the binding whose credential is being set

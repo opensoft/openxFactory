@@ -115,6 +115,15 @@ _SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
+# The ROUTE EXTENSION POINT (`split-opendox-two-layer-product` § 2.4, design
+# § D2). A neutral module at the top of `scripts/`, belonging to neither
+# package and importing neither, for the same three reasons `output_boundary`
+# and `corpus_adapter` sit there: both sides of the carve consume it, it travels
+# with the carve, and it therefore imports nothing from here. Spelled as a bare
+# top-level import for the same reason `boundary.py` spells `output_boundary`
+# that way.
+import route_extension  # noqa: E402
+
 from ideation_dashboard import action_errors  # noqa: E402
 from ideation_dashboard import doxbench_abstract_store  # noqa: E402
 # The INSTALL-TIME model-provider declaration the two entrypoints make.
@@ -2038,6 +2047,13 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     gate_index_validator = None  # test seam: injectable pinned-validator path
     gate_manifest_validator = None  # test seam: pinned workbench-manifest validator
     gate_xref_validator = None  # test seam: pinned cross-reference validator
+    # The CONTRIBUTED routes this server was assembled with
+    # (`split-opendox-two-layer-product` § 2.4), already flattened into one
+    # consult order by `route_extension.collect_bindings`. Empty is the whole
+    # of today's behaviour: the fixed core arms below are consulted first and
+    # the fallback after, so an empty tuple leaves the dispatch exactly as it
+    # was. Bound by `build_server`; `()` in hand-constructed handlers.
+    route_bindings: tuple = ()
 
     # keep the console quiet unless asked otherwise
     def log_message(self, fmt, *args):  # noqa: N802
@@ -5272,6 +5288,25 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         if path == "/source" or path == "/source/":  # no file named -> reject
             self.send_error(404, "no source path")
             return True
+        # ---- the CONTRIBUTED read routes (§ 2.4) ----
+        # AFTER every fixed core arm and BEFORE the static fallback, which is
+        # the placement that makes two things true at once: a contributed route
+        # can never shadow a core one (the core arms have already returned), and
+        # a path no binding claims still falls through to exactly the static
+        # behaviour it falls through to today. Dispatch is BY NAME against
+        # `self`, so a contributed route meets the same gating primitives — the
+        # loopback verdict, the capability dict, the console-host check — that
+        # every arm above meets.
+        matched = route_extension.match(
+            self.route_bindings, "HEAD" if head_only else "GET", path)
+        if matched is not None:
+            binding, remainder = matched
+            handler = getattr(self, binding.handler)
+            if binding.is_prefix:
+                handler(remainder, head_only)
+            else:
+                handler(head_only)
+            return True
         return False
 
     def do_GET(self):  # noqa: N802
@@ -5320,6 +5355,21 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             return
         if path.startswith(ACTIONS_GATE_PREFIX):
             self._handle_gate_action(path[len(ACTIONS_GATE_PREFIX):])
+            return
+        # ---- the CONTRIBUTED write routes (§ 2.4) ----
+        # The read path's clause, with the write path's two call shapes and its
+        # own fallback: an action no binding claims still answers
+        # ERR_UNKNOWN_ACTION exactly as it does today. Same by-name dispatch
+        # against `self`, so a contributed write route reaches the loopback and
+        # capability gates by construction rather than by its author's memory.
+        matched = route_extension.match(self.route_bindings, "POST", path)
+        if matched is not None:
+            binding, remainder = matched
+            handler = getattr(self, binding.handler)
+            if binding.is_prefix:
+                handler(remainder)
+            else:
+                handler()
             return
         self._send_error_code(action_errors.ERR_UNKNOWN_ACTION)
 
@@ -6441,6 +6491,7 @@ def build_server(
     snapshot_source=None,
     knowledge_declaration=None,
     packet_assembler=None,
+    route_extensions: tuple = (),
 ) -> http.server.ThreadingHTTPServer:
     """Build (but do not start) the loopback server. `port=0` binds an ephemeral
     port (read it back from `httpd.server_address`). `head` is injectable so a
@@ -6476,8 +6527,24 @@ def build_server(
     production entrypoint declares `SELF_HOSTED_LOCAL_EMBEDDED` explicitly —
     the same discipline `real_notebook_adapter` carries, and for the same
     reason: an operator must be able to read what their install talks to, and a
-    library default that quietly built one would defeat that."""
+    library default that quietly built one would defeat that.
+
+    `route_extensions` is the ROUTE EXTENSION POINT
+    (`split-opendox-two-layer-product` § 2.4, design § D2): the tuple of
+    `route_extension.RouteExtension`s this server is ASSEMBLED with, each
+    contributing routes the fixed core dispatch does not carry. The default `()`
+    is today's server exactly — the core arms are consulted first and the
+    fallback last, so an empty tuple changes no path. `routes()` is called ONCE,
+    here, and the flattened bindings are bound to the handler class; the
+    extensions themselves are deliberately NOT retained, because an extension
+    reachable from a request is an invitation to re-ask it per request, and a
+    dispatch table that can change under traffic is not a dispatch table."""
     from ideation_dashboard import doxbench_turns
+
+    # FIRST, before a socket, a checkout read or a session bootstrap: a
+    # malformed, duplicated or non-conforming binding refuses the BUILD, and it
+    # costs nothing to find out before the expensive work starts.
+    route_bindings = route_extension.collect_bindings(route_extensions)
 
     web_dir = Path(web_dir).resolve()
     snapshot_path = Path(snapshot_path).resolve()
@@ -6601,7 +6668,15 @@ def build_server(
         "gate_manifest_validator": gate_manifest_validator,
         "gate_xref_validator": gate_xref_validator,
         "source": source,
+        # The contributed routes, already in consult order (§ 2.4). One more
+        # injected class attribute, exactly like the seams above it.
+        "route_bindings": route_bindings,
     })
+    # A ROUTE THAT CANNOT BE SERVED MUST NOT START. Resolved against the bound
+    # class — the object the dispatch will `getattr` on — so a binding naming a
+    # handler this server does not have is a refused build rather than a stack
+    # trace on the first live connection.
+    route_extension.resolve_handlers(route_bindings, bound)
     factory = functools.partial(bound, directory=str(web_dir))
     return http.server.ThreadingHTTPServer((host, port), factory)
 
