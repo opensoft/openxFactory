@@ -1213,7 +1213,7 @@ class TheLaneRunsUnderADeclaredBinding(unittest.TestCase):
         self.assertEqual(declared, set(minted))
         self.assertEqual(len(minted), len(set(minted)))
 
-    def test_each_mint_requests_exactly_its_repositorys_grants(self) -> None:
+    def test_each_mint_requests_exactly_its_repository_grants(self) -> None:
         """Scenario: The binding is least-privilege and says what it is for.
 
         Each token requests EXACTLY the `grants:` the binding declares for the
@@ -1254,39 +1254,53 @@ class TheLaneRunsUnderADeclaredBinding(unittest.TestCase):
                          if str(m["with"]["repositories"]).strip() == "openxFactory")
         self.assertEqual(floored, self._requested_grants(authoring))
 
-    def test_workflow_file_sites_require_the_workflows_grant(self) -> None:
-        """MEASURED from the site list, not asserted: if any pinned site lives
-        under `.github/workflows/`, the floored grants MUST include
-        `workflows:write` and the authoring mint MUST request it — GitHub
-        refuses an App push touching a workflow file without it (run
-        34033398015, 2026-09-06). Anti-vacuous: the test first proves such a
-        site exists, so a site list that dropped both workflow files would fail
-        here rather than pass by absence.
-        """
+    @staticmethod
+    def _assert_workflow_file_sites_are_granted(binding: dict, authoring_mint: dict) -> None:
+        """THE CHECK, as a function both the positive test and its negative
+        control call: if any pinned site lives under `.github/workflows/`, the
+        floored grants MUST include `workflows:write` and the authoring mint
+        MUST request `permission-workflows: write` — GitHub refuses an App push
+        touching a workflow file without it (run 34033398015, 2026-09-06). It
+        first proves such a site exists, so a site list that dropped both
+        workflow files fails here rather than passing by absence."""
         workflow_sites = [site for site in R.PINNED_SITES
                           if ".github/workflows/" in str(site.path)]
-        self.assertTrue(workflow_sites, "no pinned site is a workflow file; the premise is gone")
-        floored = self.binding["privileges"]["floored_repository"]["grants"]
-        self.assertIn("workflows:write", floored)
-        authoring = next(m for m in self._mints()
-                         if str(m["with"]["repositories"]).strip() == "openxFactory")
-        self.assertEqual("write", authoring["with"].get("permission-workflows"))
+        assert workflow_sites, "no pinned site is a workflow file; the premise is gone"
+        floored = binding["privileges"]["floored_repository"]
+        assert "workflows:write" in floored["grants"], floored["grants"]
+        assert authoring_mint["with"].get("permission-workflows") == "write", \
+            authoring_mint["with"]
         # Never on the default branch: the refusal stays beside the grant.
-        self.assertIn("workflows:write-to-default-branch",
-                      self.binding["privileges"]["floored_repository"]["never_grants"])
+        assert "workflows:write-to-default-branch" in floored["never_grants"]
+
+    def _authoring_mint(self) -> dict:
+        return next(m for m in self._mints()
+                    if str(m["with"]["repositories"]).strip() == "openxFactory")
+
+    def test_workflow_file_sites_require_the_workflows_grant(self) -> None:
+        """MEASURED from the site list, not asserted — see
+        `_assert_workflow_file_sites_are_granted`. Runs against the REAL
+        binding and the REAL authoring mint."""
+        self._assert_workflow_file_sites_are_granted(self.binding, self._authoring_mint())
 
     def test_negative_control_a_binding_without_the_workflows_grant_is_caught(self) -> None:
-        """The check above, run against a copy of the real binding with
-        `workflows:write` removed, must fail — proving it measures the grant
-        rather than passing on the shape of the file."""
+        """The same check, run against a copy of the real binding with
+        `workflows:write` removed, MUST raise — and again against a copy of the
+        real mint without `permission-workflows` — proving it measures the
+        grant on each side rather than passing on the shape of the file."""
         import copy
-        stripped = copy.deepcopy(self.binding)
-        grants = stripped["privileges"]["floored_repository"]["grants"]
-        grants.remove("workflows:write")
-        workflow_sites = [site for site in R.PINNED_SITES
-                          if ".github/workflows/" in str(site.path)]
-        self.assertTrue(workflow_sites)
-        self.assertNotIn("workflows:write", grants)
+        stripped_binding = copy.deepcopy(self.binding)
+        stripped_binding["privileges"]["floored_repository"]["grants"].remove("workflows:write")
+        with self.assertRaises(AssertionError):
+            self._assert_workflow_file_sites_are_granted(stripped_binding, self._authoring_mint())
+
+        stripped_mint = copy.deepcopy(self._authoring_mint())
+        del stripped_mint["with"]["permission-workflows"]
+        with self.assertRaises(AssertionError):
+            self._assert_workflow_file_sites_are_granted(self.binding, stripped_mint)
+
+        # And the real pair still passes, so the control is about the mutation.
+        self._assert_workflow_file_sites_are_granted(self.binding, self._authoring_mint())
 
 
 # ===========================================================================

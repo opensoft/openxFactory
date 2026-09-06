@@ -182,7 +182,7 @@ jobs:
       # codexFactory, which the binding forbids (`never_grants`). Each token
       # below is scoped to ONE repository and requests EXACTLY that
       # repository's `grants:` in the binding — held equal by
-      # `test_each_mint_requests_exactly_its_repositorys_grants`.
+      # `test_each_mint_requests_exactly_its_repository_grants`.
       - name: Mint the codexFactory READ token
         id: source-token
         uses: actions/create-github-app-token@v2
