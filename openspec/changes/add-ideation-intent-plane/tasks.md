@@ -125,7 +125,7 @@ OpsxFactory (managed-subject rule).
       GET intents.
 - [x] 4.5 Flutter verdict-terminal client consumes the same two endpoints
       (own feature; contract fixed here).
-      (DEFERRED SUCCESSOR — RULED 2026-09-05T23:3xZ by Brett Heap ("rule
+      (DEFERRED SUCCESSOR — RULED 2026-09-05T23:38Z by Brett Heap ("rule
       path A, 4.5 is a deferred successor", openxFactory #656
       https://github.com/opensoft/openxFactory/issues/656#issuecomment-5555554097):
       the Flutter verdict-terminal client is outside this change's

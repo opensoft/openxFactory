@@ -88,7 +88,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   cannot be assigned a successor home. Discharge by `add-ideation-intent-plane`
   archiving, or by a recorded disposition under `document-lifecycle`'s
   deliberate-non-promotion scenario. **This gates § 3 onward, not this packet.**
-  **RULED PATH A 2026-09-05T23:3xZ (#656
+  **RULED PATH A 2026-09-05T23:38Z (#656
   https://github.com/opensoft/openxFactory/issues/656#issuecomment-5555554097)**
   — discharge is by `add-ideation-intent-plane` ARCHIVING WITH PROMOTION after
   4.4/5.1/5.2; 4.5 deferred successor; Path B rejected. This gate ticks at
