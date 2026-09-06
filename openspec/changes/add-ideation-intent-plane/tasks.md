@@ -123,8 +123,15 @@ OpsxFactory (managed-subject rule).
 - [ ] 4.4 Hosted tray flips from descriptor to intent emission; intent-feed
       overlay (pending/applied/refused chips) + refusal panel against
       GET intents.
-- [ ] 4.5 Flutter verdict-terminal client consumes the same two endpoints
+- [x] 4.5 Flutter verdict-terminal client consumes the same two endpoints
       (own feature; contract fixed here).
+      (DEFERRED SUCCESSOR — RULED 2026-09-05T23:38Z by Brett Heap ("rule
+      path A, 4.5 is a deferred successor", openxFactory #656
+      https://github.com/opensoft/openxFactory/issues/656#issuecomment-5555554097):
+      the Flutter verdict-terminal client is outside this change's
+      completion bar; the two endpoints' contract is fixed here and
+      unchanged; the client is raised as its own successor change when
+      wanted.)
 
       (REALIZED 2026-08-10: openxFactory PR #157 — intent_apply_lane.py in
       the register-edit lane's family, replaying through run_gate_action
