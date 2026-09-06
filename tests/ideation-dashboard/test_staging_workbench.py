@@ -1960,8 +1960,12 @@ def _run_ending_replay(tmp_path):
     views = tmp_path / "views"
     views.mkdir()
     (tmp_path / "package.json").write_text('{"type": "module"}', encoding="utf-8")
+    # `intent-feed.js` rides along because dispose.js imports it
+    # (add-ideation-intent-plane task 4.4). This probe drives the session
+    # ending replay, which touches only dispose.js's refusal panel — the
+    # module is present purely to make the import resolve.
     for name in ("swb-session.js", "helpers.js", "dispose.js",
-                 "staging-workbench-model.js"):
+                 "staging-workbench-model.js", "intent-feed.js"):
         shutil.copy(WEB / "views" / name, views / name)
     harness = views / "ending-replay.js"
     harness.write_text(_ENDING_REPLAY_HARNESS, encoding="utf-8")

@@ -1236,6 +1236,20 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   content: attr(data-applied) " ✓ (regenerate to fold in)";
   font-size: 9px; color: var(--good);
 }
+/* the HOSTED plane's per-tile intent indicator (add-ideation-intent-plane task
+   4.4): the same decorate-never-mutate posture as `.wheelapplied`, on a plane
+   where the decision travelled as a request the apply lane still owns. */
+.wheeltile.wheelintent { border-style: dashed; border-color: var(--st-proposal); }
+.wheeltile.wheelintent::after {
+  content: "intent: " attr(data-intent);
+  font-size: 9px; color: var(--st-proposal);
+}
+.wheeltile.wheelintent[data-intent="applied"] { border-color: var(--good); }
+.wheeltile.wheelintent[data-intent="applied"]::after { color: var(--good); }
+.wheeltile.wheelintent[data-intent="refused"],
+.wheeltile.wheelintent[data-intent="stalled"] { border-color: var(--blocked); }
+.wheeltile.wheelintent[data-intent="refused"]::after,
+.wheeltile.wheelintent[data-intent="stalled"]::after { color: var(--blocked); }
 .refusalpanel {
   position: fixed; right: 14px; bottom: 14px; z-index: 30; width: 340px;
   max-height: 40vh; overflow-y: auto; background: var(--panel);
@@ -1253,7 +1267,32 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .refusalpanel-kind { flex: none; font-family: var(--mono); font-size: 9px; border-radius: 999px; padding: 0 6px; }
 .is-refused .refusalpanel-kind { background: var(--blocked-bg); color: var(--blocked); }
 .is-ok .refusalpanel-kind { background: var(--good-bg); color: var(--good); }
+/* the HOSTED plane's other outcomes (task 4.4): submitted-not-yet-decided,
+   recorded-but-not-dispatched, and never-sent-at-all. Distinct from a refusal
+   on purpose - only one of the three is a verdict on the decision. */
+.is-queued .refusalpanel-kind { background: var(--faint); color: var(--st-proposal); }
+.is-stalled .refusalpanel-kind { background: var(--faint); color: var(--blocked); }
+.is-error .refusalpanel-kind { background: var(--faint); color: var(--faint-ink); }
 .refusalpanel-msg { color: var(--ink); }
+
+/* ---- intent-feed chips (add-ideation-intent-plane task 4.4, ruling D-1) ----
+   The hosted overlay's per-target lifecycle indicators, rendered beside the
+   dispose tray from the JOINED feed (the inbox's pending list plus the
+   committed intents this serve reads out of the corpus). They decorate; they
+   never restyle a tile's own snapshot-derived state, which is what keeps the
+   two planes separate on screen. Every colour is a shared token, so the chips
+   theme in light, dark and auto without a second rule set. */
+.intentchips { display: inline-flex; gap: 4px; margin-left: 6px; align-items: center; }
+.intentchip {
+  font-family: var(--mono); font-size: 9px; line-height: 1.6;
+  border-radius: 999px; padding: 0 6px; border: 1px solid transparent;
+  background: var(--faint); color: var(--muted); white-space: nowrap;
+}
+.intentchip-pending { color: var(--st-proposal); border-color: var(--st-proposal); }
+.intentchip-applied { background: var(--good-bg); color: var(--good); }
+.intentchip-refused { background: var(--blocked-bg); color: var(--blocked); }
+.intentchip-stalled { color: var(--blocked); border-color: var(--blocked); }
+.intentchip-error { color: var(--faint-ink); border-color: var(--border); }
 .gatebtn-live { border-color: var(--good); }
 
 /* ---- settings panel (header gear, views/settings.js) -----------------------
