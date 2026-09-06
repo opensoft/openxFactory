@@ -383,7 +383,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   the two assembly-root trees (`openDox` root and `openXdox` root, both listed
   under 1.3's tree reads) and in none of the four legs' trees — matching the
   amended scope exactly.
-- [ ] 1.5 `[oD]` `[oXd]` Branch-protection ruleset created in **EVALUATE** mode in
+- [x] 1.5 `[oD]` `[oXd]` Branch-protection ruleset created in **EVALUATE** mode in
   each, promoted to **ACTIVE** once its required check has reported once. Ruleset
   state is a repository setting, not a tree fact, and gets its own evidence line.
   *(Amended 2026-09-05: in each of SIX, not each of two. The EVALUATE→ACTIVE
@@ -402,12 +402,22 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   `{"name":"Require validate check","enforcement":"evaluate"}` (created
   2026-09-06T04:50Z; `validate` had already reported SUCCESS on PRs #1/#2 of
   each; promotion to ACTIVE is OFFERED to Brett, not performed). Two org
-  rulesets (`18834180`, `8981805`) also bind all six. The item's own bar —
-  "promoted to ACTIVE once its required check has reported once" — is met for
-  openDox's three and NOT YET met for openXdox's three (the promotion act
-  itself is what is pending, not a missing check run), so this item is **NOT
-  ticked**: it ticks when Brett promotes openXdox's three (or rules
-  otherwise).
+  rulesets (`18834180`, `8981805`) also bind all six.
+
+  **DONE — 2026-09-06T08:56Z.** All six repository rulesets requiring the
+  `validate` status check are **ACTIVE**: openDox — `openDox` `22364975`,
+  `openDox-spec` `22364961`, `openDox-code` `22364973` (created EVALUATE,
+  `validate` reported on each repo's PR #2, promoted ACTIVE 2026-09-06
+  ~02:1xZ); openXdox — `openXdox` `22371409`, `openXdox-spec` `22371411`,
+  `openXdox-code` `22371412` (created EVALUATE 04:50Z, `validate` reported
+  on PRs #1/#2 of each, promoted ACTIVE 08:56Z on Brett Heap's ruling
+  https://github.com/opensoft/openxFactory/issues/656#issuecomment-5558170462
+  — "§ 1.5 rulesets: PROMOTE openXdox's three to ACTIVE"). Each requires the
+  `validate` status check on the default branch. Ruleset state read back
+  live via `gh api repos/opensoft/<repo>/rulesets/<id>`:
+  `{"name":"Require validate check","enforcement":"active"}` for all six,
+  including a fresh read of openXdox's three (`22371409`, `22371411`,
+  `22371412`) confirming the promotion took.
 - [x] 1.6 `[oxF]` **Amendment 3 APPLIED** to `docs/openxdox-naming.md`, text as
   drafted at `design.md` § D8, in the SAME pull request as 1.1/1.2. The record is
   `ratified`; this is an amendment, not a rewrite. *(Amended 2026-09-05: its
