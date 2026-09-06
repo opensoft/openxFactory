@@ -90,10 +90,18 @@ ratify this text; task 5.4 records ratification when it happens.
 - [ ] 5.1 **Step 3 — `adopt-openspec-cli-pin-gate` in codexFactory**: the gate
       leg that runs `scripts/validate-openspec-cli-pin.py --all` in codexFactory
       CI. Not here; it belongs in codexFactory and cannot land before this
-      change merges.
+      change merges. **DONE 2026-09-06, codexFactory #227
+      `adopt-openspec-cli-pin-gate` (`bb66d85c`).** Landed in codexFactory's
+      own pull request, not this one, so this box stays UNTICKED under this
+      file's own rule; recorded as ticked at `add-openspec-cli-pin` task 6.1.
 - [ ] 5.2 **codexFactory's `stack.yaml` re-pin** to an openxFactory commit AT OR
       AFTER this change's merge. An earlier pin resolves a pin file without
       these two entries and the gate fails on its first run. Step 3's job.
+      **DONE 2026-09-06, same pull request (codexFactory #227,
+      `bb66d85c`):** `stack.yaml`'s `xfactory.contract_ref` moved to
+      `724a2a4f` — this change's own merge commit, AT it rather than merely
+      after. Landed in codexFactory's own pull request, so this box stays
+      UNTICKED under this file's own rule.
 - [ ] 5.3 **Task 6.1 of `add-openspec-cli-pin` and task 6.3 of
       `bump-openspec-cli-pin-to-1.12` stay UNTICKED.** They describe the WIRING,
       which is step 3. A tick that ran ahead of the act is the thing this estate
