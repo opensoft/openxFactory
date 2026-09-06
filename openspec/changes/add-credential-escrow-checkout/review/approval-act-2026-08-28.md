@@ -27,8 +27,11 @@ act that ADMITTED the packet, and it is not a running log of later acts.
 - **Mutating commit:** `f5e53364` (2026-08-28 21:25:37 -0400, brettheap,
   *"The veto sent the schema back, so the packet's delta names six record kinds
   and its own record says who moved it"*) — the only commit after ratification
-  that changed this file's bytes. It added 31 lines to `origin.reason` and
-  rewrote 2 lines of `origin.approved_by` into 9.
+  that changed this file's bytes. In `origin.reason` it made two insertions
+  of 20 and 4 lines (24 lines total); in `origin.approved_by` it rewrote 2
+  lines into 9. Net growth of the whole `origin:` block is 31 lines (33
+  added, 2 removed) — `git diff -U0 03244fad f5e53364 --
+  openspec/changes/add-credential-escrow-checkout/.openspec.yaml`.
 
 ## The act itself
 
@@ -120,7 +123,9 @@ declaration removes no unique copy of it:
   SAME DAY CLOSED THE VETO WINDOW AND CHANGED THIS PACKET'S SHAPE."**
 - `proposal.md` § Orchestrator decisions — the per-decision rulings.
 - `tasks.md` header — *"THIS FILE CHANGED SHAPE ON 2026-08-28"* — and § 1.1,
-  § 1.5, § 1.7, § 2.5 and § 3.1, which name the veto as the mover.
+  § 2.5 and § 3.1, which name the veto as the mover (§ 1.5 and § 1.7 do not:
+  neither names the veto or OD-2 — `grep -n 'veto\|OD-2'
+  openspec/changes/add-credential-escrow-checkout/tasks.md`).
 
 ## Disposition
 
