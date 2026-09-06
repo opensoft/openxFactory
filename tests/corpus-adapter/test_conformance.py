@@ -79,7 +79,9 @@ from corpus_adapter_openxfactory import (  # noqa: E402
     OpenxFactoryCorpusAdapter,
     home_corpus,
 )
+from corpus_adapter_openxfactory.home import home_shape  # noqa: E402
 from corpus_adapter_openxfactory.shape import CorpusShape, Scope  # noqa: E402
+from corpus_adapter_openxfactory.write_path import apply_lane_write_path  # noqa: E402
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -118,16 +120,57 @@ def _home():
     return built.adapter, built.ref
 
 
+#: Every request the dispatchable fixture's write path is handed. A LIST, not a
+#: count, so a test can say what was dispatched as well as how often.
+DISPATCH_LOG: list = []
+
+
+def _dispatchable():
+    """A corpus whose declared write path is genuinely REACHABLE.
+
+    WHY THIS FIXTURE HAD TO EXIST. Every other corpus in this suite resolves
+    against a write path that is either absent or unavailable, so the guard that
+    refuses a MISMATCHED path name was never the guard that fired — the
+    availability guard behind it caught everything first, and deleting the
+    mismatch guard left the whole suite green. A conformance suite that cannot
+    distinguish two guards is not testing either of them.
+
+    The injected dispatcher RECORDS and does nothing: no workflow is invoked by
+    this suite. What it buys is the one branch nothing else reaches — an adapter
+    whose own path IS open, where a forged reference is the only thing standing
+    between a caller and a real dispatch.
+    """
+    DISPATCH_LOG.clear()
+    shape = replace(home_shape(verdict_groups=HOME_VERDICT_GROUPS),
+                    write_path=apply_lane_write_path(
+                        dispatch=lambda request, proposal: DISPATCH_LOG.append(request)))
+    return OpenxFactoryCorpusAdapter(shape), home_corpus().ref
+
+
+def dispatches_recorded(name: str) -> int | None:
+    """How many dispatches this fixture's write path has taken, or None where
+    the fixture instruments none.
+
+    Implementation-supplied because only an implementation can instrument its
+    own path. The assertions below read the COUNT and nothing else.
+    """
+    return len(DISPATCH_LOG) if name == DISPATCHABLE_ID else None
+
+
 def adapter_for(location) -> CorpusAdapter:
     """A conformant adapter to point at an arbitrary location."""
     return OpenxFactoryCorpusAdapter(NEUTRAL_SHAPE)
 
 
 #: (id, factory). Each factory returns `(adapter, ref)` for a RESOLVABLE corpus.
-FACTORIES = (("neutral", _neutral), ("empty", _empty), ("home", _home))
+FACTORIES = (("neutral", _neutral), ("empty", _empty), ("home", _home),
+             ("dispatchable", _dispatchable))
 
 #: Which of them is the genuinely empty one — a fixture label, not a branch.
 EMPTY_ID = "empty"
+
+#: Which of them has a genuinely reachable write path — likewise a label.
+DISPATCHABLE_ID = "dispatchable"
 
 #: A path that exists and is not a directory.
 NOT_A_DIRECTORY = FIXTURES / "not-a-directory"
@@ -200,15 +243,18 @@ def check_write_back_honours_what_resolve_declared(adapter, ref) -> None:
                 f"{CORPUS_READ_ONLY}; got {kind}")
         else:
             assert kind == WRITE_PATH_UNREACHABLE, (
-                "a corpus with a declared but unreachable write path must "
-                f"refuse {WRITE_PATH_UNREACHABLE}; got {kind}")
+                "a corpus with a declared write path that will not carry this "
+                f"write must refuse {WRITE_PATH_UNREACHABLE}; got {kind}")
             assert refused.refusal.subject == resolved.write_path, (
                 "the refusal must NAME the declared path so an operator knows "
                 f"what to go and look at; got {refused.refusal.subject!r}")
-            assert not resolved.write_path_available, (
-                "resolution reported the path AVAILABLE and the write refused "
-                "it as unreachable — the two answers must agree")
+            # An UNAVAILABLE path refuses every document. An AVAILABLE one may
+            # still refuse a particular document that has no target on it, and
+            # that is not a contradiction — both refusals name the path.
     else:
+        assert resolved.write_path_available, (
+            "a write DISPATCHED through a path resolution had reported "
+            "unavailable — the receipt and the resolution must agree")
         assert isinstance(receipt, WriteReceipt) and receipt.correlation_id, (
             "a dispatched write returns a correlation identifier")
         assert receipt.dispatched_to == resolved.write_path
@@ -222,7 +268,8 @@ def check_write_back_honours_what_resolve_declared(adapter, ref) -> None:
             "of the result'")
 
 
-def check_a_forged_reference_cannot_open_the_write_path(adapter, ref) -> None:
+def check_a_forged_reference_cannot_open_the_write_path(adapter, ref,
+                                                       witness=None) -> None:
     """Requirement 3, against a caller that did not come through `resolve`.
 
     `ResolvedCorpus` is PLAIN DATA. Nothing stops a caller — or a consumer that
@@ -237,6 +284,18 @@ def check_a_forged_reference_cannot_open_the_write_path(adapter, ref) -> None:
     not satisfy this check — it is what an implementation raises on its way to a
     dispatch it should never have reached, and it stops being raised at all the
     moment a real dispatcher is injected.
+
+    `witness`, where a fixture supplies one, reports how many dispatches its
+    write path has taken. A refusal that nonetheless moved that number is not a
+    refusal, and on a fixture whose path is genuinely OPEN it is the only thing
+    that tells a real refusal from one raised after the dispatch already
+    happened.
+
+    Forging AVAILABILITY is only a forgery on a corpus that reported itself
+    unavailable; where the path is already open there is nothing to forge, and
+    a write that succeeds there is correct rather than a defect. Which of the
+    two applies is read from the adapter's own report, so this stays a statement
+    about any implementation.
     """
     resolved = adapter.resolve(ref)
     listed = adapter.list_documents(resolved, SCOPE_ALL)
@@ -256,11 +315,15 @@ def check_a_forged_reference_cannot_open_the_write_path(adapter, ref) -> None:
               for document in sample
               if (Path(resolved.location) / document.key).is_file()}
 
-    forgeries = (
-        ("available", replace(resolved, write_path_available=True)),
+    dispatches_before = None if witness is None else witness()
+
+    forgeries = [
         ("renamed", replace(resolved, write_path="a-path-this-adapter-never-declared",
                             write_path_available=True)),
-    )
+    ]
+    if not resolved.write_path_available:
+        forgeries.insert(0, ("available",
+                             replace(resolved, write_path_available=True)))
     for label, forged in forgeries:
         for document in sample:
             try:
@@ -283,6 +346,11 @@ def check_a_forged_reference_cannot_open_the_write_path(adapter, ref) -> None:
     for key, bytes_before in before.items():
         assert (Path(resolved.location) / key).read_bytes() == bytes_before, (
             f"a forged write changed {key} on disk")
+    if witness is not None:
+        assert witness() == dispatches_before, (
+            "a forged reference reached the dispatcher. It refused afterwards, "
+            "which is worse than not refusing at all: the governed path was "
+            "already entered")
 
 
 # -- the standard ----------------------------------------------------------
@@ -499,7 +567,69 @@ def test_write_back_never_writes_the_corpus_tree(name):
 @pytest.mark.parametrize("name", IDS)
 def test_a_forged_reference_cannot_open_the_write_path(name):
     adapter, ref = dict(FACTORIES)[name]()
-    check_a_forged_reference_cannot_open_the_write_path(adapter, ref)
+    check_a_forged_reference_cannot_open_the_write_path(
+        adapter, ref, witness=lambda: dispatches_recorded(name))
+
+
+def test_a_reachable_write_path_dispatches_once_and_only_for_its_own_name():
+    """The branch every other fixture leaves untested: the path is OPEN.
+
+    Both sides of the same fixture, in order, because each is the other's
+    control. FIRST a legitimate `resolve()` + `write_back` must actually
+    dispatch — otherwise "it refused" proves nothing, since a corpus that
+    refuses everything would pass every assertion about refusing. THEN the SAME
+    document under a reference naming a path this adapter does not serve must
+    refuse, and the dispatcher must not move.
+
+    Without this, a mismatched path name is caught only by the availability
+    guard sitting behind it, and deleting the mismatch check leaves a green
+    suite — measured, which is why this test exists.
+    """
+    adapter, ref = dict(FACTORIES)[DISPATCHABLE_ID]()
+    resolved = adapter.resolve(ref)
+    assert resolved.write_path is not None and resolved.write_path_available, (
+        "this fixture's whole purpose is a write path that is genuinely open")
+
+    listed = adapter.list_documents(resolved, SCOPE_ALL)
+    stride = max(1, len(listed) // SAMPLE)
+    sample = listed[::stride][:SAMPLE]
+    baseline = dispatches_recorded(DISPATCHABLE_ID)
+    assert baseline == 0
+
+    # 1. a legitimate write DISPATCHES.
+    accepted, receipt = None, None
+    for document in sample:
+        try:
+            receipt = adapter.write_back(
+                resolved, document, b"a proposed body\n", actor="conformance-suite",
+                basis_revision=resolved.revision or "0" * 40, reason="conformance")
+        except CorpusRefused:
+            continue                      # no target on this path; try the next
+        accepted = document
+        break
+    assert accepted is not None, (
+        "the fixture must hold at least one document its own write path "
+        "accepts, or the refusal in step 2 proves nothing")
+    assert receipt.dispatched_to == resolved.write_path
+    assert receipt.correlation_id
+    assert dispatches_recorded(DISPATCHABLE_ID) == baseline + 1, (
+        "a receipt was returned without the path being entered")
+
+    on_disk = Path(resolved.location) / accepted.key
+    bytes_after_dispatch = on_disk.read_bytes()
+
+    # 2. the SAME document, under a reference naming another path, must refuse
+    #    — and must not reach the dispatcher on its way there.
+    forged = replace(resolved, write_path="a-path-this-adapter-never-declared")
+    with pytest.raises(CorpusRefused) as excinfo:
+        adapter.write_back(forged, accepted, b"forged\n", actor="forger",
+                           basis_revision=resolved.revision or "0" * 40)
+    assert excinfo.value.refusal.kind == WRITE_PATH_UNREACHABLE
+    assert dispatches_recorded(DISPATCHABLE_ID) == baseline + 1, (
+        "the forged name reached the dispatcher: a reference naming a path this "
+        "adapter does not serve was dispatched through the one it holds")
+    assert on_disk.read_bytes() == bytes_after_dispatch, (
+        "and a DISPATCHED write still never touches the corpus tree")
 
 
 # -- the teeth --------------------------------------------------------------
