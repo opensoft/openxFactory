@@ -24,6 +24,20 @@ only on merged plus green realization evidence, and this packet's own
 `target_release:` names ONE COMPLETE CYCLE OBSERVED UNATTENDED as that
 evidence.
 
+**2026-09-06, LATER THE SAME DAY — THE TWO PARAGRAPHS ABOVE ARE KEPT UNCHANGED
+AND ARE STILL THE RECORD; what follows is the state now.** The realization
+LANDED (PR [#715](https://github.com/opensoft/openxFactory/pull/715), squash
+`1897f282`), a defect the first cycle then found in it was repaired (PR
+[#726](https://github.com/opensoft/openxFactory/pull/726), squash `0f9361e0`),
+both lanes ran unattended on their own hourly schedules, and **the first cycle
+was OBSERVED**. Group 5 is therefore no longer entirely unticked: 5.2, 5.3, 5.4 and 5.7 tick
+on run ids, pull requests and merge commits named on their own lines, and
+**5.1, 5.5 and 5.6 STAY OPEN** — each says why in its own place; none is open
+for want of work here, and 5.6 carries its measurement and says why it is not
+yet the figure the box asks for. **Group 6 still stays unticked by rule**;
+6.4's act was taken and is recorded as a dated note beneath it, the way 6.1's
+and 6.2's are. Nothing is archived by this file: the archive is a separate word.
+
 ## 1. The proposal itself
 
 - [x] 1.1 Author the packet — `proposal.md`, `design.md`, the
@@ -372,23 +386,174 @@ codexFactory `main` is byte-identical to the vendored snapshot at this head
 now**: the lane's correct behaviour today is the named no-op, and the first
 cycle will have to wait for a real promotion.
 
+**2026-09-06 — THE PARAGRAPH ABOVE IS THE RECORD OF THIS GROUP BEFORE THE FIRST
+CYCLE AND IS KEPT UNCHANGED; what follows is what was OBSERVED.** The cycle ran
+on 2026-09-06 and is recorded box by box below, every claim carrying the run id,
+pull request or merge commit it was read from, and every quotation taken from
+the run log or the pull-request body rather than from a report about it. Two
+facts about the cycle are stated here rather than left to be inferred from the
+boxes:
+
+1. **It was NOT the cycle 5.1 describes, and that is the RULING's doing rather
+   than a shortfall.** Brett Heap ruled the pin-only reading on codexFactory
+   [#232](https://github.com/opensoft/codexFactory/issues/232) at
+   2026-09-06T08:43Z, verbatim *"merge both when green, pin-only reading
+   stands"*: a regeneration whose only movement is `generated_at` IS a
+   regeneration the lane proposes. What ran was exactly that — block
+   `entry_count` 60 → 60, `added []`, and **no `openspec/specs/**` promotion
+   anywhere in the chain**. 5.1 and 5.5 each need a promotion to have happened,
+   so each stays open. The `target_release:` line in `proposal.md` names *"a
+   real `openspec/specs/**` promotion here"* as part of its archive evidence
+   and is NOT edited by this file; whether the ruled pin-only cycle discharges
+   it is the archive word's question, not this record's.
+2. **The cycle found THREE defects, one of them here, and all three were found
+   by RUNNING rather than by review.** codexFactory's tests carried a live-pin
+   literal that reddened every bot regeneration (fix codexFactory #252 →
+   `91fc95f5`); codexFactory's regeneration lane force-pushed its update path
+   into a `non_fast_forward` ruleset (fix codexFactory #260 → `f430cf7e`); and
+   **this repository's own lane minted a token with no `workflows` permission
+   although two of its five pinned sites are workflow files** (fix
+   [#726](https://github.com/opensoft/openxFactory/pull/726) → `0f9361e0`).
+   Each is named on the box whose evidence it belongs to.
+
 - [ ] 5.1 A real `openspec/specs/**` promotion lands here and the advisory lane
   reports `pending_floor_extension` with a non-zero count — quoted verbatim.
-- [ ] 5.2 The codexFactory regeneration pull request is opened BY THAT LANE, with
+  **STAYS OPEN, AND NOT FOR WANT OF A CYCLE.** The first observed cycle carried
+  no `openspec/specs/**` promotion at all — see the group note above — so there
+  was never a non-zero count to quote. codexFactory bot PR
+  [#248](https://github.com/opensoft/codexFactory/pull/248), the regeneration
+  that opened the cycle, witnesses it in its own body: *"block `entry_count`:
+  60 → 60"* and *"The covered-pending set this regeneration discharges: None.
+  No entry this block adds was covered-pending in the measured window."* The
+  advisory reading taken on the re-pin pull request itself (openxFactory run
+  [34066687712](https://github.com/opensoft/openxFactory/actions/runs/34066687712),
+  step `Evaluate the openxFactory repository gate floor`) is
+  `covered-pending:       0 (tolerance 3, pin measured)`. The box waits on a
+  real promotion, which is a corpus event no lane can manufacture and which
+  this record will not simulate.
+- [x] 5.2 The codexFactory regeneration pull request is opened BY THAT LANE, with
   no operator running the generator.
-- [ ] 5.3 The re-pin pull request is opened BY THIS LANE, with no operator
+  **OBSERVED 2026-09-06T09:24:11Z.** codexFactory `floor-regeneration` run
+  [34024535671](https://github.com/opensoft/codexFactory/actions/runs/34024535671)
+  — `event: schedule`, `conclusion: success`, 09:23:54Z → 09:24:16Z (22 s) —
+  opened codexFactory PR
+  [#248](https://github.com/opensoft/codexFactory/pull/248) *"Regenerate the
+  openxFactory review-authority floor block at
+  1897f282af4558244f79a5cc2415d3623803a425 (60 -> 60 entries)"*, author
+  `app/openxfactory` (a bot, not a person), head `floor/bot-regeneration`, body
+  line 1 `Lane: floor-regeneration-bot`. **No operator ran the generator, and
+  the pull request says how the commit was chosen rather than leaving it to be
+  trusted:** *"`refs/remotes/origin/main`, resolved by the lane at run time. No
+  trigger payload named it; this CLI carries no `--ref`."* The run's own trigger
+  is the `17 * * * *` sweep — the mechanism M-1 required to be sufficient alone
+  — and no dispatch was sent to it by this repository, because none is built
+  here (§ 3's note on the outbound leg).
+- [x] 5.3 The re-pin pull request is opened BY THIS LANE, with no operator
   copying a digest; the five sites are verified by reading them back from the
   merged commit, not from the lane's own report.
-- [ ] 5.4 The required suite judges that pull request GREEN with no exemption —
+  **OBSERVED 2026-09-06T23:22:06Z, AND READ BACK FROM THE MERGED COMMIT.**
+  `review-lane-repin` run
+  [34066668104](https://github.com/opensoft/openxFactory/actions/runs/34066668104)
+  — `event: schedule`, 23:21:43Z → 23:22:11Z (28 s), `success` — minted both
+  tokens, resolved codexFactory's default branch for itself (`resolved
+  opensoft/codexFactory@main = 19f2ab0c9f04d4cf24af11c2551cb1a19263e41b (compare
+  status identical)`), measured the disagreement, advanced the five sites,
+  re-read them, and opened [#732](https://github.com/opensoft/openxFactory/pull/732)
+  (*"Advance the pinned decision core to 19f2ab0c…"*, author `app/openxfactory`,
+  head `bot/review-lane-repin`, 4 files +7/-7, body line 1 `Lane:
+  review-lane-repin-bot`). **No operator copied a digest**: the body says the
+  snapshot's `sha256` is computed from the bytes the lane wrote and gives the
+  one-line command to recompute it. **The five sites, read back from the MERGED
+  commit `9ffc62529859a9e8dfba2ada8017f46e22ab3936` and not from the lane's
+  report:** `contracts/review-lane-pin.yaml` l.60 `core_commit:
+  "19f2ab0c9f04d4cf24af11c2551cb1a19263e41b"`, l.630 `sha256:
+  "1a0bff1b5a636f815452aa8c3c7ceffdddc33e76653925fc431a6f956d668907"`, l.631
+  `entry_count: 68`; `.github/workflows/merge-master-approval.yml` l.410
+  `PINNED_CORE_COMMIT: "19f2ab0c…"` and l.525 `ref: "19f2ab0c…"`;
+  `.github/workflows/pytest-suite.yml` l.397 `ref: "19f2ab0c…"`. The vendored
+  snapshot's bytes at that commit hash to `1a0bff1b5a63…` (`sha256sum` over the
+  raw file), equal to codexFactory's floor document at `19f2ab0c` hashed the same
+  way — the byte copy is a byte copy.
+- [x] 5.4 The required suite judges that pull request GREEN with no exemption —
   and the byte-identity freshness verifier is confirmed to have RUN, by name, on
   it.
+  **OBSERVED.** `pytest-suite` run
+  [34066687673](https://github.com/opensoft/openxFactory/actions/runs/34066687673)
+  on #732's head `7a7b5764`: `9967 passed, 21 skipped, 338 deselected, 9
+  warnings, 93 subtests passed in 1381.80s`; the pinned triple `selected=10081
+  passed=10060 skipped=21 failures=0 errors=0` — `skipped==21` is the pinned
+  count, unchanged, so no exemption was taken; and the verifier BY NAME, printed
+  by the workflow's own named-testcase watch: `freshness verifier
+  (tests.review_lane_pin.test_floor_snapshot.TheFreshnessVerifier::test_the_snapshot_is_byte_identical_to_the_pinned_core):
+  passed`, run against the candidate core the step `Check out the pinned
+  decision core (freshness verifier only)` fetched at
+  `19f2ab0c9f04d4cf24af11c2551cb1a19263e41b`. The other seven checks were green;
+  `lane-line` skipped by design for a bot author.
 - [ ] 5.5 Both merge on a human word, and `covered-pending` returns to zero on
   the next main run — quoted verbatim from that run.
+  **HALF OBSERVED, HALF NOT OBSERVABLE ON THIS CYCLE — STAYS OPEN.** Both halves
+  merged on a human word: codexFactory #248 → `7f147070a8497038e96040ced403ee84d4044bd1`
+  (2026-09-06T11:26:25Z, *"merge 248, then report the re-pin sweep when it
+  lands"*); #254 → `307d38f10705033e3e095270d81b37f12844d970` (20:25:18Z,
+  *"granted workflows, merge 254, then report the re-pin sweep when it lands"*);
+  this repository's #732 → `9ffc62529859a9e8dfba2ada8017f46e22ab3936` (23:46:27Z,
+  *"merge 732 when green, then tick section 5 in both packets"*). But
+  `covered-pending` cannot RETURN to zero on a cycle in which it never left zero
+  (5.1): the advisory reading on #732 itself was `covered-pending:       0 (tolerance 3, pin measured)` (run
+  [34066687712](https://github.com/opensoft/openxFactory/actions/runs/34066687712)).
+  Ticks on the first cycle that starts from a non-zero count, and not before.
 - [ ] 5.6 The end-to-end wall time is measured and recorded against the two hand
   cycles in `proposal.md` § Why (55 min and 77 min).
-- [ ] 5.7 ONE observed refusal on a real run, of any kind (non-landed core, a
+  **MEASURED AND RECORDED — NOT YET THE FIGURE THE BOX ASKS FOR, SO IT STAYS
+  OPEN.** From the regeneration lane's first firing (run 34024535671,
+  2026-09-06T09:23:54Z) to #732's merge (23:46:27Z): **14 h 22 min 33 s**. From
+  the floor's last movement on codexFactory `main` (#254 → `307d38f1`, 20:25:18Z)
+  to #732's merge: **3 h 21 min 09 s**, of which about three hours were this
+  lane's mint refusing until the owner's grant landed (§ 6.4, 5.7). The lane's own
+  unattended latency once it could mint: sweep 23:21:43Z → pull request
+  23:22:06Z (23 s) → merged 23:46:27Z. Against the 55 min and 77 min HAND cycles
+  in `proposal.md` § Why: LANE TIME — an operator authoring the advance — was
+  ZERO in this cycle, which is the claim; WALL TIME was attended by three repairs
+  and one grant wait, so the comparable unattended figure is owed on the first
+  repair-free cycle.
+- [x] 5.7 ONE observed refusal on a real run, of any kind (non-landed core, a
   site that did not move, an unresolved binding), quoted verbatim — or the box
   stays OPEN and says so rather than being ticked on a test-only observation.
+  **OBSERVED — TWO KINDS, on eleven of this lane's own scheduled runs, neither
+  of them test-only.**
+
+  1. **DELIVERY REFUSED, seven consecutive runs** (34033398015 12:32Z,
+     34035893707, 34038978080, 34042099357, 34045360684, 34048314680 and
+     34051714881 18:26Z — every one failing at the step `Open or update the
+     single automated advance`). Everything upstream had worked on a real
+     advance; the push was refused, quoted verbatim from run 34033398015's log:
+
+     ```
+      ! [remote rejected]   bot/review-lane-repin -> bot/review-lane-repin (refusing to allow a GitHub App to create or update workflow `.github/workflows/merge-master-approval.yml` without `workflows` permission)
+     ```
+
+     This is defect 3, and it is a defect of THIS packet's realization: two of
+     the five pinned sites are workflow files and the mint asked for no
+     `workflows` permission. Repaired by
+     [#726](https://github.com/opensoft/openxFactory/pull/726) → `0f9361e0`.
+
+  2. **THE BINDING'S OWN FAIL-LOUD REFUSAL — the kind this box names — on four
+     consecutive hourly firings** (34054557033 19:19Z, 34057874428 20:24Z,
+     34060823926 21:21Z, 34063839864 22:22Z, every one failing at the step
+     `Mint the lane's App token`, with the codexFactory READ token already
+     minted one step earlier). Quoted verbatim from run 34054557033's log:
+
+     ```
+     ##[error]The permissions requested are not granted to this installation. - https://docs.github.com/rest/reference/apps#create-an-installation-access-token-for-an-app
+     ```
+
+     **Nothing downstream ran and nothing was half-written**: the run's step
+     list stops at the mint. This is task 3.8's *"FAIL LOUD when it does not
+     resolve"* observed on real runs rather than asserted in a test — the lane
+     refused for four hours rather than degrading, and it refused **because
+     #726 had just made the mint ask out loud for the permission it needs**, so
+     the repair to defect 3 turned a silent push failure into a named refusal
+     at the first step. It cleared only when the owner's grant landed (§ 6.4).
 
 ## 6. Owner's acts (not an agent's)
 
@@ -427,3 +592,24 @@ cycle will have to wait for a real promotion.
   the same capability and both appear in this packet on purpose.) **It needs no
   write privilege over codexFactory and the binding declares that it must not
   have one.** No box is ticked here: an agent may not tick an owner's-act box.
+  **2026-09-06 — TAKEN, IN TWO PARTS, AND THE BOX STAYS UNTICKED for the reason
+  6.1's and 6.2's do.** (a) The grant this box actually names was ALREADY in
+  place when the lane first fired: openxFactory run
+  [34024566099](https://github.com/opensoft/openxFactory/actions/runs/34024566099)
+  (schedule, 09:24Z, success) minted both tokens and ran to the correct named
+  no-op, so nothing was owed on the wording above. (b) **A grant this box did
+  NOT name turned out to be needed** — `workflows: write` on the openxFactory
+  installation, because two of the five pinned sites are workflow files (defect
+  3, recorded at 5.7). Brett Heap gave it on codexFactory
+  [#232](https://github.com/opensoft/codexFactory/issues/232) at
+  2026-09-06T20:25:29Z, verbatim **"granted workflows, merge 254, then report
+  the re-pin sweep when it lands"**. The installation's acceptance lagged the
+  word — the API still reported the old four-permission set at 22:42Z — and the
+  MINT, not the API, is the ground truth: run
+  [34066668104](https://github.com/opensoft/openxFactory/actions/runs/34066668104)
+  (23:21Z) minted successfully and opened
+  [#732](https://github.com/opensoft/openxFactory/pull/732). What the App holds
+  and what the lane asks for were made equal again by
+  [#726](https://github.com/opensoft/openxFactory/pull/726) → `0f9361e0`, which
+  moved the binding template's grants and the mint together, the test holding
+  them equal moving with them.
