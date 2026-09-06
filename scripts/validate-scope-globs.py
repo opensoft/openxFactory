@@ -37,9 +37,10 @@ Usage:
 
         EVERY failure of this gate to RUN is a named finding with exit 2, never
         a traceback: the id has no proposal.md at REF, REF does not name a
-        commit, CHANGE_DIR is not inside a git work tree, or the ratified or
-        current front-matter cannot be read. A scope MUTATION — the gate
-        running and finding a broken freeze — is exit 1.
+        commit, CHANGE_DIR is not inside a git work tree, CHANGE_DIR carries no
+        proposal.md in the WORKING TREE, or the ratified or current front-matter
+        cannot be read. A scope MUTATION — the gate running and finding a broken
+        freeze — is exit 1.
 """
 from __future__ import annotations
 

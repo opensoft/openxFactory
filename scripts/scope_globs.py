@@ -557,7 +557,9 @@ def scope_retention_at_archive(change_dir: str | Path, ratified_ref: str) -> str
 
     Raises `ScopeGlobsResolutionError` (never a traceback) when the change id
     has no `proposal.md` at `ratified_ref`, when `ratified_ref` does not name a
-    commit, or when `change_dir` is not inside a git work tree at all."""
+    commit, when `change_dir` is not inside a git work tree at all, or when
+    `change_dir` carries no `proposal.md` IN THE WORKING TREE — the current-side
+    declaration cannot be read, so the gate cannot run."""
     change_path = Path(change_dir).resolve()
     proposal = change_path / "proposal.md"
     repo_root = _git_toplevel(change_path)
@@ -576,5 +578,25 @@ def scope_retention_at_archive(change_dir: str | Path, ratified_ref: str) -> str
         # re-raised as this module's own, message intact.
         raise ScopeGlobsResolutionError(str(exc)) from exc
     ratified = scope_globs_at_ref(repo_root, ratified_ref, ratified_rel)
-    current = read_scope_globs(proposal) if proposal.is_file() else None
+    if not proposal.is_file():
+        # A MISSING CURRENT-SIDE PROPOSAL IS "CANNOT RUN", NOT A COMPARISON
+        # INPUT. Reading it as "no scope declared" made the gate answer a
+        # question it had not asked: a ratified-absent change reported RETAINED
+        # (both sides `None`) and a ratified-present one reported a contested
+        # MUTATION — a scope the author never removed, because the file holding
+        # it is simply not there. Both readings are wrong in the same way, and
+        # the CLI's own contract already says so: every failure to READ the
+        # current front matter is a named finding and exit 2.
+        #
+        # KNOWN DIVERGENCE FROM THE SIBLING GATE, deliberately not fixed here:
+        # `sequenced_after.retention_at_archive` reads this same case as ABSENT
+        # and compares on. `scripts/sequenced_after.py` is outside this change's
+        # declared scope, so the alignment is recorded as a follow-on rather
+        # than taken in this PR.
+        raise ScopeGlobsResolutionError(
+            f"the change directory {str(change_path)!r} carries no proposal.md "
+            f"in the working tree ({str(proposal)!r}), so the CURRENT scope "
+            "declaration cannot be read at all — the gate cannot run; this is "
+            "NOT a proposal that exists and declares no scope")
+    current = read_scope_globs(proposal)
     return scope_retention_problem(ratified, current)

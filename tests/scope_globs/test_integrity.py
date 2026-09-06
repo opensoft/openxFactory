@@ -413,6 +413,46 @@ def test_a_ref_naming_a_NON_COMMIT_OBJECT_is_refused_as_an_unresolvable_ref(tmp_
     assert "does not name a commit" in str(excinfo.value)
 
 
+def test_a_MISSING_WORKING_TREE_PROPOSAL_is_a_CANNOT_RUN_finding_not_a_verdict(tmp_path):
+    # Reading an ABSENT current-side proposal as "no scope declared" made the
+    # gate answer a question it had never asked. With a scope ratified at REF it
+    # reported a contested MUTATION — a removal nobody made; with nothing
+    # ratified it reported RETAINED. Both are verdicts about a declaration the
+    # gate never read, and the CLI's own contract already calls every failure to
+    # READ the current front matter a named finding with exit 2.
+    change = _init_change(tmp_path, _SCOPE)
+    ratified_ref = _head(tmp_path)
+    # The directory has to SURVIVE the deletion, so it carries a second file —
+    # the shape a real change directory has (proposal.md beside tasks.md).
+    (change / "tasks.md").write_text("# Tasks\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(tmp_path), "add", "-A"], check=True)
+    subprocess.run(["git", "-C", str(tmp_path), "commit", "-q", "-m", "tasks"],
+                   check=True, env={**_os_environ(), **_ENV})
+    subprocess.run(["git", "-C", str(tmp_path), "rm", "-q",
+                    str(change / "proposal.md")], check=True)
+    subprocess.run(["git", "-C", str(tmp_path), "commit", "-q", "-m", "drop"],
+                   check=True, env={**_os_environ(), **_ENV})
+    assert change.is_dir() and not (change / "proposal.md").exists()
+
+    with pytest.raises(sg.ScopeGlobsResolutionError) as excinfo:
+        sg.scope_retention_at_archive(change, ratified_ref)
+    message = str(excinfo.value)
+    assert "no proposal.md in the working tree" in message, message
+    assert str(change.resolve()) in message, message
+
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), "--archive-gate", str(change),
+         "--ratified-ref", ratified_ref],
+        capture_output=True, text=True,
+    )
+    assert result.returncode == 2, (result.returncode, result.stdout, result.stderr)
+    assert "Traceback" not in result.stdout, result.stdout
+    assert "Traceback" not in result.stderr, result.stderr
+    assert "CANNOT RUN" in result.stdout, result.stdout
+    # And NOT as the mutation the old reading mistook it for.
+    assert "contested" not in result.stdout, result.stdout
+
+
 def test_the_sibling_loader_REQUIRES_every_attribute_the_gate_uses(tmp_path):
     # The cache probe accepts a module under `sequenced_after_substrate` only
     # when it carries EVERY attribute this module calls: a partial module
