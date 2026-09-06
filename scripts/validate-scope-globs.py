@@ -24,6 +24,15 @@ Usage:
 
     --archive-gate CHANGE_DIR --ratified-ref REF
         Scope-retention (freeze) gate — see the `scope-globs-integrity` feature.
+        CHANGE_DIR may name either the change's ACTIVE or its ARCHIVED
+        directory — the ratified-side proposal is always located BY CHANGE ID
+        against REF's own tree (active path first, then any archived
+        `<date>-<id>` directory), never by reusing CHANGE_DIR's current path, so
+        the gate still runs after the change has moved from its active location
+        to `openspec/changes/archive/<date>-<id>/` between ratification and
+        archive. When the id has no proposal.md at REF at all — or the ratified
+        or current front-matter cannot be read — this prints a named finding and
+        exits 2 rather than tracing back.
 """
 from __future__ import annotations
 
@@ -76,7 +85,17 @@ def validate_corpus(repo_root: Path) -> int:
 
 
 def _archive_gate(change_dir: Path, ratified_ref: str) -> int:
-    problem = sg.scope_retention_at_archive(change_dir, ratified_ref)
+    try:
+        problem = sg.scope_retention_at_archive(change_dir, ratified_ref)
+    except sg.ScopeGlobsError as exc:
+        # UNRUNNABLE IS NOT A MUTATION FINDING (exit 1) AND NOT A TRACEBACK: the
+        # id names no proposal.md at `ratified_ref`, or a proposal on either
+        # side cannot be read at all. That is a distinct fact, reported the way
+        # every other refusal in this CLI is — a named finding and exit 2, the
+        # same shape `validate-sequenced-after.py` uses for its own gate.
+        print("scope_globs SCOPE-RETENTION gate CANNOT RUN:")
+        print(f"  - {exc}")
+        return 2
     if problem is not None:
         print("scope_globs SCOPE-RETENTION gate FAILED (contested):")
         print(f"  - {problem}")

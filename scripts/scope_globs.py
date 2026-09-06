@@ -103,6 +103,73 @@ class ScopeGlobsError(Exception):
     """
 
 
+class ScopeGlobsResolutionError(ScopeGlobsError):
+    """Raised when the ratified-side `proposal.md` cannot be LOCATED at a ref.
+
+    A SUBCLASS, not a sibling: every caller that already catches
+    `ScopeGlobsError` keeps catching this one, so this module still presents a
+    single error class to its callers. It is nonetheless a DISTINCT FACT from a
+    retention finding — the gate could not run at all, rather than running and
+    finding a mutation — and `validate-scope-globs.py` reports it as such (a
+    named finding, exit 2), never as a traceback.
+    """
+
+
+def _sequenced_after():
+    """The sibling `scripts/sequenced_after.py`, imported ON FIRST USE.
+
+    THE ARCHIVE-RENAME RESOLUTION IS NOT RE-IMPLEMENTED HERE. Locating a
+    change's ratified-side `proposal.md` BY CHANGE ID at a ref — active path
+    first, then any `archive/<YYYY-MM-DD>-<id>/` directory in that ref's own
+    tree — is exactly what `sequenced_after.change_id_of_dir` and
+    `sequenced_after.proposal_path_at_ref` do for the parent-declaration freeze
+    gate (added by #638 for issue #633). The two archive gates read the SAME
+    convention over the SAME trees, so they get ONE implementation and cannot
+    drift apart. There is no import cycle: `sequenced_after` does not import
+    this module.
+
+    THE IMPORT IS DEFERRED RATHER THAN MODULE-LEVEL, DELIBERATELY. This file is
+    VENDORED BYTE-FOR-BYTE into codexFactory's merge gate
+    (`scripts/merge_master/scope_globs.py`, pinned by
+    `tests/merge-master/test_vendored_scope_globs.py`), which vendors only this
+    module and `frontmatter_strict.py`. A module-level import would make the
+    vendored copy UNIMPORTABLE — breaking every merge-gate path — until the
+    whole `sequenced_after` substrate were vendored beside it, for a function
+    the merge gate never calls (the archive freeze is a house-CLI concern).
+    Deferred, the vendored copy keeps working unchanged, and a caller that does
+    reach this path without the sibling present gets a named
+    `ScopeGlobsResolutionError` instead of an import traceback.
+
+    IT IS LOADED BY LOCATION UNDER `sequenced_after_substrate`, NOT VIA
+    `_sibling`. The bare name `sequenced_after` is AMBIENT in this repository's
+    test run: `tests/sequenced_after/` is itself a package by that name (its
+    `__init__.py` says so, and exists to stop a same-named-module collision), so
+    under pytest's prepend import mode `import sequenced_after` resolves to the
+    TEST PACKAGE, not to `scripts/sequenced_after.py`. `sequenced_after_substrate`
+    is the name that package already documents for the implementation under test,
+    reused here so both routes name one module.
+    """
+    name = "sequenced_after_substrate"
+    module = sys.modules.get(name)
+    if module is not None and hasattr(module, "proposal_path_at_ref"):
+        return module
+    path = Path(__file__).resolve().parent / "sequenced_after.py"
+    try:
+        spec = importlib.util.spec_from_file_location(name, path)
+        if spec is None or spec.loader is None:  # pragma: no cover - defensive
+            raise ImportError(f"cannot locate the sibling module at {path}")
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[name] = module
+        spec.loader.exec_module(module)
+    except (ImportError, OSError) as exc:  # pragma: no cover - vendored-copy path
+        sys.modules.pop(name, None)
+        raise ScopeGlobsResolutionError(
+            "the archive-gate needs the sibling module 'sequenced_after' to "
+            "locate the ratified-side proposal by change id, and it could not "
+            f"be loaded from {path}: {exc}") from exc
+    return module
+
+
 # --- front-matter reading ----------------------------------------------------
 #
 # Delegated to the SHARED strict loader (`scripts/frontmatter_strict.py`). The
@@ -411,11 +478,31 @@ def scope_retention_at_archive(change_dir: str | Path, ratified_ref: str) -> str
     ratified snapshot) and from the current working tree, and returns a
     contested-class problem string if they differ (None when retained). Mirrors
     the origin-retention gate's compare-recorded-vs-live mechanism via git object
-    reads."""
+    reads.
+
+    The ratified-side proposal is located BY CHANGE ID at `ratified_ref`
+    (`sequenced_after.proposal_path_at_ref`) — never by reusing `change_dir`'s
+    CURRENT path, which may name a location the id never occupied at that ref.
+    `--ratified-ref` names a commit BEFORE the archive rename, so the ratified
+    bytes sit at the change's ACTIVE path there even when `change_dir` now names
+    `openspec/changes/archive/<date>-<id>/`: reusing the current path asked git
+    for an object that never existed at the ref and died with a
+    `CalledProcessError` traceback (issue #705), on exactly the archived
+    directory the gate exists to check.
+
+    Raises `ScopeGlobsResolutionError` (never a traceback) when the change id
+    has no `proposal.md` at `ratified_ref` at all."""
     change_path = Path(change_dir)
     proposal = change_path / "proposal.md"
     repo_root = _git_toplevel(change_path)
-    proposal_rel = proposal.resolve().relative_to(repo_root.resolve()).as_posix()
-    ratified = scope_globs_at_ref(repo_root, ratified_ref, proposal_rel)
+    sa = _sequenced_after()
+    change_id = sa.change_id_of_dir(change_path)
+    try:
+        ratified_rel = sa.proposal_path_at_ref(repo_root, ratified_ref, change_id)
+    except sa.SequencedAfterError as exc:
+        # ONE ERROR CLASS FOR THIS MODULE'S CALLERS: the sibling's refusal is
+        # re-raised as this module's own, message intact.
+        raise ScopeGlobsResolutionError(str(exc)) from exc
+    ratified = scope_globs_at_ref(repo_root, ratified_ref, ratified_rel)
     current = read_scope_globs(proposal) if proposal.is_file() else None
     return scope_retention_problem(ratified, current)
