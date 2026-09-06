@@ -240,7 +240,9 @@ Grounds are in `design.md`.
   Recommended.** The App already installed here and in codexFactory
   (`secrets.OPENXFACTORY_APP_ID` / `_PRIVATE_KEY`, minted at
   `.github/workflows/pytest-suite.yml:318-324`), needing `contents: read` on
-  codexFactory and `contents: write` + `pull_requests: write` here. Declared as a
+  codexFactory and `contents: write` + `pull-requests: write` here — the workflow
+  `permissions:` spelling; the App installation permission of the same capability
+  is `pull_requests` in the App/API vocabulary. Declared as a
   binding template under `credential-contracts`, no live value. The alternative —
   `|| github.token` fallback, the pattern `pytest-suite.yml:400` uses — is
   refused for THIS lane: there the fallback degrades a `continue-on-error` step

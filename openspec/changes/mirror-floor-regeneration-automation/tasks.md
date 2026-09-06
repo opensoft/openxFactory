@@ -1,10 +1,14 @@
 # Tasks
 
-**NOTHING BELOW IS STARTED BY THE AUTHORING OF THIS PACKET, AND NO BOX IS
-TICKED BY IT.** This is a PROPOSAL. Realization begins only after ratification,
-and ratification is Brett Heap's act. Group 1's boxes are unticked deliberately:
-authoring a proposal is not discharging it, and a box that moved on authorship
-would be a false completion the moment a ratification did not follow.
+**NO REALIZATION IS STARTED BY THE AUTHORING OF THIS PACKET, AND NO BOX IS
+TICKED BY IT.** This is a PROPOSAL: groups 2 through 5 are realization work and
+begin only after ratification. **Group 1 is the exception and is deliberate** —
+it lists the PROPOSAL's own acts, the ones this packet performs, and its boxes
+are still unticked, because authoring a proposal is not discharging it and a box
+that moved on authorship would be a false completion the moment a ratification
+did not follow. Group 6 is the owner's, and its boxes stay unticked even once
+taken: an agent may not tick an owner's-act box, so those acts are recorded as
+dated notes beneath them instead.
 
 ## 1. The proposal itself
 

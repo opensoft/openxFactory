@@ -191,3 +191,29 @@ codexFactory #235 are not mirrored in this repository.
 recommended, no veto was exercised, and nothing in § "What ratification does NOT
 authorize" is relaxed.
 
+### Round-3 corrections — 2026-09-06, same word, same discipline
+
+A further Copilot round on the corrected head raised the workflow-permission
+spelling, and it was right: **the workflow `permissions:` key is
+`pull-requests`, hyphenated** — the only spelling any workflow in either
+repository uses (`pull-requests: read` ×3, `pull-requests: write` ×3 across the
+two `.github/workflows/` trees; zero underscore forms), and
+`actions/create-github-app-token`'s own input is `permission-pull-requests`. The
+underscore `pull_requests` is the App INSTALLATION permission's spelling in the
+App/API vocabulary, which both repositories' READMEs already use for App grants.
+Both sites here described what the LANE'S WORKFLOW needs, so they now carry the
+hyphen form with the App-side spelling named beside it, so neither reader nor a
+later realization can copy the wrong one into YAML.
+
+The same round found `tasks.md`'s header asserting "NOTHING BELOW IS STARTED BY
+THE AUTHORING OF THIS PACKET" above a group 1 that lists the packet's own
+authoring acts. The absolute was wrong and the header now scopes itself: no
+REALIZATION is started (groups 2–5), group 1 is the proposal's own acts with its
+boxes still unticked for the stated reason, and group 6 is the owner's, recorded
+by dated note rather than by an agent ticking it.
+
+**Still no requirement text, and still no ticked box**: EIGHT `## ADDED
+Requirements`, 24 scenarios, one `## ADDED Requirements` heading, no `##
+MODIFIED` and no `## REMOVED` block, `grep -c '- [x]'` → 0. The companion
+codexFactory #235 took the identical corrections in the same sweep.
+

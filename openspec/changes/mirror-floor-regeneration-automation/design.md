@@ -127,8 +127,8 @@ read codexFactory: `.github/workflows/pytest-suite.yml:318-324` mints
 codexFactory mints the same App from its side
 (`.github/workflows/activation-open-pr.yml:34-41`).
 
-What the lane needs beyond that: `contents: write` and `pull_requests: write` in
-THIS repository, to push a branch and open a pull request. The doc-health
+What the lane needs beyond that: `contents: write` and `pull-requests: write` in
+THIS repository, to push a branch and open a pull request. **Two vocabularies, and the hyphen one is what goes in YAML**: the workflow `permissions:` block spells it **`pull-requests`** — the only spelling any workflow in either repository uses — while the App INSTALLATION permission of the same capability is spelled `pull_requests` in the App/API vocabulary (the form both READMEs already use for App grants). `actions/create-github-app-token`'s input is `permission-pull-requests`, hyphenated like the workflow key. The doc-health
 delivery job is the shape and the precedent for those two permissions
 (`.github/workflows/doc-health-reusable.yml:1057-1066`, whose comment records
 exactly why `pull-requests: write` became necessary: org ruleset `18962101`
