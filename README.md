@@ -483,6 +483,43 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [mirror-floor-regeneration-automation](openspec/changes/mirror-floor-regeneration-automation/proposal.md)
+  — authored 2026-09-06, **`Status: draft`**, lane `openxfactory-2`, on Brett
+  Heap's word in session, verbatim *"merge 231 when green, then propose option
+  (b)"*. Governing issue codexFactory
+  [#232](https://github.com/opensoft/codexFactory/issues/232) (no separate
+  openxFactory issue was filed, by instruction); origin codexFactory
+  [#203](https://github.com/opensoft/codexFactory/issues/203). **THE COMPANION
+  HALF OF A PROPOSAL, AND NOTHING ELSE IS DONE** — no workflow file, no test, no
+  pin moved, every box in `tasks.md` unticked, ratification OWED and Brett
+  Heap's alone. The primary is codexFactory `add-floor-regeneration-automation`
+  (option (b) of #203, the one the ruled option (c) left *"not ruled and not
+  designed"*): there, a lane that runs the shipped generator at a LANDED
+  openxFactory `main` commit; **here, the RE-PIN half** — a lane that, on the
+  codexFactory floor document moving, advances the FIVE sites in one commit
+  (`contracts/review-lane-pin.yaml` `core_commit`, `merge-master-approval.yml`'s
+  `PINNED_CORE_COMMIT` and its checkout `ref:`, `pytest-suite.yml`'s checkout
+  `ref:`, and the re-copied `contracts/review-lane-floor-snapshot.yaml` with its
+  `sha256`/`entry_count` recomputed) and opens a pull request. **The measured
+  cost it answers**: the ruled tolerance of `3` (codexFactory #231,
+  `8a406b10`) bounds the grace's deferral at three paths, and discharging it took
+  **55 min** (cxF #212 → #689) and **77 min** (cxF #226 → #702) on the two cycles
+  actually run. Eight `## ADDED Requirements` on `review-lane-floor-mirror`, no
+  `## MODIFIED` and no `## REMOVED`: proposal-only authority, a landed-core
+  refusal, all-five-or-nothing proved by RE-READING each site after the write,
+  the snapshot re-copied with its witnesses recomputed from the bytes written,
+  **judgment by the freshness checks that already exist with NO exemption of any
+  kind**, the witness set the pull request must carry, sweep-as-mechanism
+  triggering, and a template-only credential binding that FAILS LOUD rather than
+  falling back. **The judge is deliberately untouched**: LQ-A7, its two negative
+  controls, the byte-identity verifier, its named-testcase watch and
+  `EXPECT_SKIPPED` are out of scope — automating the author while adjusting the
+  judge would be marking one's own homework. Seven authoring decisions M-1..M-7
+  are put for veto, M-7 among them naming a real loss (the lane writes no
+  comment-history paragraph, so eight advances of narrative in the pin file stop
+  accruing). `sequenced_after: [codexFactory:add-floor-regeneration-automation,
+  mirror-floor-addition-grace]` — the corpus's second cross-repository entry.
+
 - [implement-omniworker-install-repo](openspec/changes/implement-omniworker-install-repo/proposal.md)
   — authored 2026-09-05, **`Status: ratified`** (2026-09-05, Brett Heap, in-session,
   *"ratify 680 and merge 16"*, against head `91866619`; recorded at `176b3104`),

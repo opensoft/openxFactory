@@ -1,0 +1,51 @@
+schema: spec-driven
+created: 2026-09-06
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-06-mirror-floor-regeneration-automation
+  reason: >-
+    Not from an openxFactory staged topic, and that was CHECKED rather than
+    assumed: this packet carries no Staging ID header, no folder under
+    `ideation/staging/` names the review-lane pin, the repository gate floor,
+    the floor regeneration or the LQ-A7 completeness assertion, and
+    `ideation/staging/INDEX.md` declares no topic exit naming any of them. No
+    staging origin is claimed because none exists.
+    THE SOURCE MATERIAL IS ANOTHER REPOSITORY'S ISSUE AND ITS COMPANION PACKET.
+    codexFactory issue #203 enumerated four options for the two-repository floor
+    repair; option (c) was ruled, authored, ratified, realized and archived as
+    `add-floor-addition-grace` (with this repository's companion
+    `mirror-floor-addition-grace`, archived 2026-09-05 at `b5eddaa3`), and that
+    packet's design.md § 4 recorded option (b) — a scheduled regeneration
+    workflow opening the re-pin pull request automatically — as expressly NOT
+    RULED and NOT DESIGNED. Brett Heap then said, in session on 2026-09-05
+    (~23:5xZ), verbatim "merge 231 when green, then propose option (b)".
+    codexFactory issue #232 is the governing issue for that proposal and carries
+    lane openxfactory-2's Rule-1 claim; NO separate openxFactory issue was filed,
+    by the orchestrating lane's instruction, and #232 is cited in both
+    repositories instead. The codexFactory packet
+    `add-floor-regeneration-automation` names this change as its companion and
+    does not author it.
+    THE COST IT ANSWERS IS MEASURED, NOT HYPOTHETICAL: the ruled tolerance is 3
+    (codexFactory PR #231, merge commit `8a406b10`, 2026-09-05T23:39Z), so the
+    fourth un-regenerated addition escalates the REQUIRED lane back to
+    `floor_incomplete`; and discharging the deferral took 55 minutes (cxF #212 ->
+    oxF #689) and 77 minutes (cxF #226 -> oxF #702) on the only two cycles that
+    have been run, every figure read back from the GitHub API.
+    THE WORD AUTHORIZED THE PROPOSING, NOT THE CONTENT. Nothing is realized by
+    this packet: no workflow file, no test, no pin movement, and no ticked box.
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — in session, lane
+    openxfactory-2, session de9d8fd4, 2026-09-05 ~23:5xZ, verbatim "merge 231
+    when green, then propose option (b)". THIS IS AN ADMISSION INTO THE PROPOSAL
+    QUEUE AND AN INSTRUCTION TO AUTHOR, NOT A RATIFICATION OF CONTENT. It
+    supplies the origin and approval pair the proposal-origin contract requires
+    and nothing more: the packet remains Status: draft, it carries no
+    ratification citation, and none is owed — the promoted lifecycle rule
+    requires one only for Status: ratified. Whether this change's content is
+    ratified is a separate act that has not happened and that is Brett Heap's
+    alone.
+  approved_on: 2026-09-05
+related:
+  - openxFactory:change:mirror-floor-addition-grace   # the archived companion this one is sequenced after; it promoted `review-lane-floor-mirror`
+  - openxFactory:change:add-sequenced-after-substrate   # the grammar this packet's cross-repository `sequenced_after:` entry is declared under
+  - openxFactory:change:add-substantive-review-lane   # task 5.1's workflow-instance half is what `contracts/review-lane-pin.yaml` realizes
