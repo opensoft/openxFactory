@@ -297,7 +297,7 @@ def test_the_union_merges_same_topic_clusters_and_gates_read_only(tmp_path):
     # D10: every acting capability off, the read-only facts untouched
     assert r["caps"]["actions"] == {"gate": False, "refresh": True,
                                     "notebook": False, "session": False,
-                                    "edit": False}
+                                    "edit": False, "intent": False}
     assert r["caps"]["actor"] == "brett"
     # the jump ref comes from the composition stamps (session member kept)
     assert r["memberRefs"] == ["session/x", "main"]

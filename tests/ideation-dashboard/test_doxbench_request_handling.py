@@ -859,18 +859,24 @@ def test_compute_capabilities_still_returns_its_exact_pre_existing_dict():
     field belongs with the catalog route (T050). Pinned with the SAME exact
     dict literal test_notebook_action.py already asserts, so a stray key
     anywhere fails here too."""
+    #
+    # The `actions` dict GREW by one key on 2026-09-06
+    # (add-ideation-intent-plane task 4.4): `intent`, the SERVED plane's
+    # write-REQUEST seam. Both cases here are loopback, where it is False —
+    # which is the point: the local plane's verdict is unchanged. The
+    # assertions stay EXACT dict equality; the pin is not relaxed.
     no_refresh = {"binding": None, "loopback_only": True}
     assert serve_mod.compute_capabilities(
         nlm_present=True, checkout_real=True, loopback=True) == {
         "actions": {"notebook": True, "gate": False, "refresh": False,
-                    "session": False, "edit": False},
+                    "session": False, "edit": False, "intent": False},
         "actor": None,
         "refresh": no_refresh,
     }
     assert serve_mod.compute_capabilities(
         nlm_present=True, checkout_real=True, loopback=True, actor="brett") == {
         "actions": {"notebook": True, "gate": True, "refresh": False,
-                    "session": True, "edit": True},
+                    "session": True, "edit": True, "intent": False},
         "actor": "brett",
         "refresh": no_refresh,
     }

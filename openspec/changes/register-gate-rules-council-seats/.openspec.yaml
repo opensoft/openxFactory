@@ -1,0 +1,70 @@
+schema: spec-driven
+created: 2026-09-06
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-06-register-gate-rules-council-seats
+  reason: >-
+    A RULING QUEUED THIS PACKET BY NAME. codexFactory PR #165, OQ-C ruling,
+    Brett Heap in session 2026-09-05T17:15Z
+    (https://github.com/opensoft/codexFactory/pull/165#issuecomment-5553459343),
+    verbatim: "operator ratification now, seats later. ... Registering
+    gate-rules seats (mint + rows in openxFactory
+    `governance/review-authority/register.yaml`) is QUEUED as its own S5-family
+    openxFactory change so later convenings are signed." Reaffirmed in the same
+    pull request's ratification ruling at 18:36Z. This packet is that queued
+    change and carries no other subject.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was listed in full and `INDEX.md` read: no topic folder
+    names gate-rules seats, council seat registration, or a second register
+    body. The two adjacent topics are ADJACENT AND DISTINCT and were each read
+    to confirm it. `agent-wallet-identity` is holder identity in general;
+    `wallet-carried-work-authority` extends the GRANT SCHEMA below repository
+    granularity for AUTHOR and MERGE acts and adds a sibling
+    `work-authority-intake` capability — a different act family, a different
+    capability, and an openXwallet schema delta this packet does not touch.
+    `INDEX.md` mentions "gate-rules council seats" only inside another topic's
+    CARRIED OPEN QUESTIONS, which is post-proposal tracking and not an origin.
+    The organized source is a recorded in-session ruling on another
+    repository's pull request, which is the shape `ad_hoc` exists for.
+    THE FAMILY IS DECLARED RATHER THAN INFERRED: S5 of the ratified
+    `add-wallet-carried-review-authority`, following the per-seat key surface
+    (openXwallet `add-per-seat-register-entries`, `wallet-v1.2`) and the
+    2026-09-02 register act (PR #583). `sequenced_after:` in `proposal.md`
+    declares both the parent and the cross-repository openXwallet reader
+    widening this packet cannot land without.
+    NOTHING IS REALIZED BY THIS PACKET: no key is minted, no wallet, grant,
+    custody attestation or register row is written, no pin is advanced, and
+    every box in `tasks.md` is unticked. The register is a permanently
+    human-only surface and a never-clearable floor member by exact path, so
+    every write it specifies is Brett Heap's operator act.
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — the OQ-C ruling of
+    2026-09-05T17:15Z on codexFactory PR #165, which QUEUED this change by name
+    and by repository.
+    THIS FIELD RECORDS AUTHORIZATION TO AUTHOR, NOT RATIFICATION OF CONTENT,
+    AND MUST NOT BE READ AS ONE. At the time it was written the packet was
+    `Status: draft`, carried no ratification citation and owed none. Whether
+    its content is ratified is a separate act of Brett Heap's, tracked as task
+    1.1, and four further rulings it asks for are tasks 1.2 through 1.5.
+    EVERY DECISION BEYOND THE QUEUING WORD WAS THE AUTHORING SESSION'S and is
+    flagged for veto: design D1 (which four seats are registered and which two
+    are deferred), D2 (one body, one row, four keys — no per-seat grant), D3
+    (the composition pin is a codexFactory PREREQUISITE, not a follow-up), D4
+    (the mint is a `docs/` runbook and not a script), D5 (the reader widening
+    is openXwallet's change and the pin advance is this one's), D6 (the floor
+    gap this widens is named with an owner and NOT closed here) and D7 (the
+    downstream acts are named as owed, with owners, and are explicitly outside
+    the archive gate).
+    THE HEADLINE FINDING IS MEASURED, NOT REASONED, and it is the packet's main
+    contribution: at the pinned reader (`openXwallet@b7b0fbb3`, `wallet-v1.4`)
+    a second council is unregisterable for two independent reasons —
+    `register-minimal-shape-exceeded` on a second AUTHORITY row, and
+    `register-seat-duplicate` on `lead-security`, a seat name both councils
+    seat because seat-name uniqueness is global rather than per council. Both
+    defects are in `opensoft/openXwallet`; hermes-install's projection is
+    already multi-council capable and needs no change.
+  approved_on: 2026-09-05
+related:
+  - openxFactory:change:add-wallet-carried-review-authority   # the ratified parent; this is its S5 register-act family, and its MVP requirement's own "named successor" scenario is the door this walks through
+  - openxFactory:change:add-sequenced-after-substrate   # the grammar the cross-repository `sequenced_after:` entry is declared under
+  - openxFactory:change:add-cpc-clearing-boundary   # the sibling register family, whose `docs/factory-origin-key-mint-runbook.md` is the precedent this packet's mint runbook follows
