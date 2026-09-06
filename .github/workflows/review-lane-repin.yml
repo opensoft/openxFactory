@@ -207,8 +207,22 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install the one dependency the decision module has
-        run: python3 -m pip install --disable-pip-version-check --quiet pyyaml
+      # THE HASHED LOCKFILE, NOT AN AD-HOC PIP LIST (Copilot round 1).
+      # `pip install pyyaml` resolves whatever PyPI serves at run time: no
+      # version, no hash, and a lane that advances THE PIN THAT CHOOSES THIS
+      # REPOSITORY'S JUDGE is the last place to take an unpinned dependency.
+      # This is the repository's existing pattern, copied from
+      # `pytest-suite.yml`, whose own comment gives the reason: the `.in`/
+      # `.lock` pair is tracked and `--require-hashes` makes the install
+      # reproducible and supply-chain pinned.
+      #
+      # ONE INSTALL, NOT TWO. The lock carries `pyyaml==6.0.3` (the decision
+      # module's only import) AND `pytest==9.1.1` (the freshness run below), so
+      # the second, separately unpinned `pip install pytest` this step used to
+      # need is gone. `test_the_lane_installs_only_from_the_hashed_lockfile`
+      # asserts no unpinned install can come back.
+      - name: Install the pinned dependency set
+        run: pip install --require-hashes -r requirements/hermes-runtime-contracts.lock
 
       # ---- 2. Resolve the source default branch AT RUN TIME ------------------
       # REQUIREMENT: "The verification SHALL be made against the source
@@ -357,7 +371,6 @@ jobs:
           PINNED_CORE_CHECKOUT: ${{ github.workspace }}/.merge-master-core
         run: |
           set -euo pipefail
-          python3 -m pip install --disable-pip-version-check --quiet pytest
           python3 -m pytest tests/review_lane_pin -q
 
       # ---- 6. Propose, and stop ---------------------------------------------

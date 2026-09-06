@@ -734,35 +734,89 @@ class TheBotIsJudgedWithNoExemption(unittest.TestCase):
     def test_the_lane_asks_for_no_exemption_of_its_own(self) -> None:
         """Scenario: No author-keyed exemption exists.
 
-        The other direction: the lane does not reach into the judge either. It
-        writes only the four declared paths, and neither judge file is among
-        them.
+        THE WRITABLE SET IS EXACTLY THE PINNED SITES THE PACKET NAMES, AND ONE
+        OF THEM IS A JUDGE FILE. That is not an oversight and the earlier
+        wording of this test got it wrong: `.github/workflows/pytest-suite.yml`
+        IS the required suite, and it IS writable, because it is pinned site 4
+        — it carries the core checkout `ref:` that every advance must move.
+        Saying "neither judge file is writable" would have been false.
+
+        So the true property, asserted in three parts:
+
+        * the writable set EQUALS the set of paths `PINNED_SITES` names —
+          neither wider nor narrower, so a fifth writable path cannot be added
+          without this failing;
+        * `tests/review_lane_pin/test_floor_snapshot.py` — the judge whose
+          assertions decide a pin advance — is ABSENT from it, and so is every
+          other test in the repository;
+        * and the one judge file that IS writable is reachable at exactly ONE
+          line, that line is the checkout `ref:`, and it is not
+          `EXPECT_SKIPPED` or any assertion. The lane can move the pin inside
+          the judge; it cannot touch what the judge decides.
         """
         writable = set(R.WRITABLE_PATHS)
 
-        # The judge TEST is not writable by the lane at all.
+        # 1. Exactly the pinned sites. Measured as an equality so the set
+        #    cannot quietly grow a fifth member.
+        self.assertEqual({site.path for site in R.PINNED_SITES}, writable)
+        self.assertIn(
+            R.PYTEST_SUITE_WORKFLOW, writable,
+            "pytest-suite.yml is pinned site 4 and MUST be writable")
+
+        # 2. The judge whose assertions decide an advance is not writable, and
+        #    neither is any other test. Named, not inferred.
         self.assertNotIn(str(JUDGE_TEST.relative_to(REPO_ROOT)), writable)
+        self.assertNotIn("tests/review_lane_pin/test_floor_snapshot.py",
+                         writable)
         self.assertFalse(
             any(path.startswith("tests/") for path in writable),
-            f"the lane may not write any test: {writable}")
+            f"the lane may not write any test: {sorted(writable)}")
 
-        # The required WORKFLOW is writable — it is pinned site 4 — and that is
-        # the one place this distinction has to be drawn carefully: the lane
-        # rewrites ONE line in it, the core checkout `ref:`, through a pattern
-        # anchored to that line's shape. It does not and cannot reach
-        # `EXPECT_SKIPPED`, the named-testcase watch, or any assertion.
-        self.assertIn(R.PYTEST_SUITE_WORKFLOW, writable)
+        # 3. Inside the judge file it MAY write, its reach is one line.
         site = next(s for s in R.PINNED_SITES
                     if s.path == R.PYTEST_SUITE_WORKFLOW)
         required = REQUIRED_SUITE.read_text("utf-8")
-        matched = site.pattern.findall(required)
         self.assertEqual(
-            1, len(matched),
+            1, len(site.pattern.findall(required)),
             "the lane's pattern must reach exactly one line of the required "
             "workflow")
         line = next(l for l in required.splitlines() if site.pattern.match(l))
         self.assertIn("ref:", line)
         self.assertNotIn("EXPECT_SKIPPED", line)
+
+    def test_the_lane_installs_only_from_the_hashed_lockfile(self) -> None:
+        """Scenario: The bot's pull request meets the same bar.
+
+        EVERY `pip install` IN THE LANE IS ENUMERATED and required to be the
+        repository's hashed-lockfile form. An unpinned `pip install <name>`
+        resolves whatever PyPI serves at run time — no version, no hash — and
+        this lane advances the pin that chooses this repository's judge, so an
+        unpinned dependency here is a supply-chain path straight into that
+        decision.
+
+        Asserted over the shell the runner executes, with comments stripped, so
+        the prose above the step cannot satisfy it.
+        """
+        shell = _active(LANE_SHELL) + "\n" + "\n".join(
+            str(step.get("run", ""))
+            for job in LANE_DOC["jobs"].values()
+            for step in job["steps"]
+            if isinstance(step, dict))
+
+        installs = re.findall(r"^\s*(?:python3 -m )?pip install .*$",
+                              _active(shell), re.MULTILINE)
+        self.assertTrue(installs, "the lane installs nothing at all")
+        for install in installs:
+            self.assertIn("--require-hashes", install, install)
+            self.assertIn("-r requirements/hermes-runtime-contracts.lock",
+                          install, install)
+
+        # And the lock genuinely carries what the lane imports and runs, so the
+        # single install is not a pin that happens to omit the dependency.
+        lock = (REPO_ROOT / "requirements/hermes-runtime-contracts.lock"
+                ).read_text(encoding="utf-8")
+        for pinned in ("pyyaml==", "pytest=="):
+            self.assertIn(pinned, lock.lower())
 
     def test_the_lane_submits_itself_to_the_judge_before_proposing(self) -> None:
         """Scenario: The bot's pull request meets the same bar.
@@ -775,8 +829,6 @@ class TheBotIsJudgedWithNoExemption(unittest.TestCase):
         narrower judge than the pull request's own run.
         """
         steps = LANE_DOC["jobs"]["review-lane-repin"]["steps"]
-        by_name = {step.get("name", ""): index
-                   for index, step in enumerate(steps)}
 
         judge = next(step for step in steps
                      if "judge it" in step.get("name", ""))
