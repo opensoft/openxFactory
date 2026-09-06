@@ -202,7 +202,11 @@ fan-out limit"*, so two parents are well-formed.
 The foreign entry is checked for well-formedness only — the neutral validator
 *"cannot read another repository's corpus and MUST NOT pretend to"* — which is
 the same disposition the archived `mirror-floor-addition-grace` recorded when it
-became the corpus's FIRST foreign entry. This is the second, and the prose
+became the corpus's FIRST foreign entry. **"Second" is measured, not
+remembered**: at this head `corpus_sweep('.')` reports `declaring=5` over
+`change_ids=176`, and of those five declaring changes exactly TWO carry a
+qualified foreign entry — `mirror-floor-addition-grace`
+(`codexFactory:add-floor-addition-grace`) and this one. This is the second, and the prose
 statement of the dependency is kept in `proposal.md` and in requirement 2's body
 for the same reason that packet kept its own: a foreign entry resolves for no
 validator, so a reader must be able to see what it means.

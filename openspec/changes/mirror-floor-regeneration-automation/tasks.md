@@ -115,12 +115,22 @@ would be a false completion the moment a ratification did not follow.
 
 ## 6. Owner's acts (not an agent's)
 
-- [ ] 6.1 Ratify or refuse this packet. It is `Status: draft`; the 2026-09-05
-  word authorized the PROPOSING, not the content.
+- [ ] 6.1 Ratify or refuse this packet. The 2026-09-05 word authorized the
+  PROPOSING, not the content.
+  **2026-09-06 — TAKEN. Brett Heap ratified it in session, verbatim "ratify both
+  when green, then land them" — a PAIR word over this companion and codexFactory
+  #235 together, recorded 2026-09-06T01:18Z on PR #708 over head `e4ef8ade`, its
+  `pytest-suite` condition met. The packet is now `Status: ratified` and the
+  record is `review/ratification-2026-09-06.md`. The box is left UNTICKED
+  deliberately — ticking an owner's-act box is a claim an agent may not make
+  about the owner, and this dated note is how the act is recorded instead.**
 - [ ] 6.2 Rule on the authoring decisions M-1 through M-7, and in particular on
   M-7 (the lane writes no comment-history paragraph, so eight advances of
   narrative in `contracts/review-lane-pin.yaml` stop accruing) and on M-1's
   schedule location.
+  **2026-09-06 — STOOD. Under the ratification word, M-1 through M-7 stand as
+  recommended and no veto was exercised; each remains one edit away. The box
+  stays UNTICKED for the same reason 6.1's does.**
 - [ ] 6.3 SEPARATE AND NOT ASKED FOR HERE: whether the merge-master low-risk
   envelope — live today only for the doc-health nightly lane — should ever be
   extended to this lane. The default is a human merge word, and it holds until

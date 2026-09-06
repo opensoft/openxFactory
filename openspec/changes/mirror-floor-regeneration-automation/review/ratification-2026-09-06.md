@@ -145,3 +145,49 @@ realization.** No code lands by this act.
 - The ruling comment: [PR #708, comment 5556025824](https://github.com/opensoft/openxFactory/pull/708#issuecomment-5556025824); its codexFactory twin is [PR #235, comment 5556025715](https://github.com/opensoft/codexFactory/pull/235#issuecomment-5556025715).
 - The parent: codexFactory [#235](https://github.com/opensoft/codexFactory/pull/235), head `c551e281` at the ruling.
 - The local parent this packet is also sequenced after: `openspec/changes/archive/2026-09-05-mirror-floor-addition-grace/`.
+
+## Addendum — 2026-09-06: narrative corrections taken at a later head, on the same word
+
+**Three corrections were taken in one commit AFTER this record was first
+written, under the SAME ratification word.** They are the openxFactory half of a
+sweep whose codexFactory half was Copilot's round 2 on PR #235 (six threads,
+four of them factual errors in that packet's E-8 corpus narrative). Copilot has
+not reviewed this head; the defects below were found by carrying that review's
+findings across rather than by waiting to be told twice.
+
+**NO REQUIREMENT TEXT MOVED, AND NO PIN MOVED.**
+`specs/review-lane-floor-mirror/spec.md` is byte-unchanged: still EIGHT `##
+ADDED Requirements` and 24 scenarios, one `## ADDED Requirements` heading, no `##
+MODIFIED` and no `## REMOVED` block; zero ticked boxes. The corrections touched
+`design.md`, `tasks.md`, `.openspec.yaml` and this record only. The precedent for
+correcting a ratified packet's narrative in place is openxFactory PR #701 (five
+reality-check corrections to `split-opendox-two-layer-product`).
+
+1. **`.openspec.yaml`'s `approved_by` contradicted itself** — it asserted "the
+   packet remains Status: draft … a separate act **that has not happened**" and
+   then, in the same field, that the packet has since been ratified. This is the
+   same defect openxFactory PR #676 fixed in `98edcb45`, and it is fixed the same
+   way: the approval-to-author sentence is now in the PAST tense and scoped to
+   the moment the field was written, so the field reads as one continuous record
+   — authorization to file, then ratification.
+2. **`tasks.md` § 6.1 still described the packet as `Status: draft`.** It now
+   carries a dated 2026-09-06 note recording the ratification, and § 6.2 a dated
+   note recording that M-1 through M-7 stood. **Both boxes stay UNTICKED**:
+   ticking an owner's-act box is a claim an agent may not make about the owner,
+   and a dated note is how the act is recorded instead.
+3. **`design.md` § 8's "second cross-repository entry" was CHECKED and HELD, and
+   is now backed by the number rather than by memory.** Measured at this head:
+   `corpus_sweep('.')` reports `declaring=5` over `change_ids=176`, and of those
+   five declaring changes exactly TWO carry a qualified foreign entry —
+   `mirror-floor-addition-grace` (`codexFactory:add-floor-addition-grace`) and
+   this one. The claim was true; only its evidence was missing.
+
+**What was checked here and needed NO correction**: this packet carries no
+"fenced front matter" claim of any kind (`grep -rn 'fenced'` over the packet and
+the README entry returns nothing), so the four false absolutes corrected on
+codexFactory #235 are not mirrored in this repository.
+
+**This addendum changes no disposition.** M-1 through M-7 still stand as
+recommended, no veto was exercised, and nothing in § "What ratification does NOT
+authorize" is relaxed.
+
