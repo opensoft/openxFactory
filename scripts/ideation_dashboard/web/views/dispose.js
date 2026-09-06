@@ -71,14 +71,38 @@ function ensurePanel() {
 }
 
 // The panel's vocabulary. "ok"/"refused" are the LOCAL executing plane's two
-// outcomes and are unchanged; "queued" is the hosted plane's third, because a
+// outcomes and are unchanged; the other three are the hosted plane's, because a
 // submitted intent is neither applied nor refused yet and calling it either
 // would be a lie the human acts on (design D1: the click is the decision, the
 // apply is the custody step behind it).
+//
+// THE HOSTED PLANE HAS FOUR OUTCOMES, NOT TWO, and the panel must be able to
+// SAY each of them. `emitIntent` normalizes the inbox's responses to
+// pending | refused | stalled | error, and the last two are not refusals:
+//   * "stalled" (HTTP 502) - the intent WAS recorded and the apply run could
+//     not be started. Labelling it "refused" tells the human their decision was
+//     rejected when in fact it is on file and undecided, so they re-submit a
+//     decision that is already queued.
+//   * "error" (401 / 429 / 400, or an unreachable inbox) - NOTHING was
+//     recorded. Labelling that "refused" is the opposite lie: it reads as a
+//     server verdict on the decision when the decision never arrived, so the
+//     human does NOT re-submit the thing that never got sent.
 const PANEL_KIND = {
   ok: { label: "applied", cls: "is-ok" },
   queued: { label: "queued", cls: "is-queued" },
+  stalled: { label: "stalled", cls: "is-stalled" },
+  error: { label: "not sent", cls: "is-error" },
   refused: { label: "refused", cls: "is-refused" },
+};
+
+// `emitIntent`/`readEmission` state -> the panel's word for it. Unknown states
+// fall back to "refused", the conservative reading (something went wrong and
+// the human must look), which is also what the whole map used to collapse to.
+export const EMISSION_PANEL_KIND = {
+  pending: "queued",
+  refused: "refused",
+  stalled: "stalled",
+  error: "error",
 };
 
 export function panelEntry(kind, message) {
@@ -165,7 +189,7 @@ export function mountDisposeTray(container, possible, opts) {
           fetcher: o.fetcher,
         });
         tray.classList.remove("is-busy");
-        panelEntry(result.state === "pending" ? "queued" : "refused",
+        panelEntry(EMISSION_PANEL_KIND[result.state] || "refused",
           possible.id + " → dispose-possible " + v.outcome + ": " +
           result.message);
         if (o.onEmitted) o.onEmitted(result);

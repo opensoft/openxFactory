@@ -422,7 +422,10 @@ export function renderWheel(root, snapshot, ctx) {
   // the badge rail so the chips redraw (two-plane rendering).
   const intentFeed = intentCapable(caps) ? startIntentFeed({
     actor: feedActor(caps),
-    onRefusal: (rec) => panelEntry("refused", refusalLine(rec)),
+    // A stalled row is NOT a refusal - `refusalLine` already writes "not
+    // started" for it, and the panel's label has to agree with its own text.
+    onRefusal: (rec) => panelEntry(rec.state === "stalled" ? "stalled" : "refused",
+      refusalLine(rec)),
   }) : null;
   // target id -> the newest feed state for it, rebuilt ONCE per update so the
   // per-frame tile decoration below is a Map lookup rather than a feed scan.

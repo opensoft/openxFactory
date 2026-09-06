@@ -285,6 +285,62 @@ def test_the_feed_is_bounded_and_says_when_a_bound_bit(tmp_path):
     assert document["truncated"] is True
 
 
+def test_the_walk_itself_stops_at_the_cap_rather_than_listing_the_corpus(
+        tmp_path, monkeypatch):
+    """The file cap has to bind the LISTING, not only the reading.
+
+    `sorted(rglob(...))` materialises and orders every intent in the directory
+    before the first one is opened, so a request that stops at `MAX_FILES`
+    still pays for the whole corpus — which nothing prunes, on a route every
+    open tab polls every 15 seconds. The walk is watched here rather than the
+    clock: exactly `MAX_FILES + 1` paths may be pulled, the extra one being the
+    look-ahead that sets `truncated`."""
+    monkeypatch.setattr(intent_feed, "MAX_FILES", 3)
+    for n in range(20):
+        _write(tmp_path, _terminal(idempotency_key=f"k-{n:02d}"))
+    pulled: list[Path] = []
+    real_rglob = Path.rglob
+
+    def counting_rglob(self, pattern, *args, **kwargs):
+        for found in real_rglob(self, pattern, *args, **kwargs):
+            pulled.append(found)
+            yield found
+
+    monkeypatch.setattr(Path, "rglob", counting_rglob)
+    document = intent_feed.read_committed_intents(tmp_path)
+    assert len(pulled) == 4                       # MAX_FILES + 1, not 20
+    assert document["scanned"] == 3
+    assert document["truncated"] is True
+    assert len(document["intents"]) == 3
+
+
+def test_bounded_paths_never_drains_the_walk_it_is_handed():
+    """Stated as a unit over an ENDLESS walk, which no cap-after-the-fact can
+    survive: `bounded_paths` returns, so it took a bounded number of paths."""
+    pulled = 0
+
+    def endless():
+        nonlocal pulled
+        while True:
+            pulled += 1
+            yield Path(f"/corpus/{pulled:09d}.gate-intent.yaml")
+
+    paths, truncated = intent_feed.bounded_paths(endless(), limit=5)
+    assert pulled == 6                            # limit + 1 look-ahead
+    assert len(paths) == 5
+    assert truncated is True
+    assert paths == sorted(paths)                 # a deterministic read order
+
+
+def test_a_walk_inside_the_cap_is_not_reported_truncated():
+    paths, truncated = intent_feed.bounded_paths(
+        iter([Path("/corpus/b.gate-intent.yaml"),
+              Path("/corpus/a.gate-intent.yaml")]), limit=5)
+    assert truncated is False
+    assert [p.name for p in paths] == ["a.gate-intent.yaml",
+                                       "b.gate-intent.yaml"]
+
+
 def test_an_oversized_file_is_skipped_rather_than_read(tmp_path, monkeypatch):
     monkeypatch.setattr(intent_feed, "MAX_FILE_BYTES", 32)
     _write(tmp_path, _terminal())

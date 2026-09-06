@@ -324,6 +324,17 @@ export function startIntentFeed(opts) {
   let handle = null;
   let stopped = false;
   let wait = base;
+  // ONE polling chain, ever. `refresh()` polls out of band (the tray calls it
+  // the instant an intent is emitted), and a chain is a self-rescheduling
+  // loop - so an out-of-band poll that does not first retire the chain it
+  // interrupts leaves TWO live loops behind, one of them unreferenced and
+  // therefore uncancellable by `stop()`. Every disposal would then permanently
+  // raise this tab's polling rate against two pods, and switching tabs would
+  // not take the leak with it. `cycle` is the retirement: a poll run publishes
+  // and reschedules only while it is still the newest one, which covers the
+  // case `clear()` alone cannot - a refresh landing while a poll's fetch is
+  // already in flight, its timer long since fired.
+  let cycle = 0;
   const seen = new Set();     // refusals already sent to the panel, by identity
 
   async function readJson(route) {
@@ -353,20 +364,29 @@ export function startIntentFeed(opts) {
 
   async function poll() {
     if (stopped) return;
+    const mine = ++cycle;          // this run supersedes every earlier one
+    let nextRows = rows;
+    let nextError = null;
+    let nextWait = base;
     try {
       const query = o.actor ? "?actor=" + encodeURIComponent(o.actor) : "";
       const [inbox, corpus] = await Promise.all([
         readJson(INTENT_ROUTE + query),
         readJson(COMMITTED_INTENTS_ROUTE + query),
       ]);
-      rows = mergeFeeds((inbox && inbox.intents) || [],
-                        (corpus && corpus.intents) || []);
-      error = null;
-      wait = base;
+      nextRows = mergeFeeds((inbox && inbox.intents) || [],
+                            (corpus && corpus.intents) || []);
     } catch (err) {
-      error = (err && err.message) || "the intent feed is unreachable";
-      wait = Math.min(wait * 2, MAX_POLL_MS);
+      nextError = (err && err.message) || "the intent feed is unreachable";
+      nextWait = Math.min(wait * 2, MAX_POLL_MS);
     }
+    // A run a NEWER poll has overtaken publishes nothing and schedules
+    // nothing: the newer one owns the state and the chain. Without this an
+    // older, slower answer could also overwrite a newer one.
+    if (mine !== cycle) return;
+    rows = nextRows;
+    error = nextError;
+    wait = nextWait;
     // A SUBSCRIBER'S failure must not stop the poll loop. `announce` calls
     // into rendering, and a render that throws used to take the rescheduling
     // line below with it — the overlay would then freeze on whatever it last
@@ -383,8 +403,14 @@ export function startIntentFeed(opts) {
 
   handle = timer(poll, 0);
   return {
-    stop() { stopped = true; if (handle != null) clear(handle); },
-    refresh() { return poll(); },
+    stop() { stopped = true; if (handle != null) { clear(handle); handle = null; } },
+    // Retire the scheduled tick BEFORE polling out of band, or this poll's own
+    // rescheduling simply overwrites the reference to a timer that is still
+    // live (see `cycle`).
+    refresh() {
+      if (handle != null) { clear(handle); handle = null; }
+      return poll();
+    },
     rows() { return rows; },
     error() { return error; },
     subscribe(fn) {

@@ -13,7 +13,7 @@ turns "a refusal renders as text" from a promise into a mechanical guarantee —
 and a refusal reason on this plane is written by a DIFFERENT SERVICE (the intent
 inbox) or by the apply lane, so it is the least trusted string on the page.
 
-Pins I1-I11.
+Pins I1-I13.
 """
 
 from __future__ import annotations
@@ -374,6 +374,75 @@ const POSSIBLE = { id: 'pos-derived-x' };
   feed.stop();
 }
 
+// ---- I12: refresh() retires the tick it interrupts -------------------------
+{
+  const fetcher = recorder({
+    '/intents': json(200, { intents: [] }),
+    '/committed-intents.json': json(200, { intents: [] }),
+  });
+  // REAL timers behind the seam. The sibling probes above hand the feed
+  // synchronous no-op fakes, which is exactly why they cannot see a second
+  // live chain: only a timer that actually stays scheduled can be leaked.
+  const live = new Map();               // handle -> the scheduled timeout
+  let started = 0;
+  const feed = startIntentFeed({
+    fetcher, intervalMs: 1000,
+    timer: (fn, ms) => {
+      const h = ++started;
+      live.set(h, setTimeout(() => { live.delete(h); fn(); }, ms));
+      return h;
+    },
+    clearTimer: (h) => {
+      const t = live.get(h);
+      if (t !== undefined) clearTimeout(t);
+      live.delete(h);
+    },
+  });
+  await new Promise((r) => setTimeout(r, 20));   // the initial poll runs
+  results.i12_live_after_start = live.size;
+  await feed.refresh();                          // the tray's every disposal
+  await feed.refresh();
+  results.i12_live_after_refresh = live.size;
+  // and the case cancelling alone cannot cover: refreshes landing while a
+  // poll's fetch is already in flight, its own timer long since fired.
+  await Promise.all([feed.refresh(), feed.refresh(), feed.refresh()]);
+  results.i12_live_after_concurrent = live.size;
+  feed.stop();
+  results.i12_live_after_stop = live.size;
+}
+
+// ---- I13: the panel can SAY stalled and not-sent ---------------------------
+{
+  const stalled = recorder({
+    '/intents': json(502, { intent: { status: 'pending',
+      verb: 'dispose-possible', target: { possible_id: POSSIBLE.id },
+      dispatch_error: 'workflow_dispatch returned 500' },
+      error: 'workflow_dispatch returned 500' }),
+  });
+  const row = new Node('div');
+  mountDisposeTray(row, POSSIBLE, { fetcher: stalled,
+    intent: { snapshotRev: REV, rows: [], error: null } });
+  await click(byClass(row, 'dispose-accepted')[0]);
+  results.i13_stalled_kind = panelKinds()[0];
+  results.i13_stalled_msg = panelText()[0];
+  results.i13_stalled_class =
+    byClass(globalThis.document.body, 'is-stalled').length;
+
+  const unsent = recorder({
+    '/intents': json(401, { error: 'missing ingress identity' }),
+  });
+  const row2 = new Node('div');
+  mountDisposeTray(row2, POSSIBLE, { fetcher: unsent,
+    intent: { snapshotRev: REV, rows: [], error: null } });
+  await click(byClass(row2, 'dispose-accepted')[0]);
+  results.i13_error_kind = panelKinds()[0];
+  results.i13_error_msg = panelText()[0];
+  results.i13_error_class = byClass(globalThis.document.body, 'is-error').length;
+
+  results.i13_all_distinct = new Set(['applied', 'queued', 'refused',
+    results.i13_stalled_kind, results.i13_error_kind]).size === 5;
+}
+
 console.log(JSON.stringify(results));
 """
 
@@ -581,6 +650,57 @@ def test_i11_a_throwing_subscriber_does_not_stop_the_poll_loop(tmp_path):
     r = _run(tmp_path)
     assert r["i11_rescheduled"] is True
     assert "could not render" in (r["i11_error"] or "")
+
+
+# ---- I12 ------------------------------------------------------------------
+
+def test_i12_refresh_leaves_exactly_one_live_polling_chain(tmp_path):
+    """`refresh()` is called on EVERY hosted disposal (wheel.js `onEmitted`),
+    and the poll cadence is 15s — so "mid-cycle" is the ordinary case. A
+    refresh that polls without first retiring the tick it interrupts leaves the
+    previous, self-rescheduling chain running and unreferenced: the tab's
+    polling rate against both pods rises with every decision, permanently, and
+    `stop()` can only ever cancel the one handle it happens to hold — so the
+    leak survives the tab switch that is supposed to end it."""
+    r = _run(tmp_path)
+    assert r["i12_live_after_start"] == 1
+    assert r["i12_live_after_refresh"] == 1
+    assert r["i12_live_after_concurrent"] == 1
+
+
+def test_i12_stop_leaves_no_timer_behind(tmp_path):
+    """wheel.js's own claim about this feed: "the abort signal the app shell
+    hands every view stops it, so switching tabs leaves no timer behind"."""
+    assert _run(tmp_path)["i12_live_after_stop"] == 0
+
+
+# ---- I13 ------------------------------------------------------------------
+
+def test_i13_a_stalled_intent_is_not_reported_as_a_refusal(tmp_path):
+    """HTTP 502: the intent IS recorded and its apply run could not be started.
+    Labelling that "refused" tells the human their decision was rejected when
+    it is on file and undecided — and they re-submit a decision already queued."""
+    r = _run(tmp_path)
+    assert r["i13_stalled_kind"] == "stalled"
+    assert r["i13_stalled_class"] >= 1
+    assert "could not be started" in r["i13_stalled_msg"]
+
+
+def test_i13_an_intent_that_never_reached_the_inbox_says_so(tmp_path):
+    """HTTP 401/429/400, or an unreachable inbox: NOTHING was recorded.
+    "refused" is the opposite lie — it reads as a server verdict on a decision
+    that never arrived, so the human does not re-submit what was never sent."""
+    r = _run(tmp_path)
+    assert r["i13_error_kind"] == "not sent"
+    assert r["i13_error_class"] >= 1
+    assert "missing ingress identity" in r["i13_error_msg"]
+
+
+def test_i13_the_panel_labels_the_four_outcomes_distinctly(tmp_path):
+    """`emitIntent` normalizes to pending | refused | stalled | error, and the
+    local plane adds "applied". Five outcomes, five words: a panel that can
+    only say two of them cannot report the other three at all."""
+    assert _run(tmp_path)["i13_all_distinct"] is True
 
 
 def test_i8_the_capability_probe_reads_the_new_key_only(tmp_path):

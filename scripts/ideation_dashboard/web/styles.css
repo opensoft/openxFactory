@@ -1267,8 +1267,12 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .refusalpanel-kind { flex: none; font-family: var(--mono); font-size: 9px; border-radius: 999px; padding: 0 6px; }
 .is-refused .refusalpanel-kind { background: var(--blocked-bg); color: var(--blocked); }
 .is-ok .refusalpanel-kind { background: var(--good-bg); color: var(--good); }
-/* the HOSTED plane's third outcome: submitted, not yet decided (task 4.4) */
+/* the HOSTED plane's other outcomes (task 4.4): submitted-not-yet-decided,
+   recorded-but-not-dispatched, and never-sent-at-all. Distinct from a refusal
+   on purpose - only one of the three is a verdict on the decision. */
 .is-queued .refusalpanel-kind { background: var(--faint); color: var(--st-proposal); }
+.is-stalled .refusalpanel-kind { background: var(--faint); color: var(--blocked); }
+.is-error .refusalpanel-kind { background: var(--faint); color: var(--faint-ink); }
 .refusalpanel-msg { color: var(--ink); }
 
 /* ---- intent-feed chips (add-ideation-intent-plane task 4.4, ruling D-1) ----

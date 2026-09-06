@@ -42,6 +42,7 @@ from __future__ import annotations
 
 import re
 from datetime import datetime, timezone
+from itertools import islice
 from pathlib import Path
 
 #: Where the apply lane commits intents. Deliberately RESTATED rather than
@@ -79,9 +80,16 @@ VERB_TARGET_KEY = {
 
 #: Bounds. The feed is a read of an unbounded, append-only directory served to
 #: an unauthenticated-to-this-pod browser, so every axis is capped: how many
-#: files are opened per request, how big a file is read at all, and how many
-#: records come back. A request past the cap gets `truncated: true` and says
-#: so, rather than being silently short.
+#: files are LISTED per request, how many are opened, how big a file is read at
+#: all, and how many records come back. A request past the cap gets
+#: `truncated: true` and says so, rather than being silently short.
+#:
+#: `MAX_FILES` binds the LISTING as well as the reading (`bounded_paths`). It
+#: used to bind only the reading, which left the one unbounded axis in a module
+#: whose docstring promises there is none: `sorted(rglob(...))` walks and
+#: orders every file in the corpus before the first is opened, so a request
+#: that stops at 2000 files still paid for all of them — on a route every
+#: open tab polls every 15 seconds, against a directory nothing ever prunes.
 MAX_FILES = 2000
 MAX_FILE_BYTES = 64 * 1024
 DEFAULT_LIMIT = 200
@@ -478,6 +486,30 @@ def _when(record: dict) -> datetime:
 # the directory walk
 # --------------------------------------------------------------------------
 
+def bounded_paths(walk, limit: int | None = None) -> tuple[list[Path], bool]:
+    """Take at most `limit` (default `MAX_FILES`) paths OFF a walk, and say
+    whether there were more. Returns `(paths, truncated)`.
+
+    THE CAP HAS TO BIND THE WALK, not merely the reading. `sorted(rglob(...))`
+    materialises and orders EVERY path under the intents directory before a
+    single file is opened, so a request that is about to stop at `MAX_FILES`
+    still pays a cost that grows with the whole append-only corpus, forever, on
+    a route every open tab polls every 15 seconds. Exactly `limit + 1` paths
+    are ever pulled from the walk: the extra one is never opened — it exists
+    only to tell the answer it was truncated, which is the same signal the old
+    in-loop cap raised.
+
+    The bounded candidate set is then sorted, so the READ ORDER inside one
+    request is deterministic. WHICH files fall inside the cap is directory
+    order rather than lexical order — the honest trade for the bound: a
+    truncated feed says `truncated: true`, and the records it returns are
+    ordered newest-first by instant (`_when`), never by path.
+    """
+    cap = MAX_FILES if limit is None else max(0, int(limit))
+    taken = list(islice(walk, cap + 1))
+    return sorted(taken[:cap]), len(taken) > cap
+
+
 def read_committed_intents(checkout_root, *, actor: str | None = None,
                            status: str | None = None,
                            target: str | None = None,
@@ -495,13 +527,11 @@ def read_committed_intents(checkout_root, *, actor: str | None = None,
     skipped = 0
     truncated = False
     try:
-        paths = sorted(base.rglob("*" + INTENT_SUFFIX)) if base.is_dir() else []
+        walk = base.rglob("*" + INTENT_SUFFIX) if base.is_dir() else iter(())
+        paths, truncated = bounded_paths(walk)
     except OSError:
         paths = []
     for path in paths:
-        if scanned >= MAX_FILES:
-            truncated = True
-            break
         scanned += 1
         try:
             if path.stat().st_size > MAX_FILE_BYTES:
