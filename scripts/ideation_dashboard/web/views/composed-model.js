@@ -196,6 +196,11 @@ export function readOnlyCaps(caps) {
       notebook: false,
       session: false,
       edit: false,
+      // add-ideation-intent-plane task 4.4: intent emission is ACTING (it
+      // requests a governed act), so D10's read-only plane strips it with the
+      // rest. A composed view's ids are namespaced `repo::id` and name no
+      // single target the apply lane could address anyway.
+      intent: false,
     },
   };
 }

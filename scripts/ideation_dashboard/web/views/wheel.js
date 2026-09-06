@@ -71,7 +71,9 @@ import { actionRowIsStale,
   healthIndicator, healthBlock, jumpRepository } from "./wheel-model.js";
 import { el } from "./helpers.js";
 import { appliedOutcome, commissionedVerb, commissionedWorkflow, gateCapable,
-  mountDisposeTray, mountProposeButton, mountWheelVerb } from "./dispose.js";
+  mountDisposeTray, mountProposeButton, mountWheelVerb, panelEntry } from "./dispose.js";
+import { feedActor, intentCapable, refusalLine, startIntentFeed, statesByTarget }
+  from "./intent-feed.js";
 import { notebookCapable } from "./notebook.js";
 import { SETTINGS_EVENT, currentDrumFactor } from "./settings.js";
 
@@ -413,6 +415,26 @@ export function renderWheel(root, snapshot, ctx) {
   let flyout = null;        // { host, tile } — the expanded tile's anchored flyout
   let liveIndex = null;     // the driven wheel's last live-pull index
   let railKey = "";         // last rendered badge-rail focus, "key:i"
+  // THE HOSTED INTENT FEED (add-ideation-intent-plane task 4.4). One poller
+  // per render, started only on the plane that emits intents; the abort
+  // signal the app shell hands every view stops it, so switching tabs leaves
+  // no timer behind. It NEVER touches the model: an update just invalidates
+  // the badge rail so the chips redraw (two-plane rendering).
+  const intentFeed = intentCapable(caps) ? startIntentFeed({
+    actor: feedActor(caps),
+    onRefusal: (rec) => panelEntry("refused", refusalLine(rec)),
+  }) : null;
+  // target id -> the newest feed state for it, rebuilt ONCE per update so the
+  // per-frame tile decoration below is a Map lookup rather than a feed scan.
+  let intentStates = new Map();
+  if (intentFeed) {
+    intentFeed.subscribe((rows) => {
+      intentStates = statesByTarget(rows);
+      railKey = "";
+      drawAll();
+    });
+    signal?.addEventListener("abort", () => intentFeed.stop(), { once: true });
+  }
   let page = 0;
   let raf = null;
   let winH = WIN_H;         // live window height (grows in full screen)
@@ -1407,6 +1429,14 @@ export function renderWheel(root, snapshot, ctx) {
       const isSecondDeg = !isLinked && secondItems.has(idx);
       const box = layoutTile(tile, d, isFocusWheel, isLinked, focused, appliedVerdict,
         isExpanded, isSecondDeg);
+      // THE INTENT OVERLAY (task 4.4): the hosted plane's per-tile lifecycle
+      // indicator, read from the feed index and NEVER from the model — a
+      // decoration exactly like `data-applied` above, on a plane where the
+      // decision travelled as a request instead of an act.
+      const intentState = w.items[idx]
+        ? (intentStates.get(w.items[idx].id) || "") : "";
+      tile.dataset.intent = intentState;
+      tile.classList.toggle("wheelintent", !!intentState);
       if (w.items[idx]) {
         // summary before health, so the expanded staged tile mounts in reading
         // order: label · sub · summary · health block · action row
@@ -1455,14 +1485,32 @@ export function renderWheel(root, snapshot, ctx) {
       rail.appendChild(chip);
     }
     if (!any) rail.appendChild(el("span", "wheelchip wheelchip-none", "no links yet"));
-    // the dispose tray (local action center, add-ideation-intent-plane §3):
+    // the dispose tray (add-ideation-intent-plane §3 local, task 4.4 hosted):
     // mounts beside the chips when the focused tile is a pending_review
-    // derived possible, the gate capability is live (loopback + actor), and
-    // no verdict has been applied this session.
-    if (key === "possibles" && focus && gateCapable(caps)) {
+    // derived possible and THIS PLANE offers the verb — the loopback plane
+    // through the executing gate route (loopback + actor), the served plane
+    // through intent emission. The two capabilities are mutually exclusive by
+    // construction (serve.py: `intent = not loopback`), so exactly one
+    // transport is ever handed to the tray.
+    if (key === "possibles" && focus && (gateCapable(caps) || intentCapable(caps))) {
       const item = wheelByKey("possibles").items[focus.i];
-      if (item?.derivedPending && !appliedOutcome(item.id)) {
-        mountDisposeTray(rail, item, { onApplied: () => { railKey = ""; drawAll(); } });
+      const hosted = !gateCapable(caps) && intentCapable(caps);
+      // The session-local applied overlay belongs to the LOCAL executing path;
+      // hosted decisions are reported by the feed, so it never suppresses the
+      // hosted tray (a resubmission is the inbox's idempotency problem, and
+      // the human can see its own pending chip).
+      if (item?.derivedPending && (hosted || !appliedOutcome(item.id))) {
+        mountDisposeTray(rail, item, {
+          onApplied: () => { railKey = ""; drawAll(); },
+          onEmitted: () => { railKey = ""; drawAll(); if (intentFeed) intentFeed.refresh(); },
+          intent: hosted ? {
+            // D4: the revision the human is LOOKING at, full and unabbreviated
+            // (the header renders a 12-char prefix of this same field).
+            snapshotRev: snapshot?.generation?.source_revision || "",
+            rows: intentFeed ? intentFeed.rows() : [],
+            error: intentFeed ? intentFeed.error() : null,
+          } : null,
+        });
       }
     }
     // (the propose button is NOT here: per-wheel verbs moved INSIDE the tile,
