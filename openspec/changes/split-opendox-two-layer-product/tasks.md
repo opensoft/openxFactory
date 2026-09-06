@@ -150,9 +150,12 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
 
 - [ ] 1.1 `[oD]` **SCAFFOLD the `openDox` project — three repositories in one
   run**, from a clean checkout of `opensoft/openRepoShape` at the commit
-  `contracts/openreposhape-pin.yaml` pins. **BLOCKED UNTIL the re-pin lands
-  (1.1a) — the tool REFUSES this exact command at the commit this repository
-  pins today; read 1.1a before running it:**
+  `contracts/openreposhape-pin.yaml` pins. **UNBLOCKED** *(reality check
+  2026-09-05, second run, claims C6/C7/C39/C42)* **— the re-pin landed as PR
+  #700, commit `303bfd53`, moving the pin to `e9c4827b85f50503bbdd9e5b4fac9d6c3d0baf63`;
+  the tool accepts this exact command there, measured `--dry-run`. Run
+  `--dry-run` first and keep its output as the evidence line; see 1.1a for
+  the now-historical refusal.**
 
   ```
   python3 scaffold-project.py \
@@ -170,16 +173,16 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   organization (RULING C1). *(Amended 2026-09-05: this first said "Create
   `opensoft/openDox`: PUBLIC, Apache-2.0, `opensoft`-owned" — one repository,
   created by hand.)*
-- [ ] 1.1a `[oD]` `[oXd]` **`opensoft/openRepoShape`#41 is RESOLVED — the
-  blocker has MOVED to a re-pin in this repository.** #41 was CLOSED as
-  completed 2026-09-05T17:19:12Z by openRepoShape PR #45, *A neutral product
-  may elect the shape and be its own assembly root (#41)*, merge commit
-  `5ffa8d58`, authored by lane `xfactory-2`; openRepoShape `main` is now at
-  `355f6ef4` (#47). **The two invocations above are still refused at the
-  commit this repository pins** (`122d729bc0c2f2e0ded0bb61b6b97f49512f613e`)
-  **and are accepted at openRepoShape `main`, `355f6ef4`, or any descendant commit**
-  (which carries #45 and, before it, #42 — the pin-chain fix, see 1.10).
-  Measured refusal, kept here as history:
+- [ ] 1.1a `[oD]` `[oXd]` **`opensoft/openRepoShape`#41 is RESOLVED, and the
+  re-pin it moved to has LANDED** *(reality check 2026-09-05, second run,
+  claims C6/C7/C38/C39/C42)*. #41 was CLOSED as completed 2026-09-05T17:19:12Z
+  by openRepoShape PR #45, *A neutral product may elect the shape and be its
+  own assembly root (#41)*, merge commit `5ffa8d58` (merged 17:19:11Z),
+  authored by lane `xfactory-2`; `355f6ef4` (#47) and every descendant commit
+  carry both `c2cc9e25` (#42) and `5ffa8d58` (#45). **The two invocations
+  above WERE refused at the commit this repository pinned when this item was
+  written** (`122d729bc0c2f2e0ded0bb61b6b97f49512f613e`) — kept below as
+  history. Measured refusal, kept here as history:
 
   ```
   REFUSED naming-role-mismatch: 'openDox' classifies as neutral-product, not as
@@ -194,17 +197,18 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   `scripts/validate-repository-naming.py --explain openDox` already computed
   the resolution this needed (`also_matches: project-leg/assembly`) and
   `accepts_role()` discarded it. #45 is the admission #41 asked for.
-  **The blocker is now a RE-PIN of `opensoft/openRepoShape` in this
-  repository to `355f6ef4` or any descendant commit** (a single re-pin covers both #42 and
-  #45) — done as its own pin-sync pull request under `neutral-product-pin`
-  (a new `commit:` and refreshed digests in
-  `contracts/openreposhape-pin.yaml`; the `openreposhape-pin` check validates
-  it). **1.1 and 1.2 are BLOCKED UNTIL the re-pin lands.** Nothing else in the
-  packet waits on it, because the packet performs nothing.
+  **THE RE-PIN LANDED** as PR #700, commit `303bfd53` (2026-09-05T17:50-04:00,
+  lane openxfactory-4-opendox-extraction): `contracts/openreposhape-pin.yaml`
+  now records `e9c4827b85f50503bbdd9e5b4fac9d6c3d0baf63` (31 digests / 45
+  path-only / 76 files, verifier green), a descendant of `355f6ef4` and
+  therefore of both #42 and #45. **1.1 and 1.2 are UNBLOCKED** — do not
+  re-author this re-pin, and do not re-pin backward to `355f6ef4`. Nothing
+  else in the packet ever waited on it, because the packet performs nothing.
 - [ ] 1.2 `[oXd]` **SCAFFOLD the `openXdox` project — three repositories, and the
   family's ONE pin (RULING OQ-2)**, after 1.1 has landed a commit on
-  `opensoft/openDox`. **BLOCKED UNTIL the re-pin lands (1.1a), on the same
-  refusal:**
+  `opensoft/openDox`. **UNBLOCKED** *(reality check 2026-09-05, second run)*
+  **— runnable at the commit this repository pins (`e9c4827b`); see 1.1a for
+  the historical refusal at `122d729b`:**
 
   ```
   python3 scaffold-project.py \
@@ -243,38 +247,39 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   assembly root, a pytest suite and a required check in each of the FOUR legs
   (the scaffold's `validate.yml` covers the two assembly roots only), and 1.5's
   rulesets.
-  *(Corrected by reality check 2026-09-05 (lane
-  openxfactory-4-opendox-extraction), re-measured against a fresh
-  `openRepoShape` clone at tip `e9c4827b85f50503bbdd9e5b4fac9d6c3d0baf63` and,
-  in a worktree, at `122d729bc0c2f2e0ded0bb61b6b97f49512f613e` — pinned when
-  this check ran (2026-09-05, before PR #700 re-pinned to `e9c4827b` at
-  21:50Z) — the "and nothing else" list above is wrong at BOTH revisions, and
-  differently. AT THE PIN OF THAT MOMENT, `122d729b`, a `--local-remote-dir`
-  materialization (no network,
-  nothing created on GitHub) writes three assembly-root files the list above
-  omits: `scripts/repo_shape.py`, `scripts/validate-repository-naming.py` and
-  `contracts/repository-naming.yaml` — copied out of `openRepoShape`'s own
-  tree so the project carries the standard it was cut from, each carrying a
-  row in the project's own `contracts/shape-pin.yaml` (9 rows at the pin), so
-  a realizer who deletes one as unaccounted-for turns `scripts/validate-pins.py`
-  red on the first push. Fifteen assembly-root files at the pin, not twelve;
-  the three-file leg list IS exact there. AT `355f6ef4` — the exact commit
-  `tasks.md` § 1.1a already names as the re-pin target, so it is the revision
-  1.1/1.2 will actually run at once unblocked, never the pin above — the tool
-  ALSO writes `AGENTS-shape.md`, `AGENTS.md` and `CLAUDE.md` into the assembly
-  root (ten `shape-pin.yaml` rows) and a rendered `AGENTS.md` plus a one-line
-  `CLAUDE.md` (`Read AGENTS.md.`) into EACH leg (openRepoShape PR #30,
-  `99b3774`, an ancestor of `355f6ef4`): eighteen assembly-root files, five per
-  leg. This makes "`AGENTS.md`/`CLAUDE.md`" in the hand-act sentence above
-  FALSE in operation — the tool writes them from `355f6ef4` onward, the only
-  revision the blocked 1.1/1.2 will ever run at. `AGENTS-shape.md` is itself
-  digest-pinned in the scaffolded project's own `contracts/shape-pin.yaml` —
-  never hand-edit it; edits belong in the generated `AGENTS.md`, deliberately
-  left unpinned. Every other item in the hand-act sentence (LICENSE, 1.4's
-  four posture files, `.github/CODEOWNERS`, the OpenSpec instance,
+  *(Corrected by reality check 2026-09-05, second run (lane
+  openxfactory-4-opendox-extraction; claims C10/C11), re-measured against a
+  fresh `openRepoShape` clone at the commit this repository now pins,
+  `e9c4827b85f50503bbdd9e5b4fac9d6c3d0baf63` (PR #700, `303bfd53`) — restated
+  ONCE at the pin rather than compared across two revisions, since `122d729b`
+  is no longer pinned anywhere and `355f6ef4` was never itself the pin, only
+  an ancestor of it (the first run's two-revision comparison is superseded by
+  this). A `--local-remote-dir` materialization (no network, nothing created
+  on GitHub) of the `1.1` command above writes, in the assembly root —
+  EIGHTEEN files plus the two legs as submodule gitlinks, TWENTY entries, not
+  twelve: `.github/workflows/validate.yml`, `.gitignore`, `.gitmodules`,
+  `AGENTS-shape.md`, `AGENTS.md`, `CLAUDE.md`, `Makefile`, `README.md`,
+  `contracts/code-pin.yaml`, `contracts/repository-naming.yaml`,
+  `contracts/shape-pin.yaml`, `contracts/spec-pin.yaml`, `project.yaml`,
+  `scripts/bootstrap.py`, `scripts/repo_shape.py`,
+  `scripts/validate-manifest.py`, `scripts/validate-pins.py`,
+  `scripts/validate-repository-naming.py`, plus the `code/` and `spec/`
+  submodule gitlinks. `scripts/repo_shape.py`,
+  `scripts/validate-repository-naming.py` and `contracts/repository-naming.yaml`
+  are copied out of `openRepoShape`'s own tree so the project carries the
+  standard it was cut from, each carrying a row in the project's own
+  `contracts/shape-pin.yaml`, so a realizer who deletes one as unaccounted-for
+  turns `scripts/validate-pins.py` red on the first push. `AGENTS-shape.md` is
+  itself digest-pinned there too — never hand-edit it; edits belong in the
+  generated `AGENTS.md`, deliberately left unpinned. In EACH leg — FIVE files,
+  not three: `.gitignore`, `AGENTS.md`, `CLAUDE.md`, `README.md`, and one
+  `.gitkeep` (`requirements/` for `-spec`, `src/` for `-code`). This makes
+  "`AGENTS.md`/`CLAUDE.md`" in the hand-act sentence above FALSE in
+  operation — the tool writes them, at this pin, in both the assembly root and
+  every leg. Every other item in the hand-act sentence (LICENSE, 1.4's four
+  posture files, `.github/CODEOWNERS`, the OpenSpec instance,
   `contracts/manifest.yaml`/`CHANGELOG.md`, the FOUR legs' pytest suite and
-  required check, 1.5's rulesets) is unaffected and holds at every revision
-  checked.)*
+  required check, 1.5's rulesets) is unaffected and holds at this pin.)*
 - [ ] 1.4 `[oD]` `[oXd]` **PUBLIC FROM DAY ONE MEANS A POSTURE EXISTS AT CREATION**,
   not after the first outside issue: `CONTRIBUTING.md`, `SECURITY.md` (a
   security-report path that is not an issue) and `CODE_OF_CONDUCT.md`. Retro-fitting
@@ -301,7 +306,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   `ratified`; this is an amendment, not a rewrite. *(Amended 2026-09-05: its
   text now carries the SIX repository names — `openDox`, `openDox-spec`,
   `openDox-code`, `openXdox`, `openXdox-spec`, `openXdox-code` — the election
-  (Brett Heap, 2026-09-05, reference `docs/project-repo-schema.md`), and the
+  (Brett Heap, 2026-09-05, reference `openxFactory docs/project-repo-schema.md`), and the
   leg-suffix rule that the lowercase hyphenated `-spec`/`-code` forms are NOT
   new brand names and sit in a different naming family. `openXdox-Install` is
   unchanged.)*
@@ -314,7 +319,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   `MedxDox-code`; and the same for `LedgerxDox`, `AdxDox` and `OpsxDox` —
   because a descendant scaffolded the same way is three repositories, and a leg
   name nobody registered is exactly the name somebody creates by hand. STILL
-  CREATING NONE: eighteen descendant names plus one install name, zero
+  CREATING NONE: fifteen descendant names plus one install name, zero
   repositories.)* *(Corrected by reality check 2026-09-05 (lane
   openxfactory-4-opendox-extraction): "eighteen" is arithmetic wrong, at every
   `openRepoShape` revision checked (tip `e9c4827b` and `122d729b` — the pin
@@ -371,11 +376,16 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
 - [ ] 1.10 `[oXd]` `[oxF]` **NEW (2026-09-05) — THE PIN CHAIN. `opensoft/openRepoShape`#40
   is RESOLVED**, by openRepoShape PR #42, *Descendant referent follows the
   declared pin chain (#40)*, merge commit `c2cc9e25`, merged 2026-09-05T16:26:49Z
-  — the SAME re-pin that 1.1a names for #41 (to `355f6ef4` or any descendant commit) covers
-  #42 as well, since `355f6ef4` carries both. `openXdox`'s `project.yaml`
+  — the same re-pin recorded at 1.1a *(reality check 2026-09-05, second run)*,
+  LANDED as PR #700 / `303bfd53` → `e9c4827b`, covers #42 as well, since
+  `e9c4827b` carries both. `openXdox`'s `project.yaml`
   declares `neutral_product_pins: [openDox]` (written by 1.2's `--pin`); every
-  descendant declares `neutral_product_pins: [openXdox]` and records the chain
-  it relies on — `naming.referent_chain: [openXdox, openDox]` — per
+  descendant declares `neutral_product_pins: [openXdox]` and — ONLY WHEN
+  SCAFFOLDED WITH `--referent-chain openXdox,openDox` — records the chain it
+  relies on: `naming.referent_chain: [openXdox, openDox]` is written by that flag
+  alone (openRepoShape PR #42, `scaffold-project.py:464`,
+  `shape_materialize.py:486-488`); a run without the flag exits 0 and records no
+  chain. Per
   openRepoShape#40, which amends that standard's descendant-referent rule so a
   `<Domainx><Product>` name classifies as a descendant when its declared pins
   REACH the matching `open<Product>` through declared links. This preserves
@@ -401,9 +411,11 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   INTEGRATION layer satisfies the referent test for the NEUTRAL CORE, and the
   manifest asserts a declared `openDox` referent in a tree that declares no
   openDox pin. **The classification is right and the reason it records is
-  false.** So the interim is: scaffold, and RECORD the chain actually relied on
-  (`naming.referent_chain: [openXdox, openDox]`) in the descendant's own
-  manifest, so the accidental pass is never left standing as the explanation;
+  false.** So the interim is: scaffold with `--referent-chain openXdox,openDox`,
+  and RECORD the chain actually relied on (`naming.referent_chain: [openXdox,
+  openDox]`) in the descendant's own manifest — written by that flag alone; it
+  is never inferred, and a run without it records no chain and exits 0 — so the
+  accidental pass is never left standing as the explanation;
   the re-pin landing later makes the same classification true (#40 already
   reasons this way upstream) and re-reads the same tree with no migration.
   What the interim does NOT permit is adding a direct
@@ -524,15 +536,23 @@ else in the arc can start while the two packages import each other.**
   `doxbench_scope`. The 23 outbound `doc_health` imports become the adapter's
   IMPLEMENTATION SURFACE here, where importing doc-health is lawful.
 - [ ] 4.2 `[oXd]` `contracts/opendox-pin.yaml` — openXdox pins openDox by commit
-  and per-file digest, declaring the migration range its bump crosses per the
-  MODIFIED `neutral-product-pin`. The dependency points ONE way and there is no
-  cycle. **In the openXdox ASSEMBLY ROOT, naming the openDox ASSEMBLY ROOT's
+  and tree digest (`sorted-ls-tree-r-v1` over openDox's whole tree — the scaffold
+  writes NO per-file `sha256`; the per-file `sha256`, `pinned_by_commit_only:`
+  and the migration range/reversibility/runbook the MODIFIED `neutral-product-pin`
+  requires are a HAND ACT this task also performs, not part of §1.2's seed)
+  *(reality check 2026-09-05, second run, claim C26)*. The dependency points
+  ONE way and there is no cycle. **In the openXdox ASSEMBLY ROOT, naming the openDox ASSEMBLY ROOT's
   commit** (amended 2026-09-05); § 1.2's `--pin` writes the file and the
   `neutral_product_pins: [openDox]` manifest entry together, so this task
   BUMPS it rather than creating it. **The cost the shape adds, accepted:** a
   change to openDox's code leg is not visible to openXdox until openDox's
   assembly root advances its own `code` pin and openXdox then bumps this file —
-  two pin moves where a single-repository product had none.
+  two pin moves where a single-repository openDox would still need one — the
+  consumer bump is owed regardless of the pinned product's shape (`openxFactory`
+  performs the identical hand bump today for the single-repository
+  `openRepoShape` and `openXwallet` pins); what the shape election ADDS is the
+  first move, the assembly root's own leg lockstep. *(reality check 2026-09-05,
+  second run, claims C27/C41.)*
 - [ ] 4.3 `[oXd]` The routes and subcommands openXdox CONTRIBUTES to openDox's
   extension points, **from `openXdox-code`**. No fork of the server.
 - [ ] 4.4 `[oXd]` **PARAMETERIZE, do not ship one domain's words (RULING C2).**
@@ -549,10 +569,13 @@ else in the arc can start while the two packages import each other.**
 
 ## 5. openxFactory consumes and sheds; the MAJOR is cut. BREAKING
 
-- [ ] 5.1 `[oxF]` `contracts/opendox-pin.yaml` and `contracts/openxdox-pin.yaml`,
-  plus the two gitlinks — each pin's file and gitlink moving in the SAME commit.
-  **Both name the ASSEMBLY ROOTS** (amended 2026-09-05); `openxFactory` never
-  pins or mounts a leg, which is the assembly root's own job.
+- [ ] 5.1 `[oxF]` `contracts/openxdox-pin.yaml`, plus its one gitlink — the pin
+  file and gitlink moving in the SAME commit. **Names the ASSEMBLY ROOT**
+  (amended 2026-09-05; corrected 2026-09-05 per RULING F — `opensoft/openxFactory`
+  issue #656, Brett Heap, "rule F openXdox only, then do the corrections PR":
+  this task previously also listed `contracts/opendox-pin.yaml` and a second
+  gitlink, which the rest of this same task already contradicted). `openxFactory`
+  never pins or mounts a leg, which is the assembly root's own job.
   Per the MODIFIED `neutral-product-pin`, `openxFactory` declares only its DIRECT
   upstreams; openDox's commit is READ from openXdox's own pin and recorded, if at
   all, as a DERIVED value.
@@ -598,8 +621,12 @@ else in the arc can start while the two packages import each other.**
   and a published annotated tag verified from an independently refreshed checkout.
 - [ ] 5.8 `[xF]` `.gitmodules`, two root gitlinks, `README.md`, `CLAUDE.md`,
   `project-register.yaml` — **including § 1.9's two derived election rows**
-  (amended 2026-09-05). The aggregation's root gitlink for each product SHALL
-  EQUAL `openxFactory`'s nested gitlink commit, and both name the ASSEMBLY ROOT.
+  (amended 2026-09-05). The aggregation's root gitlink for openXdox SHALL EQUAL
+  `openxFactory`'s (one) nested gitlink commit, both naming the ASSEMBLY ROOT
+  (RULING F, `#656`, 2026-09-05 — `openxFactory` nests openXdox only). The
+  aggregation's root gitlink for openDox has NO `openxFactory`-side counterpart
+  to check against: `openxFactory` does not pin or mount openDox directly, so
+  that gitlink is checked only against `opensoft/openDox`'s own assembly root.
 - [ ] 5.9 `[oxF]` ANNOTATE the 30 archived changes carrying an
   `ideation-dashboard` delta with the carry-forward. **Immutable records are
   annotated, never edited into agreement** — the wallet arc's own treatment, and
@@ -677,8 +704,18 @@ movements claimed at the time they land.
       --visibility <follows codexFactory's own visibility, RULING Q7> \
       --elected-by 'Brett Heap' --elected-on <the ruling's date> \
       --reference 'openxFactory docs/project-repo-schema.md' \
-      --pin openXdox@<40 hex — the openXdox ASSEMBLY ROOT's commit>
+      --pin openXdox@<40 hex — the openXdox ASSEMBLY ROOT's commit> \
+      --referent-chain openXdox,openDox
   ```
+
+  *(reality check 2026-09-05, second run, claims C22/C30: without
+  `--referent-chain`, the scaffold exits 0 and writes `descendant_referent:
+  openDox` / `referent_declared: true` with NO `referent_chain` key — the
+  same case-folding-coincidence pass § 1.10 documents, left standing with no
+  chain recorded. The flag is required for this command to satisfy § 1.10.
+  The run also prints `WARNING declared-unverified` when openXdox's tree is
+  not reachable from the scaffold host — not a finding; `--link-source
+  openXdox=<path>` or `SHAPE_PIN_SOURCE_OPENXDOX` clears it.)*
 
   Three repositories, THIN: the `-code` leg carries deploy configuration and
   branding, the `-spec` leg the one domain-mapping declaration, the assembly
@@ -722,10 +759,11 @@ realization evidence, never on landing. Each line is its own evidence.
   in the receiving repository; `retire-doxbench-chat-turn-v1` archived in
   `openxFactory` on its own evidence first.
 - [ ] 8.6 `ideation-intent-plane` in canon, or its non-promotion recorded (§ 0.6).
-- [ ] 8.7 The aggregation's gitlinks landed and equal to `openxFactory`'s nested
-  gitlinks, **both naming the assembly roots**, and the two derived
-  `project-register.yaml` election rows landed with them (§ 1.9, amended
-  2026-09-05).
+- [ ] 8.7 The aggregation's openXdox gitlink landed and equal to `openxFactory`'s
+  (one) nested gitlink, both naming the assembly root (RULING F — `openxFactory`
+  nests openXdox only; the aggregation's openDox gitlink has no `openxFactory`-
+  side counterpart to check), and the two derived `project-register.yaml`
+  election rows landed with them (§ 1.9, amended 2026-09-05).
 - [ ] 8.8 Amendment 3 applied with the SIX repository names and the election,
   and the descendant names — each with its two leg names — registered with no
   repository created (amended 2026-09-05).

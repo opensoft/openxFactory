@@ -92,6 +92,41 @@ tree, filed here rather than rewriting the tables above:
    reference evidence instead, pending its own follow-on if the new
    repository needs its own CI shape for this class of check.
 
+**Amended 2026-09-05 — RATIFIED 2026-09-05 by Brett Heap, in-session, verbatim "ratify and merge 704, 214 and 18", on openxFactory PR #704 — at retirement measurement** — § D2.1 assigns `workers/`,
+the host-side `scripts/` and the JUDGED docs to `OmniWorker-Install`, and § D2.2
+assigns the manager-review runtime, the compose and Kubernetes topology and the
+`omnigent-install-manifest` realization to `Omnigent-Install`. **Both
+assignments stand. What neither table measured is that the second set READS the
+first set at run time**, and it does so in thirty-nine places.
+
+PR opensoft/Omnigent-Install#213 measured it by removing the whole copied tree in its
+own branch and re-running every validator: **ten of the twelve repository
+validators are green on that repository's `main`, and removing all 120
+candidate paths broke all ten**, including all three the dartwing workflow runs
+by name. The consumers are `manager_review/runner.py`,
+`agents/manager-review/seat-*.yaml`, both compose stacks,
+`k8s/local/worker-lanes.yaml`, `config/omnigent-install-manifest.yaml` and its
+render-verify arm, eleven validators and eight test modules — every one of them
+§ D2.2 material. The full path-by-path inventory is `docs/omniworker-split.md` in
+PR opensoft/Omnigent-Install#213, which is the requirements source for the remedy.
+
+**Brett Heap RULED it 2026-09-05: "Orchestrator pins OmniWorker-Install."**
+`OmniWorker-Install` is CANONICAL for the worker profiles, the schemas
+(including `workers/schemas/artifact-worker-heartbeat.schema.json`), the
+heartbeat publisher and the other Part 1 material; the orchestrator CONSUMES
+them through a **commit-plus-digest pin** — the estate pattern this repository
+already runs twice, `contracts/openxwallet-pin.yaml` and
+`contracts/openreposhape-pin.yaml`. Nothing is re-homed back across the
+boundary; § D2.1 and § D2.2 both stand exactly as written, and the orchestrator
+reads the canonical copy at a verified commit instead of carrying a second one.
+
+That single mechanism closes four of the five items `docs/omniworker-split.md`
+recorded as owed before Part 1 could be retired — the manager-review seat
+material, the lane topology, the host-side scripts the orchestrator executes,
+and the `omnigent-install-manifest` render-verify arm. The packet realizing it
+is `Omnigent-Install`'s `add-omniworker-install-pin`.
+
+
 ## D3 — Pin choreography
 
 **Copy-first, and retirement LAST.** The ratified "Copy-first migration"
@@ -141,6 +176,33 @@ Two things this sequence deliberately does NOT do:
   remote, visibility, exact validated commit, checkout, compatibility, update
   and rollback is a separate reviewed change, which the ADDED requirement's
   own scenario demands and which this change MUST NOT be accepted as.
+
+**Amended 2026-09-05 — RATIFIED 2026-09-05 by Brett Heap, in-session, verbatim "ratify and merge 704, 214 and 18", on openxFactory PR #704 — on Brett Heap's ruling "Orchestrator pins
+OmniWorker-Install"** — the sequence above has nine steps and the retirement is
+step 9. It is now TEN, with a new step between the copy and the retirement:
+
+```text
+8b PIN        Omnigent-Install declares contracts/omniworker-install-pin.yaml —
+              commit d617e68e plus a sha256 for each of the 39 Part 1 paths it
+              reads — writes the resolver and the drift-refusing verifier, and
+              RE-POINTS every one of the 52 staying consumers to the resolved
+              pinned checkout, one consumer class per PR, each green as it lands.
+              Its packet is Omnigent-Install `add-omniworker-install-pin`.
+```
+
+**Step 9 now depends on 8b, and the dependency is the whole reason 8b exists.**
+The order the ratified "Copy-first migration" requirement already imposes —
+*"the source path MUST NOT be deleted from `Omnigent-Install` until every
+declared consumer has been re-pinned and verified"* — was read in § D4 as a
+statement about consumers OUTSIDE that repository, and all five of those were
+re-pinned and merged (tasks § 4). It binds the consumers INSIDE it in exactly
+the same words, and thirty-nine paths have them. So: **pin lands → consumers
+re-pointed → validators green against the pinned checkout → THEN retirement.**
+
+Step 9 also splits in two by consequence, because PR opensoft/Omnigent-Install#213
+performed the half that was already lawful: the 50 Worker Host App paths whose
+consumers had all left with them (Part 2, plus two orphaned evidence records).
+The 70 Part 1 paths that remain are step 9's whole content, and they wait on 8b.
 
 ## D4 — The consumer measurement, including two that do NOT move
 
@@ -240,6 +302,34 @@ was paid but not yet discharged: the amendment of that declaration to name
 `OmniWorker-Install` is owed in the COPY's own packet, in the
 `OmniWorker-Install` repository, not in this one. This design does not
 perform that amendment; it only records that it is owed and where.
+
+**Amended 2026-09-05 — RATIFIED 2026-09-05 by Brett Heap, in-session, verbatim "ratify and merge 704, 214 and 18", on openxFactory PR #704 — OQ-6 ruled** — Brett Heap ruled § D6's OQ-6 the same day
+he ruled the pin, and in the same shape as OQ-7: **"Land it in Omnigent-Install
+first, then copy."** That is sequence **(a)** above, now this repository's rule
+for BOTH in-flight changes rather than a one-off.
+
+`Omnigent-Install`'s `add-worker-acr-push` therefore finishes and lands there.
+Measured 2026-09-05: its repository work is already merged — PR opensoft/Omnigent-Install#129
+(`509b7d65`, 2026-08-22) landed the schema, the `cpc-omni01` manifest block and
+the four test cases, and PR opensoft/Omnigent-Install#143 (`5b5592e4`, 2026-08-24) landed the `hostapp/`
+delta that consumes them. Nine of its thirteen tasks are ticked and the four
+that remain are not code: a HUMAN/VAULT gate (mint the scoped `AcrPush` token
+into `kv-opensoft-xfactory-qa`), a live-host confirmation, one notification, and
+the archive its `gated-realization` target permits only after those. Its landed
+packet and that `hostapp/` delta are then copied to `OmniWorker-Install` exactly
+as PR opensoft/Omnigent-Install#40 was, with the `code_surface:` amendment owed **in the copy**, there —
+the same debt sequence (a) already left on
+`add-worker-enrollment-broker-integration`.
+
+**Consequence: PR opensoft/Omnigent-Install#213 is HELD until `add-worker-acr-push`
+lands.** That PR retires `schemas/worker-host-manifest.schema.yaml` and
+`tests/test_worker_host_manifest.py`, two of the four paths
+`add-worker-acr-push` declares as its `code_surface`. Retiring them while that
+change is still active there would re-home it as a side effect of a file
+deletion — precisely what this section's rule, and the ADDED requirement that
+encodes it, forbid. The hold is sequencing, not a defect in opensoft/Omnigent-Install#213; its Part 2
+retirement is sound on its merits.
+
 
 ## D6 — Open questions
 
