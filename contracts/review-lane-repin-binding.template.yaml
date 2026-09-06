@@ -1,0 +1,158 @@
+schema_version: 1
+kind: xfactory_credential_binding_template
+
+# ============================================================================
+# review-lane-repin-binding.template.yaml — the credential binding the
+# automated pin-advance lane runs under, declared as a TEMPLATE carrying NO
+# LIVE VALUE.
+#
+# RATIFIED BY `mirror-floor-regeneration-automation` (2026-09-06), whose eighth
+# requirement is this file: "An automated pin advance lane MUST run under a
+# credential binding declared in this repository as a template carrying no live
+# value, and MUST refuse to run when that binding does not resolve. The binding
+# SHALL name the consuming system that holds it, the identity it fetches with,
+# and the least privilege the lane needs — read access to the source repository
+# holding the decision core, and the ability to push a branch and open a pull
+# request in this repository."
+#
+# WHY A TEMPLATE AND NOT THE BINDING. `credential-contracts` says it twice and
+# both sentences bind here: "The credential vault operator is an execution
+# binding, never contract content", and "Contract artifacts, lane definitions,
+# and domain repositories SHALL NOT hard-code a vault operator, a vault product,
+# or any secret value." So `provider` and `vault` carry the starter pack's
+# `<...>` per-install idiom, exactly as
+# `contracts/avatar-client/broker-server-key-binding.template.yaml` does, and
+# the concrete custody is an install-side act.
+#
+# WHAT ACTUALLY HOLDS THE SECRET TODAY, named so this file is not read as a
+# claim that a vault fetch exists: the two GitHub Actions secrets
+# `OPENXFACTORY_APP_ID` and `OPENXFACTORY_APP_PRIVATE_KEY`, already present in
+# this repository and already used by `.github/workflows/pytest-suite.yml` to
+# check codexFactory out at the pinned core commit. THE SECRET NAMES ARE
+# REFERENCES; no key material appears here or anywhere in this repository, and
+# none ever may.
+#
+# THE REFUSAL IS THE POINT OF DECLARING IT (decision M-6). The lane's FIRST
+# step reads both references and exits non-zero, naming this file, when either
+# is unset. It does NOT fall back — not to `github.token`, not to anything —
+# because a fallback identity cannot read codexFactory, so the lane would
+# compare the pin against nothing, find no disagreement, and report a clean
+# no-op. A missing credential must not be able to look like a clean run. The
+# `${{ ... || github.token }}` pattern at `pytest-suite.yml:400` is right THERE
+# and wrong here, and the difference is that there the degradation is caught by
+# a named-testcase watch.
+#
+# LEAST PRIVILEGE, AND THE ONE PROHIBITION THAT IS LOAD-BEARING. The lane needs
+# `contents: read` on `opensoft/codexFactory` and `contents: write` +
+# `pull-requests: write` in `opensoft/openxFactory` — the workflow
+# `permissions:` spelling, hyphenated, which is the only spelling any workflow
+# in either repository uses; the App INSTALLATION permission of the same
+# capability is spelled `pull_requests` in the App/API vocabulary. IT NEEDS NO
+# WRITE PRIVILEGE OVER codexFactory AND IS DECLARED NOT TO HAVE ONE. That is
+# the requirement's own third scenario ("it grants no write privilege over the
+# source repository") and it is not decorative: an identity here that could
+# write to codexFactory could dispatch its automation, and the whole shape of
+# this family is that neither repository's lane may reach into the other's.
+#
+# NOT IN `contracts/manifest.yaml`, for the reason
+# `contracts/review-lane-pin.yaml` is not: neither is a contract this
+# repository publishes to consumers. It lives under `contracts/` because that
+# is where this repository keeps the declarations its own lanes read.
+# ============================================================================
+
+change_id: mirror-floor-regeneration-automation
+owning_task: mirror-floor-regeneration-automation 3.8
+requirement: >-
+  The automated advance lane runs under a declared credential binding and
+  refuses rather than widening or degrading.
+ruled: >-
+  2026-09-06 by Brett Heap, verbatim "ratify both when green, then land them" —
+  a pair word over this packet and codexFactory #235. Decision M-6 (one
+  identity, template-only, refusing rather than falling back) STANDS AS
+  RECOMMENDED under that word; no veto was exercised. The App grant itself is
+  the owner's act, recorded at tasks.md 6.4 and NOT performed by this file.
+
+client:
+  id: "<install-client-id>"
+  display_name: "<install-display-name>"
+
+credential_bindings:
+  review_lane_repin_identity:
+    # PLACEHOLDERS BY RULE, not by omission — see the header. The execution
+    # binding supplies both, and the same lane code runs either way.
+    provider: "<per-install-vault-provider>"
+    vault: "<per-install-vault-name>"
+
+    # THE CREDENTIAL REFERENCE. One reference for the App identity as a whole;
+    # the lane materializes it as the App id plus its private key, which is why
+    # the two GitHub Actions secret NAMES appear under `materialization` below
+    # rather than as two separate bindings: they are one credential in two
+    # halves, and revoking either revokes the identity.
+    secret_ref: openxfactory-review-lane-repin-app
+
+    owner: opensoft-platform
+    rotation_policy: operator_managed
+
+    consumer:
+      # THE CONSUMING SYSTEM. A workload, not a persona —
+      # `add-identity-brokering`'s "Workloads are not personas" keeps a lane out
+      # of the persona population, and its authority comes from this binding.
+      holder_ref: "openxfactory:workflow:review-lane-repin"
+      # THE IDENTITY IT AUTHENTICATES TO THE STORE WITH.
+      fetch_identity: "github-actions:openxfactory:review-lane-repin"
+      identity_namespace: "github:opensoft"
+
+# WHAT THE LANE MAY DO WITH IT, ENUMERATED. Read as the binding's least
+# privilege: anything not listed here is not granted, and the fourth line is a
+# PROHIBITION rather than an omission.
+privileges:
+  source_repository:
+    repository: opensoft/codexFactory
+    grants: [contents:read]
+    # Stated as a refusal so a later widening has to delete a line rather than
+    # merely fail to add one.
+    never_grants: [contents:write, actions:write, pull-requests:write]
+    reason: >-
+      The lane reads the authoritative floor document and resolves the default
+      branch. It writes nothing there, dispatches nothing there, and opens
+      nothing there. codexFactory authors its own floor; this repository reads
+      it.
+  floored_repository:
+    repository: opensoft/openxFactory
+    grants: [contents:write, pull-requests:write]
+    never_grants: [administration:write, workflows:write-to-default-branch]
+    reason: >-
+      `contents: write` pushes the lane's own branch `bot/review-lane-repin`;
+      `pull-requests: write` opens and updates the ONE pull request that branch
+      carries. The lane never merges, never approves, never enables auto-merge
+      and never writes to `main` — requirement 1, asserted by
+      `tests/review_lane_pin/test_repin_lane.py`.
+
+resolution:
+  resolved_by: review_lane_repin_workflow_only
+  fetch_identity: github_actions_repository_secret
+  materialization: ephemeral_job_scope
+  # THE MINT IS SCOPED TO THE TWO REPOSITORIES `privileges:` NAMES, and to no
+  # other. `owner:` alone would yield a token good for every repository this App
+  # is installed on in the organization -- acceptable for a read in a
+  # `continue-on-error` step, which is what `pytest-suite.yml:318-324` does with
+  # it, and too wide for a token that can PUSH and OPEN PULL REQUESTS. The
+  # workflow's `repositories:` list and the two `privileges:` entries below are
+  # held EQUAL by
+  # `tests/review_lane_pin/test_repin_lane.py::test_the_token_is_scoped_to_the_bindings_two_repositories`,
+  # so this declaration cannot drift from the mint. An App not installed on both
+  # makes the mint FAIL, which is the refusal this binding asks for.
+  scoped_to: [openxFactory, codexFactory]
+  # REFERENCES, NEVER VALUES. These are the names the workflow reads; the key
+  # material lives in GitHub's secret store and in the owner's custody.
+  references:
+    app_id: "secrets.OPENXFACTORY_APP_ID"
+    private_key: "secrets.OPENXFACTORY_APP_PRIVATE_KEY"
+  degraded_mode_permitted: false
+  statement: >-
+    The binding is resolved ONLY by `.github/workflows/review-lane-repin.yml`,
+    at run time, and the minted installation token lives in ephemeral job scope
+    alone — never written to the repository, never printed, never passed to a
+    second workflow. `degraded_mode_permitted: false` is the machine-readable
+    form of decision M-6: when either reference is unset the lane FAILS LOUDLY
+    naming this file, and no fallback identity is attempted.
