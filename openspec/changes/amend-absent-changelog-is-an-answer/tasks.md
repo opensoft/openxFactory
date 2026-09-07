@@ -48,12 +48,21 @@ this pull request or a measurement recorded verbatim in the pull request body.
 
 - [x] 2.1 **D6'S SHIM, RE-TAKEN ON THIS TREE RATHER THAN QUOTED.** One shim,
       two runs differing in ONE blob: `contracts/CHANGELOG.md` absent at a HELD
-      tip against the same document present and empty. At `origin/main`
-      (`d5a549e4`): ABSENT → one `Skip`, nothing graded; EMPTY → one `error`,
-      *"contract-v2.0 is declared and has no published annotated tag more than 5
-      first-parent landings after the commit that declared it"*. On this branch:
-      ABSENT → that same `error` PLUS one `info` recording the read; EMPTY →
-      unchanged. The table is in `proposal.md` § Why and in `design.md` **D0**.
+      tip against the same document present and empty. **THE BASELINE IS
+      `origin/main` `d52e6b88`**, the head the measurement was RE-TAKEN at in the
+      fix round; an earlier draft of this box cited `d5a549e4`, two main landings
+      back, while `design.md` **D0** already carried the corrected sha, and the
+      two documents now agree. **THE CITATION MOVED AND THE MEASUREMENT DID
+      NOT**: `scripts/doc_health/release_tag_publication.py` and
+      `tests/doc-health/test_release_tag_publication.py` are BYTE-IDENTICAL at
+      `d5a549e4`, at `d52e6b88` and at the landing baseline `64aad02e` — blobs
+      `6f627cb0` and `71662937` at all three — so nothing measured through those
+      two modules is re-derived by the correction. At that baseline: ABSENT → one
+      `Skip`, nothing graded; EMPTY → one `error`, *"contract-v2.0 is declared
+      and has no published annotated tag more than 5 first-parent landings after
+      the commit that declared it"*. On this branch: ABSENT → that same `error`
+      PLUS one `info` recording the read; EMPTY → unchanged. The table is in
+      `proposal.md` § Why and in `design.md` **D0**.
 - [x] 2.2 **THE UNFETCHED FACT IS EXCLUDED AT THIS ARM, AND THAT IS WHY THE
       SPLIT IS SAFE.** `obtain_commit` runs before both reads; both `manifest is
       None` arms return before the changelog is consulted; `blobs_at` sends
