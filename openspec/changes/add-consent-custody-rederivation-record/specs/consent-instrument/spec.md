@@ -30,10 +30,13 @@ authorizing reference or the recorder is nonconformant — an unattributed,
 uncited acceptance is an unauthorized re-pin in a record's clothing.
 
 The difference class and the reason SHALL each be a CLOSED enumeration —
-minimally `header_only` and `content` for the class, and
+minimally `path_only`, `header_only` and `content` for the class, and
 `lifecycle_header_edit`, `archive_move` and `other_ruled_edit` for the reason —
 so that a novel class arrives as a contract question rather than as a silently
-admitted string. `other_ruled_edit` is not a bare escape hatch: it carries the
+admitted string. `path_only` exists because a pure relocation changes ZERO
+bytes: it is not `header_only`, which requires a header line to have moved, and
+calling it `content` would withhold the verdict forever on a target nobody
+edited. `other_ruled_edit` is not a bare escape hatch: it carries the
 same authorizing-reference obligation as every named member. The declared class
 is itself re-derivable from the two commits it names, and a class contradicted
 by the measured difference is a finding against the instrument.
@@ -144,21 +147,43 @@ evidence, and converting "cannot tell" into "verified" is the exact failure the
 record exists to prevent. The record is an INDEX INTO EVIDENCE and never a
 substitute for it.
 
-**A `content` class NEVER buys currency on its own.** An entry declaring
-`diff_class: content` SHALL NOT by itself make custody current even when every
-digest leg re-derives. A content divergence means the referent of a signed
-original moved, which is grounds for RE-EXECUTION rather than for recording; the
-currency verdict is WITHHELD pending that act, and the check reports the
-withholding rather than a pass or a bare failure. Recording-and-accepting is
-available for a divergence that changed no content — which is the only form the
-governing ruling chose it for.
+**THE DIFFERENCE CLASSES ARE DEFINED HERE, AND EACH CARRIES ITS CURRENCY
+CONSEQUENCE.** The class is a claim about the two sides of one commit, and it is
+RE-DERIVABLE from the record's own fields plus the repository:
+
+- **`path_only`** — the target's bytes at (`commit^`, starting locator) and at
+  (`commit`, observed locator) are IDENTICAL; only the locator changed. An
+  entry declaring `path_only` whose two digests differ is REFUSED.
+- **`header_only`** — the difference adds, removes or rewrites lifecycle-header
+  lines and changes NO OTHER BYTE. An entry declaring `header_only` whose
+  measured difference touches a non-header byte is REFUSED.
+- **`content`** — anything else.
+
+**Currency consequence, per class:** a `path_only` or a `header_only` entry MAY
+reach CURRENT when every leg above re-derives. A `content` entry SHALL NOT, even
+when every digest leg re-derives: a content divergence means the referent of a
+signed original moved, which is grounds for RE-EXECUTION rather than for
+recording. The verdict is WITHHELD — a THIRD OUTCOME distinct from current and
+from refused — pending that act. Recording-and-accepting is available for a
+divergence that changed no content, which is the only form the governing ruling
+chose it for.
+
+**WITHHELD IS REPRESENTED, NOT MERELY MANDATED.** Because the class is
+record-derivable, the CANONICAL NEUTRAL VALIDATOR SHALL compute and report
+withholding as a NAMED OUTCOME of its own — never as a pass, and never as a
+plain error, since the record is correct and it is the INSTRUMENT that needs
+attention. The consuming repository's custody-digest check SHALL PROPAGATE a
+withheld verdict and SHALL NOT upgrade it to a pass on the strength of its own
+re-derivation succeeding: the digests re-deriving is exactly the condition under
+which withholding applies.
 
 The obligation is SPLIT and the split SHALL be explicit rather than inferred.
 The canonical neutral validator SHALL check every leg derivable from the
-record's own bytes — the anchor to the pin and to the pin's locator, the linkage
-between entries in both digest and locator, the declared order, the closed
-enumerations, the closed entry shape, and that no entry's digest has been
-written back into `custody.sha256` — and SHALL NOT attempt the git
+record's own bytes — the anchor to the pin AND to the pin's locator, the linkage
+between entries in BOTH digest and locator, the declared order, the closed
+enumerations, the closed entry shape, that no entry's digest has been written
+back into `custody.sha256`, that a `path_only` entry's two digests are equal,
+and the WITHHELD outcome for any `content` entry — and SHALL NOT attempt the git
 re-derivation, because it is network-free, reads one repository, and the targets
 live in consuming repositories. `ruling_ref` is likewise a DECLARED POINTER that
 no checker at either level resolves. The re-derivation legs SHALL be performed
@@ -182,9 +207,21 @@ statement that a pin is current, and SHALL NOT be reported as one.
 
 #### Scenario: A path move is re-derived at both paths
 
-- **WHEN** an authorized act moves the target to a new path, so the entry's starting and observed locators differ
-- **THEN** the check resolves the starting locator at the commit's parent and the observed locator at the commit, and admits the link when each hashes to its declared digest
+- **WHEN** an authorized act moves the target to a new path, so the entry's starting and observed locators differ and its two digests are equal
+- **THEN** the entry declares `diff_class: path_only`, the check resolves the starting locator at the commit's parent and the observed locator at the commit, and admits the link when each hashes to its declared digest
 - **AND** an archive move is admissible for exactly this reason: the target is absent at the new path before the commit and absent at the old path after it, so a single-locator rule could never admit one
+
+#### Scenario: A path_only entry whose digests differ is refused
+
+- **WHEN** an entry declares `diff_class: path_only` and its starting and observed digests are not equal
+- **THEN** the check refuses, because bytes changed and the class says none did
+- **AND** the entry is not silently re-classified, since the class a record declares is the claim under review
+
+#### Scenario: A header_only claim contradicted by the diff is refused
+
+- **WHEN** an entry declares `diff_class: header_only` and the measured difference between its two sides touches a byte outside the lifecycle-header lines
+- **THEN** the check refuses and names the contradicting difference
+- **AND** the entry cannot reach CURRENT on a false classification, because the class is what decides whether currency is available at all
 
 #### Scenario: A locator pair that resolves at neither path is refused
 
@@ -194,9 +231,15 @@ statement that a pin is current, and SHALL NOT be reported as one.
 
 #### Scenario: A content-class divergence withholds the verdict
 
-- **WHEN** an entry declares `diff_class: content` and every digest leg re-derives
-- **THEN** the verdict is WITHHELD rather than current, and the check says so as its own outcome
+- **WHEN** an entry declares `diff_class: content` and every internal leg is sound
+- **THEN** the canonical neutral validator reports WITHHELD as a named outcome of its own — not a pass and not a plain error, because the record is correct and the instrument is what needs attention
 - **AND** the instrument is due for re-execution, because a moved referent is not something a record of the move can repair
+
+#### Scenario: A consumer gate propagates a withheld verdict and never upgrades it
+
+- **WHEN** the consuming repository's custody-digest check re-derives every leg of a chain whose last entry declares `diff_class: content`
+- **THEN** it reports WITHHELD, propagating the neutral outcome
+- **AND** it MUST NOT report the pin current on the strength of its own re-derivation succeeding, because successful re-derivation is precisely the condition under which withholding applies
 
 #### Scenario: A broken link is refused, not repaired
 
@@ -237,5 +280,5 @@ statement that a pin is current, and SHALL NOT be reported as one.
 #### Scenario: The neutral pass is not a currency claim
 
 - **WHEN** the canonical neutral validator passes an instrument carrying a re-derivation chain
-- **THEN** it has checked anchoring, linkage in digest and locator, order, enumerations, entry closure and the unmoved pin, and nothing about the target's bytes
+- **THEN** it has checked anchoring, linkage in digest and locator, order, enumerations, entry closure, the unmoved pin, `path_only` digest equality and any withheld outcome, and nothing about the target's bytes
 - **AND** the currency verdict belongs to the consuming repository's custody-digest check, which the repository declaring `custody_rederivations` is obliged to operate

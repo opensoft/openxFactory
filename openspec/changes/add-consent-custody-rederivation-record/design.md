@@ -142,11 +142,23 @@ same shape.
 `dependent_refs.ref` already takes in this schema, and for the same reason: the
 canonical validator opens no fragment and crosses no repository boundary.
 
-## C-4. `diff_class` is closed at `header_only | content`
+## C-4. `diff_class` is closed at `path_only | header_only | content`
 
-**Decision:** two members. `header_only` — the diff between `commit^` and
-`commit` adds, removes or rewrites lifecycle-header lines and changes no other
-byte. `content` — anything else.
+**Decision:** THREE members. `path_only` — the target's bytes at
+(`commit^`, starting locator) and (`commit`, observed locator) are IDENTICAL;
+only the locator changed. `header_only` — the difference adds, removes or
+rewrites lifecycle-header lines and changes no other byte. `content` —
+anything else.
+
+**`path_only` WAS ADDED AFTER A RE-REVIEW, and its absence was a real defect
+rather than a gap.** With two members a pure relocation had NO TRUTHFUL CLASS:
+an archive move changes ZERO bytes, so it is not `header_only` (no header line
+moved), which leaves `content` — and under C-9 a `content` entry WITHHOLDS the
+verdict forever, on a target nobody edited. The measurement makes it concrete:
+both archived instruments' `archive_move` entries have `previous_sha256 ==
+observed_sha256` exactly. Widening `header_only` to cover it was REJECTED —
+that would make the class mean "bytes may or may not have changed", which is
+the one thing a reviewer reads it to find out.
 
 **Rejected:** an open string (a free-text classification is the prose form
 Brett declined, wearing an enum's name); a three-way split that separates
@@ -155,13 +167,17 @@ Brett declined, wearing an enum's name); a three-way split that separates
 vocabulary rots).
 
 **Why it is closed, and why closure is the checkable part.** The estate's
-measured instance is exactly `header_only`, 3 of 3: OpsxFactory `57fd9fd2`
-prepended a `Status:` header and changed nothing else, and re-derivation at
-`57fd9fd2^` returns the pin every time. The distinction earns its place because
-**it is the one the reviewer of a future divergence actually needs**: a
-`header_only` re-derivation says the instrument still points at the same
-document, and a `content` one says a signed original's referent moved and the
-consent may need re-execution rather than re-recording. An unknown member is a
+measured `header_only` instance is `57fd9fd2`, 3 of 3: it inserted ONE
+`+Ratified:` line per target — **not** a `Status:` header, which is how an
+earlier draft of this sentence had it — and changed no other byte, and
+re-derivation at `57fd9fd2^` returns the pin every time. The estate's measured
+`path_only` instances are the two archive moves, `a98fca5b` and `0ebb1191`,
+where the digest is IDENTICAL on both sides. The distinction earns its place
+because **it is the one the reviewer of a future divergence actually needs**: a
+`path_only` re-derivation says nothing at all changed but where the document
+sits, a `header_only` one says the instrument still points at the same document,
+and a `content` one says a signed original's referent moved and the consent may
+need re-execution rather than re-recording. An unknown member is a
 SCHEMA refusal, so a novel class arrives as a contract question rather than as a
 silently admitted string.
 
@@ -184,7 +200,7 @@ class WITHHOLDS the verdict.
 
 - `lifecycle_header_edit` — the measured instance; OpsxFactory
   `docs/packet-lifecycle-headers.md` permits it and 16 files took it at
-  `57fd9fd2`.
+  `57fd9fd2`, which inserted ONE `+Ratified:` line per target.
 - `archive_move` — the class the sweep expected and did NOT find, kept because
   a packet's move from `openspec/changes/<id>/` to
   `openspec/changes/archive/<date>-<id>/` is a routine act of this estate that
@@ -292,10 +308,21 @@ it produces a verified record of the wrong document.
 ## C-7. The validator split — internal legs neutral, git legs at the consumer
 
 **Decision.** `scripts/validate-consent-instruments.py` gains the INTERNAL legs:
-first link equals the pin, each later link equals its predecessor's observed
-digest, `at` is non-decreasing in declared order, no entry's digest is written
-back into `custody.sha256`, closed enums, closed entry shape. It does **not**
-gain the git re-derivation legs.
+the first link equals the pin AND `custody.locator`; each later link equals its
+predecessor's observed digest AND its observed locator; `at` is non-decreasing
+in declared order; no entry's digest is written back into `custody.sha256`; a
+`path_only` entry's two digests are equal; every `content` entry yields the
+WITHHELD outcome; closed enums; closed entry shape. It does **not** gain the git
+re-derivation legs.
+
+**The class legs and the withheld outcome are NEUTRAL, and that is a
+consequence rather than a preference.** `diff_class` is a field of the record,
+so `path_only` digest-equality and the withholding a `content` class triggers
+are both derivable from the record's own bytes — the test C-7 uses to place
+every leg. What is NOT neutral is CONFIRMING a class against the measured diff
+(`header_only`'s non-header-byte check, and `path_only`'s at the real
+locators): that needs the repository, and it belongs with the consumer's gate
+alongside the digest legs.
 
 **Why.** The canonical validator is network-free and reads ONE repository —
 the posture this schema already states for `dependent_refs.ref` (*"The validator
@@ -408,23 +435,81 @@ CONSUMER'S owed act, outside this change's archive gate.
    cut commit **in lockstep with the worker-enrollment-broker's
    runtime-shape validation** — the pin and the broker's declared shape move in
    one act or the `pin_gap_misdeclared` guard fails the advance closed.
-3. OpsxFactory writes, per broken instrument, ONE `custody_rederivations` entry
-   and **NO `amendments` entry** (C-10 — the amendment would transition an
-   executed instrument to `amended` for a change in nothing the parties agreed).
-   The three entries are all `diff_class: header_only`,
-   `reason: lifecycle_header_edit`, `commit: 57fd9fd2…`, with equal
-   `previous_locator` and `observed_locator` — those three targets did not move
-   at that commit — and `ruling_ref` citing
-   `docs/packet-lifecycle-headers.md` § *Editing an archived packet* and the F.1
-   ruling comment.
+3. OpsxFactory writes the THREE PRESCRIPTIONS BELOW — and **NO `amendments`
+   entry** anywhere (C-10). **The prescriptions are NOT uniform, and an earlier
+   draft of this section wrongly said they were.** It prescribed one entry per
+   broken instrument with `previous_locator == observed_locator ==
+   custody.locator`. That is true of exactly ONE of the three. The other two
+   were ALREADY ARCHIVED before `57fd9fd2` — `add-tenant-reader-grant-pipeline`
+   at `a98fca5b` (2026-08-21) and `add-managed-service-inventory` at `0ebb1191`
+   (2026-08-22), both ANCESTORS of `57fd9fd2` — so their `custody.locator` is a
+   PRE-ARCHIVE path that is absent at `57fd9fd2^` AND at `57fd9fd2`. A single
+   entry is refused whichever locator it names: neither-path if it names the old
+   one, anchor mismatch if it names the new one. They need a TWO-ENTRY chain.
+
+   Every commit and digest below was MEASURED at the OpsxFactory tree, not
+   carried over from the finding table.
+
+   **I. `opensoft-exchange-monitor-reader-consent.yaml` — TWO entries.**
+
+   ```yaml
+   custody:
+     locator: "opsx:opensoft/openspec/changes/add-tenant-reader-grant-pipeline/review/ratification-2026-08-15.md"
+     sha256: "bb8f89ea4cbacc184c85bd2d80dde7e35c2a35bfee803ce836106552cc286e69"
+   custody_rederivations:
+     - at: "<recording time>"
+       commit: "a98fca5b73c6baf331e75717088a18e574c6716c"
+       previous_locator: "opsx:opensoft/openspec/changes/add-tenant-reader-grant-pipeline/review/ratification-2026-08-15.md"
+       observed_locator: "opsx:opensoft/openspec/changes/archive/2026-08-21-add-tenant-reader-grant-pipeline/review/ratification-2026-08-15.md"
+       previous_sha256: "bb8f89ea4cbacc184c85bd2d80dde7e35c2a35bfee803ce836106552cc286e69"
+       observed_sha256: "bb8f89ea4cbacc184c85bd2d80dde7e35c2a35bfee803ce836106552cc286e69"
+       diff_class: path_only          # ZERO bytes changed; only the path did
+       reason: archive_move
+       ruling_ref: "<the archive act's record>"
+       recorded_by: "<lane, PR>"
+     - at: "<recording time>"
+       commit: "57fd9fd206aece4d44dd383fcc4600c153d35f65"
+       previous_locator: "opsx:opensoft/openspec/changes/archive/2026-08-21-add-tenant-reader-grant-pipeline/review/ratification-2026-08-15.md"
+       observed_locator: "opsx:opensoft/openspec/changes/archive/2026-08-21-add-tenant-reader-grant-pipeline/review/ratification-2026-08-15.md"
+       previous_sha256: "bb8f89ea4cbacc184c85bd2d80dde7e35c2a35bfee803ce836106552cc286e69"
+       observed_sha256: "5c87d54731492b874e527d092f1a39431ba4b5c4bb5f4488b2a7b36a7ab3cd6e"
+       diff_class: header_only
+       reason: lifecycle_header_edit
+       ruling_ref: "docs/packet-lifecycle-headers.md § Editing an archived packet"
+       recorded_by: "<lane, PR>"
+   ```
+   HEAD at the observed locator hashes to `5c87d547…` — the chain terminates,
+   and custody reaches CURRENT.
+
+   **II. `opsx-farheap-service-discovery-reader-consent.yaml` — TWO entries**,
+   the same shape at its own commits:
+
+   - `custody.locator` = `opsx:opensoft/openspec/changes/add-managed-service-inventory/review/ratification-2026-08-21.md`,
+     pin `b5d4ab55e751ef311bb420e2cc24cc0197746388a6a3200ec6e36dfd6754d1b9`
+   - **e1** `archive_move` / `path_only` at `0ebb1191b8a82ece4ecde886e6b760debb6c5a8a`;
+     observed locator `opsx:opensoft/openspec/changes/archive/2026-08-22-add-managed-service-inventory/review/ratification-2026-08-21.md`;
+     both digests `b5d4ab55…` (identical — zero bytes changed)
+   - **e2** `lifecycle_header_edit` / `header_only` at `57fd9fd2…`; both locators
+     the archive path; `previous_sha256: b5d4ab55…`,
+     `observed_sha256: d9eecee3944eff2275f8306ad16e2a0f82e407ff0ceec8bf2e7db908609ad820`
+   - HEAD at the archive path hashes to `d9eecee3…` — CURRENT.
+
+   **III. `opsx-opensoft-node-inventory-reader-consent.yaml` — ONE entry.** This
+   is the only instrument the uniform prescription was ever true of: its target
+   has NEVER been archived, so both locators equal `custody.locator`.
+
+   - `custody.locator` = `opsx:opensoft/openspec/changes/add-managed-node-inventory/review/ratification-2026-07-10-r2.md`,
+     pin `31e4f88913d77778d7cdbe9366ccdd8fbafc758b428981c861c78c49c4da3d54`
+   - **e1** `lifecycle_header_edit` / `header_only` at `57fd9fd2…`; both locators
+     = `custody.locator`; `previous_sha256: 31e4f889…`,
+     `observed_sha256: 7fc4bb21dc0c91ad3a76685e5136bb269a291cce5e95b82a635ccd5a1afc7600`
+   - HEAD hashes to `7fc4bb21…` — CURRENT.
 4. The fourth instrument, `opsx-farheap-node-inventory-reader-consent.yaml`,
-   takes **no entry for `57fd9fd2`**: its content pin is not broken, and an
-   entry there would be a false record of an event that did not occur. **Its
-   LOCATOR did move**, when `add-managed-service-mapping` archived on
-   2026-08-26, so under C-6a it is a candidate for an `archive_move` entry with
-   a differing locator pair and an unchanged digest on both sides — the worked
-   Example B in `proposal.md`. Whether to write it is the consumer's call at
-   re-pin time, and it is the first real exercise of the path pair.
+   takes **no entry for `57fd9fd2`**: its content pin is not broken. Its LOCATOR
+   did move when `add-managed-service-mapping` archived on 2026-08-26, so it is
+   a candidate for a single `archive_move` / `path_only` entry with a differing
+   locator pair and equal digests. Whether to write it is the consumer's call at
+   re-pin time.
 
 ## What this design does not settle
 

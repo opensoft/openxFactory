@@ -112,6 +112,13 @@ entry, and a `contract_schema_version` bump.** Nothing else in the schema moves.
   `observed_sha256`, `diff_class`, `reason`, `ruling_ref`, `recorded_by`. All
   TEN required; `additionalProperties: false` per entry; `diff_class` and
   `reason` closed enumerations.
+- **`diff_class` has THREE members and each carries a currency consequence.**
+  `path_only` (zero bytes changed; only the locator did) and `header_only` (only
+  lifecycle-header lines) MAY reach CURRENT; `content` (anything else) WITHHOLDS
+  the verdict. `path_only` exists because a pure relocation changes no bytes at
+  all: it is not `header_only`, and calling it `content` would withhold forever
+  on a target nobody edited. Both measured archive moves have identical digests
+  on the two sides, so this is the estate's real case and not a hypothetical.
 - **A DECLARED CUSTODY STORE MAPPING is required of the consuming repository.**
   `custody.locator` is opaque and is NOT a path — every OpsxFactory locator
   carries an `opsx:opensoft/` scheme prefix, and three of the four targets
@@ -162,7 +169,8 @@ custody_rederivations:        # NEW sibling; absent on every existing instrument
     observed_locator: "opsx:opensoft/openspec/changes/add-managed-node-inventory/review/ratification-2026-07-10-r2.md"
     previous_sha256: "31e4f889…"        # == custody.sha256 (first entry)
     observed_sha256: "7fc4bb21…"        # the target AT that commit
-    diff_class: header_only             # closed: header_only | content
+    diff_class: header_only             # closed: path_only | header_only |
+                                        #   content
     reason: lifecycle_header_edit       # closed: lifecycle_header_edit |
                                         #   archive_move | other_ruled_edit
     ruling_ref: "docs/packet-lifecycle-headers.md § Editing an archived packet"
@@ -186,7 +194,7 @@ custody_rederivations:
     observed_locator: "opsx:opensoft/openspec/changes/archive/2026-08-26-add-managed-service-mapping/proposal.md"
     previous_sha256: "55b97d77…"        # resolved at commit^, at the OLD path
     observed_sha256: "55b97d77…"        # resolved at commit, at the NEW path
-    diff_class: header_only             # no byte changed; only the path did
+    diff_class: path_only               # ZERO bytes changed; only the path did
     reason: archive_move
     ruling_ref: "<the archive act's record>"
     recorded_by: "lane opsXfactory-1, OpsxFactory PR #<n>"
@@ -249,7 +257,11 @@ row's `sha256` and `consumption_rule`), `contracts/CHANGELOG.md`,
   worker-enrollment-broker's runtime-shape validation** — the `pin_gap_misdeclared`
   guard means an advance that moves the pin without re-validating the broker's
   declared shape fails closed. Then, and only then, the three broken instruments
-  take a `custody_rederivations` entry each — **and NO `amendments` entry**: the
+  take the THREE PRESCRIPTIONS in `design.md` § *The consumer handoff* — which
+  are **not uniform**: two of the three need a TWO-ENTRY chain, because their
+  targets had already moved at archive before `57fd9fd2` and their
+  `custody.locator` is absent on both sides of it. One entry apiece would be
+  refused. And **NO `amendments` entry**: the
   structured record IS the record, and writing an amendment would transition
   three EXECUTED instruments to `amended` under the promoted requirement
   *Amendments Are Transitions, Never New Instruments* for a change in nothing
@@ -326,10 +338,16 @@ false `executed → amended` transition on three instruments.
   where it is owed.
 - It does not tick a box, move a schema byte, cut a release, or open a pull
   request in a consumer repository.
-- It does not claim its first draft was right. An adversarial review found one
-  BLOCKER (locator resolution was undefined, so `reason: archive_move` was
-  unadmittable by construction and the worked example contradicted the finding)
-  and four MAJOR defects (`diff_class: content` bought currency by omission; the
-  instructed `amendments` entry would have transitioned three executed
-  instruments; no ancestry leg; C-1's second leg argued backwards). Each is
-  fixed above and each correction says what the earlier draft got wrong.
+- It does not claim any of its drafts was right. A first adversarial review
+  found one BLOCKER (locator resolution was undefined, so `reason: archive_move`
+  was unadmittable by construction and the worked example contradicted the
+  finding) and four MAJOR defects (`diff_class: content` bought currency by
+  omission; the instructed `amendments` entry would have transitioned three
+  executed instruments; no ancestry leg; C-1's second leg argued backwards). A
+  RE-REVIEW of those fixes found three more, each a CONSEQUENCE of them: the
+  repaired consumer prescription was still uniform when two of the three cases
+  need a two-entry chain; a pure path move had no truthful `diff_class` and fell
+  to `content`, which the new C-9 would have withheld forever; and WITHHELD was
+  mandated while represented by nothing at all — no outcome, no task, no
+  fixture. Each is fixed above and each correction says what the earlier draft
+  got wrong.
