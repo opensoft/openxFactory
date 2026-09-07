@@ -530,11 +530,19 @@ Active changes:
   `openxwallet-pin.yaml` and `openreposhape-pin.yaml`, are unregistered too: the
   pin CLASS has never been published. **2 ADDED requirements** on
   `neutral-product-pin` — R1, a consumption pin another repository reads is a
-  published contract member adopted by pin-sync (never copied; ONE declared
-  fallback for a repository with no stack pin, which is B of #754 and is
-  OpsxFactory's realized shape); R2, registering a pin in the consumption
-  register is not a bundle cut unless it moves the release membership, with the
-  measurement owed by the registering author. No `## MODIFIED` and no
+  published contract member adopted by pin-sync (never copied; a PRECONDITION on
+  the normal case — a consumer whose `contract_ref` predates `1d8cd54e` cannot
+  perform the read and owes a pin-sync, which is where MedxFactory, AdxFactory
+  and LedgerxFactory stand today; ONE declared fallback for a repository with no
+  stack pin, which is B of #754 and whose first realized instance is
+  xFactory-Hermes-Install PR #72, merged `06c9083d` — **not** OpsxFactory, which
+  has a stack pin, copies nothing and is the NORMAL case in hardened form; and
+  the clause pricing the fallback against the promoted requirement *A required
+  check runs the pinned tool, at the pinned digest*, whose enforcement claim
+  stays UNMET while a declared copy stands); R2, registering a pin in the
+  consumption register is not a bundle cut unless it moves the release
+  membership, with the measurement owed by the registering author. No
+  `## MODIFIED` and no
   `## REMOVED`: the requirement a modification would land on is under an ACTIVE
   `## MODIFIED` block held by `add-openspec-cli-pin`, which has not archived.
   `sequenced_after: [add-openspec-cli-pin]` — and the second entry it would

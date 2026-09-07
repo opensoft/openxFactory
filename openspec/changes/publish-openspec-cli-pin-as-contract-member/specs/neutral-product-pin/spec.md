@@ -52,6 +52,21 @@ consumer following the instructions literally gets an unrecognized-argument
 error and falls back to the ambient tool, which is the state the pin exists to
 end.
 
+**THE READ IS AVAILABLE ONLY WHERE THE PINNED REF CARRIES THE ENTRYPOINT, AND
+PUBLISHED ADOPTION INSTRUCTIONS SHALL SAY SO.** A consuming repository whose
+`stack.yaml` `xfactory.contract_ref` names a commit PREDATING the one that
+introduced the registered entrypoint cannot perform the read above at all: the
+file is not in the checkout the recipe names, and a reader following the recipe
+literally gets a missing-file error and falls through to the ambient tool — the
+state the pin exists to end. Published instructions SHALL name the earliest
+commit at which the entrypoint exists, and SHALL direct such a consumer to
+ADVANCE ITS PIN in its own ordinary pin-sync. A pin behind the entrypoint is a
+PIN-SYNC OWED and never a licence for the fallback below, which is admitted only
+for a repository carrying NO `xfactory:` stack pin at all. A gate that meets the
+absence SHALL REFUSE, naming the missing path and the reason, and SHALL NOT fall
+through to an ambient installation or to an unnamed skip, a skip that is not
+named being indistinguishable from a pass.
+
 **THE ONE ADMITTED FALLBACK, AND ITS PRICE.** A repository that carries NO
 `xfactory:` stack pin cannot perform the read above at all, and MAY therefore
 carry a DECLARED consumption copy — a file that names the `openxFactory` commit
@@ -61,6 +76,18 @@ repository adopts a stack pin, and SHALL NOT be described as consuming the pin
 in the sense the paragraph above means. A copy that declares none of this is not
 this fallback; it is the undeclared duplicate the fallback is written to
 distinguish itself from.
+
+**AND THE FALLBACK DOES NOT DISCHARGE THE ENFORCEMENT CLAIM, WHICH SHALL BE
+STATED RATHER THAN LEFT TO A READER TO RECONCILE.** This capability's promoted
+requirement *A required check runs the pinned tool, at the pinned digest* holds
+that a REQUIRED check *"SHALL NOT invoke an in-tree copy, a vendored duplicate
+or an unpinned installation"*. A required check wired off a DECLARED consumption
+copy is such an invocation. Declaring the copy therefore makes it AUDITABLE and
+does not make it LAWFUL: the declaration is what lets a reader say which bytes
+ran, and that requirement's enforcement claim REMAINS UNMET for as long as the
+copy stands. A packet admitting the fallback SHALL NOT describe the interim as
+satisfying the required-check requirement, and the claim is discharged only when
+the copy is retired for a stack pin.
 
 #### Scenario: A consumer pin-syncs to a commit carrying the registration
 - **WHEN** a consuming repository advances `stack.yaml`'s `xfactory.contract_ref` to an `openxFactory` commit at or after the pin's registration
@@ -86,6 +113,16 @@ distinguish itself from.
 - **WHEN** a repository that carries no `xfactory:` stack pin wires the gate from a copy
 - **THEN** the copy is lawful ONLY as a declared interim naming the `openxFactory` commit it was taken from, the digest of what it copied, and the divergence it accepts
 - **AND** it is retired when that repository adopts a stack pin, an undeclared duplicate never becoming lawful by being useful
+
+#### Scenario: The consumer's pinned ref predates the entrypoint
+- **WHEN** a consuming repository's `stack.yaml` `xfactory.contract_ref` names an `openxFactory` commit at which the registered entrypoint does not yet exist
+- **THEN** the checkout-and-invoke read is unavailable to it, and the remedy is to ADVANCE the pin in that repository's own pin-sync — never to copy the entrypoint, and never to fall through to an ambient installation
+- **AND** the published adoption instructions name the earliest commit carrying the entrypoint, and a gate that meets the absence refuses with the missing path and the reason named rather than skipping silently
+
+#### Scenario: A required check is wired off a declared consumption copy
+- **WHEN** a repository carrying no stack pin makes a REQUIRED check invoke the entrypoint from its own declared consumption copy
+- **THEN** the declaration makes WHICH BYTES RAN auditable, and the promoted requirement *A required check runs the pinned tool, at the pinned digest* — which forbids invoking an in-tree copy, a vendored duplicate or an unpinned installation — has its enforcement claim UNMET for as long as the copy stands
+- **AND** the interim is not described as satisfying that requirement, the claim being discharged only when the copy is retired for a stack pin
 
 ### Requirement: Registering a pin in the consumption register is not a bundle cut unless it moves the release membership
 Publishing a consumption pin as a contract member SHALL be treated as an act on

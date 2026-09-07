@@ -52,11 +52,15 @@ bypass flag.
 
 ## 2. The measurement, taken before the design
 
-- [x] 2.1 **THE PIN IS REGISTERED NOWHERE, IN ANY OF THE THREE REGISTERS.**
-      `contracts/README.md`: zero occurrences. `contracts/manifest.yaml`: the
-      string appears only inside prose comments belonging to the `openxwallet-pin`
-      rows. `contracts/releases/contract-v3.4.digests.yaml`: absent. Its two
-      siblings, `contracts/openxwallet-pin.yaml` and
+- [x] 2.1 **THE PIN IS REGISTERED NOWHERE, IN ANY OF THE THREE REGISTERS — ZERO
+      OCCURRENCES IN EACH.** `git grep -c 'openspec-cli-pin' origin/main --`
+      returns `0` for `contracts/README.md`, `0` for `contracts/manifest.yaml`
+      and `0` for `contracts/releases/contract-v3.4.digests.yaml`, re-measured
+      2026-09-07. **CORRECTED:** an earlier reading of this box said the string
+      appeared in the manifest *"only inside prose comments belonging to the
+      `openxwallet-pin` rows"* — it does not; that prose carries
+      `openxwallet-pin.yaml`. The gap is total in all three registers rather than
+      partial in one. Its two siblings, `contracts/openxwallet-pin.yaml` and
       `contracts/openreposhape-pin.yaml`, are in the same state — the pin CLASS
       has never been published.
 - [x] 2.2 **RELEASE MEMBERSHIP IS A CLOSED SET AND THE MANIFEST'S `contracts:`
@@ -78,7 +82,8 @@ bypass flag.
       commit `807a4f47` — the fact `release-tag-gate`'s `gate-findings` arm turns
       on, checked rather than assumed, because this diff touches
       `contracts/manifest.yaml` and therefore triggers that gate.
-- [x] 2.5 **THE TWO LIVE CONSUMERS BOTH READ, NEITHER COPIES.** codexFactory
+- [x] 2.5 **THE TWO LIVE CONSUMERS BOTH READ, NEITHER COPIES — AND OPSXFACTORY IS
+      THE NORMAL CASE, NOT THE FALLBACK.** codexFactory
       `.github/workflows/validate.yml` resolves
       `stack.yaml['xfactory']['contract_ref']`, checks openxFactory out at that
       ref into `.openxfactory-pin`, and runs `scripts/validate-docs.sh` with
@@ -86,10 +91,26 @@ bypass flag.
       `$OPENX/scripts/validate-openspec-cli-pin.py`. OpsxFactory
       `.github/workflows/opsx-validation.yml` does the same into
       `scratchpad/openxfactory-pin-<sha12>` and invokes
-      `"$OPSX_OPENSPEC_CLI_PIN_ENTRYPOINT" --repo . --all --strict`. OpsxFactory
-      additionally carries `contracts/openspec-cli-pin-consumption.yaml`, a
-      DECLARED DIVERGENCE — which is the shape R1's fallback scenario
-      generalizes, taken from a realized precedent rather than invented.
+      `"$OPSX_OPENSPEC_CLI_PIN_ENTRYPOINT" --repo . --all --strict`.
+      **CORRECTED, AGAINST THE TREE.** An earlier reading of this box cited
+      OpsxFactory's `contracts/openspec-cli-pin-consumption.yaml` as R1's
+      FALLBACK realized. It is not, on four measured counts: OpsxFactory HAS an
+      `xfactory:` stack pin (`contract_ref: 724a2a4f`); it copies NOTHING
+      (`contracts/openspec-cli-pin.yaml` and `scripts/validate-openspec-cli-pin.py`
+      both 404 in that repository); the consumption file records
+      `commit_source: stack.yaml xfactory.contract_ref`, a POINTER rather than a
+      copied-from commit, and `scripts/opsx_validation_gate.py` asserts
+      statically that it declares no commit of its own; and its *"DECLARED
+      DIVERGENCE"* is a divergence from OPSXFACTORY'S OWN ratified `design.md`
+      § 4/§ 6 — an `npm ci` install of `@fission-ai/openspec@1.2.0` — TOWARD this
+      pin, its governing change `advance-openxfactory-pin-and-fold-cli-pin`
+      having gone in the RETIRE-THE-COPY direction. What that file actually is,
+      and why it is worth citing under the NORMAL case instead: per-file SHA-256
+      digests recomputed against the PINNED CHECKOUT before the entrypoint is
+      executed, so the entrypoint that RAN is provably the entrypoint that was
+      REVIEWED — a hardened read, and a precedent for others. The re-citation
+      lands in `contracts/README.md`, `proposal.md`, this box and the pull
+      request body.
 
 ## 3. The delta
 
@@ -100,7 +121,23 @@ bypass flag.
       read-from-the-pinned-checkout and never copy; and ONE admitted fallback for
       a repository with no stack pin, which must declare the commit it copied
       from, the digest of what it copied and the divergence it accepts, and must
-      retire the copy on adopting a stack pin. Four scenarios.
+      retire the copy on adopting a stack pin. **Plus the two clauses added in
+      the three-lens fix round:** the PRECONDITION on the normal case — a
+      consumer whose `contract_ref` predates the commit introducing the
+      entrypoint cannot perform the read, published instructions name that
+      commit, the remedy is to ADVANCE the pin and never to copy, and a gate
+      meeting the absence REFUSES rather than skipping silently; and the
+      RECONCILIATION with this capability's promoted requirement *A required
+      check runs the pinned tool, at the pinned digest*, which forbids invoking
+      an in-tree copy or a vendored duplicate — a required check wired off a
+      declared copy leaves that enforcement claim UNMET until the copy is
+      retired, so declaring makes the copy auditable and not lawful. **SEVEN
+      scenarios** — four as first authored, a fifth (*The published instructions
+      name a verb the entrypoint rejects*) added in bench round 2 on Codex's P1,
+      and two added in the fix round (*The consumer's pinned ref predates the
+      entrypoint*, *A required check is wired off a declared consumption copy*).
+      This box previously read *"four scenarios"* and had not been re-counted
+      after round 2; it is re-counted against the file here.
 - [x] 3.2 `specs/neutral-product-pin/spec.md`: **R2**, *Registering a pin in the
       consumption register is not a bundle cut unless it moves the release
       membership* — the mechanical test, the two outcomes, and the obligation on
@@ -150,6 +187,23 @@ bypass flag.
       imports that entrypoint's resolver and invokes the resolved binary. The
       section now names BOTH commands and says which act each performs; R1 gains
       the clause and the scenario that make it canon rather than a local fix.
+      **AND THE FIX ROUND MADE STEP 1 EXECUTABLE, which it was not.** The recipe
+      as first written could not run where the consumer's `contract_ref`
+      PREDATES `1d8cd54e` (2026-09-04), the commit that first carries
+      `scripts/validate-openspec-cli-pin.py`: measured 2026-09-07, MedxFactory
+      and AdxFactory pin `6c03d783` (2026-08-06) and LedgerxFactory pins
+      `af7ac0fa` (2026-08-27), and the entrypoint is absent from all three, so a
+      literal reader gets a missing-file error and falls back to the ambient
+      `openspec` — the Codex-P1 failure class in a second guise. Step 1 now
+      carries the precondition, the three named consumers behind it, the
+      advance-your-pin remedy, and codexFactory's
+      `scripts/validate-docs.sh:162` guard as the shape of a lawful refusal;
+      step 2's *"both live consumers use exactly this name"* is corrected —
+      codexFactory uses `OPENXFACTORY_ROOT`, OpsxFactory uses
+      `OPSX_PINNED_OPENXFACTORY_CHECKOUT` / `OPSX_OPENSPEC_CLI_PIN_ENTRYPOINT`,
+      and the name is the consumer's while the seam is the checkout; and the
+      fallback subsection is re-cited (§ 2.5) with the promoted-requirement
+      price stated.
 - [x] 4.4 **`contracts/openspec-cli-pin.yaml` IS NOT EDITED** (`design.md` D7) —
       no version, no digest, no `rollback:`, no `dispositions:` entry — and no
       script and no workflow is edited. Publishing a pin and moving a pin are
@@ -171,7 +225,20 @@ bypass flag.
       none of it. **This box ticks on the recording** — when the three pull
       requests (or the issue that tracks them) are named here — per the
       *"Tick on the recording"* ruling; the tick will record the naming, not the
-      doing.
+      doing. **ONE OF THE THREE LANDED WHILE THIS PACKET WAS IN REVIEW, and its
+      shortfall is named rather than smoothed:** xFactory-Hermes-Install PR
+      [#72](https://github.com/opensoft/xFactory-Hermes-Install/pull/72), merged
+      `06c9083d` on 2026-09-07, is the estate's FIRST declared copy. It carries
+      two of R1's three fields — the openxFactory commit copied from
+      (`44d8fbaf`, in a vendoring header on each of the three copied files) and
+      the divergence accepted (three `uses:` commit-SHA pins in the adapted
+      workflow; governed archive routing deferred, `scripts/proposal-support.py`
+      not being vendored). **The digest of what it copied is NOT recorded** — it
+      asserts byte-identity below the header and ships a `diff` recipe against
+      the named commit in place of a per-file `sha256`. That is a real check and
+      it is not the field R1 names, so **the digest is OWED on
+      xFactory-Hermes-Install**, is that repository's act and not this lane's,
+      and is stated here as owed rather than counted as met.
 - [ ] 5.2 **EVERY OTHER SIBLING'S ADOPTION BELONGS TO ITS OWN LANE**, by #754's
       second ruling: OpsxFactory's shadow gate becoming required (four live
       lanes), MedxFactory / AdxFactory / LedgerxFactory (their owners), the
@@ -187,12 +254,21 @@ bypass flag.
       three pins into one row-block would be asserting three consumption rules on
       one word. **This box ticks on the recording** of the successor issue that
       names them, and the tick will record the naming.
-- [ ] 5.4 **A REGISTRATION IS NOT A CHECK.** Nothing in this repository asserts
-      that a pin another repository reads IS registered — R1 states the
-      obligation, and `doc-health` has no family that reads it. A checker would
-      belong beside `release-inventory-drift` rather than inside it, and it is
-      not written here. **This box ticks on the recording** of the successor
-      issue that proposes it, and the tick will record the naming.
+- [ ] 5.4 **A REGISTRATION IS NOT A CHECK, AND THE ROW'S ONE RESIDUAL COUPLING IS
+      UNVERIFIED.** Nothing in this repository asserts that a pin another
+      repository reads IS registered — R1 states the obligation, and `doc-health`
+      has no family that reads it. **AND THE SAME CHECKER OWES A SECOND
+      ASSERTION**, which is D2's residual coupling stated plainly: the manifest
+      row's `consumption_rule` QUOTES the path
+      `scripts/validate-openspec-cli-pin.py`, the pin file names that same path
+      in its own `consumer_entrypoint:` field, and **nothing compares the two** —
+      a rename that moved the pin and not the row would leave the register
+      quoting a path that does not exist, silently. Declining the per-file
+      digest (D2) does not remove that coupling; it makes it one string wide
+      instead of one file wide. Both assertions belong in a checker beside
+      `release-inventory-drift` rather than inside it, and neither is written
+      here. **This box ticks on the recording** of the successor issue that
+      proposes it, and the tick will record the naming.
 - [ ] 5.5 **ARCHIVE — NOT TAKEN, AND ON A SEPARATE WORD.** `code_surface` is
       non-empty, so under `release-realization` this packet archives on
       merged-plus-green realization evidence rather than on landing, and on a
@@ -210,3 +286,37 @@ bypass flag.
       consequences), or record the ordering in prose and accept that no machine
       reads it. **This box ticks on the recording** of the successor issue that
       names the choice, and the tick will record the naming.
+- [ ] 5.7 **THE `contracts/CHANGELOG.md` ENTRY IS OWED AT THE NEXT CUT.**
+      `docs/contract-versioning-policy.md` § *Change Classes* grades *"new
+      contracts"* as **Additive (minor)**, and § *Version Identity* item 5
+      requires the changelog to carry *"one entry per release listing every
+      contract added, changed, or deprecated"*. This packet registers a contract
+      and cuts no release, so the entry has no release to be written into today:
+      this repository writes no `Unreleased` block by practice (the changelog is
+      headed at `contract-v3.4`, and its cut records state that no `Unreleased`
+      block is pending), and allocating a version to create one IS A-cut, which
+      is not this lane's act. **So the entry is owed at the NEXT CUT**, whoever
+      takes it, and it is recorded here rather than left for that session to
+      re-derive: the release entry that follows this merge must list
+      `contracts/openspec-cli-pin.yaml` among the contracts the bundle carries.
+      The § *Version Identity* atomicity clause — *"the manifest and changelog
+      update SHALL be committed atomically with the contract files"* — is not
+      breached by the deferral: this diff adds no contract FILE (the pin file
+      already exists on `main` and is untouched, `design.md` D7), only its
+      register row, and the membership/digest accounting of D1 is unmoved by a
+      changelog line. **This box ticks on the recording** of the cut, or of the
+      issue that carries it, and the tick will record the naming.
+- [ ] 5.8 **`neutral-product-pin`'s PURPOSE WILL NEED WIDENING AT ARCHIVE.** The
+      promoted Purpose frames the capability in ONE direction — *"Govern
+      openxFactory's consumption of an EXTERNAL neutral product, the direction in
+      which it is the consumer rather than the publisher"* — with one reverse
+      clause for a neutral product vendoring an openxFactory contract. R1 adds a
+      third direction the Purpose does not describe: openxFactory PUBLISHING its
+      own consumption pin as a contract member that other repositories read and
+      adopt by pin-sync. A promoted spec whose Purpose does not name a
+      requirement it carries is a Purpose that has fallen behind its own
+      requirements, so the widening belongs in the ARCHIVE act (§ 5.5) — where
+      the deltas promote and the spec file is rewritten — and not in the delta,
+      which carries requirements rather than the Purpose block. **This box ticks
+      on the recording** of that obligation in the archive act, and the tick will
+      record the naming, not the doing.

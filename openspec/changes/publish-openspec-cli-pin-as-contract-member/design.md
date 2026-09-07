@@ -15,11 +15,20 @@ from reading prose.
 **(a) Is the pin registered anywhere?** No.
 
 ```
-grep -c 'openspec-cli-pin' contracts/README.md                     -> 0
-grep -n  'openspec-cli-pin' contracts/manifest.yaml                -> only inside
-     prose comments belonging to the openxwallet-pin rows (lines 2076-2685)
-grep -n  'openspec-cli-pin' contracts/releases/contract-v3.4.digests.yaml -> none
+git grep -c 'openspec-cli-pin' origin/main -- contracts/README.md         -> 0
+git grep -c 'openspec-cli-pin' origin/main -- contracts/manifest.yaml     -> 0
+git grep -c 'openspec-cli-pin' origin/main -- \
+        contracts/releases/contract-v3.4.digests.yaml                     -> 0
 ```
+
+**CORRECTED, AND THE CORRECTION IS THE POINT OF SHOWING THE COMMAND.** A first
+draft of this section reported the manifest as carrying the string *"only inside
+prose comments belonging to the `openxwallet-pin` rows (lines 2076-2685)"*.
+Re-measured 2026-09-07, that is **ZERO OCCURRENCES**: the prose at those lines
+carries `openxwallet-pin.yaml` and never `openspec-cli-pin`. The registration
+gap is therefore total in all three registers rather than partial in one, which
+is a stronger reading of the same finding and was worth correcting rather than
+softening.
 
 Its two siblings are in the same state: neither `contracts/openxwallet-pin.yaml`
 nor `contracts/openreposhape-pin.yaml` is a registered row either. The pin class
@@ -84,6 +93,7 @@ files a cut re-baselines anyway.
 | `release-tag-gate` | **PASS, and it does run** — the diff touches `contracts/manifest.yaml`, which is one of its two trigger paths. `gate-findings` needs a stale unpublished bundle: `contract-v3.4` is published, an annotated tag peeling to `807a4f47`. `gate-version-reuse` needs the declaration to MOVE: this packet does not touch `contract_bundle_version`. |
 | `validate-contract-release.py verify-commit` | unchanged in kind: the two editorial members will read as mismatched at `HEAD`, which the policy names an expected bounded state between cuts, and which they already read as on `main` for any landing that touches them. |
 | `validate-manifest-digests.py` | unchanged count: the new row carries no `sha256` (D2), so the walk over digest-bearing entries is the same set it was. |
+| the STANDING `release-inventory-drift` **error** on `docs/contract-versioning-policy.md` | **pre-existing, and named so it is not mistaken for this packet's.** That file is a NORMATIVE member (`release.py` `NORMATIVE_DOCS`), not an editorial one, so its drift from `contract-v3.4` grades `error` and not `info`. It reads identically on `origin/main` and on this branch — measured `python3 scripts/doc-health.py --single-repo . --family release-inventory-drift` — because this packet does not touch that file. It is the standing debt the next cut re-baselines, and A-defer neither creates nor discharges it. |
 
 **A-cut, written out because a veto has to have somewhere to land.** Register
 AND cut `contract-v3.5` in this pull request: allocate the version, write the
@@ -113,6 +123,37 @@ Its costs, in the order they bite:
    as authorising one. If A-cut is chosen, the cut becomes a REALIZATION TASK of
    this packet — ticked when it is done, by whoever is told to do it — and not a
    thing this pull request performs.
+
+**WHAT `docs/contract-versioning-policy.md` SAYS ABOUT THIS, ENGAGED RATHER THAN
+STEPPED AROUND.** Two of its texts reach a registration, and neither was
+answered in the first draft.
+
+* § *Change Classes* grades **"new optional fields, new contracts, new validator
+  warnings"** as **Additive (minor)**. A registered row IS a new contract in the
+  consumption register's sense, so this packet's content is additive-minor
+  MATERIAL. That is a statement about the class of the NEXT CUT, not a statement
+  that a register edit is itself a cut: the class says what kind of version
+  number will eventually carry it, and D0(b) says the membership it would
+  re-baseline does not move.
+* § *Version Identity* item 5 requires `contracts/CHANGELOG.md` to hold **"one
+  entry per release listing every contract added, changed, or deprecated"**, and
+  the section closes: *"The manifest and changelog update SHALL be committed
+  atomically with the contract files."*
+
+**THE HONEST ANSWER TO THE SECOND, WITH NOTHING GLOSSED.** The atomicity clause
+binds a MANIFEST + CHANGELOG + CONTRACT-FILE triple at a release. This diff adds
+no contract FILE: `contracts/openspec-cli-pin.yaml` already exists in the tree at
+`main`, is UNTOUCHED here (D7), and only its REGISTER ROW is new. And this
+repository writes no `Unreleased` block by practice — the changelog is headed at
+`contract-v3.4` and every cut record in it states *"there is no `Unreleased`
+block pending in this file"* — so there is no place a changelog entry could
+lawfully be written today without allocating a version, which is A-cut and is
+not this lane's act. **So the CHANGELOG entry naming this registered contract is
+OWED AT THE NEXT CUT**, where § *Version Identity* item 5 requires the release
+entry to list it. It is recorded as owed at `tasks.md` § 5.7 rather than left
+implicit, and the membership/digest accounting above is unmoved by it: an
+inventory member is what a digest set contains, and a changelog line is what a
+release entry says.
 
 **A third option, recorded as not taken rather than foreclosed: A-member.** Make
 the pin a genuine member of the derived release inventory by adding
@@ -161,12 +202,30 @@ coupling above, and it puts a digest of a live governance surface in a file that
 is re-baselined only at cuts. Both readings are defensible; the packet designs
 the quieter one and says which.
 
+**AND THE RESIDUAL COUPLING D2 DOES LEAVE, NAMED RATHER THAN LEFT TO BE FOUND.**
+Declining the digest does not make the row coupling-free. The row's
+`consumption_rule` QUOTES a path — `scripts/validate-openspec-cli-pin.py` — and
+the pin file names that same path in its own `consumer_entrypoint:` field, and
+**nothing compares the two**. A rename of the entrypoint that updated the pin and
+not the manifest would leave the register quoting a path that does not exist,
+and no check in this repository would say so. That is a smaller coupling than a
+byte digest (one string, moving only on a rename, rather than a whole file
+moving on three event classes) and it is a real one. It is recorded as part of
+§ 5.4's owed checker — the same checker that would assert a read pin IS
+registered would naturally assert that the row's quoted entrypoint EQUALS the
+pin's `consumer_entrypoint:` — and it is not written here.
+
 ## D3 — `type: pin`, a new descriptive value
 
 The manifest's `type` vocabulary is descriptive and open: 14 distinct values
-across 205 rows, five of them used exactly once (`interface_lock`,
-`derivation_table`, `capability_scenario_register`, `acceptance_map`,
-`contract_family`). Nothing enumerates it: every reader of the manifest resolves
+across 205 rows, **SEVEN of them used exactly once** — `sql_schema`,
+`interface_lock`, `fixture_index`, `derivation_table`, `contract_family`,
+`capability_scenario_register` and `acceptance_map` (re-measured 2026-09-07 over
+`origin/main`; a first draft of this line said five and omitted `fixture_index`
+and `sql_schema`). The seven sit against `schema` 153, `fixture` 21, `registry`
+11, `tool` 5, `semantic_kernel` 3, `policy` 3 and `evidence_register` 2, so
+half the vocabulary is singletons and a new descriptive value is the file's
+ordinary habit rather than an exception argued for here. Nothing enumerates it: every reader of the manifest resolves
 rows by `id` or by `path` (`scripts/check-openxfactory-pin.py:96`,
 `scripts/validate-avatar-first-ui.py:656`,
 `scripts/ideation_dashboard/doxbench_contracts.py:589-616`), and
@@ -217,9 +276,16 @@ is prose no machine reads — and none of them taken here.
 
 ## D5 — The consumer doc section lives in `contracts/README.md`
 
-`docs/` carries no page about the pin at all (measured: the only files naming
-`openspec-cli-pin` outside `openspec/` and `scripts/` are the root `README.md`
-and two workflows). Three homes were considered:
+**`docs/` carries no page about the pin at all** — the load-bearing measurement,
+and the one that survives re-measurement: `git grep -l 'openspec-cli-pin'
+origin/main -- 'docs/*'` returns **zero** files. (A first draft over-narrowed the
+surrounding claim, saying the only files naming the string outside `openspec/`
+and `scripts/` were the root `README.md` and two workflows. Re-measured, there
+are **TEN**: those three, plus `contracts/openspec-cli-pin.yaml` itself,
+`specs/021-modified-block-currency-self-gate/contracts/self-gate-contract.md`,
+and five under `tests/`. None of them is a doc page, so the conclusion below is
+unchanged and the count is corrected rather than the argument.) Three homes were
+considered:
 
 * **a new `docs/openspec-cli-pin-adoption.md`** — a fourth place to keep in step,
   reachable only from a doc index, and the section is eight lines of recipe;

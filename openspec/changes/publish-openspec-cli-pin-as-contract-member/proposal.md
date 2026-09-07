@@ -1,6 +1,6 @@
 ---
 code_surface: openxFactory — TWO EDITORIAL FILES AND NOTHING ELSE. (1) `contracts/manifest.yaml` gains ONE row, `id: openspec-cli-pin`, `path: contracts/openspec-cli-pin.yaml`, `type: pin`, `adapter_owner: openxFactory`, `compatibility: canonical_openxfactory_contract`, `intended_consumers`, and a `consumption_rule` written on `domain-factory-conformance-validator`'s precedent (`contracts/manifest.yaml:184-199`) — check openxFactory out at `stack.yaml`'s `xfactory.contract_ref` and invoke the entrypoint from that checkout; copying is a conformance violation. (2) `contracts/README.md` gains the matching Native-contract-index row and ONE new consumer-facing section, *Gating archives on the pinned CLI from a consumer repository*, carrying the checkout-at-`contract_ref` recipe as codexFactory and OpsxFactory already run it plus the declared copy-in fallback for a repository with no stack pin. NOT THIS CHANGE'S SURFACE, each for a stated reason: `contracts/openspec-cli-pin.yaml` itself is NOT EDITED — no version moves, no digest moves, no disposition is added or retired, and this packet must not be read as approving a bump; `scripts/validate-openspec-cli-pin.py`, `scripts/install-pinned-openspec-cli.py`, `scripts/proposal-support.py` and every workflow are UNTOUCHED, because the gate they implement is already ratified and running and this packet publishes the pin rather than changing what it does; no consuming repository is wired from here (B of #754 and every sibling's adoption belong to their own lanes and their own pull requests); and NO release bundle is cut, no `contracts/releases/**` file is written and no tag is pushed.
-target_release: none — MEASURED, NOT ASSUMED. The derived release membership reads **283 members before this diff and 283 after**, with `contracts/openspec-cli-pin.yaml` absent from it in both readings (`scripts/hermes_runtime_validation/release.py::release_membership`, taken on this branch on 2026-09-07). Membership is a CLOSED set computed from the hermes-runtime contract index, the fixture index, `scripts/hermes_runtime_validation/**`, four `NAMED_VALIDATORS`, seven `AUXILIARY_MEMBERS` and three `NORMATIVE_DOCS` (`release.py:38-103,532-745`) — it does NOT read `contracts/manifest.yaml`'s `contracts:` list — so a row added there moves no member. Both files this packet edits are EDITORIAL members (`release_inventory.py:57-67`; `release-surface-integrity` names exactly the three), whose movement between cuts is a declared expected state reported at `info`, never a defect. Therefore no digest set moves, no `contract_bundle_version` is spent and no release tag is owed; `release-tag-gate` runs (the diff touches `contracts/manifest.yaml`) and is expected to PASS, `contract-v3.4` being published as an annotated tag peeling to `807a4f47`. Under `release-realization` the code surface is non-empty, so this packet archives on merged-plus-green realization evidence rather than on landing.
+target_release: none — MEASURED, NOT ASSUMED. (`none` is HOUSE PRACTICE and not an enumerated value: `release-realization` § *Realization axis declaration* enumerates `implemented` or a named aggregation-repo release, and eleven active changes in this corpus spell the no-bundle case `none`. It is used here in that established sense — no contract bundle is cut by this packet — and the reading is measured below rather than left to the word.) The derived release membership reads **283 members before this diff and 283 after**, with `contracts/openspec-cli-pin.yaml` absent from it in both readings (`scripts/hermes_runtime_validation/release.py::release_membership`, taken on this branch on 2026-09-07). Membership is a CLOSED set computed from the hermes-runtime contract index, the fixture index, `scripts/hermes_runtime_validation/**`, four `NAMED_VALIDATORS`, seven `AUXILIARY_MEMBERS` and three `NORMATIVE_DOCS` (`release.py:38-103,532-745`) — it does NOT read `contracts/manifest.yaml`'s `contracts:` list — so a row added there moves no member. Both files this packet edits are EDITORIAL members (`release_inventory.py:57-67`; `release-surface-integrity` names exactly the three), whose movement between cuts is a declared expected state reported at `info`, never a defect. Therefore no digest set moves, no `contract_bundle_version` is spent and no release tag is owed; `release-tag-gate` runs (the diff touches `contracts/manifest.yaml`) and is expected to PASS, `contract-v3.4` being published as an annotated tag peeling to `807a4f47`. Under `release-realization` the code surface is non-empty, so this packet archives on merged-plus-green realization evidence rather than on landing.
 sequenced_after: [add-openspec-cli-pin]
 Status: draft
 Proposed: 2026-09-07
@@ -33,7 +33,7 @@ And yet, measured on this branch on 2026-09-07:
 
 | register | carries the pin? |
 | --- | --- |
-| `contracts/manifest.yaml` (205 rows) | **no** — the string `openspec-cli-pin` appears only inside prose comments about `openxwallet-pin` |
+| `contracts/manifest.yaml` (205 rows) | **no** — **zero occurrences** of the string `openspec-cli-pin`, re-measured 2026-09-07 (`git grep -c 'openspec-cli-pin' origin/main -- contracts/manifest.yaml` → `0`). An earlier draft of this row said the string appeared inside the `openxwallet-pin` prose comments; it does not, and those comments carry `openxwallet-pin.yaml` |
 | `contracts/README.md` | **no** — zero occurrences |
 | `contracts/releases/contract-v3.4.digests.yaml` (283 members) | no (and this packet does not change that) |
 
@@ -103,10 +103,39 @@ publishing the pin is not publishing the pinned product; a consumer gates by
 reading from the pinned checkout and never by copying; and ONE admitted
 fallback, for a repository with no stack pin, which must DECLARE the commit it
 copied from, the digest of what it copied and the divergence it accepts, and
-must retire the copy when it adopts a stack pin. That fallback is B of #754 and
-it is not invented here: OpsxFactory already realizes it, at
-`contracts/openspec-cli-pin-consumption.yaml`, as a *"DECLARED DIVERGENCE"* its
-own workflow header names.
+must retire the copy when it adopts a stack pin. R1 also carries the
+PRECONDITION on the normal case — the consumer's `contract_ref` must be at or
+after the commit that introduced the entrypoint, or the read is unavailable and
+a pin-sync is owed — and the clause reconciling the fallback with this
+capability's promoted requirement *A required check runs the pinned tool, at the
+pinned digest*: a required check wired off a declared copy leaves that
+requirement's enforcement claim UNMET until the copy is retired.
+
+**WHOSE FALLBACK IT IS, CORRECTED AGAINST THE TREE.** An earlier draft of this
+packet cited OpsxFactory's `contracts/openspec-cli-pin-consumption.yaml` as the
+fallback's worked example. **That citation was wrong and is withdrawn.**
+OpsxFactory carries an `xfactory:` stack pin (`contract_ref: 724a2a4f`), copies
+NOTHING (neither the pin nor the entrypoint exists in its tree), records
+`commit_source: stack.yaml xfactory.contract_ref` — a POINTER, asserted
+statically by `scripts/opsx_validation_gate.py` — and states no divergence from
+openxFactory; the *"DECLARED DIVERGENCE"* in its workflow header is a divergence
+from OPSXFACTORY'S OWN ratified `design.md` § 4/§ 6 (an `npm ci` install of
+`@fission-ai/openspec@1.2.0`) TOWARD this pin, and
+`advance-openxfactory-pin-and-fold-cli-pin` went in the RETIRE-THE-COPY
+direction. OpsxFactory is the NORMAL case in its hardened form — a
+digest-verified read from the pinned checkout, proving the entrypoint that RAN
+is the entrypoint that was REVIEWED — and it is re-cited there.
+
+**The fallback's first realized instance is elsewhere, and it landed today.**
+xFactory-Hermes-Install PR
+[#72](https://github.com/opensoft/xFactory-Hermes-Install/pull/72), merged
+`06c9083d` on 2026-09-07 as B of #754, is a declared copy: three vendoring
+headers naming openxFactory `44d8fbaf`, and a stated divergence (three `uses:`
+commit-SHA pins in the adapted workflow, governed archive routing deferred). It
+satisfies TWO of R1's three fields; **the digest of what it copied is not
+recorded** — byte-identity is asserted below the header, with a `diff` recipe in
+place of a per-file `sha256` — so that field is OWED on that repository and is
+named as owed here rather than counted as met.
 
 **ONE ORDERING CLAIM COULD NOT BE DECLARED, AND THE REASON IS A FINDING RATHER
 THAN A CHOICE.** `sequenced_after: [add-openspec-cli-pin]` is what this packet
@@ -205,3 +234,18 @@ Brett Heap's two rulings on #754 admit the work and fix its scope. They decide n
 wording here and take no design decision. Every judgment this authoring session
 took is listed in `design.md` as a numbered decision with the alternative beside
 it, and D1 is the one most worth a veto.
+
+**THE VETO POINTS, NAMED HERE AS WELL AS IN `design.md` AND `tasks.md`, so a
+reader who reads only this file finds them.** **D1** — A-defer (register in the
+two editorial files, cut no bundle) against **A-cut** (register AND cut
+`contract-v3.5` here, with the annotated tag owed after the merge). **A-member**
+— a third option recorded as NOT TAKEN rather than foreclosed: add
+`contracts/openspec-cli-pin.yaml` to `AUXILIARY_MEMBERS` (and its entrypoint to
+`NAMED_VALIDATORS`) in `scripts/hermes_runtime_validation/release.py`, which
+would move the derived membership 283 → 285 and would then require the bundle
+realization order under R2's own second scenario; it is a change to the release
+machinery rather than to a register, and belongs in its own packet. And **D2**,
+the second and smaller veto point: the manifest row carries NO `sha256`, on
+`domain-factory-conformance-validator`'s precedent, with the digest-bearing
+alternative and its cost written out beside it in `design.md`. A veto on any of
+the three lands on a written alternative rather than on a blank.

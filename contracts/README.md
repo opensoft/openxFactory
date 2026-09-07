@@ -239,12 +239,32 @@ Four steps, and steps 1-3 are the shape codexFactory
 (`.github/workflows/validate.yml`) and OpsxFactory
 (`.github/workflows/opsx-validation.yml`) already run:
 
-1. **Resolve your pin.** Read `stack.yaml`'s `xfactory.contract_ref` — the exact
-   openxFactory commit your repository consumes.
+1. **Resolve your pin — AND CHECK THAT IT CAN REACH THE ENTRYPOINT.** Read
+   `stack.yaml`'s `xfactory.contract_ref`, the exact openxFactory commit your
+   repository consumes. **That commit must be at or after `1d8cd54e`
+   (2026-09-04), the commit that first carries
+   `scripts/validate-openspec-cli-pin.py`.** An older `contract_ref` cannot run
+   this recipe at all — the file is simply not in the checkout, a literal reader
+   gets `No such file or directory`, and the fallback is the ambient `openspec`,
+   which is the exact state the pin exists to end. Measured 2026-09-07, three
+   consumers are behind it: MedxFactory and AdxFactory both pin `6c03d783`
+   (2026-08-06) and LedgerxFactory pins `af7ac0fa` (2026-08-27); the entrypoint
+   is absent from all three checkouts. **Advance your pin first**, in an ordinary
+   pin-sync pull request in your own repository — do not work around the absence.
+   Until it advances, refuse rather than skip silently: codexFactory's
+   `scripts/validate-docs.sh:162` is the shape, erroring in CI with the reason
+   named — *"the stack.yaml contract_ref predates add-openspec-cli-pin, so strict
+   OpenSpec validation cannot run in CI"* — and recording a counted, named skip
+   locally, so a check that did not run never reports green.
 2. **Check openxFactory out at that ref**, into a scratch path
    (`.openxfactory-pin/`, `scratchpad/openxfactory-pin-<sha12>/`, whatever your
    CI convention is), and point one variable at it — the variable IS the seam,
-   and both live consumers use exactly this name:
+   and **the name is yours**. codexFactory uses `OPENXFACTORY_ROOT`; OpsxFactory
+   uses its own, `OPSX_PINNED_OPENXFACTORY_CHECKOUT`, with
+   `OPSX_OPENSPEC_CLI_PIN_ENTRYPOINT` for the resolved entrypoint. Nothing in
+   this recipe depends on the spelling — what has to be true is that the value
+   names a checkout of openxFactory at YOUR `contract_ref`. The commands below
+   spell it `OPENXFACTORY_ROOT`:
 
    ```bash
    export OPENXFACTORY_ROOT="$PWD/.openxfactory-pin"
@@ -294,13 +314,56 @@ needs a citation and an authority, and the run refuses
 
 Adopting an `xfactory:` stack pin is the better answer and this fallback is an
 interim, not a second supported mode. Where the read above is impossible, a
-repository MAY copy the pin, the entrypoint and the installer — but the copy
-must **declare itself**: a committed consumption record naming the openxFactory
-commit the copy was taken from, the digest of what it copied, and the divergence
-it accepts. OpsxFactory's `contracts/openspec-cli-pin-consumption.yaml` is the
-worked example. The copy is retired when the repository adopts a stack pin.
+repository MAY carry a **DECLARED CONSUMPTION COPY — a file** that names the
+openxFactory commit the copy was taken from, records the digest of what it
+copied, and states the divergence it accepts. The copy is retired when that
+repository adopts a stack pin.
 
-A copy that declares none of that is not this fallback; it is the undeclared
+**AND IT LEAVES AN ENFORCEMENT CLAIM UNMET WHILE IT STANDS — the price is
+stated, not hidden.** `neutral-product-pin` § *A required check runs the pinned
+tool, at the pinned digest* says a required check *"SHALL NOT invoke an in-tree
+copy, a vendored duplicate or an unpinned installation"*. A required check wired
+off a declared copy is exactly that. So declaring the copy makes it AUDITABLE,
+not lawful: the check can say which bytes ran, and that promoted requirement's
+enforcement claim stays UNMET until the copy is retired for a stack pin.
+
+**THE FIRST REALIZED INSTANCE, and what it does and does not yet carry.**
+xFactory-Hermes-Install PR
+[#72](https://github.com/opensoft/xFactory-Hermes-Install/pull/72) — merged
+`06c9083d` on 2026-09-07, as B of #754 — is the first declared copy in the
+estate. `contracts/openspec-cli-pin.yaml`,
+`scripts/validate-openspec-cli-pin.py` and
+`scripts/install-pinned-openspec-cli.py` each carry a vendoring header naming
+openxFactory `44d8fbaf7d977668973dcd116040c9405416c2ea`, and
+`docs/openspec-cli-pin.md` states the divergence accepted — three `uses:`
+commit-SHA pins in the adapted workflow, and governed archive routing deferred
+because `scripts/proposal-support.py` is not vendored. **Two of the three fields
+are there; the third is not.** The digest of what was copied is NOT recorded:
+the copy asserts byte-identity below its header and ships a `diff` recipe
+against the named commit in place of a per-file `sha256`. That is a real check
+and it is not the recorded digest this fallback names, so **the digest is OWED
+on xFactory-Hermes-Install** — named here as owed rather than counted as
+satisfied.
+
+**OpsxFactory IS NOT AN INSTANCE OF THIS FALLBACK.** It belongs above, under the
+normal case, as the HARDENED form of it, and citing it here would be wrong on
+three measured counts. It carries an `xfactory:` stack pin
+(`contract_ref: 724a2a4f`, declared 2026-09-06). It copies NOTHING — neither
+`contracts/openspec-cli-pin.yaml` nor `scripts/validate-openspec-cli-pin.py`
+exists in its tree. And its `contracts/openspec-cli-pin-consumption.yaml`
+records no commit of its own: `commit_source: stack.yaml xfactory.contract_ref`
+is a POINTER, and `scripts/opsx_validation_gate.py` asserts statically that the
+manifest declares no commit differing from the stack pin. What that file holds
+is per-file SHA-256 digests recomputed AGAINST THE PINNED CHECKOUT before the
+entrypoint is executed — so the entrypoint that RUNS is provably the entrypoint
+that was REVIEWED, which is a step beyond the bare read of steps 1-4 and worth
+copying. The *"DECLARED DIVERGENCE"* its workflow header names is a divergence
+from OpsxFactory's OWN ratified `design.md` § 4/§ 6 — an `npm ci` install of
+`@fission-ai/openspec@1.2.0` from a committed lock — TOWARD this pin; and
+`advance-openxfactory-pin-and-fold-cli-pin` (2026-09-06) moved in the
+retire-the-copy direction, folding the second openxFactory checkout away.
+
+A copy that declares none of this is not this fallback; it is the undeclared
 duplicate the fallback exists to be distinguished from.
 
 ## Adapter Rule
