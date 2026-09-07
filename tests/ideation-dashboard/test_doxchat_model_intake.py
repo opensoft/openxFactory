@@ -42,7 +42,9 @@ from pathlib import Path
 import pytest
 import yaml
 
-from conftest import PINNED_REVISION, REPO_ROOT, FakeGit  # noqa: F401
+from conftest import (  # noqa: F401
+    PINNED_REVISION, REPO_ROOT, FakeGit, serve_surface_source,
+)
 from session_fixtures import scratch_repo  # noqa: F401
 
 from ideation_dashboard import doxbench_binding
@@ -1088,8 +1090,10 @@ def test_a_turn_naming_the_affordance_refuses_through_the_existing_refusal(
     value = "__doxchat_intake__"
     model_js = CHAT_MODEL_JS.read_text(encoding="utf-8")
     assert f'INTAKE_OPTION_VALUE = "{value}"' in model_js
-    serve_source = (REPO_ROOT / "scripts" / "ideation_dashboard"
-                    / "serve.py").read_text(encoding="utf-8")
+    # THE WHOLE SERVE SURFACE (§ 2.4 PR 2 of 4): this is an ABSENCE, and an
+    # absence asserted over one of four files is an absence with three holes
+    # in it — the turn route the claim is about now lives in another of them.
+    serve_source = serve_surface_source()
     assert value not in serve_source, (
         "the server must not know the affordance's value: a turn naming it "
         "refuses through the EXISTING absent-model refusal, and a route that "

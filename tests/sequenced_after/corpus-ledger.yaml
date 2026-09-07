@@ -180,6 +180,7 @@ rows:
   align-demote-to-round-trip-rule: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   align-doxbench-contract-pin-to-publisher: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   align-status-reader-to-real-lines: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  amend-absent-changelog-is-an-answer: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#767", moved_on: "2026-09-07"}
   amend-chain-anchoring-readiness-and-durability: {state: archived, class: sole, declares: [add-chain-anchoring], depth: 1, prose: false, moved_by: "#670", moved_on: "2026-09-05"}
   amend-marker-reason-boundary: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#739", moved_on: "2026-09-06"}
   amend-owner-layer-severity: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
@@ -223,6 +224,7 @@ rows:
   prepare-openspec-1.12-readiness: {state: active, class: sole, declares: absent, prose: false, moved_by: "#673", moved_on: "2026-09-05"}
   promote-credential-contracts: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   promote-workflow-gate-contract: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  publish-openspec-cli-pin-as-contract-member: {state: active, class: sole, declares: [add-openspec-cli-pin], depth: 1, prose: false, moved_by: "#757", moved_on: "2026-09-07"}
   publish-semantic-kernel: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   qualify-avatar-brokered-call-feasibility: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   qualify-avatar-live-voice: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}

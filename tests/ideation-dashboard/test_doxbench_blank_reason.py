@@ -48,7 +48,9 @@ from pathlib import Path
 
 import pytest
 
-from conftest import REPO_ROOT  # noqa: F401  (sys.path side effect)
+from conftest import (  # noqa: F401  (sys.path side effect)
+    REPO_ROOT, serve_surface_paths, serve_surface_source,
+)
 
 from ideation_dashboard import doxbench_packet as pk  # noqa: E402
 from ideation_dashboard import serve as serve_mod  # noqa: E402
@@ -626,8 +628,9 @@ def test_f5_the_builder_carries_a_stated_reason_verbatim():
 def test_f5_no_str_coercion_survives_on_the_posture_path():
     """Asserted against the SOURCE, because the coercion's whole problem was
     that it was unreachable from any test that only drove valid values."""
-    source = (REPO_ROOT / "scripts" / "ideation_dashboard"
-              / "serve.py").read_text(encoding="utf-8")
+    # THE SERVE SURFACE, not one file of it (§ 2.4 PR 2 of 4 moved this
+    # code to a sibling module; the scan widened rather than narrowed).
+    source = serve_surface_source()
     start = source.index("def doxbench_turn_v2_success_body(")
     end = source.index("\ndef ", start + 1)
     # CODE ONLY. The comment recording this fix necessarily QUOTES the coercion
@@ -686,7 +689,16 @@ def test_a_builder_refusal_answers_on_the_routes_fixed_400_shape(
             "a turn record carries the reduction's reason as the packet "
             "stated it; a reduction nobody can read is a silent degradation")
 
-    monkeypatch.setattr(serve_mod, "doxbench_turn_v2_success_body", _raising)
+    # PATCHED WHERE THE CALL SITE RESOLVES IT. Until
+    # `split-opendox-two-layer-product` § 2.4 (PR 2 of 4) the turn route and the
+    # builder were both in `serve.py` and this read `serve_mod`; the route now
+    # lives in `serve_workbench.py`, which binds the name at import, so a patch
+    # on `serve_mod` would no longer reach it and this test would drive the real
+    # builder and prove nothing. The assertion below is unchanged: the wire
+    # answer to a builder refusal is still the route's fixed 400.
+    from ideation_dashboard import serve_workbench
+    monkeypatch.setattr(serve_workbench, "doxbench_turn_v2_success_body",
+                        _raising)
     status, payload, _port = _post_turn(tmp_path, _turn_v2())
 
     assert status == 400, (status, payload)
@@ -702,13 +714,17 @@ def test_the_builder_call_site_is_inside_a_packet_error_handler():
     grep would pass on a `try` that caught something else."""
     import ast
 
-    tree = ast.parse((REPO_ROOT / "scripts" / "ideation_dashboard"
-                      / "serve.py").read_text(encoding="utf-8"))
-    calls = [n for n in ast.walk(tree)
+    # ONE TREE PER SERVE-SURFACE FILE (§ 2.4 PR 2 of 4 moved the call site to
+    # `serve_workbench.py`): parsed per file, because a concatenation is not a
+    # module and would not parse. Every file is walked, so the scan sees
+    # strictly more call sites than it did when the serve was one file.
+    trees = [(path, ast.parse(path.read_text(encoding="utf-8")))
+             for path in serve_surface_paths()]
+    calls = [(path, tree, n) for path, tree in trees for n in ast.walk(tree)
              if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
              and n.func.id == "doxbench_turn_v2_success_body"]
     assert calls, "the builder is never called"
-    for call in calls:
+    for path, tree, call in calls:
         handlers = [
             ast.unparse(handler.type)
             for node in ast.walk(tree) if isinstance(node, ast.Try)
@@ -717,8 +733,9 @@ def test_the_builder_call_site_is_inside_a_packet_error_handler():
             for handler in node.handlers if handler.type is not None
         ]
         assert any("PacketError" in h for h in handlers), (
-            f"the builder call at line {call.lineno} is not inside a try that "
-            f"handles PacketError; its refusals would escape as a 500")
+            f"the builder call at {path.name} line {call.lineno} is not inside "
+            f"a try that handles PacketError; its refusals would escape as a "
+            f"500")
 
 
 # ---------------------------------------------------------------------------
