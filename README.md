@@ -512,6 +512,53 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-absent-changelog-is-an-answer](openspec/changes/amend-absent-changelog-is-an-answer/proposal.md)
+  — authored 2026-09-07, **`Status: draft`** (NOT ratified; no word has been
+  given over this text), lane `openxfactory-1`, from openxFactory
+  [#750](https://github.com/opensoft/openxFactory/issues/750) and the ARCHIVED
+  `amend-unreadable-read-sibling-scenarios`, whose `design.md` **D6** and
+  `tasks.md` § 6 record this successor as OWED — an ORIGIN, not an approval.
+  **THE AMENDMENT THAT PROVED THE READ WAS AN ANSWER LEFT IT REPORTED AS A
+  QUESTION.** PR **#688** settled that the changelog read's per-path `None`
+  stands, at that arm, for a tip this clone HOLDS at which no readable
+  `contracts/CHANGELOG.md` blob is reachable — the unfetched fact being
+  EXCLUDED, the manifest having read at the same commit — and made the skip say
+  so. It left the read a SKIP, and the `if changelog is None:` guard stands
+  ABOVE the `in_scope` loop and RETURNS, so a held tip declaring an in-scope
+  bundle and carrying no changelog was answered with a skip INSTEAD OF the tag
+  findings the loop would emit. **MEASURED ON A SHIM, ONE BLOB APART**: absent →
+  one `Skip` and nothing graded; EMPTY → one `error` naming the untagged bundle.
+  A document that is not there and a document that says nothing carry the same
+  fact about declarations, and only one of them was graded. The MODIFIED block
+  restates *Release-tag publication* in full — every body unit and all 30
+  promoted scenario titles, byte-faithful, including #678's and #688's notes and
+  markers — and replaces TWO bullets of the scenario *The changelog cannot be
+  read at the published tip*: the promoted `THEN` (the unfetched skip kept word
+  for word, and a held-and-absent read now GRADED with no declarations) and the
+  `AND` below it (whose subject was that skip's wording, its narrowing carried
+  verbatim onto the record that replaces it). **TWO markers, not one** — under
+  the boundary `amend-marker-reason-boundary` promoted, two names separated by
+  ` — ` would declare only the first — each with a code-span-free reason so the
+  retired and amended grammars derive the same name. **REALIZED IN THE SAME PULL
+  REQUEST** on the `amend-unreadable-read-sibling-scenarios` shape
+  (`code_surface: openxFactory`, `target_release: implemented`, archiving on
+  merged-plus-green evidence): the guard split on `tip_present`, the held arm
+  falling through to a grading with no declarations, and ONE `info` on
+  `contracts/CHANGELOG.md` carrying the fact the skip carried — the family turns
+  every skip into an `info` precisely so a reason is recorded rather than
+  omitted, so retiring the skip without it would drop what #688 ratified.
+  `tests/doc-health/test_release_tag_publication.py` 146 → 149, one existing
+  test CONVERTED (its subject was the held case's skip) and its every literal
+  re-asserted on the `info`. **THE VETO POINT IS `design.md` D1** — option A
+  (split the arm and grade) against option B (keep the skip, distinct reason
+  class only, which leaves D6's suppression where D6 found it); `design.md`
+  **D2** is named separately so it can be vetoed on its own (the `info` record
+  against dropping the fact). Nothing green today turns red: the one new finding
+  is `info`, and this repository never reaches the arm — the family reads the
+  same single `info` here before and after. `sequenced_after` elective and
+  undeclared: every other writer of the requirement is archived and no active
+  change writes it.
+
 - [register-gate-rules-council-seats](openspec/changes/register-gate-rules-council-seats/proposal.md)
   — authored 2026-09-06, **`Status: ratified`** (2026-09-06, Brett Heap
   (repository owner), in-session at 2026-09-06T14:13:46Z, verbatim *"lets take

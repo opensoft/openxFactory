@@ -168,6 +168,12 @@ _SPENT_ORPHAN_ACTION = (
     "written it names a bundle this repository never cut, so it disposes "
     "nothing, and the bundle it was meant to name is still reported by this "
     "family")
+_NO_CHANGELOG_ACTION = (
+    "no action on this line — it is a READING and not a defect: the bundles in "
+    "scope are graded on their tags, and a bundle whose tag obligation was "
+    "EXTINGUISHED rather than met needs a SPENT declaration written into "
+    "contracts/CHANGELOG.md, which is the document no readable blob came back "
+    "for at this tip")
 
 
 def parse_bundle(manifest: bytes | str | None) -> str | None:
@@ -1221,57 +1227,89 @@ def check_repo(repo: str, repo_path: Path, git,
                       if _at_or_above_floor(bundle))
 
     changelog = blobs.get(CHANGELOG)
-    if changelog is None:
-        # THE SAME #338 GUARD ONE DOCUMENT OVER, AND IT IS GATED ON
-        # IN-SCOPE-NESS RATHER THAN ON POSITION. `blobs_at` answers None PER
-        # PATH for a blob it cannot read, and that ONE ANSWER STANDS FOR TWO
-        # FACTS: the commit is not in this clone's object store, or the commit
-        # IS held and no readable `contracts/CHANGELOG.md` blob is reachable at
-        # it. NOT FETCHED IS NOT AN ANSWER, in either direction, because reading
-        # a declaration this run could not LOOK FOR as an absent declaration
-        # turns an unfetched clone into an `error` nobody can act on.
+    if changelog is None and not tip_present:
+        # THE SAME #338 GUARD ONE DOCUMENT OVER, AND IT NOW SPLITS ON THE FACT
+        # THE READ ALREADY ESTABLISHED. `blobs_at` answers None PER PATH for a
+        # blob it cannot read, and that ONE ANSWER STANDS FOR TWO FACTS: the
+        # commit is not in this clone's object store, or the commit IS held and
+        # no readable `contracts/CHANGELOG.md` blob is reachable at it. NOT
+        # FETCHED IS NOT AN ANSWER — reading a declaration this run could not
+        # LOOK FOR as an absent declaration turns an unfetched clone into an
+        # `error` nobody can act on — so THIS arm, and only this arm, keeps the
+        # skip.
         #
-        # WHICH OF THE TWO HOLDS IS ALREADY SETTLED HERE, AND IT IS ALWAYS THE
-        # SECOND — so the skip says so rather than leaving a reader to guess.
-        # `obtain_commit` asked for this tip above and fetched it where it was
-        # absent, and the manifest was read AT THIS SAME COMMIT and ANSWERED, or
-        # the two arms above would have returned. `blobs_at` sends
-        # `<commit>:<path>` to `cat-file --batch`, which reports every spec of a
-        # commit this clone does not hold as missing, so a manifest that read is
-        # proof the commit is held. This is openxFactory #612 one document over:
-        # nine repositories that simply carried no file were told every night
-        # that their tips were unfetched, sending anyone who read the report to
-        # look for a fetch defect the workflow's own fetch step had ruled out.
+        # AND IT IS UNREACHABLE TODAY BY CONSTRUCTION, WHICH IS WHY IT IS KEPT
+        # RATHER THAN DELETED. `obtain_commit` asked for this tip above and
+        # fetched it where it was absent, and the manifest was read AT THIS SAME
+        # COMMIT and ANSWERED, or the two arms above would have returned;
+        # `blobs_at` sends `<commit>:<path>` to `cat-file --batch`, which reports
+        # every spec of a commit this clone does not hold as missing, so a
+        # manifest that read is proof the commit is held. Deleting the branch
+        # would make that proof load-bearing FOREVER: any later change to the
+        # manifest arm — a cached read, a second source, a manifest served from
+        # somewhere other than this commit — would silently turn an unfetched
+        # tip into a graded one. The guard costs one comparison and fails
+        # closed, so it stays.
         #
-        # THE HELD ARM IS STATED AS UNREACHABILITY, NOT AS ABSENCE, and the
-        # narrowing is deliberate (PR #688 adversarial review, P3). What the
-        # commit being held licenses is "no readable blob came back at this
-        # path"; it does NOT license "the commit carries no such file". A store
-        # that holds the commit AND its trees can still fail to produce the blob
-        # — delete the loose object and `cat-file --batch` answers `<spec>
-        # missing` for a path the tree plainly carries — so a skip asserting the
-        # file is absent would be making the #338 mistake in the third
-        # direction: reporting a defective object store as a clean answer.
-        #
-        # BUT A REPOSITORY WITH NOTHING IN SCOPE IS NOT OWED THAT SKIP, and
-        # standing above `parse_bundle` this guard fired before the bundle was
-        # known — so a below-floor repository holding no `contracts/CHANGELOG.md`
-        # at all, which this family had always answered with silence, became a
-        # silent "not checked" instead. There is no bundle here whose state a
-        # declaration could change, so the answer is the one it always was.
+        # AND A REPOSITORY WITH NOTHING IN SCOPE IS STILL NOT OWED THIS SKIP
+        # (Copilot, PR #584 round 3), which is why the in-scope gate is carried
+        # here unchanged: a below-floor repository holding no
+        # `contracts/CHANGELOG.md` at all has no bundle whose state a
+        # declaration could change, and this family has always answered it with
+        # silence rather than with a "not checked".
         if not in_scope:
             return []
         return Skip(FAMILY, f"{repo}: {CHANGELOG} could not be read at the "
-                            f"published tip {tip[:9]}, WHICH THIS CLONE HOLDS "
-                            f"— the commit is held in this store and no "
-                            f"readable {CHANGELOG} blob is reachable at it, so "
-                            f"this is not an unfetched commit; a SPENT "
-                            f"declaration for {', '.join(in_scope)} could not "
-                            f"be looked for, which is not the same fact as "
+                            f"published tip {tip[:9]}, WHICH THIS CLONE DOES "
+                            f"NOT HOLD — a bounded fetch of exactly that "
+                            f"commit was attempted and did not obtain it, so a "
+                            f"SPENT declaration for {', '.join(in_scope)} could "
+                            f"not be looked for, which is not the same fact as "
                             f"there being none")
     read = read_changelog(changelog)
     findings, candidates = _refusal_findings(repo, read.declarations, cut,
                                              declared)
+    if changelog is None and in_scope:
+        # A HELD TIP WITH NO READABLE CHANGELOG IS AN ANSWER, AND THE ANSWER IS
+        # THAT NO SPENT DECLARATION EXISTS. `amend-unreadable-read-sibling-scenarios`
+        # made this skip SAY the fact — the commit is held, the read came back
+        # with nothing — and left the skip in place, so a provably declaration-less
+        # tip SUPPRESSED the grading that an EMPTY changelog receives: measured on
+        # a shim, absent gave one `Skip` where empty gave one `error` naming the
+        # untagged bundle. `read_changelog(None)` already answers an empty read,
+        # which is what the loop below is owed, so nothing is guessed: the arm
+        # falls through and the bundles in scope are graded with NO declarations.
+        #
+        # THE FACT IS STILL RECORDED, AND IT HAS TO BE. `fam_release_tag_publication`
+        # turns every per-repository skip into an `info` precisely so that the
+        # reason is "recorded rather than omitted"; retiring the skip without
+        # putting the fact somewhere would drop that record and, with it, the
+        # obligation #688 ratified — that the held case STATE THE PRESENCE. So it
+        # is stated here instead, on `contracts/CHANGELOG.md` rather than on the
+        # manifest every other finding of this family lands on, because the path
+        # is a finding's identity and this one is about that document.
+        #
+        # AND IT CLAIMS NO MORE THAN THE PRESENCE GIVES IT (PR #688 adversarial
+        # review, P3). A held commit licenses "no readable blob came back at this
+        # path"; it does NOT license "the commit carries no such file", because a
+        # store holding the commit AND its trees can still fail to produce the
+        # blob. Either way there is no declaration to read, which is the only
+        # thing the grading below needs.
+        #
+        # GATED ON `in_scope` FOR THE SAME REASON THE SKIP WAS. A repository
+        # below the enforcement floor is answered with silence, exactly as it
+        # always was; a permanent `info` about a document nobody is obliged to
+        # write is how a report teaches its readers to stop reading it.
+        findings.append(_finding(
+            INFO, repo,
+            f"{CHANGELOG} yielded nothing at the published tip {tip[:9]}, "
+            f"WHICH THIS CLONE HOLDS — the commit is held in this store and no "
+            f"readable {CHANGELOG} blob is reachable at it, so this is not an "
+            f"unfetched commit and NO SPENT DECLARATION EXISTS to be read; "
+            f"the bundles in scope ({', '.join(in_scope)}) are graded with no "
+            f"declarations, exactly as at an empty changelog, rather than "
+            f"skipped past",
+            _NO_CHANGELOG_ACTION, path=CHANGELOG))
     if read.raw_html is not None:
         # THE REFUSAL, AND IT IS REPORTED RATHER THAN SILENT. The read stopped
         # at this line, so every declaration below it is unread — including one
