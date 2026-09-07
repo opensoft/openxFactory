@@ -368,6 +368,27 @@ def test_the_mixins_precede_simplehttprequesthandler_in_the_mro():
         "would now resolve to the WRONG implementation.")
 
 
+def _non_dunder(names) -> set[str]:
+    """Every name in `names` that is not a Python dunder (`__x__`).
+
+    A hand-picked exclusion list (`__module__`, `__doc__`, ...) goes stale the
+    moment either side of the comparison grows a dunder the list did not name
+    — `WorkbenchRoutes` already carries `__annotations__` (from its
+    `INTAKE_QUERY_FIELDS: tuple[str, ...]` class annotation), and a future
+    stdlib release could add one to the `http.server` chain. Excluding by the
+    dunder RULE means the test can only fail for a reason it exists to catch.
+    """
+    return {name for name in names
+            if not (name.startswith("__") and name.endswith("__"))}
+
+
+def _http_server_chain_members() -> set[str]:
+    chain_members: set[str] = set()
+    for klass in http.server.SimpleHTTPRequestHandler.__mro__:
+        chain_members |= set(vars(klass))
+    return chain_members
+
+
 def test_the_mixins_share_no_member_name_with_the_http_server_chain():
     """Decision 1's safety property. Ordering alone does not prove there is no
     collision TODAY — it only proves which side wins if there is one. This
@@ -377,15 +398,15 @@ def test_the_mixins_share_no_member_name_with_the_http_server_chain():
     """
     from ideation_dashboard import serve_project, serve_workbench
 
-    mixin_members = set(vars(serve_workbench.WorkbenchRoutes)) | set(
-        vars(serve_project.ProjectRoutes))
-    chain_members: set[str] = set()
-    for klass in http.server.SimpleHTTPRequestHandler.__mro__:
-        chain_members |= set(vars(klass))
-    collisions = sorted(
-        (mixin_members & chain_members) - {"__module__", "__doc__",
-                                            "__qualname__", "__dict__",
-                                            "__weakref__"})
+    mixin_members = _non_dunder(
+        set(vars(serve_workbench.WorkbenchRoutes))
+        | set(vars(serve_project.ProjectRoutes)))
+    assert mixin_members, (
+        "no non-dunder members found on WorkbenchRoutes/ProjectRoutes — that "
+        "means this reader is looking at the wrong classes, not proving "
+        "disjointness against the http.server chain")
+    chain_members = _non_dunder(_http_server_chain_members())
+    collisions = sorted(mixin_members & chain_members)
     assert not collisions, (
         f"WorkbenchRoutes/ProjectRoutes now share member(s) {collisions} with "
         "the http.server chain (BaseRequestHandler -> BaseHTTPRequestHandler "
@@ -402,11 +423,8 @@ def test_the_collision_check_would_notice_a_real_collision():
         def send_head(self):  # a real SimpleHTTPRequestHandler method name
             ...
 
-    chain_members: set[str] = set()
-    for klass in http.server.SimpleHTTPRequestHandler.__mro__:
-        chain_members |= set(vars(klass))
-    collisions = (set(vars(_FakeMixin)) & chain_members) - {
-        "__module__", "__doc__", "__qualname__", "__dict__", "__weakref__"}
+    chain_members = _non_dunder(_http_server_chain_members())
+    collisions = _non_dunder(set(vars(_FakeMixin))) & chain_members
     assert collisions == {"send_head"}, (
         "the collision check does not fire on a real shared method name, "
         "which means the two tests above could pass on a broken reader "
