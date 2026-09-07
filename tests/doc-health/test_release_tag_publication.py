@@ -498,6 +498,12 @@ _CHANGELOG_HELD_WORDS = "WHICH THIS CLONE HOLDS"
 _CHANGELOG_ABSENT_WORDS = ("the commit is held in this store and no readable "
                            "contracts/CHANGELOG.md blob is reachable at it")
 _CHANGELOG_OVERCLAIM_WORDS = "carries no contracts/CHANGELOG.md"
+# THE THIRD STATE'S TWO ANSWERS, written out as fresh literals for the same
+# reason the ones above are: a reworded skip has to be re-agreed here. The tree
+# is what tells an absent document from a store that cannot serve what it lists,
+# and each answer says WHICH of the two it has.
+_TREE_LISTS_NONE_WORDS = "the tree at that commit LISTS NO SUCH PATH"
+_TREE_CARRIES_WORDS = "WHOSE TREE CARRIES THAT PATH"
 
 # A realistic tip: codexFactory's own published tip on the 2026-09-03 nightly,
 # whose report line this fixture reproduces exactly.
@@ -2144,6 +2150,10 @@ def test_an_absent_changelog_says_the_tip_is_held_rather_than_unfetched(tmp_path
     # NOR A SKIP'S WORDS AT ALL. This is a reading and not an unasked question,
     # so it must not read as one to anybody grepping the report.
     assert _UNFETCHED_WORDS not in reason
+    # AND IT SAYS HOW THE ABSENCE WAS ESTABLISHED (Codex, PR #753 round 1, P2).
+    # The grading is a claim about the FILE, which a held commit alone does not
+    # license — the tree listing is what licenses it, so the line names it.
+    assert _TREE_LISTS_NONE_WORDS in reason
 
 
 def test_a_held_tip_with_no_changelog_grades_exactly_as_an_empty_one_does():
@@ -2209,6 +2219,79 @@ def test_an_unfetched_tip_still_skips_the_changelog_read():
     assert git.fetch_calls == [("r", "tip", rtp.DEFAULT_THRESHOLD + 2)], (
         "the skip claims a bounded fetch was attempted, so one must have been"
     )
+
+
+class _TreeListsChangelog(_NoChangelog):
+    """The THIRD STATE: the tree LISTS `contracts/CHANGELOG.md` and the blob
+    does not come back — an object store that cannot serve what it lists.
+
+    `ls_tree_paths` reads the TREE object, not the blob, so a store missing the
+    loose blob still lists the path; remove the object from a real repository
+    and `cat-file --batch` answers `missing` for a path `ls-tree` plainly
+    carries. That is a read that FAILED, not an absent document, and grading it
+    would read a real SPENT declaration as absent.
+    """
+
+    def ls_tree_paths(self, repo, ref, prefix):
+        return [CHANGELOG]
+
+
+class _UnlistableTree(_NoChangelog):
+    """Neither the blob nor the CHANGELOG tree listing answers, so which fact
+    holds is UNESTABLISHED — and an unestablished fact is the one thing this arm
+    may never grade on.
+
+    THE FAILURE IS SCOPED TO THIS ONE LISTING because the inventory listing has
+    to succeed for the run to reach the arm at all: `cut_bundles` answers None
+    for a whole-tree failure and skips two guards earlier, which is the state
+    `test_...inventories...` already covers. What is modelled here is the seam
+    answering None for THIS call — the fail-closed branch, kept for the same
+    reason the unfetched one is: it costs a comparison and it is the only thing
+    standing between an unanswered read and a grading.
+    """
+
+    def ls_tree_paths(self, repo, ref, prefix):
+        return None if prefix == CHANGELOG else []
+
+
+def test_a_held_tip_whose_tree_lists_the_changelog_still_skips():
+    """THE THIRD STATE KEEPS THE SKIP (Codex, PR #753 round 1, P2).
+
+    A held commit and a per-path `None` still stand for TWO facts, and only one
+    of them is an answer about declarations. Where the tree CARRIES the path and
+    the blob does not come back, the document exists and this clone cannot read
+    it — so a SPENT declaration this run could not LOOK FOR would be graded as
+    one that does not exist, answering an EXTINGUISHED obligation with an
+    `error` telling an operator to publish a tag that cannot be published.
+    """
+    git = _TreeListsChangelog(remotes={"r": "tip"}, present_commits={"tip"},
+                              **_GRADED)
+    out = rtp.check_repo("alphaFactory", Path("r"), git)
+    assert isinstance(out, Skip), (
+        "the tree says the document is there — reading its absence out of a "
+        "blob that would not come back is the #338 conflation in the third "
+        "direction"
+    )
+    assert _UNFETCHED_WORDS in out.reason
+    assert _TREE_CARRIES_WORDS in out.reason
+    assert "not the same fact as there being none" in out.reason
+    assert "contract-v2.0" in out.reason
+    # AND IT IS NEITHER OF THE OTHER TWO ANSWERS' WORDS.
+    assert _FETCH_TRIED_WORDS not in out.reason
+    assert _TREE_LISTS_NONE_WORDS not in out.reason
+
+
+def test_a_held_tip_whose_tree_cannot_be_listed_fails_closed():
+    """NEITHER READ ANSWERED, so the arm establishes nothing and grades
+    nothing. The skip says exactly that rather than picking one of the two
+    facts it could not tell apart."""
+    git = _UnlistableTree(remotes={"r": "tip"}, present_commits={"tip"},
+                          **_GRADED)
+    out = rtp.check_repo("alphaFactory", Path("r"), git)
+    assert isinstance(out, Skip)
+    assert "UNESTABLISHED" in out.reason
+    assert "not the same fact as there being none" in out.reason
+    assert "contract-v2.0" in out.reason
 
 
 def test_a_below_floor_repository_with_no_changelog_gains_no_trace():

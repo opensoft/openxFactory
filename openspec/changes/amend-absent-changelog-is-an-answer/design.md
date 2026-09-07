@@ -180,6 +180,49 @@ commit was attempted and did not obtain it, which is the manifest arm's own true
 words for the same fact. All three substrings the existing suite pins are
 carried, so the existing test passes unchanged.
 
+## D3a — THE THIRD STATE IS ESTABLISHED, NOT ASSUMED (Codex, PR #753 round 1, P2)
+
+**The finding, at full strength.** `blobs_at`'s per-path `None` at a HELD commit
+still stands for TWO facts: the tree at that commit carries no such path, or the
+tree DOES carry it and the blob object is missing or corrupt in this store.
+`amend-unreadable-read-sibling-scenarios` named that third state and narrowed its
+skip's WORDS because of it — a held commit licenses *"no readable blob came back
+at this path"*, never *"the commit carries no such file"*.
+
+**GRADING IS A CLAIM ABOUT THE FILE, WHICH IS WHY THE NARROWING STOPS BEING
+ENOUGH.** #688 only had to choose words; this packet acts. Grading a damaged
+object store as an absent document would read a REAL SPENT declaration as absent
+and answer an EXTINGUISHED obligation with the superseded-and-never-published
+`error` — telling an operator to publish a tag whose obligation was extinguished
+and which cannot be published. That is a FALSE `error`: it reddens a
+`--fail-on error` run and fails the cut-time gate, on a repository whose records
+are correct. It is the #338 conflation pointed in the third direction and made
+expensive.
+
+**Decision: consult the TREE, once, on that arm alone.** `ls_tree_paths` reads
+the tree object rather than the blob, so it answers for exactly the path whose
+blob this store cannot produce, and it is asked with the document's own path as
+its pathspec. Three outcomes, and only one of them grades:
+
+| what the tree says | the family's answer |
+| --- | --- |
+| the path is NOT listed | ESTABLISHED absence — grade with no declarations, and record the fact at `info` |
+| the path IS listed | a store that cannot serve what it lists — KEEP THE SKIP, saying so |
+| the listing could not be performed | UNESTABLISHED — KEEP THE SKIP, saying that |
+
+**The cost is one bounded call on an arm this family reaches only where a
+changelog did not read at all**, which is a state no repository in this estate is
+in. The alternative — grade on the held commit alone — was what the first draft
+of this packet did, and it is rejected: it makes the packet's own canon false,
+since the amended `AND` forbids asserting a file absence the held commit does not
+establish, and grading asserts exactly that.
+
+**AND THE CANON SAYS IT, RATHER THAN THE CODE SAYING IT ALONE.** The amended
+`THEN` keeps the skip *"wherever the document's own absence has not been
+established"* and names all three states; the amended `AND` requires the record
+to name the tree listing that establishes the absence. The delta's own note
+carries the reasoning so a later reader meets it where the rule is.
+
 ## D4 — TWO markers, and the self-reference hazard
 
 The block REPLACES two bullets, so under `doc-health`'s *Currency of an active
@@ -251,8 +294,9 @@ plus one new negative pin — the record must not carry a skip's own words eithe
 so nobody grepping the report reads it as an unasked question.
 
 **No other existing test is edited.** The other two changelog tests reach the
-UNFETCHED arm, which does not move, and they pass unchanged. Three tests are
-ADDED beside them, and the module goes 146 → 149.
+UNFETCHED arm, which does not move, and they pass unchanged. Five tests are
+ADDED beside them — the D6 pair, the unfetched skip, the floor over the
+trace, and the two states D3a adds — and the module goes 146 → 151.
 
 **THE MUTATION PROBE, ON THE GUARD.** Reverting the split to `if changelog is
 None:` fails exactly two tests — the converted one and the D6 pair — and nothing

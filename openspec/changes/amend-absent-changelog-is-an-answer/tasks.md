@@ -78,6 +78,18 @@ this pull request or a measurement recorded verbatim in the pull request body.
       already answers an empty read — no declarations, no refusal — so the
       `in_scope` loop grades the bundles with NO declarations, which is what the
       same tip carrying an EMPTY changelog receives.
+- [x] 3.1a **THE THIRD STATE IS ESTABLISHED BEFORE ANYTHING IS GRADED** (Codex,
+      PR #753 round 1, P2, TAKEN). A held commit and a per-path `None` still
+      stand for two facts — the tree carries no such path, or it carries it and
+      the blob object is missing or corrupt — and GRADING is a claim about the
+      FILE, which the held commit alone does not license. So `ls_tree_paths` is
+      called once on that arm with the document's own path: where the tree does
+      not list it the absence is ESTABLISHED and the bundles are graded; where
+      the tree DOES list it the store cannot serve what it lists and the SKIP
+      STANDS, saying so; where the listing itself fails the fact is
+      UNESTABLISHED and the skip stands, saying that. Without it a damaged
+      object store would read a REAL SPENT declaration as absent and answer an
+      EXTINGUISHED obligation with a FALSE `error`. `design.md` **D3a**.
 - [x] 3.2 **THE FACT IS RE-REPORTED, NOT DROPPED.** One `info` is appended,
       gated on `in_scope` being non-empty, carrying the words #688 ratified —
       the published tip *"WHICH THIS CLONE HOLDS"*, *"the commit is held in this
@@ -117,7 +129,7 @@ this pull request or a measurement recorded verbatim in the pull request body.
       window, same floor, same `return []` for a below-floor repository with no
       changelog, same skip for every other unaskable question. No severity of an
       existing finding changes and no existing finding's path moves.
-- [x] 3.7 `tests/doc-health/test_release_tag_publication.py` **146 → 149**: THREE
+- [x] 3.7 `tests/doc-health/test_release_tag_publication.py` **146 → 151**: FIVE
       ADDED and ONE CONVERTED.
       - ADDED `test_a_held_tip_with_no_changelog_grades_exactly_as_an_empty_one_does`
         — D6's pair kept as a regression test: two shims one blob apart must
@@ -129,6 +141,11 @@ this pull request or a measurement recorded verbatim in the pull request body.
       - ADDED `test_a_below_floor_repository_with_no_changelog_gains_no_trace` —
         the floor holds over the trace as well as over the grading, held tip or
         not.
+      - ADDED `test_a_held_tip_whose_tree_lists_the_changelog_still_skips` —
+        D3a's third state: the tree carries the path, the blob does not come
+        back, and the skip STANDS in words that say which fact it has.
+      - ADDED `test_a_held_tip_whose_tree_cannot_be_listed_fails_closed` — the
+        listing itself fails, nothing is established, nothing is graded.
       - CONVERTED `test_an_absent_changelog_says_the_tip_is_held_rather_than_unfetched`
         — see § 3.8.
       A shared `_EmptyChangelog` shim is added beside `_NoChangelog`, differing
@@ -146,9 +163,10 @@ this pull request or a measurement recorded verbatim in the pull request body.
       record cannot be mistaken for a skip. **No other existing test is touched**
       — the other two changelog tests reach the unfetched arm, which does not
       move.
-- [x] 3.9 **THE MUTATION PROBE ON THE GUARD.** Reverting the split to
+- [x] 3.9 **THE MUTATION PROBE ON BOTH GUARDS.** Reverting the split to
       `if changelog is None:` fails exactly two tests — the converted one and the
-      D6 pair — and nothing else; restoring it returns 149 passed. The result is
+      D6 pair — and nothing else; disabling D3a's tree branch fails exactly the
+      third-state test; restoring each returns 151 passed. The results are
       carried in the pull request.
 - [x] 3.10 **NO DEPLOYMENT HANDOFF IS IN SCOPE.** The realization lands in this
       repository's own `scripts/` and `tests/`, not onto a registered managed
@@ -211,7 +229,7 @@ this pull request or a measurement recorded verbatim in the pull request body.
       adds NO undispositioned failure. Output carried verbatim in the pull
       request.
 - [x] 5.2 `python3 -m pytest tests/doc-health -q` and the module count 146 →
-      149. Carried in the pull request § Verification.
+      151. Carried in the pull request § Verification.
 - [x] 5.3 `python3 scripts/doc-health.py --single-repo .` DIFFED against a
       SAME-CLOCK control: a temporary worktree of `origin/main` inside this
       clone, run minutes apart rather than against a stale baseline, and removed

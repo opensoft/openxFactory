@@ -1266,19 +1266,67 @@ def check_repo(repo: str, repo_path: Path, git,
                             f"SPENT declaration for {', '.join(in_scope)} could "
                             f"not be looked for, which is not the same fact as "
                             f"there being none")
+    if changelog is None and in_scope:
+        # THE THIRD STATE, ESTABLISHED RATHER THAN ASSUMED (Codex, PR #753 round
+        # 1, P2). A held commit and a per-path None still stand for TWO facts,
+        # and only one of them is an answer about declarations: the tree at that
+        # commit carries no such path, or the tree DOES carry it and the blob
+        # object is missing or corrupt in this store. `amend-unreadable-read-sibling-scenarios`
+        # named that third state and refused to claim past it — a held commit
+        # licenses "no readable blob came back at this path", never "the commit
+        # carries no such file" — and GRADING is a claim about the file. Grading
+        # on a damaged object store would read a real SPENT declaration as absent
+        # and answer an EXTINGUISHED obligation with an `error` telling an
+        # operator to publish a tag that cannot be published.
+        #
+        # SO THE TREE IS CONSULTED, ONCE, AND ONLY HERE. `ls_tree_paths` reads
+        # the TREE object rather than the blob, so it answers for a path whose
+        # blob this store cannot produce; it is asked with the document's own
+        # path as its pathspec, so it costs one bounded call on an arm this
+        # family reaches only where a changelog did not read at all.
+        listed = git.ls_tree_paths(repo_path, tip, CHANGELOG)
+        if listed is None:
+            # FAIL CLOSED. Neither the blob nor the tree answered, so which of
+            # the two facts holds is UNESTABLISHED, and an unestablished fact is
+            # the one thing this arm must never grade on.
+            return Skip(FAMILY, f"{repo}: {CHANGELOG} could not be read at the "
+                                f"published tip {tip[:9]} and the tree at that "
+                                f"commit could not be listed either, so whether "
+                                f"the document is absent or merely unreadable "
+                                f"is UNESTABLISHED; a SPENT declaration for "
+                                f"{', '.join(in_scope)} could not be looked "
+                                f"for, which is not the same fact as there "
+                                f"being none")
+        if CHANGELOG in listed:
+            # THE DAMAGED STORE, AND IT KEEPS THE SKIP. The document IS there —
+            # the tree says so — and this clone cannot produce it. That is a
+            # read that failed, exactly as the unfetched case is, and the
+            # declaration it would have carried is one this run could not LOOK
+            # FOR rather than one that does not exist.
+            return Skip(FAMILY, f"{repo}: {CHANGELOG} could not be read at the "
+                                f"published tip {tip[:9]}, WHOSE TREE CARRIES "
+                                f"THAT PATH — the document is listed at the "
+                                f"commit and no readable blob came back for it, "
+                                f"which is an object store that cannot serve "
+                                f"what it lists rather than an absent document; "
+                                f"a SPENT declaration for {', '.join(in_scope)} "
+                                f"could not be looked for, which is not the "
+                                f"same fact as there being none")
+
     read = read_changelog(changelog)
     findings, candidates = _refusal_findings(repo, read.declarations, cut,
                                              declared)
     if changelog is None and in_scope:
-        # A HELD TIP WITH NO READABLE CHANGELOG IS AN ANSWER, AND THE ANSWER IS
-        # THAT NO SPENT DECLARATION EXISTS. `amend-unreadable-read-sibling-scenarios`
-        # made this skip SAY the fact — the commit is held, the read came back
-        # with nothing — and left the skip in place, so a provably declaration-less
-        # tip SUPPRESSED the grading that an EMPTY changelog receives: measured on
-        # a shim, absent gave one `Skip` where empty gave one `error` naming the
-        # untagged bundle. `read_changelog(None)` already answers an empty read,
-        # which is what the loop below is owed, so nothing is guessed: the arm
-        # falls through and the bundles in scope are graded with NO declarations.
+        # A HELD TIP WHOSE TREE CARRIES NO CHANGELOG IS AN ANSWER, AND THE
+        # ANSWER IS THAT NO SPENT DECLARATION EXISTS.
+        # `amend-unreadable-read-sibling-scenarios` made this skip SAY the fact
+        # — the commit is held, the read came back with nothing — and left the
+        # skip in place, so a provably declaration-less tip SUPPRESSED the
+        # grading that an EMPTY changelog receives: measured on a shim, absent
+        # gave one `Skip` where empty gave one `error` naming the untagged
+        # bundle. `read_changelog(None)` already answers an empty read, which is
+        # what the loop below is owed, so nothing is guessed: the arm falls
+        # through and the bundles in scope are graded with NO declarations.
         #
         # THE FACT IS STILL RECORDED, AND IT HAS TO BE. `fam_release_tag_publication`
         # turns every per-repository skip into an `info` precisely so that the
@@ -1289,12 +1337,12 @@ def check_repo(repo: str, repo_path: Path, git,
         # manifest every other finding of this family lands on, because the path
         # is a finding's identity and this one is about that document.
         #
-        # AND IT CLAIMS NO MORE THAN THE PRESENCE GIVES IT (PR #688 adversarial
-        # review, P3). A held commit licenses "no readable blob came back at this
-        # path"; it does NOT license "the commit carries no such file", because a
-        # store holding the commit AND its trees can still fail to produce the
-        # blob. Either way there is no declaration to read, which is the only
-        # thing the grading below needs.
+        # AND IT CLAIMS NO MORE THAN IT HAS ESTABLISHED (PR #688 adversarial
+        # review, P3, and Codex on PR #753). A held commit alone licenses "no
+        # readable blob came back at this path" and never "the commit carries no
+        # such file" — but the tree listing above ESTABLISHES the second, so the
+        # line states how it was established rather than asserting it bare, and
+        # the over-claiming FORM #688 pinned against stays out of it.
         #
         # GATED ON `in_scope` FOR THE SAME REASON THE SKIP WAS. A repository
         # below the enforcement floor is answered with silence, exactly as it
@@ -1304,8 +1352,10 @@ def check_repo(repo: str, repo_path: Path, git,
             INFO, repo,
             f"{CHANGELOG} yielded nothing at the published tip {tip[:9]}, "
             f"WHICH THIS CLONE HOLDS — the commit is held in this store and no "
-            f"readable {CHANGELOG} blob is reachable at it, so this is not an "
-            f"unfetched commit and NO SPENT DECLARATION EXISTS to be read; "
+            f"readable {CHANGELOG} blob is reachable at it, and the tree at "
+            f"that commit LISTS NO SUCH PATH, so this is neither an unfetched "
+            f"commit nor an object store that cannot serve what it lists, and "
+            f"NO SPENT DECLARATION EXISTS to be read; "
             f"the bundles in scope ({', '.join(in_scope)}) are graded with no "
             f"declarations, exactly as at an empty changelog, rather than "
             f"skipped past",

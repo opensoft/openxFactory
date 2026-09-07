@@ -547,7 +547,15 @@ Active changes:
   `contracts/CHANGELOG.md` carrying the fact the skip carried — the family turns
   every skip into an `info` precisely so a reason is recorded rather than
   omitted, so retiring the skip without it would drop what #688 ratified.
-  `tests/doc-health/test_release_tag_publication.py` 146 → 149, one existing
+  **AND THE THIRD STATE IS ESTABLISHED BEFORE ANYTHING IS GRADED** (Codex round
+  1, taken, `design.md` **D3a**): a held commit licenses *"no readable blob came
+  back"* and never *"the commit carries no such file"*, and grading is a claim
+  about the FILE — so `ls_tree_paths` is consulted once on that arm, the family
+  grades ONLY where the tree lists no such path, and a store that cannot serve
+  what it lists keeps the skip, as does a listing that cannot be performed.
+  Without it a damaged object store would read a real SPENT declaration as absent
+  and answer an EXTINGUISHED obligation with a FALSE `error`.
+  `tests/doc-health/test_release_tag_publication.py` 146 → 151, one existing
   test CONVERTED (its subject was the held case's skip) and its every literal
   re-asserted on the `info`. **THE VETO POINT IS `design.md` D1** — option A
   (split the arm and grade) against option B (keep the skip, distinct reason

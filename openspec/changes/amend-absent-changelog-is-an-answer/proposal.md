@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory — ONE guard is SPLIT in `scripts/doc_health/release_tag_publication.py`, and the tests that pin it in `tests/doc-health/test_release_tag_publication.py`. The `if changelog is None:` arm that returned a `Skip` above the `in_scope` loop now returns one only where the commit is NOT held; where it IS held the arm falls through and the loop grades the bundles with no declarations, which `read_changelog(None)` already answers. ONE `info` is ADDED, on `contracts/CHANGELOG.md`, carrying the fact the retired skip carried — this is the only new finding, it is `info`, and it cannot redden a `--fail-on error` run. NOTHING ELSE MOVES: no severity of an existing finding, no threshold, no enforcement floor, no path of an existing finding, no other arm, no workflow, no contract member and no other family. Three tests are ADDED and ONE is CONVERTED (its subject — the skip in the held case — is what this packet retires), `tests/doc-health/test_release_tag_publication.py` 146 → 149.
+code_surface: openxFactory — ONE guard is SPLIT in `scripts/doc_health/release_tag_publication.py`, and the tests that pin it in `tests/doc-health/test_release_tag_publication.py`. The `if changelog is None:` arm that returned a `Skip` above the `in_scope` loop now returns one only where the document's own absence has NOT been established — the commit not held, the tree at it carrying the path with no readable blob coming back, or the tree not listable — and otherwise falls through so the loop grades the bundles with no declarations, which `read_changelog(None)` already answers. ONE bounded `ls_tree_paths` call is added on that arm and nowhere else. ONE `info` is ADDED, on `contracts/CHANGELOG.md`, carrying the fact the retired skip carried — this is the only new finding, it is `info`, and it cannot redden a `--fail-on error` run. NOTHING ELSE MOVES: no severity of an existing finding, no threshold, no enforcement floor, no path of an existing finding, no other arm, no workflow, no contract member and no other family. Five tests are ADDED and ONE is CONVERTED (its subject — the skip in the established-absence case — is what this packet retires), `tests/doc-health/test_release_tag_publication.py` 146 → 151.
 target_release: implemented (the openxFactory main line). No contract bundle is cut, no release tag is owed, nothing under `contracts/` is touched and no digest set moves. Under `release-realization` a non-empty code surface archives on merged-plus-green realization evidence rather than on landing; the tasks are individually executable, so this packet realizes through its own task list in this pull request and its realization evidence is that pull request's green `pytest-suite` and doc-health runs.
 Status: draft
 Proposed: 2026-09-07
@@ -70,18 +70,21 @@ into canon with the requirement and are CARRIED rather than restated — and
 changes exactly this, in the scenario *The changelog cannot be read at the
 published tip*:
 
-- the promoted **`THEN`** is REPLACED. It kept the unfetched half word for word
-  — the family MUST NOT treat the absence of a declaration it COULD NOT LOOK FOR
-  as the absence of a declaration, and where the commit is not held it MUST
-  report a skip naming that read — and it adds the half D6 named: a declaration
-  the family DID look for, at a commit this checkout holds and for which no
-  document came back, is ABSENT, and the bundles in scope MUST be graded with no
-  declarations rather than skipped past;
+- the promoted **`THEN`** is REPLACED. It keeps the unfetched half — the family
+  MUST NOT treat the absence of a declaration it COULD NOT LOOK FOR as the
+  absence of a declaration — and generalizes it to the rule the grading needs:
+  the skip stands WHEREVER THE DOCUMENT'S OWN ABSENCE HAS NOT BEEN ESTABLISHED
+  (the commit not held; held with the tree carrying the path and no readable blob
+  coming back; the tree not listable at all), and a declaration the family DID
+  look for, at a commit this checkout holds whose TREE carries no such path, is
+  ABSENT — so the bundles in scope are graded with no declarations rather than
+  skipped past;
 - the **`AND`** below it is REPLACED. Its subject was the wording of a skip the
-  held case no longer emits. Its NARROWING is carried verbatim — the presence
-  stated, a file absence the held commit does not establish never asserted — and
-  re-pointed at the record that takes the skip's place: the fact MUST still be
-  recorded, at `info`, BESIDE the grading rather than instead of it.
+  established-absence case no longer emits. Its NARROWING is carried and
+  STRENGTHENED — the presence stated, a file absence NEVER asserted on the held
+  commit alone, and the tree listing that establishes it named — and re-pointed
+  at the record that takes the skip's place: the fact MUST still be recorded, at
+  `info`, BESIDE the grading rather than instead of it.
 
 The scenario's `WHEN` bullets and its closing `AND` (*"not fetched is not an
 answer, in either direction"*) are carried **byte-identical**, and no other
@@ -105,11 +108,21 @@ currently emit. This packet is the mirror image of #688's D2 question and it
 answers it the same way: the words are made true HERE, in the smallest edit that
 makes them true, rather than declared and left owing.
 
-The edit is one comparison and one fall-through. `read_changelog(None)` already
-returns an empty read — no declarations, no refusal — which is exactly what the
-loop is owed for a tip that carries no document, so nothing is guessed and no
-new reading of any file is introduced. What is ADDED is the `info` that keeps
-the fact on the report; § *What the record costs* says why it is not optional.
+The edit is one comparison, one bounded tree listing and one fall-through.
+`read_changelog(None)` already returns an empty read — no declarations, no
+refusal — which is exactly what the loop is owed for a tip whose tree carries no
+document, so nothing is guessed. **THE TREE LISTING IS NOT OPTIONAL AND IT IS
+CODEX'S FINDING, TAKEN**: a held commit licenses *"no readable blob came back at
+this path"* and never *"the commit carries no such file"*, and GRADING is a claim
+about the file — so a store that holds the commit and its trees but not the blob
+would have a REAL SPENT declaration read as absent, answering an EXTINGUISHED
+obligation with an `error` telling an operator to publish a tag that cannot be
+published. `ls_tree_paths` reads the TREE object rather than the blob, so it
+answers for exactly that state; the family grades only where the tree carries no
+such path, and keeps the skip where it carries it or cannot be listed.
+`design.md` **D3a** carries the finding and the decision. What is ADDED besides
+is the `info` that keeps the fact on the report; § *What the record costs* says
+why it is not optional.
 
 ## What the record costs, and why it is not optional
 
@@ -157,7 +170,7 @@ Whether a REAL untagged bundle at a held tip exists anywhere in the estate is
 the estate-wide question this lane cannot take from one clone — see
 `tasks.md` § 5.2, where it is named as owed at landing rather than claimed.
 
-**Tests:** three ADDED, one CONVERTED, 146 → 149 in that module. The converted
+**Tests:** five ADDED, one CONVERTED, 146 → 151 in that module. The converted
 one is `test_an_absent_changelog_says_the_tip_is_held_rather_than_unfetched`,
 whose subject was the held case's SKIP; every literal it pinned — the held
 words, the unreachability words, and the two negative pins against the manifest
