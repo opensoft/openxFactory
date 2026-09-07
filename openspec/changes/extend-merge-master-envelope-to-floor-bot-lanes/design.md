@@ -481,7 +481,14 @@ Under N-1 (a), recommended:
 
 The codexFactory companion is therefore **not a configuration pull request**. It
 carries a `## MODIFIED` on promoted canon and belongs in that repository's normal
-governance path with whatever instrument OQ-2 selects.
+governance path with whatever instrument OQ-2 selects. **It is authored, as draft
+[codexFactory #272](https://github.com/opensoft/codexFactory/pull/272)** — the
+narrowing, its two added scenarios, a recommendation for a Gate-Rules Council
+record (its OQ-C1) and a reasoned deferral of the two-writers declaration against
+the sibling `add-regular-pr-council-clearance` (its OQ-C2, with the finding that
+forced the deferral measured rather than asserted: carrying that sibling's
+retitled scenario reports an undispositioned strict-validation ERROR, and an
+unratified draft may not borrow a ratification to clear one).
 
 Under a veto to N-1 (b), add: openxFactory `.github/merge-approval-envelope.yml`
 (second candidate), `tests/review_lane_pin/test_review_lane_caller.py` (its

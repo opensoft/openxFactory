@@ -515,7 +515,9 @@ Active changes:
 - [extend-merge-master-envelope-to-floor-bot-lanes](openspec/changes/extend-merge-master-envelope-to-floor-bot-lanes/proposal.md)
   — authored 2026-09-07, **`Status: draft`**, lane `openxfactory-2`, governing
   issue [#745](https://github.com/opensoft/openxFactory/issues/745), first-cycle
-  record [codexFactory #232](https://github.com/opensoft/codexFactory/issues/232).
+  record [codexFactory #232](https://github.com/opensoft/codexFactory/issues/232),
+  COMPANION [codexFactory #272](https://github.com/opensoft/codexFactory/pull/272)
+  — the canon narrowing, authored there because the canon lives there.
   Answers § 6.3 of BOTH ratified option-(b) packets — the box they named and
   deliberately left unruled: whether the merge-master low-risk envelope should
   extend to the two floor bot lanes, so an hourly cycle stops costing two human

@@ -48,6 +48,15 @@ codexFactory change that must be proposed, ratified and realized in that
 repository under its own governance; this packet names the surface so the two
 halves cannot drift, exactly as the option-(b) pair did.
 
+**§ 2.1, § 2.1a and § 2.1b ARE AUTHORED — as draft
+[codexFactory #272](https://github.com/opensoft/codexFactory/pull/272)**, filed
+alongside this packet by the same lane on the same word, carrying the
+`## MODIFIED` narrowing, recommending a Gate-Rules Council record as its
+instrument (its OQ-C1) and deferring the two-writers declaration against the
+sibling `add-regular-pr-council-clearance` with its measured reason (its OQ-C2).
+The boxes stay unticked because that packet is a PROPOSAL and its ratification is
+owed. § 2.2 through § 2.8 are its realization and are authored nowhere yet.
+
 - [ ] 2.1 Propose the codexFactory companion change enrolling a SECOND candidate
   class in `.github/merge-approval-envelope.yml`, citing this packet and #745.
   The file's own rule is that "Adding a second is not a configuration change: it
