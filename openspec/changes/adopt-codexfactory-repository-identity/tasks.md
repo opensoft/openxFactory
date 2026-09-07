@@ -12,21 +12,34 @@ handoff points; it does not own them.
 
 ## 0. Ratification gate
 
-- [ ] 0.1 Convener read of `design.md` § 0 and § 8. **OQ-1, OQ-2 and OQ-5 are
-      RULED** (add `codeXfactory` to the Opensoft GitHub Enterprise; Apache-2.0
-      for openxFactory and openXwallet, by a separate lane; **EXERCISE the
-      `MIGRATION_PIN` re-point ceremony rather than riding GitHub's redirect**).
-      **OQ-3, OQ-4 and OQ-6 are OPEN and owe a word** before any box below is
-      ticked.
+- [x] 0.1 (2026-09-07) Convener read of `design.md` § 0 and § 8. **OQ-1, OQ-2,
+      OQ-3 and OQ-5 are RULED** (add `codeXfactory` to the Opensoft GitHub
+      Enterprise, VERIFIED `plan=enterprise` 2026-09-07T16:41:04Z; Apache-2.0
+      for openxFactory and openXwallet, by a separate lane, landed openxFactory
+      #762 / openXwallet #22; **via the ideation-split decision sheet — redact
+      the two sensitive files, editorially split `treatment-options-engine`
+      between openxFactory and MedxFactory, delete the stale
+      `campaign-marketing` stub, and run three receiving pull requests plus one
+      openxFactory removal pull request — accept publication, GATED on those
+      four moves landing first**; **EXERCISE the `MIGRATION_PIN` re-point
+      ceremony rather than riding GitHub's redirect**). **OQ-4 and OQ-6 remain
+      OPEN and still owe a word** before any box below is ticked. Ratified
+      2026-09-07T22:21:44Z, Brett Heap (convener), verbatim "accept all [A] and
+      ratify 763"; record `review/ratification-2026-09-07.md`.
 - [ ] 0.2 Confirm the sequencing premise still holds:
       `adopt-medxsoft-repository-identity` is still active and still authors
       `contracts/policies/repository-identity.yaml` at its task 1.1. If that
       change is archived or withdrawn before this one realizes, task 1.1 below
       changes from "add a row" to "author the file", and `sequenced_after` is
       re-derived rather than kept out of habit.
-- [ ] 0.3 Record the ratification word verbatim in
-      `review/ratification-<date>.md` with the head it was given against, per
-      house practice. **No box in Groups 1-8 is ticked before 0.3.**
+- [x] 0.3 (2026-09-07) **Ratified.** Brett Heap, convener, verbatim **"accept
+      all [A] and ratify 763"**, posted 2026-09-07T22:21:44Z on
+      https://github.com/opensoft/openxFactory/pull/763#issuecomment-5576174434,
+      given against head `5bfdcf3c06478167bd7509f1576db3528ce4ede1`. The
+      record is `review/ratification-2026-09-07.md`, a diff in this pull
+      request, which is what lets this box be ticked under house practice.
+      **No box in Groups 1-8 is ticked by this act** beyond 0.1's text and this
+      box — OQ-4 and OQ-6 remain open and gate the rest.
 
 ## 1. The transfer mapping row
 
@@ -317,7 +330,14 @@ carrying this group needs a human merge word.**
       lockstep commit, the App installations, the environment and secret
       inventory, the GHCR dual-publish window and prefix flip, the SonarCloud
       rebind, and the per-repository reference sweeps with their test-count
-      proofs.
+      proofs. **The openxFactory visibility flip additionally gates on OQ-3's
+      ruling** (`review/ratification-2026-09-07.md`): the ideation-split
+      decision sheet's four moves — redact the two sensitive files, editorially
+      split `treatment-options-engine`, delete the `campaign-marketing` stub,
+      and land the three receiving pull requests plus one openxFactory removal
+      pull request (with the cross-reference bootstrap re-run and the
+      README/INDEX pointers updated) — must land BEFORE this flip, not after
+      it.
 - [ ] 9.2 **`installs/hermes-install` — 181 occurrences across 84 files**,
       including `config/clients/opensoft/overlay.yaml` (5) and
       `tests/unit/test_subject_pin_guard.py` (36). A separate act in that

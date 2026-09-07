@@ -55,8 +55,16 @@ target_release: >-
   consumer of `contract-v3.4` keeps resolving byte-identically because a
   published bundle is never rewritten.
 sequenced_after: [adopt-medxsoft-repository-identity]
-Status: draft
+Status: ratified
 Proposed: 2026-09-07
+Ratified: >-
+  2026-09-07, Brett Heap (convener), verbatim "accept all [A] and ratify 763",
+  posted 2026-09-07T22:21:44Z on openxFactory PR #763
+  (https://github.com/opensoft/openxFactory/pull/763#issuecomment-5576174434);
+  ratified head `5bfdcf3c06478167bd7509f1576db3528ce4ede1`; record
+  `review/ratification-2026-09-07.md`. The same word rules OQ-3 via the
+  ideation-split decision sheet's four dispositions (see the record's ledger);
+  OQ-4 and OQ-6 remain open and are not answered by this ratification.
 Origin: >-
   Convener ruling, Brett Heap, 2026-09-07, verbatim "move codeXfactory to the
   new org. openXfactory should be public and codeXfactory private." The GitHub
@@ -313,10 +321,13 @@ repository's `stack.yaml` is touched. **No Ed25519 key is re-minted** and no
 
 ## Open questions
 
-Six were opened with this packet; **THREE WERE RULED THE SAME DAY** — OQ-1,
-OQ-2 and OQ-5 — and are kept at their numbers with the ruling recorded, so the
-record shows what was asked as well as what was answered. **OQ-3, OQ-4 and OQ-6
-remain open and owe a convener word.** Full text in `design.md` § 8.
+Six were opened with this packet; **FOUR ARE NOW RULED** — OQ-1, OQ-2 and OQ-5
+the same day this packet was authored, and OQ-3 by the ratification of
+2026-09-07 (`review/ratification-2026-09-07.md`) — and are kept at their
+numbers with the ruling recorded, so the record shows what was asked as well
+as what was answered. **OQ-4 and OQ-6 remain open and owe a convener word.**
+Full text in `design.md` § 8 (unchanged by this ratification; the OQ-3 entry
+below and `review/ratification-2026-09-07.md`'s ledger are the current record).
 
 - **OQ-1 — RULED, 2026-09-07, Brett Heap (convener).** *Add the `codeXfactory`
   organization to the Opensoft GitHub Enterprise*, so codexFactory's reusable
@@ -336,11 +347,22 @@ remain open and owe a convener word.** Full text in `design.md` § 8.
   cleanup after it, because a repository published without a licence is
   published under no grant at all and the first clone is the one that cannot be
   taken back.
-- **OQ-3 — OPEN.** Do `ideation/` (326 files of brainstorm and staging),
-  `governance/`, `health/`, `experiments/`, `.claude/`, `.codex/` and `.specify/`
-  go public with openxFactory, or move behind a private mirror? (Recommended:
-  accept publication; the mirror is by far the expensive answer and it forks the
-  corpus.)
+- **OQ-3 — RULED, 2026-09-07, Brett Heap (convener), via the ideation-split
+  decision sheet** (`~/session-prompts/ideation-split-decision-2026-09-07.md`,
+  "accept all [A]", 2026-09-07T22:21Z; ledger in
+  `review/ratification-2026-09-07.md`). *Accept publication of `ideation/`
+  (326 files), `governance/`, `health/`, `experiments/`, `.claude/`, `.codex/`
+  and `.specify/` with openxFactory — GATED on four moves landing first:* Q1
+  redact the two sensitive files (real addresses) to role placeholders; Q2
+  editorially split `staging/treatment-options-engine/treatment-options-engine.md`
+  — the neutral remainder stays here, the clinical half moves to
+  MedxSoft/MedxFactory `ideation/staging/treatment-plan-generation/`; Q3
+  delete `staging/campaign-memory-fill-maintenance-mapping/campaign-marketing.md`
+  as stale scaffolding; Q4 three receiving pull requests (codexFactory 14
+  files, MedxFactory 9, LedgerxFactory 1) plus one openxFactory removal pull
+  request, with the cross-reference bootstrap re-run and the README/INDEX
+  pointers updated. The mirror alternative (excluding those trees behind a
+  private fork) is recorded as NOT TAKEN.
 - **OQ-4 — OPEN.** When does the `ghcr.io` namespace move, relative to the
   bench-image allowlist flip and to the MCP contract-service hosting plan's
   **live, digest-bound approval** — which the move's amendment revokes and which
