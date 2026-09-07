@@ -317,7 +317,7 @@ requirement forbids. Its repository work is already merged
 (PR opensoft/Omnigent-Install#129 `509b7d65`, PR opensoft/Omnigent-Install#143 `5b5592e4`); what remains is a HUMAN/VAULT gate, a
 live-host confirmation and its archive.
 
-- [ ] 6.0 **Realize the `Omnigent-Install` → `OmniWorker-Install` pin**, design
+- [x] 6.0 **Realize the `Omnigent-Install` → `OmniWorker-Install` pin**, design
       § D3 step 8b: `contracts/omniworker-install-pin.yaml` declaring `commit`
       plus a `sha256` for each of the 39 Part 1 paths that repository reads (and
       the remaining 31 declared by commit, so the surface is complete), the
@@ -335,20 +335,35 @@ live-host confirmation and its archive.
       checkout, proved with the pin RESOLVED and not skipped → THEN 6.1.
       Also depends on opensoft/Omnigent-Install#213 landing, which depends in turn on
       `add-worker-acr-push` landing (the OQ-6 hold above).
+      Recorded 2026-09-07: `add-omniworker-install-pin` ratified
+      (Omnigent-Install #214 → `544c6319`), realized in twelve groups
+      (#215 `9760e060`, #221 `2e0cb543`, #217 `4f82cbd8`, #216 `61db51bb`,
+      #223 `2a166115`, #219 `e31251ed`, #230 `02fb3fed`, #218 `57b16077` +
+      #222 `e5732aa1`, #220 `fb611deb`, #227 `3ff2da69`, #232 `72989c1d`,
+      #235 `bbba916d`), archived (#237 `07bdc9c3`, 2026-09-07; capability
+      `omniworker-install-pin` promoted).
 
 - [ ] 6.1 Delete the §3.1 and §3.2 paths from `Omnigent-Install`, in ONE
       reviewed PR against that repository, **only after every §4 box is
       checked and green**. Before this PR, every step is revertible by a
       single `git revert`; after it, recovery is a restore.
-- [ ] 6.2 Update the `Omnigent-Install` README's scope list — remove "Cloud PC
+      Part 1 (the 70 pin-declared paths) RETIRED by Omnigent-Install #235
+      `bbba916d` on 2026-09-07 after byte-identity 70/70 and CI green with
+      the paths gone; Part 2 (the 50 Worker Host App paths) is
+      Omnigent-Install #213, HELD on OQ-6 until `add-worker-acr-push` lands
+      — closes then.
+- [x] 6.2 Update the `Omnigent-Install` README's scope list — remove "Cloud PC
       worker host registration", "worker containers and worker lane setup",
       "native Claude Code / Codex harness setup", "subsystem-specific worker
       profiles and prompt packs" — and add the scope link to
       `OmniWorker-Install` that the "Install repo scope links" requirement
       demands of both sides.
+      Recorded 2026-09-07: done in Omnigent-Install #235 `bbba916d` (README
+      scope + doc index; `workers/`/`rendered/` gone).
 - [ ] 6.3 Re-run the four moved xFactory lanes and the CloudPC-Install
       selftests after retirement, to prove nothing was reaching the old paths
       unmeasured.
+      Runs after 6.1 Part 2 closes.
 
 ## 7. Archive conditions
 
