@@ -57,7 +57,7 @@ repository: opensoft/codexFactory
 # UNCOVERED pin site. `core_commit` is a key the sweep vocabulary did not know,
 # and declaring the member in `scripts/doc_health/pin_class.py` is what teaches
 # it — the same move `carve_commit` made, for the same reason.
-core_commit: "aced582b0d392dde19fdff6e7d511a28d7f288e5"
+core_commit: "1c978fc0eddefc91db48f0f821fa53529f71cea7"
 revision_kind: commit
 
 # When this pin was declared, and against what observation. Recorded because a
