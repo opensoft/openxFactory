@@ -32,7 +32,6 @@ from conftest import REPO_ROOT, serve_surface_paths, serve_surface_source
 from ideation_dashboard import doxbench_contracts, doxbench_turns
 
 RUNTIME = REPO_ROOT / "scripts" / "ideation_dashboard"
-SERVE_PY = RUNTIME / "serve.py"
 TURNS_PY = RUNTIME / "doxbench_turns.py"
 CHAT_JS = RUNTIME / "web" / "views" / "doxbench-chat.js"
 WORKBENCH_JS = RUNTIME / "web" / "views" / "staging-workbench.js"

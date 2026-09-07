@@ -187,8 +187,12 @@ def serve_surface_paths() -> tuple[Path, ...]:
 def serve_surface_source() -> str:
     """The whole serve surface as one text, for a source-level assertion.
 
-    Concatenated with a newline between files so a scan for a multi-line
-    literal can never match across a file boundary that does not exist.
+    Concatenated with a newline between files. This guarantees only that a
+    SINGLE-newline literal cannot match across a boundary that does not exist
+    in any real file — each file already ends in its own trailing newline, so
+    the join places TWO newlines between files, and a pattern containing a
+    blank line (two consecutive newlines) can still match spuriously across a
+    boundary. No assertion over this surface currently uses such a pattern.
     """
     return "\n".join(path.read_text(encoding="utf-8")
                      for path in serve_surface_paths())

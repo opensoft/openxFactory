@@ -629,19 +629,48 @@ def test_serve_module_uses_no_relative_imports(tmp_path):
     # the D12 hazard is a property of the SCRIPT, and a relative import in a
     # module the script imports 500s exactly the same route. Widened, never
     # narrowed — one of these files is still `serve.py` itself.
+    # `\.+` (one or more leading dots), not `\.` — a bare `from .` catches a
+    # SIBLING-relative import but not a PARENT-relative one (`from .. import
+    # y`, `from ..pkg import y`), and both fail identically once serve.py runs
+    # as a plain script (Copilot review, PR #748).
     offenders = [
         f"{path.name} {n}: {line.strip()}"
         for path in serve_surface_paths()
         for n, line in enumerate(
             path.read_text(encoding="utf-8").splitlines(), 1)
-        if re.match(r"\s*from\s+\.\w*\s+import\b", line)
+        if re.match(r"\s*from\s+\.+\w*\s+import\b", line)
     ]
     assert not offenders, "relative import in the serve (D12):\n" + "\n".join(
         offenders)
+    # Second widening in this same edit (undisclosed in the PR-2 repoint
+    # table's row 11, which describes only the offenders scan above): these
+    # three POSITIVE anchors moved from `SERVE_PY.read_text()` to the whole
+    # surface too. Only `notebook_action` actually moved (now
+    # serve_project.py only); `workbench` and `gate_routes` still resolve in
+    # serve.py at their pre-split lines, so pinning them to the surface is
+    # strictly a widening, never a narrowing — nothing here goes hollow.
     text = serve_surface_source()
     assert "from ideation_dashboard import notebook_action" in text
     assert "from ideation_dashboard import workbench" in text
     assert "from ideation_dashboard import gate_routes" in text
+
+
+@pytest.mark.parametrize("line", [
+    "from . import x",
+    "from .pkg import x",
+    "from .. import x",
+    "from ..pkg import x",
+    "  from ... import x",
+])
+def test_the_relative_import_guard_catches_every_dot_depth(line):
+    """A prior version of this guard's regex (`\\.\\w*`, one dot only) matched
+    `from . import x` and `from .pkg import x` but silently missed a
+    PARENT-relative import (`from .. import x`, `from ..pkg import x`) —
+    which fails identically once serve.py runs as a plain script. Pinned here
+    so a future narrowing of the regex is caught by a red test, not by a
+    production 500."""
+    assert re.match(r"\s*from\s+\.+\w*\s+import\b", line), (
+        f"the relative-import guard does not match {line!r}")
 
 
 def test_module_invocation_still_works(tmp_path):
