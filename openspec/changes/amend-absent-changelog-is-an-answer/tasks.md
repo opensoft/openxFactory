@@ -380,5 +380,16 @@ boxes below tick that naming and nothing else.
       WITH the findings already established, re-reads
       `fam_release_tag_publication`'s `len(skips) == len(scoped)` accounting for
       partial skips, and rules what a partial skip means to the cut-time gate,
-      which fails closed on any skip. It belongs with § 6.2's reading of the
-      other arms and is not opened here. `design.md` **D6**.
+      which fails closed on any skip. **AND THE SUCCESSOR HAS TWO REMEDIES, NOT
+      ONE, SO ITS AUTHOR IS HANDED BOTH** — Copilot raised this same gap on the
+      delta at PR #753 round 5, from the `AND`'s side rather than the loop's, and
+      named the other one: **qualify the requirement** so it governs the case
+      where the family ANSWERS for the repository at all, a repository-level skip
+      being the family reporting that it could not, which
+      `fam_release_tag_publication` already records as its own `info`. That is a
+      wording change inside a bullet THIS BLOCK ALREADY REPLACES and would cost
+      nothing in carriage — it is declined HERE only because it changes normative
+      text a ratification word has not yet been given over, and a fix round does
+      not move canon on a bot's reading. It is named so the ruling can take
+      either. It belongs with § 6.2's reading of the other arms and is not opened
+      here. `design.md` **D6**.

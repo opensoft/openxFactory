@@ -401,7 +401,15 @@ new below-floor test carries one too.
   over every arm of this family — which is exactly what § 6.2 already declines to
   open — and doing it inside a wording amendment would put a control-flow change
   no scenario describes into a packet whose delta replaces two bullets.
-  `tasks.md` § 6.6 names it.
+  **AND THERE IS A SECOND REMEDY, WHICH THE SUCCESSOR ALSO INHERITS**: Copilot
+  raised the same gap from the `AND`'s side at PR #753 round 5 and named it —
+  QUALIFY the requirement so it governs the case where the family answers for the
+  repository at all, a repository-level skip being the family saying it could
+  not, which `fam_release_tag_publication` already records as its own `info`.
+  That is a wording change inside a bullet this block ALREADY replaces and costs
+  nothing in carriage; it is declined here only because a fix round does not move
+  normative text on a bot's reading while a ratification word is outstanding.
+  `tasks.md` § 6.6 names both.
 - **The archived deltas that carry the retired bullets.** They are records of
   ratified acts and `promotion-fidelity` compares them against canon; editing one
   would mutate history and manufacture the divergence that family reports.
