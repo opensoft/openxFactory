@@ -29,6 +29,13 @@ _SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
+# The SUBCOMMAND EXTENSION POINT (`split-opendox-two-layer-product` § 2.4,
+# design § D2). A neutral module at the top of `scripts/`, belonging to neither
+# package and importing neither, for the same three reasons `output_boundary`
+# and `corpus_adapter` sit there. Spelled as a bare top-level import, like
+# `boundary.py` spells `output_boundary`.
+import subcommand_extension  # noqa: E402
+
 from ideation_dashboard import actor_identity as actor_mod  # noqa: E402
 from ideation_dashboard import authoring as authoring_mod  # noqa: E402
 from ideation_dashboard import branch_session as branch_session_mod  # noqa: E402
@@ -1907,7 +1914,21 @@ def _add_model_binding_parser(sub) -> None:
     handing.set_defaults(func=cmd_model_binding_set_credential)
 
 
-def build_parser() -> argparse.ArgumentParser:
+def build_parser(*, subcommand_extensions: tuple = ()) -> argparse.ArgumentParser:
+    """The command line, plus whatever this invocation was ASSEMBLED with.
+
+    `subcommand_extensions` is the SUBCOMMAND EXTENSION POINT
+    (`split-opendox-two-layer-product` § 2.4, design § D2): a tuple of
+    `subcommand_extension.SubcommandExtension`s, each attaching its own
+    subcommands to the SAME subparsers action the core commands are added
+    through. The default `()` is today's parser exactly — byte-identical help
+    text for every entry point, which is the parity a golden snapshot asserts.
+
+    Extensions register LAST, after every core subcommand, so the help text
+    reads core-first and a contributed name can never displace a core one:
+    `argparse` refuses a duplicate subcommand name outright, and refusing the
+    contributed one is the right direction of that refusal.
+    """
     parser = argparse.ArgumentParser(prog="ideation-dashboard", description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -1968,6 +1989,7 @@ def build_parser() -> argparse.ArgumentParser:
     edit.set_defaults(func=cmd_edit)
 
     _add_gate_subcommands(sub)
+    subcommand_extension.register_all(subcommand_extensions, sub)
     return parser
 
 
@@ -2427,8 +2449,17 @@ def _command_label(args: argparse.Namespace) -> str:
     return " ".join(p for p in parts if p) or "command"
 
 
-def main(argv: list[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
+def main(argv: list[str] | None = None, *,
+         subcommand_extensions: tuple = ()) -> int:
+    """The entrypoint, unchanged except that it PASSES THROUGH what it was
+    assembled with (§ 2.4).
+
+    The dispatch below needs no clause of its own: a contributed subcommand set
+    `func` on the same subparsers action every core one does, so `args.func(args)`
+    dispatches both by the identical line. That is the point of handing the real
+    parser to the extension rather than a wrapper."""
+    args = build_parser(
+        subcommand_extensions=subcommand_extensions).parse_args(argv)
     try:
         return args.func(args)
     except actor_mod.ActorUnauthenticated as exc:
