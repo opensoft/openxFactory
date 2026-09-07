@@ -1,0 +1,96 @@
+# Custody ATTESTATION row for wallet wal-agent-grc-0001 — task 3.4 of the
+# ratified change register-gate-rules-council-seats.
+#
+# DELIBERATELY KINDLESS: no contract schema for custody attestation exists in
+# the openxwallet family, this change authorizes none, and inventing one would
+# be an unratified contract release. Carrying no `kind:` means repo_scan SKIPS
+# this file entirely - not indexed, not validated, no machine consumer today.
+# It is traceability content for humans and for the register reader until a
+# schema'd custody-attestation record kind exists. (Mint runbook §3.2; the
+# `wal-agent-mrc-0001` attestation is the precedent this mirrors.)
+#
+# Without a recorded attestation, the intake caps review-authority grants to
+# this wallet at authority tier `request` (ratified unattested-custody rule).
+# This row is what lets grant-grc-0001 target tier `act`.
+attestation_id: attest-custody-wal-agent-grc-0001
+subject_wallet_ref: wal-agent-grc-0001
+custody_model_attested: holder_readable
+verified_by:
+  name: Brett Heap
+  role: responsible operator
+  standing: Human Escalation Contract (docs/roles-and-authority.md:103-140)
+verified_at: "@@VERIFIED_AT@@"
+verified_against:
+  method: operator-minted ed25519 keypairs, derived through the pinned decoders
+  basis: >
+    FIVE keypairs were generated offline, operator-side, outside every
+    governed repository: the body's root key `key-grc-0001` and one key per
+    registered seat. Only public halves entered the tree — the root key's in
+    this wallet's `key_reference`, each seat key's in the wallet's `keys[]`
+    block and in the register's `seat_keys` entries. Every public value was
+    derived through the PINNED openXwallet decoders
+    (`scripts/validate-factory-identity.py --derive`, which round-trips each
+    value through `openXwallet/scripts/validate-openxwallet.py` and refuses a
+    64-hex private seed by shape), never by a second tool, so the mint record,
+    the wallet and the register carry one spelling of each key's identity
+    rather than three. What is attested is that the DECLARED custody model
+    matches reality.
+  isolation_claimed: none
+  posture: >
+    holder_readable declares the key readable in the holder execution
+    context; signatures evidence the ENVIRONMENT. No isolation exists or is
+    claimed at this tier — the attestation records the honest posture, not an
+    assurance of isolation. The root key `key-grc-0001` is NOT
+    holder_readable in practice and is not provisioned to any execution
+    context: its private half is retained in the operator's vault and never
+    enters git, CI or an agent session. The four SEAT keys are the
+    holder_readable ones.
+# B2-PENDING-BRETTS-WORD
+holder_execution_context: >
+  THE CONTEXT IS NAMED, IT EXISTS, AND IT HAS NEVER RUN. The holder execution
+  context for all four seat keys is codexFactory's
+  `.github/workflows/gate-rules-convening.yml` — the `gate_rules_council`
+  caller landed by codexFactory PR #277 (merge `511d95c5`, 2026-09-07) under
+  task 5.9a, whose convening job declares `environment: worker-credentials`
+  and therefore reads exactly the environment these four secrets are
+  provisioned into. Q-GRC-1 was RULED on 2026-09-06 against a world in which
+  that job did not yet exist, and its wording anticipated an attestation that
+  "states plainly that it does not exist yet". IT NOW EXISTS, so saying so
+  would be false, and the mint runbook's own rule governs the correction —
+  "Do not describe a context you have not seen." What is attested is
+  therefore STRONGER than the ruling assumed and narrower than a reader might
+  infer, in three parts, each measured: (1) THE JOB EXISTS, at codexFactory
+  `origin/main`, with `environment: worker-credentials`; (2) IT HAS NEVER
+  RUN — GitHub Actions workflow id 352457764 reports `total_count: 0` runs,
+  measured @@WALK_DATE@@, so no observation of this context in operation
+  exists anywhere; (3) IT REFUSES TODAY, deliberately, with
+  `seat_signing_unavailable`, a fail-closed presence check that parks the
+  convening precisely because these four secrets are absent. And the honest
+  limit that goes with it: THE WIRING IS PRESENCE-ONLY. The four secret names
+  appear in that workflow at its `env:` mapping and in the emptiness test of
+  that refusal, AND NOWHERE ELSE — no signing step consumes them yet. So
+  provisioning the four halves LIFTS THE REFUSAL and does not by itself
+  produce a signed seat return; the first signed convening is the change's
+  own Sequencing step 6 and is not performed, evidenced or promised by this
+  attestation.
+compensating_control: >
+  Tier `act` requires approval before apply, already in force by the
+  constitutional floor. openxwallet-custody.registry.yaml designs
+  holder_readable to reach exactly this tier under no-key-infrastructure
+  conditions (add-wallet-carried-review-authority clarifications N13). For
+  this body a SECOND control is in force and is recorded rather than assumed:
+  `governance/review-authority/register.yaml` is a permanently human-only
+  surface and a never-clearable floor member by exact path, so the
+  rule-setting body whose authority this attestation supports can never clear
+  a candidate that edits the register or the artifacts conferring its own
+  authority.
+cap_effect_if_absent: >
+  With no recorded attestation row, review-authority grants whose audience
+  resolves to wal-agent-grc-0001 cap at authority_tier request.
+governing_task: >
+  register-gate-rules-council-seats tasks 3.4, under the Q-GRC-1 ruling of
+  2026-09-06T14:13:46Z. The holder execution context it names — codexFactory
+  task 5.9a, the `gate_rules_council` caller — is LANDED (codexFactory PR
+  #277, merge `511d95c5`), which is why this row attests an
+  existing-and-never-run context rather than the owed one the ruling
+  anticipated.

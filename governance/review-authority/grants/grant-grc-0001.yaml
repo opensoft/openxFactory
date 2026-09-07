@@ -1,0 +1,203 @@
+# LIVE INSTANCE — the THIRD review-authority grant in the stack, and the FIRST
+# issued to a SECOND commissioned body.
+#
+# ============================================================================
+# WHAT THIS GRANT IS, AND WHAT IT IS NOT
+# ============================================================================
+#
+# IT IS A COLD START, NOT A RE-ISSUANCE. `agent:gate-rules-council` has held no
+# wallet, no grant and no register row before this act, so
+# `docs/governed-reissuance-runbook.md` does NOT govern here and no grant is
+# superseded. The governing document is
+# `docs/council-seat-key-mint-runbook.md` — the mint-and-register ceremony,
+# whose §0.2 draws exactly this line: "If the body already holds a wallet, you
+# are performing a re-issuance and governed-reissuance-runbook.md governs
+# instead."
+#
+# IT IS A ROOT GRANT. No `parent_grant_ref`: `parent_grant_ref` means DERIVED
+# FROM, and nothing this grant carries is derived from `grant-mrc-0001` or
+# `grant-mrc-0002`. The two bodies are two holders. That `grant-mrc-0002` and
+# this grant share an `expires_at` is a RULING (Q-GRC-3, so that one
+# re-issuance ceremony covers both bodies), not a derivation.
+#
+# ============================================================================
+# WHY IT WAS ISSUED — THE QUEUING RULING AND THE COMPOSITION PREREQUISITE
+# ============================================================================
+#
+# codexFactory PR #165's OQ-C ruling — Brett Heap, 2026-09-05T17:15Z — queued
+# this by name: "operator ratification now, seats later … Registering
+# gate-rules seats … is QUEUED as its own S5-family openxFactory change so
+# later convenings are signed." The queued change is
+# `register-gate-rules-council-seats`, RATIFIED 2026-09-06T14:13:46Z; this file
+# is task 3.5 of its §3 operator walk.
+#
+# THE COMPOSITION EXISTED BEFORE THIS GRANT WAS ISSUED, and that ordering is
+# the design's, not a convenience (design D3: "No grant is issued against a
+# composition that does not exist" — a grant issued against a composition that
+# does not exist "would create the one review authority in the estate that no
+# drift cascade can revoke, and it would be held by the body that SETS the gate
+# rules"). The composition is codexFactory
+# `hermes/domain/review-councils/gate-rules.yaml#council.composition_source_map`
+# plus `hermes/domain/agent-mixes.yaml#review_council_profiles.gate_rules_council`,
+# landed by codexFactory PR #277 → `511d95c5` (2026-09-07): six components,
+# mirrored from merge-readiness component for component under ruling R2(a),
+# with EXACT model identifiers (Q8(d) of 2026-08-26 stands, unreopened).
+#
+# THE TWO-BODY COUPLING IS ACCEPTED OPENLY, not discovered later. Q-GRC-2,
+# RULED 2026-09-06T14:13:46Z: "a roster pin flip revokes both bodies' grants
+# and parks both; re-issuance is a scheduled two-body ceremony with one walk
+# record per body."
+#
+# ============================================================================
+# THE CITATIONS THIS REGISTER ACT IS FIXED AT
+# ============================================================================
+#
+#   (i)   THE RATIFICATION — `openspec/changes/register-gate-rules-council-seats/
+#         review/ratification-2026-09-06.md`, Brett Heap 2026-09-06T14:13:46Z,
+#         verbatim "lets take them in your recommended order all approved",
+#         ratifying seven ADDED requirements and ruling Q-GRC-1..Q-GRC-5.
+#   (ii)  THE R1/R2 AMENDMENT — Brett Heap 2026-09-07T12:40:19Z, verbatim
+#         "R1 lead-architect claude-opus-5, R2 (a) — re-sequence 5.9a first",
+#         <https://github.com/opensoft/openxFactory/pull/717#issuecomment-5570774593>
+#         (landed as openxFactory PR #751).
+#   (iii) THE ROSTER-CHANGE RECORD — codexFactory
+#         `hermes/domain/review-councils/records/2026-09-07-gate-rules-roster-lead-architect-pin.md`,
+#         carrying R1's selection (§2) and Lead Quality's ACCEPT AS AMENDED
+#         with conditions LQ-C1..LQ-C4 (§6), whose LQ-C3 discloses an uncured
+#         conflict: the accepting seat's own pin sits in the block it accepts.
+#   (iv)  THE OPERATOR IDENTITY RECORD — `openspec/changes/
+#         add-wallet-carried-review-authority/operator-identity-record-2026-09-01.md`,
+#         the anchored operator identity this grant's `issued_by` names.
+#
+# The walk record for this act:
+# `openspec/changes/register-gate-rules-council-seats/walk-@@WALK_DATE@@-register-act.md`.
+#
+# ============================================================================
+# THE SCOPE — EACH ELEMENT EXAMINED, AND WHY IT STANDS
+# ============================================================================
+#
+# The mint runbook's §3.3 requires it in terms: "Re-examine every scope element
+# and RECORD WHY IT STANDS. A later reader must be able to tell a decision from
+# a paste." This is a cold start, so nothing is inherited and every element is
+# a first choice — which makes the record MORE owed here, not less.
+#
+#   * `acts: [review]` — STANDS, and it is the whole act set. `review` is the
+#     canonical act token the register reader enforces
+#     (`register-act-not-review` refuses anything else). This body SETS gate
+#     rules; setting them is a governed roster/rule act in codexFactory, not an
+#     act over an openxFactory object, and it is not what this grant confers.
+#     What this grant confers is the authority to REVIEW. Nothing else was
+#     considered, and widening the set on a cold start would smuggle authority
+#     nobody ruled.
+#   * `objects: [opensoft/openxFactory]` — STANDS, AND IT NEEDS AN EXPLICIT
+#     SENTENCE BECAUSE IT LOOKS WRONG AT FIRST READING. This body governs
+#     codexFactory's gate rules, so a reader expects `opensoft/codexFactory`
+#     here. It is `opensoft/openxFactory` for a structural reason, and the
+#     reason is not a paste from `grant-mrc-0002`: the reader enforces SET
+#     EQUALITY between this list and the backing row's `target_repo`, the
+#     register is an OPENXFACTORY artifact adjudicated inside THIS
+#     repository's REQUIRED `wallet-validation` check, and `repo_scan` builds
+#     its context from the scanned repository's own records — a
+#     cross-repository audience has no resolution path today
+#     (add-wallet-carried-review-authority clarifications N7). A row naming
+#     `opensoft/codexFactory` would be a row this estate cannot resolve, not a
+#     wider authority. The object is therefore the repository whose review this
+#     register commissions, and the body's DOMAIN of rule-setting is a
+#     different thing that no field here carries. The same asymmetry is already
+#     on `grant-mrc-0002` for the same reason; it is re-derived here rather
+#     than inherited.
+#   * `authority_tier: act` — STANDS, on a named and checkable basis: the
+#     custody attestation
+#     `../attestations/custody-attest-wal-agent-grc-0001.yaml`, which attests
+#     `holder_readable` custody for `wal-agent-grc-0001`. Without that row the
+#     unattested cap applies and this grant could reach only `request`.
+#     `act_unsupervised` is refused outright for review authority and was never
+#     a candidate.
+#   * `approval_posture` — BYTE-IDENTICAL to `grant-mrc-0002`'s three lines, and
+#     identical is the point rather than a shortcut: approval-before-apply is
+#     the compensating control that lets `holder_readable` custody reach tier
+#     `act` at all (clarifications N13), authority agents may not approve, and
+#     no human-escalation act is enumerated. Task 3.5 requires the byte
+#     identity by name. A posture that relaxed any of the three would quietly
+#     remove the ground the tier stands on.
+#
+# THE AUDIENCE is `wal-agent-grc-0001` / `agent:gate-rules-council` — the
+# wallet minted in the same act and the body codexFactory's roster spells
+# `gate_rules_council`. The register's `council_ref`/`council_id` pair records
+# both spellings because neither is derivable from the other by any declared
+# rule; the reader checks that they denote one body.
+#
+# ============================================================================
+# THE EXPIRY — RULED, AND DELIBERATELY SHARED
+# ============================================================================
+#
+# `expires_at: 2027-06-30T00:00:00Z`, RULED as Q-GRC-3 by Brett Heap at
+# 2026-09-06T14:13:46Z: "the same date as grant-mrc-0002, so one re-issuance
+# ceremony covers both bodies." It is character-for-character equal to
+# `row-grc-0001`'s, because the reader compares the two and any drift is a
+# `register-grant-mismatch`.
+#
+# WHY SHARING IT IS A DECISION AND NOT A COPY. `grant-mrc-0002`'s date is bound
+# to the Operator identity record's review expiry, itself bound to
+# `claude-sonnet-5`'s published retirement floor — the earliest floor among the
+# pinned seat identifiers. THIS body's pinned identifiers are `claude-opus-5`
+# (`lead-architect` under R1, `lead-security`) and `claude-sonnet-5`
+# (`lead-quality`, `company-policy-lead`), so the same floor is the binding
+# floor here too, and the shared date is the same binding reached
+# independently. What the ruling adds on top is the OPERATIONAL reason: two
+# bodies whose grants expire on one day are one scheduled ceremony rather than
+# two.
+#
+# THE HONEST CAVEAT, carried from the re-issuance runbook's §6.1: NOTHING IN
+# THIS ESTATE READS A RETIREMENT DATE. This expiry is a date in a file that the
+# register reader computes against at read time (`register-row-expired`,
+# `grant-state-stale`), and that is the whole of its enforcement. The
+# retirement horizon it is bound to is a promise with a named human owner, not
+# a control.
+#
+# ON THAT DAY every gate-rules convening parks — IF AND WHEN ONE RUNS. NONE
+# EVER HAS: codexFactory's `.github/workflows/gate-rules-convening.yml`
+# (workflow id 352457764) reports `total_count: 0` runs. The sentence above
+# describes the CONTROL'S SHAPE, not an observed behaviour, and must not be
+# read as evidence that convenings happen.
+#
+# ============================================================================
+# THE RESOLUTION PATHS
+# ============================================================================
+#
+# Audience resolves to `wal-agent-grc-0001` in `../wallets/`; tier `act` stands
+# on the custody attestation in `../attestations/`; the backing register row is
+# `row-grc-0001` in `../register.yaml`, written in the same change. All three
+# are cross-checked by the pinned validator's register reader inside the
+# REQUIRED `wallet-validation` check, and there is no ordering of the wallet /
+# attestation / grant / row writes that is green halfway — which is why they
+# are one change (mint runbook §0.1.5).
+#
+# WHAT THIS GRANT DOES NOT DO, stated here so no reader infers it. It does not
+# refresh the Hermes register projection: until that projection is re-derived
+# the runtime keeps refusing with `review_authority.root_key_mismatch` and NO
+# AUTHORITY FLOWS. It does not admit a convening. And it certifies nothing
+# about this bench's capability — LQ-C1 forbids reading the roster pin as an
+# adequacy claim, and LQ-C4 leaves open whether a packet-only seat can
+# discharge its charge at all.
+# ============================================================================
+schema_version: 1
+kind: xfactory_wallet_grant
+grant_id: grant-grc-0001
+audience:
+  wallet_ref: wal-agent-grc-0001
+  holder_ref: agent:gate-rules-council
+scope:
+  acts:
+    - review
+  objects:
+    - opensoft/openxFactory
+  authority_tier: act
+  approval_posture:
+    hermes_approval_required_before_apply: true
+    authority_agents_may_approve: false
+    human_escalation_required_for: []
+expires_at: "2027-06-30T00:00:00Z"
+issued_at: "@@ISSUED_AT@@"
+issued_by: Brett.Heap@opensoft.one
+state: active
