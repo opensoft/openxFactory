@@ -3,13 +3,14 @@
 ## ADDED Requirements
 
 ### Requirement: A consumption pin that another repository reads is a PUBLISHED contract member, adopted by pin-sync
-A pin at `contracts/<product>-pin.yaml` that ANY repository other than
-`openxFactory` is expected to read SHALL be a PUBLISHED contract member:
-registered in `contracts/manifest.yaml` with an `id`, its `path`, a `type`, its
+A consumption pin SHALL be a PUBLISHED contract member wherever any repository
+other than `openxFactory` is expected to read it: registered in
+`contracts/manifest.yaml` with an `id`, its `path`, a `type`, its
 `intended_consumers`, `adapter_owner: openxFactory`, and a `consumption_rule`
 that states the checkout-at-the-pinned-ref recipe and forbids copying; and
 indexed in `contracts/README.md` so a human reading the contract index finds it
-where every other published contract is found.
+where every other published contract is found. The pin is the file at
+`contracts/<product>-pin.yaml`.
 
 **REGISTRATION IS WHAT MAKES ADOPTION AUTOMATIC, AND THAT IS THE WHOLE REASON
 FOR IT.** `contracts/manifest.yaml` is the register a cross-repository consumer

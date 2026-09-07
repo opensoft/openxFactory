@@ -217,7 +217,7 @@ openxfactory_contract_ref:
   contract: contracts/<contract-name>
 ```
 
-## Gating Archives On The Pinned CLI From A Consumer Repository
+## Gating archives on the pinned CLI from a consumer repository
 
 **Who this is for:** any repository that runs `openspec validate --strict` or
 `openspec archive` as a governed act. Today that is 26 repositories across the
