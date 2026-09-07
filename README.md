@@ -512,6 +512,71 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-consent-custody-rederivation-record](openspec/changes/add-consent-custody-rederivation-record/proposal.md)
+  — authored 2026-09-07, **`Status: draft`**, on Brett Heap's F.1 ruling of
+  2026-09-07T13:51Z (OpsxFactory PR
+  [#248](https://github.com/opensoft/OpsxFactory/pull/248#issuecomment-5571629298),
+  in session, first-hand to lane opsXfactory-1), verbatim *"Bump the openxFactory
+  instrument schema first"* — an ADMISSION TO THE QUEUE AND AN INSTRUCTION TO
+  AUTHOR, **not a ratification**. **PROPOSAL ONLY: NO SCHEMA BYTE MOVES, NO
+  CONTRACT VERSION IS CUT, AND EVERY BOX IN `tasks.md` IS UNTICKED.** Gives
+  `contracts/schemas/consent-instrument.schema.yaml` a structured, closed
+  SIBLING of `custody` — `custody_rederivations[]`, entries closed at
+  `{at, commit, previous_sha256, observed_sha256, diff_class, reason,
+  ruling_ref, recorded_by}`, all eight required, `diff_class` and `reason`
+  CLOSED enumerations — so that an authorized edit which moves a pinned
+  target's bytes is RECORDABLE and RE-DERIVABLE instead of prose or nothing.
+  **`custody` is not touched**: it stays exactly `{locator, sha256}` with
+  `additionalProperties: false`, by ruling **D9**, whose closure argument is
+  that no property may exist in which the signed original's content could sit —
+  which is precisely why the growth is a sibling. **The finding is measured,
+  not reasoned.** OpsxFactory's citation sweep re-derived all four executed
+  instruments' `custody.locator` targets on 2026-09-06 at `ddc03ad7`: **three
+  of four no longer hash to their pin**, all three broke at the SAME commit
+  `57fd9fd2` (2026-08-24, the ruled lifecycle-header discharge, 16 files under
+  `openspec/changes/archive/`), the content did not change (re-derived at
+  `57fd9fd2^` each still matches), and the one pin that still verifies is the
+  one that commit did not touch — **3 of 3**, with one broken target sitting in
+  a change directory that has never been archived, so the class is
+  custody-pin integrity and not archiving. Register: OpsxFactory
+  `openspec/changes/add-pre-archive-citation-gate/supporting-docs/owed-findings.md`
+  § F.1, live at OpsxFactory main `40aaa93b` and archiving 2026-09-07 to
+  `openspec/changes/archive/2026-09-07-add-pre-archive-citation-gate/…`.
+  **The delta is one `## MODIFIED` and one `## ADDED` on `consent-instrument`.**
+  The ADDED requirement states the GATE RULE: custody is CURRENT iff the target
+  hashes at HEAD to `custody.sha256`, or the chain anchors to that pin, links
+  without a gap, re-derives at every entry's `commit` AND its `commit^`, and
+  terminates at HEAD — and **a chain that cannot be re-derived is a REFUSAL,
+  never an admission**, because converting "cannot tell" into "verified" is the
+  exact state F.1 stood in for thirteen days. **The obligation is SPLIT and the
+  split is explicit**: the canonical validator takes only the legs derivable
+  from the record's own bytes (anchor, linkage, order, closed enums, unmoved
+  pin) because it is network-free and reads ONE repository, while the git
+  re-derivation runs in the CONSUMING repository where the target's bytes are —
+  so a neutral pass is NOT a currency claim and the requirement says so. Growth
+  is ADDITIVE: `contract_schema_version: 2 → 3`, the record envelope's
+  `schema_version` stays `const: 1`, and every existing instrument validates
+  unchanged. **Four readings are recorded as NOT taken**, each with its measured
+  reason: growing `custody` itself (D9); prose in `amendments[].delta` (the form
+  Brett declined — not machine-checkable); a sidecar register in the consumer
+  repository (declined in the same ruling); and rewriting `custody.sha256` to
+  the observed digest (destroys the only evidence a divergence occurred while
+  producing a record that verifies). **The bundle version is NOT reserved**:
+  `docs/contract-versioning-policy.md` allocates it at the cut, the next
+  additive minor measured at authoring is `contract-v3.5`
+  (`contracts/manifest.yaml:3` declares `contract-v3.4`), and the row-4
+  substrate on [#630](https://github.com/opensoft/openxFactory/issues/630) is
+  claimed by the cutting session as its own task, never here. **The consumer's
+  acts are named as the CONSUMER'S and are outside this change's archive gate**:
+  OpsxFactory re-pins `stack.yaml` `contract_ref` in lockstep with the
+  worker-enrollment-broker's runtime-shape validation, then the three broken
+  instruments take an `amendments` entry plus a `custody_rederivations` entry
+  and the fourth takes nothing. Eight veto points, **C-1..C-8**. Lane claims
+  [5571680046](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5571680046)
+  (change) and
+  [5571680388](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5571680388)
+  (row-3 README substrate), lane `opsXfactory-1`.
+
 - [extend-merge-master-envelope-to-floor-bot-lanes](openspec/changes/extend-merge-master-envelope-to-floor-bot-lanes/proposal.md)
   — authored 2026-09-07, **`Status: ratified`** (2026-09-07, Brett Heap
   (repository owner), in session at 2026-09-07T12:32:44Z, verbatim *"ratify 746
