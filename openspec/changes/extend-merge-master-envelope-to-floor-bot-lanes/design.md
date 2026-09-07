@@ -14,7 +14,7 @@ is one such place and it is not a small one.
 The merge-approval envelope for this repository is declared in
 **`.github/merge-approval-envelope.yml`**. It is not a `contracts/` policy and
 not a `hermes/` document; it is a code-owner-routed file under `.github/`
-(`.github/CODEOWNERS:8` names `/.github/merge-approval-envelope.yml`).
+(`.github/CODEOWNERS:35` names `/.github/merge-approval-envelope.yml`).
 
 **THE BRIEF'S PREMISE IS WRONG FOR THIS REPOSITORY, and the correction matters
 to every decision below.** The brief states that openxFactory's
@@ -158,11 +158,31 @@ Every path either bot lane writes is code-owner gated:
 
 | Lane | Path written | CODEOWNERS entry |
 |---|---|---|
-| re-pin | `.github/workflows/merge-master-approval.yml`, `.github/workflows/pytest-suite.yml` | openxFactory `.github/CODEOWNERS:1` `.github/workflows/ @brettheap` |
-| re-pin | `contracts/review-lane-pin.yaml` | openxFactory `.github/CODEOWNERS:6` |
-| re-pin | `contracts/review-lane-floor-snapshot.yaml` | openxFactory `.github/CODEOWNERS:7` |
+| re-pin | `.github/workflows/merge-master-approval.yml`, `.github/workflows/pytest-suite.yml` | openxFactory `.github/CODEOWNERS:2` `.github/workflows/ @brettheap` |
+| re-pin | `contracts/review-lane-pin.yaml` | openxFactory `.github/CODEOWNERS:20` |
+| re-pin | `contracts/review-lane-floor-snapshot.yaml` | openxFactory `.github/CODEOWNERS:27` |
 | regeneration | `scripts/merge_master/openxfactory-review-authority-floor.yaml` | codexFactory `.github/CODEOWNERS:29` `/scripts/ @brettheap` |
-| regeneration | `tests/merge-master/test_repository_gate_floor.py` (only when floor membership changes; `scripts/merge_master/floor_regeneration.py:577-641`, the LS-A3 `SPECS_FLOOR_PATHS` mirror) | codexFactory `.github/CODEOWNERS` — `/tests/**` is covered per the note at `:107` |
+| regeneration | `tests/merge-master/test_repository_gate_floor.py` (only when floor membership changes; `scripts/merge_master/floor_regeneration.py:577-641`, the LS-A3 `SPECS_FLOOR_PATHS` mirror) | **NOT a CODEOWNERS entry** — see the correction below |
+
+**CORRECTION, 2026-09-07, and it changes a mechanism rather than a citation.**
+An earlier revision of this table claimed
+`tests/merge-master/test_repository_gate_floor.py` was code-owner gated "per the
+note at `:107`". IT IS NOT. codexFactory `.github/CODEOWNERS` names only
+`/tests/browser-ui-repair/fixtures/` (`:119`) and `/tests/browser-ui-repair/baselines/`
+(`:120`) under `/tests`; the note at `:107-109` says something different — that
+*"`/tests/**` already sits on the enrolled rule's never-clearable floor and
+outside the tier-1 allowlist"*. That is a bar, and a fail-closed one, but it is
+the GATE RULE'S floor plus the tier-1 allowlist, NOT CODEOWNERS.
+What this does and does not change. It does NOT change any conclusion: the mirror
+file is still not autonomously approvable as things stand, and it still must be
+enumerated in the new candidate class's `path_allowlist` (N-2). It DOES change
+which refusal applies to it — so of the regeneration lane's two writable paths,
+only `scripts/merge_master/openxfactory-review-authority-floor.yaml` (`:29`)
+carries the CODEOWNERS bar that § 2.2a's promoted requirement names, while the
+mirror carries the allowlist-and-floor bar instead. The distinction is recorded
+because a reader reasoning about which bar to narrow needs it, and because the
+original error came from reading a comment-stripped view of the file rather than
+the file.
 
 A GitHub App cannot be named in CODEOWNERS. So the merge-master App's APPROVE
 review does not, and cannot, satisfy code-owner review on any of these paths.
