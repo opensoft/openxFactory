@@ -268,11 +268,14 @@ SUPERSEDED BY RULING**, **5.2 by a recorded DISPOSITION**. The ruling those two
 are superseded by is Brett Heap's of 2026-09-05 ~22:50Z on
 opensoft/openxFactory#591, verbatim: **"Accept Omni001-XEAON"**.
 
-*Nothing ratified is rewritten.* Every box below keeps its original requirement
-text and the dated note it already carried; each amendment is appended beneath
-them so the supersession is readable against what it supersedes. This is the
-in-place amendment convention this packet already used for its four amendments
-of 2026-09-05 (openxFactory PR #704).
+*No ratified REQUIREMENT TEXT is rewritten — and that is not the same claim as
+"no lines changed".* Two things do change, deliberately: the **task state** of
+5.1, 5.2 and 5.5 (`[ ]` → `[x]`), which is what recording a disposition means;
+and the **amendment notes appended** below each box. What is left untouched is
+the ratified prose — every box's original requirement sentence and the dated
+note it already carried — so the supersession stays readable against exactly
+what it supersedes. This is the in-place amendment convention this packet
+already used for its four amendments of 2026-09-05 (openxFactory PR #704).
 
 *Why an amendment and not a discharge.* opensoft/openxFactory#756 → squash
 `73bb088e` (2026-09-07T16:55Z) ticked 5.3 and 5.4 on evidence and wrote honest
@@ -337,8 +340,9 @@ and this amendment claims only the first two.
       on opensoft/openxFactory#591, verbatim: **"Accept Omni001-XEAON"**. That
       ruling IS the accepted outcome of this box, and it is what closes it: the
       box is ticked as SUPERSEDED, not as discharged as specified. The original
-      requirement is left standing above, unedited, so the supersession can be
-      read against it.
+      requirement sentence is left standing above, unedited — the box's STATE
+      changes, its ratified text does not — so the supersession can be read
+      against it.
 - [x] 5.2 Reprovision omni001. It is empty: no runner registered, no pilot
       ever run. Confirm that is still true immediately before the act.
       The box's substance is two imperatives, not one: reprovision, AND
@@ -574,8 +578,11 @@ by the § 5 amendment, because it falls outside what that amendment was approved
 to touch.** `docs/omniworker-naming.md` — the ratified canonical naming record
 this packet authored — still declares the machine-name template
 `CPC-OXF-%USERNAME:7%`, still renders `CPC-OXF-Omni001` as the worked example,
-still reasons explicitly from the template carrying **no `%RAND%` segment** (the
-premise Windows 365 refuses), and still reads `Amendments: None`. openxFactory's
+still reasons explicitly from the template carrying — in that record's own
+words — **no `%RAND%` segment**, which is the premise Windows 365 refuses: it
+refuses by requiring the specific token `%RAND:5%` in every device-name
+template, not merely some random segment of any length. It still reads
+`Amendments: None`. openxFactory's
 own `README.md` repeats the template in its doc-index line and in its records
 block. An operator following the canonical record is therefore still instructed
 to configure a template that cannot be applied. **Owed: a dated amendment
