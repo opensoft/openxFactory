@@ -512,6 +512,76 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [extend-merge-master-envelope-to-floor-bot-lanes](openspec/changes/extend-merge-master-envelope-to-floor-bot-lanes/proposal.md)
+  — authored 2026-09-07, **`Status: ratified`** (2026-09-07, Brett Heap
+  (repository owner), in session at 2026-09-07T12:32:44Z, verbatim *"ratify 746
+  and 272 as recommended when green, then land them"* — a PAIR word over this
+  packet and codexFactory #272 together; ratified head `6ebd7b24`, all nine
+  checks green, zero open threads; record
+  `openspec/changes/extend-merge-master-envelope-to-floor-bot-lanes/review/ratification-2026-09-07.md`),
+  lane `openxfactory-2`. **RATIFICATION PERFORMS NO REALIZATION** — no candidate
+  class is enrolled, no envelope file is edited, no floor path moves, no ruleset
+  changes, and every box in `tasks.md` stays unticked; realization is a later
+  word. **Decisions N-1..N-5 STAND AS RECOMMENDED** with no veto: N-1 admits the
+  codexFactory REGENERATION lane ONLY, so the openxFactory re-pin lane stays
+  under a human merge word, and alternatives (d) status quo and (e) satisfy-the-
+  canon-as-written are recorded as not taken rather than foreclosed. Governing
+  issue [#745](https://github.com/opensoft/openxFactory/issues/745), first-cycle
+  record [codexFactory #232](https://github.com/opensoft/codexFactory/issues/232),
+  COMPANION [codexFactory #272](https://github.com/opensoft/codexFactory/pull/272)
+  — the canon narrowing, authored there because the canon lives there.
+  Answers § 6.3 of BOTH ratified option-(b) packets — the box they named and
+  deliberately left unruled: whether the merge-master low-risk envelope should
+  extend to the two floor bot lanes, so an hourly cycle stops costing two human
+  merges. **PROPOSAL ONLY; NOTHING IS ENROLLED** — no envelope file is edited, no
+  floor path moves, no ruleset changes and no box is ticked. **Its headline is a
+  MEASURED correction.** The envelope is declared in
+  `.github/merge-approval-envelope.yml` (code-owner routed) and this repository
+  enrols ONE candidate, `intent-rolling-custody` — NOT the doc-health nightly,
+  which is `opensoft/xFactory`'s candidate and is cited here only as the
+  precedent. Three refusals stand between the bot lanes and the envelope, all
+  verified in the tree: (0) **PROMOTED CANON FORBIDS BOTH LANES** — codexFactory
+  `openspec/specs/merge-master-approval/spec.md:175-186` § *Bounded autonomous
+  surface* says the mechanism "MUST NOT approve any pull request on a surface
+  scoped to a human gate (a CODEOWNERS-scoped path)", every path either lane
+  writes is one, and the active `add-regular-pr-council-clearance` reaffirmed it
+  ("CODEOWNERS-scoped governance paths remain absolutely forbidden"), so
+  **NEITHER LANE IS A CONFIGURATION CHANGE**: admitting either needs a
+  `## MODIFIED` to that promoted requirement; (1) the floor is composed OVER the
+  envelope
+  (`.github/workflows/merge-master-approval.yml:1499` parks anything with
+  `FLOOR_MATCHED != 0`) and `contracts/review-lane-pin.yaml` IS a never-clearable
+  member, so **the re-pin lane cannot be enveloped today whatever is declared**;
+  (2) ruleset `Require Code Owner Review` is ACTIVE in BOTH repositories over
+  every path either lane writes, and a GitHub App cannot be a code owner; (3)
+  codexFactory's envelope admits neither this author (`openxfactory[bot]`, not
+  `codexfactory[bot]`) nor this surface (`scripts/**` is outside its allowlist).
+  **Recommendation N-1 therefore INVERTS the expected reading**: admit the
+  codexFactory REGENERATION lane, leave the openxFactory RE-PIN lane on a human
+  word — half the per-cycle cost for none of the governance risk, since the
+  re-pin lane weakens TWO governance grounds where the regeneration lane weakens
+  ONE, and additionally needs a decision-core carve of the very ground ("a
+  clearable pin would let a pull request choose its own judge") that § 6.3 named
+  plus a re-pin cycle to make the carve live. **N-1 (d) status quo is a serious
+  contender**, and **N-1 (e)** records the only option that buys the click
+  WITHOUT weakening any ground — move the machine-generated floor block off the
+  code-owner-gated surface and satisfy the canon as written; if N-1 is refused,
+  (e) is the successor to file. Six decisions N-1, N-1b, N-2..N-5, each with
+  alternatives and the cost of a veto; three open questions OQ-1..3, of which
+  **OQ-2 is answered with a recommendation for a Gate-Rules Council record**
+  rather than a word, since the act changes a rule rather than granting a class
+  inside it. **8 ADDED requirements** — 5 on `roles-authority-model`
+  (per-lane enrolment, floor-over-envelope with carve-not-removal, judge-writing
+  lanes behind named safeguards, one-edit kill switch, approval is not a merge)
+  and 3 on `review-lane-floor-mirror`; no `## MODIFIED` and no `## REMOVED`.
+  `sequenced_after: [mirror-floor-regeneration-automation,
+  codexFactory:add-floor-regeneration-automation, add-substantive-review-lane]`;
+  `code_surface` is NOT `none`, so it archives only on merged, green realization
+  evidence — one bot pull request of each admitted kind landed with no human
+  click. **§ 5.3 is the enabling act and it is Brett Heap's**: without a
+  code-owner-review accommodation an envelope approval lands nothing at all, and
+  declining it makes N-1 (d) the honest outcome.
+
 - [register-gate-rules-council-seats](openspec/changes/register-gate-rules-council-seats/proposal.md)
   — authored 2026-09-06, **`Status: ratified`** (2026-09-06, Brett Heap
   (repository owner), in-session at 2026-09-06T14:13:46Z, verbatim *"lets take

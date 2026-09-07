@@ -1,0 +1,62 @@
+schema: spec-driven
+created: 2026-09-07
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-07-extend-merge-master-envelope-to-floor-bot-lanes
+  reason: >-
+    Not from an openxFactory staged topic, and that was CHECKED rather than
+    assumed: this packet carries no Staging ID header, no folder under
+    `ideation/staging/` names the merge-approval envelope, the merge-master
+    low-risk envelope, the floor bot lanes or the review-lane pin, and
+    `ideation/staging/INDEX.md` declares no topic exit naming any of them.
+    No staging origin is claimed because none exists.
+    THE SOURCE IS A NAMED, DELIBERATELY DEFERRED BOX IN TWO RATIFIED PACKETS.
+    Both option-(b) packets — codexFactory `add-floor-regeneration-automation`
+    (ratified 2026-09-06, merge `ffc090d0`) and openxFactory
+    `mirror-floor-regeneration-automation` (ratified 2026-09-06, merge
+    `7b8460f5`) — carry a § 6.3 that names this exact question, keeps the human
+    merge word as the DEFAULT until it is ruled, and records the ground that
+    would have to be answered: `contracts/review-lane-pin.yaml` is itself a
+    never-clearable floor entry whose stated reason is that a clearable pin
+    "would let a pull request choose its own judge". Neither packet ruled it and
+    both said so.
+    THE COST IT ANSWERS IS MEASURED. The first complete cycle ran 2026-09-06/07
+    and is recorded on codexFactory issue #232: bot pull requests codexFactory
+    #248 (merged `7f147070`), #254 (`307d38f1`), #265, and openxFactory #732
+    (`9ffc6252`); three defects found by running (codexFactory #252 `91fc95f5`,
+    #260 `f430cf7e`; openxFactory #726 `0f9361e0`); and every advance of the
+    pinned decision core costing two human merges, one per repository, on an
+    hourly cycle.
+    THE WORD AUTHORIZED THE PROPOSING, NOT THE CONTENT. Nothing is realized by
+    this packet: no candidate is enrolled, no envelope file is edited, no floor
+    path moves, no ruleset changes, no workflow step is added, and no box is
+    ticked.
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — in session, lane
+    openxfactory-2, session de9d8fd4, 2026-09-07 ~02:05Z, a multiple-choice
+    ruling on this lane's open questions, verbatim option chosen: "Propose the
+    extension now". THIS IS AN ADMISSION INTO THE PROPOSAL QUEUE AND AN
+    INSTRUCTION TO AUTHOR, NOT A RATIFICATION OF CONTENT. It supplies the origin
+    and approval pair the proposal-origin contract requires and nothing more: at
+    the time this field was written the packet WAS Status: draft, carried no
+    ratification citation and owed none — the promoted lifecycle rule requires
+    one only for Status: ratified — and whether its content would be ratified
+    was a separate act that had not yet happened and was Brett Heap's alone. The
+    governing issue is openxFactory #745, which carries the lane's Rule-1 claim.
+    THE PACKET HAS SINCE BEEN RATIFIED — Brett Heap, 2026-09-07, in session,
+    verbatim "ratify 746 and 272 as recommended when green, then land them", a
+    PAIR word over this packet and codexFactory #272 together, recorded
+    2026-09-07T12:32:44Z on openxFactory issue #745 and applied at head 6ebd7b24
+    with all nine checks green and no open thread; record
+    review/ratification-2026-09-07.md. Decisions N-1 through N-5 stand as
+    recommended and no veto was exercised. THIS FIELD STILL RECORDS
+    AUTHORIZATION TO FILE ONLY; the ratification is a separate act recorded
+    there, and NOTHING IS REALIZED BY EITHER — no candidate is enrolled, no
+    envelope file is edited, no floor path moves, no ruleset changes, and every
+    box in tasks.md remains unticked.
+  approved_on: 2026-09-07
+related:
+  - openxFactory:change:mirror-floor-regeneration-automation   # the ratified packet whose § 6.3 names this question and defers it
+  - openxFactory:change:add-substantive-review-lane   # task 3.2 (the council's general grant of an operable candidate class) is still open, and task 5.1's workflow-instance half is the lane being extended
+  - openxFactory:change:add-ideation-intent-plane   # design D1, the custody-not-decision ground the one enrolled candidate rests on, and ruling D-3 (the lane arms auto-merge on its own side)
+  - openxFactory:change:add-wallet-carried-review-authority   # S3/S5 — the wallet-signed exercise and revocation checks this lane still does not perform
