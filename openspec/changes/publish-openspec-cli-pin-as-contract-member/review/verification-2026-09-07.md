@@ -7,8 +7,11 @@ Captured: 2026-09-07, in lane `openxfactory-1`, on branch
 
 **This record is CAPTURED AT MERGE, not at first push, and EVERY NUMBER BELOW
 WAS RE-DERIVED PRE-CAPTURE** — on the tree this record sits in, at `origin/main`
-**`f756a91f`**, the head this branch's THIRD and last catch-up merge (`ee657e30`)
-took, and with the ratification encoded. `record-immutability` forbids editing a
+**`421b52d8`**, the head this branch's FOURTH and last catch-up merge
+(`a864ef69`) took, and with the ratification encoded. **Every figure below was
+taken TWICE — once at `origin/main` `f756a91f`, in the ratification encode
+commit `05a9db8b`, and again on the merged tree after `a864ef69` — and NOT ONE
+OF THEM MOVED**; the second reading is what stands here. `record-immutability` forbids editing a
 `Status: record` document AFTER capture; capture is the merge of the pull
 request that establishes it, and nothing is merged yet. A commit cannot write
 its own hash into its own tree, so the ratification commit is named by its
@@ -38,8 +41,8 @@ OK openspec-cli-pin: @fission-ai/openspec@1.12.0 verified against its content ad
 exit=0
 ```
 
-Run twice: on the merged tree before the ratification was encoded, and again
-after. Identical both times.
+Run three times: on the merged tree before the ratification was encoded, again
+after it, and again after the fourth catch-up merge. Identical every time.
 
 ## 2. THE PINNED 1.12 ENTRYPOINT OVER THE WHOLE CORPUS, EXACTLY AS `openspec-cli-pin-gate.yml` RUNS IT
 
@@ -72,11 +75,11 @@ requirements, seven scenarios and three — so it has no such block to fail on.
 ## 3. Release membership, before and after the diff
 
 `scripts/hermes_runtime_validation/release.py::release_membership`, run on this
-branch and on a control worktree of `origin/main` `f756a91f` placed OUTSIDE this
-clone:
+branch and on a control worktree of `origin/main` `421b52d8` placed OUTSIDE this
+clone (and identically against the `f756a91f` control before the fourth merge):
 
 ```
-release_membership(origin/main f756a91f control)   -> 283
+release_membership(origin/main 421b52d8 control)   -> 283
 release_membership(this branch, with the diff)     -> 283
 contracts/openspec-cli-pin.yaml    in membership   -> False  (both readings)
 contracts/manifest.yaml            in membership   -> True   (editorial)
@@ -159,11 +162,33 @@ proposal support verification ok                                                
 WHICH IS WHY THEIR OUTPUT REACHES THIS FILE ONE COMMIT LATER.** Both take
 `--ratified-ref`, and the ref they need is the commit that carries this record —
 a commit cannot write the result of a check run against its own hash into its
-own tree. They are run the moment that commit exists, and their output is
+own tree. They were run the moment that commit existed, and their output is
 appended here in a FOLLOW-UP commit touching `review/` files only, which leaves
 the RATIFYING commit exactly where it is: the gate resolves it as the FIRST
 commit whose `proposal.md` declares `Status: ratified`, and a later records-only
 commit never becomes that one.
+
+```
+$ python3 scripts/validate-sequenced-after.py . \
+    --archive-gate openspec/changes/publish-openspec-cli-pin-as-contract-member \
+    --ratified-ref 05a9db8b
+sequenced_after retention gate passed (declaration unchanged since ratification).
+exit=0
+```
+
+```
+$ python3 scripts/validate-scope-globs.py . \
+    --archive-gate openspec/changes/publish-openspec-cli-pin-as-contract-member \
+    --ratified-ref 05a9db8b
+scope_globs scope-retention gate passed (scope unchanged since ratification).
+exit=0
+```
+
+**BOTH ARMS: RETAINED**, run first the moment `05a9db8b` existed and RETAINED a
+second time on the merged tree after `a864ef69`. **`05a9db8b` IS THE
+RATIFICATION COMMIT** — verified by walking `origin/main..HEAD` in order and
+taking the FIRST commit whose `proposal.md` declares `Status: ratified`, which
+is exactly the commit the gate resolves on its own at archive time.
 
 **THE STATUS FLIP AND THE APPROVAL PAIR MOVE IN ONE COMMIT, AND THEY DO HERE.**
 The gate resolves the RATIFYING COMMIT as the first commit declaring
@@ -177,11 +202,11 @@ flip, and that is the last time the file is edited.
 ## release-tag-gate
 release surface touched by this pull request (1 path(s)):
   - contracts/manifest.yaml
-declared bundle: contract-v3.4 at the base f756a91f9 -> contract-v3.4 at the head <ratification commit>
+declared bundle: contract-v3.4 at the base 421b52d8d -> contract-v3.4 at the head a864ef695
   [info] contract-v2.6 is declared SPENT: it was cut, has no published annotated
   tag, and contract-v3.0 — itself cut, itself published and strictly later —
   superseded it. … RULED BY Brett Heap, 2026-09-02
-the release-tag obligation holds over the merge tree: no error, no warning
+the release-tag obligation holds over the merge tree a864ef695: no error, no warning
 exit=0
 ```
 
@@ -197,16 +222,20 @@ surface change"*; the run quoted above is the one that matches what CI asks.
 ## 9. `python3 scripts/doc-health.py --single-repo .` — TWO CONTROLS, NOT ONE
 
 Measured against a control minutes apart on the same clock — a worktree of
-`origin/main` `f756a91f` placed **OUTSIDE** this clone, as the `modified-block-currency`
-self-gate's resolver requires, and removed afterwards.
+`origin/main` placed **OUTSIDE** this clone, as the `modified-block-currency`
+self-gate's resolver requires, and removed afterwards; taken at `f756a91f`
+before the fourth merge and again at `421b52d8` after it.
 
 | | critical | error | warning | info |
 | --- | --- | --- | --- | --- |
 | `origin/main` `f756a91f` (worktree control, outside the clone) | 9 | 8 | 58 | 13 |
+| `origin/main` `421b52d8` (the same control, after the fourth merge) | 9 | 8 | 58 | 13 |
 | this branch, BEFORE the ratification was encoded | 9 | 8 | 58 | 15 |
 | this branch, AFTER it was encoded | 9 | 8 | 58 | 15 |
+| this branch, after the fourth catch-up merge | 9 | 8 | 58 | 15 |
 
-All three report `New regressions vs previous report: 0`.
+All five report `New regressions vs previous report: 0`, and the branch's three
+normalized reports are BYTE-IDENTICAL to one another.
 
 - **Against the pre-ratification branch:** the two normalized reports are
   **BYTE-IDENTICAL** (`md5sum` equal). The status flip, the three citation
@@ -305,9 +334,9 @@ python3 -m pytest tests/doc-health tests/sequenced_after tests/scope_globs tests
 ```
 
 **THE HEADLINE NUMBER MOVED AND THE BRANCH DID NOT MOVE IT.** The fix-round head
-quoted **1917**; the count here is **1923**, and the `origin/main` `f756a91f`
-control worktree — **placed OUTSIDE this clone** — reports **1923 passed, 7
-warnings, 2 subtests passed** on the same clock. **The same number, so this
+quoted **1917**; the count here is **1923**, and the `origin/main` control
+worktree — **placed OUTSIDE this clone** — reports **1923 passed, 7 warnings, 2
+subtests passed** on the same clock, at `f756a91f` and again at `421b52d8`. **The same number, so this
 branch adds ZERO tests**, which is what a packet realizing in two editorial
 files should do, and a status flip adds none either: the count is identical
 before and after the ratification was encoded.
@@ -374,17 +403,18 @@ behaviour R1's precondition clause requires of a gate that meets an absence.
 
 ## 12. The branch's merge history
 
-**THREE merges from `main` stand on this branch**, and the ratification encode
-took no fourth:
+**FOUR merges from `main` stand on this branch**, and only the last was taken
+after the ratification encode:
 
 | merge | took `origin/main` | note |
 | --- | --- | --- |
 | `e318e0e7` | `64aad02e` | no conflict |
 | `85adc0f3` | `5e4d960c` | no conflict; `main` had landed the Apache-2.0 `LICENSE` (PR #762), which is why the licence-count refusal's `license` side moved |
 | `ee657e30` | `f756a91f` | taken BEFORE the ratification was encoded. **No conflict.** The 32 paths `main` moved include `README.md`, where both sides had added a row to the *Active changes* block and git kept BOTH (this packet's row and `amend-absent-changelog-is-an-answer`'s), and `tests/sequenced_after/corpus-ledger.yaml`, where both sides added a row and git kept both. Nothing else `main` moved is a path this packet edits — `contracts/manifest.yaml` and `contracts/README.md` were untouched on the `main` side |
+| `a864ef69` | `421b52d8` | taken **AFTER** the ratification was encoded at `05a9db8b`. No conflict: the six paths are `scripts/ideation_dashboard/cli.py`, `cli_gate.py`, `cli_model_binding.py`, `cli_project.py`, `profile_openxfactory.py` and `tests/ideation-dashboard/test_cli_column_split.py` (PR #742, the column split), none of which this packet edits and none of which is in the four suites this record quotes. Every number above was re-derived on the merged tree in a records-only commit |
 
-**No ledger row moved and no partner flipped in any of the three.** **AND THE
-THIRD IS WHY THIS FILE IS THE ONLY THING A FOLLOW-UP COMMIT TOUCHES**: when
+**No ledger row moved and no partner flipped in any of the four.** **AND THE
+FOURTH IS WHY THIS FILE IS THE ONLY THING A FOLLOW-UP COMMIT TOUCHES**: when
 `main` moves after the encode, the branch takes the merge and every number here
 is re-derived in a SEPARATE commit touching `review/` files only, so the
 RATIFYING commit — the first commit whose `proposal.md` declares

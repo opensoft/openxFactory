@@ -39,21 +39,26 @@ at `verification-2026-09-07.md`.
 PRE-CAPTURE.** `record-immutability` forbids editing a `Status: record` document
 AFTER capture; capture is the merge of the pull request that establishes it, and
 nothing is merged yet. Every number in `verification-2026-09-07.md` was
-re-derived on the tree this record sits in, at `origin/main` **`f756a91f`** — the
-head this branch's THIRD and last catch-up merge took. **THREE MERGES FROM
-`main` STAND ON THIS BRANCH, AND ALL THREE ARE NAMED**: `e318e0e7` (taking
+re-derived on the tree this record sits in, at `origin/main` **`421b52d8`** — the
+head this branch's FOURTH and last catch-up merge took. **FOUR MERGES FROM
+`main` STAND ON THIS BRANCH, AND ALL FOUR ARE NAMED**: `e318e0e7` (taking
 `64aad02e`), `85adc0f3` (taking `5e4d960c`, which landed the Apache-2.0
-`LICENSE`, PR #762) and `ee657e30` (taking `f756a91f`, the ratification of
+`LICENSE`, PR #762), `ee657e30` (taking `f756a91f`, the ratification of
 `amend-absent-changelog-is-an-answer`, PR #753 — taken BEFORE this ratification
 was encoded, with NO conflict: the 32 paths `main` moved include `README.md`,
 where both sides had added a row to the *Active changes* block and git kept
 BOTH, and `tests/sequenced_after/corpus-ledger.yaml`, where both sides added a
-row and git kept both; nothing else `main` moved is a path this packet edits).
+row and git kept both; nothing else `main` moved is a path this packet edits)
+and `a864ef69` (taking `421b52d8`, the ideation-dashboard `cli.py` column split,
+PR #742 — taken AFTER the ratification was encoded, no conflict, its six paths
+all under `scripts/ideation_dashboard/` and `tests/ideation-dashboard/`, none of
+which this packet edits; every number was re-derived on the merged tree in a
+records-only commit that leaves the ratifying commit exactly where it is).
 A commit cannot write its own hash into its own tree, so the ratification commit
 is named by its subject and its position on the branch rather than by a hash;
-the `--archive-gate` runs that take it as `--ratified-ref` are appended to
-`verification-2026-09-07.md` in a follow-up commit touching `review/` files
-only.
+the `--archive-gate` runs that take it as `--ratified-ref` are in
+`verification-2026-09-07.md` § 7, appended in that same follow-up commit
+touching `review/` files only.
 
 ## 1. What was ratified, and what it says
 
