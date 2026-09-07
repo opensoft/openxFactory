@@ -243,8 +243,15 @@ Three steps, and they are the shape codexFactory
    openxFactory commit your repository consumes.
 2. **Check openxFactory out at that ref**, into a scratch path
    (`.openxfactory-pin/`, `scratchpad/openxfactory-pin-<sha12>/`, whatever your
-   CI convention is). Nothing is copied into your tree; the checkout is
-   ephemeral and its credential need not persist.
+   CI convention is), and point one variable at it — the variable IS the seam,
+   and both live consumers use exactly this name:
+
+   ```bash
+   export OPENXFACTORY_ROOT="$PWD/.openxfactory-pin"
+   ```
+
+   Nothing is copied into your tree; the checkout is ephemeral and its
+   credential need not persist.
 3. **Invoke the entrypoint from that checkout**, with your own repository as the
    scan target:
 
