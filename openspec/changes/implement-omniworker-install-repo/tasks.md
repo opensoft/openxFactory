@@ -262,7 +262,35 @@ group; §6 is where deletion lives, and only after §4 and §5.
 
 ## 5. Machine reprovision and its consequence (operator acts)
 
-- [ ] 5.1 Set the Windows 365 provisioning policy device-name template to
+**Amended 2026-09-07 — Amendment: § 5 dispositions — APPROVED 2026-09-07 ~22:55Z by Brett Heap, in-session, verbatim "do all 4, they are all approved", recorded on opensoft/openxFactory#591** — the three
+boxes this section left open now close on the record: **5.1 and 5.5 as
+SUPERSEDED BY RULING**, **5.2 by a recorded DISPOSITION**. The ruling those two
+are superseded by is Brett Heap's of 2026-09-05 ~22:50Z on
+opensoft/openxFactory#591, verbatim: **"Accept Omni001-XEAON"**.
+
+*Nothing ratified is rewritten.* Every box below keeps its original requirement
+text and the dated note it already carried; each amendment is appended beneath
+them so the supersession is readable against what it supersedes. This is the
+in-place amendment convention this packet already used for its four amendments
+of 2026-09-05 (openxFactory PR #704).
+
+*Why an amendment and not a discharge.* opensoft/openxFactory#756 → squash
+`73bb088e` (2026-09-07T16:55Z) ticked 5.3 and 5.4 on evidence and wrote honest
+notes under 5.1, 5.2 and 5.5 leaving them OPEN, because no evidence discharges
+them **as written**. Its landing note said the honest close was a packet
+amendment for 5.1/5.5 and a recorded disposition for 5.2, on Brett's word. That
+word is the approval quoted above.
+
+*Consequence for § 6, stated because it was contested.* With 5.1, 5.2 and 5.5
+closed here and 5.3/5.4 already ticked on evidence, **§ 5 is closed on the
+record**, and this file's own opening rule — "§4 and §5 complete before §6" —
+is satisfied for the § 6 retirement already recorded. That ordering was raised
+as a Codex P2 finding against opensoft/openxFactory#756 ("Satisfy the
+prerequisites before recording retirement") and held it at the gate; this
+amendment is its answer, and the answer is that § 5's acts were performed and
+ruled on, not that the ordering rule was waived.
+
+- [x] 5.1 Set the Windows 365 provisioning policy device-name template to
       `CPC-OXF-%USERNAME:7%`. **New provisions only** — it renames nothing
       existing.
       NOT discharged as specified: Windows 365 requires `%RAND:5%` in every
@@ -271,7 +299,20 @@ group; §6 is where deletion lives, and only after §4 and §5.
       `%USERNAME:7%-%RAND:5%` and rendered `Omni001-XEAON`, not
       `CPC-OXF-Omni001`. Brett ruled "Accept Omni001-XEAON" (~22:50Z,
       openxFactory issue #591) — box superseded by ruling, not discharged.
-- [ ] 5.2 Reprovision omni001. It is empty: no runner registered, no pilot
+      **Amended 2026-09-07 — SUPERSEDED BY RULING; box closed.** The template
+      this box names is not reachable by supported means: Windows 365 refuses a
+      device-name template without `%RAND:5%` and refuses a post-provision
+      rename, so `CPC-OXF-%USERNAME:7%` could not be set and `CPC-OXF-Omni001`
+      was never an attainable name. The template actually applied was
+      `%USERNAME:7%-%RAND:5%`, which rendered `Omni001-XEAON` — Entra device
+      `cf287ce7-7f73-4da7-adfb-c501bd7dd670`, the key by which the fleet now
+      identifies the machine. Brett Heap ruled the outcome 2026-09-05 ~22:50Z
+      on opensoft/openxFactory#591, verbatim: **"Accept Omni001-XEAON"**. That
+      ruling IS the accepted outcome of this box, and it is what closes it: the
+      box is ticked as SUPERSEDED, not as discharged as specified. The original
+      requirement is left standing above, unedited, so the supersession can be
+      read against it.
+- [x] 5.2 Reprovision omni001. It is empty: no runner registered, no pilot
       ever run. Confirm that is still true immediately before the act.
       The box's substance is two imperatives, not one: reprovision, AND
       confirm the emptiness immediately before doing it. Only the first is
@@ -282,6 +323,29 @@ group; §6 is where deletion lives, and only after §4 and §5.
       immediately-pre-act confirmation that omni001 was still empty — is NOT
       separately evidenced anywhere in the record. Left OPEN pending that
       confirmation being recorded; not superseded by any ruling.
+      **Amended 2026-09-07 — DISPOSITION RECORDED; box closed. This is a
+      disposition, not evidence that the confirmation happened**, and it must
+      never be read as one.
+      *Evidenced.* The reprovision: 2026-09-05 ~22:24Z, executed as Graph by
+      Brett Heap and recorded on opensoft/openxFactory#591 — new Cloud PC
+      `Omni001-XEAON`, new Entra device
+      `cf287ce7-7f73-4da7-adfb-c501bd7dd670` (5.3).
+      *Not evidenced, and now unrecoverable.* The second clause — a distinct,
+      immediately-pre-act confirmation that omni001 was still empty — was never
+      separately recorded, and the old device
+      `08829330-2098-461c-a950-0047e163f2b1` is GONE from Entra (5.3), so the
+      state that confirmation would have observed can no longer be observed. No
+      later act can produce this evidence; leaving the box open would leave it
+      open forever.
+      *What stands as the record instead.* The observable consequence of the
+      act. No runner and no pilot was reported lost by it, and the only
+      registered endpoint in `fleet_scope` live targeting was REBOUND — not
+      recovered — to the new device by opensoft/OpsxFactory#233 → merge commit
+      `83a91c58` (5.4). Had omni001 carried a runner or a pilot, the loss would
+      have surfaced in exactly that act.
+      *Disposed* on Brett Heap's approval of this § 5 amendment, 2026-09-07
+      ~22:55Z, in-session, verbatim "do all 4, they are all approved", recorded
+      on opensoft/openxFactory#591.
 - [x] 5.3 Read back the new Cloud PC name (`CPC-OXF-Omni001` expected) **and
       the new Entra device id**. Device `08829330-2098-461c-a950-0047e163f2b1`
       does not survive the reprovision.
@@ -306,7 +370,7 @@ group; §6 is where deletion lives, and only after §4 and §5.
       `ece6d6c7…` pinned into `workflows/endpoint-management.yaml` in the same
       commit, retired id kept as dated history), ratified via
       opensoft/OpsxFactory#235 → merge commit `3e4cd248` (03:55Z).
-- [ ] 5.5 Confirm the rendered casing. `CPC-Omni0-P5AJB` and `CPC-brett-TUBV0`
+- [x] 5.5 Confirm the rendered casing. `CPC-Omni0-P5AJB` and `CPC-brett-TUBV0`
       came from the same default template but differ in case, so the exact
       rendering of `%USERNAME:7%` is an observation to make, not a prediction
       to rely on. If it renders `CPC-OXF-omni001`, that is still fifteen legal
@@ -320,6 +384,17 @@ group; §6 is where deletion lives, and only after §4 and §5.
       squash `349d539d` (2026-09-05T23:39:33Z) recording the actual name and
       the mandatory `%RAND:5%` constraint, but that documents the outcome, it
       does not discharge this box's casing-of-the-ruled-template premise.
+      **Amended 2026-09-07 — SUPERSEDED BY RULING; box closed**, for exactly
+      the reason the note above already gives: the casing question never arose,
+      because the `CPC-OXF-` prefix never applied (5.1's amendment). Brett
+      Heap's "Accept Omni001-XEAON" (2026-09-05 ~22:50Z,
+      opensoft/openxFactory#591) accepts the rendered name as it stands, so
+      there is no casing to confirm and no casing amendment to make — the
+      remedy this box anticipated has no premise left. The document that
+      records the actual name and the mandatory `%RAND:5%` constraint is
+      opensoft/CloudPC-Install#18 → squash `349d539d` (2026-09-05T23:39:33Z);
+      it is cited as the record of the name, not as the discharge of this box.
+      The supersession is what closes the box.
 
 ## 6. Retirement — the ONLY destructive step, and it is last
 
@@ -403,6 +478,13 @@ live-host confirmation and its archive.
       remain open (superseded by Brett's "Accept Omni001-XEAON" ruling, not
       discharged); 5.2 remains open too (its reprovision half is evidenced,
       its pre-act empty-confirmation half is not).
+      **Amended 2026-09-07 — the § 5 sentence immediately above is
+      superseded.** § 5 is now CLOSED on the record: 5.3 and 5.4 ticked on
+      evidence by opensoft/openxFactory#756 → squash `73bb088e`, and 5.1, 5.5
+      and 5.2 closed by the § 5 amendment of 2026-09-07 (SUPERSEDED BY RULING /
+      DISPOSITION RECORDED). 6.1's only remaining dependency is Part 2 —
+      opensoft/Omnigent-Install#213, HELD on OQ-6 until `add-worker-acr-push`
+      lands there.
 - [x] 6.2 Update the `Omnigent-Install` README's scope list — remove "Cloud PC
       worker host registration", "worker containers and worker lane setup",
       "native Claude Code / Codex harness setup", "subsystem-specific worker
