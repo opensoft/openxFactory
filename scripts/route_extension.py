@@ -42,11 +42,18 @@ THE LOAD-BEARING CONSTRAINT: A CONTRIBUTED ROUTE IS NOT A PRIVILEGED ROUTE.
 binding.handler)` against the LIVE request handler — never a free function
 handed a stripped request object, and never a callable the binding carries. That
 is deliberate and it is the whole safety argument: a contributed route reaches
-the request through the same object every core route reaches it through, so it
-meets the same central gating (the loopback verdict, the capability dict, the
-resolved actor, the console-host and console-token checks, the session
-repository) by CONSTRUCTION rather than by each extension author remembering to.
-It is the direct analogue of `corpus-adapter-seam` requirement 4, "no privileged
+the request through the SAME OBJECT every core route reaches it through, so the
+SAME PRIMITIVES are REACHABLE to it — the loopback verdict, the capability
+dict, the resolved actor, the console-host and console-token checks, the
+session repository. That is a reachability guarantee, not an enforcement one:
+nothing here calls `self.loopback` (or any other gate) on a contributed
+handler's behalf, exactly as nothing calls it on a core route's behalf either
+— every core WRITE route checks it itself, as its first statement (e.g.
+`serve.py`'s `_handle_notebook_action`). A correctly written extension checks
+the same way a core route does, because it is handed the same object to check
+it on; a contributed POST handler that skips its own `self.loopback` check
+executes off-loopback exactly as a core write route that skipped it would. It
+is the direct analogue of `corpus-adapter-seam` requirement 4, "no privileged
 route", and of the scan
 `tests/corpus-adapter/test_no_privileged_route.py` keeps over the home corpus.
 
@@ -225,13 +232,37 @@ class RouteExtension(Protocol):
         """
 
 
+def _claimed_collision_keys(binding: RouteBinding) -> tuple[tuple[str, str, bool], ...]:
+    """Every collision-check key `binding` ANSWERS, not just its own `.key`.
+
+    A "GET" binding answers a live HEAD request too (`RouteBinding.matches`,
+    module docstring), so a "GET" binding and a "HEAD" binding at the same
+    (pattern, is_prefix) both answer a HEAD request — the same unreachable-
+    route defect `collect_bindings` already refuses for two identical keys,
+    just reached through the request method the SECOND binding never
+    receives. Checking (and recording) only the literal key would miss it in
+    either declaration order, so a "GET" binding also claims the "HEAD" slot
+    and a "HEAD" binding also claims the "GET" slot; "POST" claims only itself
+    — nothing answers a live POST but a "POST" binding.
+    """
+    keys = (binding.key,)
+    if binding.method == "GET":
+        keys += (("HEAD",) + binding.key[1:],)
+    elif binding.method == "HEAD":
+        keys += (("GET",) + binding.key[1:],)
+    return keys
+
+
 def collect_bindings(extensions) -> tuple[RouteBinding, ...]:
     """Flatten the extensions into ONE consult order, refusing what cannot serve.
 
     Refuses an object that does not conform, a `routes()` that yields anything
     but `RouteBinding`s, and two bindings claiming one route — the last being
     the collision that would otherwise leave a declared route silently
-    unreachable.
+    unreachable. A "GET" binding and a "HEAD" binding at the same (pattern,
+    is_prefix) collide too, because a "GET" binding already answers HEAD
+    (`_claimed_collision_keys`) — the "HEAD" binding would never be reached on
+    the one request method it exists to answer.
 
     Returns every exact binding first and every prefix binding after, each group
     in declaration order, for the reason the module docstring gives: tuple order
@@ -252,36 +283,88 @@ def collect_bindings(extensions) -> tuple[RouteBinding, ...]:
                 raise RouteBindingError(
                     f"{extension!r} contributed {binding!r}, which is not a "
                     "RouteBinding")
-            previous = seen.get(binding.key)
-            if previous is not None:
-                raise RouteBindingError(
-                    f"two route bindings claim {binding.method} "
-                    f"{binding.pattern!r} (prefix={binding.is_prefix}): "
-                    f"{previous!r} and {binding.handler!r}. The second could "
-                    "never be reached, and a route that looks declared and "
-                    "never fires is worse than one that refuses.")
+            for claimed_key in _claimed_collision_keys(binding):
+                previous = seen.get(claimed_key)
+                if previous is not None:
+                    raise RouteBindingError(
+                        f"two route bindings claim {claimed_key[0]} "
+                        f"{binding.pattern!r} (prefix={binding.is_prefix}): "
+                        f"{previous!r} and {binding.handler!r}. The second could "
+                        "never be reached, and a route that looks declared and "
+                        "never fires is worse than one that refuses.")
             seen[binding.key] = binding.handler
             (prefix if binding.is_prefix else exact).append(binding)
     return tuple(exact) + tuple(prefix)
 
 
+#: Sentinel distinguishing "no such attribute" from "the attribute is None" —
+#: `getattr(..., default)` cannot use `None` itself, several handler-holder
+#: seams (`adapter_factory`, `pull_request_factory`, ...) default to `None`.
+_UNRESOLVED = object()
+
+
 def resolve_handlers(bindings, handler_holder) -> None:
-    """Refuse, at WIRING time, any binding whose handler does not resolve.
+    """Refuse, at WIRING time, any binding whose handler does not resolve to a
+    CALLABLE attribute of the live handler.
 
     `handler_holder` is the request-handler CLASS the server is about to bind
-    (an instance answers the same `hasattr`, and either is accepted — this
-    module knows nothing about the shape of the server it serves). A route that
-    cannot be served must not start; the alternative is finding the typo as a
-    stack trace on a live connection.
+    (an instance answers the same `hasattr`/`callable`, and either is accepted —
+    this module knows nothing about the shape of the server it serves). A route
+    that cannot be served must not start; the alternative is finding the typo —
+    or the name of a plain attribute rather than a method — as a stack trace on
+    a live connection (`TypeError: '<type>' object is not callable`, raised
+    inside the request thread that first matches the binding).
+
+    THIS DOES NOT CHECK CALL SHAPE (a prefix binding is called with the
+    remainder the exact form never receives — see the module docstring's FOUR
+    CALL SHAPES). `RouteBinding` does not declare which shape its handler
+    expects, and the handler's own `inspect.signature` is not a reliable
+    stand-in for one: the same handler name can be resolved through the CLASS
+    (self still an explicit parameter) or an INSTANCE (self already bound) —
+    `resolve_handlers` accepts both by design — and the attribute itself may be
+    a plain function, a `staticmethod`, a `classmethod`, or a decorated
+    wrapper, each stripping a different set of leading parameters; a handler
+    may also default an argument an arm never supplies, or take `*args`.
+    Telling a handler that is merely FLEXIBLE about its arguments from one that
+    is genuinely the WRONG shape needs signature introspection this module has
+    no cheap, reliable way to perform — exactly the heavy validation framework
+    this module's neutrality argues against. A wrong-shape handler still fails
+    LOUDLY, on the first request that reaches it, with a `TypeError` naming the
+    mismatched argument count — a normal Python arity error surfacing on first
+    use, not a silent misroute — so this refusal's job is the narrower one a
+    build-time check CAN do reliably: a binding whose named attribute does not
+    exist at all, or exists but cannot be called (a class attribute, a plain
+    field — the crash class this refusal was added for), never starts.
     """
-    missing = [f"{b.method} {b.pattern!r} -> {b.handler}()"
-               for b in bindings if not hasattr(handler_holder, b.handler)]
-    if missing:
+    unresolved = []
+    not_callable = []
+    for b in bindings:
+        resolved = getattr(handler_holder, b.handler, _UNRESOLVED)
+        if resolved is _UNRESOLVED:
+            unresolved.append(f"{b.method} {b.pattern!r} -> {b.handler}()")
+        elif not callable(resolved):
+            not_callable.append(
+                f"{b.method} {b.pattern!r} -> {b.handler} (resolves to "
+                f"{resolved!r}, which is not callable)")
+    if unresolved or not_callable:
+        clauses = []
+        if unresolved:
+            clauses.append(
+                "route bindings name handlers the request handler does not "
+                f"have: {unresolved}")
+        if not_callable:
+            clauses.append(
+                "route bindings name attributes that exist but are not "
+                f"callable: {not_callable}. Dispatch is `getattr(self, "
+                "binding.handler)()` — a non-callable attribute would crash "
+                "the first live request that reaches it with `TypeError: "
+                "'<type>' object is not callable`, exactly the failure this "
+                "refusal exists to convert into a build-time error")
         raise RouteBindingError(
-            "route bindings name handlers the request handler does not have: "
-            f"{missing}. A contributed route dispatches a method of the server "
-            "itself — that is what makes it reach the same gating every core "
-            "route reaches — so the method must exist before the server binds.")
+            "; ".join(clauses) + ". A contributed route dispatches a callable "
+            "method of the server itself — that is what makes it reach the "
+            "same gating every core route reaches — so the method must exist "
+            "and be callable before the server binds.")
 
 
 def match(bindings, method: str, path: str):

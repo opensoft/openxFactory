@@ -334,6 +334,39 @@ def test_two_bindings_claiming_one_route_refuse_the_build():
     assert "_one" in str(err.value) and "_two" in str(err.value)
 
 
+@pytest.mark.parametrize("first_method,second_method", [
+    ("GET", "HEAD"),
+    ("HEAD", "GET"),
+])
+def test_a_get_and_a_head_binding_for_the_same_route_refuse_the_build(
+        first_method, second_method):
+    """A "GET" binding already answers a HEAD request (the module docstring,
+    and `RouteBinding.matches`), so a "HEAD" binding at the same (pattern,
+    is_prefix) could never be reached on the one request method it exists to
+    answer — the same unreachable-route defect two identical keys are refused
+    for, just reached through the request method the second binding never
+    receives. Parametrized over declaration order because the collision must
+    be caught either way, not only when the "GET" binding is declared first."""
+    first = ProbeExtension((
+        route_extension.RouteBinding(first_method, "/a", False, "_first"),))
+    second = ProbeExtension((
+        route_extension.RouteBinding(second_method, "/a", False, "_second"),))
+    with pytest.raises(route_extension.RouteBindingError) as err:
+        route_extension.collect_bindings((first, second))
+    assert "_first" in str(err.value) and "_second" in str(err.value)
+
+
+def test_a_get_and_a_head_binding_for_DIFFERENT_routes_do_not_collide():
+    """The positive control: the GET/HEAD collision check must not over-fire
+    on two bindings that do not actually share a (pattern, is_prefix)."""
+    get_a = ProbeExtension((
+        route_extension.RouteBinding("GET", "/a", False, "_get_a"),))
+    head_b = ProbeExtension((
+        route_extension.RouteBinding("HEAD", "/b", False, "_head_b"),))
+    bindings = route_extension.collect_bindings((get_a, head_b))
+    assert {b.handler for b in bindings} == {"_get_a", "_head_b"}
+
+
 def test_a_non_conforming_extension_is_refused():
     with pytest.raises(route_extension.RouteBindingError):
         route_extension.collect_bindings((NotAnExtension(),))
@@ -395,9 +428,45 @@ def test_a_binding_naming_a_missing_handler_refuses_the_build(tmp_path):
     assert "_no_such_handler_exists" in str(err.value)
 
 
+def test_a_binding_naming_a_non_callable_attribute_refuses_the_build(tmp_path):
+    """`hasattr` alone is not enough: `"loopback"` (and `"capabilities"`,
+    `"route_bindings"`) are REAL attributes of `DashboardHandler` — a
+    `bool`, a `dict`, a `tuple` — so a binding naming one of them used to pass
+    `build_server` and only crash the first live request that reached it
+    (`TypeError: 'bool' object is not callable`). It must now refuse at build
+    time instead, with a message that names the attribute as non-callable
+    rather than missing, so the two failure modes read differently."""
+    non_callable = ProbeExtension((
+        route_extension.RouteBinding("GET", "/loopback.json", False,
+                                     "loopback"),))
+    with pytest.raises(route_extension.RouteBindingError) as err:
+        with serving(tmp_path, route_extensions=(non_callable,)):
+            pass
+    message = str(err.value)
+    assert "loopback" in message
+    assert "not callable" in message
+    # and it must not be mistaken for the missing-handler case: nothing here
+    # is actually MISSING, so that clause must not fire.
+    assert "does not have" not in message
+
+
+def test_resolve_handlers_refuses_a_non_callable_and_a_missing_handler_together():
+    """Both defects can be named in one refusal, each with its own clause."""
+    missing = route_extension.RouteBinding("GET", "/x", False,
+                                           "_no_such_handler_exists")
+    non_callable = route_extension.RouteBinding("GET", "/y", False,
+                                                "route_bindings")
+    with pytest.raises(route_extension.RouteBindingError) as err:
+        route_extension.resolve_handlers((missing, non_callable),
+                                         serve_mod.DashboardHandler)
+    message = str(err.value)
+    assert "_no_such_handler_exists" in message and "does not have" in message
+    assert "route_bindings" in message and "not callable" in message
+
+
 def test_resolve_handlers_accepts_a_class_or_an_instance():
     """`route_extension` knows nothing about the shape of the server it serves,
-    so it asks the plain question `hasattr` answers for both."""
+    so it asks the plain question `hasattr`/`callable` answers for both."""
     binding = route_extension.RouteBinding("GET", "/x", False, "routes")
     route_extension.resolve_handlers((binding,), ProbeExtension)
     route_extension.resolve_handlers((binding,), ProbeExtension(()))
