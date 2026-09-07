@@ -42,6 +42,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import http.server
 
 import pytest
 
@@ -329,3 +330,102 @@ def test_the_dispatch_scan_would_notice_a_moved_arm():
                     ("path == B_ROUTE", ("_serve_b",))], (
         "the arm reader is order-insensitive — the pinned table above would "
         "not catch a reordering, which is the failure it exists for")
+
+
+# ---------------------------------------------------------------------------
+# the mixin base order (`split-opendox-two-layer-product` § 2.4, PR 2 of 4)
+# ---------------------------------------------------------------------------
+#
+# PR-2's own decision 1 states, as a safety property, that "the mixins precede
+# `SimpleHTTPRequestHandler` so `do_GET` resolution is unchanged" — a claim
+# about MRO order that nothing enforced. Today it is unobservable either way:
+# `WorkbenchRoutes` and `ProjectRoutes` share zero member names with the whole
+# `http.server` chain, so the order the base list is written in does not yet
+# change what any name resolves to. The exposure is a LATER member added to
+# either mixin that happens to share a name with something up the chain
+# (`send_head`, `list_directory`, `log_message`, `translate_path`,
+# `guess_type`, `do_GET`, `end_headers`, …) — it would silently lose to
+# `http.server` with nothing red. Both halves of decision 1 are pinned below:
+# the order itself, and the disjointness that makes today's order harmless.
+
+
+def test_the_mixins_precede_simplehttprequesthandler_in_the_mro():
+    """Decision 1's ordering claim, checked rather than taken on faith."""
+    from ideation_dashboard import serve as serve_mod
+    from ideation_dashboard import serve_project, serve_workbench
+
+    mro = serve_mod.DashboardHandler.__mro__
+    assert mro[:4] == (
+        serve_mod.DashboardHandler,
+        serve_workbench.WorkbenchRoutes,
+        serve_project.ProjectRoutes,
+        http.server.SimpleHTTPRequestHandler,
+    ), (
+        "DashboardHandler's MRO no longer starts "
+        "(DashboardHandler, WorkbenchRoutes, ProjectRoutes, "
+        "SimpleHTTPRequestHandler) — decision 1's ordering claim no longer "
+        "holds, and a mixin member sharing a name with the http.server chain "
+        "would now resolve to the WRONG implementation.")
+
+
+def _non_dunder(names) -> set[str]:
+    """Every name in `names` that is not a Python dunder (`__x__`).
+
+    A hand-picked exclusion list (`__module__`, `__doc__`, ...) goes stale the
+    moment either side of the comparison grows a dunder the list did not name
+    — `WorkbenchRoutes` already carries `__annotations__` (from its
+    `INTAKE_QUERY_FIELDS: tuple[str, ...]` class annotation), and a future
+    stdlib release could add one to the `http.server` chain. Excluding by the
+    dunder RULE means the test can only fail for a reason it exists to catch.
+    """
+    return {name for name in names
+            if not (name.startswith("__") and name.endswith("__"))}
+
+
+def _http_server_chain_members() -> set[str]:
+    chain_members: set[str] = set()
+    for klass in http.server.SimpleHTTPRequestHandler.__mro__:
+        chain_members |= set(vars(klass))
+    return chain_members
+
+
+def test_the_mixins_share_no_member_name_with_the_http_server_chain():
+    """Decision 1's safety property. Ordering alone does not prove there is no
+    collision TODAY — it only proves which side wins if there is one. This
+    proves there is none, which is what makes the order currently unobservable
+    and therefore safe. A future member added to either mixin that collides
+    with the chain must fail HERE, not resolve silently to the wrong method.
+    """
+    from ideation_dashboard import serve_project, serve_workbench
+
+    mixin_members = _non_dunder(
+        set(vars(serve_workbench.WorkbenchRoutes))
+        | set(vars(serve_project.ProjectRoutes)))
+    assert mixin_members, (
+        "no non-dunder members found on WorkbenchRoutes/ProjectRoutes — that "
+        "means this reader is looking at the wrong classes, not proving "
+        "disjointness against the http.server chain")
+    chain_members = _non_dunder(_http_server_chain_members())
+    collisions = sorted(mixin_members & chain_members)
+    assert not collisions, (
+        f"WorkbenchRoutes/ProjectRoutes now share member(s) {collisions} with "
+        "the http.server chain (BaseRequestHandler -> BaseHTTPRequestHandler "
+        "-> StreamRequestHandler -> SimpleHTTPRequestHandler). The mixins are "
+        "listed BEFORE SimpleHTTPRequestHandler in DashboardHandler's base "
+        "list, so a collision here means the mixin's version silently wins — "
+        "if that is intended, name it explicitly; if not, rename the member.")
+
+
+def test_the_collision_check_would_notice_a_real_collision():
+    """The negative control: an empty intersection could also mean the reader
+    is looking at the wrong classes entirely. Prove it fires on a real name."""
+    class _FakeMixin:
+        def send_head(self):  # a real SimpleHTTPRequestHandler method name
+            ...
+
+    chain_members = _non_dunder(_http_server_chain_members())
+    collisions = _non_dunder(set(vars(_FakeMixin))) & chain_members
+    assert collisions == {"send_head"}, (
+        "the collision check does not fire on a real shared method name, "
+        "which means the two tests above could pass on a broken reader "
+        "forever")

@@ -57,7 +57,7 @@ repository: opensoft/codexFactory
 # UNCOVERED pin site. `core_commit` is a key the sweep vocabulary did not know,
 # and declaring the member in `scripts/doc_health/pin_class.py` is what teaches
 # it — the same move `carve_commit` made, for the same reason.
-core_commit: "1c978fc0eddefc91db48f0f821fa53529f71cea7"
+core_commit: "4b12ba83add713666a94129fc45552d8989f8488"
 revision_kind: commit
 
 # When this pin was declared, and against what observation. Recorded because a
@@ -627,7 +627,7 @@ pinned_members:
 floor_snapshot:
   path: contracts/review-lane-floor-snapshot.yaml
   of: scripts/merge_master/openxfactory-review-authority-floor.yaml
-  sha256: "3e72f6bcd12cad1946b590896e4057092782bcdecb947bed9203b60466aa7f75"
+  sha256: "926d536d9bf5274384710cd9d8170d26b3a41a39108d319eaae76c8311abf3c0"
   entry_count: 68
   taken_at: core_commit
   # THE SNAPSHOT CARRIES ONE COMMIT-SHAPED VALUE OF ITS OWN, AND IT IS DECLARED
