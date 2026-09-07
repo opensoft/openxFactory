@@ -265,12 +265,33 @@ group; §6 is where deletion lives, and only after §4 and §5.
 - [ ] 5.1 Set the Windows 365 provisioning policy device-name template to
       `CPC-OXF-%USERNAME:7%`. **New provisions only** — it renames nothing
       existing.
+      NOT discharged as specified: Windows 365 requires `%RAND:5%` in every
+      device-name template, so the literal `CPC-OXF-%USERNAME:7%` (no random
+      suffix) could not be applied — the provisioning that ran used
+      `%USERNAME:7%-%RAND:5%` and rendered `Omni001-XEAON`, not
+      `CPC-OXF-Omni001`. Brett ruled "Accept Omni001-XEAON" (~22:50Z,
+      openxFactory issue #591) — box superseded by ruling, not discharged.
 - [ ] 5.2 Reprovision omni001. It is empty: no runner registered, no pilot
       ever run. Confirm that is still true immediately before the act.
-- [ ] 5.3 Read back the new Cloud PC name (`CPC-OXF-Omni001` expected) **and
+      The box's substance is two imperatives, not one: reprovision, AND
+      confirm the emptiness immediately before doing it. Only the first is
+      evidenced. Recorded 2026-09-05 ~22:24Z: omni001 REPROVISIONED (Brett's
+      ruling, executed as Graph by Brett; recorded on openxFactory issue
+      #591) — new Cloud PC `Omni001-XEAON`; no runner or pilot was reported
+      recovered or lost by the act. The second clause — a distinct,
+      immediately-pre-act confirmation that omni001 was still empty — is NOT
+      separately evidenced anywhere in the record. Left OPEN pending that
+      confirmation being recorded; not superseded by any ruling.
+- [x] 5.3 Read back the new Cloud PC name (`CPC-OXF-Omni001` expected) **and
       the new Entra device id**. Device `08829330-2098-461c-a950-0047e163f2b1`
       does not survive the reprovision.
-- [ ] 5.4 **OWED, NOT THIS CHANGE — OpsxFactory fleet re-attestation.** The
+      Recorded 2026-09-05: read back as new Cloud PC `Omni001-XEAON` (differs
+      from the `CPC-OXF-Omni001` expectation — see 5.5's note), new Entra
+      device `cf287ce7-7f73-4da7-adfb-c501bd7dd670` (registered 22:01:56Z,
+      managed, compliant), Intune device `ff367aaf-3d42-429a-a939-42f1f5d6d327`;
+      old device `08829330-2098-461c-a950-0047e163f2b1` confirmed GONE from
+      Entra.
+- [x] 5.4 **OWED, NOT THIS CHANGE — OpsxFactory fleet re-attestation.** The
       registration record and `workflows/endpoint-management.yaml`
       `fleet_scope.registered_endpoints` carry the old device id as the only
       endpoint in live targeting scope. Re-attest with the new id in its own
@@ -278,11 +299,27 @@ group; §6 is where deletion lives, and only after §4 and §5.
       is that a bound value moves by a new OpenSpec change and never by an
       in-place edit. Until it lands, live targeting names a device that does
       not exist.
+      Recorded 2026-09-06: `reattest-omni001-fleet-registration` landed as
+      opensoft/OpsxFactory#233 → merge commit `83a91c58` (01:18Z;
+      `registered_endpoints[0]` rebound to
+      `cf287ce7-7f73-4da7-adfb-c501bd7dd670` / `Omni001-XEAON`, digest
+      `ece6d6c7…` pinned into `workflows/endpoint-management.yaml` in the same
+      commit, retired id kept as dated history), ratified via
+      opensoft/OpsxFactory#235 → merge commit `3e4cd248` (03:55Z).
 - [ ] 5.5 Confirm the rendered casing. `CPC-Omni0-P5AJB` and `CPC-brett-TUBV0`
       came from the same default template but differ in case, so the exact
       rendering of `%USERNAME:7%` is an observation to make, not a prediction
       to rely on. If it renders `CPC-OXF-omni001`, that is still fifteen legal
       characters and the record gets an amendment, not a re-provision.
+      NOT discharged: the actual render (`Omni001-XEAON`) is not a casing
+      variant of `CPC-OXF-...` at all — the `CPC-OXF-` prefix never applied
+      (5.1's note) — so this box's anticipated remedy (a casing amendment)
+      does not apply either. Superseded by Brett's "Accept Omni001-XEAON"
+      ruling (~22:50Z, openxFactory issue #591); the CloudPC-Install
+      fleet-identity doc correction landed as opensoft/CloudPC-Install#18 →
+      squash `349d539d` (2026-09-05T23:39:33Z) recording the actual name and
+      the mandatory `%RAND:5%` constraint, but that documents the outcome, it
+      does not discharge this box's casing-of-the-ruled-template premise.
 
 ## 6. Retirement — the ONLY destructive step, and it is last
 
@@ -317,7 +354,7 @@ requirement forbids. Its repository work is already merged
 (PR opensoft/Omnigent-Install#129 `509b7d65`, PR opensoft/Omnigent-Install#143 `5b5592e4`); what remains is a HUMAN/VAULT gate, a
 live-host confirmation and its archive.
 
-- [ ] 6.0 **Realize the `Omnigent-Install` → `OmniWorker-Install` pin**, design
+- [x] 6.0 **Realize the `Omnigent-Install` → `OmniWorker-Install` pin**, design
       § D3 step 8b: `contracts/omniworker-install-pin.yaml` declaring `commit`
       plus a `sha256` for each of the 39 Part 1 paths that repository reads (and
       the remaining 31 declared by commit, so the surface is complete), the
@@ -335,20 +372,49 @@ live-host confirmation and its archive.
       checkout, proved with the pin RESOLVED and not skipped → THEN 6.1.
       Also depends on opensoft/Omnigent-Install#213 landing, which depends in turn on
       `add-worker-acr-push` landing (the OQ-6 hold above).
+      Recorded 2026-09-07: `add-omniworker-install-pin` ratified
+      (opensoft/Omnigent-Install#214 → `544c6319`), realized in twelve groups
+      (opensoft/Omnigent-Install#215 `9760e060`,
+      opensoft/Omnigent-Install#221 `2e0cb543`,
+      opensoft/Omnigent-Install#217 `4f82cbd8`,
+      opensoft/Omnigent-Install#216 `61db51bb`,
+      opensoft/Omnigent-Install#223 `2a166115`,
+      opensoft/Omnigent-Install#219 `e31251ed`,
+      opensoft/Omnigent-Install#230 `02fb3fed`,
+      opensoft/Omnigent-Install#218 `57b16077` +
+      opensoft/Omnigent-Install#222 `e5732aa1`,
+      opensoft/Omnigent-Install#220 `fb611deb`,
+      opensoft/Omnigent-Install#227 `3ff2da69`,
+      opensoft/Omnigent-Install#232 `72989c1d`,
+      opensoft/Omnigent-Install#235 `bbba916d`), archived
+      (opensoft/Omnigent-Install#237 `07bdc9c3`, 2026-09-07; capability
+      `omniworker-install-pin` promoted).
 
 - [ ] 6.1 Delete the §3.1 and §3.2 paths from `Omnigent-Install`, in ONE
       reviewed PR against that repository, **only after every §4 box is
       checked and green**. Before this PR, every step is revertible by a
       single `git revert`; after it, recovery is a restore.
-- [ ] 6.2 Update the `Omnigent-Install` README's scope list — remove "Cloud PC
+      Part 1 (the 70 pin-declared paths) RETIRED by
+      opensoft/Omnigent-Install#235 `bbba916d` on 2026-09-07 after
+      byte-identity 70/70 and CI green with the paths gone; Part 2 (the 50
+      Worker Host App paths) is opensoft/Omnigent-Install#213, HELD on OQ-6
+      until `add-worker-acr-push` lands — closes then. § 5 is not yet fully
+      closed either: 5.3 and 5.4 are ticked with evidence above; 5.1 and 5.5
+      remain open (superseded by Brett's "Accept Omni001-XEAON" ruling, not
+      discharged); 5.2 remains open too (its reprovision half is evidenced,
+      its pre-act empty-confirmation half is not).
+- [x] 6.2 Update the `Omnigent-Install` README's scope list — remove "Cloud PC
       worker host registration", "worker containers and worker lane setup",
       "native Claude Code / Codex harness setup", "subsystem-specific worker
       profiles and prompt packs" — and add the scope link to
       `OmniWorker-Install` that the "Install repo scope links" requirement
       demands of both sides.
+      Recorded 2026-09-07: done in opensoft/Omnigent-Install#235 `bbba916d`
+      (README scope + doc index; `workers/`/`rendered/` gone).
 - [ ] 6.3 Re-run the four moved xFactory lanes and the CloudPC-Install
       selftests after retirement, to prove nothing was reaching the old paths
       unmeasured.
+      Runs after 6.1 Part 2 closes.
 
 ## 7. Archive conditions
 

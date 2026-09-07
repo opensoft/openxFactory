@@ -582,6 +582,82 @@ Active changes:
   code-owner-review accommodation an envelope approval lands nothing at all, and
   declining it makes N-1 (d) the honest outcome.
 
+- [amend-absent-changelog-is-an-answer](openspec/changes/amend-absent-changelog-is-an-answer/proposal.md)
+  — authored 2026-09-07, **`Status: ratified`** (2026-09-07, Brett Heap,
+  openxFactory operator authority, in-session, *"merge them when green, then
+  ratify 753"*; records
+  `openspec/changes/amend-absent-changelog-is-an-answer/review/ratification-2026-09-07.md`
+  and `verification-2026-09-07.md`). `.openspec.yaml` keeps the drafting
+  provenance it was authored with and the approval pair is ADDED beside it —
+  `kind`, `id` and `reason` unmoved, the addition-not-rewrite shape
+  `add-drafted-proposal-origin` defined. Lane `openxfactory-1`; the ORIGIN is
+  openxFactory
+  [#750](https://github.com/opensoft/openxFactory/issues/750) and the ARCHIVED
+  `amend-unreadable-read-sibling-scenarios`, whose `design.md` **D6** and
+  `tasks.md` § 6 record this successor as OWED — an ORIGIN, not an approval, and
+  the ratification is the separate act above.
+  **THE AMENDMENT THAT PROVED THE READ WAS AN ANSWER LEFT IT REPORTED AS A
+  QUESTION.** PR **#688** settled that the changelog read's per-path `None`
+  stands, at that arm, for a tip this clone HOLDS at which no readable
+  `contracts/CHANGELOG.md` blob is reachable — the unfetched fact being
+  EXCLUDED, the manifest having read at the same commit — and made the skip say
+  so. It left the read a SKIP, and the `if changelog is None:` guard stands
+  ABOVE the `in_scope` loop and RETURNS, so a held tip declaring an in-scope
+  bundle and carrying no changelog was answered with a skip INSTEAD OF the tag
+  findings the loop would emit. **MEASURED ON A SHIM, ONE BLOB APART**: absent →
+  one `Skip` and nothing graded; EMPTY → one `error` naming the untagged bundle.
+  A document that is not there and a document that says nothing carry the same
+  fact about declarations, and only one of them was graded. The MODIFIED block
+  restates *Release-tag publication* in full — every body unit and all 30
+  promoted scenario titles, byte-faithful, including #678's and #688's notes and
+  markers — and replaces TWO bullets of the scenario *The changelog cannot be
+  read at the published tip*: the promoted `THEN` (the unfetched skip kept word
+  for word, and a held-and-absent read now GRADED with no declarations) and the
+  `AND` below it (whose subject was that skip's wording, its narrowing carried
+  verbatim onto the record that replaces it). **TWO markers, not one** — under
+  the boundary `amend-marker-reason-boundary` promoted, two names separated by
+  ` — ` would declare only the first — each with a code-span-free reason so the
+  retired and amended grammars derive the same name. **REALIZED IN THE SAME PULL
+  REQUEST** on the `amend-unreadable-read-sibling-scenarios` shape
+  (`code_surface: openxFactory`, `target_release: implemented`, archiving on
+  merged-plus-green evidence): the guard split on `tip_present`, the held arm
+  falling through to a grading with no declarations, and ONE `info` on
+  `contracts/CHANGELOG.md` carrying the fact the skip carried — the family turns
+  every skip into an `info` precisely so a reason is recorded rather than
+  omitted, so retiring the skip without it would drop what #688 ratified.
+  **AND THE THIRD STATE IS ESTABLISHED BEFORE ANYTHING IS GRADED** (Codex round
+  1, taken, `design.md` **D3a**): a held commit licenses *"no readable blob came
+  back"* and never *"the commit carries no such file"*, and grading is a claim
+  about the FILE — so `ls_tree_paths` is consulted once on that arm, the family
+  grades ONLY where the tree lists no such path, and a tree that LISTS AN ENTRY
+  at that path whose blob does not come back keeps the skip, as does a listing
+  that cannot be performed. Without it a damaged object store would read a real
+  SPENT declaration as absent and answer an EXTINGUISHED obligation with a FALSE
+  `error`. **AND BOTH KEPT SKIPS NAME ONLY WHAT THEY ESTABLISHED** (fix round):
+  an earlier draft called the middle case *"an object store that cannot serve
+  what it lists"*, which is a CAUSE this arm never checks — `ls-tree -r
+  --name-only` filters by no object type, so a GITLINK this clone cannot resolve
+  lists exactly as a lost blob does — and both skips now also say the tip is one
+  *"WHICH THIS CLONE HOLDS"*, both standing below the held-tip split.
+  `tests/doc-health/test_release_tag_publication.py` 146 → 152, one existing
+  test CONVERTED (its subject was the held case's skip) and its every literal
+  re-asserted on the `info`. **THE VETO POINT WAS `design.md` D1 — PUT, AND NOT
+  VETOED** — option A (split the arm and grade) against option B (keep the skip,
+  distinct reason class only, which leaves D6's suppression where D6 found it).
+  **A is ratified AS DESIGNED, and its cost is ratified with it**: A changes
+  which findings an in-scope repository receives, in the conservative direction
+  — a `Skip` becomes the grading an EMPTY changelog already receives — with the
+  estate-wide consequence named as owed at `tasks.md` § 6.1 rather than claimed.
+  `design.md` **D2** was carried separately so it could be vetoed on its own
+  (the `info` record against dropping the fact) and **was not vetoed either**.
+  Under `release-realization` the packet still archives on merged-plus-green
+  realization evidence rather than on landing, on a separate word.
+  Nothing green today turns red: the one new finding
+  is `info`, and this repository never reaches the arm — the family reads the
+  same single `info` here before and after. `sequenced_after` elective and
+  undeclared: every other writer of the requirement is archived and no active
+  change writes it.
+
 - [register-gate-rules-council-seats](openspec/changes/register-gate-rules-council-seats/proposal.md)
   — authored 2026-09-06, **`Status: ratified`** (R1/R2 amendment 2026-09-07) (2026-09-06, Brett Heap
   (repository owner), in-session at 2026-09-06T14:13:46Z, verbatim *"lets take
@@ -7393,3 +7469,7 @@ Hermes install is not yet a submodule. Its canonical remote decision is still op
 ## Status
 
 This repository is documentation-first. It should not contain live credentials, production memory-provider databases, runtime secrets, generated agent workspaces, or domain-specific runtime data.
+
+## License
+
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).

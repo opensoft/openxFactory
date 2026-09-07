@@ -1161,10 +1161,101 @@ Each is contract content — cheap now, expensive after a bundle ships.
       realization pull request — openxFactory PR **#556**, run
       **33478531543** (1m7s), adjudicating both packaged corpora with the
       tranche-two rules in force (`95/95` refusal codes in the self-test note).
-- [ ] 5.8 **Gate:** a chain with a dropped runner attestation, and a pull request
+- [x] 5.8 **Gate:** a chain with a dropped runner attestation, and a pull request
       with no signed open decision, each FAIL a real pull request, with the run id,
       the check id, the validator's single named refusal, and the live ruleset read
       recorded.
+
+      **DISCHARGED 2026-09-07 — THE TICK IS ON THE RECORDING.** Both canaries
+      were opened as REAL pull requests against `main`, both were REFUSED by the
+      live required `signed-execution-chain-gate`, each drew EXACTLY the set the
+      acceptance below admits and nothing outside it, and both were closed
+      unmerged with their branches deleted. Recorded on issue **#579**, comment
+      `5572448432`, and here — the same fact in the two places § 5.8 demands it.
+
+      **AND THE QUOTATIONS BELOW ARE ABRIDGED, WHICH IS SAID RATHER THAN LEFT TO
+      BE NOTICED** (Copilot, on this note). The refusal IDS, the counts and the
+      task identifier are verbatim; the chain digests and the record locations
+      are elided at `…` so the lines fit this file's column. **THE UNABRIDGED
+      LOG LINES ARE IN THE #579 COMMENT NAMED ABOVE**, quoted there in full and
+      unelided, and beyond both of those the runs themselves are the source:
+      `34133713857` and `34133903555`. A quotation this file trims is never the
+      evidence — the run log is, the recording carries it whole, and this note
+      says which is which.
+
+      | canary | PR | head | run id | check id | conclusion | refusal set (verbatim ids) | `mergeStateStatus` |
+      |---|---|---|---|---|---|---|---|
+      | **A** — a chain with a dropped runner attestation | **#758** | `f964514328a98c5c91b6d0787bc3c8c99f98daba` | **`34133713857`** | **`101779654949`** | **`failure`** | `dispatched_leaf_never_written`, `open_decision_enumeration_incomplete` | **`BLOCKED`** |
+      | **B** — a pull request with no signed open decision | **#759** | `63096bc27367a912e7f618fb0c13a90ed6c078c5` | **`34133903555`** | **`101780251342`** | **`failure`** | `orphan_chain_identity`, `chain_binding_names_another_chain`, `orphan_pull_request` | **`BLOCKED`** |
+
+      **CANARY A DREW THE ACCEPTED PAIR, AND IT IS ONE FACT SEEN TWICE.**
+      Abridged from run `34133713857`'s own log, `108 artifact(s) checked`, ending
+      `validate-signed-execution-chain: 2 error(s), 0 warning(s)`:
+      `ERROR [dispatched_leaf_never_written] chain sha256:269a80d8…96ff95: task
+      'task:t5-dropped' is in link 4's committed expectation and produced NO
+      link-5 attestation and no leaf`, and
+      `ERROR [open_decision_enumeration_incomplete] …#72: the enumeration omits
+      ['task:t5-dropped'] from link 4's committed expectation`. THE SAME DROPPED
+      TASK, `task:t5-dropped`, named identically from link 5's side and from link
+      6's — the acceptance's first branch exactly.
+
+      **CANARY B DREW THE ACCEPTED THREE, AND THEY ARE THREE DISTINCT TRUE
+      FACTS.** Abridged the same way, from run `34133903555`'s log,
+      `110 artifact(s) checked`, ending
+      `validate-signed-execution-chain: 3 error(s), 0 warning(s)`:
+      `ERROR [orphan_chain_identity] chain sha256:64b95694…a77710 resolves to no
+      signed ratification`, `ERROR [chain_binding_names_another_chain] …#108: the
+      signing identity's binding serves chain sha256:269a80d8…96ff95, not this
+      one`, and `ERROR [orphan_pull_request] chain sha256:64b95694…a77710: runner
+      attestations are presented and NO link-6 record exists`. The acceptance's
+      second branch exactly, the extra two earned by the chain identity the
+      fixture introduces of its own.
+
+      **NEITHER CANARY EDITED A BYTE OF ANYTHING PACKAGED, AND THE CONTROL SAYS
+      SO.** Each was ONE YAML stream at
+      `governance/signed-execution-chain/`, a real in-tree location the whole-tree
+      sweep walks and `under_packaged_examples()` does not exclude: documents
+      1–106 the tranche-two POSITIVE corpus verbatim in `positive_records()`'s own
+      load order, then the packaged negative fixture verbatim — A's
+      `dispatched-task-whose-attestation-never-arrives.yaml` at documents 107–108,
+      B's `attestations-presented-with-no-signed-decision.yaml` at documents
+      107–110. Every one of the seven source files was verified byte-identical
+      inside the stream. **The CONTROL — the same 106 positives placed live at the
+      same path with NO fixture appended — draws `106 artifact(s) checked,
+      0 error(s), 0 warning(s)`**, so each canary's refusals are its fixture and
+      nothing else. That control is what #566 (squash `4fc7b94c`) made possible
+      and what this run confirms live rather than locally.
+
+      **THE LIVE RULESET READ, TAKEN FRESH AGAINST THESE TWO PULL REQUESTS
+      RATHER THAN CITED FROM THE ACT.** Read at 2026-09-07T14:32:01Z and re-read
+      at 14:38:33Z, through `repos/opensoft/openxFactory/rulesets` and
+      `repos/opensoft/openxFactory/rules/branches/main`: organization ruleset
+      **`21957695`**, *"openxFactory chain-gate (require
+      signed-execution-chain-gate)"*, source `opensoft` (`Organization`), target
+      `branch`, condition `ref_name.include: ["~DEFAULT_BRANCH"]`,
+      **`enforcement: active`**, `required_status_checks` contexts
+      **`signed-execution-chain-gate`** and `lane-line`. GitHub reported
+      `mergeStateStatus: BLOCKED` on both pull requests with that check at
+      `FAILURE` — the refusal was not merely printed, it HELD THE MERGE.
+
+      **AND WHAT THE TICK IS NOT.** It closes THIS box and nothing else: the
+      archive stays blocked on §§ 5.1–5.3, the machinery gates no author can
+      close by writing, and on §§ 2.8, 3.2, 3.3 and 6.1 besides — the whole
+      unchecked set § 5.9 enumerates. `pytest-suite` went red beside the gate on
+      both canaries — check `101779655356` on A, `101780252105` on B — which is
+      ONE FACT SEEN TWICE rather than a second defect:
+      `tests/signed_execution_chain/test_chain_reader.py::test_the_reader_exits_zero_on_the_corpus_and_the_tree`
+      runs the very sweep the gate runs, and a canary that reddened the gate and
+      left that test green would mean the two had drifted apart (the reading
+      canary PR #549 established for § 4.6).
+
+      **EVERY PARAGRAPH BELOW THIS ONE IS THE RECORD OF THIS BOX WHILE IT WAS
+      OPEN, AND IT IS PRESERVED UNEDITED** — the acceptance amendment, the
+      2026-09-02 attempt that could not produce the canary, the reader blockage
+      and its fix. This family records rather than quietly revises, so the
+      sentences below that say the box is open are read as of their own dates and
+      are superseded by this note, not deleted by it.
+
       **ACCEPTANCE AMENDED 2026-09-07 (Brett Heap, on #579, in session, by
       multiple choice, the option labelled verbatim *"Amend the task text"*;
       basis: his own 2026-09-02 reading on that issue — *"an amendment accepting
@@ -1407,8 +1498,20 @@ Each is contract content — cheap now, expensive after a bundle ships.
       | **3.2** | `target_release` confirmed at ratification |
       | **3.3** | ratification's authorization scope |
       | **5.1–5.3** | the MACHINERY GATES no author can close by writing — a PKI plane that has ISSUED, an omnigent layer that has REFUSED; SEC-R18 stays declared UNMET until then |
-      | **5.8** | this box — the reader blockage it was measured against is fixed (#566, squash `4fc7b94c`) and its acceptance is AMENDED 2026-09-07 to the canary pair's measured refusal sets; what is owed is the canary pair's own run, and the box ticks on that recording (issue #579) |
       | **6.1** | the named tranche-three successor |
+
+      **5.8 LEFT THIS LIST ON 2026-09-07 AND IS THE ONLY ROW THAT HAS.** Its
+      canary pair failed two real pull requests with the accepted refusal sets —
+      openxFactory **#758** (run `34133713857`, check `101779654949`,
+      `dispatched_leaf_never_written` + `open_decision_enumeration_incomplete`)
+      and **#759** (run `34133903555`, check `101780251342`,
+      `orphan_chain_identity` + `chain_binding_names_another_chain` +
+      `orphan_pull_request`), both `BLOCKED` by the live required
+      `signed-execution-chain-gate` under active organization ruleset
+      `21957695`, both closed unmerged with their branches deleted, recorded on
+      issue #579 and in § 5.8. **THE ARCHIVE IS NO CLOSER FOR IT**: seven boxes
+      remain open — 2.8, 3.2, 3.3, 5.1, 5.2, 5.3 and 6.1 — and the archive stays
+      blocked on §§ 5.1–5.3, the machinery gates, exactly as before.
 
       Recorded here so a later reader does not mistake a published tag for a
       cleared archive gate, nor this list for a shorter one.

@@ -1,0 +1,96 @@
+schema: spec-driven
+created: 2026-09-07
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-07-amend-absent-changelog-is-an-answer
+  reason: >-
+    THE SUCCESSOR THE ARCHIVE NAMES AS OWED, filed as openxFactory issue #750.
+    `amend-unreadable-read-sibling-scenarios` (PR #688, merge `a59d5463`;
+    archived by #703) settled that the changelog read's per-path None stands for
+    a HELD tip at which no readable `contracts/CHANGELOG.md` blob is reachable —
+    the unfetched fact being EXCLUDED at that arm, the manifest having read at
+    the same commit — and made the skip say so. IT LEFT THE READ A SKIP, AND A
+    SKIP RETURNS. The `if changelog is None:` guard stands ABOVE the `in_scope`
+    loop in `scripts/doc_health/release_tag_publication.py`, so a held tip
+    declaring an in-scope bundle and carrying no readable changelog is answered
+    with a skip INSTEAD OF the tag findings the loop would emit. Its own
+    `design.md` D6 recorded the suppression at full strength, refused to fix it
+    inside a packet whose claim was "one skip's TEXT", and named this successor
+    with the reading it needs: split the arm on the fact the read already
+    establishes; a held tip with no readable changelog is an ANSWER, so the loop
+    should run with no declarations; a tip that could not be read at all keeps
+    the skip.
+    THE CHECKER IS NOT WRONG ABOUT CANON, WHICH IS WHY THIS IS A PACKET AND NOT
+    A PATCH. The promoted scenario *The changelog cannot be read at the published
+    tip* says with a MUST that the family report a skip naming that read, and the
+    bullet below it says with a MUST that where the commit IS held the SKIP must
+    say so. Moving the guard alone would put running code out of agreement with
+    promoted canon — the checker out-running canon, the inverse of the defect
+    #678 and #688 were written to avoid — so the remedy is a MODIFIED requirement
+    retiring those two bullets, realized in the same pull request under
+    `release-realization`'s merged-plus-green rule.
+    THE MEASUREMENT, RE-TAKEN ON THIS TREE RATHER THAN QUOTED. One shim, two runs
+    differing in a single blob: an ABSENT `contracts/CHANGELOG.md` at a held tip
+    answered with one Skip and nothing graded; the SAME shim with an EMPTY
+    changelog answered with one `error` naming the untagged bundle. A document
+    that is not there and a document that says nothing carry the same fact about
+    declarations, and only one of them was being graded.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and `INDEX.md` read on 2026-09-07: no topic
+    carries the release-tag family's reads, the changelog arm, or the
+    held-versus-unfetched distinction. `kind: staged` would claim a staging source
+    that does not resolve. The organized source is issue #750 and the archived
+    packet's own record of what it left undone.
+  proposed_by: >-
+    Lane `openxfactory-1` (session `b61273ce`), authoring the successor
+    `amend-unreadable-read-sibling-scenarios` design.md D6 and tasks.md § 6 name
+    as owed. NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED: no word of Brett
+    Heap's admits this text to canon or ratifies its design. Issue #750 records a
+    defect and the shape of a remedy; an archived packet's record of what it left
+    undone puts a successor in the queue and decides nothing about its wording.
+    The lawful unapproved shape is the one `add-drafted-proposal-origin` added —
+    drafting provenance, no `approved_by`, no `approved_on` — and every document
+    in the packet carries `Status: draft` to match. The decision most worth a veto
+    is `design.md` D1: option A, splitting the arm so a held-and-absent read
+    GRADES the bundles in scope, against option B, keeping the skip and giving it
+    a distinct reason class only, which leaves D6's suppression exactly where D6
+    found it. `design.md` D2 is named separately so it can be vetoed on its own:
+    whether the retired skip's fact is carried onto an `info` beside the grading
+    or simply stops being reported.
+  proposed_on: 2026-09-07
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — in session on 2026-09-07,
+    lane `openxfactory-1`, verbatim: "merge them when green, then ratify 753".
+    THIS IS THE RATIFICATION ACT AND IT IS ADDED, NOT SUBSTITUTED. The drafting
+    provenance above is kept exactly as authored and `kind`, `id` and `reason`
+    never move, which is the shape `add-drafted-proposal-origin` (issue #318)
+    defined for this transition: approval is a pure ADDITION to a fixed origin
+    identity, so the support manifest that repeats `kind` and `id` never comes
+    to disagree with the packet, and the archive gate's origin-retention arm
+    reads the declaration this commit establishes. The first clause of the word
+    landed openxFactory #752 (`3a28face`) and #755 (`64aad02e`) and
+    xFactory-Hermes-Install #72 (`06c9083d`); the second clause is this.
+    The decision the word reaches is `design.md` D1 — option A, splitting the
+    changelog arm on the fact the read already establishes so a HELD tip with no
+    readable changelog is GRADED with no declarations, against option B, keeping
+    the skip and giving the held case a distinct reason class only — which was
+    carried as the packet's veto point in the pull request body, in `tasks.md`
+    § 1.2 and in the README row, and was NOT vetoed; A is ratified AS DESIGNED
+    and its stated cost is ratified with it, namely that A CHANGES WHICH FINDINGS
+    AN IN-SCOPE REPOSITORY RECEIVES, in the conservative direction — a `Skip`
+    becomes the grading an EMPTY changelog already receives — with the
+    estate-wide consequence named as owed at `tasks.md` § 6.1 rather than
+    claimed. `design.md` D2 was carried separately so it could be vetoed on its
+    own — whether the retired skip's fact is re-reported at `info` beside the
+    grading or simply stops being reported — and it was NOT vetoed either: the
+    `info` stands. Under `release-realization` a non-empty `code_surface` means
+    this packet archives on merged-plus-green realization evidence rather than on
+    landing, on a separate word; this one does not archive it.
+    Record: `review/ratification-2026-09-07.md`.
+  approved_on: 2026-09-07
+related:
+  - openxFactory:change:archive/2026-09-05-amend-unreadable-read-sibling-scenarios  # ARCHIVED (PR #688/#703). The direct predecessor: it proved the read is an ANSWER, left it a SKIP, and named this packet in design.md D6 and tasks.md § 6
+  - openxFactory:change:archive/2026-09-05-amend-published-tip-unreadable-scenario  # ARCHIVED (PR #678/#685). Wrote the shape both sibling scenarios are now in, and the precedent for a MODIFIED block that replaces a bullet under a reserved marker
+  - openxFactory:change:archive/2026-09-06-amend-marker-reason-boundary             # ARCHIVED (PR #719/#739). Its promoted boundary is why this block carries TWO markers rather than one naming two units
+  - openxFactory:change:archive/2026-09-01-add-release-tag-publication-check        # ARCHIVED. Promoted the requirement this block MODIFIES and wrote the changelog scenario being amended
+  - openxFactory:change:archive/2026-09-03-declare-spent-bundle-state               # ARCHIVED. Wrote the SPENT read the retired skip stood in front of, and the precedent for qualifying a byte-faithful promoted sentence underneath rather than rewriting it
