@@ -224,6 +224,7 @@ rows:
   prepare-openspec-1.12-readiness: {state: active, class: sole, declares: absent, prose: false, moved_by: "#673", moved_on: "2026-09-05"}
   promote-credential-contracts: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   promote-workflow-gate-contract: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  publish-openspec-cli-pin-as-contract-member: {state: active, class: sole, declares: [add-openspec-cli-pin], depth: 1, prose: false, moved_by: "#757", moved_on: "2026-09-07"}
   publish-semantic-kernel: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   qualify-avatar-brokered-call-feasibility: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   qualify-avatar-live-voice: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}

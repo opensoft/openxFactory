@@ -54,6 +54,7 @@ Native openxFactory contracts:
 | `schemas/xfactory-document-*.schema.yaml` + `scripts/validate-document-catalog.py` | Neutral document-cataloging contract surface — six JSON-Schema contracts (immutable per-repository catalog snapshot, non-authoritative cataloger-recommendation evidence, namespaced topic-tag registry, owner override/disposition file, and the reusable opaque-locator and handling-gate `$defs` kernels) plus the strict validator; realized at `contract-v1.11` with per-file SHA-256 in `manifest.yaml` (the validator is a commit-content-addressed tool, no per-file digest). Reference examples at `examples/document-cataloging/`; adoption guidance in `docs/document-catalog-adoption.md` | `openxFactory` |
 | `avatar-client-lab/` + adopted `examples/avatar-first-ui/fixtures/deterministic/` seeds | Neutral avatar-client-lab evidence surface — the P1 total avatar-state derivation table and the P10 22-capability-scenario register (gate (vi)/(ix)(a)/(ix)(b) sources), the 20 adopted deterministic fixtures closing the state-reachability denominator (P7/P8/P11/P12/P13), and the SCO-001-S05 successor deferral-discharge register `avatar-client/evidence-register.implement-avatar-client-lab.yaml`; realized at `contract-v1.12` with per-file SHA-256 in `manifest.yaml`. The `.md` prose companions and `avatar-client-lab/client-acceptance-map.yaml` are governed by the changelog / `check_client_lab_acceptance_map`, not per-file digests; the reference validators are commit-content-addressed tools. See `avatar-client-lab/README.md` | `openxFactory` |
 | `schemas/xfactory-client-infrastructure-request.schema.yaml` + `schemas/xfactory-infrastructure-readiness-result.schema.yaml` + `scripts/validate-client-infrastructure.py` | Neutral client-infrastructure contract family — the durable `client_infrastructure_request` coordination record (six never-conflated identity-reference `$defs`, the three-mode `execution_binding` `client_managed\|managed_host\|opsxfactory_executed`, the closed 13-state `status` enum, embedded `handoff` acceptance record, digest-bearing `package_refs`, cancellation `child_acks`, `supersedes_request_ref`) and the signed/traceable `infrastructure_readiness_result` (never a bare boolean; `ready\|degraded\|not_ready\|unknown\|maintenance`, `valid_until`, per-check `mandatory`/`outcome`/evidence) plus the strict validator; realized at `contract-v1.13` with per-file SHA-256 in `manifest.yaml` (the validator is a commit-content-addressed tool, no per-file digest). Reference examples at `examples/client-infrastructure/`; governing role doc `docs/client-infrastructure-liaison.md` | `openxFactory` |
+| `openspec-cli-pin.yaml` + the entrypoint it names, `scripts/validate-openspec-cli-pin.py` | **A CONSUMPTION PIN, PUBLISHED AS A CLAIM AND NOT AS A PRODUCT.** openxFactory does NOT own, vendor or publish `@fission-ai/openspec`; it CONSUMES it, in the most load-bearing place a tool can sit — `openspec validate --strict` is the gate every spec delta passes and `openspec archive` is the act that writes a ratified delta into canon. This file is openxFactory's own claim about WHICH ARTIFACT adjudicates, and that claim is what is published here. The referent is the published tarball's SHA-512 content address; the version string beside it is a LABEL and never the thing trusted. `consumer_entrypoint:` names the entrypoint through which STRICT VALIDATION runs — it has no archive verb, and the archive act runs through `scripts/proposal-support.py <root> archive <change-id>` in the same pinned checkout, which resolves and content-address-verifies the same binary (see the recipe's step 4); `dispositions:` carries the enumerated, cited, upgrade-coupled and stale-refused exceptions, scoped per repository. **Consumed by checkout, never by copy** — see § *Gating archives on the pinned CLI from a consumer repository*. Registered by `publish-openspec-cli-pin-as-contract-member` ([#754](https://github.com/opensoft/openxFactory/issues/754)); the row carries no per-file `sha256` because the pin is a live governance surface that moves on a bump and on every disposition added or retired | `openxFactory` |
 
 Planned contracts:
 
@@ -215,6 +216,155 @@ openxfactory_contract_ref:
   tag: <release-tag>
   contract: contracts/<contract-name>
 ```
+
+## Gating archives on the pinned CLI from a consumer repository
+
+**Who this is for:** any repository that runs `openspec validate --strict` or
+`openspec archive` as a governed act. Today that is 26 repositories across the
+estate; as of the 2026-09-07 survey recorded on
+[#754](https://github.com/opensoft/openxFactory/issues/754), two of them gate on
+the pin and twenty have no pin awareness at all — archiving on whatever
+`openspec` happens to be on `PATH`, with no archive commit anywhere naming the
+CLI version that produced it.
+
+**The rule in one line: CHECK OUT, NEVER COPY.** The pin is
+`contracts/openspec-cli-pin.yaml` in *this* repository, and the entrypoint it
+names in `consumer_entrypoint:` is `scripts/validate-openspec-cli-pin.py`. A
+copy of either, taken into a consuming repository, is a second pin that moves
+separately — the exact defect the pin exists to end.
+
+### If your repository has an `xfactory:` stack pin (the normal case)
+
+Four steps, and steps 1-3 are the shape codexFactory
+(`.github/workflows/validate.yml`) and OpsxFactory
+(`.github/workflows/opsx-validation.yml`) already run:
+
+1. **Resolve your pin — AND CHECK THAT IT CAN REACH THE ENTRYPOINT.** Read
+   `stack.yaml`'s `xfactory.contract_ref`, the exact openxFactory commit your
+   repository consumes. **That commit must be at or after `1d8cd54e`
+   (2026-09-04), the commit that first carries
+   `scripts/validate-openspec-cli-pin.py`.** An older `contract_ref` cannot run
+   this recipe at all — the file is simply not in the checkout, a literal reader
+   gets `No such file or directory`, and the fallback is the ambient `openspec`,
+   which is the exact state the pin exists to end. Measured 2026-09-07, three
+   consumers are behind it: MedxFactory and AdxFactory both pin `6c03d783`
+   (2026-08-06) and LedgerxFactory pins `af7ac0fa` (2026-08-27); the entrypoint
+   is absent from all three checkouts. **Advance your pin first**, in an ordinary
+   pin-sync pull request in your own repository — do not work around the absence.
+   Until it advances, refuse rather than skip silently: codexFactory's
+   `scripts/validate-docs.sh:162` is the shape, erroring in CI with the reason
+   named — *"the stack.yaml contract_ref predates add-openspec-cli-pin, so strict
+   OpenSpec validation cannot run in CI"* — and recording a counted, named skip
+   locally, so a check that did not run never reports green.
+2. **Check openxFactory out at that ref**, into a scratch path
+   (`.openxfactory-pin/`, `scratchpad/openxfactory-pin-<sha12>/`, whatever your
+   CI convention is), and point one variable at it — the variable IS the seam,
+   and **the name is yours**. codexFactory uses `OPENXFACTORY_ROOT`; OpsxFactory
+   uses its own, `OPSX_PINNED_OPENXFACTORY_CHECKOUT`, with
+   `OPSX_OPENSPEC_CLI_PIN_ENTRYPOINT` for the resolved entrypoint. Nothing in
+   this recipe depends on the spelling — what has to be true is that the value
+   names a checkout of openxFactory at YOUR `contract_ref`. The commands below
+   spell it `OPENXFACTORY_ROOT`:
+
+   ```bash
+   export OPENXFACTORY_ROOT="$PWD/.openxfactory-pin"
+   ```
+
+   Nothing is copied into your tree; the checkout is ephemeral and its
+   credential need not persist.
+3. **Invoke the entrypoint from that checkout**, with your own repository as the
+   scan target:
+
+   ```bash
+   python3 "$OPENXFACTORY_ROOT/scripts/validate-openspec-cli-pin.py" \
+     --repo . --all --strict
+   ```
+
+   The entrypoint fetches `@fission-ai/openspec` with `npm pack`, recomputes the
+   tarball's SHA-512 and SHA-1, refuses `pin-integrity-mismatch` unless BOTH
+   equal the pin's recorded values — **before** anything is installed and long
+   before anything is invoked — and only then runs strict validation. It never
+   consults `PATH` in its default mode, so whatever CLI a runner happens to
+   carry cannot change your gate's verdict.
+4. **Archive through the pinned resolver too — WITH A DIFFERENT COMMAND.**
+   `validate-openspec-cli-pin.py` VALIDATES; it has no archive verb, and
+   `archive <id>` is rejected as an unrecognized argument. The archive act runs
+   through `scripts/proposal-support.py` in the same pinned checkout, which
+   imports that entrypoint's own resolver, verifies the artifact's content
+   address, and invokes the resolved binary — never an ambient `openspec`:
+
+   ```bash
+   python3 "$OPENXFACTORY_ROOT/scripts/proposal-support.py" . archive <change-id>
+   ```
+
+   The first positional is YOUR repository root, exactly as `--repo` is above,
+   so one pinned checkout serves both acts over your tree. A bare `openspec
+   archive` is the unpinned state, whatever version answers.
+
+**Three properties worth knowing before you wire it.** The version literal
+belongs in NO file of yours — write a read of the pin, never the number, or you
+have made a second copy. `--repo` must name YOUR repository root, not the pinned
+checkout, or the run opens no governed surface and the check is vacuous. And
+`dispositions:` are scoped by `repo:`, so your tree's declared exceptions are
+neither applied nor staled by anyone else's; adding one is a human act that
+needs a citation and an authority, and the run refuses
+`pin-disposition-malformed` without them.
+
+### If your repository has no stack pin (the declared fallback)
+
+Adopting an `xfactory:` stack pin is the better answer and this fallback is an
+interim, not a second supported mode. Where the read above is impossible, a
+repository MAY carry a **DECLARED CONSUMPTION COPY — a file** that names the
+openxFactory commit the copy was taken from, records the digest of what it
+copied, and states the divergence it accepts. The copy is retired when that
+repository adopts a stack pin.
+
+**AND IT LEAVES AN ENFORCEMENT CLAIM UNMET WHILE IT STANDS — the price is
+stated, not hidden.** `neutral-product-pin` § *A required check runs the pinned
+tool, at the pinned digest* says a required check *"SHALL NOT invoke an in-tree
+copy, a vendored duplicate or an unpinned installation"*. A required check wired
+off a declared copy is exactly that. So declaring the copy makes it AUDITABLE,
+not lawful: the check can say which bytes ran, and that promoted requirement's
+enforcement claim stays UNMET until the copy is retired for a stack pin.
+
+**THE FIRST REALIZED INSTANCE, and what it does and does not yet carry.**
+xFactory-Hermes-Install PR
+[#72](https://github.com/opensoft/xFactory-Hermes-Install/pull/72) — merged
+`06c9083d` on 2026-09-07, as B of #754 — is the first declared copy in the
+estate. `contracts/openspec-cli-pin.yaml`,
+`scripts/validate-openspec-cli-pin.py` and
+`scripts/install-pinned-openspec-cli.py` each carry a vendoring header naming
+openxFactory `44d8fbaf7d977668973dcd116040c9405416c2ea`, and
+`docs/openspec-cli-pin.md` states the divergence accepted — three `uses:`
+commit-SHA pins in the adapted workflow, and governed archive routing deferred
+because `scripts/proposal-support.py` is not vendored. **Two of the three fields
+are there; the third is not.** The digest of what was copied is NOT recorded:
+the copy asserts byte-identity below its header and ships a `diff` recipe
+against the named commit in place of a per-file `sha256`. That is a real check
+and it is not the recorded digest this fallback names, so **the digest is OWED
+on xFactory-Hermes-Install** — named here as owed rather than counted as
+satisfied.
+
+**OpsxFactory IS NOT AN INSTANCE OF THIS FALLBACK.** It belongs above, under the
+normal case, as the HARDENED form of it, and citing it here would be wrong on
+three measured counts. It carries an `xfactory:` stack pin
+(`contract_ref: 724a2a4f`, declared 2026-09-06). It copies NOTHING — neither
+`contracts/openspec-cli-pin.yaml` nor `scripts/validate-openspec-cli-pin.py`
+exists in its tree. And its `contracts/openspec-cli-pin-consumption.yaml`
+records no commit of its own: `commit_source: stack.yaml xfactory.contract_ref`
+is a POINTER, and `scripts/opsx_validation_gate.py` asserts statically that the
+manifest declares no commit differing from the stack pin. What that file holds
+is per-file SHA-256 digests recomputed AGAINST THE PINNED CHECKOUT before the
+entrypoint is executed — so the entrypoint that RUNS is provably the entrypoint
+that was REVIEWED, which is a step beyond the bare read of steps 1-4 and worth
+copying. The *"DECLARED DIVERGENCE"* its workflow header names is a divergence
+from OpsxFactory's OWN ratified `design.md` § 4/§ 6 — an `npm ci` install of
+`@fission-ai/openspec@1.2.0` from a committed lock — TOWARD this pin; and
+`advance-openxfactory-pin-and-fold-cli-pin` (2026-09-06) moved in the
+retire-the-copy direction, folding the second openxFactory checkout away.
+
+A copy that declares none of this is not this fallback; it is the undeclared
+duplicate the fallback exists to be distinguished from.
 
 ## Adapter Rule
 
