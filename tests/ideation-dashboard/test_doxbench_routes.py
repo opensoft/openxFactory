@@ -55,7 +55,8 @@ from pathlib import Path
 import pytest
 import yaml
 
-from conftest import BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit
+from conftest import (BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit,
+                      serve_surface_source)
 
 from jsonschema import Draft202012Validator
 
@@ -3747,8 +3748,9 @@ def test_the_v1_canonical_form_is_untouched_by_the_reorder_fix(tmp_path):
     buffers swapped still gets the 409 this fix closes on the widened lane. The
     wart is knowingly retained, because a live break (every recorded digest) is
     worse than a latent one, and it dies with the lane at contract-v2.0."""
-    source = (REPO_ROOT / "scripts" / "ideation_dashboard"
-              / "serve.py").read_text(encoding="utf-8")
+    # THE SERVE SURFACE, not one file of it (§ 2.4 PR 2 of 4 moved this
+    # code to a sibling module; the scan widened rather than narrowed).
+    source = serve_surface_source()
     assert "canonical_buffer_order = turn_buffers" in source
     assert 'if request_kind == DOXBENCH_CHAT_TURN_V2_KIND:\n' \
            '            canonical_buffer_order = sorted(' in source

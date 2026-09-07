@@ -24,7 +24,9 @@ import shutil
 
 import pytest
 
-from conftest import BASE_REPO, REPO_ROOT  # noqa: F401  (sys.path side effect)
+from conftest import (  # noqa: F401  (sys.path side effect)
+    BASE_REPO, REPO_ROOT, serve_surface_source,
+)
 
 from ideation_dashboard import doxbench_knowledge as kn  # noqa: E402
 from ideation_dashboard import doxbench_packet as pk  # noqa: E402
@@ -97,8 +99,9 @@ def test_the_route_reads_the_declaration_and_never_selects_a_backend(tmp_path):
     """"a backend MUST NOT be selected at runtime by a turn, a prompt, or a
     heuristic" — asserted against the ROUTE's own source, because that is the
     one place a per-turn choice could be introduced."""
-    serve_source = (REPO_ROOT / "scripts" / "ideation_dashboard"
-                    / "serve.py").read_text(encoding="utf-8")
+    # THE SERVE SURFACE, not one file of it (§ 2.4 PR 2 of 4 moved this
+    # code to a sibling module; the scan widened rather than narrowed).
+    serve_source = serve_surface_source()
     assert "doxbench_knowledge.build_backend(declaration)" in serve_source
     for forbidden in ("build_backend(body", "build_backend(payload",
                       "build_backend(message", "backend_for_turn",

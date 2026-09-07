@@ -7469,3 +7469,7 @@ Hermes install is not yet a submodule. Its canonical remote decision is still op
 ## Status
 
 This repository is documentation-first. It should not contain live credentials, production memory-provider databases, runtime secrets, generated agent workspaces, or domain-specific runtime data.
+
+## License
+
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).

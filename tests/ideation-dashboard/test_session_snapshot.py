@@ -54,7 +54,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import REPO_ROOT
+from conftest import REPO_ROOT, serve_surface_source
 
 from ideation_dashboard import branch_session as bs
 from ideation_dashboard import cli as cli_mod
@@ -834,8 +834,12 @@ def test_the_hosted_session_arrival_path_is_recorded_and_not_built():
     assert "add-ideation-intent-plane" in block
     assert "apply-lane" in block
     assert "(repository, ref)" in block
-    # RECORDED, not built: no apply-lane binding exists anywhere in the serve
-    assert "apply_lane" not in src
+    # RECORDED, not built: no apply-lane binding exists anywhere in the serve.
+    # This is an ABSENCE over the whole serve (`split-opendox-two-layer-
+    # product` § 2.4 made it four files), so it is asserted over the surface,
+    # not just this one file — widened, never narrowed, per the standing
+    # ruling for this slice.
+    assert "apply_lane" not in serve_surface_source()
     # every route that accepts a ref asks the one predicate
     assert src.count("hosted_ref_refused(") >= 4   # the definition + 3 call sites
     for route in ("_serve_snapshot", "_serve_source", "_handle_refresh_action"):
