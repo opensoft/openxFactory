@@ -34,7 +34,8 @@ from pathlib import Path
 
 import pytest
 
-from conftest import BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit
+from conftest import (BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit,
+                      serve_surface_paths, serve_surface_source)
 
 from ideation_dashboard import serve as serve_mod
 from ideation_dashboard import snapshot_registry as reg
@@ -624,13 +625,20 @@ def test_serve_module_uses_no_relative_imports(tmp_path):
     SCRIPT, where a relative import has no parent package. A new `from . import …`
     here would 500 a POST route in production while every module-invoked test
     stayed green — so the absence is asserted, not assumed."""
-    text = SERVE_PY.read_text(encoding="utf-8")
+    # EVERY FILE THE SERVE IS MADE OF (§ 2.4 PR 2 of 4 split it into four):
+    # the D12 hazard is a property of the SCRIPT, and a relative import in a
+    # module the script imports 500s exactly the same route. Widened, never
+    # narrowed — one of these files is still `serve.py` itself.
     offenders = [
-        f"{n}: {line.strip()}"
-        for n, line in enumerate(text.splitlines(), 1)
+        f"{path.name} {n}: {line.strip()}"
+        for path in serve_surface_paths()
+        for n, line in enumerate(
+            path.read_text(encoding="utf-8").splitlines(), 1)
         if re.match(r"\s*from\s+\.\w*\s+import\b", line)
     ]
-    assert not offenders, "relative import in serve.py (D12):\n" + "\n".join(offenders)
+    assert not offenders, "relative import in the serve (D12):\n" + "\n".join(
+        offenders)
+    text = serve_surface_source()
     assert "from ideation_dashboard import notebook_action" in text
     assert "from ideation_dashboard import workbench" in text
     assert "from ideation_dashboard import gate_routes" in text

@@ -28,7 +28,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from conftest import REPO_ROOT
+from conftest import REPO_ROOT, serve_surface_paths, serve_surface_source
 from ideation_dashboard import doxbench_contracts, doxbench_turns
 
 RUNTIME = REPO_ROOT / "scripts" / "ideation_dashboard"
@@ -68,7 +68,12 @@ def test_no_runtime_module_stores_a_bound_buffer_on_the_envelope():
     assignment of a binding onto the envelope, not for the words `bound_buffer`,
     which the validation input and the released wire field both legitimately
     use."""
-    for module in (SERVE_PY, TURNS_PY):
+    # EVERY FILE THE SERVE IS MADE OF, plus the turns module (§ 2.4 PR 2 of 4
+    # moved the chat-turn route to `serve_workbench.py`). `serve.py` alone now
+    # carries NO occurrence of `bound_buffer` at all, so a negative asserted
+    # over it would have kept passing while asserting nothing about the code it
+    # is named for. Widened, never narrowed: `serve.py` is still scanned.
+    for module in serve_surface_paths() + (TURNS_PY,):
         source = module.read_text(encoding="utf-8")
         for forbidden in ("envelope.bound_buffer", "prompt_envelope.bound_buffer",
                           "self.bound_buffer", "bound_buffer=bound_buffer,",
@@ -140,7 +145,9 @@ def test_the_route_reads_the_declared_binding_rather_than_an_adjacent_field():
     `active_document_path` -- it is that envelope's own declared field, and
     reading a KEY off a declared path is a spelling change -- but the handler
     must pass the PARSED binding, whichever family it came from."""
-    source = SERVE_PY.read_text(encoding="utf-8")
+    # THE SERVE SURFACE, not one file of it (§ 2.4 PR 2 of 4 moved this
+    # code to a sibling module; the scan widened rather than narrowed).
+    source = serve_surface_source()
     assert "bound_buffer_key=bound_buffer_key" in source
     assert "bound_buffer_key=active_document_path" not in source, (
         "the handler must pass the parsed binding, not re-derive one from the "

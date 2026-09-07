@@ -144,7 +144,55 @@ from session_fixtures import (  # noqa: E402,F401  (fixture registration)
 NO_IMPLICIT_PUSH_MODULES: tuple[str, ...] = (
     "serve.py", "doxbench_threads.py", "doxbench_bridge.py", "doxbench_mcp.py",
     "doxbench_turns.py", "doxbench_packet.py", "nightly_lane.py",
+    # WIDENED by `split-opendox-two-layer-product` § 2.4 (PR 2 of 4), which
+    # moved the doxBench workbench routes, the project/notebook/edit routes and
+    # the shared wire vocabulary out of `serve.py` into three sibling modules.
+    # `serve_workbench.py` is REQUIRED here — it carries the TURN, which is
+    # exactly the scope §12 names, and a list that stayed at "serve.py" would
+    # have let a file move evade the absence without anything noticing. The
+    # other two carry no turn, save, compaction or scheduled task, and are
+    # listed anyway: the whole of the surface `serve.py` used to be is now four
+    # files, and a sweep over three of them is a sweep with a seam in it.
+    "serve_workbench.py", "serve_project.py", "serve_wire.py",
 )
+
+# --------------------------------------------------------------------------
+# THE SERVE SURFACE (`split-opendox-two-layer-product` § 2.4, PR 2 of 4).
+#
+# Several suites assert against `serve.py`'s SOURCE rather than over the wire,
+# and say why at each site: a route whose alternative proof needs a live
+# provider, an absence that no positive test can demonstrate, a call site whose
+# enclosing `try` is the property. Those assertions are about THE SERVE, and
+# the serve is now four files rather than one.
+#
+# So the readers below span the whole surface. This is the same widen-never-
+# narrow move `NO_IMPLICIT_PUSH_MODULES` just made, and for the same reason: an
+# assertion pinned to one filename silently stops asserting the moment the code
+# it was about moves to the next file along, and it keeps passing while it does
+# it. Nothing here weakens an assertion — every scan sees strictly more code
+# than it saw before — and a module added to the split must be added here.
+# --------------------------------------------------------------------------
+
+SERVE_SURFACE_MODULES: tuple[str, ...] = (
+    "serve.py", "serve_wire.py", "serve_workbench.py", "serve_project.py",
+)
+
+
+def serve_surface_paths() -> tuple[Path, ...]:
+    """Every file the dashboard serve is made of, in import-graph order."""
+    runtime = REPO_ROOT / "scripts" / "ideation_dashboard"
+    return tuple(runtime / name for name in SERVE_SURFACE_MODULES)
+
+
+def serve_surface_source() -> str:
+    """The whole serve surface as one text, for a source-level assertion.
+
+    Concatenated with a newline between files so a scan for a multi-line
+    literal can never match across a file boundary that does not exist.
+    """
+    return "\n".join(path.read_text(encoding="utf-8")
+                     for path in serve_surface_paths())
+
 
 FORBIDDEN_PUSH_TOKENS: tuple[str, ...] = (".push(", "open_or_update(", "git push")
 
