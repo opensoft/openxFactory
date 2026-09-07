@@ -26,7 +26,9 @@ ratification, a human-only surface write, a tag.
   was `#756`) rather than an observed one. The ledger's own doctrine makes
   `moved_by` AUTHOR-SUPPLIED AND UNVERIFIED — only its shape is checked — so
   this does not red any gate; it is a pointer for a human reading the history
-  and it should be true. Re-run
+  and it should be true. **It is now known to be WRONG: `#757` was taken by
+  another lane's pull request while this packet was in review**, so the re-stamp
+  is MANDATORY rather than tidy-up. Re-run
   `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#<real PR>'`
   once the number is known, and read the diff: exactly one row must move.
 
@@ -38,23 +40,38 @@ ratification, a human-only surface write, a tag.
   Record it at `review/ratification-<date>.md` in the neighbours' form, flip
   `Status: draft` → `Status: ratified` on `proposal.md`, `design.md` and this
   file, and add the `Ratified:` line plus the README row's status flip.
-- [ ] 1.2 **[OPERATOR] The eight veto points, ruled individually or as a
+- [ ] 1.2 **[OPERATOR] The eleven veto points, ruled individually or as a
   block:** C-1 sibling not member; C-2 the name `custody_rederivations`; C-3
-  eight fields all required; C-4 `diff_class` members; C-5 `reason` members;
-  C-6 the chain rule and the refusal posture; C-7 the validator split; C-8
-  additive bump to `contract_schema_version: 3`. A veto on C-1, C-6 or C-7
+  ten fields all required; C-4 `diff_class` members; C-5 `reason` members;
+  C-6 the chain rule, the path pair and the ancestry leg; C-6a declared locator
+  resolution plus the entry's locator pair; C-7 the validator split and the
+  obligation to operate a check; C-8 additive bump to
+  `contract_schema_version: 3`; C-9 a `content` class WITHHOLDS the verdict;
+  C-10 a re-derivation is not an amendment. A veto on C-1, C-6, C-6a or C-7
   changes the delta; a veto on C-2, C-4 or C-5 changes only the schema text.
+- [ ] 1.3 **[OPERATOR] C-10 SUPERSEDES ONE CLAUSE OF YOUR OWN F.1 RULING and
+  needs your word specifically.** The ruling says the three instruments take
+  *"their `amendments` entries plus the structured block"*. C-10 writes the
+  structured block and NO `amendments` entry, because an amendment is a status
+  TRANSITION (promoted requirement, ruling D7) and all four instruments are
+  `status: executed` — so the prose half would move three executed consent
+  instruments to `amended` to record that a repository moved a file underneath
+  an unchanged pin. Keeping the `amendments` entry is yours to choose; the cost
+  is that transition.
 
 ## 2. The schema edit
 
 - [ ] 2.1 `contracts/schemas/consent-instrument.schema.yaml`: add the top-level
   `custody_rederivations` property — `type: array`, items `type: object` with
-  `additionalProperties: false` and `required: [at, commit, previous_sha256,
-  observed_sha256, diff_class, reason, ruling_ref, recorded_by]`. Shapes: `at`
-  `type: string, format: date-time`; `commit` `pattern: "^[0-9a-f]{40}$"`;
-  both digests `pattern: "^[0-9a-f]{64}$"`; `diff_class` `enum: [header_only,
-  content]`; `reason` `enum: [lifecycle_header_edit, archive_move,
-  other_ruled_edit]`; `ruling_ref` and `recorded_by` `type: string, minLength: 1`.
+  `additionalProperties: false` and `required: [at, commit, previous_locator,
+  observed_locator, previous_sha256, observed_sha256, diff_class, reason,
+  ruling_ref, recorded_by]` (TEN, per design C-3 as revised by C-6a). Shapes:
+  `at` `type: string, format: date-time`; `commit` `pattern: "^[0-9a-f]{40}$"`;
+  both locators `type: string, minLength: 1` (OPAQUE — no path grammar is
+  imposed here, per C-6a); both digests `pattern: "^[0-9a-f]{64}$"`;
+  `diff_class` `enum: [header_only, content]`; `reason`
+  `enum: [lifecycle_header_edit, archive_move, other_ruled_edit]`; `ruling_ref`
+  and `recorded_by` `type: string, minLength: 1`.
 - [ ] 2.2 `custody` IS NOT EDITED. Confirm by diff that its two properties, its
   `required`, its `additionalProperties: false` and its comment block are
   byte-identical after the change. A diff touching `custody` fails this task.
@@ -65,16 +82,25 @@ ratification, a human-only surface write, a tag.
 - [ ] 2.4 An in-file comment on the new property recording WHY it is a sibling
   (ruling D9's closure argument, design C-1) and that `ruling_ref` is a DECLARED
   POINTER the validator does not resolve — the `dependent_refs.ref` posture.
+- [ ] 2.5 An in-file comment on the locator pair recording that `custody.locator`
+  is OPAQUE and is NOT a path (C-6a): resolution runs through the consuming
+  repository's DECLARED custody store mapping, the two legs are evaluated on
+  opposite sides of the commit, and an archive move is unadmittable without the
+  pair. Name the measurement: every OpsxFactory locator carries an
+  `opsx:opensoft/` scheme prefix and three of four targets resolve at no ref
+  under their literal path.
 
 ## 3. The canonical validator — internal legs only
 
 - [ ] 3.1 `scripts/validate-consent-instruments.py`: a new check beside
-  `check_custody` for the chain's INTERNAL legs — anchor (`e₁.previous_sha256 ==
-  custody.sha256`), linkage (`eᵢ.previous_sha256 == eᵢ₋₁.observed_sha256`),
+  `check_custody` for the chain's INTERNAL legs — anchor in BOTH halves
+  (`e₁.previous_sha256 == custody.sha256` AND `e₁.previous_locator ==
+  custody.locator`), linkage in BOTH halves (`eᵢ.previous_sha256 ==
+  eᵢ₋₁.observed_sha256` AND `eᵢ.previous_locator == eᵢ₋₁.observed_locator`),
   non-decreasing `at` in declared order, and closed enums/shape via the schema
   layer. Distinct finding codes per leg, in the file's existing naming style
   (candidates: `custody-chain-unanchored`, `custody-chain-broken-link`,
-  `custody-chain-out-of-order`).
+  `custody-chain-locator-gap`, `custody-chain-out-of-order`).
 - [ ] 3.2 The rewritten-pin leg: refuse an instrument whose `custody.sha256`
   equals any entry's `observed_sha256` while a LATER entry exists, and more
   generally any state in which the pin has been advanced to a value the chain
@@ -87,6 +113,14 @@ ratification, a human-only surface write, a tag.
   validator's report line for a chained instrument says what it checked and
   what it did not, per the promoted scenario *The neutral pass is not a currency
   claim*.
+- [ ] 3.5 **EXTEND `walk_strings` OVER THE NEW FIELDS** (design C-1 as
+  corrected). `check_custody`'s blob-shape walk is the family's only
+  "wherever it hides" guard, and siting the array outside `custody` leaves
+  `custody_rederivations[].ruling_ref` and `.recorded_by` — the two unbounded
+  free strings in the entry — outside it. Extend the walk over both, reusing the
+  existing `BASE64_BLOB_RX` / `data:` / PDF-magic / multi-line predicates and
+  the `embedded-original-content` finding code. The locators are opaque
+  POINTERS and are walked on the same footing as `custody.locator` is today.
 
 ## 4. Fixtures — positive and negative, one per named refusal
 
@@ -95,9 +129,19 @@ ratification, a human-only surface write, a tag.
   by the internal legs.
 - [ ] 4.2 POSITIVE: an existing example is left UNCHANGED and re-validated, to
   prove the growth is additive for an instrument that declares no array.
+- [ ] 4.1b POSITIVE: an instrument carrying an `archive_move` entry whose
+  locator pair DIFFERS and whose digests are equal on both sides — the case a
+  single-locator rule can never admit (design C-6a, `proposal.md` Example B).
 - [ ] 4.3 NEGATIVE `examples/consent-instrument/negative/`: a broken link
   (`eᵢ.previous_sha256 != eᵢ₋₁.observed_sha256`).
-- [ ] 4.4 NEGATIVE: a first entry whose `previous_sha256` is not the pin.
+- [ ] 4.3b NEGATIVE: a locator gap (`eᵢ.previous_locator !=
+  eᵢ₋₁.observed_locator`) with the digests linking correctly — the half of the
+  chain an earlier draft could not express.
+- [ ] 4.3c NEGATIVE: entries out of recorded-time order
+  (`custody-chain-out-of-order`), so § 4's "one per named refusal" is true of
+  that refusal too.
+- [ ] 4.4 NEGATIVE: a first entry whose `previous_sha256` is not the pin, and
+  one whose `previous_locator` is not `custody.locator`.
 - [ ] 4.5 NEGATIVE: an unknown `diff_class` member, and an unknown `reason`
   member (schema-layer refusals).
 - [ ] 4.6 NEGATIVE: an entry omitting `ruling_ref`, and one omitting
@@ -105,6 +149,9 @@ ratification, a human-only surface write, a tag.
 - [ ] 4.7 NEGATIVE: an entry carrying a ninth property (entry closure).
 - [ ] 4.8 NEGATIVE: a rewritten pin — `custody.sha256` advanced to an observed
   digest while the chain still claims the original anchor.
+- [ ] 4.8b NEGATIVE: a blob-shaped `ruling_ref` and a blob-shaped `recorded_by`
+  (base64 run, `data:` URI, PDF magic or a multi-line body), each refused as
+  `embedded-original-content` — the fixture that proves task 3.5 landed.
 - [ ] 4.9 `examples/consent-instrument/README.md` updated with the new corpus
   counts, and the corpus count in `contracts/manifest.yaml`'s
   `consent-instrument` comment (*"5 valid + 5 invalid + purpose probes"*)
@@ -153,20 +200,34 @@ own gates.
   worker-enrollment-broker's runtime-shape validation** — the pin and the
   broker's declared shape move in one act, or the `pin_gap_misdeclared` guard
   fails the advance closed.
-- [ ] 6.2 `[OpsxFactory]` Write, per BROKEN instrument, one `amendments` entry
-  (the human half the F.1 ruling asks for) and one `custody_rederivations` entry
-  (the machine half): `commit: 57fd9fd2…`, `diff_class: header_only`,
-  `reason: lifecycle_header_edit`, `previous_sha256` = the pin,
-  `observed_sha256` = the target at that commit, `ruling_ref` citing
-  `docs/packet-lifecycle-headers.md` § *Editing an archived packet* and the F.1
-  ruling comment.
-- [ ] 6.3 `[OpsxFactory]` Leave `opsx-farheap-node-inventory-reader-consent.yaml`
-  ALONE. It is not broken; an entry on a current pin would be a false record of
-  an event that did not occur.
-- [ ] 6.4 `[OpsxFactory]` Discharge F.1 in the owed-findings register — which
-  archives 2026-09-07 to
-  `openspec/changes/archive/2026-09-07-add-pre-archive-citation-gate/supporting-docs/owed-findings.md`
-  — by citing the change that performed the repair.
+- [ ] 6.2 `[OpsxFactory]` Write, per BROKEN instrument, ONE
+  `custody_rederivations` entry and **NO `amendments` entry** (design C-10 —
+  an amendment transitions an EXECUTED instrument to `amended` under the
+  promoted requirement *Amendments Are Transitions, Never New Instruments*, and
+  nothing the parties agreed has changed). Fields: `commit: 57fd9fd2…`,
+  `diff_class: header_only`, `reason: lifecycle_header_edit`,
+  `previous_locator` == `observed_locator` == the instrument's own
+  `custody.locator` (those three targets did not move at that commit),
+  `previous_sha256` = the pin, `observed_sha256` = the target at that commit,
+  `ruling_ref` citing `docs/packet-lifecycle-headers.md` § *Editing an archived
+  packet* and the F.1 ruling comment.
+- [ ] 6.2b `[OpsxFactory]` **DECLARE THE CUSTODY STORE MAPPING** that resolves
+  `opsx:<tenant>/<repo-relative path>`, which the ADDED requirement obliges of
+  any repository holding instruments, and **operate the custody-digest check**
+  that performs the re-derivation legs (the C-7 obligation; F.2's gate is where
+  it lands).
+- [ ] 6.3 `[OpsxFactory]` Write NO entry for `57fd9fd2` on
+  `opsx-farheap-node-inventory-reader-consent.yaml`: its content pin is not
+  broken. Its LOCATOR did move when `add-managed-service-mapping` archived
+  (2026-08-26), so it is a candidate for a separate `archive_move` entry with a
+  differing locator pair and an unchanged digest on both sides — the first real
+  exercise of the path pair, and the consumer's call.
+- [ ] 6.4 `[OpsxFactory]` Discharge F.1 in the owed-findings register — **(archive
+  in flight; the live path until then is
+  `openspec/changes/add-pre-archive-citation-gate/supporting-docs/owed-findings.md`)**
+  — which archives 2026-09-07 to
+  `openspec/changes/archive/2026-09-07-add-pre-archive-citation-gate/supporting-docs/owed-findings.md`,
+  by citing the change that performed the repair.
 
 ## 7. Named as owed elsewhere, and deliberately not taken here
 

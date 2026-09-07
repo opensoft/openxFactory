@@ -19,12 +19,14 @@ origin:
     instruments on 2026-09-06 at `ddc03ad7`: three of four no longer hash to
     their pinned `custody.sha256`, all three broke at the SAME OpsxFactory
     commit `57fd9fd2` (2026-08-24, "Discharge all 55 lifecycle-header defects
-    in the OpenSpec scan set"), and the one that still matches is the one that
-    commit did not touch — 3 of 3, with a `Status:` header inserted and no
-    other byte changed. The register is OpsxFactory
+    in the OpenSpec scan set"), and the one that still matches by content is the
+    one that commit did not touch — 3 of 3, with ONE `Ratified:` line inserted
+    per target and no other byte changed (corrected from an earlier draft that
+    said a `Status:` header; the commit message and the per-target diff both
+    read `+Ratified: …`). The register is OpsxFactory
     `openspec/changes/add-pre-archive-citation-gate/supporting-docs/owed-findings.md`
-    § F.1 (live at OpsxFactory main `40aaa93b`; that packet archives
-    2026-09-07 to
+    § F.1 (archive in flight; that is the live path, at OpsxFactory main
+    `40aaa93b`; the packet archives 2026-09-07, landing before this one, to
     `openspec/changes/archive/2026-09-07-add-pre-archive-citation-gate/supporting-docs/owed-findings.md`).
     WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
     `ideation/staging/` was listed in full and `INDEX.md` read: no topic folder
@@ -35,8 +37,10 @@ origin:
     exists for.
     NOTHING IS REALIZED BY THIS PACKET: no schema byte moves, no contract
     version is cut, no digest inventory is written, no validator leg is added,
-    no example is authored, no consumer pin advances, no instrument takes an
-    `amendments` entry, and every box in `tasks.md` is unticked.
+    no example is authored, no consumer pin advances, no instrument takes a
+    `custody_rederivations` entry, and every box in `tasks.md` is unticked.
+    (No instrument takes an `amendments` entry EVER, under design C-10: a
+    re-derivation is not an amendment and does not transition status.)
   approved_by: >-
     Brett Heap (openxFactory operator authority; repository owner) — the F.1
     ruling of 2026-09-07T13:51Z on OpsxFactory PR #248, which named this
@@ -46,7 +50,7 @@ origin:
     declined alternatives; it did not choose the field names, the enums, the
     closure posture, the chain rule, or where the re-derivation is performed.
     Every one of those is the authoring session's and is flagged for veto as
-    design decisions C-1 through C-8. At the time this field was written the
+    design decisions C-1 through C-10. At the time this field was written the
     packet is `Status: draft`, carries no ratification citation and owes none;
     whether its content is ratified is a separate act of Brett Heap's, tracked
     as task 1.1.

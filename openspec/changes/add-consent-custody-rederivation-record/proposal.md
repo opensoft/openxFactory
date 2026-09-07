@@ -45,8 +45,10 @@ place to say so.** The measurement is OpsxFactory's, taken 2026-09-06 at
 `ddc03ad7` by `sha256sum` over each instrument's `custody.locator` target, and
 recorded in
 `openspec/changes/add-pre-archive-citation-gate/supporting-docs/owed-findings.md`
-§ F.1 — live at OpsxFactory main `40aaa93b` at the time of writing; **that
-packet archives 2026-09-07**, after which the same register is cited at
+§ F.1 — **(archive in flight; the live path until then is
+`openspec/changes/add-pre-archive-citation-gate/supporting-docs/owed-findings.md`
+at OpsxFactory main `40aaa93b`.)** That packet archives 2026-09-07 by ruling,
+landing before this one, after which the same register is cited at
 `openspec/changes/archive/2026-09-07-add-pre-archive-citation-gate/supporting-docs/owed-findings.md`:
 
 | Instrument | Pinned | At HEAD | Verdict |
@@ -59,8 +61,14 @@ packet archives 2026-09-07**, after which the same register is cited at
 **ALL THREE BROKE AT ONE COMMIT AND THE CAUSE IS RULED, WHICH IS WHY THIS IS A
 CONTRACT PROBLEM AND NOT A REPAIR JOB.** OpsxFactory `57fd9fd2` (2026-08-24,
 *"Discharge all 55 lifecycle-header defects in the OpenSpec scan set"*) wrote 16
-files under `openspec/changes/archive/` and prepended a `Status:` header to
-targets that were pinned. The edit was performed under a ratified convention —
+files under `openspec/changes/archive/` and inserted ONE `Ratified:` line into
+targets that were pinned. **The shape is corrected from an earlier draft of this
+proposal, which said `Status:` header** — the commit's own message and
+`git show 57fd9fd2 -- <target>` both read a single `+Ratified: 2026-07-10 — …`
+line per file, derived from headers the page already carried. The finding is
+unchanged and so are the enum members it grounds (`diff_class: header_only`,
+`reason: lifecycle_header_edit`): the edit added a lifecycle header line and
+changed no other byte. The edit was performed under a ratified convention —
 OpsxFactory `docs/packet-lifecycle-headers.md` § *Editing an archived packet*
 (Status: ratified, 2026-08-24, Brett Heap) — which requires only a bookkeeping
 note. **The content did not change.** Re-derived at `57fd9fd2^` every one of the
@@ -100,9 +108,19 @@ entry, and a `contract_schema_version` bump.** Nothing else in the schema moves.
   in which content could hide, and a history array inside `custody` would be
   exactly such a property.
 - **`custody_rederivations`** — an array of closed entries, each carrying
-  `at`, `commit`, `previous_sha256`, `observed_sha256`, `diff_class`, `reason`,
-  `ruling_ref`, `recorded_by`. All eight required; `additionalProperties: false`
-  per entry; `diff_class` and `reason` closed enumerations.
+  `at`, `commit`, `previous_locator`, `observed_locator`, `previous_sha256`,
+  `observed_sha256`, `diff_class`, `reason`, `ruling_ref`, `recorded_by`. All
+  TEN required; `additionalProperties: false` per entry; `diff_class` and
+  `reason` closed enumerations.
+- **A DECLARED CUSTODY STORE MAPPING is required of the consuming repository.**
+  `custody.locator` is opaque and is NOT a path — every OpsxFactory locator
+  carries an `opsx:opensoft/` scheme prefix, and three of the four targets
+  resolve at NO ref under their literal path because they moved when their
+  packets archived. The neutral contract states the obligation and refuses an
+  unresolvable locator; the mapping itself is the consumer's declared policy
+  (OpsxFactory's is `opsx:<tenant>/<repo-relative path>`).
+- **NO `amendments` ENTRY IS WRITTEN.** A re-derivation is not an amendment and
+  does not transition the instrument's status.
 - **`contract_schema_version: 2 -> 3`**, ADDITIVE. An instrument that declares
   no `custody_rederivations` stays valid unchanged — which is the whole estate
   today, all four OpsxFactory instruments included. The RECORD envelope's
@@ -111,9 +129,12 @@ entry, and a `contract_schema_version` bump.** Nothing else in the schema moves.
   the estate, which is the opposite of additive.
 - **A stated GATE RULE**, promoted as a requirement: custody is CURRENT iff the
   target hashes at HEAD to `custody.sha256`, or the declared chain from the pin
-  to the last observed digest is unbroken AND every link re-derives from git
-  history. A chain that cannot be re-derived is a **REFUSAL, never an
-  admission**.
+  to the last observed digest is unbroken in BOTH digest and locator, every link
+  re-derives from git history AT BOTH PATHS (starting locator at `commit^`,
+  observed locator at `commit`), and every commit is an ANCESTOR of the next and
+  of HEAD. A chain that cannot be re-derived is a **REFUSAL, never an
+  admission**, and a `diff_class: content` entry WITHHOLDS the verdict rather
+  than buying currency — a moved referent is grounds for re-execution.
 - **The canonical validator gains the INTERNAL legs and not the git legs.**
   `scripts/validate-consent-instruments.py` is network-free and reads ONE
   repository; the instrument's `custody.locator` target lives in the CONSUMER's
@@ -124,20 +145,50 @@ entry, and a `contract_schema_version` bump.** Nothing else in the schema moves.
 
 ## The shape proposed
 
+**Example A — the bytes moved, the path did not.** The instrument is
+`opsx-opensoft-node-inventory-reader-consent.yaml`, and its locator is quoted
+VERBATIM from the record, scheme prefix included. Its target has never been
+archived, so both locators are equal.
+
 ```yaml
 custody:                      # UNCHANGED, still closed to exactly these two
-  locator: "openspec/changes/archive/…/ratification-2026-07-10-r2.md"
+  locator: "opsx:opensoft/openspec/changes/add-managed-node-inventory/review/ratification-2026-07-10-r2.md"
   sha256: "31e4f889…"         # THE PIN — never rewritten, ever
 
 custody_rederivations:        # NEW sibling; absent on every existing instrument
   - at: "2026-09-07T14:00:00Z"
-    commit: "57fd9fd2…"                 # 40 hex: where the target's bytes moved
+    commit: "57fd9fd2…"                 # 40 hex: where the target changed
+    previous_locator: "opsx:opensoft/openspec/changes/add-managed-node-inventory/review/ratification-2026-07-10-r2.md"
+    observed_locator: "opsx:opensoft/openspec/changes/add-managed-node-inventory/review/ratification-2026-07-10-r2.md"
     previous_sha256: "31e4f889…"        # == custody.sha256 (first entry)
     observed_sha256: "7fc4bb21…"        # the target AT that commit
     diff_class: header_only             # closed: header_only | content
     reason: lifecycle_header_edit       # closed: lifecycle_header_edit |
                                         #   archive_move | other_ruled_edit
     ruling_ref: "docs/packet-lifecycle-headers.md § Editing an archived packet"
+    recorded_by: "lane opsXfactory-1, OpsxFactory PR #<n>"
+```
+
+**Example B — the path moved and the bytes did not**, which is the case a
+single-locator rule can never admit. `opsx-farheap-node-inventory-reader-consent.yaml`
+is the instrument whose pin still MATCHES by content, and whose target moved
+when `add-managed-service-mapping` archived on 2026-08-26:
+
+```yaml
+custody:
+  locator: "opsx:opensoft/openspec/changes/add-managed-service-mapping/proposal.md"
+  sha256: "55b97d77…"
+
+custody_rederivations:
+  - at: "2026-09-07T14:00:00Z"
+    commit: "<the archive commit>"
+    previous_locator: "opsx:opensoft/openspec/changes/add-managed-service-mapping/proposal.md"
+    observed_locator: "opsx:opensoft/openspec/changes/archive/2026-08-26-add-managed-service-mapping/proposal.md"
+    previous_sha256: "55b97d77…"        # resolved at commit^, at the OLD path
+    observed_sha256: "55b97d77…"        # resolved at commit, at the NEW path
+    diff_class: header_only             # no byte changed; only the path did
+    reason: archive_move
+    ruling_ref: "<the archive act's record>"
     recorded_by: "lane opsXfactory-1, OpsxFactory PR #<n>"
 ```
 
@@ -197,9 +248,14 @@ row's `sha256` and `consumption_rule`), `contracts/CHANGELOG.md`,
   `724a2a4f…`) to the cut bundle's commit, **in lockstep with the
   worker-enrollment-broker's runtime-shape validation** — the `pin_gap_misdeclared`
   guard means an advance that moves the pin without re-validating the broker's
-  declared shape fails closed. Then, and only then, the three instruments take
-  their `amendments` entry plus their `custody_rederivations` entry, and the
-  fourth is left alone because it is not broken.
+  declared shape fails closed. Then, and only then, the three broken instruments
+  take a `custody_rederivations` entry each — **and NO `amendments` entry**: the
+  structured record IS the record, and writing an amendment would transition
+  three EXECUTED instruments to `amended` under the promoted requirement
+  *Amendments Are Transitions, Never New Instruments* for a change in nothing
+  the parties agreed. The fourth instrument is left alone because its content
+  pin is not broken, though its locator DID move at archive and a future entry
+  may record that.
 - **F.2's custody-digest gate** (OpsxFactory, scope *"every in-repo sha256
   pointer to an in-repo target"*) consumes this record for the consent-custody
   family. This change does not build it and does not schedule it.
@@ -215,8 +271,9 @@ classifies this change as a **co-modifier**, and `add-sequenced-after-substrate`
 scenario *A root claim is contradicted by a co-modifier* refuses exactly that
 pairing. The co-modifier was then identified rather than assumed — a grep of the
 whole change corpus for the requirement title returns `add-consent-instrument`'s
-delta and nothing else — so the parent is named. Depth 0: the parent declares
-nothing itself.
+delta and nothing else — so the parent is named. **Depth 1** — the parent
+declares nothing itself, so the chain is one hop, which is the ledger's own
+definition and the figure its row carries.
 
 `add-consent-instrument` is the right parent for the reason the field exists.
 Its outcome IS the text this delta restates and grows: ruling D9's closure, the
@@ -240,9 +297,20 @@ Owed from Brett Heap, and the packet is inert until it arrives. Task 1.1. The
 veto points are design decisions **C-1** (the sibling, not `custody`),
 **C-2** (the name `custody_rederivations`), **C-3** (the eight fields, all
 required), **C-4** (`diff_class` members), **C-5** (`reason` members),
-**C-6** (the chain rule and the refusal posture), **C-7** (the validator split
-— internal legs neutral, git legs at the consumer), and **C-8** (additive
-bump to `contract_schema_version: 3` rather than a new record kind).
+**C-6** (the chain rule, the path pair, the ancestry leg and the refusal
+posture), **C-6a** (locator resolution declared by the consumer, and the entry's
+locator pair), **C-7** (the validator split — internal legs neutral, git legs at
+the consumer, and the obligation to operate one), **C-8** (additive bump to
+`contract_schema_version: 3` rather than a new record kind), **C-9** (a
+`content` class withholds the verdict instead of buying currency), and **C-10**
+(a re-derivation is not an amendment, so NO `amendments` entry is written).
+
+**C-10 SUPERSEDES ONE CLAUSE OF THE F.1 RULING** — its *"their `amendments`
+entries plus the structured block"* — and the supersession is named at the point
+it is taken (`design.md` C-10) rather than quietly absorbed. The clause predates
+the choice announced in the same sentence: the `amendments` entry was the prose
+half of the form being replaced. Keeping it is Brett's to choose; the cost is a
+false `executed → amended` transition on three instruments.
 
 ## What this proposal does NOT claim
 
@@ -258,3 +326,10 @@ bump to `contract_schema_version: 3` rather than a new record kind).
   where it is owed.
 - It does not tick a box, move a schema byte, cut a release, or open a pull
   request in a consumer repository.
+- It does not claim its first draft was right. An adversarial review found one
+  BLOCKER (locator resolution was undefined, so `reason: archive_move` was
+  unadmittable by construction and the worked example contradicted the finding)
+  and four MAJOR defects (`diff_class: content` bought currency by omission; the
+  instructed `amendments` entry would have transitioned three executed
+  instruments; no ancestry leg; C-1's second leg argued backwards). Each is
+  fixed above and each correction says what the earlier draft got wrong.
