@@ -121,16 +121,25 @@ never becomes that one.
 ```
 $ python3 scripts/validate-sequenced-after.py . \
     --archive-gate openspec/changes/amend-absent-changelog-is-an-answer \
-    --ratified-ref <the ratification commit>
-PENDING — this run needs the hash of the commit carrying this line; appended in the follow-up records commit
+    --ratified-ref 58654e34
+sequenced_after retention gate passed (declaration unchanged since ratification).
+exit=0
 ```
 
 ```
 $ python3 scripts/validate-scope-globs.py . \
     --archive-gate openspec/changes/amend-absent-changelog-is-an-answer \
-    --ratified-ref <the ratification commit>
-PENDING — this run needs the hash of the commit carrying this line; appended in the follow-up records commit
+    --ratified-ref 58654e34
+scope_globs scope-retention gate passed (scope unchanged since ratification).
+exit=0
 ```
+
+**BOTH ARMS: RETAINED.** `58654e34` is the ratification commit — verified to be
+the FIRST commit on this branch whose `proposal.md` declares `Status: ratified`,
+which is exactly the commit the gate resolves on its own at archive time. This
+paragraph and the two blocks above it are the whole of the follow-up records
+commit; it touches `review/` files only, so it moves neither the ratified bytes
+nor the commit the gate resolves.
 
 **THE STATUS FLIP AND THE APPROVAL PAIR MUST MOVE IN ONE COMMIT, AND THEY DO.**
 The gate resolves the RATIFYING COMMIT as the FIRST commit whose `proposal.md`
