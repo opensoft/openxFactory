@@ -122,6 +122,16 @@ SPINE_READ_THROUGH = {"generate_snapshot": "_gate_snapshot"}
 #: nothing at all — while a bare `"--content"` would have matched
 #: `--content-file`, the flag the rule deliberately KEEPS. The boundary, not the
 #: space, is what the rule means: see `declares_flag` below.
+#:
+#: The MATCHING is the landed sweeps' too, not just their union: all five are
+#: a plain substring check (`flag not in source`), so a PREFIXED spelling —
+#: `--force-all`, `--overwrite-existing`, `--no-gate-check` — reddened them
+#: wherever it was written, in any file, because there was only one file.
+#: `declares_flag`'s word-boundary match is kept for `--content` alone, the
+#: one flag where a bare substring would instead catch the flag the rule
+#: KEEPS (`--content-file`); the other sixteen use the landed substring rule
+#: unchanged in both readers below — a narrower match here would be exactly
+#: the narrowing ruling (a) forbids.
 BYPASS_FLAGS = ("--force", "--override", "--overwrite", "--no-record",
                 "--skip-gate", "--no-gate", "--content", "--delete",
                 "--token", "--gh-token", "--github-token", "--merge",
@@ -144,7 +154,12 @@ def declares_flag(source: str, flag: str) -> bool:
 
     `--content-file` is not `--content`; `--no-gate` is not `--no-gate-x`. The
     boundary is the rule, and it is why the sweep can be widened without
-    inheriting the landed spelling's blind spot."""
+    inheriting the landed spelling's blind spot.
+
+    Used for `--content` ONLY (see `BYPASS_FLAGS` above) — every other flag in
+    the sweep is checked with the landed plain-substring rule, so a prefixed
+    spelling of THOSE flags still reddens the sweep exactly as it did in the
+    single file this mirror re-states."""
     return re.search(re.escape(flag) + r"(?![-\w])", source) is not None
 
 
@@ -380,12 +395,18 @@ def test_no_verb_on_this_command_line_offers_a_bypass_flag():
     would no longer be swept by any of them.
 
     One list over the whole surface — the rule was never per-verb, and it was
-    never per-file either."""
+    never per-file either. THE MATCHING is theirs too: every one of the five
+    is a plain substring check, so a prefixed spelling (`--force-all`) reds
+    this sweep the same way it would have reddened them in the one file they
+    used to share. `--content` is the sole named exception — see `BYPASS_FLAGS`
+    and `declares_flag` above."""
     offenders = []
     for module in CLI_SURFACE:
         source = source_of(module)
         for flag in BYPASS_FLAGS:
-            if declares_flag(source, flag):
+            hit = (declares_flag(source, flag) if flag == "--content"
+                   else flag in source)
+            if hit:
                 offenders.append(f"{Path(module.__file__).name}: {flag}")
     assert offenders == [], (
         "no flag on this command line may skip the gate, the confinement, the "
@@ -413,9 +434,22 @@ def test_the_assembled_parser_declares_no_bypass_flag():
     module, in any spelling, including one a CONTRIBUTED extension adds through
     the subcommand point. The two forms answer different questions — the source
     sweep catches a flag written down anywhere, this catches a flag that reaches
-    the command line — and neither subsumes the other."""
+    the command line — and neither subsumes the other.
+
+    The MATCHING mirrors the source sweep's, not the tighter exact-membership
+    check this used to run: a declared option is an offender when it CONTAINS
+    a bypass flag, not only when it equals one — otherwise a declared
+    `--force-all` or `--no-gate-check` would reach the command line and answer
+    to nothing here, exactly the gap `--content`/`declares_flag` above already
+    carves an exception for. `--content` keeps the exact-boundary form so
+    `--content-file` (the flag the rule KEEPS) is never caught."""
     declared = declared_options(cli_mod.build_parser())
-    offenders = [opt for opt in declared if opt.split()[-1] in BYPASS_FLAGS]
+    offenders = [
+        opt for opt in declared
+        if any((opt.split()[-1] == flag) if flag == "--content"
+               else (flag in opt.split()[-1])
+               for flag in BYPASS_FLAGS)
+    ]
     assert offenders == [], (
         "these options reach the assembled command line and each of them would "
         f"skip the gate, the confinement, the record, or the review: {offenders}")
