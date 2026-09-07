@@ -1,9 +1,40 @@
-"""Static validation of openxFactory's advisory Merge Master review lane.
+"""Static validation of openxFactory's Merge Master review lane.
 
 Nothing here executes the workflow. It parses the YAML, checks the embedded
 shell with `bash -n`, and asserts the properties this lane's whole value rests
-on — that the pinned decision core cannot drift silently, and that the lane
-CANNOT approve anything.
+on — that the pinned decision core cannot drift silently, and that the ONE
+thing the lane can now approve is exactly the one thing it was granted.
+
+WHAT THIS MODULE USED TO ASSERT, AND WHY IT CHANGED. Until 2026-09-06 it
+asserted an ABSENCE: no merge-master App token, no review submission, no
+`.github/merge-approval-envelope.yml` at all. THE REASON FOR THAT ABSENCE IS
+KEPT HERE RATHER THAN DELETED, because it is still in force for the class it
+covers — the Gate-Rules Council convened on 2026-08-28 and REFUSED,
+UNANIMOUSLY, the candidate class put to it: a class over `openspec/changes/**`,
+refused because its admitted surface lies wholly inside the canonical
+GATE_INTEGRITY_FLOOR and so can never convene. A class that can never convene
+is not an operable class, so that record defines none, and
+`add-substantive-review-lane` task 3.2 — the council's general grant of an
+operable candidate class for this repository — STAYS OPEN.
+
+WHAT CHANGED IS A DIFFERENT, NARROWER THING. Act A4 on openxFactory #656
+(Brett Heap, 2026-09-06: *"author the envelope PR now as a narrow first
+candidate"*) enrolls ONE candidate class, `intent-rolling-custody`, over the
+ideation dashboard's own intent and gate-action record trees. His merge word on
+that pull request is the grant, for that class and nothing else. So this module
+no longer asserts that no approval exists; it asserts that the approval exists
+BEHIND EXACTLY ONE DOOR and that the door is this narrow. Specifically:
+
+  * the envelope declares EXACTLY ONE candidate, with that author, that head
+    ref, those two path prefixes, and `require_all_checks: true`;
+  * the enrolled surface admits no `openspec/` path, so the refused class is
+    not smuggled back in under a different name;
+  * every approval-shaped step is gated on `steps.envelope.outputs.decision ==
+    'approve'`, a value written by nothing but the pinned core's exit code;
+  * the workflow's own token still holds NO write scope, so the only write
+    authority in the lane is a separately minted, per-repository App token;
+  * the lane still cannot merge or enable auto-merge, and that absence is still
+    structural.
 
 WHY A TEST IS THE PIN'S TIE HERE. xFactory VENDORS codexFactory as a submodule,
 so its `tests/test_review_lane_workflow.py` can assert the workflow's pin equals
@@ -54,9 +85,52 @@ REQUIRED_JOB_ID = "merge-master-approval"
 # reads a PRIVATE repository in scope.
 EXPECTED_TRIGGERS = {"pull_request_target", "workflow_dispatch"}
 
-# READ-ONLY, stated exactly. Any scope beyond these two is a scope that could
-# begin to approve, merge, or annotate.
-EXPECTED_PERMISSIONS = {"contents": "read", "pull-requests": "read"}
+# READ-ONLY, stated exactly, and STILL read-only after act A4. `checks` and
+# `statuses` were added because the envelope's all-checks-green condition
+# quantifies over both listings and a declared `permissions:` block sets every
+# undeclared scope to `none`. ANY WRITE SCOPE HERE IS A FAILURE: the approval
+# and its comment are written with a separately minted App token, scoped to
+# `pull-requests: write` on this repository alone, and nothing else in the job
+# can reach it.
+EXPECTED_PERMISSIONS = {"contents": "read", "pull-requests": "read",
+                        "checks": "read", "statuses": "read"}
+
+ENVELOPE = REPO_ROOT / ".github/merge-approval-envelope.yml"
+
+# THE GRANT, RESTATED AS LITERALS. Read from this module rather than from the
+# file under test: asserting the file equals itself would be a tautology, and
+# the whole point of a narrow grant is that widening it must break a test
+# somebody has to justify changing.
+ENROLLED_CANDIDATE_ID = "intent-rolling-custody"
+ENROLLED_AUTHOR = "openxfactory[bot]"
+ENROLLED_HEAD_REF = "intents/rolling"
+ENROLLED_BASE_REF = "main"
+ENROLLED_PATHS = ["ideation/dashboard/intents/**",
+                  "ideation/dashboard/gate-records/**"]
+
+# THE ONE DOOR. The literal `if:` fragment every approval-shaped step must
+# carry. `steps.envelope.outputs.decision` is written by nothing but the pinned
+# core's exit code, through the guarded emitter in the envelope step.
+APPROVAL_GATE = "steps.envelope.outputs.decision == 'approve'"
+ENVELOPE_DECISION = "steps.envelope.outputs.decision"
+
+# A step SUBMITS A REVIEW when its shell carries both of these. Two markers, not
+# one, so a step that merely READS the reviews listing (the idempotence check
+# does exactly that) is not mistaken for one that writes.
+REVIEW_SUBMISSION_MARKERS = ("/reviews", "event=APPROVE")
+
+# The merge-master credential, in every EXPRESSION that reaches the approver
+# identity. Every step wiring one of these into its `with:` or `env:` must be
+# gated on the envelope decision.
+#
+# Matched over `with`/`env` only, never over `run` prose: the envelope step's
+# job summary NAMES `MERGE_MASTER_APP_ID` when the App is unconfigured, so it
+# can tell an operator what to grant, and a check that could not tell an
+# explanation from a use would have to be weakened until it caught neither.
+APPROVER_CREDENTIAL = ("secrets.MERGE_MASTER_APP_KEY",
+                       "secrets.MERGE_MASTER_APP_ID",
+                       "vars.MERGE_MASTER_APP_ID",
+                       "steps.mm-token.outputs.token")
 
 PINNED_REPOSITORY = "opensoft/codexFactory"
 FLOOR_REPOSITORY = "opensoft/openxFactory"
@@ -65,22 +139,25 @@ SHA_RE = re.compile(r"\b[0-9a-f]{40}\b")
 CORE_COMMIT_RE = re.compile(
     r'^core_commit:[ \t]*"?([0-9a-f]{40})"?[ \t]*$', re.MULTILINE)
 
-# THE APPROVAL DENYLIST. Every string here is a way this workflow could acquire
-# the authority it is specified NOT to have. The spec says the absence is
-# STRUCTURAL — these steps are absent, not disabled by a condition — and a
-# condition is exactly what a later edit would reach for first, so the check is
-# over the file TEXT rather than over the parsed graph.
-APPROVAL_SHAPED = (
-    "MERGE_MASTER_APP_ID",
-    "MERGE_MASTER_APP_KEY",
-    "gh pr review",
+# THE MERGE DENYLIST. Act A4 granted this lane the authority to APPROVE one
+# candidate class. It granted nothing about LANDING one, and the aggregation's
+# own intent-apply lane already arms GitHub's auto-merge on its side (ruling
+# D-3 on #656), so a merge call here would be a second, ungranted authority
+# over the same pull request. The absence is STRUCTURAL — these steps are
+# absent, not disabled by a condition, and a condition is exactly what a later
+# edit would reach for first — so the check is over the file TEXT rather than
+# over the parsed graph.
+#
+# Every string is chosen to be unreachable from PROSE: the file's comments say
+# "auto-merge" and "no merge call" repeatedly, and a denylist that tripped on
+# its own explanation would have to be weakened until it caught nothing.
+MERGE_SHAPED = (
     "gh pr merge",
-    "gh api --method POST",
-    "/reviews",
     "enablePullRequestAutoMerge",
-    "--auto",
-    "event=APPROVE",
-    '"event": "APPROVE"',
+    "--auto ",
+    "/auto-merge",
+    "merge_method",
+    "gh pr review",
 )
 
 
@@ -174,6 +251,58 @@ def env_pinned_commit(document: dict) -> str:
             "the shell can compare it against the commit that landed, got %r"
             % (value,))
     return value
+
+
+def envelope_document() -> dict:
+    """The enrolled envelope, parsed, or a named failure."""
+    document = yaml.safe_load(ENVELOPE.read_text(encoding="utf-8"))
+    if not isinstance(document, dict):
+        raise AssertionError("the merge-approval envelope is not a YAML mapping")
+    return document
+
+
+def sole_candidate(envelope: dict) -> dict:
+    """The ONE enrolled candidate, refusing anything but exactly one."""
+    candidates = envelope.get("candidates")
+    if not isinstance(candidates, list) or len(candidates) != 1:
+        raise AssertionError(
+            "the envelope must enrol EXACTLY ONE candidate class — Brett "
+            "Heap's word of 2026-09-06 on #656 grants one and no other, and a "
+            "second entry is a NEW GRANT rather than a configuration change. "
+            "Found: %r" % (candidates,))
+    candidate = candidates[0]
+    if not isinstance(candidate, dict):
+        raise AssertionError("the enrolled candidate is not a mapping")
+    return candidate
+
+
+def steps_of(document: dict) -> list:
+    return (document.get("jobs") or {}).get(REQUIRED_JOB_ID, {}).get("steps") or []
+
+
+def step_condition(step: dict) -> str:
+    return str((step or {}).get("if") or "")
+
+
+def review_submitting_steps(document: dict) -> list:
+    """Steps whose shell actually POSTS an approving review."""
+    found = []
+    for step in steps_of(document):
+        script = (step or {}).get("run") or ""
+        if all(marker in script for marker in REVIEW_SUBMISSION_MARKERS):
+            found.append(step)
+    return found
+
+
+def approver_credential_steps(document: dict) -> list:
+    """Every step that WIRES the merge-master credential into its inputs."""
+    found = []
+    for step in steps_of(document):
+        wiring = yaml.safe_dump({"with": (step or {}).get("with"),
+                                 "env": (step or {}).get("env")})
+        if any(name in wiring for name in APPROVER_CREDENTIAL):
+            found.append(step)
+    return found
 
 
 def shell_blocks(document: dict) -> list:
@@ -357,25 +486,307 @@ class TheRealFiles(unittest.TestCase):
                 "no checkout may take the candidate's head: rules must come "
                 "from the base branch (step %r)" % ((step or {}).get("name"),))
 
-    def test_the_caller_contains_no_approval_shaped_step(self) -> None:
-        """FR-007: the absence is structural, so it is checked over the text."""
-        for needle in APPROVAL_SHAPED:
+    def test_the_caller_contains_no_merge_shaped_step(self) -> None:
+        """Act A4 granted approval, never landing. The absence is structural."""
+        for needle in MERGE_SHAPED:
             self.assertNotIn(
                 needle, self.caller_text,
-                "%r appears in the advisory caller. This lane must be unable "
-                "to approve, merge, or enable auto-merge — the steps are "
-                "absent, not disabled." % needle)
+                "%r appears in the caller. This lane may approve the one "
+                "enrolled candidate class and nothing more: it must remain "
+                "unable to merge or to enable auto-merge, and the steps are "
+                "absent rather than disabled. The aggregation's intent-apply "
+                "lane arms auto-merge on its own side (ruling D-3 on #656)."
+                % needle)
 
-    def test_the_caller_ships_no_envelope_instance(self) -> None:
-        """No enrolled candidate class means no envelope config, at all."""
-        envelope = REPO_ROOT / ".github/merge-approval-envelope.yml"
-        self.assertFalse(
-            envelope.exists(),
-            "an envelope instance implies an enrolled candidate class. The "
-            "schema requires a non-empty `candidates` list and the "
-            "gate_rules_council has defined no OPERABLE class for this "
-            "repository — a record exists (2026-08-28) and REFUSED the class "
-            "put to it, so add-substantive-review-lane task 3.2 stays OPEN.")
+    # ---- THE NARROW GRANT ------------------------------------------------
+    #
+    # Everything from here to the end of the class replaces what used to be a
+    # single assertion that no envelope existed. The reason that assertion
+    # existed is recorded in this module's docstring and is STILL IN FORCE for
+    # the class it covers: the Gate-Rules Council's 2026-08-28 unanimous
+    # refusal of a class over `openspec/changes/**`, and
+    # `add-substantive-review-lane` task 3.2, which stays OPEN.
+
+    def test_the_caller_ships_the_enrolled_envelope(self) -> None:
+        self.assertTrue(
+            ENVELOPE.is_file(),
+            "act A4 enrols one candidate class, and the class lives in "
+            "%s. Without the file the lane is advisory again and the "
+            "approval steps below can never fire." % ENVELOPE)
+
+    def test_the_envelope_declares_the_ratified_shape(self) -> None:
+        envelope = envelope_document()
+        self.assertEqual(envelope.get("schema_version"), 1)
+        self.assertEqual(envelope.get("kind"), "merge_approval_envelope")
+        self.assertEqual(
+            envelope.get("org"), "opensoft",
+            "this mechanism governs Opensoft's own vendor build org only, "
+            "never a client tenant")
+        self.assertTrue(str(envelope.get("id") or "").strip(),
+                        "the envelope must carry an id")
+
+    def test_the_envelope_enrols_exactly_one_candidate(self) -> None:
+        """THE POINT OF THE GRANT. One class, on one man's word, for one lane.
+
+        A second entry is not a configuration change: it is a new grant,
+        needing its own word or its own council record. Widening it must break
+        a test somebody has to justify changing.
+        """
+        candidate = sole_candidate(envelope_document())
+        self.assertEqual(candidate.get("id"), ENROLLED_CANDIDATE_ID)
+
+    def test_the_enrolled_candidate_is_the_narrow_one(self) -> None:
+        candidate = sole_candidate(envelope_document())
+        self.assertEqual(
+            candidate.get("target_repos"), ["opensoft/openxFactory"],
+            "the class exists on this repository and nowhere else")
+        self.assertEqual(
+            candidate.get("expected_author"), ENROLLED_AUTHOR,
+            "the exact REST bot login of the content App that authors the "
+            "custody pull request — a DISTINCT identity from the merge-master "
+            "approver, or GitHub's author-cannot-approve rule voids the "
+            "approval. Verified against the standing candidate #176.")
+        self.assertEqual(
+            candidate.get("expected_head_ref"), ENROLLED_HEAD_REF,
+            "an EXACT same-repository head ref, never a pattern: it is half of "
+            "the fork defence, and a fork cannot present it")
+        self.assertEqual(candidate.get("expected_base_ref"), ENROLLED_BASE_REF)
+        self.assertEqual(
+            candidate.get("path_allowlist"), ENROLLED_PATHS,
+            "the admitted surface is the two record trees "
+            "`scripts/ideation_dashboard/intent_apply_lane.py` actually writes "
+            "(`DEFAULT_INTENTS_DIR` and `gate_console.DEFAULT_RECORDS_DIR`) "
+            "and nothing else. The lane commits with `git add -A`, so a "
+            "delivery that touches anything beyond them falls outside this "
+            "list and PARKS — which is what makes this a narrow first "
+            "candidate rather than a general grant.")
+        self.assertIs(
+            candidate.get("require_all_checks"), True,
+            "stated explicitly rather than left to the schema default: a "
+            "conservative superset of 'all required checks green', which can "
+            "only ever park more often than the merge gate would block")
+        self.assertIn(
+            REQUIRED_JOB_ID, candidate.get("check_exclusions") or [],
+            "the approval workflow's own check-run must be excluded or the "
+            "candidate self-deadlocks: GitHub names the check-run after the "
+            "job id, and the run is still in progress while it evaluates")
+
+    def test_the_enrolled_candidate_declares_no_open_finding_keys(self) -> None:
+        """The candidate's KEY SET is pinned, not merely the values above.
+
+        xFactory's `doc-health-nightly` candidate carries
+        `open_finding_title_prefixes` and `open_finding_labels: []` because
+        that candidate IS the doc-health report and such a finding is ABOUT
+        the very tree it delivers (see that repository's own envelope). No
+        finding class here ties to the intent record trees — the envelope's
+        own header records that reasoning — so neither key may reappear on
+        this candidate. A key silently added back would hand the pinned
+        core's open-finding condition something to quantify over that no
+        value-level assertion above would ever see, since both keys are
+        absent today rather than present-and-empty.
+        """
+        candidate = sole_candidate(envelope_document())
+        self.assertNotIn(
+            "open_finding_title_prefixes", candidate,
+            "no finding class in this repository is about the intent record "
+            "trees; adding this key is a new grant, not a config tweak")
+        self.assertNotIn(
+            "open_finding_labels", candidate,
+            "no finding class in this repository is about the intent record "
+            "trees; adding this key is a new grant, not a config tweak")
+
+    def test_the_enrolled_surface_admits_no_refused_path(self) -> None:
+        """The 2026-08-28 refusal, asserted rather than merely remembered.
+
+        The council refused a class over `openspec/changes/**` because its
+        admitted surface lies wholly inside the canonical GATE_INTEGRITY_FLOOR.
+        A later widening that reached any governed surface would re-enrol by
+        accident exactly what was refused on purpose, so the refused ground is
+        named here as a standing floor under the allowlist.
+        """
+        candidate = sole_candidate(envelope_document())
+        refused_ground = ("openspec/", "contracts/", "governance/", ".github/",
+                          "scripts/", "health/", "openXwallet")
+        for pattern in candidate.get("path_allowlist") or []:
+            for ground in refused_ground:
+                self.assertFalse(
+                    pattern.startswith(ground),
+                    "path_allowlist entry %r reaches %r — refused ground. The "
+                    "Gate-Rules Council's 2026-08-28 refusal stands and "
+                    "add-substantive-review-lane task 3.2 is still OPEN; "
+                    "widening onto it needs a council record, not an edit."
+                    % (pattern, ground))
+        self.assertNotIn(
+            "**", [p.strip() for p in candidate.get("path_allowlist") or []],
+            "a universal pattern is an allowlist that admits everything")
+
+    def test_the_envelope_records_the_grant_and_the_standing_refusal(self) -> None:
+        """A grant a reader cannot find is a grant nobody can audit."""
+        text = ENVELOPE.read_text(encoding="utf-8")
+        for phrase in ("Brett Heap", "2026-09-06", "#656", "2026-08-28",
+                       "task 3.2"):
+            self.assertIn(
+                phrase, text,
+                "the envelope's header must record the grant (who, when, on "
+                "what issue) AND that the council's refusal still stands for "
+                "the class it refused; %r is missing" % phrase)
+
+    def test_the_envelope_is_routed_to_a_code_owner(self) -> None:
+        """Widening the grant must be a reviewed human act.
+
+        xFactory's envelope leans on `.github/` being code-owned wholesale.
+        Here only `.github/workflows/` is, so the envelope needs its own line
+        or the one file that decides what may be autonomously approved is the
+        one file nobody is required to look at.
+        """
+        owners = CODEOWNERS.read_text(encoding="utf-8")
+        self.assertRegex(
+            owners,
+            r"(?m)^/\.github/merge-approval-envelope\.yml\s+@\S+",
+            "route the envelope to a human owner: `.github/workflows/` is "
+            "owned but `.github/merge-approval-envelope.yml` is not covered "
+            "by that entry")
+
+    # ---- THE ONE DOOR ------------------------------------------------------
+
+    def test_exactly_one_step_submits_a_review(self) -> None:
+        found = review_submitting_steps(self.document)
+        self.assertEqual(
+            len(found), 1,
+            "exactly one step may submit a review, found %d: %r. Two doors is "
+            "two things to keep gated, and the second is the one that gets "
+            "forgotten." % (len(found), [s.get("name") for s in found]))
+
+    def test_the_review_submission_is_gated_on_the_envelope_decision(self) -> None:
+        """THE POINT OF THIS MODULE, SINCE ACT A4.
+
+        `steps.envelope.outputs.decision` is written by nothing but the pinned
+        core's exit code, through the guarded emitter, so this one `if:` is the
+        whole authority chain: envelope config (base branch) -> pinned core ->
+        this literal -> one APPROVE review.
+        """
+        step = review_submitting_steps(self.document)[0]
+        self.assertIn(
+            APPROVAL_GATE, step_condition(step),
+            "the review-submitting step %r must carry %r in its `if:` — an "
+            "approval reachable any other way is an approval the envelope did "
+            "not authorise" % (step.get("name"), APPROVAL_GATE))
+
+    def test_every_step_touching_the_approver_credential_is_gated(self) -> None:
+        found = approver_credential_steps(self.document)
+        self.assertGreaterEqual(
+            len(found), 2,
+            "expected at least the mint and the submit to name the "
+            "merge-master credential; found %r"
+            % [s.get("name") for s in found])
+        for step in found:
+            with self.subTest(step=step.get("name")):
+                self.assertIn(
+                    ENVELOPE_DECISION, step_condition(step),
+                    "step %r reaches the approver credential without "
+                    "consulting the envelope decision" % (step.get("name"),))
+
+    def test_the_app_token_mint_is_scoped_to_pull_requests_and_issues(self) -> None:
+        """The installation needs `contents: write` for the approval to COUNT.
+
+        The TOKEN needs none of that: this lane submits one review
+        (`pull-requests: write`) and posts one sticky comment. The comment is
+        NOT `pull-requests` scope — "Record the envelope outcome" posts and
+        patches through the Issues Comments API, which is what a pull
+        request's general conversation thread actually is, and a GitHub App's
+        `pull_requests` permission does not gate that endpoint; `issues`
+        does. Missing either scope 403s the corresponding call, so both are
+        asserted here and nothing wider is. Scoping the mint this narrowly
+        means a compromised later step holds a token that cannot write
+        contents, merge, or touch anything else.
+        """
+        mints = [step for step in steps_of(self.document)
+                 if str((step or {}).get("uses") or "").startswith(
+                     "actions/create-github-app-token")
+                 and "MERGE_MASTER_APP_KEY" in yaml.safe_dump(step)]
+        self.assertEqual(len(mints), 1,
+                         "exactly one merge-master token mint, found %d"
+                         % len(mints))
+        with_block = (mints[0].get("with") or {})
+        self.assertEqual(
+            with_block.get("permission-pull-requests"), "write",
+            "the mint must narrow the token to `pull-requests: write` — "
+            "needed to submit the APPROVE review")
+        self.assertEqual(
+            with_block.get("permission-issues"), "write",
+            "the mint must also carry `issues: write` — the sticky comment "
+            "the 'park' path relies on to explain itself is posted through "
+            "the Issues Comments API, which `pull-requests` does not cover")
+        for scope in with_block:
+            self.assertNotIn(
+                scope, ("permission-contents", "permission-administration",
+                        "permission-actions", "permission-workflows"),
+                "the mint requests %r, which nothing in this lane writes"
+                % scope)
+
+    def test_the_workflow_token_holds_no_write_scope(self) -> None:
+        """Stricter than xFactory's caller, and deliberately so."""
+        for scope, level in (self.document.get("permissions") or {}).items():
+            with self.subTest(scope=scope):
+                self.assertEqual(
+                    level, "read",
+                    "`%s: %s` — the workflow's own GITHUB_TOKEN must stay "
+                    "read-only on a `pull_request_target` lane. The approval "
+                    "and its comment are written with the separately minted "
+                    "App token." % (scope, level))
+
+    def test_the_envelope_decision_output_carries_a_closed_world_shape(self) -> None:
+        """A `reason` with one newline must never become `decision=approve`.
+
+        `$GITHUB_OUTPUT` is a newline-delimited `key=value` file and the LAST
+        write of a key wins; `reason` comes out of the pinned core carrying
+        externally-supplied check-run and status NAMES. So the emitter refuses
+        an unrenderable value outright rather than escaping it, and `decision`
+        is one of four literals rather than interpolated text.
+        """
+        self.assertIn(
+            r'"decision": re.compile(r"\A(approve|already|skip|park)\Z")',
+            self.caller_text,
+            "the emitter must pin `decision` to a closed world of literals")
+        self.assertNotIn(
+            'echo "decision=', self.caller_text,
+            "`decision` may be written only by the guarded emitter — an "
+            "unguarded `echo` is exactly the line a hostile reason overwrites")
+
+    def test_the_floor_is_composed_over_the_envelope(self) -> None:
+        """A never-clearable path is never approvable, whatever the envelope says.
+
+        The enrolled allowlist and the floor are disjoint today, so this gate
+        can only fire on a future widening — which is precisely when nobody
+        would remember to add it.
+        """
+        self.assertIn(
+            "FLOOR_MATCHED: ${{ steps.floor.outputs.matched }}",
+            self.caller_text,
+            "the envelope step must read the floor verdict")
+        self.assertIn(
+            'if [ "${FLOOR_MATCHED:-}" != "0" ]; then', self.caller_text,
+            "anything but a literal 0 — including the EMPTY value a skipped "
+            "or failed floor step leaves — must refuse")
+
+    def test_the_envelope_is_read_from_the_base_branch(self) -> None:
+        """A pull request may never alter the rules governing its own approval."""
+        self.assertIn(
+            "CONFIG: .github/merge-approval-envelope.yml", self.caller_text,
+            "the envelope path must be a repository-relative literal resolved "
+            "against the BASE checkout, never a URL and never a head path")
+        job = (self.document.get("jobs") or {})[REQUIRED_JOB_ID]
+        for step in job.get("steps") or []:
+            env = (step or {}).get("env") or {}
+            config = str(env.get("CONFIG") or "")
+            if not config:
+                continue
+            with self.subTest(step=(step or {}).get("name")):
+                self.assertFalse(
+                    config.startswith("/") or ".." in config
+                    or config.startswith("http"),
+                    "the envelope config must be read from the base checkout, "
+                    "got %r" % config)
 
     def test_the_caller_evaluates_this_repositorys_floor(self) -> None:
         self.assertIn(
@@ -600,14 +1011,38 @@ class NegativeControls(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        # A clear assertion, not a bare `FileNotFoundError`. `TheRealFiles`
+        # already asserts each of these exists with an explanatory message,
+        # but unittest gives no ordering guarantee between classes, so a
+        # reader who runs `NegativeControls` alone (or watches it fail first)
+        # must not be left with a raw traceback pointing at `read_text`.
+        for label, path in (("caller", CALLER), ("pin", PIN),
+                            ("envelope", ENVELOPE)):
+            if not path.is_file():
+                raise AssertionError(
+                    "NegativeControls mutates the real %s file and cannot "
+                    "run without it: missing %s. See TheRealFiles for the "
+                    "assertion that normally catches this." % (label, path))
         cls.caller_text = CALLER.read_text(encoding="utf-8")
         cls.pin_text = PIN.read_text(encoding="utf-8")
+        cls.envelope_text = ENVELOPE.read_text(encoding="utf-8")
 
     def test_the_unmutated_pair_is_a_positive_first(self) -> None:
         """Ordering guard: a fixture that never passes proves nothing."""
         document = caller_document(self.caller_text)
         self.assertEqual(pinned_ref(document),
                          declared_core_commit(self.pin_text))
+
+    def test_a_missing_source_file_fails_with_a_clear_message(self) -> None:
+        """`setUpClass` must name the missing file, not leak a bare traceback."""
+        import unittest.mock as mock
+
+        missing = ENVELOPE.parent / "does-not-exist-merge-approval-envelope.yml"
+        with mock.patch(__name__ + ".ENVELOPE", missing):
+            with self.assertRaises(AssertionError) as ctx:
+                NegativeControls.setUpClass()
+        self.assertIn("envelope", str(ctx.exception))
+        self.assertIn(str(missing), str(ctx.exception))
 
     def test_a_drifted_workflow_ref_is_refused(self) -> None:
         real = declared_core_commit(self.pin_text)
@@ -662,11 +1097,75 @@ class NegativeControls(unittest.TestCase):
         self.assertNotEqual(caller_document(mutated).get("permissions"),
                             EXPECTED_PERMISSIONS)
 
-    def test_an_approval_shaped_addition_is_visible(self) -> None:
-        mutated = self.caller_text + "\n# gh pr review --approve\n"
-        hits = [needle for needle in APPROVAL_SHAPED if needle in mutated]
-        self.assertIn("gh pr review", hits,
-                      "the approval denylist must catch a review submission")
+    def test_a_merge_shaped_addition_is_visible(self) -> None:
+        mutated = self.caller_text + "\n          gh pr merge --auto \n"
+        hits = [needle for needle in MERGE_SHAPED if needle in mutated]
+        self.assertIn("gh pr merge", hits,
+                      "the merge denylist must catch a landing call")
+        self.assertIn("--auto ", hits,
+                      "the merge denylist must catch auto-merge enablement")
+
+    def test_the_unmutated_envelope_is_a_positive_first(self) -> None:
+        """Ordering guard: a fixture that never passes proves nothing."""
+        candidate = sole_candidate(yaml.safe_load(self.envelope_text))
+        self.assertEqual(candidate.get("id"), ENROLLED_CANDIDATE_ID)
+
+    def test_a_second_enrolled_candidate_is_refused(self) -> None:
+        """A second class is a NEW GRANT, and must fail loudly, not quietly."""
+        mutated = yaml.safe_load(self.envelope_text)
+        mutated["candidates"].append({
+            "id": "something-else",
+            "target_repos": ["opensoft/openxFactory"],
+            "expected_author": "openxfactory[bot]",
+            "expected_head_ref": "other/branch",
+            "path_allowlist": ["health/**"],
+        })
+        with self.assertRaises(AssertionError):
+            sole_candidate(mutated)
+
+    def test_a_widened_allowlist_is_visible(self) -> None:
+        mutated = yaml.safe_load(self.envelope_text)
+        mutated["candidates"][0]["path_allowlist"] = ENROLLED_PATHS + [
+            "openspec/changes/**"]
+        candidate = sole_candidate(mutated)
+        self.assertNotEqual(
+            candidate.get("path_allowlist"), ENROLLED_PATHS,
+            "the exact-allowlist assertion must see a widening")
+        reached = [pattern for pattern in candidate["path_allowlist"]
+                   if pattern.startswith("openspec/")]
+        self.assertTrue(
+            reached,
+            "the refused-ground assertion must see a path_allowlist that "
+            "reaches the surface the 2026-08-28 council refusal covers")
+
+    def test_a_disabled_check_gate_is_visible(self) -> None:
+        mutated = yaml.safe_load(self.envelope_text)
+        mutated["candidates"][0]["require_all_checks"] = False
+        self.assertIsNot(
+            sole_candidate(mutated).get("require_all_checks"), True,
+            "`require_all_checks: false` disables the greenness condition "
+            "entirely and must be visible to the assertion")
+
+    def test_an_ungated_review_submission_is_visible(self) -> None:
+        """Drop the one door and the door-check must fail, not shrug."""
+        mutated = self.caller_text.replace(
+            "if: env.HAS_MERGE_MASTER_APP == 'true' && "
+            + APPROVAL_GATE,
+            "if: env.HAS_MERGE_MASTER_APP == 'true'")
+        self.assertNotEqual(mutated, self.caller_text, "mutation did not apply")
+        document = caller_document(mutated)
+        submitters = review_submitting_steps(document)
+        self.assertEqual(len(submitters), 1)
+        self.assertNotIn(APPROVAL_GATE, step_condition(submitters[0]))
+
+    def test_a_widened_workflow_permission_is_visible(self) -> None:
+        mutated = self.caller_text.replace(
+            "  checks: read # head check-runs",
+            "  checks: write # head check-runs")
+        self.assertNotEqual(mutated, self.caller_text, "mutation did not apply")
+        levels = set((caller_document(mutated).get("permissions") or {}).values())
+        self.assertIn("write", levels,
+                      "a write scope on the workflow token must be visible")
 
     def test_a_broken_shell_block_is_caught(self) -> None:
         result = subprocess.run(
