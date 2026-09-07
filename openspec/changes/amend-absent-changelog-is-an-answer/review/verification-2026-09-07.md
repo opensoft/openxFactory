@@ -7,8 +7,11 @@ Captured: 2026-09-07, in lane `openxfactory-1`, on branch
 
 **This record is CAPTURED AT MERGE, not at first push, and EVERY NUMBER BELOW WAS
 RE-DERIVED PRE-CAPTURE** — on the tree this record sits in, at `origin/main`
-**`64aad02e`**, the head this branch's third and last catch-up merge took, and
-with the ratification encoded. `record-immutability` forbids editing a
+**`7f7ce75a`**, the head this branch's FOURTH and last catch-up merge took, and
+with the ratification encoded. Every figure below was taken twice — once at
+`origin/main` `64aad02e`, in the encode commit, and again on the merged tree
+after `07869a37` — and **not one of them moved**; the second column is what
+stands here. `record-immutability` forbids editing a
 `Status: record` document AFTER capture; capture is the merge of the pull request
 that establishes it, and nothing is merged yet. A commit cannot write its own
 hash into its own tree, so the ratification commit is named by its subject and
@@ -134,7 +137,8 @@ scope_globs scope-retention gate passed (scope unchanged since ratification).
 exit=0
 ```
 
-**BOTH ARMS: RETAINED.** `58654e34` is the ratification commit — verified to be
+**BOTH ARMS: RETAINED**, and re-run RETAINED a second time on the merged tree
+after `07869a37`. `58654e34` is the ratification commit — verified to be
 the FIRST commit on this branch whose `proposal.md` declares `Status: ratified`,
 which is exactly the commit the gate resolves on its own at archive time. This
 paragraph and the two blocks above it are the whole of the follow-up records
@@ -150,12 +154,12 @@ commit as the flip, and that is the last time the file is edited.
 ## 6. `python3 scripts/doc-health.py --single-repo .` — TWO CONTROLS, NOT ONE
 
 Measured against controls minutes apart on the same clock — a temporary worktree
-of `origin/main` `64aad02e` INSIDE this clone, removed afterwards — not against a
+of `origin/main` `7f7ce75a` INSIDE this clone, removed afterwards — not against a
 stale baseline.
 
 | | critical | error | warning | info |
 | --- | --- | --- | --- | --- |
-| `origin/main` `64aad02e` (worktree control) | 9 | 8 | 58 | 13 |
+| `origin/main` `7f7ce75a` (worktree control) | 9 | 8 | 58 | 13 |
 | this branch, BEFORE the ratification was encoded | 9 | 8 | 58 | 13 |
 | this branch, AFTER it was encoded | 9 | 8 | 58 | 13 |
 
@@ -220,7 +224,7 @@ archived mirror-floor-addition-grace pair — and NOT ONE of them is this packet
 ### `--family release-tag-publication`, both sides
 
 ```
-control (origin/main 64aad02e): Findings: 0 critical, 0 error, 0 warning, 1 info
+control (origin/main 7f7ce75a): Findings: 0 critical, 0 error, 0 warning, 1 info
 branch                        : Findings: 0 critical, 0 error, 0 warning, 1 info
 ```
 
@@ -232,7 +236,7 @@ published tip.
 ### `--family modified-block-currency`, and the marker probe both ways
 
 ```
-control (origin/main 64aad02e): Findings: 0 critical, 0 error, 0 warning, 8 info
+control (origin/main 7f7ce75a): Findings: 0 critical, 0 error, 0 warning, 8 info
 branch                        : Findings: 0 critical, 0 error, 0 warning, 8 info
 ```
 
@@ -288,7 +292,7 @@ absent (an ANSWER, `(None, None)`, not an unlistable `None`), its first-parent
 walk declaring the bundle throughout so the distance arm reaches its error band.
 The runs differ in ONE seam answer and in nothing else.
 
-| the shim's `contracts/CHANGELOG.md` | at `origin/main` `64aad02e` | on this branch |
+| the shim's `contracts/CHANGELOG.md` | at `origin/main` `7f7ce75a` | on this branch |
 | --- | --- | --- |
 | absent — per-path `None` at a HELD tip, tree LISTS NO SUCH PATH | ONE `Skip` (held words), nothing graded | ONE `error` on `contracts/manifest.yaml` naming the untagged bundle, PLUS one `info` on `contracts/CHANGELOG.md` recording the read |
 | present and EMPTY | ONE `error` on `contracts/manifest.yaml` | unchanged — the same ONE `error` |
@@ -342,11 +346,12 @@ as there being none
 ## 9. `python3 -m pytest tests/doc-health -q`
 
 ```
-1593 passed, 7 warnings in 277.40s (0:04:37)
+1593 passed, 7 warnings in 278.47s (0:04:38)
 ```
 
-`tests/doc-health/test_release_tag_publication.py` alone: **152 passed** (146 on
-`origin/main` `64aad02e` — six ADDED and one CONVERTED).
+`tests/doc-health/test_release_tag_publication.py` alone: **152 passed**, against
+**146 passed** measured in the `origin/main` `7f7ce75a` worktree control on the
+same clock — six ADDED and one CONVERTED.
 
 **A STATUS FLIP ADDS NO TEST**, and the count is identical before and after the
 ratification was encoded.
@@ -374,11 +379,15 @@ took no fourth, `origin/main` having not moved past `64aad02e`:
 | `787130fb` | `44d8fbaf` | ONE conflict, `README.md`, where both sides added a row at the top of *Active changes*; BOTH rows kept, neither edited. Its own message says *"No conflict"* and carries git's `# Conflicts:` block below its trailers — the message is wrong and the content is right, and history is not rewritten for it |
 | `2f8f93d0` | `d52e6b88` | UNDOCUMENTED: git's bare default merge message, no `Lane:` trailer, no body. It brought only `main`'s own commits and touched nothing of this packet |
 | `5f0154e6` | `64aad02e` | No conflict; the six paths `main` moved are `openspec/changes/add-chain-attestation/tasks.md`, three validator scripts and two files under `tests/sequenced_after/`, none of which this branch edits |
+| `07869a37` | `7f7ce75a` | Taken AFTER the ratification was encoded. No conflict: `main` added the Apache-2.0 `LICENSE`, a four-line `## License` section at the END of `README.md` — several thousand lines below the OpenSpec Records block this branch edits — and split `scripts/ideation_dashboard/serve.py` with its tests. Nothing under `scripts/doc_health/` or `tests/doc-health/` moved. Written message and `Lane:` trailer, unlike `2f8f93d0` |
 
-**No ledger row moved and no partner flipped in any of the three.** If `main`
-moves again before this pull request lands, the branch takes another merge and
-every number here is re-derived a second time, in a SEPARATE commit touching only
-`review/` files, before capture.
+**No ledger row moved and no partner flipped in any of the four.** **AND THE
+FOURTH IS WHY THIS FILE IS THE ONLY THING THE FOLLOW-UP COMMITS TOUCH**: when
+`main` moves after the encode, the branch takes the merge and every number here
+is re-derived, in a SEPARATE commit touching `review/` files only, so the
+RATIFYING commit — `58654e34`, the first commit whose `proposal.md` declares
+`Status: ratified` — never moves. If `main` moves again before this pull request
+lands, that is done a third time, before capture.
 
 ## 11. Independent review
 

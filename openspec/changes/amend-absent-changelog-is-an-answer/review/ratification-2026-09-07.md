@@ -39,15 +39,20 @@ the pinned 1.12 route and the verification run captured beside this file at
 PRE-CAPTURE.** `record-immutability` forbids editing a `Status: record` document
 AFTER capture; capture is the merge of the pull request that establishes it, and
 nothing is merged yet. Every number in `verification-2026-09-07.md` was
-re-derived on the tree this record sits in, at `origin/main` **`64aad02e`** — the
-head this branch's third and last catch-up merge took. **THREE MERGES FROM
-`main` STAND ON THIS BRANCH, AND ALL THREE ARE NAMED**: `787130fb` (taking
+re-derived on the tree this record sits in, at `origin/main` **`7f7ce75a`** — the
+head this branch's FOURTH and last catch-up merge took. **FOUR MERGES FROM
+`main` STAND ON THIS BRANCH, AND ALL FOUR ARE NAMED**: `787130fb` (taking
 `44d8fbaf`, with one `README.md` conflict where both sides added a row at the top
 of the *Active changes* block and BOTH rows were kept), `2f8f93d0` (taking
 `d52e6b88`, an undocumented merge carrying git's bare default message and no
 `Lane:` trailer, which brought only `main`'s own commits and touched nothing of
-this packet) and `5f0154e6` (taking `64aad02e`). The ratification encode took no
-fourth merge, `origin/main` having not moved past `64aad02e`. A commit cannot
+this packet), `5f0154e6` (taking `64aad02e`) and `07869a37` (taking `7f7ce75a`,
+after the ratification was encoded — the Apache-2.0 `LICENSE`, a four-line
+`## License` section appended to the END of `README.md`, and the
+ideation-dashboard `serve.py` split; no conflict, nothing under
+`scripts/doc_health/` or `tests/doc-health/` moved, and every number was
+re-derived on the merged tree in a records-only commit that leaves the ratifying
+commit exactly where it is). A commit cannot
 write its own hash into its own tree, so the ratification commit is named by its
 subject and its position on the branch rather than by a hash.
 
