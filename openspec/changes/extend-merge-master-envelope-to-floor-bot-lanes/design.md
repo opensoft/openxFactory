@@ -177,7 +177,51 @@ from CODEOWNERS — refused here, it weakens the human gate on a governance surf
 for every author, not just the bot; (c) keep the human click. § 5 carries (a) as
 the enabling act and names (c) as what happens if it is refused.
 
-### 2.3 Refusal three — codexFactory's envelope does not admit this author or this surface
+### 2.2a Refusal three — and it is PROMOTED CANON, not configuration
+
+The three sections around this one describe settings and code. This one
+describes a ratified requirement, and it is the reason none of the options below
+is a configuration change.
+
+codexFactory `openspec/specs/merge-master-approval/spec.md:175-186`, **promoted**,
+originally ratified by `2026-07-28-add-merge-master-autonomous-approval`:
+
+```
+### Requirement: Bounded autonomous surface
+
+The autonomous-approval mechanism MUST NOT approve any pull request outside
+the allowlisted bot-authored in-envelope surfaces, and MUST NOT approve any
+pull request on a surface scoped to a human gate (a CODEOWNERS-scoped path) or
+authored by a human. …
+
+#### Scenario: A human-gated surface is untouched
+
+- **WHEN** a candidate pull request touches any CODEOWNERS-scoped path
+- **THEN** no autonomous approval is submitted and the human gate is required
+```
+
+**Every path either bot lane writes is a CODEOWNERS-scoped path** — § 2.2's table
+is the enumeration. So the prohibition is not incidental to these two lanes; it
+names them exactly.
+
+And it has been REAFFIRMED, not relaxed, by the change that widened this
+mechanism the furthest. codexFactory's active `add-regular-pr-council-clearance`
+carries a `## MODIFIED` block on this very requirement
+(`openspec/changes/add-regular-pr-council-clearance/specs/merge-master-approval/spec.md:130`,
+scenario at `:143`) which keeps the CODEOWNERS clause intact, and its proposal
+states the position in terms that leave no room for reading it as a soft default:
+*"CODEOWNERS-scoped governance paths remain absolutely forbidden"*
+(`proposal.md:527`), *"Human-authored, CODEOWNERS-scoped … remain parked for the
+human gate"* (`:622`). Even the tier-2 council-clearance route — a unanimous
+SHA-pinned council verdict — does not reach a CODEOWNERS-scoped path.
+
+**The consequence, stated plainly: admitting EITHER lane requires a `## MODIFIED`
+narrowing a promoted requirement that the estate has just re-declared absolute.**
+Not a config edit, not a ruleset click, and not something a lane may do quietly
+as part of a realization. It changes the answer to N-1's cost comparison (§ 2.4),
+to N-5's surface, and to OQ-2 — which this finding effectively answers.
+
+### 2.3 Refusal four — codexFactory's envelope does not admit this author or this surface
 
 codexFactory `.github/merge-approval-envelope.yml` enrols one candidate,
 `codexfactory-routine-code` (`:29`). It fails the regeneration lane twice over:
@@ -203,14 +247,24 @@ declare** — no floor is touched, and no decision-core code changes.
 | | codexFactory regeneration lane | openxFactory re-pin lane |
 |---|---|---|
 | floor composed over the envelope | not present (§ 2.3) | **refuses today** (§ 2.1) |
-| code-owner review | one ruleset bypass (§ 2.2) | one ruleset bypass (§ 2.2) |
+| code-owner review ruleset | one bypass act (§ 2.2) | one bypass act (§ 2.2) |
+| promoted "Bounded autonomous surface" | **`## MODIFIED` required** (§ 2.2a) | **`## MODIFIED` required** (§ 2.2a) |
 | candidate class exists | no — must be declared | no — must be declared |
-| decision-core change needed | **none** | **yes** — carve the composition at `merge-master-approval.yml:1499` |
-| governance ground weakened | none | the "choose its own judge" ground |
+| decision-core change needed | none | **yes** — carve the composition at `merge-master-approval.yml:1499` |
+| governance grounds weakened | ONE — the CODEOWNERS-scoped prohibition | TWO — that, plus "choose its own judge" |
 
-The regeneration lane is reachable with configuration and one ruleset act. The
-re-pin lane is reachable only by weakening the exact ground § 6.3 named. That
-asymmetry is the whole of the recommendation in N-1.
+**NEITHER LANE IS A CONFIGURATION CHANGE.** That is the correction § 2.2a forces,
+and it is the single most important thing on this page: the § 6.3 framing, the
+governing issue and this packet's own first draft all treated the extension as an
+enrolment plus a click, and it is not. Both lanes require narrowing a promoted
+requirement that codexFactory canon calls absolutely forbidden.
+
+What survives the correction is the ASYMMETRY, and it is what N-1 turns on: the
+regeneration lane weakens ONE ground, the re-pin lane weakens that same ground
+AND the "choose its own judge" ground, and additionally needs a decision-core
+carve and a re-pin cycle to make the carve live. The regeneration lane is
+strictly cheaper by every measure, and each lane buys back exactly one of the two
+clicks.
 
 ## 3. Authoring decisions
 
@@ -222,20 +276,28 @@ Each decision states the recommendation, the alternatives, and what a veto costs
 **RECOMMENDED: admit the codexFactory regeneration lane ONLY. Leave the
 openxFactory re-pin lane on a human merge word.**
 
-Grounds, all from § 2. The regeneration lane costs one new candidate class in a
-code-owned file, one shape assertion, one auto-merge step, and one ruleset bypass
-— and it weakens no governance ground: `scripts/merge_master/openxfactory-review-authority-floor.yaml`
-is not on any floor composed over any envelope, its content is machine-generated
-from a source of truth in another repository, its diff is judged by codexFactory
-`validate` and by `tests/merge-master/test_repository_gate_floor.py`, and reverting
-the merge restores the prior tree exactly. The re-pin lane costs all of that PLUS
-a change to the pinned decision core that makes a never-clearable floor member
-conditionally clearable — which is the thing the floor's own comment says must
-not happen.
+Grounds, all from § 2, and stated with the § 2.2a correction included rather than
+around it. **This is not a cheap option; it is the cheapest option that exists.**
+The regeneration lane costs one new candidate class in a code-owned file, one
+shape assertion, one auto-merge step, one ruleset bypass act, AND a `## MODIFIED`
+narrowing the promoted `Bounded autonomous surface` requirement — because its one
+writable path is code-owner scoped and canon forbids approving there. It weakens
+exactly ONE governance ground, that one.
 
-And the benefit is symmetrical: the cycle costs two human merges, and admitting
-either lane removes one of them. **Half the cost is bought for none of the
-governance risk.**
+What it does NOT weaken, and this is the whole of the asymmetry:
+`scripts/merge_master/openxfactory-review-authority-floor.yaml` is not on any
+floor composed over any envelope (§ 2.3), its content is machine-generated from a
+source of truth in another repository, its diff is judged by codexFactory
+`validate` and by `tests/merge-master/test_repository_gate_floor.py`, and
+reverting the merge restores the prior tree exactly. The re-pin lane costs
+everything above PLUS a change to the pinned decision core making a
+never-clearable floor member conditionally clearable — the thing the floor's own
+comment exists to prevent — PLUS a re-pin cycle to make that carve live.
+
+The benefit is symmetrical and small: the cycle costs two human merges, and
+admitting either lane removes one of them. **One click per cycle is what is being
+bought, and § 2.2a is the price.** Whether that trade is worth taking at all is
+N-1 (d), and it is a serious option rather than a courtesy one.
 
 Alternatives, each one veto away:
 
@@ -249,9 +311,28 @@ Alternatives, each one veto away:
   cheaper one. Recorded so the inversion is on the record rather than silently
   dropped.
 - **(d) neither — status quo.** Two clicks per cycle, nothing carved, nothing
-  declared. Entirely defensible: the lanes are seven days old, three defects were
-  found by running them, and the cost being bought back is two clicks an hour at
-  worst and in practice far less.
+  declared, and no promoted requirement narrowed. **Strengthened by § 2.2a into a
+  serious contender rather than a courtesy option**: the lanes are a day old,
+  three defects were found by running them, the thing being bought is one or two
+  clicks on an hourly cycle, and the price is narrowing a requirement the estate
+  re-declared absolute eleven days ago. A reader who ranks those differently to
+  this packet should take (d), and the packet is written so that (d) costs
+  nothing already spent.
+- **(e) SATISFY THE CANON INSTEAD OF NARROWING IT — move the derived artifact off
+  the code-owner-gated surface.** `Bounded autonomous surface` forbids approving
+  on a CODEOWNERS-scoped path. It says nothing against approving a
+  machine-generated artifact that is not on one. Splitting the floor document's
+  machine-generated block into its own file outside `/scripts/` — read by the
+  core exactly as now, with the hand-reasoned chokepoints staying where they are
+  and staying code-owned — would leave the prohibition intact, word for word,
+  and make the regeneration lane admissible under canon as written. **Not
+  recommended for THIS packet, and the reason is scope, not merit**: it is a
+  change to what the decision core reads and to the floor document's shape, it
+  touches `repository_floor_drift.py` and the LS-A3 mirror, and it is
+  codexFactory's architecture to decide. It is recorded because it is the only
+  option on this page that buys the click WITHOUT weakening a governance ground,
+  and an owner reading § 2.2a should know it exists before ruling. If N-1 is
+  refused on § 2.2a grounds, **(e) is the successor to file.**
 
 ### N-1b — THE CARVE, and it is only live if N-1 is vetoed to (b)
 
@@ -394,8 +475,13 @@ Under N-1 (a), recommended:
 | codexFactory | `.github/merge-approval-envelope.yml` | second candidate `openxfactory-floor-regeneration`, per N-2 |
 | codexFactory | `tests/merge-master/test_enrolled_surface_config.py` | assert the exact new shape — two candidates, these exact paths, `require_all_checks: true` |
 | codexFactory | `.github/workflows/floor-regeneration.yml` | arm auto-merge on the opened pull request (§ 1.3 — the approval merges nothing) |
+| codexFactory | `openspec/specs/merge-master-approval/spec.md` § *Bounded autonomous surface* | **`## MODIFIED`, and it is the load-bearing act** (§ 2.2a) — narrow the CODEOWNERS-scoped prohibition to admit one named machine-derived class, leaving it absolute for every other candidate and every human author |
 | codexFactory | ruleset `Require Code Owner Review` | add the merge-master App as bypass actor — **Brett's act**, § 5.3 |
 | openxFactory | this packet's spec deltas | the rules; no code |
+
+The codexFactory companion is therefore **not a configuration pull request**. It
+carries a `## MODIFIED` on promoted canon and belongs in that repository's normal
+governance path with whatever instrument OQ-2 selects.
 
 Under a veto to N-1 (b), add: openxFactory `.github/merge-approval-envelope.yml`
 (second candidate), `tests/review_lane_pin/test_review_lane_caller.py` (its
@@ -421,12 +507,20 @@ running, not by reading).
   declaring nothing.
 - **OQ-2.** Should the second codexFactory candidate be enrolled on Brett's word
   alone, mirroring the `intent-rolling-custody` grant, or does it need a
-  Gate-Rules Council record? The 2026-08-28 unanimous refusal stands for the class
-  it refused — a class over `openspec/changes/**` — and this class admits no
-  `openspec/` path, so the refusal is undisturbed on its face
-  (`.github/merge-approval-envelope.yml:15-22`). But `scripts/**` is a heavier
-  surface than a record tree, and `add-substantive-review-lane` task 3.2 is still
-  open.
+  Gate-Rules Council record? **§ 2.2a effectively answers this and the answer is
+  the council**, and the packet says so rather than leaving the owner to infer
+  it. The `intent-rolling-custody` precedent is a word over a record tree that no
+  CODEOWNERS entry gates and no promoted requirement forbids; this class needs a
+  `## MODIFIED` to a requirement codexFactory canon calls absolutely forbidden and
+  reaffirmed eleven days ago. A word can grant a candidate class inside the rules;
+  it should not be the instrument that changes the rule, and
+  `add-substantive-review-lane` task 3.2 — the council's general grant of an
+  operable candidate class — is still open. The recommendation is therefore a
+  council record; the owner may of course rule otherwise, and that ruling belongs
+  on the record precisely because the alternative was named.
+  (The 2026-08-28 unanimous refusal is undisturbed either way: it refused a class
+  over `openspec/changes/**`, and this class admits no `openspec/` path —
+  `.github/merge-approval-envelope.yml:15-22`.)
 - **OQ-3.** The `intent-rolling-custody` precedent pairs a bot approval with a
   lane that arms auto-merge on its own side (ruling D-3 on #656). Should the floor
   lanes do the same, or should the merge-master lane learn to merge? This packet

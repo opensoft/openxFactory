@@ -526,7 +526,15 @@ Active changes:
   enrols ONE candidate, `intent-rolling-custody` — NOT the doc-health nightly,
   which is `opensoft/xFactory`'s candidate and is cited here only as the
   precedent. Three refusals stand between the bot lanes and the envelope, all
-  verified in the tree: (1) the floor is composed OVER the envelope
+  verified in the tree: (0) **PROMOTED CANON FORBIDS BOTH LANES** — codexFactory
+  `openspec/specs/merge-master-approval/spec.md:175-186` § *Bounded autonomous
+  surface* says the mechanism "MUST NOT approve any pull request on a surface
+  scoped to a human gate (a CODEOWNERS-scoped path)", every path either lane
+  writes is one, and the active `add-regular-pr-council-clearance` reaffirmed it
+  ("CODEOWNERS-scoped governance paths remain absolutely forbidden"), so
+  **NEITHER LANE IS A CONFIGURATION CHANGE**: admitting either needs a
+  `## MODIFIED` to that promoted requirement; (1) the floor is composed OVER the
+  envelope
   (`.github/workflows/merge-master-approval.yml:1499` parks anything with
   `FLOOR_MATCHED != 0`) and `contracts/review-lane-pin.yaml` IS a never-clearable
   member, so **the re-pin lane cannot be enveloped today whatever is declared**;
@@ -537,10 +545,18 @@ Active changes:
   **Recommendation N-1 therefore INVERTS the expected reading**: admit the
   codexFactory REGENERATION lane, leave the openxFactory RE-PIN lane on a human
   word — half the per-cycle cost for none of the governance risk, since the
-  re-pin lane is reachable only by carving the very ground ("a clearable pin
-  would let a pull request choose its own judge") that § 6.3 named. Six decisions
-  N-1, N-1b, N-2..N-5, each with alternatives and the cost of a veto; three open
-  questions OQ-1..3. **8 ADDED requirements** — 5 on `roles-authority-model`
+  re-pin lane weakens TWO governance grounds where the regeneration lane weakens
+  ONE, and additionally needs a decision-core carve of the very ground ("a
+  clearable pin would let a pull request choose its own judge") that § 6.3 named
+  plus a re-pin cycle to make the carve live. **N-1 (d) status quo is a serious
+  contender**, and **N-1 (e)** records the only option that buys the click
+  WITHOUT weakening any ground — move the machine-generated floor block off the
+  code-owner-gated surface and satisfy the canon as written; if N-1 is refused,
+  (e) is the successor to file. Six decisions N-1, N-1b, N-2..N-5, each with
+  alternatives and the cost of a veto; three open questions OQ-1..3, of which
+  **OQ-2 is answered with a recommendation for a Gate-Rules Council record**
+  rather than a word, since the act changes a rule rather than granting a class
+  inside it. **8 ADDED requirements** — 5 on `roles-authority-model`
   (per-lane enrolment, floor-over-envelope with carve-not-removal, judge-writing
   lanes behind named safeguards, one-edit kill switch, approval is not a merge)
   and 3 on `review-lane-floor-mirror`; no `## MODIFIED` and no `## REMOVED`.

@@ -53,6 +53,26 @@ halves cannot drift, exactly as the option-(b) pair did.
   The file's own rule is that "Adding a second is not a configuration change: it
   is a new grant, needing its own word or its own council record" — resolve
   OQ-2 (word or council) before authoring, not after.
+- [ ] 2.1a **THE LOAD-BEARING ACT, AND IT IS A CANON CHANGE.** Carry a
+  `## MODIFIED Requirements` block on codexFactory
+  `openspec/specs/merge-master-approval/spec.md` § *Bounded autonomous surface*,
+  narrowing its CODEOWNERS-scoped prohibition to admit ONE NAMED machine-derived
+  candidate class while leaving it absolute for every other candidate and every
+  human author. **Without this the enrolment is void as declared**: the promoted
+  requirement says "MUST NOT approve any pull request on a surface scoped to a
+  human gate (a CODEOWNERS-scoped path)", and the lane's single writable path is
+  code-owner scoped. Preserve every scenario the current requirement carries — a
+  `## MODIFIED` requirement replaces the whole block, and the archive gate
+  refuses a dropped scenario. Reconcile with the `## MODIFIED` block the active
+  `add-regular-pr-council-clearance` already holds on the same requirement,
+  whose proposal states the position being narrowed as "CODEOWNERS-scoped
+  governance paths remain absolutely forbidden" — the two blocks must not
+  disagree about what the requirement says.
+- [ ] 2.1b Record in the companion's own design why narrowing the requirement is
+  preferred to option (e) of decision N-1 — moving the machine-generated block
+  off the code-owner-gated surface, which would satisfy the requirement as
+  written instead of narrowing it — or, if (e) is preferred on reflection, file
+  it as the successor and refuse the narrowing.
 - [ ] 2.2 Declare the candidate with the N-2 members and no others:
   `target_repos: [opensoft/codexFactory]`; `expected_author: openxfactory[bot]`;
   `expected_head_ref: floor/bot-regeneration` in the EXACT form, not the pattern
@@ -163,11 +183,18 @@ halves cannot drift, exactly as the option-(b) pair did.
   outcome is N-1 (d) and this packet should be refused rather than realized into
   an enrolment that cannot land anything.
 - [ ] 5.4 Answer OQ-1 (is the bypass shape acceptable at all), OQ-2 (word or
-  Gate-Rules Council record for the second codexFactory candidate, given that
-  `scripts/**` is a heavier surface than a record tree and
-  `add-substantive-review-lane` task 3.2 is still open) and OQ-3 (lanes arm
-  auto-merge, versus teaching the merge-master lane to merge — this packet
-  recommends the former and proposes nothing about the latter).
+  Gate-Rules Council record for the second codexFactory candidate — **this packet
+  recommends the COUNCIL**, because § 2.2a of `design.md` shows the act is not a
+  grant inside the rules but a `## MODIFIED` to a promoted requirement canon calls
+  absolutely forbidden, and `add-substantive-review-lane` task 3.2 is still open)
+  and OQ-3 (lanes arm auto-merge, versus teaching the merge-master lane to merge —
+  this packet recommends the former and proposes nothing about the latter).
+- [ ] 5.5a Rule on option (e) of N-1 — satisfy `Bounded autonomous surface` as
+  written by moving the machine-generated floor block off the code-owner-gated
+  surface, instead of narrowing the requirement. It is the only option on the
+  page that buys the click without weakening a governance ground, it is
+  codexFactory's architecture to decide, and if N-1 is refused on § 2.2a grounds
+  it is the successor to file.
 - [ ] 5.5 Give the realization word, separately, after 5.1 and 5.2. Ratification
   performs no realization: it ratifies the PROPOSAL, and every act in groups 2
   through 4 waits on its own word.
