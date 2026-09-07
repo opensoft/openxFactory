@@ -621,11 +621,17 @@ Active changes:
   1, taken, `design.md` **D3a**): a held commit licenses *"no readable blob came
   back"* and never *"the commit carries no such file"*, and grading is a claim
   about the FILE — so `ls_tree_paths` is consulted once on that arm, the family
-  grades ONLY where the tree lists no such path, and a store that cannot serve
-  what it lists keeps the skip, as does a listing that cannot be performed.
-  Without it a damaged object store would read a real SPENT declaration as absent
-  and answer an EXTINGUISHED obligation with a FALSE `error`.
-  `tests/doc-health/test_release_tag_publication.py` 146 → 151, one existing
+  grades ONLY where the tree lists no such path, and a tree that LISTS AN ENTRY
+  at that path whose blob does not come back keeps the skip, as does a listing
+  that cannot be performed. Without it a damaged object store would read a real
+  SPENT declaration as absent and answer an EXTINGUISHED obligation with a FALSE
+  `error`. **AND BOTH KEPT SKIPS NAME ONLY WHAT THEY ESTABLISHED** (fix round):
+  an earlier draft called the middle case *"an object store that cannot serve
+  what it lists"*, which is a CAUSE this arm never checks — `ls-tree -r
+  --name-only` filters by no object type, so a GITLINK this clone cannot resolve
+  lists exactly as a lost blob does — and both skips now also say the tip is one
+  *"WHICH THIS CLONE HOLDS"*, both standing below the held-tip split.
+  `tests/doc-health/test_release_tag_publication.py` 146 → 152, one existing
   test CONVERTED (its subject was the held case's skip) and its every literal
   re-asserted on the `info`. **THE VETO POINT IS `design.md` D1** — option A
   (split the arm and grade) against option B (keep the skip, distinct reason

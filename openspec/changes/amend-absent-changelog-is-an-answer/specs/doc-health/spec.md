@@ -435,7 +435,13 @@ is to the scenario *The changelog cannot be read at the published tip*: its
 `THEN` bullet and the `AND` bullet below it are REPLACED. No scenario is added,
 removed or retitled, no other scenario's bullets move, no threshold moves, no
 path moves, and the severity of every finding this family already emits is
-unchanged.
+unchanged. **AND "ENTRY" AND "PATH" NAME ONE TREE FACT, NOT TWO.** The promoted
+`WHEN` above says *"the tree carries no such entry"* and the bullets this block
+adds say the tree carries, or carries no such, *path*; both name the SAME
+question asked of the same tree object — whether the tree at that commit holds
+anything at `contracts/CHANGELOG.md` — and the word varies only because each
+sentence reads better with one of them. Nothing turns on the difference, and
+no reader should hunt for a distinction that is not there.
 
 A TIP THIS CHECKOUT HOLDS AT WHICH NO DOCUMENT CAME BACK IS AN ANSWER, AND AN
 ANSWER IS GRADED. The note above settled which of the two facts holds at this
@@ -481,11 +487,13 @@ held tip is owed instead. Nothing else in this requirement is dropped.
 
 **Removed from canon by amend-absent-changelog-is-an-answer (2026-09-07):**
 ``**AND** where the commit IS held, the skip MUST SAY THAT and MUST state the presence — naming the held commit and the read that returned nothing at it, and NOT asserting a file absence the held commit does not establish — because a tip this checkout holds is an ANSWER rather than a read that failed, and reporting it in the unfetched case's words sends a reader to look for a fetch defect that does not exist`` — it
-constrains the wording of a skip that the held case no longer emits, so leaving
-it standing would require a report this family has stopped making; the unit is
-REPLACED rather than deleted, by a bullet that carries its narrowing verbatim —
-the presence stated, the file absence not asserted — onto the record that takes
-the skip's place. Nothing else in this requirement is dropped.
+constrains the wording of a skip the ESTABLISHED-ABSENCE case no longer emits,
+so leaving it standing would require a report this family has stopped making at
+that read; the unit is REPLACED rather than deleted, by a bullet that carries its
+narrowing verbatim — the presence stated, the file absence not asserted — onto
+the record that takes the skip's place, and by a THEN that carries the same
+narrowing onto the two skips a held tip still emits. Nothing else in this
+requirement is dropped.
 
 #### Scenario: The declaring commit is still the published tip
 - **WHEN** a repository declares a bundle at or above the enforcement line, that bundle has no published annotated tag, and the earliest commit declaring it is still the tip of published `main`

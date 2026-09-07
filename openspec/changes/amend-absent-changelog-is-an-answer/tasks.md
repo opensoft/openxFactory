@@ -85,8 +85,9 @@ this pull request or a measurement recorded verbatim in the pull request body.
       FILE, which the held commit alone does not license. So `ls_tree_paths` is
       called once on that arm with the document's own path: where the tree does
       not list it the absence is ESTABLISHED and the bundles are graded; where
-      the tree DOES list it the store cannot serve what it lists and the SKIP
-      STANDS, saying so; where the listing itself fails the fact is
+      the tree DOES list an ENTRY at it and no readable blob comes back the read
+      FAILED and the SKIP STANDS, saying those two facts and naming no cause the
+      listing did not check (§ 3.7b); where the listing itself fails the fact is
       UNESTABLISHED and the skip stands, saying that. Without it a damaged
       object store would read a REAL SPENT declaration as absent and answer an
       EXTINGUISHED obligation with a FALSE `error`. `design.md` **D3a**.
@@ -129,7 +130,7 @@ this pull request or a measurement recorded verbatim in the pull request body.
       window, same floor, same `return []` for a below-floor repository with no
       changelog, same skip for every other unaskable question. No severity of an
       existing finding changes and no existing finding's path moves.
-- [x] 3.7 `tests/doc-health/test_release_tag_publication.py` **146 → 151**: FIVE
+- [x] 3.7 `tests/doc-health/test_release_tag_publication.py` **146 → 152**: SIX
       ADDED and ONE CONVERTED.
       - ADDED `test_a_held_tip_with_no_changelog_grades_exactly_as_an_empty_one_does`
         — D6's pair kept as a regression test: two shims one blob apart must
@@ -146,11 +147,56 @@ this pull request or a measurement recorded verbatim in the pull request body.
         back, and the skip STANDS in words that say which fact it has.
       - ADDED `test_a_held_tip_whose_tree_cannot_be_listed_fails_closed` — the
         listing itself fails, nothing is established, nothing is graded.
+      - ADDED `test_a_below_floor_repository_reaches_no_third_state_skip_either`
+        — see § 3.7a.
       - CONVERTED `test_an_absent_changelog_says_the_tip_is_held_rather_than_unfetched`
         — see § 3.8.
       A shared `_EmptyChangelog` shim is added beside `_NoChangelog`, differing
       from it in one blob, so any difference the tests observe is attributable to
       that blob alone.
+- [x] 3.7a **THE `in_scope` GATE ON D3a'S TREE CONSULTATION IS PINNED, AND IT
+      WAS NOT** (PR #753 fix round). Dropping `and in_scope` from that guard
+      left all 151 tests GREEN: the below-floor control ran through
+      `_NoChangelog` alone, whose tree lists nothing, so it reached neither
+      branch the gate holds back, and the `info` below carries a gate of its
+      own. Unpinned, the mutation would give a repository nobody obliged to
+      write a changelog a permanent "not checked" whose skip names an EMPTY set
+      of bundles it declined to look for.
+      `test_a_below_floor_repository_reaches_no_third_state_skip_either` runs
+      the below-floor control through `_TreeListsChangelog` AND `_UnlistableTree`
+      — held tip and unfetched, four combinations — asserting `[]` from each,
+      with a POSITIVE CONTROL one version up so it cannot pass over a deleted
+      branch. The mutation now fails exactly this test and nothing else; § 3.9
+      carries the measurement.
+- [x] 3.7b **THE TWO SKIPS D3a KEEPS ARE REWORDED TO WHAT THEY ESTABLISHED, AND
+      BOTH NOW STATE THE PRESENCE** (PR #753 fix round). The damaged-store skip
+      said the read was *"an object store that cannot serve what it lists"* — a
+      CAUSE, and one this arm never checks: `ls_tree_paths` runs `ls-tree -r
+      --name-only`, which filters by no object type, so a GITLINK whose target
+      this clone does not hold lists exactly as a lost blob does (measured on a
+      constructed repository: the submodule path lists while `cat-file --batch`
+      answers `missing`). It now says the two facts it has — the tree at that
+      commit LISTS AN ENTRY at that path, and no readable blob came back for it
+      — and the conclusion they support: a READ THAT FAILED. The listing was NOT
+      made type-aware: it would widen the seam to buy a distinction neither arm
+      acts on. AND both skips now say the tip is one *"WHICH THIS CLONE HOLDS"*,
+      because both stand BELOW the held-tip split and a skip that leaves the
+      presence unstated is the unfetched case's words — #688's rule, applied to
+      the two skips a held tip still emits. Both wordings are pinned, and the
+      retired cause is pinned against NEGATIVELY.
+- [x] 3.7c **THE `info`'S CLAIM IS QUALIFIED TO THE PATH IT READ** (PR #753 fix
+      round, NOTE taken). *"NO SPENT DECLARATION EXISTS"* was unqualified, and a
+      declaration written at a differently-cased or differently-placed path
+      would still yield it; it now reads *"NO SPENT DECLARATION EXISTS at
+      `contracts/CHANGELOG.md`"*. Its NEGATION is brought into line with the
+      reworded arms in the same breath — *"neither an unfetched commit nor a
+      listed entry whose blob did not come back"*, where it had named the
+      retired cause — so the module states the same three answers in one
+      vocabulary. The module comment claiming the tree is
+      consulted *"ONCE, AND ONLY HERE"* is corrected to ONCE ON THIS ARM:
+      `cut_bundles` already lists the tree under `contracts/releases/` on every
+      run of every repository, so this is the second listing and not the first.
+      No finding's severity, path or identity moves.
 - [x] 3.8 **ONE EXISTING TEST IS EDITED, AND THE REASON IS THAT ITS ASSERTION
       BECAME FALSE.** `test_an_absent_changelog_says_the_tip_is_held_rather_than_unfetched`
       asserted `isinstance(out, Skip)` for the HELD case — the exact report this
@@ -163,11 +209,17 @@ this pull request or a measurement recorded verbatim in the pull request body.
       record cannot be mistaken for a skip. **No other existing test is touched**
       — the other two changelog tests reach the unfetched arm, which does not
       move.
-- [x] 3.9 **THE MUTATION PROBE ON BOTH GUARDS.** Reverting the split to
-      `if changelog is None:` fails exactly two tests — the converted one and the
-      D6 pair — and nothing else; disabling D3a's tree branch fails exactly the
-      third-state test; restoring each returns 151 passed. The results are
-      carried in the pull request.
+- [x] 3.9 **THE MUTATION PROBE ON ALL THREE GUARDS, RE-MEASURED AT THE
+      FIX-ROUND HEAD.** The numbers below replace an earlier draft's, which were
+      arithmetic from the pre-D3a design and were never re-taken after D3a
+      landed. Reverting the held-tip split to `if changelog is None:` fails
+      FIVE — the converted test, the D6 pair, both D3a third-state tests, and
+      the below-floor third-state test (5 failed, 147 passed). Disabling D3a's
+      tree consultation fails THREE — both third-state tests and the below-floor
+      one (3 failed, 149 passed). Dropping `and in_scope` from that same
+      consultation fails ONE (1 failed, 151 passed), and § 3.7a is the only
+      thing that catches it. Restoring all three returns 152 passed. The
+      results are carried in the pull request.
 - [x] 3.10 **NO DEPLOYMENT HANDOFF IS IN SCOPE.** The realization lands in this
       repository's own `scripts/` and `tests/`, not onto a registered managed
       subject of another factory, so no correlation identifier is owed under
@@ -229,7 +281,7 @@ this pull request or a measurement recorded verbatim in the pull request body.
       adds NO undispositioned failure. Output carried verbatim in the pull
       request.
 - [x] 5.2 `python3 -m pytest tests/doc-health -q` and the module count 146 →
-      151. Carried in the pull request § Verification.
+      152. Carried in the pull request § Verification.
 - [x] 5.3 `python3 scripts/doc-health.py --single-repo .` DIFFED against a
       SAME-CLOCK control: a temporary worktree of `origin/main` inside this
       clone, run minutes apart rather than against a stale baseline, and removed
@@ -294,3 +346,39 @@ boxes below tick that naming and nothing else.
       word. Neither exists yet, and this box is where they will be cited — a
       merge commit on `main` and a workflow run id, both resolvable by an outside
       reader.
+- [x] 6.5 **THE FLOOR EXEMPTION OVER THE SKIP IS RECORDED, NOT WIDENED** (PR
+      #753 fix round; TICK ON THE RECORDING). The amended `THEN` requires a skip
+      *"wherever the document's own absence has not been established"* with no
+      qualification, and a BELOW-FLOOR repository is given neither the skip nor
+      the grading: nothing is in scope, the tree is never consulted, and the arm
+      returns `[]`. **The reading is PRE-EXISTING and this packet does not
+      disturb it** — the promoted `THEN` carried the same unconditional MUST over
+      the same `if not in_scope: return []`, put there by
+      `declare-spent-bundle-state` on Copilot's PR #584 round 3 finding — and it
+      is named here rather than fixed because making the floor exemption explicit
+      in canon is a unit this MODIFIED block does not declare and would want its
+      own scenario. **SUCCESSOR**: a change that states the enforcement floor's
+      reach over this family's SKIPS as well as over its findings, in one added
+      scenario, and that carries the same qualification into the sibling manifest
+      read if it holds there too. `design.md` **D2**.
+- [x] 6.6 **A LATE SKIP IN THE BUNDLE LOOP STILL DROPS THE TRACE** (PR #753 fix
+      round; TICK ON THE RECORDING). The `info` § 3.2 appends is discarded whole
+      by any of three arms below it that `return Skip(...)` — unlistable tag
+      refs, unlistable refs for a named superseding bundle, an unresolvable
+      declaring commit — so on those paths the amended `AND`'s *"the fact MUST
+      STILL BE RECORDED"* is not honoured. **Measured**: a held tip with a bundle
+      in scope, no readable changelog and a tag-ref seam that answers nothing
+      returns `Skip("alphaFactory: the published refs for contract-v2.0 could not
+      be consulted")` and the trace is gone. **The shape is PRE-EXISTING and
+      general**: `check_repo` returns `Skip | list[Finding]` and
+      `fam_release_tag_publication` branches on `isinstance`, so no return
+      carries a skip beside findings — the raw-HTML `error`, every
+      accepted-SPENT `info`, and any LIGHTWEIGHT or MISPLACED `error` raised for
+      an earlier bundle in the same loop die on those same returns today. This
+      packet adds one member to that set and does not create it. **SUCCESSOR**: a
+      change that widens `check_repo`'s return contract so a partial skip travels
+      WITH the findings already established, re-reads
+      `fam_release_tag_publication`'s `len(skips) == len(scoped)` accounting for
+      partial skips, and rules what a partial skip means to the cut-time gate,
+      which fails closed on any skip. It belongs with § 6.2's reading of the
+      other arms and is not opened here. `design.md` **D6**.

@@ -24,16 +24,24 @@ the two decisions worth a veto.
 ## D0 — the measurement, taken before the design
 
 **THE SHIM, RE-TAKEN RATHER THAN QUOTED.** D6's measurement is reproduced on
-this tree, at `origin/main` `d5a549e4` and again on this branch. One shim
-declaring `contract-v2.0`, its tip HELD (`present_commits`), its tag absent, its
-first-parent walk declaring the bundle throughout so the distance arm reaches
-its error band; the two runs differ in ONE blob and in nothing else.
+this tree, at `origin/main` `d52e6b88` and again on this branch (re-taken at the
+fix-round head; the earlier draft quoted `d5a549e4`, two main landings back).
+One shim declaring `contract-v2.0`, its tip HELD (`present_commits`), its tag
+absent, its first-parent walk declaring the bundle throughout so the distance arm
+reaches its error band; the runs differ in ONE seam answer and in nothing else.
 
 | the shim's `contracts/CHANGELOG.md` | at `origin/main` | on this branch |
 | --- | --- | --- |
-| absent — per-path `None` at a HELD tip | ONE `Skip`, nothing graded | ONE `error` on `contracts/manifest.yaml` naming the untagged bundle, PLUS one `info` on `contracts/CHANGELOG.md` recording the read |
+| absent — per-path `None` at a HELD tip, tree LISTS NO SUCH PATH | ONE `Skip`, nothing graded | ONE `error` on `contracts/manifest.yaml` naming the untagged bundle, PLUS one `info` on `contracts/CHANGELOG.md` recording the read |
 | present and EMPTY | ONE `error` on `contracts/manifest.yaml` naming the untagged bundle | unchanged — the same ONE `error` |
 | below the enforcement floor, no changelog | `[]` | `[]` |
+| held tip, tree LISTS AN ENTRY at the path, blob absent | ONE `Skip`, in the HELD words | ONE `Skip`, in words that name the entry and the failed read |
+| held tip, tree UNLISTABLE at that path | ONE `Skip`, in the HELD words | ONE `Skip`, saying UNESTABLISHED, and saying the tip is held |
+| tip NOT held, no changelog | ONE `Skip` — and it says *"WHICH THIS CLONE HOLDS"*, asserting the opposite of its own condition | ONE `Skip` saying the clone does NOT hold the tip and that a bounded fetch was attempted |
+
+The last three rows are the fix round's addition to this table: `origin/main` has
+ONE arm and gives all four held/unheld states ONE answer, so the branch's four
+distinct answers are the whole of what this packet does to the read.
 
 The error's words, both sides, byte for byte: *"contract-v2.0 is declared and
 has no published annotated tag more than 5 first-parent landings after the
@@ -139,6 +147,18 @@ words #688 ratified and saying what the family did with them. **Taken.**
   changelog is answered with silence, exactly as it always was. A permanent
   `info` about a document nobody is obliged to write is how a report teaches its
   readers to stop reading it.
+- **AND THE SAME GATE REACHES THE SKIP, WHICH THE AMENDED `THEN` READS OVER
+  WITHOUT QUALIFYING** (PR #753 fix round, DISCLOSED rather than fixed). The new
+  `THEN` requires a skip *"wherever the document's own absence has not been
+  established"*, unconditionally — and a BELOW-FLOOR repository is answered by
+  neither: nothing is in scope, so the tree is never consulted and the arm
+  returns `[]`. **This reading is PRE-EXISTING and undisturbed.** The promoted
+  `THEN` carried the same unconditional MUST over the same `if not in_scope:
+  return []`, put there by `declare-spent-bundle-state` on Copilot's PR #584
+  round 3 finding and unchanged by this packet, which moves neither the gate nor
+  the floor. Recording it rather than widening the delta is the conservative
+  act: making the floor exemption explicit in canon is a MODIFIED unit this
+  block does not declare, and it would want its own scenario. `tasks.md` § 6.5.
 - **Classed `auto-fixable`, not `contested`.** It stops being reported when a
   readable changelog appears at the published tip, which is an ordinary repair
   and not a resolution anybody needs re-raised. The skip-derived `info` this
@@ -207,8 +227,26 @@ its pathspec. Three outcomes, and only one of them grades:
 | what the tree says | the family's answer |
 | --- | --- |
 | the path is NOT listed | ESTABLISHED absence — grade with no declarations, and record the fact at `info` |
-| the path IS listed | a store that cannot serve what it lists — KEEP THE SKIP, saying so |
-| the listing could not be performed | UNESTABLISHED — KEEP THE SKIP, saying that |
+| the path IS listed | the tree lists an ENTRY there and no readable blob came back — KEEP THE SKIP, saying those two facts |
+| the listing could not be performed | UNESTABLISHED — KEEP THE SKIP, saying that, and saying that the commit is held |
+
+**AND THE MIDDLE ROW NAMES TWO FACTS RATHER THAN A CAUSE** (PR #753 fix round).
+An earlier draft of this row, and of the skip it describes, said *"an object
+store that cannot serve what it lists"* — which is a CAUSE, and one this arm
+does not check. `ls_tree_paths` runs `ls-tree -r --name-only`, which filters by
+NO OBJECT TYPE, so an entry that lists at that path may be a blob this store has
+lost OR a GITLINK whose target commit this clone does not hold; measured on a
+constructed repository, a submodule at `contracts/CHANGELOG.md` lists exactly as
+a blob does while `cat-file --batch` answers `missing` for it. The skip is
+therefore worded to the two facts the arm has — the tree lists an entry there,
+and no readable blob came back for it — and to the conclusion those two support:
+a read that FAILED. Making the listing type-aware instead was considered and
+REFUSED: it would widen the seam, and it would buy a distinction this arm does
+not act on, since both causes keep the same skip. **THE SKIPS ALSO STATE THE
+PRESENCE.** Both of these arms stand BELOW the held-tip split and are unreachable
+above it, so both say the tip is one this clone holds — the rule #688 ratified
+over the sibling read, applied to the two skips a held tip still emits, so that
+neither can be read as the unfetched case's words.
 
 **The cost is one bounded call on an arm this family reaches only where a
 changelog did not read at all**, which is a state no repository in this estate is
@@ -216,6 +254,16 @@ in. The alternative — grade on the held commit alone — was what the first dr
 of this packet did, and it is rejected: it makes the packet's own canon false,
 since the amended `AND` forbids asserting a file absence the held commit does not
 establish, and grading asserts exactly that.
+
+**THE THIRD BRANCH IS DOMINATED ON REAL GIT, AND IS KEPT FOR THE REASON THE
+UNFETCHED ONE IS.** `cut_bundles` lists the tree under `contracts/releases/`
+several guards earlier and returns a skip at `cut is None`, so a listing seam
+that has failed has ALREADY returned before this arm is reached: only a failure
+scoped to THIS ONE PATHSPEC lands on the `listed is None` branch, and real git
+produces no such failure. The test's own docstring says so. It is kept for
+exactly D3's reason — it costs one comparison, it fails closed, and it is the
+only thing standing between an unanswered read and a grading if the listing seam
+ever changes — and a reader should not take it for a live state.
 
 **AND THE CANON SAYS IT, RATHER THAN THE CODE SAYING IT ALONE.** The amended
 `THEN` keeps the skip *"wherever the document's own absence has not been
@@ -294,15 +342,30 @@ plus one new negative pin — the record must not carry a skip's own words eithe
 so nobody grepping the report reads it as an unasked question.
 
 **No other existing test is edited.** The other two changelog tests reach the
-UNFETCHED arm, which does not move, and they pass unchanged. Five tests are
+UNFETCHED arm, which does not move, and they pass unchanged. Six tests are
 ADDED beside them — the D6 pair, the unfetched skip, the floor over the
-trace, and the two states D3a adds — and the module goes 146 → 151.
+trace, the two states D3a adds, and the floor over D3a's own two branches — and
+the module goes 146 → 152.
 
-**THE MUTATION PROBE, ON THE GUARD.** Reverting the split to `if changelog is
-None:` fails exactly two tests — the converted one and the D6 pair — and nothing
-else; restoring it returns 149 passed. The D6 pair is written with a POSITIVE
+**THE MUTATION PROBES, ON ALL THREE GUARDS, RE-TAKEN AT THE FIX-ROUND HEAD** (the
+numbers below replace an earlier draft's, which were arithmetic from the
+pre-D3a design and were never re-measured after D3a landed):
+
+| the mutation | the result |
+| --- | --- |
+| revert the held-tip split to `if changelog is None:` | **5 failed, 147 passed** — the converted test, the D6 pair, both D3a third-state tests, and the below-floor third-state test |
+| disable D3a's tree consultation (`if False:`) | **3 failed, 149 passed** — both D3a third-state tests and the below-floor third-state test |
+| drop `and in_scope` from D3a's tree consultation | **1 failed, 151 passed** — the below-floor third-state test, and it is the ONLY thing that catches it |
+| all three restored | **152 passed** |
+
+The third row is why a test was ADDED in this fix round. Before it the mutation
+left ALL 151 tests green: the below-floor control ran through `_NoChangelog`
+alone, whose tree lists nothing, so it never reached either branch the gate holds
+back — and a below-floor repository with a damaged store would have gained a
+skip naming an EMPTY set of bundles. The D6 pair is written with a POSITIVE
 CONTROL for the same reason: it asserts the empty-changelog run FIRES, so the
-equality it checks can never be two empty lists agreeing with each other.
+equality it checks can never be two empty lists agreeing with each other, and the
+new below-floor test carries one too.
 
 ## D6 — what this packet does NOT reach
 
@@ -313,6 +376,32 @@ equality it checks can never be two empty lists agreeing with each other.
   `tasks.md` § 6.2.
 - **The estate-wide run.** `tasks.md` § 6.1: owed at landing, in an owner-run
   nightly, for the mechanical reason in D0.
+- **A LATE SKIP IN THE BUNDLE LOOP STILL DROPS THE TRACE, AND THAT IS DISCLOSED
+  RATHER THAN FIXED HERE** (PR #753 fix round). The `info` is APPENDED, and three
+  arms below it `return Skip(...)` — unlistable tag refs for a bundle, unlistable
+  refs for a named superseding bundle, an unresolvable declaring commit — each of
+  which discards `findings` whole. So on those paths the amended `AND`'s *"the
+  fact MUST STILL BE RECORDED"* is not honoured. **Measured**: a held tip, a
+  bundle in scope, no readable changelog and a tag-ref seam that answers nothing
+  returns `Skip("alphaFactory: the published refs for contract-v2.0 could not be
+  consulted")`, and the trace appended two lines earlier is gone.
+  **The shape is PRE-EXISTING and general, not this arm's.** `check_repo` returns
+  `Skip | list[Finding]` and `fam_release_tag_publication` branches on
+  `isinstance`, so there is no return in which a skip travels beside findings.
+  Every finding the function has already appended dies on those returns today:
+  the raw-HTML `error`, every accepted-SPENT `info`, and any LIGHTWEIGHT or
+  MISPLACED `error` raised for a bundle the loop reached before the one whose
+  refs failed. This packet adds one more finding to that set; it does not create
+  the set.
+  **Fixing it is a different change.** It means widening `check_repo`'s return
+  contract, re-reading `fam_release_tag_publication`'s skip accounting (its
+  `len(skips) == len(scoped)` family-level skip is computed from repositories
+  that skipped WHOLLY), and deciding what a partial skip MEANS to the cut-time
+  gate, which fails closed on any skip. That is a reading with its own scenarios
+  over every arm of this family — which is exactly what § 6.2 already declines to
+  open — and doing it inside a wording amendment would put a control-flow change
+  no scenario describes into a packet whose delta replaces two bullets.
+  `tasks.md` § 6.6 names it.
 - **The archived deltas that carry the retired bullets.** They are records of
   ratified acts and `promotion-fidelity` compares them against canon; editing one
   would mutate history and manufacture the divergence that family reports.

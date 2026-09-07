@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory — ONE guard is SPLIT in `scripts/doc_health/release_tag_publication.py`, and the tests that pin it in `tests/doc-health/test_release_tag_publication.py`. The `if changelog is None:` arm that returned a `Skip` above the `in_scope` loop now returns one only where the document's own absence has NOT been established — the commit not held, the tree at it carrying the path with no readable blob coming back, or the tree not listable — and otherwise falls through so the loop grades the bundles with no declarations, which `read_changelog(None)` already answers. ONE bounded `ls_tree_paths` call is added on that arm and nowhere else. ONE `info` is ADDED, on `contracts/CHANGELOG.md`, carrying the fact the retired skip carried — this is the only new finding, it is `info`, and it cannot redden a `--fail-on error` run. NOTHING ELSE MOVES: no severity of an existing finding, no threshold, no enforcement floor, no path of an existing finding, no other arm, no workflow, no contract member and no other family. Five tests are ADDED and ONE is CONVERTED (its subject — the skip in the established-absence case — is what this packet retires), `tests/doc-health/test_release_tag_publication.py` 146 → 151.
+code_surface: openxFactory — ONE guard is SPLIT in `scripts/doc_health/release_tag_publication.py`, and the tests that pin it in `tests/doc-health/test_release_tag_publication.py`. The `if changelog is None:` arm that returned a `Skip` above the `in_scope` loop now returns one only where the document's own absence has NOT been established — the commit not held, the tree at it carrying the path with no readable blob coming back, or the tree not listable — and otherwise falls through so the loop grades the bundles with no declarations, which `read_changelog(None)` already answers. ONE bounded `ls_tree_paths` call is added on that arm and nowhere else. ONE `info` is ADDED, on `contracts/CHANGELOG.md`, carrying the fact the retired skip carried — this is the only new finding, it is `info`, and it cannot redden a `--fail-on error` run. NOTHING ELSE MOVES: no severity of an existing finding, no threshold, no enforcement floor, no path of an existing finding, no other arm, no workflow, no contract member and no other family. Six tests are ADDED and ONE is CONVERTED (its subject — the skip in the established-absence case — is what this packet retires), `tests/doc-health/test_release_tag_publication.py` 146 → 152.
 target_release: implemented (the openxFactory main line). No contract bundle is cut, no release tag is owed, nothing under `contracts/` is touched and no digest set moves. Under `release-realization` a non-empty code surface archives on merged-plus-green realization evidence rather than on landing; the tasks are individually executable, so this packet realizes through its own task list in this pull request and its realization evidence is that pull request's green `pytest-suite` and doc-health runs.
 Status: draft
 Proposed: 2026-09-07
@@ -170,13 +170,16 @@ Whether a REAL untagged bundle at a held tip exists anywhere in the estate is
 the estate-wide question this lane cannot take from one clone — see
 `tasks.md` § 5.2, where it is named as owed at landing rather than claimed.
 
-**Tests:** five ADDED, one CONVERTED, 146 → 151 in that module. The converted
+**Tests:** six ADDED, one CONVERTED, 146 → 152 in that module. The converted
 one is `test_an_absent_changelog_says_the_tip_is_held_rather_than_unfetched`,
 whose subject was the held case's SKIP; every literal it pinned — the held
 words, the unreachability words, and the two negative pins against the manifest
 arm's fetch wording and against the over-claiming tree assertion — is asserted
 unchanged, on the `info` that now carries them. § *What was edited and why* in
-`design.md` D5 records that this is the only existing test touched.
+`design.md` D5 records that this is the only existing test touched, and carries
+the THREE mutation probes re-taken at the fix-round head — the held-tip split
+(5 failed), D3a's tree consultation (3 failed), and the `in_scope` gate on that
+consultation (1 failed, and unpinned until this round's sixth added test).
 
 **Doc-health:** the `modified-block-currency` family reads this new active
 delta. It drops two canon units, each is named by its own reserved marker, and
