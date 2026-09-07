@@ -281,14 +281,41 @@ them **as written**. Its landing note said the honest close was a packet
 amendment for 5.1/5.5 and a recorded disposition for 5.2, on Brett's word. That
 word is the approval quoted above.
 
-*Consequence for § 6, stated because it was contested.* With 5.1, 5.2 and 5.5
-closed here and 5.3/5.4 already ticked on evidence, **§ 5 is closed on the
-record**, and this file's own opening rule — "§4 and §5 complete before §6" —
-is satisfied for the § 6 retirement already recorded. That ordering was raised
-as a Codex P2 finding against opensoft/openxFactory#756 ("Satisfy the
-prerequisites before recording retirement") and held it at the gate; this
-amendment is its answer, and the answer is that § 5's acts were performed and
-ruled on, not that the ordering rule was waived.
+*Consequence for § 6 — stated precisely, because it was contested and because
+imprecision here would hide a real gap.* Three things have to be kept apart,
+and this amendment claims only the first two.
+
+1. **The ACTS were in order.** § 5's operator acts were performed 2026-09-05
+   (reprovision ~22:24Z, read-back the same evening) with the OpsxFactory
+   re-attestation landing 2026-09-06 (`83a91c58`); § 6's Part 1 retirement act
+   landed 2026-09-07T12:12Z (opensoft/Omnigent-Install#235 `bbba916d`). The
+   opening rule — "§4 and §5 complete before §6" — governs the acts, and the
+   acts did not violate it.
+
+2. **The RECORD lagged, and closing that lag is what this amendment does.**
+   § 5's boxes were not ticked in this packet until
+   opensoft/openxFactory#756 (5.3, 5.4) and this amendment (5.1, 5.2, 5.5), so
+   when #756 recorded the § 6 retirement at 16:55Z on 2026-09-07 the packet
+   still SHOWED § 5 open. That is exactly the Codex P2 raised against #756
+   ("Satisfy the prerequisites before recording retirement"), and it was a fair
+   reading of the packet as it then stood. § 5 is closed on the record from
+   here.
+
+3. **One clause of § 5 was never performed at all, and this amendment does not
+   pretend otherwise.** 5.2's second imperative — confirm omni001's emptiness
+   immediately before the act — did not happen, and it can no longer be
+   evidenced. § 5 therefore closes with that clause DISPOSED, not discharged.
+   Read strictly, "§5 complete before §6" was never satisfied for that one
+   clause and cannot be made true retroactively; this amendment RECORDS that
+   gap rather than curing it. What it asserts is only that the act the clause
+   gated (the reprovision) was performed before § 6's retirement, and that the
+   consequence the confirmation existed to prevent did not occur (5.2's
+   disposition). **Nothing here waives the ordering rule, and nothing here
+   makes the missing confirmation retroactively true.**
+   Raised as a Codex P2 on opensoft/openxFactory#773 ("Do not mark the
+   prerequisite as retroactively satisfied") against an earlier draft of this
+   paragraph, which did claim the ordering "is satisfied"; the finding was
+   taken and the claim narrowed to what is true.
 
 - [x] 5.1 Set the Windows 365 provisioning policy device-name template to
       `CPC-OXF-%USERNAME:7%`. **New provisions only** — it renames nothing
@@ -482,7 +509,9 @@ live-host confirmation and its archive.
       superseded.** § 5 is now CLOSED on the record: 5.3 and 5.4 ticked on
       evidence by opensoft/openxFactory#756 → squash `73bb088e`, and 5.1, 5.5
       and 5.2 closed by the § 5 amendment of 2026-09-07 (SUPERSEDED BY RULING /
-      DISPOSITION RECORDED). 6.1's only remaining dependency is Part 2 —
+      DISPOSITION RECORDED — 5.2 by disposition, NOT by discharge; § 5's
+      amendment header records what that leaves unsatisfied). 6.1's only
+      remaining dependency is Part 2 —
       opensoft/Omnigent-Install#213, HELD on OQ-6 until `add-worker-acr-push`
       lands there.
 - [x] 6.2 Update the `Omnigent-Install` README's scope list — remove "Cloud PC
@@ -539,3 +568,23 @@ live-host confirmation and its archive.
       of retirement; if retirement is deferred, the scope link is still owed
       the moment the new repository exists, because "Install repo scope links"
       binds both repositories and not only the new one.
+
+**Amended 2026-09-07 — one further follow-up is NAMED here and is NOT performed
+by the § 5 amendment, because it falls outside what that amendment was approved
+to touch.** `docs/omniworker-naming.md` — the ratified canonical naming record
+this packet authored — still declares the machine-name template
+`CPC-OXF-%USERNAME:7%`, still renders `CPC-OXF-Omni001` as the worked example,
+still reasons explicitly from the template carrying **no `%RAND%` segment** (the
+premise Windows 365 refuses), and still reads `Amendments: None`. openxFactory's
+own `README.md` repeats the template in its doc-index line and in its records
+block. An operator following the canonical record is therefore still instructed
+to configure a template that cannot be applied. **Owed: a dated amendment
+appended to `docs/omniworker-naming.md`'s Amendments section recording the
+mandatory `%RAND:5%` constraint, the applied template `%USERNAME:7%-%RAND:5%`,
+the rendered name `Omni001-XEAON`, and Brett Heap's "Accept Omni001-XEAON"
+ruling — plus the two `README.md` references — as its own reviewed act on
+Brett's word.** Raised as a Codex P2 on opensoft/openxFactory#773 ("Amend the
+canonical machine-naming record"); the finding is accepted as correct and is
+recorded here rather than performed, because the § 5 amendment's approval
+covers this packet's own § 5 dispositions and neither a ratified `docs/` record
+nor the README substrate.
