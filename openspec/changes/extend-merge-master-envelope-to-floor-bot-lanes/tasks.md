@@ -1,12 +1,22 @@
 # Tasks: extend-merge-master-envelope-to-floor-bot-lanes
 
-Status: draft
+Status: ratified
+
+**RATIFIED 2026-09-07** — Brett Heap, in session at 2026-09-07T12:32:44Z,
+verbatim *"ratify 746 and 272 as recommended when green, then land them"*; record
+`review/ratification-2026-09-07.md`. **THE RATIFICATION PERFORMS NOTHING IN THIS
+FILE.** Decisions N-1 through N-5 stand as recommended, and every box below —
+including group 1's, whose work is what produced the packet that was ratified —
+remains UNTICKED.
 
 **EVERY BOX BELOW IS UNTICKED AND NONE MAY BE TICKED BY THIS PACKET.** Group 1
 is the authoring that produced the packet you are reading; groups 2 through 4 are
-realization and its evidence, which is a LATER WORD; group 5 is the owner's, and
-an agent may not tick an owner's-act box at all — where such an act is taken, it
-is recorded as a dated note beneath the box and the box stays unticked.
+realization and its evidence, which is a LATER WORD AND HAS NOT BEEN GIVEN —
+nothing is enrolled, no envelope file is edited, no floor path moves and no
+ruleset changes; group 5 is the owner's, and an agent may not tick an owner's-act
+box at all — where such an act is taken, it is recorded as a dated note beneath
+the box and the box stays unticked. § 5.1 (the ratification) was TAKEN on
+2026-09-07 and its box stays unticked for exactly that reason.
 
 Groups 2 through 4 are written for the RECOMMENDED scope of decision N-1 —
 the codexFactory regeneration lane alone. Where a veto to N-1 (b) would add work,
@@ -16,9 +26,11 @@ carries the whole of the wider scope in one place.
 ## 1. Proposal
 
 - [ ] 1.1 Author `proposal.md` with `code_surface:` and `target_release:`
-  front-matter, `Status: draft` inside the first fifteen real lines, the origin
-  citation to openxFactory #745 and codexFactory #232, and the explicit statement
-  that the authorizing word authorized the PROPOSING and not the content.
+  front-matter, a `Status:` header inside the first fifteen real lines (`draft` at
+  authoring; `ratified` since 2026-09-07, with the `Ratified:` citation beside
+  it), the origin citation to openxFactory #745 and codexFactory #232, and the
+  explicit statement that the authorizing word authorized the PROPOSING and not
+  the content.
 - [ ] 1.2 Author `design.md` measuring, in the working tree and against the live
   API, WHERE the envelope is declared, WHAT it evaluates, and WHAT stands between
   each bot lane and an autonomous approval — every claim cited `file:line`, and
@@ -173,12 +185,27 @@ owed. § 2.2 through § 2.8 are its realization and are authored nowhere yet.
 
 ## 5. Owner's acts (not an agent's)
 
-- [ ] 5.1 Ratify or refuse this packet. The 2026-09-07 word authorized the
+- [ ] 5.1 Ratify or refuse this packet. The 2026-09-07 ~02:05Z word authorized the
   PROPOSING, not the content.
+  **2026-09-07 — TAKEN. Brett Heap ratified it in session at 2026-09-07T12:32:44Z,
+  verbatim "ratify 746 and 272 as recommended when green, then land them" — a PAIR
+  word over this packet and codexFactory #272 together, recorded on openxFactory
+  #745 and applied at head `6ebd7b24`, all nine checks green and no open thread.
+  The packet is now `Status: ratified` and the record is
+  `review/ratification-2026-09-07.md`. The box is left UNTICKED deliberately —
+  ticking an owner's-act box is a claim an agent may not make about the owner, and
+  this dated note is how the act is recorded instead.**
 - [ ] 5.2 Rule on N-1 (scope), N-1b (the carve, live only if N-1 goes to (b)),
   N-2 (admission conditions), N-3 (ordering), N-4 (observability and kill
   switch) and N-5 (realization surface). N-1 is the one that changes the shape of
   everything below it; the rest stand as recommended unless vetoed.
+  **2026-09-07 — STOOD. Under the ratification word, N-1 through N-5 stand as
+  recommended and no veto was exercised — N-1 admits the codexFactory
+  REGENERATION lane only, so N-1b stays dormant and the openxFactory re-pin lane
+  stays under a human merge word; (d) and (e) are recorded as not taken rather
+  than foreclosed. OQ-2 is answered as recommended: the admitting act is a
+  Gate-Rules Council record, and it has NOT been performed. Each remains one edit
+  away. The box stays UNTICKED for the same reason 5.1's does.**
 - [ ] 5.3 **THE ENABLING ACT, AND WITHOUT IT NOTHING HERE CHANGES ANYTHING.**
   Ruleset `Require Code Owner Review` is ACTIVE on both repositories with
   `require_code_owner_review=true`, and every path either bot lane writes is
