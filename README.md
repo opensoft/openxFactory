@@ -513,7 +513,7 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [register-gate-rules-council-seats](openspec/changes/register-gate-rules-council-seats/proposal.md)
-  — authored 2026-09-06, **`Status: ratified`** (2026-09-06, Brett Heap
+  — authored 2026-09-06, **`Status: ratified`** (R1/R2 amendment 2026-09-07) (2026-09-06, Brett Heap
   (repository owner), in-session at 2026-09-06T14:13:46Z, verbatim *"lets take
   them in your recommended order all approved"*; ratified head `169f84ef`;
   record
