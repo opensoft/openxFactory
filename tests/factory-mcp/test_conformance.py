@@ -234,5 +234,14 @@ class ConformanceTests(unittest.TestCase):
         with patch("socket.socket", side_effect=AssertionError("network forbidden")):
             self.assertEqual(self.validate()["status"], "invalid")
 
+    def test_resource_identity_without_optional_format_checker(self):
+        from unittest.mock import patch
+        self.doc["service"] = {"deployment": "deployed", "installation": "synthetic",
+            "environment": "test", "canonical_resource_uri": "relative/path"}
+        with patch.dict(self.module.FormatChecker.checkers, {}, clear=True):
+            self.assertEqual(self.validate()["status"], "invalid")
+            self.doc["service"]["canonical_resource_uri"] = "https://mcp.example.test/"
+            self.assertEqual(self.validate()["status"], "valid-with-gaps")
+
 if __name__ == "__main__":
     unittest.main()

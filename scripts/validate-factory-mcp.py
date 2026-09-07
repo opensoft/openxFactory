@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path, PurePosixPath
 import sys
+from urllib.parse import urlsplit
 
 from jsonschema import Draft202012Validator, FormatChecker
 
@@ -270,6 +271,16 @@ def validate(declaration, snapshots):
     if any(r["repository"] != source["repository"] or r["revision"] != source["revision"]
            for r in source["artifacts"]):
         issue("semantics", "source_artifact_identity_mismatch", "/source/artifacts")
+    service = declaration["service"]
+    if service["deployment"] == "deployed":
+        uri = service["canonical_resource_uri"]
+        try:
+            parsed = urlsplit(uri)
+            if (not parsed.scheme or any(c.isspace() for c in uri)
+                    or (parsed.scheme in ("http", "https") and not parsed.hostname)):
+                raise ValueError("absolute resource URI required")
+        except ValueError:
+            issue("semantics", "invalid_resource_uri", "/service/canonical_resource_uri")
 
     for i, tool in enumerate(declaration["tools"]):
         path = f"/tools/{i}"

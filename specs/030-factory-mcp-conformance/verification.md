@@ -16,7 +16,7 @@ Clarify found no material unanswered decision within the ratified first slice. S
 Runtime: py-bench, Python 3.12.3, jsonschema 4.25.1. Tests use synthetic data, temporary local files and injected clocks; they require no credentials, network observations or sleeps.
 
 - Before implementation, all 11 initial tests failed because the validator module did not exist.
-- Final focused suite: **15 tests passed** with additional adversarial subcases. Command: `python3 -m unittest discover -s tests/factory-mcp -q`.
+- Final focused suite: **16 tests passed** with additional adversarial subcases. Command: `python3 -m unittest discover -s tests/factory-mcp -q`.
 - Packaged example CLI: exit 0, valid-with-gaps, all three checks true, explicit audit-gap, verified_conformance false.
 - Explicit socket-denial test proves remote references refuse without attempting network access.
 
@@ -40,6 +40,8 @@ Runtime: py-bench, Python 3.12.3, jsonschema 4.25.1. Tests use synthetic data, t
 The earlier [proposal validation record](../../openspec/changes/add-factory-mcp-conformance/review/validation-2026-09-07.md) names the baseline findings. Whole-repository cleanliness is not inferred from a passing new capability test. No unrelated baseline document was edited to make checks green.
 
 ## Review and corrections
+
+An explicit standard-library resource-URI check preserves absolute service identity validation even when optional JSON Schema format checkers are absent; a test removes them to prove the boundary.
 
 Local diff review checked the request/reference trust boundary, closed schemas, refusal classification/order, provenance, bounded output, deterministic identities and release scope. Corrections incorporated before this checkpoint: strict end-of-string schema patterns; conservative finite-vocabulary handling instead of unsupported exhaustiveness; explicit not-run report dimensions; separate prior/proposed TTL bounds; and canonical YAML realization metadata.
 
