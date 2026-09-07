@@ -513,7 +513,19 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [extend-merge-master-envelope-to-floor-bot-lanes](openspec/changes/extend-merge-master-envelope-to-floor-bot-lanes/proposal.md)
-  — authored 2026-09-07, **`Status: draft`**, lane `openxfactory-2`, governing
+  — authored 2026-09-07, **`Status: ratified`** (2026-09-07, Brett Heap
+  (repository owner), in session at 2026-09-07T12:32:44Z, verbatim *"ratify 746
+  and 272 as recommended when green, then land them"* — a PAIR word over this
+  packet and codexFactory #272 together; ratified head `6ebd7b24`, all nine
+  checks green, zero open threads; record
+  `openspec/changes/extend-merge-master-envelope-to-floor-bot-lanes/review/ratification-2026-09-07.md`),
+  lane `openxfactory-2`. **RATIFICATION PERFORMS NO REALIZATION** — no candidate
+  class is enrolled, no envelope file is edited, no floor path moves, no ruleset
+  changes, and every box in `tasks.md` stays unticked; realization is a later
+  word. **Decisions N-1..N-5 STAND AS RECOMMENDED** with no veto: N-1 admits the
+  codexFactory REGENERATION lane ONLY, so the openxFactory re-pin lane stays
+  under a human merge word, and alternatives (d) status quo and (e) satisfy-the-
+  canon-as-written are recorded as not taken rather than foreclosed. Governing
   issue [#745](https://github.com/opensoft/openxFactory/issues/745), first-cycle
   record [codexFactory #232](https://github.com/opensoft/codexFactory/issues/232),
   COMPANION [codexFactory #272](https://github.com/opensoft/codexFactory/pull/272)

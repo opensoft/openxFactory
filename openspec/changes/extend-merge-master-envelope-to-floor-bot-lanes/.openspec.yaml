@@ -37,12 +37,23 @@ origin:
     ruling on this lane's open questions, verbatim option chosen: "Propose the
     extension now". THIS IS AN ADMISSION INTO THE PROPOSAL QUEUE AND AN
     INSTRUCTION TO AUTHOR, NOT A RATIFICATION OF CONTENT. It supplies the origin
-    and approval pair the proposal-origin contract requires and nothing more:
-    the packet is Status: draft, carries no ratification citation and owes none
-    — the promoted lifecycle rule requires one only for Status: ratified — and
-    whether its content is ratified is a separate act that has not happened and
-    is Brett Heap's alone. The governing issue is openxFactory #745, which
-    carries the lane's Rule-1 claim.
+    and approval pair the proposal-origin contract requires and nothing more: at
+    the time this field was written the packet WAS Status: draft, carried no
+    ratification citation and owed none — the promoted lifecycle rule requires
+    one only for Status: ratified — and whether its content would be ratified
+    was a separate act that had not yet happened and was Brett Heap's alone. The
+    governing issue is openxFactory #745, which carries the lane's Rule-1 claim.
+    THE PACKET HAS SINCE BEEN RATIFIED — Brett Heap, 2026-09-07, in session,
+    verbatim "ratify 746 and 272 as recommended when green, then land them", a
+    PAIR word over this packet and codexFactory #272 together, recorded
+    2026-09-07T12:32:44Z on openxFactory issue #745 and applied at head 6ebd7b24
+    with all nine checks green and no open thread; record
+    review/ratification-2026-09-07.md. Decisions N-1 through N-5 stand as
+    recommended and no veto was exercised. THIS FIELD STILL RECORDS
+    AUTHORIZATION TO FILE ONLY; the ratification is a separate act recorded
+    there, and NOTHING IS REALIZED BY EITHER — no candidate is enrolled, no
+    envelope file is edited, no floor path moves, no ruleset changes, and every
+    box in tasks.md remains unticked.
   approved_on: 2026-09-07
 related:
   - openxFactory:change:mirror-floor-regeneration-automation   # the ratified packet whose § 6.3 names this question and defers it

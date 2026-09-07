@@ -6,8 +6,18 @@ sequenced_after: [mirror-floor-regeneration-automation, codexFactory:add-floor-r
 
 # Proposal: extend-merge-master-envelope-to-floor-bot-lanes
 
-Status: draft
+Status: ratified
 Proposed: 2026-09-07
+Ratified: 2026-09-07, Brett Heap (openxFactory repository owner), in session,
+verbatim **"ratify 746 and 272 as recommended when green, then land them"** — a
+PAIR word given over this packet and its codexFactory companion #272 together,
+recorded 2026-09-07T12:32:44Z on openxFactory issue #745 (and on PR #746,
+codexFactory #272 and codexFactory #232), applied at head `6ebd7b24` with all
+nine checks green and no open thread; record `review/ratification-2026-09-07.md`.
+**DECISIONS N-1 THROUGH N-5 STAND AS RECOMMENDED** under that word — N-1 admits
+the codexFactory REGENERATION lane only — and none is separately ruled; the owner
+may veto any of them by follow-up. **NOTHING IS REALIZED BY THE RATIFICATION** —
+it ratifies the PROPOSAL, and realization is a later word.
 Origin: openxFactory issue
 [#745](https://github.com/opensoft/openxFactory/issues/745) — the governing
 issue, carrying lane `openxfactory-2`'s Rule-1 claim — over § 6.3 of BOTH
@@ -25,6 +35,8 @@ and **NOTHING IS REALIZED** — this packet enrols no candidate, edits no
 envelope file, changes no floor, moves no pin, adds no workflow step and ticks
 no box. Every judgment this authoring session took is listed under
 § Authoring decisions rather than presented as settled.
+**Ratified 2026-09-07 — see `Ratified:` above; the paragraph above is kept as the
+record of the packet's state at authoring.**
 
 ## Why
 
