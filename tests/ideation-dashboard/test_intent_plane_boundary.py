@@ -59,7 +59,10 @@ from pathlib import Path
 import pytest
 import yaml
 
-from conftest import REPO_ROOT  # used below to read the serving path's own sources
+from conftest import (  # used below to read the serving path's own sources
+    REPO_ROOT,
+    serve_surface_paths,
+)
 
 from ideation_dashboard import gate_console as gc
 from ideation_dashboard import intent_apply_lane as lane
@@ -565,13 +568,24 @@ def test_serving_pod_is_credential_free(tmp_path, monkeypatch):
     # ...and the serve handler that calls it: parsing a query string and
     # handing back bytes, with no environment read, no spawn, no socket of its
     # own and no write.
-    serve_tree = ast.parse((REPO_ROOT / "scripts" / "ideation_dashboard"
-                            / "serve.py").read_text("utf-8"))
-    handler = next(
-        node for node in ast.walk(serve_tree)
-        if isinstance(node, ast.FunctionDef)
-        and node.name == "_serve_committed_intents")
-    _assert_no_authority(handler, "serve._serve_committed_intents")
+    # REPOINTED by `split-opendox-two-layer-product` § 2.4 PR 3 of 4, disclosed
+    # in that PR's body: `_serve_committed_intents` moved out of `serve.py` into
+    # `serve_openxfactory_lanes.py` (RULING DQ-1/Q1 — the apply lane is a
+    # permanent fixture of the openxFactory mapping), so a single-file parse of
+    # `serve.py` would raise `StopIteration` here. The walk spans the whole serve
+    # surface instead and asserts the handler is found EXACTLY ONCE, so the test
+    # can never go hollow by looking at a file the code has left.
+    handlers = []
+    for path in serve_surface_paths():
+        tree = ast.parse(path.read_text("utf-8"), filename=str(path))
+        handlers += [node for node in ast.walk(tree)
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name == "_serve_committed_intents"]
+    assert len(handlers) == 1, (
+        "the committed-intent feed handler is defined "
+        f"{len(handlers)} times across the serve surface — the scan below is "
+        "either asserting over nothing or over the wrong copy")
+    _assert_no_authority(handlers[0], "serve._serve_committed_intents")
 
 
 # ==========================================================================
