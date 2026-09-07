@@ -310,17 +310,32 @@ def test_a_well_formed_binding_is_accepted():
 
 def test_exact_bindings_are_consulted_before_prefix_bindings():
     """Across independent extensions the tuple order is an accident of whatever
-    assembled it; a broad prefix from the first must not swallow an exact route
-    from the second."""
+    assembled it, so the collection groups every exact binding ahead of every
+    prefix one.
+
+    REPOINTED ONTO A LEGAL PAIR BY RULING A (2026-09-07). This test used to
+    build the SAME-method pair — a GET prefix `/a/` and a GET exact `/a/exact`
+    — which `collect_bindings` now REFUSES outright, because the exact route
+    would take that path out of the prefix's gating
+    (`test_a_pattern_under_a_declared_prefix_refuses_the_build`). The pair here
+    is the legal one that still exercises the grouping: a GET exact under a
+    POST prefix, which is not a collision because nothing answers a live POST
+    but a POST binding. Same assertion, same strength — the ORDER of the
+    returned tuple, which is this module's declared contract and what
+    `test_serve_column_split.py`'s nine-binding pin reads — and it now also
+    pins that the containment refusal is METHOD-AWARE rather than fired on
+    patterns alone.
+    """
     broad = ProbeExtension((
-        route_extension.RouteBinding("GET", "/a/", True, "_wide"),))
+        route_extension.RouteBinding("POST", "/a/", True, "_wide"),))
     narrow = ProbeExtension((
         route_extension.RouteBinding("GET", "/a/exact", False, "_narrow"),))
     bindings = route_extension.collect_bindings((broad, narrow))
     assert [b.handler for b in bindings] == ["_narrow", "_wide"]
     matched = route_extension.match(bindings, "GET", "/a/exact")
     assert matched is not None and matched[0].handler == "_narrow"
-    assert route_extension.match(bindings, "GET", "/a/other")[0].handler == "_wide"
+    assert route_extension.match(bindings, "POST", "/a/exact")[0].handler == "_wide"
+    assert route_extension.match(bindings, "POST", "/a/other")[0].handler == "_wide"
 
 
 def test_two_bindings_claiming_one_route_refuse_the_build():
@@ -378,6 +393,113 @@ def test_a_get_and_a_head_binding_for_DIFFERENT_routes_do_not_collide():
         route_extension.RouteBinding("HEAD", "/b", False, "_head_b"),))
     bindings = route_extension.collect_bindings((get_a, head_b))
     assert {b.handler for b in bindings} == {"_get_a", "_head_b"}
+
+
+#: `(outer, inner)` — the PREFIX binding and the binding that sits under it,
+#: each as `RouteBinding` arguments. Every pair is exercised in BOTH
+#: declaration orders by the test below.
+OVERLAPPING_PAIRS = (
+    # the ruling's own case: the gate console's prefix, and an exact verb path
+    # under it — the hijack `r3`'s live probe demonstrated at this PR's head
+    (("POST", "/actions/gate/", True, "_gate"),
+     ("POST", "/actions/gate/ratify", False, "_hijack")),
+    # GET/HEAD share one slot, so the containment is cross-method too
+    (("GET", "/source/", True, "_serve"),
+     ("HEAD", "/source/x.md", False, "_hijack")),
+    # NESTED PREFIXES, refused on the same rule (fail closed — the in-tree
+    # profile declares no nested pair; see the module docstring)
+    (("GET", "/a/", True, "_outer"),
+     ("GET", "/a/b/", True, "_inner")),
+    # a pattern EQUAL to a prefix but declared EXACT does sit under it:
+    # `"/a/".startswith("/a/")` is True and the exact one wins the match
+    (("GET", "/a/", True, "_outer"),
+     ("GET", "/a/", False, "_inner")),
+)
+
+
+@pytest.mark.parametrize("outer,inner", OVERLAPPING_PAIRS)
+@pytest.mark.parametrize("prefix_first", [True, False])
+def test_a_pattern_under_a_declared_prefix_refuses_the_build(
+        outer, inner, prefix_first):
+    """RULING A (Brett Heap, 2026-09-07), over Copilot review
+    `PRRT_kwDOTAvnrs6f_iG1` on PR #761.
+
+    Ordering exact ahead of prefix decides a tie; it does not make the tie
+    SAFE. A prefix is where a column puts the gating its whole subtree shares
+    — `ACTIONS_GATE_PREFIX` carries the gate console's loopback, capability,
+    actor and human-console refusals — so an exact binding declared under one
+    wins the match and takes that single path out of the prefix's hands, and
+    the prefix's handler never runs for it. `collect_bindings` refuses it with
+    the same `RouteBindingError` a literal duplicate raises.
+
+    Parametrized over DECLARATION ORDER because a refusal that only fired when
+    the prefix happened to be declared first would be no refusal at all across
+    independent extensions, whose tuple order is an accident; over GET/HEAD
+    because that pair shares one slot; and over two nested prefixes because
+    those are refused on the same rule.
+
+    The message must name BOTH bindings by their OWN declared method and
+    pattern — the discipline `_collision_message` already keeps, so a reader
+    who gets this error can see which two declarations to change without
+    reading the module — and must name the prefix AS a prefix, since which of
+    the two is the container is the whole content of the complaint.
+    """
+    outer_ext = ProbeExtension((route_extension.RouteBinding(*outer),))
+    inner_ext = ProbeExtension((route_extension.RouteBinding(*inner),))
+    declared = (outer_ext, inner_ext) if prefix_first else (inner_ext, outer_ext)
+    with pytest.raises(route_extension.RouteBindingError) as err:
+        route_extension.collect_bindings(declared)
+    message = str(err.value)
+    assert outer[3] in message and inner[3] in message
+    assert f"{inner[0]} {inner[1]!r}" in message
+    assert f"{outer[0]} prefix {outer[1]!r}" in message
+
+
+@pytest.mark.parametrize("prefix_method,exact_method", [
+    ("POST", "GET"),
+    ("POST", "HEAD"),
+    ("GET", "POST"),
+])
+def test_an_exact_binding_under_a_prefix_of_ANOTHER_METHOD_does_not_collide(
+        prefix_method, exact_method):
+    """The positive control on the ruling's method-awareness: containment is
+    refused only where one live request could be offered to BOTH bindings.
+
+    Nothing answers a live POST but a "POST" binding, so a GET (or HEAD) exact
+    route under a POST prefix is two independent routes that never contend —
+    and a refusal that fired here would make the seam unusable for the
+    commonest legitimate shape, a read route living inside a write prefix's
+    path space.
+    """
+    wide = ProbeExtension((
+        route_extension.RouteBinding(prefix_method, "/a/", True, "_wide"),))
+    narrow = ProbeExtension((
+        route_extension.RouteBinding(exact_method, "/a/x", False, "_narrow"),))
+    bindings = route_extension.collect_bindings((wide, narrow))
+    assert {b.handler for b in bindings} == {"_wide", "_narrow"}
+
+
+def test_an_exact_pattern_equal_to_a_prefix_minus_its_slash_does_not_collide():
+    """The pair this assembly ACTUALLY declares must keep building.
+
+    `"/source".startswith("/source/")` is False — the bare route does not sit
+    inside the prefix and no request path reaches both — so the projection
+    column's `/source` + `/source/` pair is legal, and the containment refusal
+    reads "under" as exactly that `startswith` rather than as a segment-wise
+    or "same stem" test that would have refused this assembly's own profile.
+    Asserted twice: on the pair alone, and on the whole in-tree profile, whose
+    nine bindings must still collect.
+    """
+    pair = ProbeExtension((
+        route_extension.RouteBinding("GET", "/source", False, "_bare"),
+        route_extension.RouteBinding("GET", "/source/", True, "_under"),))
+    assert [b.handler for b in route_extension.collect_bindings((pair,))] == \
+        ["_bare", "_under"]
+    profile = route_extension.collect_bindings(
+        profile_openxfactory.ROUTE_EXTENSIONS)
+    assert len(profile) == 9, (
+        "the in-tree profile no longer collects — RULING A's containment "
+        "refusal must not fire on `/source` beside `/source/`")
 
 
 def test_a_non_conforming_extension_is_refused():
@@ -652,42 +774,43 @@ def test_a_contributed_route_cannot_shadow_a_core_route(tmp_path, probes):
     assert "generation" in payload   # the real snapshot, unchanged
 
 
-def test_an_exact_caller_binding_under_a_contributed_prefix_wins_the_match(
-        tmp_path, probes):
-    """CHARACTERIZATION of a gap this PR opens rather than closes, disclosed
-    in PR #761's body as a design decision and raised there for Brett.
+@pytest.mark.parametrize("method,prefix,core_handler,probe", [
+    ("POST", serve_mod.ACTIONS_GATE_PREFIX, "_handle_gate_action", PROBE_WRITE),
+    ("GET", serve_mod.SOURCE_PREFIX, "_serve_source", PROBE_READ),
+])
+def test_an_exact_caller_binding_under_a_contributed_prefix_refuses_the_build(
+        tmp_path, probes, method, prefix, core_handler, probe):
+    """RULING A (Brett Heap, 2026-09-07), asserted where it actually bites: a
+    real `build_server`.
 
-    `collect_bindings` keys collisions on `(method, pattern, is_prefix)`, so
-    an EXACT binding is never compared against an already-declared PREFIX
-    binding's pattern, even when the exact path sits inside it. Before § 2.4
-    PR 3 moved the gate console off `serve.py`'s fixed `do_POST` table this
-    could not happen — no caller-suppliable binding stood a chance against a
-    hard-coded `if`. Now that `ACTIONS_GATE_PREFIX` is a CONTRIBUTED prefix
-    binding, a caller who can pass `route_extensions` (in-tree today: only
-    this test file and `test_serve_column_split.py`) can register an exact
-    binding under it, and the build accepts it — no `RouteBindingError`,
-    unlike the loud refusal `test_two_bindings_claiming_one_route_refuse_the_build`
-    pins for a literal duplicate — and it wins the match, so the real
-    `_handle_gate_action` (and its loopback/capability/actor/human-console
-    refusals) never runs for that one path.
+    FLIPPED from `…_wins_the_match`, which pinned the gap this PR opened as a
+    characterization. § 2.4 PR 3 moved the gate console and the projection
+    routes off `serve.py`'s fixed tables, and while a hard-coded `if` could not
+    be reached by a caller-supplied binding, a CONTRIBUTED prefix binding could
+    — a caller who passes `route_extensions` could declare an exact binding
+    under `ACTIONS_GATE_PREFIX` or `SOURCE_PREFIX`, the build accepted it, and
+    it won the match, so `_handle_gate_action` (and its loopback, capability,
+    actor and human-console refusals) never ran for that one path. That was
+    demonstrated live at this branch's head — a probe binding answering
+    `POST /actions/gate/<verb>` with its own 200.
 
-    This test PINS today's behaviour so a future tightening of
-    `collect_bindings` (treating an exact pattern that `startswith` an
-    already-declared prefix pattern as a collision, the same
-    `RouteBindingError` a literal duplicate already raises) shows up HERE
-    rather than nowhere. `scripts/route_extension.py` is out of this PR's
-    scope to change.
+    It is now impossible at BUILD: `collect_bindings` refuses the overlap
+    before `build_server` opens a socket, reads a checkout or bootstraps a
+    session, and the refusal names both the caller's binding and this
+    assembly's own. Parametrized over the two security-sensitive prefixes the
+    PR contributed, because the ruling is about the shape and not about the
+    gate console alone.
     """
-    verb_path = serve_mod.ACTIONS_GATE_PREFIX + "fake-verb"
+    verb_path = prefix + "fake-verb"
     override = ProbeExtension((
-        route_extension.RouteBinding("POST", verb_path, False, PROBE_WRITE),))
-    with serving(tmp_path, route_extensions=(override,)) as (_httpd, host, port):
-        status, payload, _raw = request(host, port, "POST", verb_path)
-    assert (status, payload["probe"]) == (200, "write"), (
-        "the caller's exact binding did not win the match under the "
-        "contributed gate prefix — either the gap this test pins has been "
-        "closed (update this test and PR #761's body together) or "
-        "something else about the seam has changed")
+        route_extension.RouteBinding(method, verb_path, False, probe),))
+    with pytest.raises(route_extension.RouteBindingError) as err:
+        with serving(tmp_path, route_extensions=(override,)):
+            pass          # never reached: the refusal precedes the socket
+    message = str(err.value)
+    assert f"{method} {verb_path!r}" in message
+    assert f"{method} prefix {prefix!r}" in message
+    assert probe in message and core_handler in message
 
 
 def test_the_query_string_is_stripped_before_a_binding_is_matched(tmp_path, probes):

@@ -1351,19 +1351,32 @@ def build_server(
     from the servers in the file that tests this very seam. This line is also
     the one the § 3 carve deletes rather than moves."""
     from ideation_dashboard import doxbench_turns
-    # Imported HERE rather than at module scope, deliberately: the profile is a
-    # WIRING input consulted once per build, and importing it at module scope
-    # would pull every contributed column — and, once PR 4 lands, the CLI
-    # column beside them — into the import graph of a module the container runs
-    # as a plain script. `cli.py` names the same profile at module scope
-    # because a parser is built from it at import time; a server is not.
+    # Imported HERE rather than at module scope, for the reason that is
+    # actually true on this branch — narrower than the one this comment gave
+    # before (Copilot review `PRRT_kwDOTAvnrs6f_iG1`): the profile is a WIRING
+    # input, read once per build and never per request, so it belongs beside
+    # the composition it feeds rather than in this module's import header.
+    # What it is NOT doing is keeping the contributed columns out of the import
+    # graph: `serve.py` already imports all three at module scope above,
+    # because they are `DashboardHandler`'s mixin bases, and the profile
+    # imports exactly those three. The dependency that must stay out of a
+    # module the container runs as a plain script is the CLI column —
+    # `cli_gate` reaches `authoring` -> `workbench` -> PyYAML, which the hosted
+    # image deliberately does not carry — and that one is held out at the
+    # profile's own end, which resolves `SUBCOMMAND_EXTENSIONS` (and
+    # `cli_gate`) on ACCESS through PEP 562 rather than binding them at import
+    # time, so only `cli.py`'s read of them pays. `cli.py` names the same
+    # profile at module scope because a parser is built from it at import time;
+    # a server is not.
     from ideation_dashboard import profile_openxfactory
 
     # FIRST, before a socket, a checkout read or a session bootstrap: a
-    # malformed, duplicated or non-conforming binding refuses the BUILD, and it
-    # costs nothing to find out before the expensive work starts. The profile's
-    # own bindings go through the SAME collection — a collision between a
-    # contributed route and one of this assembly's own is refused here too.
+    # malformed, duplicated, overlapping or non-conforming binding refuses the
+    # BUILD, and it costs nothing to find out before the expensive work starts.
+    # The profile's own bindings go through the SAME collection — a collision
+    # between a contributed route and one of this assembly's own is refused
+    # here too, INCLUDING a caller's exact binding declared under one of this
+    # assembly's prefixes (RULING A, 2026-09-07; `collect_bindings`).
     route_bindings = route_extension.collect_bindings(
         tuple(profile_openxfactory.ROUTE_EXTENSIONS) + tuple(route_extensions))
 
