@@ -1,0 +1,1 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object", "properties": {"status": {"enum": ["positive", "negative"]}, "code": {"oneOf": [{"const": "UNAVAILABLE"}, {"const": "INVALID"}]}}}

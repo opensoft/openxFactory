@@ -1,3 +1,8 @@
+---
+code_surface: openxFactory — contracts/factory-mcp/, scripts/validate-factory-mcp.py, tests/factory-mcp, docs/factory-mcp-conformance.md
+target_release: implemented — target is the repository main line after reviewed green realization; no release cut or consumer pin advance in this change.
+---
+
 # Add Factory MCP Conformance
 
 Status: ratified
@@ -5,8 +10,6 @@ Ratified: 2026-09-07 by Brett Heap; record review/ratification-2026-09-07.md
 Kind: architecture
 Proposed: 2026-09-07
 Lane: mcp-family-contract
-code_surface: contracts/factory-mcp/, scripts/validate-factory-mcp.py, tests/factory-mcp/
-target_release: next additive contract minor, allocated at realization; no release cut in this change
 
 ## Why
 
@@ -56,7 +59,7 @@ authority. The initial profile admits only advisory authority effects.
 Direct proposal from Brett's 2026-09-07 design conversation; the
 [factory-mcp packet](../../../ideation/brainstorm/factory-mcp-overview.md)
 preserves the non-normative design history. No staged source existed.
-The ad-hoc origin exception is proposed for approval with this packet.
+The ad-hoc origin was approved with this packet on 2026-09-07; see the ratification record.
 
 Evidence: [codex baseline](review/codex-baseline-2026-09-07.md) and
 [validation/consistency review](review/validation-2026-09-07.md).
@@ -68,6 +71,7 @@ separately reviewed pins; no moving checkout becomes a production dependency.
 
 ## Ratification boundary
 
-This packet requests approval of the bounded schema/validator slice and its
-proposed origin. It records no approval. Runtime code remains gated by the
-repository constitution; the task list records the ratification and handoff.
+Brett Heap ratified the bounded schema/validator slice and its ad-hoc origin
+on 2026-09-07. See [the approval record](review/ratification-2026-09-07.md).
+The implementation handoff is `specs/030-factory-mcp-conformance/`; the task
+list preserves the separate review, merge and archive checkpoints.

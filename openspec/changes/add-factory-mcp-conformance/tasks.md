@@ -13,9 +13,9 @@ will own executable implementation tasks; this file does not duplicate them.
 
 ## 2. Speckit realization
 
-- [ ] 2.1 Create exactly one canonical numbered Speckit feature from a clean root/base checkout after ratification; record its path here and verify spec/plan traceability to this delta.
-- [ ] 2.2 Complete clarify, plan, checklist, tasks and analyze in that feature worktree; verify no critical findings and executable task coverage for the neutral schema, offline validator, synthetic fixtures and compatibility guidance.
-- [ ] 2.3 Complete implementation and verification from the feature task list; record deterministic positive/negative evidence and required repository checks. No live deployment or release acceptance is implied.
+- [x] 2.1 Created `specs/030-factory-mcp-conformance/` from the clean ratified design branch; spec and plan trace to this delta.
+- [x] 2.2 Completed clarify, plan, six domain checklists, tasks and cross-artifact analysis in that feature; no critical findings. See the feature spec, plan and tasks for coverage.
+ - [x] 2.3 Local implementation and verification complete; see specs/030-factory-mcp-conformance/verification.md for deterministic evidence, required checks and existing baseline limitations. Review/merge/archive remain open.
 
 ## 3. Review and closure
 
