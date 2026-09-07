@@ -253,6 +253,33 @@ def _claimed_collision_keys(binding: RouteBinding) -> tuple[tuple[str, str, bool
     return keys
 
 
+def _collision_message(previous: RouteBinding, current: RouteBinding) -> str:
+    """Name each colliding binding by ITS OWN declared method — never a
+    method borrowed from whichever collision key happened to match.
+
+    Reporting `claimed_key[0]` (the SLOT that matched) rather than each
+    binding's actual `.method` made a GET/HEAD collision misreport itself as
+    "two route bindings claim GET", even where the second binding was
+    declared HEAD, not GET — Copilot review, `PRRT_kwDOTAvnrs6fwTVh`,
+    `scripts/route_extension.py:296`. `previous` is captured whole (not just
+    its handler name) so this can always name what it actually was.
+    """
+    if previous.method == current.method:
+        claim = f"two route bindings claim {previous.method} {current.pattern!r}"
+    else:
+        # The only cross-method collision this module has: a "GET" binding
+        # already answers HEAD (`_claimed_collision_keys`), so a "GET" and a
+        # "HEAD" binding at the same (pattern, is_prefix) both answer a live
+        # HEAD request even though neither is declared as the other.
+        claim = (f"{previous.method} {previous.pattern!r} and {current.method} "
+                  f"{current.pattern!r} claim the same GET/HEAD slot")
+    return (
+        f"{claim} (prefix={current.is_prefix}): {previous.handler!r} and "
+        f"{current.handler!r}. The second could never be reached, and a "
+        "route that looks declared and never fires is worse than one that "
+        "refuses.")
+
+
 def collect_bindings(extensions) -> tuple[RouteBinding, ...]:
     """Flatten the extensions into ONE consult order, refusing what cannot serve.
 
@@ -271,7 +298,12 @@ def collect_bindings(extensions) -> tuple[RouteBinding, ...]:
     """
     exact: list[RouteBinding] = []
     prefix: list[RouteBinding] = []
-    seen: dict[tuple[str, str, bool], str] = {}
+    #: The FULL previous binding, not just its handler name — so a collision
+    #: message can name what the previous binding was actually DECLARED as
+    #: (`_collision_message`), rather than the collision-check key that
+    #: happened to match, which is not always the previous binding's own
+    #: method.
+    seen: dict[tuple[str, str, bool], RouteBinding] = {}
     for extension in extensions:
         if not isinstance(extension, RouteExtension):
             raise RouteBindingError(
@@ -286,13 +318,8 @@ def collect_bindings(extensions) -> tuple[RouteBinding, ...]:
             for claimed_key in _claimed_collision_keys(binding):
                 previous = seen.get(claimed_key)
                 if previous is not None:
-                    raise RouteBindingError(
-                        f"two route bindings claim {claimed_key[0]} "
-                        f"{binding.pattern!r} (prefix={binding.is_prefix}): "
-                        f"{previous!r} and {binding.handler!r}. The second could "
-                        "never be reached, and a route that looks declared and "
-                        "never fires is worse than one that refuses.")
-            seen[binding.key] = binding.handler
+                    raise RouteBindingError(_collision_message(previous, binding))
+            seen[binding.key] = binding
             (prefix if binding.is_prefix else exact).append(binding)
     return tuple(exact) + tuple(prefix)
 

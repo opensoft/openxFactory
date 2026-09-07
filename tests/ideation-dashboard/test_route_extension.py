@@ -346,14 +346,26 @@ def test_a_get_and_a_head_binding_for_the_same_route_refuse_the_build(
     answer — the same unreachable-route defect two identical keys are refused
     for, just reached through the request method the second binding never
     receives. Parametrized over declaration order because the collision must
-    be caught either way, not only when the "GET" binding is declared first."""
+    be caught either way, not only when the "GET" binding is declared first.
+
+    The message must name EACH binding by ITS OWN declared method — not the
+    collision-check key that happened to match, which used to misreport a
+    HEAD binding's collision as "two route bindings claim GET" (Copilot
+    review `PRRT_kwDOTAvnrs6fwTVh`): asserting `first_method`/`second_method`
+    each appear beside their own binding's pattern would fail on that bug,
+    since a HEAD binding's own method never appeared in the old message at
+    all.
+    """
     first = ProbeExtension((
         route_extension.RouteBinding(first_method, "/a", False, "_first"),))
     second = ProbeExtension((
         route_extension.RouteBinding(second_method, "/a", False, "_second"),))
     with pytest.raises(route_extension.RouteBindingError) as err:
         route_extension.collect_bindings((first, second))
-    assert "_first" in str(err.value) and "_second" in str(err.value)
+    message = str(err.value)
+    assert "_first" in message and "_second" in message
+    assert f"{first_method} {'/a'!r}" in message
+    assert f"{second_method} {'/a'!r}" in message
 
 
 def test_a_get_and_a_head_binding_for_DIFFERENT_routes_do_not_collide():
