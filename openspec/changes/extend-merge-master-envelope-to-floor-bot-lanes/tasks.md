@@ -4,10 +4,12 @@ Status: ratified
 
 **RATIFIED 2026-09-07** — Brett Heap, in session at 2026-09-07T12:32:44Z,
 verbatim *"ratify 746 and 272 as recommended when green, then land them"*; record
-`review/ratification-2026-09-07.md`. **THE RATIFICATION PERFORMS NOTHING IN THIS
-FILE.** Decisions N-1 through N-5 stand as recommended, and every box below —
-including group 1's, whose work is what produced the packet that was ratified —
-remains UNTICKED.
+`review/ratification-2026-09-07.md`. **THE RATIFICATION PERFORMED NOTHING IN
+THIS FILE.** Decisions N-1 through N-5 stand as recommended, and at that commit
+every box below — including group 1's, whose work is what produced the packet
+that was ratified — was UNTICKED and stayed so. **PAST TENSE DELIBERATELY: the
+realization word below is what moved them, and this paragraph describes the
+state it superseded rather than the state of the file you are reading.**
 
 **REALIZED 2026-09-07** — Brett Heap, in session at 2026-09-07T19:19Z, verbatim
 *"tick 5.0 in the amendment, then realize 6.3"*, recorded on openxFactory #745

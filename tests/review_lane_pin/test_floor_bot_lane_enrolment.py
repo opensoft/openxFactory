@@ -143,8 +143,19 @@ class TheFloorIsComposedOverTheEnvelope(unittest.TestCase):
         """
         import subprocess
 
-        predicate = 'if [ "${FLOOR_MATCHED:-}" != "0" ]; then echo PARK; else echo PASS; fi'
-        self.assertIn(predicate.split(";")[0] + ";", _executable(APPROVAL) + ";")
+        # THE CONDITION IS ONE NAMED LITERAL, ASSERTED AGAINST THE WORKFLOW
+        # (Copilot round 1 on #770 asked for this and it is right on
+        # legibility, though its premise — that the old form would fail on the
+        # correct workflow — was not: `predicate.split(";")[0] + ";"` yielded
+        # exactly `if [ "${FLOOR_MATCHED:-}" != "0" ];`, which IS a substring
+        # of the shipped `... ]; then`, and the test passed. The objection to
+        # keep is that nobody should have to compute that to read it.)
+        CONDITION = 'if [ "${FLOOR_MATCHED:-}" != "0" ]; then'
+        self.assertIn(CONDITION, _executable(APPROVAL))
+        # The local probe is the SHIPPED condition with a reportable body, so
+        # the bytes under test are the workflow's own and only the branches are
+        # this test's.
+        predicate = f'{CONDITION} echo PARK; else echo PASS; fi'
 
         def answer(assignment: str) -> str:
             script = f"{assignment}\n{predicate}\n"
@@ -324,12 +335,25 @@ class TheRePinOrdering(unittest.TestCase):
         self.assertIn("It moves ALL FIVE SITES or it opens nothing", driver)
         # The pin currently on disk is a 40-hex commit, not a ref name — so the
         # site the lane rewrites cannot hold a branch or a tag.
+        #
+        # READ AS YAML, NOT SCRAPED (Copilot round 1 on #770). The earlier form
+        # fell back to `re.search(...).group(1)`, which raises a bare
+        # `AttributeError: 'NoneType' object has no attribute 'group'` if the
+        # line is ever unquoted, reformatted or absent — a failure naming
+        # neither the file nor the key. `core_commit` is a TOP-LEVEL key of this
+        # document (measured: its top-level keys are `schema_version`, `kind`,
+        # `repository`, `core_commit`, …), so there is nothing to scrape for.
         pin = yaml.safe_load(PIN.read_text(encoding="utf-8"))
-        core = str(pin["pin"]["core_commit"]) if "pin" in pin else None
-        if core is None:  # the document's shape is the pin's own, not ours
-            core = re.search(r'core_commit: "([0-9a-f]{40})"',
-                             PIN.read_text(encoding="utf-8")).group(1)
-        self.assertRegex(core, r"^[0-9a-f]{40}$")
+        self.assertIn("core_commit", pin,
+                      f"{PIN.name} declares no top-level `core_commit`; the "
+                      f"re-pin lane's first site has moved or been renamed, and "
+                      f"this test can no longer say what the lane may propose")
+        core = str(pin["core_commit"])
+        self.assertRegex(
+            core, r"^[0-9a-f]{40}$",
+            f"{PIN.name}'s `core_commit` is {core!r}, not a 40-hex commit. A "
+            f"branch or tag here is exactly the 'choose its own judge' state "
+            f"the floor member exists to prevent")
 
 
 # ═══ the completeness pin ════════════════════════════════════════════════════
