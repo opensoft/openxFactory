@@ -37,8 +37,23 @@ Usage:
         reusing CHANGE_DIR's current path, so the gate still runs after the
         change has moved from its active location to
         `openspec/changes/archive/<date>-<id>/` between ratification and
-        archive. When the id has no proposal.md at REF at all, this prints a
-        named finding and exits 2 rather than tracing back.
+        archive.
+
+        A FAILURE TO READ EITHER SIDE is a named finding with exit 2 rather
+        than a traceback — EVERY `SequencedAfterError` out of the gate is
+        reported that way, not an enumerated few: the id has no proposal.md at
+        REF at all; CHANGE_DIR carries no proposal.md IN THE WORKING TREE (the
+        CURRENT declaration cannot be read, so the gate cannot run, and the
+        absent file is NOT read as `ABSENT` and compared, which would report a
+        mutation nobody made or a retention nobody earned); or the front matter
+        on EITHER side is malformed or unparseable. A declaration MUTATION —
+        the gate running and finding a broken freeze — is exit 1.
+
+        ONE MISHANDLING IS STILL NOT CONVERTED, and is named rather than
+        claimed away: a CHANGE_DIR outside any git work tree surfaces git's own
+        `CalledProcessError`. `validate-scope-globs.py` converts that one too;
+        this gate does not, and that is a separate arm from the one aligned
+        here.
 
     --sweep
         THE CORPUS SWEEP, re-runnable: the change-id population, the
@@ -152,10 +167,17 @@ def _archive_gate(change_dir: Path, ratified_ref: str) -> int:
     try:
         problem = sa.retention_at_archive(change_dir, ratified_ref)
     except sa.SequencedAfterError as exc:
-        # UNRESOLVABLE AT THE REF IS NOT A MUTATION FINDING (exit 1) AND NOT A
-        # TRACEBACK: it is a distinct fact — the id names no proposal.md at
-        # `ratified_ref` at all — reported the same way every other refusal in
-        # this CLI is, as a named finding and exit 2.
+        # UNRUNNABLE IS NOT A MUTATION FINDING (exit 1) AND NOT A TRACEBACK.
+        # THE CATCH IS DELIBERATELY ON THE WHOLE ERROR CLASS, not on an
+        # enumerated few: the id names no proposal.md at `ratified_ref`,
+        # CHANGE_DIR carries no proposal.md in the working tree so the
+        # current-side declaration cannot be read, the front matter on either
+        # side does not parse — every one of them is the same distinct fact,
+        # that the gate could not READ what it compares, and every one is
+        # reported the way every other refusal in this CLI is: a named finding
+        # and exit 2, the same shape `validate-scope-globs.py` uses for its own
+        # gate. A new refusal added to the substrate lands here correctly
+        # without this comment having to be revised.
         print("sequenced_after PARENT-DECLARATION-RETENTION gate CANNOT RUN:")
         print(f"  - {exc}")
         return 2
