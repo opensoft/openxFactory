@@ -588,11 +588,16 @@ def scope_retention_at_archive(change_dir: str | Path, ratified_ref: str) -> str
         # the CLI's own contract already says so: every failure to READ the
         # current front matter is a named finding and exit 2.
         #
-        # KNOWN DIVERGENCE FROM THE SIBLING GATE, deliberately not fixed here:
-        # `sequenced_after.retention_at_archive` reads this same case as ABSENT
-        # and compares on. `scripts/sequenced_after.py` is outside this change's
-        # declared scope, so the alignment is recorded as a follow-on rather
-        # than taken in this PR.
+        # THE DIVERGENCE THIS COMMENT ONCE RECORDED IS CLOSED.
+        # `sequenced_after.retention_at_archive` read this same case as ABSENT
+        # and compared on when #723 wrote the note; #734 made it refuse, and
+        # #749 mirrored this gate's other three arms (CHANGE_DIR resolved
+        # before its id is read, an unresolvable ref named as such, a CHANGE_DIR
+        # outside a work tree converted to a finding) back into it. The two
+        # archive gates now refuse the same inputs alike, and
+        # `tests/sequenced_after/test_gate_parity.py` runs both CLIs over one
+        # set of fixtures so a new divergence reds a check instead of ageing
+        # into a comment.
         raise ScopeGlobsResolutionError(
             f"the change directory {str(change_path)!r} carries no proposal.md "
             f"in the working tree ({str(proposal)!r}), so the CURRENT scope "

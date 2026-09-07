@@ -619,12 +619,47 @@ def retention_problem(ratified: object, current: object) -> str | None:
 
 
 def _git_toplevel(path: Path) -> Path:
+    """The work-tree root containing `path`.
+
+    Raises `SequencedAfterError` — never a `CalledProcessError` traceback —
+    when `path` is not inside a git work tree at all. A mistyped or
+    non-existent CHANGE_DIR is the SAME CLASS of operator error #705 filed on
+    the sibling gate, and it must arrive at the CLI as a named "cannot run"
+    finding (exit 2) rather than as a stack trace. The sibling
+    `scope_globs._git_toplevel` converts this case in exactly this shape
+    (#723); this is the mirror of that arm, so the two archive gates refuse the
+    same input the same way.
+    """
+    directory = path if path.is_dir() else path.parent
     out = subprocess.run(
-        ["git", "-C", str(path if path.is_dir() else path.parent),
-         "rev-parse", "--show-toplevel"],
-        capture_output=True, text=True, check=True,
+        ["git", "-C", str(directory), "rev-parse", "--show-toplevel"],
+        capture_output=True, text=True,
     )
+    if out.returncode != 0:
+        detail = out.stderr.strip() or f"git rev-parse exited {out.returncode}"
+        raise SequencedAfterError(
+            f"{str(directory)!r} is not inside a git work tree, so the "
+            f"ratified-side proposal cannot be read: {detail}")
     return Path(out.stdout.strip())
+
+
+def _ref_names_a_commit(repo_root: Path, ref: str) -> bool:
+    """Whether `ref` resolves to a COMMIT in `repo_root`.
+
+    Checked BEFORE the by-id lookup so an unresolvable ref (a typo, a deleted
+    branch) or a ref naming a non-commit object is reported as what it is. The
+    lookup's own probes (`_blob_exists_at_ref`, `_archive_dir_names_at_ref`)
+    deliberately swallow git's exit status, so without this a bad ref would be
+    reported in the wording of a change that is absent at a good one —
+    pointing the operator at the wrong thing. Mirrors
+    `scope_globs._ref_names_a_commit` (#723).
+    """
+    out = subprocess.run(
+        ["git", "-C", str(repo_root), "rev-parse", "--verify", "--quiet",
+         f"{ref}^{{commit}}"],
+        capture_output=True, text=True,
+    )
+    return out.returncode == 0
 
 
 def change_id_of_dir(change_dir: str | Path) -> str:
@@ -728,18 +763,45 @@ def retention_at_archive(change_dir: str | Path, ratified_ref: str) -> str | Non
     entries as authored, any date-prefixing, re-pointing or normalization
     performed on archival would register here as a mutation.
 
+    `change_dir` is RESOLVED to an absolute path before its change id is read.
+    The id is decided from the directory's own name and its PARENT's name
+    (`archive` or not), so a cwd-relative spelling — `.` from inside the
+    archived directory, or `<date>-<id>` from inside `archive/` — would
+    otherwise be read against components the relative path does not carry, and
+    the gate would refuse a directory it can perfectly well check.
+
+    CHANGE_DIR must live under `openspec/changes/` of its repository: the
+    ratified-side lookup is anchored there (active path first, then
+    `openspec/changes/archive/<date>-<id>/`), which is the same anchoring the
+    sibling gate uses and the only layout this corpus has.
+
     Raises `SequencedAfterError` (never a traceback) whenever it cannot READ
-    what it compares: when `change_id` has no proposal.md at `ratified_ref` at
-    all, when `change_dir` carries no `proposal.md` IN THE WORKING TREE — the
-    CURRENT declaration cannot be read, so the gate cannot run — and when the
-    front matter on EITHER side is malformed or unparseable (`read_declaration`
-    refuses it). A `change_dir` outside any git work tree is NOT converted and
-    still surfaces git's own error; the sibling `scope_globs` gate names that
-    case too, and aligning it is a separate arm.
+    what it compares: when `change_dir` is not inside a git work tree at all,
+    when `ratified_ref` does not name a commit, when `change_id` has no
+    proposal.md at `ratified_ref`, when `change_dir` carries no `proposal.md`
+    IN THE WORKING TREE — the CURRENT declaration cannot be read, so the gate
+    cannot run — and when the front matter on EITHER side is malformed or
+    unparseable (`read_declaration` refuses it). Every one of those arms is
+    also refused, in the same order and with the same exit code, by the sibling
+    `scope_globs.scope_retention_at_archive`: the two archive gates read the
+    same corpus over the same trees, so they refuse the same inputs alike
+    (#749, mirroring #723).
     """
-    change_path = Path(change_dir)
+    change_path = Path(change_dir).resolve()
     proposal = change_path / "proposal.md"
     repo_root = _git_toplevel(change_path)
+    if not _ref_names_a_commit(repo_root, ratified_ref):
+        # NAMED AS AN UNRESOLVABLE REF, NOT AS AN ABSENT CHANGE. Without this
+        # probe a typo or a deleted branch fell through to the by-id lookup,
+        # whose git probes swallow their exit status, and was reported as
+        # "<id> has no proposal.md at ref <ref>" — the wording of a change that
+        # is genuinely absent at a resolvable ref. That sends the operator to
+        # look for a missing directory when the ref is what is wrong.
+        raise SequencedAfterError(
+            f"the ratified ref {ratified_ref!r} does not name a commit in "
+            f"{str(repo_root)!r} — the ratified-side proposal was not looked "
+            "up at all; this is an unresolvable ref, NOT a change that is "
+            "absent at a resolvable one")
     change_id = change_id_of_dir(change_path)
     ratified_rel = proposal_path_at_ref(repo_root, ratified_ref, change_id)
     ratified = declaration_at_ref(repo_root, ratified_ref, ratified_rel)

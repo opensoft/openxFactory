@@ -37,23 +37,29 @@ Usage:
         reusing CHANGE_DIR's current path, so the gate still runs after the
         change has moved from its active location to
         `openspec/changes/archive/<date>-<id>/` between ratification and
-        archive.
+        archive. CHANGE_DIR may be absolute or relative (including `.` from
+        inside the change directory itself) and MUST live under
+        `openspec/changes/` of its repository, because the ratified-side lookup
+        is anchored there.
 
         A FAILURE TO READ EITHER SIDE is a named finding with exit 2 rather
         than a traceback — EVERY `SequencedAfterError` out of the gate is
-        reported that way, not an enumerated few: the id has no proposal.md at
-        REF at all; CHANGE_DIR carries no proposal.md IN THE WORKING TREE (the
-        CURRENT declaration cannot be read, so the gate cannot run, and the
-        absent file is NOT read as `ABSENT` and compared, which would report a
-        mutation nobody made or a retention nobody earned); or the front matter
-        on EITHER side is malformed or unparseable. A declaration MUTATION —
-        the gate running and finding a broken freeze — is exit 1.
+        reported that way, not an enumerated few: CHANGE_DIR is not inside a
+        git work tree; REF does not name a commit (an unresolvable ref is named
+        as such, NOT reported as a change absent at a resolvable one); the id
+        has no proposal.md at REF at all; CHANGE_DIR carries no proposal.md IN
+        THE WORKING TREE (the CURRENT declaration cannot be read, so the gate
+        cannot run, and the absent file is NOT read as `ABSENT` and compared,
+        which would report a mutation nobody made or a retention nobody
+        earned); or the front matter on EITHER side is malformed or
+        unparseable. A declaration MUTATION — the gate running and finding a
+        broken freeze — is exit 1.
 
-        ONE MISHANDLING IS STILL NOT CONVERTED, and is named rather than
-        claimed away: a CHANGE_DIR outside any git work tree surfaces git's own
-        `CalledProcessError`. `validate-scope-globs.py` converts that one too;
-        this gate does not, and that is a separate arm from the one aligned
-        here.
+        THE REFUSAL SET IS NOW THE SIBLING'S. `validate-scope-globs.py`
+        --archive-gate refuses the same inputs, in the same order, with the
+        same exit codes; `tests/sequenced_after/test_gate_parity.py` runs both
+        CLIs over one set of git fixtures and asserts it, so a future divergence
+        reds a check rather than being discovered by an operator.
 
     --sweep
         THE CORPUS SWEEP, re-runnable: the change-id population, the
@@ -110,6 +116,7 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import subprocess
 import sys
 from pathlib import Path
 
@@ -166,7 +173,7 @@ def validate_corpus(repo_root: Path, repository: str) -> int:
 def _archive_gate(change_dir: Path, ratified_ref: str) -> int:
     try:
         problem = sa.retention_at_archive(change_dir, ratified_ref)
-    except sa.SequencedAfterError as exc:
+    except (sa.SequencedAfterError, subprocess.CalledProcessError) as exc:
         # UNRUNNABLE IS NOT A MUTATION FINDING (exit 1) AND NOT A TRACEBACK.
         # THE CATCH IS DELIBERATELY ON THE WHOLE ERROR CLASS, not on an
         # enumerated few: the id names no proposal.md at `ratified_ref`,
@@ -178,6 +185,12 @@ def _archive_gate(change_dir: Path, ratified_ref: str) -> int:
         # and exit 2, the same shape `validate-scope-globs.py` uses for its own
         # gate. A new refusal added to the substrate lands here correctly
         # without this comment having to be revised.
+        #
+        # `CalledProcessError` is caught BESIDE it as a backstop, the same way
+        # `validate-scope-globs.py` does: no git call on this path is expected
+        # to reach the caller unhandled any more — the work-tree probe and the
+        # ref-commit probe are the two that used to — and if one ever does, it
+        # is still reported rather than traced.
         print("sequenced_after PARENT-DECLARATION-RETENTION gate CANNOT RUN:")
         print(f"  - {exc}")
         return 2
