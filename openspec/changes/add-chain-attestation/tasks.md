@@ -1171,16 +1171,25 @@ Each is contract content — cheap now, expensive after a bundle ships.
       live required `signed-execution-chain-gate`, each drew EXACTLY the set the
       acceptance below admits and nothing outside it, and both were closed
       unmerged with their branches deleted. Recorded on issue **#579**, comment
-      `5572448432`, and here — the same fact in the two places § 5.8 demands it,
-      with the refusal text quoted verbatim from each run's log in both.
+      `5572448432`, and here — the same fact in the two places § 5.8 demands it.
+
+      **AND THE QUOTATIONS BELOW ARE ABRIDGED, WHICH IS SAID RATHER THAN LEFT TO
+      BE NOTICED** (Copilot, on this note). The refusal IDS, the counts and the
+      task identifier are verbatim; the chain digests and the record locations
+      are elided at `…` so the lines fit this file's column. **THE UNABRIDGED
+      LOG LINES ARE IN THE #579 COMMENT NAMED ABOVE**, quoted there in full and
+      unelided, and beyond both of those the runs themselves are the source:
+      `34133713857` and `34133903555`. A quotation this file trims is never the
+      evidence — the run log is, the recording carries it whole, and this note
+      says which is which.
 
       | canary | PR | head | run id | check id | conclusion | refusal set (verbatim ids) | `mergeStateStatus` |
       |---|---|---|---|---|---|---|---|
       | **A** — a chain with a dropped runner attestation | **#758** | `f964514328a98c5c91b6d0787bc3c8c99f98daba` | **`34133713857`** | **`101779654949`** | **`failure`** | `dispatched_leaf_never_written`, `open_decision_enumeration_incomplete` | **`BLOCKED`** |
       | **B** — a pull request with no signed open decision | **#759** | `63096bc27367a912e7f618fb0c13a90ed6c078c5` | **`34133903555`** | **`101780251342`** | **`failure`** | `orphan_chain_identity`, `chain_binding_names_another_chain`, `orphan_pull_request` | **`BLOCKED`** |
 
-      **CANARY A DREW THE ACCEPTED PAIR, AND IT IS ONE FACT SEEN TWICE.** Quoted
-      from run `34133713857`'s own log, `108 artifact(s) checked`, ending
+      **CANARY A DREW THE ACCEPTED PAIR, AND IT IS ONE FACT SEEN TWICE.**
+      Abridged from run `34133713857`'s own log, `108 artifact(s) checked`, ending
       `validate-signed-execution-chain: 2 error(s), 0 warning(s)`:
       `ERROR [dispatched_leaf_never_written] chain sha256:269a80d8…96ff95: task
       'task:t5-dropped' is in link 4's committed expectation and produced NO
@@ -1191,7 +1200,8 @@ Each is contract content — cheap now, expensive after a bundle ships.
       6's — the acceptance's first branch exactly.
 
       **CANARY B DREW THE ACCEPTED THREE, AND THEY ARE THREE DISTINCT TRUE
-      FACTS.** From run `34133903555`'s log, `110 artifact(s) checked`, ending
+      FACTS.** Abridged the same way, from run `34133903555`'s log,
+      `110 artifact(s) checked`, ending
       `validate-signed-execution-chain: 3 error(s), 0 warning(s)`:
       `ERROR [orphan_chain_identity] chain sha256:64b95694…a77710 resolves to no
       signed ratification`, `ERROR [chain_binding_names_another_chain] …#108: the
