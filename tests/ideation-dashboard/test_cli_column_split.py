@@ -17,10 +17,12 @@ proof. This file covers what neither of those can see:
      asserted twice: structurally (no such import exists) and LIVE (a patch on
      the core is observed inside a moved body).
 
-  2. **THE SCANS THAT LOST THEIR SUBJECT.** Three landed tests are closed-world
+  2. **THE SCANS THAT LOST THEIR SUBJECT.** Six landed tests are closed-world
      sweeps over `cli.py`'s own source — every `HumanGate` construction
      authenticates first (`test_trust_gaps.py`), and no bypass flag exists
-     (`test_create_document_cli.py`, `test_session_verbs.py`). Those sweeps were
+     (`test_create_document_cli.py:178`, `test_session_verbs.py:775`,
+     `test_session_verbs.py:1255`, `test_lens_gate_cli.py:126`,
+     `test_readiness_gate.py:228`). Those sweeps were
      closed over the WHOLE CLI because the whole CLI was one file. Six of the
      nine gate constructions and the whole gate parser tree left it, so they
      still pass over a SMALLER WORLD. Nothing went red and something was lost,
@@ -101,9 +103,14 @@ SPINE = (
 #: and the patch stops reaching the gate verbs, so the reader is what is pinned.
 SPINE_READ_THROUGH = {"generate_snapshot": "_gate_snapshot"}
 
-#: The flags no verb on this command line may offer, from the two landed sweeps
-#: this file mirrors (`test_create_document_cli.py`, `test_session_verbs.py`) —
-#: their union, applied to the whole surface.
+#: The flags no verb on this command line may offer, from the five landed
+#: sweeps this file mirrors (`test_create_document_cli.py:178`,
+#: `test_session_verbs.py:775`, `test_session_verbs.py:1255`,
+#: `test_lens_gate_cli.py:126`, `test_readiness_gate.py:228`) — their union,
+#: applied to the whole surface. The first three read `cli.py`'s general
+#: bypass vocabulary; the last two are the readiness-gate sweep that used to
+#: close over `gate propose` when it lived in the same file — `--skip-readiness`
+#: is the flag they name that the other three do not.
 #:
 #: `--content` is spelled WITHOUT the trailing space the landed sweeps carry.
 #: `"--content "` cannot match a declaration (`add_argument("--content", ...)`
@@ -114,7 +121,8 @@ SPINE_READ_THROUGH = {"generate_snapshot": "_gate_snapshot"}
 BYPASS_FLAGS = ("--force", "--override", "--overwrite", "--no-record",
                 "--skip-gate", "--no-gate", "--content", "--delete",
                 "--token", "--gh-token", "--github-token", "--merge",
-                "--approve", "--admin", "--auto-merge", "--squash")
+                "--approve", "--admin", "--auto-merge", "--squash",
+                "--skip-readiness")
 
 #: The two names `test_trust_gaps.py`'s sweep exempts, carried over verbatim:
 #: they ARE the authentication (`_session_identity_gate` runs `_gate_actor`), so
@@ -360,9 +368,12 @@ def test_the_surface_wide_gate_scan_is_not_vacuous():
 
 
 def test_no_verb_on_this_command_line_offers_a_bypass_flag():
-    """`test_create_document_cli.py`'s and `test_session_verbs.py`'s flag sweeps,
-    re-stated the same way and for the same reason: the `gate` parser tree left
-    `cli.py`, so a bypass flag added to it would no longer be swept by either.
+    """`test_create_document_cli.py`'s, `test_session_verbs.py`'s (both of its
+    sweeps), `test_lens_gate_cli.py`'s and `test_readiness_gate.py`'s flag
+    sweeps, re-stated the same way and for the same reason: the `gate` parser
+    tree — including `gate propose`, the verb the readiness gate exists for —
+    left `cli.py`, so a bypass flag added to it, `--skip-readiness` included,
+    would no longer be swept by any of them.
 
     One list over the whole surface — the rule was never per-verb, and it was
     never per-file either."""

@@ -959,8 +959,18 @@ if __name__ == "__main__":
     # `RepoRootRefused`'s own docstring exists to guarantee.
     #
     # Dispatching into the package copy means only one module object ever runs
-    # anything — one set of exception classes, one set of module-level names to
-    # patch — so the split is invisible here too, as it is everywhere else.
+    # anything under EITHER of the two invocations named above — one set of
+    # exception classes, one set of module-level names to patch — so the split
+    # is invisible here too, as it is everywhere else.
+    #
+    # This does not close every spelling: `scripts/__init__.py` makes
+    # `scripts.ideation_dashboard.cli` a third importable one, and `_core()`
+    # always resolves `ideation_dashboard.cli` regardless of which spelling
+    # called into it, so a caller that did
+    # `from scripts.ideation_dashboard import cli; cli.main([...])` would still
+    # see its OWN `RepoRootRefused`/`GeneratedAtRefused` miss the package
+    # copy's. No caller in this repo does that today (checked) — recorded here,
+    # not left as a silent gap in the claim above.
     from ideation_dashboard import cli as _package_cli
 
     sys.exit(_package_cli.main())
