@@ -513,13 +513,21 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [publish-openspec-cli-pin-as-contract-member](openspec/changes/publish-openspec-cli-pin-as-contract-member/proposal.md)
-  — authored 2026-09-07, **`Status: draft` — NOTHING HERE IS RATIFIED**, lane
-  `openxfactory-1`. Half **A** of the estate-wide OpenSpec CLI pin rollout
-  governed by issue [#754](https://github.com/opensoft/openxFactory/issues/754),
-  which records Brett Heap's two rulings of 2026-09-07 — rollout *"Hybrid A+B"*
-  and lane scope *"openxFactory only; siblings via their lanes"*. Those rulings
+  — authored 2026-09-07, **`Status: ratified`** (2026-09-07, Brett Heap,
+  openxFactory operator authority, in-session, *"merge 72 when green, then
+  ratify the A packet"*, recorded on #754 at 2026-09-07T14:27:55Z; records
+  `openspec/changes/publish-openspec-cli-pin-as-contract-member/review/ratification-2026-09-07.md`
+  and `verification-2026-09-07.md`). `.openspec.yaml` keeps the drafting
+  provenance it was authored with and the approval pair is ADDED beside it —
+  `kind`, `id` and `reason` unmoved, the addition-not-rewrite shape
+  `add-drafted-proposal-origin` defined. Lane `openxfactory-1`. Half **A** of
+  the estate-wide OpenSpec CLI pin rollout governed by issue
+  [#754](https://github.com/opensoft/openxFactory/issues/754), which records
+  Brett Heap's two earlier rulings of 2026-09-07 — rollout *"Hybrid A+B"* and
+  lane scope *"openxFactory only; siblings via their lanes"*. Those rulings
   admit the work and fix its scope; they ratify no text and take no design
-  decision. **THE GAP IS PUBLICATION, NOT ENFORCEMENT.** The gate is already
+  decision — an ORIGIN, not an approval, and the ratification is the separate
+  act above. **THE GAP IS PUBLICATION, NOT ENFORCEMENT.** The gate is already
   ratified and running — `add-openspec-cli-pin` requires a consuming repository
   to invoke the pinned entrypoint FROM the pinned openxFactory checkout and to
   name that version in its `stack.yaml` — but `contracts/openspec-cli-pin.yaml`
@@ -554,23 +562,31 @@ Active changes:
   `contracts/manifest.yaml` row (`type: pin`, no `sha256`, a never-copy
   `consumption_rule` on `domain-factory-conformance-validator`'s precedent) and
   `contracts/README.md`'s matching index row plus a new consumer-facing section,
-  *Gating archives on the pinned CLI from a consumer repository*. **The veto
-  point is `design.md` D1 — A-defer against A-cut**, and A-defer is DESIGNED on
-  a measurement: `release_membership(.)` reads **283 before and 283 after**, the
-  pin absent from both, because membership is a closed set that never walks the
-  manifest's `contracts:` list; both edited files are EDITORIAL members whose
-  movement between cuts `release-surface-integrity` declares expected, so no
-  bundle is spent and no tag is owed. A-cut (`contract-v3.5` here, tag owed
-  after the merge) is written out with four costs, and a third option, A-member
-  (adding the pin to the derived membership in `release.py`, 283 → 285), is
-  recorded as not taken rather than foreclosed. **A CUT IS NOT THIS LANE'S ACT**
-  — if A-cut is chosen it becomes a realization task, ticked when done.
-  `release-tag-gate` DOES run (the diff touches `contracts/manifest.yaml`) and is
-  expected to pass: `contract-v3.4` is published, an annotated tag peeling to
-  `807a4f47`, and `contract_bundle_version` does not move. A second, smaller
-  veto point is **D2**, the row carrying no `sha256`. **B of #754 — the three
-  no-lane repositories — is NOT performed here**, and no sibling's adoption is
-  claimed.
+  *Gating archives on the pinned CLI from a consumer repository*. **THE VETO
+  POINT WAS `design.md` D1 — PUT, AND NOT VETOED** — A-defer against A-cut, and
+  **A-defer is ratified AS DESIGNED** on a measurement: `release_membership(.)`
+  reads **283 before and 283 after**, the pin absent from both, because
+  membership is a closed set that never walks the manifest's `contracts:` list;
+  both edited files are EDITORIAL members whose movement between cuts
+  `release-surface-integrity` declares expected, so no bundle is spent and no
+  tag is owed. **A-defer's cost is ratified with it**: the
+  `contracts/CHANGELOG.md` entry naming this registered contract is OWED AT THE
+  NEXT CUT (`tasks.md` § 5.7). A-cut (`contract-v3.5` here, tag owed after the
+  merge) was written out with four costs and **was NOT chosen**, so this pull
+  request cuts nothing, allocates no version and owes no tag — a cut remains an
+  act on a word not given; and a third option, A-member (adding the pin to the
+  derived membership in `release.py`, 283 → 285), stands recorded as not taken
+  rather than foreclosed. `release-tag-gate` DOES run (the diff touches
+  `contracts/manifest.yaml`) and passes: `contract-v3.4` is published, an
+  annotated tag peeling to `807a4f47`, and `contract_bundle_version` does not
+  move. A second, smaller veto point, **D2** — the row carrying no `sha256` —
+  was carried separately and **was not vetoed either**; its residual coupling
+  (the row quotes the entrypoint path and nothing compares it with the pin's own
+  `consumer_entrypoint:`) is ratified as DISCLOSED, owed at `tasks.md` § 5.4.
+  Under `release-realization` the packet still archives on merged-plus-green
+  realization evidence rather than on landing, on a separate word. **B of #754 —
+  the three no-lane repositories — is NOT performed here**, and no sibling's
+  adoption is claimed.
 
 - [extend-merge-master-envelope-to-floor-bot-lanes](openspec/changes/extend-merge-master-envelope-to-floor-bot-lanes/proposal.md)
   — authored 2026-09-07, **`Status: ratified`** (2026-09-07, Brett Heap

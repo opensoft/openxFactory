@@ -1,6 +1,7 @@
 # Design: publish-openspec-cli-pin-as-contract-member
 
-Status: draft (nothing here is ratified by being authored)
+Status: ratified
+Ratified by: publish-openspec-cli-pin-as-contract-member — 2026-09-07, Brett Heap, "merge 72 when green, then ratify the A packet" (record `review/ratification-2026-09-07.md`)
 
 Every claim below about running code was read in a fresh clone of this
 repository at `44d8fbaf` (openxFactory `main`, 2026-09-07) and is cited

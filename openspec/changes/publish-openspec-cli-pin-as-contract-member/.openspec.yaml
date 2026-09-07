@@ -45,6 +45,46 @@ origin:
     option, A-member, is recorded as not taken rather than foreclosed. A second,
     smaller veto point is D2, the row carrying no `sha256`.
   proposed_on: 2026-09-07
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — in session on 2026-09-07,
+    lane `openxfactory-1`, verbatim: "merge 72 when green, then ratify the A
+    packet", recorded on openxFactory issue #754 at 2026-09-07T14:27:55Z.
+    THIS IS THE RATIFICATION ACT AND IT IS ADDED, NOT SUBSTITUTED. The drafting
+    provenance above is kept exactly as authored and `kind`, `id` and `reason`
+    never move, which is the shape `add-drafted-proposal-origin` (issue #318)
+    defined for this transition: approval is a pure ADDITION to a fixed origin
+    identity, so the support manifest that repeats `kind` and `id` never comes
+    to disagree with the packet, and the archive gate's origin-retention arm
+    reads the declaration this commit establishes. The word has two clauses and
+    both are discharged: the FIRST landed xFactory-Hermes-Install #72 as merge
+    commit 06c9083d at 14:42:30Z — the estate's first declared consumption copy,
+    B of #754 — and the SECOND is this. The two earlier rulings of 2026-09-07 on
+    #754, rollout "Hybrid A+B" and lane scope "openxFactory only; siblings via
+    their lanes", remain the ORIGIN and are still recorded as one.
+    THE DECISION THE WORD REACHES is `design.md` D1 — A-defer, registering the
+    pin in the two editorial files and cutting no bundle, against A-cut,
+    registering AND cutting `contract-v3.5` here with the annotated tag owed
+    after the merge — which was carried as the packet's veto point in the pull
+    request body, in `tasks.md` § 1.2, in `proposal.md` § Ratification and in the
+    README row, and was NOT vetoed: A-DEFER IS RATIFIED AS DESIGNED, on the
+    measurement that the derived release membership reads 283 before this diff
+    and 283 after with the pin absent from both. A-defer's stated COST is
+    ratified with it — the `contracts/CHANGELOG.md` entry naming this registered
+    contract is OWED AT THE NEXT CUT (`tasks.md` § 5.7) — and A-cut was NOT
+    chosen, so this packet cuts nothing, allocates no version and owes no tag.
+    The third option A-member, which would move the membership 283 -> 285 by
+    editing `scripts/hermes_runtime_validation/release.py`, stands recorded as
+    NOT TAKEN rather than foreclosed. D2 was carried separately so it could be
+    vetoed on its own — the manifest row carrying no `sha256` — and it was NOT
+    vetoed either; its residual coupling, the row quoting an entrypoint path
+    that nothing compares against the pin's own `consumer_entrypoint:`, is
+    ratified as DISCLOSED and owed at `tasks.md` § 5.4. Under
+    `release-realization` a non-empty `code_surface` means this packet archives
+    on merged-plus-green realization evidence rather than on landing, on a
+    separate word; this one does not archive it, and #754 stays open as the
+    rollout's governing record.
+    Record: `review/ratification-2026-09-07.md`.
+  approved_on: 2026-09-07
 related:
   - openxFactory:change:add-openspec-cli-pin                     # ACTIVE. Cut the pin (#667) and declared, in its own front matter, that none of its four artifacts is a registered contract row — the gap this packet closes; its requirement 2 already states the consumer's read-from-the-pinned-checkout obligation and is NOT restated here
   - openxFactory:change:bump-openspec-cli-pin-to-1.12            # ACTIVE. Moved the pin to 1.12.0 and carries the four dispositions; this packet edits the pin file in no way and must not be read as approving a further bump

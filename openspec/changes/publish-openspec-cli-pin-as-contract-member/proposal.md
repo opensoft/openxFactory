@@ -2,19 +2,23 @@
 code_surface: openxFactory — TWO EDITORIAL FILES AND NOTHING ELSE. (1) `contracts/manifest.yaml` gains ONE row, `id: openspec-cli-pin`, `path: contracts/openspec-cli-pin.yaml`, `type: pin`, `adapter_owner: openxFactory`, `compatibility: canonical_openxfactory_contract`, `intended_consumers`, and a `consumption_rule` written on `domain-factory-conformance-validator`'s precedent (`contracts/manifest.yaml:184-199`) — check openxFactory out at `stack.yaml`'s `xfactory.contract_ref` and invoke the entrypoint from that checkout; copying is a conformance violation. (2) `contracts/README.md` gains the matching Native-contract-index row and ONE new consumer-facing section, *Gating archives on the pinned CLI from a consumer repository*, carrying the checkout-at-`contract_ref` recipe as codexFactory and OpsxFactory already run it plus the declared copy-in fallback for a repository with no stack pin. NOT THIS CHANGE'S SURFACE, each for a stated reason: `contracts/openspec-cli-pin.yaml` itself is NOT EDITED — no version moves, no digest moves, no disposition is added or retired, and this packet must not be read as approving a bump; `scripts/validate-openspec-cli-pin.py`, `scripts/install-pinned-openspec-cli.py`, `scripts/proposal-support.py` and every workflow are UNTOUCHED, because the gate they implement is already ratified and running and this packet publishes the pin rather than changing what it does; no consuming repository is wired from here (B of #754 and every sibling's adoption belong to their own lanes and their own pull requests); and NO release bundle is cut, no `contracts/releases/**` file is written and no tag is pushed.
 target_release: none — MEASURED, NOT ASSUMED. (`none` is HOUSE PRACTICE and not an enumerated value: `release-realization` § *Realization axis declaration* enumerates `implemented` or a named aggregation-repo release, and eleven active changes in this corpus spell the no-bundle case `none`. It is used here in that established sense — no contract bundle is cut by this packet — and the reading is measured below rather than left to the word.) The derived release membership reads **283 members before this diff and 283 after**, with `contracts/openspec-cli-pin.yaml` absent from it in both readings (`scripts/hermes_runtime_validation/release.py::release_membership`, taken on this branch on 2026-09-07). Membership is a CLOSED set computed from the hermes-runtime contract index, the fixture index, `scripts/hermes_runtime_validation/**`, four `NAMED_VALIDATORS`, seven `AUXILIARY_MEMBERS` and three `NORMATIVE_DOCS` (`release.py:38-103,532-745`) — it does NOT read `contracts/manifest.yaml`'s `contracts:` list — so a row added there moves no member. Both files this packet edits are EDITORIAL members (`release_inventory.py:57-67`; `release-surface-integrity` names exactly the three), whose movement between cuts is a declared expected state reported at `info`, never a defect. Therefore no digest set moves, no `contract_bundle_version` is spent and no release tag is owed; `release-tag-gate` runs (the diff touches `contracts/manifest.yaml`) and is expected to PASS, `contract-v3.4` being published as an annotated tag peeling to `807a4f47`. Under `release-realization` the code surface is non-empty, so this packet archives on merged-plus-green realization evidence rather than on landing.
 sequenced_after: [add-openspec-cli-pin]
-Status: draft
+Status: ratified
 Proposed: 2026-09-07
-Origin: openxFactory issue **#754**, the governing record of Brett Heap's two rulings of 2026-09-07 — rollout **"Hybrid A+B"** and lane scope **"openxFactory only; siblings via their lanes"** — and of the read-only survey those rulings were taken on. THE ORIGIN IS NOT A RATIFICATION: the rulings choose a ROLLOUT SHAPE and a LANE SCOPE and decide no wording, no requirement and no design option here. `.openspec.yaml` carries drafting provenance only — no `approved_by`, no `approved_on` — and every document in this packet carries `Status: draft` to match. The decision most worth a veto is `design.md` **D1**: **A-defer** (register now, cut later) against **A-cut** (register and cut `contract-v3.5` in this pull request).
+Ratified: 2026-09-07 by Brett Heap (openxFactory operator authority) — "merge 72 when green, then ratify the A packet"; record at review/ratification-2026-09-07.md
+Origin: openxFactory issue **#754**, the governing record of Brett Heap's two rulings of 2026-09-07 — rollout **"Hybrid A+B"** and lane scope **"openxFactory only; siblings via their lanes"** — and of the read-only survey those rulings were taken on. THE ORIGIN IS NOT THE RATIFICATION: those two rulings choose a ROLLOUT SHAPE and a LANE SCOPE and decide no wording, no requirement and no design option here — that record is what put this packet in the queue; ratification followed as a SEPARATE act on 2026-09-07, on the word *"merge 72 when green, then ratify the A packet"* recorded on #754 at 14:27:55Z, cited ONCE in the line above and recorded at `review/ratification-2026-09-07.md`. `.openspec.yaml` keeps the drafting provenance it was authored with — `kind`, `id` and `reason` never move — and the approval pair is ADDED beside it, which is the shape `add-drafted-proposal-origin` defined for exactly this transition. The decision the word reaches is `design.md` **D1**: **A-defer** (register now, cut later) against **A-cut** (register and cut `contract-v3.5` in this pull request), carried as this packet's veto point in the pull request body, in `tasks.md` § 1.2 and in the README row — **and NOT vetoed**; **D2** (the row carrying no `sha256`) and the recorded-as-not-taken **A-member** were carried beside it and were not vetoed either.
 ---
 
 # Proposal: publish-openspec-cli-pin-as-contract-member
 
-Status: draft
+Status: ratified
 Proposed: 2026-09-07, in lane `openxfactory-1`.
 Origin: openxFactory issue
 [#754](https://github.com/opensoft/openxFactory/issues/754). The origin admits
-the work and fixes its scope; it ratifies no text here. § Ratification records
-what is owed.
+the work and fixes its scope; it ratified no text. The ratification was a
+SEPARATE act and it has now happened — **ONE citation line for this document**,
+in the front matter, which is what `ratified-provenance` counts. § Ratification
+records the act and what it settled; the record is
+`review/ratification-2026-09-07.md`.
 
 ## Why
 
@@ -229,23 +233,57 @@ repository's own lane, and none is claimed by this change.
 
 ## Ratification
 
-**RATIFICATION HAS NOT HAPPENED AND IS NOT SOUGHT BY THIS PACKET'S LANDING.**
-Brett Heap's two rulings on #754 admit the work and fix its scope. They decide no
-wording here and take no design decision. Every judgment this authoring session
-took is listed in `design.md` as a numbered decision with the alternative beside
-it, and D1 is the one most worth a veto.
+**RATIFIED 2026-09-07 by Brett Heap** (openxFactory operator authority), in
+session, verbatim: *"merge 72 when green, then ratify the A packet"* — recorded
+on issue [#754](https://github.com/opensoft/openxFactory/issues/754) at
+2026-09-07T14:27:55Z. The word's FIRST clause landed xFactory-Hermes-Install
+[#72](https://github.com/opensoft/xFactory-Hermes-Install/pull/72) as merge
+commit `06c9083d` at 14:42:30Z; its SECOND clause is this act. Brett Heap's two
+earlier rulings on #754 — rollout *"Hybrid A+B"* and lane scope *"openxFactory
+only; siblings via their lanes"* — remain the ORIGIN and are still recorded as
+one: they admit the work and fix its scope, and they decide no word of this
+text. `proposal.md`, `design.md` and `tasks.md` now carry `Status: ratified`
+with **ONE** citation line each — `Ratified:` in this file's front matter,
+`Ratified by:` in the other two — which is what `ratified-provenance` counts;
+`.openspec.yaml` gains the approval pair BESIDE the drafting provenance it was
+authored with, `kind`, `id` and `reason` unmoved. Record:
+`review/ratification-2026-09-07.md`, with the verification run captured beside
+it at `review/verification-2026-09-07.md`.
 
-**THE VETO POINTS, NAMED HERE AS WELL AS IN `design.md` AND `tasks.md`, so a
-reader who reads only this file finds them.** **D1** — A-defer (register in the
-two editorial files, cut no bundle) against **A-cut** (register AND cut
-`contract-v3.5` here, with the annotated tag owed after the merge). **A-member**
-— a third option recorded as NOT TAKEN rather than foreclosed: add
+**THE VETO POINTS WERE PUT — HERE, IN `design.md`, IN `tasks.md`, IN THE README
+ROW AND IN THE PULL REQUEST BODY — AND NONE WAS TAKEN.** **D1** — **A-defer**
+(register in the two editorial files, cut no bundle) against **A-cut** (register
+AND cut `contract-v3.5` here, with the annotated tag owed after the merge) — is
+**RATIFIED AS DESIGNED**, on the measurement § *The cut question* records: the
+derived release membership reads 283 before this diff and 283 after, the pin
+absent from both. **A-defer's stated COST is ratified with it**: the
+`contracts/CHANGELOG.md` entry naming this registered contract is OWED AT THE
+NEXT CUT (`tasks.md` § 5.7), because this repository writes no `Unreleased`
+block by practice and allocating a version to create one IS A-cut. **A-cut was
+NOT chosen**, so its conditional — that a cut, if chosen, becomes a realization
+task of this packet — does not arise: this packet cuts nothing, allocates no
+version and owes no tag. **A-member** — adding
 `contracts/openspec-cli-pin.yaml` to `AUXILIARY_MEMBERS` (and its entrypoint to
 `NAMED_VALIDATORS`) in `scripts/hermes_runtime_validation/release.py`, which
 would move the derived membership 283 → 285 and would then require the bundle
-realization order under R2's own second scenario; it is a change to the release
-machinery rather than to a register, and belongs in its own packet. And **D2**,
-the second and smaller veto point: the manifest row carries NO `sha256`, on
-`domain-factory-conformance-validator`'s precedent, with the digest-bearing
-alternative and its cost written out beside it in `design.md`. A veto on any of
-the three lands on a written alternative rather than on a blank.
+realization order under R2's own second scenario — was recorded as NOT TAKEN
+rather than foreclosed, and the word leaves it exactly there: a change to the
+release machinery rather than to a register, belonging in its own packet. And
+**D2**, carried separately so it could be vetoed on its own — the manifest row
+carrying NO `sha256`, on `domain-factory-conformance-validator`'s precedent —
+was **NOT vetoed either**: the row stands without a digest, and D2's residual
+coupling (the row QUOTES `scripts/validate-openspec-cli-pin.py`, the pin names
+that same path in its own `consumer_entrypoint:`, and nothing compares the two)
+is ratified as DISCLOSED, owed to the checker at `tasks.md` § 5.4.
+
+**THE WORD RATIFIES; IT DOES NOT ARCHIVE.** `code_surface` is non-empty, so
+under `release-realization` this packet archives on merged-plus-green
+realization evidence rather than on landing, and on a word distinct from this
+one (`tasks.md` § 5.5). #754 is the rollout's governing record and stays OPEN,
+which is why the pull request says `Refs #754` and not `Closes`. Every § 5 box
+remains owed exactly as the word was given over it — the sibling adoptions
+(§ 5.1-5.3, their own lanes' and their own repositories' acts), the registration
+checker (§ 5.4), the archive (§ 5.5), the unnameable `sequenced_after` id
+(§ 5.6), the changelog entry at the next cut (§ 5.7), the `neutral-product-pin`
+Purpose widening at archive (§ 5.8) and the pin file's own unexecutable claim
+(§ 5.9, a defect owed on the pin and not fixable from here).

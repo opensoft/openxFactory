@@ -1,6 +1,7 @@
 # Tasks: publish-openspec-cli-pin-as-contract-member
 
-Status: draft
+Status: ratified
+Ratified by: publish-openspec-cli-pin-as-contract-member — 2026-09-07, Brett Heap, "merge 72 when green, then ratify the A packet" (record `review/ratification-2026-09-07.md`)
 Kind: tasks
 
 `code_surface: openxFactory` (two editorial files), `target_release: none`. The
@@ -11,11 +12,12 @@ packet realizes through its own task list rather than through a feature DAG.
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in this
 pull request or a measurement recorded verbatim in the pull request body.
 
-**§ 1 IS NOT TICKED, AND IT NAMES WHY: ratification has not happened.** It is not
-a box written never to tick — it ticks on Brett Heap's word, with the verbatim
-utterance, one `Ratified`/`Ratified by` citation line added to each document, the
-approval pair ADDED beside the drafting provenance in `.openspec.yaml` (`kind`
-and `id` never move), and a record at `review/ratification-<date>.md`.
+**§ 1 IS TICKED, AND IT NAMES WHAT DISCHARGED IT: ratification was GIVEN on
+2026-09-07.** It ticked on Brett Heap's word, with the verbatim utterance, one
+`Ratified`/`Ratified by` citation line added to each document, the approval pair
+ADDED beside the drafting provenance in `.openspec.yaml` (`kind`, `id` and
+`reason` never move), and the record at `review/ratification-2026-09-07.md` with
+the verification run beside it at `review/verification-2026-09-07.md`.
 
 **NO BOX IN § 5 IS WRITTEN TO STAY UNTICKED EITHER.** Under Brett Heap's ruling
 of 2026-09-06T23:10Z, verbatim *"Tick on the recording"*, an owed successor's box
@@ -25,30 +27,54 @@ will name. This matters mechanically: `scripts/proposal-support.py` refuses to
 archive any change whose `tasks.md` still matches `^- \[ \]`, and there is no
 bypass flag.
 
-## 1. Ratification — OWED, NOT GIVEN
+## 1. Ratification — GIVEN 2026-09-07
 
-- [ ] 1.1 **RATIFICATION IS OWED AND NOTHING HERE PERFORMS IT.** Brett Heap's two
-      rulings of 2026-09-07 on openxFactory issue
-      [#754](https://github.com/opensoft/openxFactory/issues/754) — rollout
-      *"Hybrid A+B"* and lane scope *"openxFactory only; siblings via their
-      lanes"* — admit this work and fix its scope. They decide no wording, take
-      no design decision and ratify no requirement. `.openspec.yaml` carries
-      drafting provenance ONLY, with no `approved_by` and no `approved_on`, the
-      lawful unapproved shape `add-drafted-proposal-origin` defined; every
-      document in this packet carries `Status: draft` to match.
-- [ ] 1.2 **THE VETO POINT IS `design.md` D1** — **A-defer** (register in the two
-      editorial files, cut no bundle) against **A-cut** (register AND cut
-      `contract-v3.5` here, with the annotated tag owed after the merge).
-      A-defer is designed, on the measurement in § 2: the derived release
-      membership does not move, and both edited files are editorial members whose
-      movement between cuts `release-surface-integrity` declares expected.
-      A-cut is written out beside it with four costs and a third option, A-member,
-      is recorded as not taken rather than foreclosed. **A CUT IS NOT THIS
-      LANE'S ACT.** If A-cut is chosen, the cut becomes a realization task of this
-      packet — ticked when it is done, by whoever is told to do it — and this
-      pull request performs none of it. A second, smaller veto point is
-      `design.md` **D2**: the manifest row carries no `sha256`, with the
-      digest-bearing alternative and its cost written beside it.
+- [x] 1.1 **RATIFIED 2026-09-07 by Brett Heap** (openxFactory operator
+      authority), in session, verbatim: *"merge 72 when green, then ratify the A
+      packet"* — recorded on openxFactory issue
+      [#754](https://github.com/opensoft/openxFactory/issues/754) at
+      2026-09-07T14:27:55Z. The word's FIRST clause landed
+      xFactory-Hermes-Install
+      [#72](https://github.com/opensoft/xFactory-Hermes-Install/pull/72) as
+      merge commit `06c9083d` at 14:42:30Z; its SECOND clause is this act.
+      Brett Heap's two earlier rulings of 2026-09-07 on #754 — rollout *"Hybrid
+      A+B"* and lane scope *"openxFactory only; siblings via their lanes"* —
+      remain the ORIGIN and are still recorded as one: they admit this work and
+      fix its scope, and they decide no wording here. **WHAT WAS DONE:**
+      `proposal.md`, `design.md` and this file carry `Status: ratified` with
+      **ONE** citation line each — `Ratified:` in `proposal.md`'s front matter,
+      `Ratified by:` here and in `design.md` — which is what
+      `ratified-provenance` counts; `.openspec.yaml` gains the approval pair
+      (`approved_by`, `approved_on`) **BESIDE** the drafting provenance it was
+      authored with, `kind`, `id` and `reason` unmoved, which is the
+      addition-not-rewrite shape `add-drafted-proposal-origin` defined for this
+      transition and the shape the archive gate's origin-retention arm reads.
+      Record: `review/ratification-2026-09-07.md`, with the verification run
+      captured beside it at `review/verification-2026-09-07.md`.
+- [x] 1.2 **THE VETO POINTS WERE PUT AND NONE WAS TAKEN.** `design.md` **D1** —
+      **A-defer** (register in the two editorial files, cut no bundle) against
+      **A-cut** (register AND cut `contract-v3.5` here, with the annotated tag
+      owed after the merge) — was carried in the pull request body, in this
+      file, in `proposal.md` § Ratification and in the README row, with A-cut
+      written out beside A-defer with its four costs and a third option,
+      A-member, recorded as not taken rather than foreclosed. **A-defer is
+      RATIFIED AS DESIGNED**, on the measurement in § 2: the derived release
+      membership does not move (283 → 283), and both edited files are editorial
+      members whose movement between cuts `release-surface-integrity` declares
+      expected. **A-defer's COST is ratified with it**: the
+      `contracts/CHANGELOG.md` entry naming this registered contract is OWED AT
+      THE NEXT CUT (§ 5.7), this repository writing no `Unreleased` block by
+      practice. **A-CUT WAS NOT CHOSEN**, so its conditional — that a cut, if
+      chosen, becomes a realization task of this packet — does not arise: this
+      pull request cuts nothing, allocates no version and owes no tag, and a cut
+      remains an act on a word of Brett Heap's that has not been given.
+      **A-member stands recorded as not taken**, unforeclosed. And `design.md`
+      **D2** — the manifest row carrying no `sha256`, with the digest-bearing
+      alternative and its cost written beside it — was carried separately so it
+      could be vetoed on its own, and **was NOT vetoed either**: the row stands
+      without a digest, and D2's residual coupling (the `consumption_rule`
+      quotes the entrypoint path and nothing compares it with the pin's own
+      `consumer_entrypoint:`) is ratified as DISCLOSED, owed at § 5.4.
 
 ## 2. The measurement, taken before the design
 
