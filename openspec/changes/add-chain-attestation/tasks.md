@@ -1165,6 +1165,59 @@ Each is contract content — cheap now, expensive after a bundle ships.
       with no signed open decision, each FAIL a real pull request, with the run id,
       the check id, the validator's single named refusal, and the live ruleset read
       recorded.
+      **ACCEPTANCE AMENDED 2026-09-07 (Brett Heap, on #579, in session, by
+      multiple choice, the option labelled verbatim *"Amend the task text"*;
+      basis: his own 2026-09-02 reading on that issue — *"an amendment accepting
+      'one fact seen twice' would cover BOTH scenarios … no new singular fixture
+      would be owed"*).** The gate sentence above stands word for word; what
+      moves is what its THIRD conjunct accepts. **Read from today, *"the
+      validator's single named refusal"* is the validator's named refusal SET for
+      that canary, and the set is EITHER one fact seen twice — canary A's
+      `dispatched_leaf_never_written` and `open_decision_enumeration_incomplete`,
+      the same dropped task (`task:t5-dropped`) named identically from link 5's
+      side and from link 6's — OR the DISTINCT TRUE FACTS the packaged fixture
+      carries — canary B's `orphan_pull_request`, `orphan_chain_identity` and
+      `chain_binding_names_another_chain`.** This is a widening of the conjunct
+      to the measured set and nothing more: a canary that draws anything OUTSIDE
+      its set, or that draws a refusal which is not a true statement about the
+      records in scope, still fails this box.
+
+      **THE SETS ARE THE MEASURED ONES, NOT A LATITUDE**, and they are the
+      numbers #579 recorded and re-measured against #566's own withdrawn
+      *"exactly one error"* claim. Measured with the reader fix landed — PR #566
+      merged 2026-09-03 as squash `4fc7b94c`, which is what lets the whole-tree
+      sweep adjudicate a tranche-two chain at all: the CONTROL, the tranche-two
+      POSITIVE corpus with nothing broken, draws **0**; **canary A**,
+      `contracts/signed-execution-chain/examples/tranche-two/negative/dispatched-task-whose-attestation-never-arrives.yaml`,
+      draws **2** — the pair above; **canary B**,
+      `contracts/signed-execution-chain/examples/tranche-two/negative/attestations-presented-with-no-signed-decision.yaml`,
+      draws **3** — the three above, the extra two earned by the chain identity
+      the fixture introduces of its own. Validator over-reports found: none.
+
+      **WHAT STILL DISCHARGES THIS BOX IS UNCHANGED, AND IT IS THE PART NO
+      AMENDMENT CAN WRITE.** One REAL pull request per canary, carrying the
+      packaged fixture, REFUSED by the live required gate — with the run id, the
+      check id, the refusal set read against the acceptance above, and the live
+      ruleset read recorded HERE and on #579, each pull request then closed
+      unmerged. **The tick goes ON THAT RECORDING** — Brett Heap's ruling of
+      2026-09-06, verbatim *"Tick on the recording"*: the box ticks on the fact
+      recorded, never on the intention — and until that recording exists this box
+      is OPEN, exactly as it is today. The sequence is ruled: Brett Heap,
+      2026-09-07, by multiple choice, the option labelled verbatim *"After the
+      remedy lands"* — the canary pull requests follow this amendment onto
+      `main`, so the pull request carrying this amendment claims no canary
+      evidence and ticks nothing.
+
+      **AND WHAT THIS AMENDMENT DOES NOT DO**, stated so a later reader does not
+      go looking for it. It changes **no spec unit**: the ratified
+      `signed-execution-chain` scenarios carry no singular-refusal bar anywhere —
+      *"single named refusal"* is THIS FILE's acceptance text and the only place
+      the bar has ever been written — so there is no spec delta, no
+      re-ratification and no re-review owed. It **cuts and re-cuts no fixture**:
+      both canaries stay byte-for-byte as they ship at `contract-v3.0`. It
+      touches no contract, no schema, no reader and no release number, and it
+      spends no cut. `tasks.md` is the only file that moves.
+
       **ATTEMPTED 2026-09-02, IMMEDIATELY AFTER THE TAG, AND NOT PRODUCIBLE — SO
       NO CANARY PULL REQUEST WAS OPENED AND THIS BOX STAYS OPEN.** The third
       conjunct cannot be delivered against the reader as shipped at
@@ -1354,7 +1407,7 @@ Each is contract content — cheap now, expensive after a bundle ships.
       | **3.2** | `target_release` confirmed at ratification |
       | **3.3** | ratification's authorization scope |
       | **5.1–5.3** | the MACHINERY GATES no author can close by writing — a PKI plane that has ISSUED, an omnigent layer that has REFUSED; SEC-R18 stays declared UNMET until then |
-      | **5.8** | this box, blocked on the reader (issue #579) |
+      | **5.8** | this box — the reader blockage it was measured against is fixed (#566, squash `4fc7b94c`) and its acceptance is AMENDED 2026-09-07 to the canary pair's measured refusal sets; what is owed is the canary pair's own run, and the box ticks on that recording (issue #579) |
       | **6.1** | the named tranche-three successor |
 
       Recorded here so a later reader does not mistake a published tag for a
