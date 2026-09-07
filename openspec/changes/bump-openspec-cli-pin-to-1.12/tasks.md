@@ -122,12 +122,20 @@ repoint the very tool that judges its own change.
 
 ## 5. Exit 3 — drafted, NOT taken
 
-- [ ] 5.1 File `evidence/upstream-issue-draft-merged-into-marker.md` with
-      `fission-ai/openspec`. **DELIBERATELY NOT DONE.** The draft is complete
-      and carries the minimal reproduction; filing it is Brett's act. Exit 2 and
-      exit 3 are not exclusive — exit 2 is what this estate does about its own
-      gate, exit 3 is what it asks of the tool — and if upstream lands a fix the
-      dispositions go STALE on the next bump and the mechanism removes them.
+- [x] 5.1 File `evidence/upstream-issue-draft-merged-into-marker.md` with
+      `fission-ai/openspec`. **AMENDED 2026-09-06:** filed 2026-09-05 as
+      Fission-AI/OpenSpec#1793
+      (https://github.com/Fission-AI/OpenSpec/issues/1793), open, under
+      Brett Heap's GitHub account on his word "file the upstream issue", by
+      lane codexfactory-0d; recorded in the evidence file by openxFactory
+      #682 (`ff31fc7f`). The box is ticked 2026-09-06 by lane codexfactory-1
+      on Brett Heap's word "go" (2026-09-06), which admitted the tick as
+      part of the pin-consumer work. Was: **DELIBERATELY NOT DONE.** The
+      draft is complete and carries the minimal reproduction; filing it is
+      Brett's act. Exit 2 and exit 3 are not exclusive — exit 2 is what this
+      estate does about its own gate, exit 3 is what it asks of the tool —
+      and if upstream lands a fix the dispositions go STALE on the next bump
+      and the mechanism removes them.
 
 ## 6. Owed, and named rather than discovered later
 

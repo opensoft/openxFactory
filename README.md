@@ -512,64 +512,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [amend-marker-reason-boundary](openspec/changes/amend-marker-reason-boundary/proposal.md)
-  — authored 2026-09-06, **`Status: ratified`** (2026-09-06, Brett Heap,
-  openxFactory operator authority, in-session, *"merge 705 when green, then
-  ratify 692"*; records
-  `openspec/changes/amend-marker-reason-boundary/review/ratification-2026-09-06.md`
-  and `verification-2026-09-06.md`). `.openspec.yaml` keeps the drafting
-  provenance it was authored with and the approval pair is ADDED beside it —
-  `kind` and `id` unmoved, the addition-not-rewrite shape
-  `add-drafted-proposal-origin` defined. Lane `openxfactory-1`; the ORIGIN is
-  openxFactory [#692](https://github.com/opensoft/openxFactory/issues/692) and
-  Brett Heap's earlier *"do 3 and 4"*, which admitted the issue to work and
-  instructed a lane to author a remedy — an origin, not an approval, and the
-  ratification is the separate act above. **ONE
-  PROMOTED SENTENCE, AND IT IS THE ONE THE CHECKER CONFORMS TO.** `doc-health`'s
-  *Currency of an active change's MODIFIED requirement blocks* says with a SHALL
-  that a reserved marker's *"reason is everything after the last code span's
-  following ` — `"*, so `parse_marker` harvests every code span an author writes
-  INSIDE the reason as a declared-removed NAME. The two markers PR **#685** and
-  PR **#688** promoted into *Release-tag publication* are the live instances:
-  each declared ONE unit and each resolves to **THREE** — the intended `WHEN`
-  bullet plus the words `WHEN` and `AND` their reasons quote — with no reason at
-  all. **INERT BY ACCIDENT AND NOT BY DESIGN**: of **17,566** derived units
-  across every promoted specification and every active delta OTHER THAN THIS
-  PACKET'S OWN on 2026-09-06 — the scope every figure here is stated at, this
-  delta itself carrying an eighth marker — none is literally `WHEN` or `AND`,
-  and none of the units this delta adds is either, so the surplus names match
-  nothing and
-  suppress nothing; the next author whose reason quotes a real unit declares
-  that unit removed by mentioning it. The MODIFIED block restates the
-  requirement in full — 50 body units, 14 scenario titles, 40 scenario bullets,
-  byte-faithful — and replaces that one sentence with a boundary: **the reason
-  begins at the first ` — ` standing OUTSIDE every code span**, the names are
-  the spans closing before it, and a span inside the reason is prose the reason
-  quotes. **REALIZED IN THE SAME PULL REQUEST** on the `amend-unreadable-read-sibling-scenarios`
-  shape (`code_surface: openxFactory`, `target_release: implemented`, archiving
-  on merged-plus-green evidence): `_reason_boundary` added to
-  `scripts/doc_health/modified_block_currency.py`, the unit-naming split moved
-  to it, and `tests/doc-health/test_modified_block_currency.py` 121 → 128 with
-  no existing test edited — one of the seven added tests running at
-  `suppression` level, where the defect's harm lands. The block ALSO ADDS TWO
-  SCENARIOS at its end, pinning the amended sentence in canon rather than in
-  code alone; no promoted scenario moves, is retitled or loses a bullet.
-  **THE VETO POINT WAS `design.md` D1 — PUT, AND NOT VETOED** — option A (the
-  boundary) against option B (require the removed units in a fenced list, which
-  rewrites every existing marker including those inside
-  `openspec/changes/archive/` and both prose templates that promote into canon).
-  **A is ratified AS DESIGNED, and its cost is ratified with it.** Under
-  `release-realization` the packet still archives on merged-plus-green
-  realization evidence rather than on landing, on a separate word.
-  Measured corpus effect: SEVEN unit-naming markers, TWO change (3 names → 1),
-  FIVE unaffected, and no marker anywhere separates its NAMES with ` — `, so
-  none loses a name its author meant to declare. The amendment does NARROW what
-  `document-lifecycle`'s *"naming each deleted unit as a CommonMark code span"*
-  reaches — a span after the boundary declares nothing — which is disclosed in
-  the proposal and whose reporting is scoped into the owed successor at
-  `tasks.md` § 5.1. `sequenced_after` elective and
-  undeclared: no active change carries a MODIFIED block for the requirement.
-
 - [register-gate-rules-council-seats](openspec/changes/register-gate-rules-council-seats/proposal.md)
   — authored 2026-09-06, **`Status: ratified`** (2026-09-06, Brett Heap
   (repository owner), in-session at 2026-09-06T14:13:46Z, verbatim *"lets take
@@ -2465,6 +2407,65 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [amend-marker-reason-boundary](openspec/changes/archive/2026-09-06-amend-marker-reason-boundary/proposal.md)
+  — **ARCHIVED 2026-09-06**, on Brett Heap's separate word of the same day
+  (2026-09-06T23:10Z, by multiple choice on issue
+  [#692](https://github.com/opensoft/openxFactory/issues/692), option labelled
+  verbatim *"Archive; nit as its own PR first"*) and the `release-realization`
+  rule that a change with a NON-EMPTY code surface archives on
+  **merged-plus-green realization evidence, not on landing**. **THE EVIDENCE,
+  BOTH HALVES, CITED RATHER THAN ASSERTED:** ratified and realized in one pull
+  request, **PR [#719](https://github.com/opensoft/openxFactory/pull/719) →
+  `0d009d97`** (2026-09-06T16:04:05Z, ratifying commit `805d2c0e`), and
+  **`pytest-suite` run
+  [34044263995](https://github.com/opensoft/openxFactory/actions/runs/34044263995)
+  `success` on `main` at `0d009d97` itself** — the green run is ON the merge
+  commit, not merely on a descendant. The nit went first, as the word required:
+  PR [#733](https://github.com/opensoft/openxFactory/pull/733) → `9d000c57`.
+  Governing issue **#692**.
+  **ONE PROMOTED SENTENCE, AND IT IS THE ONE THE CHECKER CONFORMED TO.**
+  `doc-health`'s *Currency of an active change's MODIFIED requirement blocks*
+  said with a SHALL that a reserved marker's *"reason is everything after the
+  last code span's following ` — `"*, so `parse_marker`
+  (`scripts/doc_health/modified_block_currency.py`) harvested every code span an
+  author wrote INSIDE the reason as a declared-removed NAME. The two markers PR
+  **#685** and PR **#688** promoted into *Release-tag publication* were the live
+  instances: each declared ONE unit and each resolved to **THREE** — the
+  intended `WHEN` bullet plus the words `WHEN` and `AND` their reasons quote —
+  with no reason at all. **INERT BY ACCIDENT AND NOT BY DESIGN**, measured
+  rather than assumed: of **17,566** derived units across every promoted
+  specification and every active delta OTHER THAN THIS PACKET'S OWN on
+  2026-09-06, none is literally `WHEN` or `AND`, so the surplus names matched
+  nothing and suppressed nothing. **PROMOTED BYTE-IDENTICAL** to the archived
+  delta's `## MODIFIED` block — compared programmatically, **25,932 bytes**,
+  sha256 `e98219f7e77e6d67…` on both sides: the requirement restated in full (50
+  body units, 14 promoted scenario titles, 40 scenario bullets) with **ONE body
+  sentence replaced** by the boundary — the reason begins at the first ` — `
+  standing OUTSIDE every code span, the names are the spans closing before it,
+  and a span inside the reason is prose the reason quotes. The retired sentence
+  is declared by a `Removed from canon by amend-marker-reason-boundary
+  (2026-09-06):` marker written with NO code span in its reason, so both the
+  RETIRED and the AMENDED grammar derive the same one name from it
+  (`design.md` **D4**, the self-reference hazard). **TWO SCENARIOS ARE ADDED**
+  at the end of the block, pinning the amended sentence in canon rather than in
+  code alone; no promoted scenario moves, is retitled or loses a bullet. Spec
+  count **60 → 60**, so **no codexFactory floor advance**. **THE VETO POINT WAS
+  `design.md` D1 — PUT, AND NOT VETOED**: option A (the boundary) against option
+  B (require the removed units in a fenced list, which rewrites every existing
+  marker including those inside `openspec/changes/archive/`). A is ratified AS
+  DESIGNED and its cost with it — a code span standing after the boundary
+  declares nothing, a NEW failure mode this amendment creates, silently
+  corrected today, whose reporting is the owed successor named below.
+  **THREE SUCCESSORS ARE ARCHIVED AS NAMED RATHER THAN DONE**, filed unclaimed
+  on the same word (*"File three issues, unclaimed"*) and ticked in `tasks.md`
+  § 5 under Brett Heap's ruling *"Tick on the recording"* — the tick records the
+  naming, not the doing: **#729** (a marker naming something that is not a unit
+  is still silent, and this amendment adds a second case to that silence),
+  **#730** (`specs/019-modified-block-currency-family` FR-016 and reading A1
+  still state the retired sentence; a non-governing build record, deliberately
+  not edited), **#731** (the estate-wide run — `active_blocks()` takes a
+  repository root, and the measurement here covers openxFactory only).
 
 - [amend-unreadable-read-sibling-scenarios](openspec/changes/archive/2026-09-05-amend-unreadable-read-sibling-scenarios/proposal.md)
   — **ARCHIVED 2026-09-05**, on Brett Heap's ratification of the same day

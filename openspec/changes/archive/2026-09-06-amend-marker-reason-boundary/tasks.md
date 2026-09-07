@@ -14,6 +14,24 @@ this pull request or a measurement recorded verbatim in the pull request body.
 **§ 5.3 AND § 5.4 STAY UNTICKED AND NAME WHY**: they are residue and an owed
 successor, not work this packet performs.
 
+**AMENDED AT THE ARCHIVE, 2026-09-06 — ONE NAMED SENTENCE ABOVE IS SUPERSEDED,
+FOR § 5 ONLY, AND IT IS QUOTED IN PLACE RATHER THAN DELETED.** The superseded
+sentence is exactly this one, and no other:
+
+> **§ 5.3 AND § 5.4 STAY UNTICKED AND NAME WHY**: they are residue and an owed
+> successor, not work this packet performs.
+
+The sentence before it — *"NOTHING IS TICKED THAT DID NOT LAND"* — is **NOT**
+superseded; it still holds, and the ticks below are what make it hold. Every
+box in § 5 is now ticked, on Brett Heap's ruling of 2026-09-06T23:10Z (verbatim
+**"Tick on the recording"**) and because the sanctioned archive path refuses an
+open box. The
+ticks record the NAMING of three filed, unclaimed successors — **#729**, **#730**,
+**#731** — and the archive evidence; they do NOT record the doing. The full
+disposition is at the head of § 5, and the ratified text of every box is carried
+there verbatim for § 5.1 through § 5.4; § 5.5 is the archive box itself and
+restates its own ratified sentence beside the evidence for the act.
+
 ## 1. Ratification — GIVEN 2026-09-06
 
 - [x] 1.1 **RATIFIED 2026-09-06 by Brett Heap** (openxFactory operator
@@ -160,7 +178,47 @@ successor, not work this packet performs.
 
 ## 5. Owed, and deliberately not taken here
 
-- [ ] 5.1 **A MARKER NAMING SOMETHING THAT IS NOT A UNIT IS STILL SILENT.**
+**DISPOSITION 2026-09-06 — WHY EVERY BOX BELOW IS TICKED WHEN THE RATIFICATION
+RECORD SAYS FOUR OF THEM ARE NOT.** `review/ratification-2026-09-06.md` § 5
+describes § 5.1, § 5.3, § 5.4 and § 5.5 as **UNTICKED**. That document is
+`Status: record`: it is immutable, it is **NOT edited by this archive**, and it
+stands exactly as written. Two things moved after it was written, and both are
+named here rather than left for a reader to reconcile.
+
+**FIRST, THE SHAPE WAS RULED.** Brett Heap, **2026-09-06T23:10Z**, in session,
+by multiple choice, recorded on openxFactory
+[#692](https://github.com/opensoft/openxFactory/issues/692), chose the option
+labelled verbatim **"Tick on the recording"** — *an owed successor's task box
+ticks once the successor is NAMED (issue filed), the box text saying the tick
+records the naming, not the doing.* What
+`amend-unreadable-read-sibling-scenarios` § 6 did as a precedent under duress is
+now a **ruling**, and this packet is the first to be ticked under it as a rule
+rather than as a workaround.
+
+**SECOND, THE SANCTIONED ARCHIVE PATH REFUSES AN OPEN BOX.**
+`scripts/proposal-support.py` refuses any change whose `tasks.md` still matches
+`^- \[ \]` — *"change has incomplete tasks"* — and there is no bypass flag, so
+the archive act this packet's own non-empty `code_surface` requires cannot be
+taken while a box here is open.
+
+**THE WORK IN § 5.1, § 5.3 AND § 5.4 IS NOT DONE, AND NO TICK BELOW SAYS IT IS.**
+Each of the three names a **filed, UNCLAIMED** GitHub issue — **#729**, **#730**,
+**#731**, filed on the same word (the option labelled verbatim **"File three
+issues, unclaimed"**) — and the tick is on that naming. Every ratified sentence
+of § 5.1, § 5.2, § 5.3 and § 5.4 is carried below **verbatim**, beneath the tick
+clause; nothing of the ratified reading is deleted. § 5.5 is the archive box
+itself: it restates its own ratified sentence beside the evidence for the act it
+records.
+
+- [x] 5.1 **TICKED ON THE RECORDING — THE SUCCESSOR IS NAMED AS openxFactory
+      [#729](https://github.com/opensoft/openxFactory/issues/729), IT IS
+      UNCLAIMED, AND THE WORK IS NOT DONE HERE.** Per Brett Heap's ruling of
+      2026-09-06T23:10Z, verbatim *"Tick on the recording"*: the box ticks once
+      the successor is NAMED, and this sentence is the box text saying the tick
+      records the naming, not the doing. **The defect below is NOT fixed by this
+      packet and this box does not say it is.** The ratified text follows
+      unchanged:
+      **A MARKER NAMING SOMETHING THAT IS NOT A UNIT IS STILL SILENT.**
       `suppression`'s third resolution is fail-closed by design and this packet
       does not touch it — but it is what absorbed this defect. A family that
       reported *"this marker names something no unit of the requirement
@@ -177,11 +235,29 @@ successor, not work this packet performs.
       *"this marker carries a code span INSIDE its reason"* as well as *"this
       marker names something no unit matches"*; the first is mechanically
       detectable and points at the real cause.
-- [ ] 5.2 **THE TWO PROMOTED MARKERS ARE NOT EDITED, AND NEITHER ARE THE
+- [x] 5.2 **TICKED AS THE RECORD OF THE NON-ACT IT DESCRIBES, RE-VERIFIED AT THE
+      ARCHIVE.** This box names something this packet deliberately does NOT do,
+      so the tick records that the non-act held through to the archive rather
+      than any work: `git log 805d2c0e..HEAD -- openspec/specs/doc-health/spec.md`
+      is **EMPTY** — no commit touched promoted canon between the ratifying
+      commit and this archive — and the archive's own write-back to that file is
+      this packet's MODIFIED block plus the pinned 1.12 serializer's whitespace
+      normalization, diffed and quantified in the pull request body, with
+      **neither promoted marker's bytes changed**. The ratified text follows
+      unchanged:
+      **THE TWO PROMOTED MARKERS ARE NOT EDITED, AND NEITHER ARE THE
       ARCHIVED DELTAS THAT CARRY THEM.** They are records of ratified removals.
       Nothing is owed here; it is recorded so that a later reader does not read
       the omission as an oversight.
-- [ ] 5.3 **`specs/019-modified-block-currency-family/spec.md` FR-016 AND
+- [x] 5.3 **TICKED ON THE RECORDING — THE RESIDUE IS NAMED AS openxFactory
+      [#730](https://github.com/opensoft/openxFactory/issues/730), IT IS
+      UNCLAIMED, AND THE EDIT IS NOT MADE HERE.** Per Brett Heap's ruling of
+      2026-09-06T23:10Z, verbatim *"Tick on the recording"*: the tick records
+      that the residue is on the queue with a resolvable name, **not** that
+      `specs/019` has been corrected — it has not, and `FR-016` and reading A1
+      still state the retired sentence at this commit. The ratified text follows
+      unchanged:
+      **`specs/019-modified-block-currency-family/spec.md` FR-016 AND
       RATIFIED-READING A1 STILL STATE THE RETIRED SENTENCE, AND ARE DELIBERATELY
       NOT EDITED.** The Speckit feature spec for this module carries the retired
       rule as an `FR-` MUST and repeats it in reading A1. It is a BUILD RECORD of
@@ -192,7 +268,15 @@ successor, not work this packet performs.
       Recorded as residue so a later reader does not read the omission as an
       oversight; a superseding note in `specs/019` is available to a later act
       and is not this packet's.
-- [ ] 5.4 **THE ESTATE-WIDE RUN IS OWED AT LANDING, NOT TAKEN HERE.**
+- [x] 5.4 **TICKED ON THE RECORDING — THE OWED RUN IS NAMED AS openxFactory
+      [#731](https://github.com/opensoft/openxFactory/issues/731), IT IS
+      UNCLAIMED, AND THE RUN IS NOT TAKEN HERE.** Per Brett Heap's ruling of
+      2026-09-06T23:10Z, verbatim *"Tick on the recording"*: the tick records
+      the naming. **NO ESTATE-WIDE MEASUREMENT HAS BEEN TAKEN** — this lane is
+      confined to its own openxFactory clone, exactly as the ratified text says,
+      and the box says so rather than implying the run happened at landing. The
+      ratified text follows unchanged:
+      **THE ESTATE-WIDE RUN IS OWED AT LANDING, NOT TAKEN HERE.**
       `active_blocks()` takes a repository root and the aggregation's nightly run
       reads every submodule, so a marker in a sibling repository that separates
       its names with ` — ` would surface as new advisory findings there. The
@@ -203,6 +287,24 @@ successor, not work this packet performs.
       arms are `info`/`warning`, so no `--fail-on error` run can red on it. What
       is owed is the estate-wide run recorded on the pull request or here, so the
       first nightly does not hand another lane findings nobody attributes.
-- [ ] 5.5 **ARCHIVE.** `code_surface` is non-empty, so under `release-realization`
-      this packet archives on merged-plus-green realization evidence rather than
-      on landing, and on a separate word.
+- [x] 5.5 **ARCHIVE — TAKEN, ON THE EVIDENCE BELOW AND ON A SEPARATE WORD.**
+      `code_surface` is non-empty, so under `release-realization` this packet
+      archives on **merged-plus-green realization evidence rather than on
+      landing**. Both halves exist and are cited rather than asserted:
+      - **RATIFIED AND REALIZED** in one pull request — **PR
+        [#719](https://github.com/opensoft/openxFactory/pull/719) → merge
+        `0d009d97`**, 2026-09-06T16:04:05Z, ratifying commit `805d2c0e`, records
+        `review/ratification-2026-09-06.md` and `review/verification-2026-09-06.md`.
+      - **GREEN ON MAIN** — `pytest-suite` run
+        **[34044263995](https://github.com/opensoft/openxFactory/actions/runs/34044263995)**,
+        conclusion `success`, on `main` at **`0d009d97` itself**, which is the
+        merge commit: the green run is ON the commit that carries the
+        realization, not merely on a descendant of it.
+      **THE SEPARATE WORD IS BRETT HEAP'S, 2026-09-06T23:10Z**, by multiple
+      choice, option labelled verbatim **"Archive; nit as its own PR first"** —
+      and the nit went first: the Copilot finding refused on #719 landed as **PR
+      [#733](https://github.com/opensoft/openxFactory/pull/733) → `9d000c57`**
+      (2026-09-06T23:41:47Z), which this branch is cut from, so the archived
+      tree carries it. Neither half of the evidence is a local assertion: both
+      are references an outside reader resolves — a merge commit on `main` and a
+      workflow run id.

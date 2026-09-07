@@ -101,12 +101,18 @@ files.
       invariant while the self-test stays green.
 - [ ] 2.6 **[openXwallet]** Cut the bundle tag (`wallet-v1.5` or as allocated)
       and publish the digests in `contracts/manifest.yaml`.
-- [ ] 2.7 Advance `contracts/openxwallet-pin.yaml`: `commit:` and
+- [x] 2.7 Advance `contracts/openxwallet-pin.yaml`: `commit:` and
       `contract_bundle_tag:` ONLY. **No `files:` digest row moves** —
       `scripts/validate-openxwallet.py` sits under `pinned_by_commit_only:` and
       a reader-only release moves no contract byte. Reverify the other eight
       digests by recomputation at the new commit rather than carrying them on
       trust, and re-record `carve_commit:` only if a digest actually moved.
+      DONE 2026-09-07: `commit:` → `f3eb929b9ab6d78bf30e26bf1d7a99af86a7016e`,
+      `contract_bundle_tag:` → `wallet-v1.5`; all eight `files:` digests
+      recomputed at the new commit and unchanged (`carve_commit:` untouched);
+      gitlink `openXwallet` moved with the pin in the same commit, matching the
+      wallet-v1.4 precedent (`9cfdeca5`). openxFactory PR (lane
+      hermes-wallet-exercise), DO NOT MERGE pending Brett's word.
 - [ ] 2.8 Move the consumer gate's LITERAL assertions in
       `.github/workflows/openxwallet-consumer-gate.yml` IN THE SAME PULL REQUEST
       as 2.7 — a stale literal is a red REQUIRED check on a human-only surface,
@@ -117,10 +123,20 @@ files.
         adjudicated, beside the existing `wal-agent-mrc-0001` one;
       - keep every count LITERAL. A wildcard would let a register that lost a
         body pass the positive proof.
-- [ ] 2.9 **Gate:** with 2.7 + 2.8 landed and the register still carrying ONE
+      2026-09-07: literal flip DEFERRED to the register act (§ 3.6/3.7) per the
+      coordinator disposition on PR #717 — 2.9's neutrality gate governs; on a
+      one-row register the widened reader emits `4 of 4`.
+- [x] 2.9 **Gate:** with 2.7 + 2.8 landed and the register still carrying ONE
       row, `wallet-validation` is GREEN and the log's `intake register read:`
       note still says `1 row(s)`. The pin advance must be provably neutral
       BEFORE the register moves.
+      DONE 2026-09-07: with 2.7 landed (2.8 deferred per the coordinator
+      disposition), `validate-openxwallet.py .` at the new pin is rc=0 clean
+      (plain and `--strict`) with `intake register read: … (1 row(s))` and
+      `intake register: 4 of 4 per-seat signing key(s) adjudicated and
+      resolved`; output diffed byte-identical against the same command run at
+      the old pin (`b7b0fbb3`). Local proof recorded; CI `wallet-validation`
+      watched on the PR.
 
 ## 3. Brett's operator WALK — the mint and the register act
 
