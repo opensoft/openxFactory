@@ -167,6 +167,16 @@ NO_IMPLICIT_PUSH_MODULES: tuple[str, ...] = (
     # carved out of `doxbench_packet.py`, so the sweep follows the code rather
     # than the filename.
     "doxbench_status_exemption.py",
+    # WIDENED AGAIN by § 2.4 (PR 3 of 4), which moved the gate console's door,
+    # the projection/snapshot routes and this repository's own lane routes out
+    # of `serve.py` into three more sibling modules. `serve_gate.py` is the
+    # load-bearing one: `_handle_gate_action` dispatches the SESSION-BEARING
+    # verbs, so a list left at PR 2's five would have let the file move evade
+    # the §12 absence with nothing red. The other two carry no turn, save,
+    # compaction or scheduled task and are listed for the same reason PR 2
+    # listed its quiet pair — a sweep over some of the files the serve is made
+    # of is a sweep with a seam in it.
+    "serve_gate.py", "serve_projection.py", "serve_openxfactory_lanes.py",
 )
 
 # --------------------------------------------------------------------------
@@ -187,16 +197,23 @@ NO_IMPLICIT_PUSH_MODULES: tuple[str, ...] = (
 # --------------------------------------------------------------------------
 
 SERVE_SURFACE_MODULES: tuple[str, ...] = (
-    "serve_wire.py", "serve_workbench.py", "serve_project.py", "serve.py",
+    "serve_wire.py", "serve_workbench.py", "serve_project.py",
+    # WIDENED by § 2.4 (PR 3 of 4): the openXdox gate and projection columns and
+    # the openxFactory lane column. Same rule, same direction — every scan over
+    # this tuple now sees strictly more code than it saw before.
+    "serve_gate.py", "serve_projection.py", "serve_openxfactory_lanes.py",
+    "serve.py",
 )
 
 
 def serve_surface_paths() -> tuple[Path, ...]:
     """Every file the dashboard serve is made of, in import-graph order.
 
-    Dependency-first: `serve_wire.py` imports no sibling; `serve_workbench.py`
-    and `serve_project.py` each import from `serve_wire`; `serve.py` imports
-    all three. No reader of `serve_surface_paths()` /
+    Dependency-first: `serve_wire.py` imports no sibling; `serve_workbench.py`,
+    `serve_project.py`, `serve_gate.py`, `serve_projection.py` and
+    `serve_openxfactory_lanes.py` each import from `serve_wire` and from no
+    other sibling; `serve.py` imports all six. No reader of
+    `serve_surface_paths()` /
     `serve_surface_source()` depends on this particular order (every scan
     below is a per-file loop, a `.read_text()` join checked for
     substring/absence, or a `.index()` search that resolves within a single

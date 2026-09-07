@@ -26,6 +26,19 @@ and the core body readers carry `JSON_OBJECT_BODY_REQUIRED` and
 `_MAX_BODY_BYTES`. Filing this vocabulary under `serve_workbench.py` would have
 made the CORE depend on the openDox column, which is the carve backwards.
 
+WIDENED BY PR 3 OF 4, for exactly the same reason it exists. The hosted-plane
+confinement — `HOSTED_SESSION_REFUSAL`, `hosted_ref_refused`, `hosted_index`
+(FR-048) — is read by the CORE (`_divergence_headers`), by the openXdox
+projection column (`serve_projection.py`: the snapshot, index and `/source`
+routes) and by the openxFactory adapter column (`serve_openxfactory_lanes.py`:
+the refresh binding reachable off loopback). Leaving it in `serve.py` would have
+forced both columns to import `serve` while `serve` imported them, which is the
+cycle this module exists to prevent; filing it under either column would have
+made the core depend on a column. It belongs here on this module's own stated
+remit: pure predicates over already-validated inputs, plus fixed refusal prose.
+`serve.py` imports all three back by name, so `serve.hosted_ref_refused` and
+`serve.hosted_index` still resolve for the suites that call them directly.
+
 NOTHING HERE REACHES A PROVIDER, a socket or a filesystem: it is constants,
 fixed refusal prose, pure envelope builders over already-validated inputs, and
 two bounded readers over a request's own file handle.
@@ -41,6 +54,10 @@ import json
 from ideation_dashboard import doxbench_knowledge
 from ideation_dashboard import doxbench_packet
 from ideation_dashboard import doxbench_threads
+# The ONE definition of "a ref a hosted plane may see" (`is_publishable_ref`),
+# reached by the two hosted-plane predicates below. No cycle: `snapshot_registry`
+# imports no module of the serve split.
+from ideation_dashboard import snapshot_registry as registry_mod
 # The family's NON-BLANK rule (issue #263), imported rather than
 # restated: the type gate and this server boundary share one
 # implementation so they cannot drift into two spellings of one rule.
@@ -1314,3 +1331,96 @@ AGENT_INVOCATION_REFUSAL = (
     "a session gate verb is human-only (FR-019) and this request does not come "
     "from the human console this serve started: it must be issued by the served "
     "page, same-origin, carrying this serve's console token")
+
+
+# The refusal message every hosted non-`main` request gets, verbatim. Fixed text:
+# nothing request-derived reaches the wire (the response discipline this module
+# already keeps for the notebook action).
+HOSTED_SESSION_REFUSAL = ("a ref other than 'main' is session-local data and is "
+                          "not available on this plane")
+
+
+def hosted_ref_refused(loopback: bool, ref: str | None) -> bool:
+    """Whether a request naming `ref` must be REFUSED because this is the hosted
+    plane (007-workbench-branch-sessions T083, FR-048).
+
+    FR-048: "The hosted dashboard MUST expose NONE of this capability — no session,
+    no branch-ref selection, no session verb, no worktree, no non-`main` snapshot —
+    and a hosted request naming a non-`main` ref MUST refuse."
+
+    The test is the BIND, not the advertised capability. A capability dict is a
+    startup verdict a handler could in principle be constructed with by hand; the
+    bind is what makes a plane hosted, and the confinement has to hold for any
+    handler that is not on loopback. `None` / blank means `main` (the registry's own
+    `normalize_ref` default), so every pre-existing ref-less request is untouched,
+    and the LOCAL plane is untouched entirely — confining the hosted plane must not
+    confine the plane this whole feature lives on.
+
+    Why the hosted plane cannot simply have sessions: the session's remote-write
+    identity is the invoking engineer's OWN `gh` authentication (FR-034, D22) — a
+    personal credential, which a hosted plane must never hold or borrow — and the
+    worktree a session reads through is a per-machine directory beside a real
+    checkout, which a served image does not have (research R7).
+
+    THE ARRIVAL PATH, RECORDED AND DELIBERATELY NOT BUILT (FR-048, chg 7.2). A
+    hosted session becomes possible by binding the INTENT PLANE's apply-lane ref
+    (openxFactory `add-ideation-intent-plane` §4) through the EXISTING
+    (repository, ref) seam this function guards: the intent plane's lane already
+    owns an identity that is not anybody's personal credential, and a lane ref is
+    already a (repository, ref) pair, so the session would arrive as another row in
+    the same registry — no new seam, no second write chokepoint, and the openxfactory
+    App as the ruled hosted identity (D22). That binding is a SEPARATE change with
+    its own gate: nothing in this module reaches for a lane, and this refusal is
+    where the next reader will be standing when they ask why."""
+    if loopback:
+        return False
+    return not registry_mod.is_publishable_ref(ref)
+
+
+def hosted_index(document: dict) -> dict:
+    """The snapshot INDEX as a hosted plane may project it (FR-048, PR #49 review
+    finding 14): every non-`main` entry dropped, a non-`main` `active` dropped with
+    them, and every non-`main` AGGREGATE MEMBER dropped too.
+
+    `hosted_ref_refused` guards the routes that NAME a ref; the index names none,
+    so it was outside that confinement entirely and published the branch names of
+    unmerged work — the topic and cluster ids of work in progress — to anyone who
+    could reach the bind. Pure, so the rule is testable on its own, and it reuses
+    the SAME `is_publishable_ref` predicate the refusal does, so there is still
+    one definition of "a ref a hosted plane may see".
+
+    THE MEMBER PASS IS WAVE 2's. `entries` and `active` were projected and
+    `aggregates[].members` was not, though `SnapshotRegistry.index_document` emits
+    those members as `{repository, ref}` pairs — so an aggregate naming a session
+    ref published `draft/<topic>` off-loopback with a 200 while `entries` was
+    correctly main-only (reproduced by the wave-2 critic on a production-shaped
+    hosted plane, and reproduced again here before the fix). Content stayed confined
+    (`?ref=…` still 403), so what leaked is the topic id of unmerged work — the same
+    class FR-048 exists to prevent. An aggregate whose members are ALL unpublishable
+    is dropped whole rather than published empty: an aggregate is defined by the
+    snapshots it composes, and one with no visible members is not a narrower view of
+    itself, it is a name with nothing behind it (and a hosted plane composing it
+    would find nothing to render)."""
+    projected = dict(document)
+    entries = [entry for entry in projected.get("entries") or []
+               if registry_mod.is_publishable_ref(entry.get("ref"))]
+    projected["entries"] = entries
+    active = projected.get("active")
+    if isinstance(active, dict) and not registry_mod.is_publishable_ref(active.get("ref")):
+        projected.pop("active", None)
+    if "aggregates" in projected:
+        aggregates = []
+        for aggregate in projected.get("aggregates") or []:
+            if not isinstance(aggregate, dict):
+                continue
+            members = [member for member in aggregate.get("members") or []
+                       if isinstance(member, dict)
+                       and registry_mod.is_publishable_ref(member.get("ref"))]
+            if not members:
+                continue
+            aggregates.append({**aggregate, "members": members})
+        if aggregates:
+            projected["aggregates"] = aggregates
+        else:
+            projected.pop("aggregates", None)
+    return projected

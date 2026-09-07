@@ -52,6 +52,7 @@ import route_extension  # noqa: E402
 from import_scan import imported_modules, names_a_forbidden_package  # noqa: E402
 
 from ideation_dashboard import action_errors  # noqa: E402
+from ideation_dashboard import profile_openxfactory  # noqa: E402
 from ideation_dashboard import serve as serve_mod  # noqa: E402
 from ideation_dashboard.generator import generate_snapshot  # noqa: E402
 
@@ -484,10 +485,44 @@ def test_resolve_handlers_accepts_a_class_or_an_instance():
     route_extension.resolve_handlers((binding,), ProbeExtension(()))
 
 
-def test_a_server_built_with_no_extensions_has_an_empty_table(tmp_path):
-    """The default, and the whole of this PR's behaviour claim."""
+def test_a_server_built_with_no_extensions_carries_exactly_the_in_tree_profile(
+        tmp_path):
+    """What a caller who adds nothing gets: this assembly's OWN routes, and
+    nothing else.
+
+    REPOINTED by § 2.4 PR 3 of 4, disclosed in that PR's body. When PR 1 landed
+    the extension point, nothing was registered through it and the table was
+    genuinely empty; PR 3 moved the gate, projection and lane routes into it, so
+    `build_server` now composes `profile_openxfactory.ROUTE_EXTENSIONS` ahead of
+    whatever the caller passes. The assertion is the same one at the same
+    strength — the table a default build carries, named exactly — and it is
+    strictly harder to satisfy than `== ()`: a stray binding added to the
+    profile, a member dropped from it, or a caller's tuple leaking into a
+    default build all fail here.
+    """
     with serving(tmp_path) as (httpd, _host, _port):
-        assert handler_class(httpd).route_bindings == ()
+        assert handler_class(httpd).route_bindings == \
+            route_extension.collect_bindings(
+                profile_openxfactory.ROUTE_EXTENSIONS)
+
+
+def test_a_caller_s_extensions_are_added_to_the_profile_and_never_replace_it(
+        tmp_path, probes):
+    """The composition, stated as a property rather than left to the docstring.
+
+    `route_extensions` is ADDITIVE: a caller that contributes routes still gets
+    this assembly's own, and the caller's land after them. A future edit that
+    made the keyword REPLACE the profile would leave every existing call site
+    building a server with no `/snapshot-index.json`, no `/source/` and no gate
+    verbs — silently, because those call sites pass nothing.
+    """
+    profile_bindings = route_extension.collect_bindings(
+        profile_openxfactory.ROUTE_EXTENSIONS)
+    with serving(tmp_path, route_extensions=(probes,)) as (httpd, _host, _port):
+        got = handler_class(httpd).route_bindings
+    assert set(profile_bindings) <= set(got)
+    assert set(PROBE_BINDINGS) <= set(got)
+    assert len(got) == len(profile_bindings) + len(PROBE_BINDINGS)
 
 
 # ---------------------------------------------------------------------------
@@ -552,13 +587,23 @@ def test_a_contributed_write_route_refuses_off_loopback_exactly_like_a_core_one(
     A binding that carried its own callable could have answered differently, and
     nothing in the server would have noticed. That is the door this shape does
     not have.
+
+    THE CORE COMPARATOR IS `/actions/edit`, repointed by § 2.4 PR 3 of 4 and
+    disclosed in that PR's body. It was `/actions/gate/ratify`, which PR 3 turned
+    INTO a contributed route — leaving this test comparing contributed against
+    contributed while its own docstring claimed contributed against CORE. That is
+    a silent weakening: it stays green either way. `/actions/edit` is a fixed core
+    arm of `do_POST` dispatching `serve_project.ProjectRoutes._handle_edit_action`,
+    whose first clause is the same `if not self.loopback` refusal with the same
+    `loopback_only` code, so the comparison is the one this test names.
     """
     with serving(tmp_path, route_extensions=(probes,)) as (httpd, host, port):
         handler_class(httpd).loopback = False
         contributed = request(host, port, "POST", WRITE_ROUTE, body={})
         contributed_prefix = request(host, port, "POST", WRITE_PREFIX + "v",
                                      body={})
-        core = request(host, port, "POST", "/actions/gate/ratify", body={})
+        core = request(host, port, "POST", serve_mod.ACTIONS_EDIT_ROUTE,
+                       body={})
     assert core[0] == 403 and core[1]["error"] == "loopback_only"
     assert contributed[0] == core[0]
     assert contributed[1]["error"] == core[1]["error"]
