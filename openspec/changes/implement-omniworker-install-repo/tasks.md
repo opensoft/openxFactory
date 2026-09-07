@@ -271,14 +271,17 @@ group; §6 is where deletion lives, and only after §4 and §5.
       `%USERNAME:7%-%RAND:5%` and rendered `Omni001-XEAON`, not
       `CPC-OXF-Omni001`. Brett ruled "Accept Omni001-XEAON" (~22:50Z,
       openxFactory issue #591) — box superseded by ruling, not discharged.
-- [x] 5.2 Reprovision omni001. It is empty: no runner registered, no pilot
+- [ ] 5.2 Reprovision omni001. It is empty: no runner registered, no pilot
       ever run. Confirm that is still true immediately before the act.
-      Recorded 2026-09-05 ~22:0xZ: omni001 REPROVISIONED (Brett's ruling,
-      executed as Graph by Brett; recorded on openxFactory issue #591) — new
-      Cloud PC `Omni001-XEAON`. No runner or pilot was reported recovered or
-      lost by the act, consistent with the box's own premise that the machine
-      was empty; the record does not separately evidence a distinct
-      pre-act confirmation step beyond that.
+      The box's substance is two imperatives, not one: reprovision, AND
+      confirm the emptiness immediately before doing it. Only the first is
+      evidenced. Recorded 2026-09-05 ~22:24Z: omni001 REPROVISIONED (Brett's
+      ruling, executed as Graph by Brett; recorded on openxFactory issue
+      #591) — new Cloud PC `Omni001-XEAON`; no runner or pilot was reported
+      recovered or lost by the act. The second clause — a distinct,
+      immediately-pre-act confirmation that omni001 was still empty — is NOT
+      separately evidenced anywhere in the record. Left OPEN pending that
+      confirmation being recorded; not superseded by any ruling.
 - [x] 5.3 Read back the new Cloud PC name (`CPC-OXF-Omni001` expected) **and
       the new Entra device id**. Device `08829330-2098-461c-a950-0047e163f2b1`
       does not survive the reprovision.
@@ -396,9 +399,10 @@ live-host confirmation and its archive.
       byte-identity 70/70 and CI green with the paths gone; Part 2 (the 50
       Worker Host App paths) is opensoft/Omnigent-Install#213, HELD on OQ-6
       until `add-worker-acr-push` lands — closes then. § 5 is not yet fully
-      closed either: 5.2–5.4 are ticked with evidence above, but 5.1 and 5.5
+      closed either: 5.3 and 5.4 are ticked with evidence above; 5.1 and 5.5
       remain open (superseded by Brett's "Accept Omni001-XEAON" ruling, not
-      discharged).
+      discharged); 5.2 remains open too (its reprovision half is evidenced,
+      its pre-act empty-confirmation half is not).
 - [x] 6.2 Update the `Omnigent-Install` README's scope list — remove "Cloud PC
       worker host registration", "worker containers and worker lane setup",
       "native Claude Code / Codex harness setup", "subsystem-specific worker
