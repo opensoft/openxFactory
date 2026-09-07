@@ -17,6 +17,67 @@ Family: S5 of `add-wallet-carried-review-authority` — the register-act family,
   following `add-per-seat-register-entries` (openXwallet, wallet-v1.2) and the
   2026-09-02 register act (PR #583).
 
+## AMENDMENT — 2026-09-07 (R1/R2: lead-architect pin; 5.9a before 3.1)
+
+Row 3.1 (design D3's PREREQUISITE) was found BLOCKED on execution — measured
+on codexFactory main `8f4920ce`, reported on openxFactory PR #717 as a
+BLOCKED status comment, 2026-09-07T02:09:57Z
+(<https://github.com/opensoft/openxFactory/pull/717#issuecomment-5564009224>).
+Two rulings resolve it — Brett Heap (repository owner, operator), in-session,
+2026-09-07T12:40:19Z, verbatim: **"R1 lead-architect claude-opus-5, R2 (a) —
+re-sequence 5.9a first"**
+(<https://github.com/opensoft/openxFactory/pull/717#issuecomment-5570774593>).
+
+**R1 RULED — `lead-architect` is pinned to the exact model identifier
+`claude-opus-5`.** Per codexFactory `agent-mixes.yaml#guardrails.roster_change:
+lead_accepted_recorded`, the pin enters the roster through a RECORDED
+roster-change act: Brett Heap's selection (this ruling) plus Lead Quality's
+acceptance, produced by the lead-quality seat AT ITS OWN PIN
+(`claude-sonnet-5`) as a seat return, plus an evidence record. No family pin;
+Q8(d) stands, unreopened.
+
+**R2 RULED — (a): mirror merge-readiness's six declared components verbatim**
+(`model_version`, `prompt_contract`, `tool_manifest`, `policy_version`,
+`parameters`, `retrieval_corpus`), **and § Sequencing below is RE-ORDERED**
+so that codexFactory task 5.9a — the caller that convenes
+`gate_rules_council` with seat briefings and returns signed seat returns —
+precedes row 3.1 (the composition map). Declared against a caller that
+exists, `prompt_contract`, `tool_manifest`, `parameters` and
+`retrieval_corpus.seat_prompts_ref` become execution-matched, as the
+precedent (`016e9f43`) requires, rather than asserted against a caller that
+does not exist yet.
+
+**The defect this amendment fixes:** the original § Sequencing below put step
+3 (composition, row 3.1) ahead of step 6 (the 5.9a caller) even though step
+3's own components resolve only once a caller exists to match them against —
+proven by execution: the only renderer (`deliberation_packet.py#seat_system_prompt`)
+hard-codes `merge_readiness_council` and refuses `lead-architect` as an
+unknown seat, and `lead-architect` itself had no enrolled pin anywhere (fixed
+by R1, above). The original § Sequencing text is left standing below,
+unedited; this section supersedes it for EXECUTION ORDER.
+
+**§ Sequencing, restated in the corrected order:**
+
+1. **openXwallet** — the reader widening. **DONE**: opensoft/openXwallet
+   #16, #17, #18 (merged `f3eb929b`), tag `wallet-v1.5`.
+2. **openxFactory** — pin advance + gate-literal move. **DONE**:
+   opensoft/openxFactory #740 (merged `30eccf0c`).
+3′. **codexFactory** — task 5.9a: the `gate_rules_council` caller with seat
+   briefings, together with R1's roster act (`lead-architect` pinned to
+   `claude-opus-5` via the recorded roster-change).
+3. **codexFactory** — the composition source map and agent-mix profile (row
+   3.1), now declared against a caller that exists rather than asserted.
+4. **Brett's walk** — mint, attest, grant, row (tasks § 3.2–3.9), with task
+   2.8's deferred consumer-gate literal flip performed in the SAME act (per
+   tasks § 2.8's 2026-09-07 disposition).
+5. **hermes-install / operator** — the projection refresh.
+6. **codexFactory** — the first signed `gate_rules_council` convening: 3′'s
+   caller's first run.
+
+Steps 1 and 2 are complete. Step 3′ (codexFactory task 5.9a + the R1 roster
+act) is now sequenced ahead of step 3 (row 3.1) — **row 3.1 realizes AFTER
+5.9a.**
+
 ## The ruling this realizes
 
 codexFactory PR #165, the OQ-C ruling — Brett Heap, in session,
