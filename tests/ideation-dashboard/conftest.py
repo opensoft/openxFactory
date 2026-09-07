@@ -134,16 +134,25 @@ from session_fixtures import (  # noqa: E402,F401  (fixture registration)
 # `gate_routes.py` are absent for the plainer reason that they are the governed
 # remote-write path itself.
 #
-# So the claim this list makes is the narrow, checkable one: none of the seven
+# So the claim this list makes is the narrow, checkable one: none of the eight
 # modules that carry a TURN, a SAVE, a COMPACTION, or a SCHEDULED doxBench task
 # can reach a remote write. The SHARE verb appears nowhere here either — it
 # lives in `gate_routes.py`, beside `open-pr` — and that placement is what lets
 # this list stay a pure absence.
+#
+# WIDENED, NEVER NARROWED (`split-opendox-two-layer-product` § 2.4, OQ-1).
+# `doxbench_status_exemption.py` is the lifecycle-status read carved out of
+# `doxbench_packet.py`; the sweep follows the code rather than the filename, so
+# splitting a listed module adds the piece that left instead of quietly
+# shrinking what the negative covers. `test_doxbench_share.py` self-asserts
+# that §11's four are still a subset, which is the half of this rule a test can
+# keep on its own.
 # --------------------------------------------------------------------------
 
 NO_IMPLICIT_PUSH_MODULES: tuple[str, ...] = (
     "serve.py", "doxbench_threads.py", "doxbench_bridge.py", "doxbench_mcp.py",
     "doxbench_turns.py", "doxbench_packet.py", "nightly_lane.py",
+    "doxbench_status_exemption.py",
 )
 
 FORBIDDEN_PUSH_TOKENS: tuple[str, ...] = (".push(", "open_or_update(", "git push")
