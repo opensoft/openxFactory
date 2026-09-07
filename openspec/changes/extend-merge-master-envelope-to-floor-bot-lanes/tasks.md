@@ -155,6 +155,33 @@ owed. § 2.2 through § 2.8 are its realization and are authored nowhere yet.
   **2026-09-07 — DONE by the companion**, with every member exactly as N-2 fixes
   it and no other. It validates against codexFactory's schema AND its runtime
   mirror.
+  **AND THE CLASS AS RATIFIED CANNOT YET APPROVE — MEASURED 2026-09-07, and it
+  is the substantive finding of this realization.** `envelope.py:710-713`
+  refuses any non-excluded check NAME whose latest completed run concluded other
+  than `success`. `lane-line` concludes **`skipped`** on every
+  `floor/bot-regeneration` pull request, by design rather than by accident:
+  codexFactory `.github/workflows/lane-line.yml:15` guards the job with
+  `if: github.event.pull_request.user.type != 'Bot'`, and GitHub reports a job
+  skipped by an `if:` as a COMPLETED check-run concluding `skipped`. Measured on
+  all four observed pull requests — codexFactory #248, #254, #265, #273 — and
+  `skipped` on all four. So N-2's conditions, realized exactly as ratified,
+  produce a class that PARKS every time with `check-run 'lane-line' concluded
+  'skipped'`. That is precisely what § 4.1 of this file warns about: an
+  enrolment declared but never observed to fire proves nothing.
+  **IT IS RECORDED RATHER THAN QUIETLY FIXED, AND THE REASON IS AUTHORITY** —
+  adding `lane-line` to `check_exclusions` changes a member N-2 fixes BY NAME,
+  and a lane realizing a ratified packet does not widen a ratified admission
+  condition on its own judgment. Three ways out, each needing Brett's word and
+  each enumerated in codexFactory's envelope file beside `require_all_checks`:
+  (a) exclude `lane-line` for this candidate — one line, defensible because the
+  check is EXEMPT for this author rather than failing; (b) make the exemption
+  conclude SUCCESS by moving the guard from a job-level `if:` to an in-job early
+  exit; (c) treat `skipped` as green in the decision core — refused, it would
+  relax the condition for every class in every repository that core judges.
+  Measured executably by codexFactory
+  `test_the_shipped_class_PARKS_on_the_real_observed_check_set`, which reds the
+  day it is fixed, beside `test_the_finding_is_ABOUT_lane_line_and_nothing_else`,
+  which proves no other observed check would also have parked it.
 - [x] 2.3 Declare `path_allowlist` as exactly two named paths and NO glob:
   `scripts/merge_master/openxfactory-review-authority-floor.yaml` and
   `tests/merge-master/test_repository_gate_floor.py`. Re-measure both against the
@@ -263,6 +290,14 @@ owed. § 2.2 through § 2.8 are its realization and are authored nowhere yet.
   `decision == approve` from the pinned core, with the approval record naming the
   candidate class and the measured facts. Record the run URL and the pull request
   number.
+  **2026-09-07 — OPEN, AND IT CANNOT BE OBSERVED YET. THREE THINGS STAND IN THE
+  WAY AND ALL THREE ARE NAMED:** (1) the Gate-Rules Council admitting record is
+  DRAFTED AND UNSIGNED, so the enrolment has not lawfully landed; (2) `Require
+  Code Owner Review` has no bypass actor on codexFactory, so an approval clears
+  nothing (§ 5.3); (3) even with both taken, the class PARKS on `lane-line`
+  concluding `skipped` for a Bot author (see § 2.2). This box needs a real bot
+  pull request approved by the envelope AFTER all three are resolved, and no
+  earlier. § 3.2's unattended merge additionally waits on § 2.7.
 - [ ] 3.2 Observe that same pull request MERGE with no human click — no review
   submitted by a person, no merge button pressed, no admin bypass exercised.
   Record the merge commit and the actor GitHub reports for the merge.
