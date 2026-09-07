@@ -1,6 +1,6 @@
 # Design: extend-merge-master-envelope-to-floor-bot-lanes
 
-Status: draft
+Status: draft (nothing here is ratified by being authored)
 
 Every claim in § 1 and § 2 was read out of the working tree or the GitHub API at
 authoring time and is cited `file:line`. Where the governing brief's premise and
