@@ -15,6 +15,20 @@ this pull request or a measurement recorded verbatim in the pull request body.
 merged-plus-green realization evidence and on a separate word, and neither
 exists yet.
 
+**AMENDED AT THE ARCHIVE, 2026-09-07 — ONE NAMED SENTENCE ABOVE IS SUPERSEDED,
+FOR § 6.4 ONLY, AND IT IS QUOTED IN PLACE RATHER THAN DELETED.** The superseded
+sentence is exactly this one, and no other:
+
+> **§ 6.4 STAYS UNTICKED AND NAMES WHY**: the archive is a separate act on
+> merged-plus-green realization evidence and on a separate word, and neither
+> exists yet.
+
+**Both now exist**, and § 6.4 cites them. The sentence before it — *"NOTHING IS
+TICKED THAT DID NOT LAND"* — is **NOT** superseded; it still holds, and the
+archive-time clauses below are what make it hold. The disposition is at the head
+of § 6, and the ratified text of every box in that section is carried verbatim
+beneath its archive-time clause.
+
 ## 1. Ratification — GIVEN 2026-09-07
 
 - [x] 1.1 **RATIFIED 2026-09-07 by Brett Heap** (openxFactory operator
@@ -343,7 +357,40 @@ Heap's ruling of 2026-09-06, *"Tick on the recording"*. What a packet owes about
 work it is not doing is to NAME it, with the reading its successor needs. The
 boxes below tick that naming and nothing else.
 
-- [x] 6.1 **THE ESTATE-WIDE RUN IS NAMED AND IS NOT TAKEN HERE.** The
+**DISPOSITION 2026-09-07 — WHAT THE ARCHIVE ADDED TO THIS SECTION, AND WHAT IT
+DID NOT.** The ruling above is the one this archive used, and nothing in it is
+superseded. **§ 6.4 was the ONE open box in this file at ratification** —
+`review/ratification-2026-09-07.md` § 4 item 1 says so, and that document is
+`Status: record`: immutable, **NOT edited by this archive**, standing exactly as
+written. It is ticked below on the archive evidence (PR
+[#753](https://github.com/opensoft/openxFactory/pull/753) → merge `f756a91f`,
+and `pytest-suite` green on `main` at `f756a91f` ITSELF and again at a later
+`main` commit containing it) and on Brett Heap's separate word of 2026-09-07,
+verbatim **"archive 753 when green"**, recorded on openxFactory
+[#750](https://github.com/opensoft/openxFactory/issues/750).
+
+**§ 6.1 AND § 6.6 WERE ALREADY TICKED ON THE RECORDING AT RATIFICATION, AND THE
+ARCHIVE GIVES EACH THE RESOLVABLE NAME THE RULING ASKS FOR** — openxFactory
+**[#765](https://github.com/opensoft/openxFactory/issues/765)** (the estate-wide
+run) and **[#766](https://github.com/opensoft/openxFactory/issues/766)** (the
+late-`Skip` successor packet, carrying BOTH recorded remedies and picking
+neither). Both are **FILED AND UNCLAIMED** at this commit. § 6.5's carried
+reading is **re-verified** at the archive rather than re-asserted. § 6.2 and
+§ 6.3 record non-acts and are unchanged.
+
+**NO TICK IN THIS SECTION CLAIMS WORK THAT WAS NOT DONE.** No estate-wide run
+has been taken, neither remedy in § 6.6 has been taken, and the ratified text of
+every box is carried verbatim beneath its archive-time clause.
+
+- [x] 6.1 **TICKED ON THE RECORDING — THE OWED RUN IS NAMED AS openxFactory
+      [#765](https://github.com/opensoft/openxFactory/issues/765), IT IS
+      UNCLAIMED, AND NO ESTATE-WIDE RUN HAS BEEN TAKEN.** Per Brett Heap's
+      ruling of 2026-09-06, verbatim *"Tick on the recording"*: the box ticks
+      once the successor is NAMED, and this clause is the box text saying the
+      tick records the naming and not the doing. **THE MEASUREMENT AT THIS
+      COMMIT IS STILL openxFactory ALONE**, exactly as the ratified text says.
+      That text follows unchanged:
+      **THE ESTATE-WIDE RUN IS NAMED AND IS NOT TAKEN HERE.** The
       measurement in this packet covers openxFactory only. `doc-health.py
       --repo-root` reads every governed submodule and `obtain_commit` FETCHES
       into each one where a tip is absent, so an estate-wide run WRITES INTO
@@ -369,13 +416,43 @@ boxes below tick that naming and nothing else.
       against canon, and editing one would both mutate history and manufacture
       the divergence that family reports. Recorded so a later reader does not
       read the omission as an oversight.
-- [ ] 6.4 **ARCHIVE.** `code_surface` is non-empty, so under `release-realization`
+- [x] 6.4 **ARCHIVE — TAKEN 2026-09-07, ON THE EVIDENCE BELOW AND ON A SEPARATE
+      WORD.** Both halves the ratified text names as not yet existing now exist,
+      and both are cited rather than asserted:
+      - **RATIFIED AND REALIZED IN ONE PULL REQUEST** — **PR
+        [#753](https://github.com/opensoft/openxFactory/pull/753) → merge
+        `f756a91f`**, 2026-09-07T17:20:53Z, ratifying commit `58654e34`, records
+        `review/ratification-2026-09-07.md` and
+        `review/verification-2026-09-07.md`, neither of them touched here.
+      - **GREEN ON MAIN, TWICE** — `pytest-suite` run
+        **[34147229368](https://github.com/opensoft/openxFactory/actions/runs/34147229368)**,
+        conclusion `success`, `headSha` `f756a91f` — the merge commit **ITSELF**,
+        not merely a descendant of it — and run
+        **[34149869656](https://github.com/opensoft/openxFactory/actions/runs/34149869656)**,
+        conclusion `success`, on `421b52d8`, a later `main` commit containing it.
+      **THE SEPARATE WORD IS BRETT HEAP'S**, 2026-09-07, in session, verbatim
+      **"archive 753 when green"**, recorded and claimed on openxFactory
+      [#750](https://github.com/opensoft/openxFactory/issues/750). Neither half
+      of the evidence is a local assertion: both are references an outside reader
+      resolves — a merge commit on `main` and two workflow run ids. The ratified
+      text follows unchanged, in the tense it was ratified in:
+      **ARCHIVE.** `code_surface` is non-empty, so under `release-realization`
       this packet does NOT archive on landing: it archives on MERGE EVIDENCE PLUS
       A GREEN RUN of the surface on the implemented target, and on a separate
       word. Neither exists yet, and this box is where they will be cited — a
       merge commit on `main` and a workflow run id, both resolvable by an outside
       reader.
-- [x] 6.5 **THE FLOOR EXEMPTION OVER THE SKIP IS RECORDED, NOT WIDENED** (PR
+- [x] 6.5 **RE-VERIFIED AT THE ARCHIVE, 2026-09-07: THE CARRIED READING STILL
+      HOLDS AND NOTHING WAS WIDENED.** The `THEN` this packet promotes still
+      requires a skip *"WHEREVER THE DOCUMENT'S OWN ABSENCE HAS NOT BEEN
+      ESTABLISHED"* with no floor qualification, and
+      `scripts/doc_health/release_tag_publication.py` still answers a BELOW-FLOOR
+      repository with neither the skip nor the grading: `if not in_scope: return
+      []` stands unmoved on the unfetched arm, both third-state arms are gated on
+      `in_scope`, and so is the `info`. **NO SUCCESSOR ISSUE IS FILED FOR THIS
+      BOX** — it records a reading rather than an owed act, and the change it
+      names is one a later ruling opens. The ratified text follows unchanged:
+      **THE FLOOR EXEMPTION OVER THE SKIP IS RECORDED, NOT WIDENED** (PR
       #753 fix round; TICK ON THE RECORDING). The amended `THEN` requires a skip
       *"wherever the document's own absence has not been established"* with no
       qualification, and a BELOW-FLOOR repository is given neither the skip nor
@@ -390,7 +467,17 @@ boxes below tick that naming and nothing else.
       reach over this family's SKIPS as well as over its findings, in one added
       scenario, and that carries the same qualification into the sibling manifest
       read if it holds there too. `design.md` **D2**.
-- [x] 6.6 **A LATE SKIP IN THE BUNDLE LOOP STILL DROPS THE TRACE** (PR #753 fix
+- [x] 6.6 **TICKED ON THE RECORDING — THE SUCCESSOR PACKET IS NAMED AS
+      openxFactory [#766](https://github.com/opensoft/openxFactory/issues/766),
+      IT IS UNCLAIMED, AND NEITHER RECORDED REMEDY IS TAKEN.** Per Brett Heap's
+      ruling of 2026-09-06, verbatim *"Tick on the recording"*: the tick records
+      the naming and not the doing. **#766 CARRIES BOTH REMEDIES AND PICKS
+      NEITHER** — qualify the `AND`, or widen `check_repo`'s return shape — which
+      is what `review/ratification-2026-09-07.md` § 4 item 4 records the
+      ratifying word itself doing over a text that carried both. The three late
+      `Skip` arms are unchanged at this commit and the trace still dies on them.
+      The ratified text follows unchanged:
+      **A LATE SKIP IN THE BUNDLE LOOP STILL DROPS THE TRACE** (PR #753 fix
       round; TICK ON THE RECORDING). The `info` § 3.2 appends is discarded whole
       by any of three arms below it that `return Skip(...)` — unlistable tag
       refs, unlistable refs for a named superseding bundle, an unresolvable
