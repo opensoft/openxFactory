@@ -571,6 +571,30 @@ class TheRealFiles(unittest.TestCase):
             "candidate self-deadlocks: GitHub names the check-run after the "
             "job id, and the run is still in progress while it evaluates")
 
+    def test_the_enrolled_candidate_declares_no_open_finding_keys(self) -> None:
+        """The candidate's KEY SET is pinned, not merely the values above.
+
+        xFactory's `doc-health-nightly` candidate carries
+        `open_finding_title_prefixes` and `open_finding_labels: []` because
+        that candidate IS the doc-health report and such a finding is ABOUT
+        the very tree it delivers (see that repository's own envelope). No
+        finding class here ties to the intent record trees — the envelope's
+        own header records that reasoning — so neither key may reappear on
+        this candidate. A key silently added back would hand the pinned
+        core's open-finding condition something to quantify over that no
+        value-level assertion above would ever see, since both keys are
+        absent today rather than present-and-empty.
+        """
+        candidate = sole_candidate(envelope_document())
+        self.assertNotIn(
+            "open_finding_title_prefixes", candidate,
+            "no finding class in this repository is about the intent record "
+            "trees; adding this key is a new grant, not a config tweak")
+        self.assertNotIn(
+            "open_finding_labels", candidate,
+            "no finding class in this repository is about the intent record "
+            "trees; adding this key is a new grant, not a config tweak")
+
     def test_the_enrolled_surface_admits_no_refused_path(self) -> None:
         """The 2026-08-28 refusal, asserted rather than merely remembered.
 
@@ -662,12 +686,19 @@ class TheRealFiles(unittest.TestCase):
                     "step %r reaches the approver credential without "
                     "consulting the envelope decision" % (step.get("name"),))
 
-    def test_the_app_token_mint_is_scoped_to_pull_requests(self) -> None:
+    def test_the_app_token_mint_is_scoped_to_pull_requests_and_issues(self) -> None:
         """The installation needs `contents: write` for the approval to COUNT.
 
-        The TOKEN needs none of it: this lane submits one review and posts one
-        comment. Scoping the mint means a compromised later step holds a token
-        that cannot write contents anywhere.
+        The TOKEN needs none of that: this lane submits one review
+        (`pull-requests: write`) and posts one sticky comment. The comment is
+        NOT `pull-requests` scope — "Record the envelope outcome" posts and
+        patches through the Issues Comments API, which is what a pull
+        request's general conversation thread actually is, and a GitHub App's
+        `pull_requests` permission does not gate that endpoint; `issues`
+        does. Missing either scope 403s the corresponding call, so both are
+        asserted here and nothing wider is. Scoping the mint this narrowly
+        means a compromised later step holds a token that cannot write
+        contents, merge, or touch anything else.
         """
         mints = [step for step in steps_of(self.document)
                  if str((step or {}).get("uses") or "").startswith(
@@ -679,7 +710,13 @@ class TheRealFiles(unittest.TestCase):
         with_block = (mints[0].get("with") or {})
         self.assertEqual(
             with_block.get("permission-pull-requests"), "write",
-            "the mint must narrow the token to `pull-requests: write`")
+            "the mint must narrow the token to `pull-requests: write` — "
+            "needed to submit the APPROVE review")
+        self.assertEqual(
+            with_block.get("permission-issues"), "write",
+            "the mint must also carry `issues: write` — the sticky comment "
+            "the 'park' path relies on to explain itself is posted through "
+            "the Issues Comments API, which `pull-requests` does not cover")
         for scope in with_block:
             self.assertNotIn(
                 scope, ("permission-contents", "permission-administration",
@@ -974,6 +1011,18 @@ class NegativeControls(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        # A clear assertion, not a bare `FileNotFoundError`. `TheRealFiles`
+        # already asserts each of these exists with an explanatory message,
+        # but unittest gives no ordering guarantee between classes, so a
+        # reader who runs `NegativeControls` alone (or watches it fail first)
+        # must not be left with a raw traceback pointing at `read_text`.
+        for label, path in (("caller", CALLER), ("pin", PIN),
+                            ("envelope", ENVELOPE)):
+            if not path.is_file():
+                raise AssertionError(
+                    "NegativeControls mutates the real %s file and cannot "
+                    "run without it: missing %s. See TheRealFiles for the "
+                    "assertion that normally catches this." % (label, path))
         cls.caller_text = CALLER.read_text(encoding="utf-8")
         cls.pin_text = PIN.read_text(encoding="utf-8")
         cls.envelope_text = ENVELOPE.read_text(encoding="utf-8")
@@ -983,6 +1032,17 @@ class NegativeControls(unittest.TestCase):
         document = caller_document(self.caller_text)
         self.assertEqual(pinned_ref(document),
                          declared_core_commit(self.pin_text))
+
+    def test_a_missing_source_file_fails_with_a_clear_message(self) -> None:
+        """`setUpClass` must name the missing file, not leak a bare traceback."""
+        import unittest.mock as mock
+
+        missing = ENVELOPE.parent / "does-not-exist-merge-approval-envelope.yml"
+        with mock.patch(__name__ + ".ENVELOPE", missing):
+            with self.assertRaises(AssertionError) as ctx:
+                NegativeControls.setUpClass()
+        self.assertIn("envelope", str(ctx.exception))
+        self.assertIn(str(missing), str(ctx.exception))
 
     def test_a_drifted_workflow_ref_is_refused(self) -> None:
         real = declared_core_commit(self.pin_text)

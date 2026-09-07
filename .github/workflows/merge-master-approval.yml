@@ -35,8 +35,10 @@
 #     `statuses: read` and nothing else. THE ONLY WRITE AUTHORITY IN THIS LANE
 #     is a per-run GitHub App token, minted from `MERGE_MASTER_APP_ID` /
 #     `MERGE_MASTER_APP_KEY` only AFTER the pinned core has decided, scoped to
-#     `permission-pull-requests: write` on this repository alone. That is a
-#     STRICTER posture than xFactory's caller, which carries
+#     `permission-pull-requests: write` (the APPROVE review) and
+#     `permission-issues: write` (the sticky comment, which is the Issues
+#     Comments API even on a pull request) on this repository alone. That is
+#     a STRICTER posture than xFactory's caller, which carries
 #     `pull-requests: write` on its own `GITHUB_TOKEN`.
 #   * THE ADVISORY FLOOR VERDICT still runs on every pull request exactly as
 #     before, and is now COMPOSED OVER the envelope: a candidate touching ANY
@@ -431,9 +433,12 @@ concurrency:
 # READ-ONLY, DELIBERATELY, AND STILL READ-ONLY AFTER ACT A4. Not one scope
 # here can submit a review, post a comment, merge, or enable auto-merge — the
 # approval and its explanatory comment are written with a separately minted,
-# per-repository App token scoped to `pull-requests: write`, and nothing else in
-# this job can reach that token. `issues:` is absent (this lane files no notice)
-# and no `write` scope appears anywhere. The two READ scopes added by act A4 are
+# per-repository App token scoped to `pull-requests: write` (the review) and
+# `issues: write` (the sticky comment — the Issues Comments API, which a
+# pull request's conversation thread actually is), and nothing else in this
+# job can reach that token. `issues:` is absent BELOW, on THIS workflow's own
+# `GITHUB_TOKEN` (this lane files no notice with it) and no `write` scope
+# appears anywhere in this block. The two READ scopes added by act A4 are
 # what the envelope's all-checks-green condition quantifies over; a declared
 # `permissions:` block sets every undeclared scope to `none`, so they have to be
 # named to be readable at all.
@@ -719,9 +724,21 @@ jobs:
               # `// empty` so an empty result set reads as EMPTY rather than the
               # four characters `null` that raw-output jq renders for a JSON
               # null — which the emptiness test below would read as present.
-              found="$(gh pr list --repo "$REPO" --head "$governed_ref" \
-                --base "$DEFAULT_BRANCH" --state open --json number \
-                -q '.[0].number // empty' || true)"
+              #
+              # NO FAILURE MASKING HERE EITHER (the same rule step 7 states at
+              # length): a `gh pr list` that fails — a transient API error, an
+              # auth hiccup — is not the fact "no open pull request on this
+              # ref", and must not be read as one. An unadorned `|| true`
+              # would let exactly that failure fall through every governed
+              # ref and land on "nothing to evaluate", silently leaving the
+              # custody candidate unapproved with no signal at all. So a
+              # failed listing aborts the run instead of continuing the loop.
+              if ! found="$(gh pr list --repo "$REPO" --head "$governed_ref" \
+                    --base "$DEFAULT_BRANCH" --state open --json number \
+                    -q '.[0].number // empty')"; then
+                echo "::error title=merge-master-approval::could not list open pull requests for governed head ref '$governed_ref' — a failed read is not the same fact as 'no open pull request', so this dispatch resolution refuses rather than moving on to the next ref." >&2
+                exit 1
+              fi
               if [ -n "$found" ]; then
                 PR_NUMBER="$found"
                 echo "dispatch resolved candidate #$PR_NUMBER on governed head ref '$governed_ref'"
@@ -1652,9 +1669,18 @@ jobs:
       # PER-MINT NARROWING. The App installation itself needs `contents: write`
       # for GitHub to COUNT its approval (counting is computed from the
       # installation's permissions, live-proven on xFactory). The TOKEN this
-      # step mints needs none of that: it submits one review and posts one
-      # comment, both `pull-requests`. Scoping the mint means a compromised
-      # downstream step holds a token that cannot write contents anywhere.
+      # step mints needs none of that: it submits one review
+      # (`pull-requests: write`) and posts one comment. THE COMMENT IS NOT
+      # `pull-requests` SCOPE: the "Record the envelope outcome" step below
+      # posts and patches through `POST`/`PATCH .../issues/{n}/comments` —
+      # the Issues Comments API, which is what backs a pull request's general
+      # conversation thread even though the number is a PR number — and a
+      # GitHub App's `pull_requests` permission does not gate that endpoint;
+      # `issues` does. Without `permission-issues: write` here the sticky
+      # comment 403s on every run, silently losing the one thing a parked
+      # candidate has to explain itself with. Scoping the mint to exactly
+      # these two means a compromised downstream step still holds a token
+      # that cannot write contents, merge, or touch anything else.
       - name: Mint the merge-master App token
         id: mm-token
         if: >-
@@ -1668,6 +1694,7 @@ jobs:
           owner: ${{ github.repository_owner }}
           repositories: ${{ github.event.repository.name || 'openxFactory' }}
           permission-pull-requests: write
+          permission-issues: write
 
       # ---- 13. THE APPROVAL ------------------------------------------------
       # THE ONE DOOR. `steps.envelope.outputs.decision == 'approve'` is written
