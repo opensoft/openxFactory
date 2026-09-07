@@ -445,14 +445,25 @@ lost is a step nobody can re-derive.
    SECOND acceptance on top of the re-approval; moving first spends one
    re-approval and no second acceptance.
 
-   *Observation for the OpsxFactory lane, not a claim by this packet:* the 4.2
-   tick names `4e1a4b76…` as the APPROVED digest while also naming
-   `8abb0e962a5893dd5d6b124a5083f5f79cf207b889340fa42465addd12c82273` as "the
-   digest offered by codexFactory", and the plan file's own `plan_digest` block
-   (line 904) carries the latter, after two post-registration amendments
-   (`0d2bd86d`, `a83e1d95` — "digest re-registered"). Whether those two digests
-   are meant to be the same value is that lane's question and is flagged, not
-   answered, here.
+   **The digest question this packet first raised as a flag is RESOLVED**, by
+   lane `hermes-wallet-exercise` and re-verified here, and it is recorded closed
+   rather than left hanging. The approved digest `4e1a4b76…` is simply
+   `sha256sum` over the plan file's exact committed bytes: the plan's own
+   `plan_digest` block (lines 880-892) defines it that way — raw bytes, no
+   canonicalization — and **deliberately does not store the value**
+   (`value_recorded_here: false`, because a digest over a file's bytes cannot be
+   a line in that file). The bytes at `a83e1d95`, the last amendment, hash to
+   exactly `4e1a4b76…` today. `8abb0e96…` is **not a live digest of anything**:
+   it is the superseded orphan that codexFactory's #164 ratification record once
+   named for a document that never existed, surviving only at the plan's header,
+   at `plan_digest.supersedes.digest` and in an `owed_acts` entry that
+   codexFactory PR #240 (`a4aa41b0`) discharged. The 4.2 tick's phrase "the
+   digest offered by codexFactory" describes that **superseded input**, not the
+   approval. So the re-approval after the org-move amendment is taken over the
+   NEW `sha256sum` of the amended bytes, computed the same way — which is why
+   the runbook's step 9.2a **computes and prints it** rather than citing a
+   value: an approval is over bytes, and a ruling quoting a stale digest
+   approves a document that no longer exists.
 
    **A second measured correction, which STANDS:** the plan's image path is
    `acropensoftxfactoryqa.azurecr.io/opensoft/codexfactory-mcp` (plan line 189) —
