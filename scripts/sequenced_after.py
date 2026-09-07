@@ -728,8 +728,14 @@ def retention_at_archive(change_dir: str | Path, ratified_ref: str) -> str | Non
     entries as authored, any date-prefixing, re-pointing or normalization
     performed on archival would register here as a mutation.
 
-    Raises `SequencedAfterError` (never a traceback) when `change_id` has no
-    proposal.md at `ratified_ref` at all.
+    Raises `SequencedAfterError` (never a traceback) whenever it cannot READ
+    what it compares: when `change_id` has no proposal.md at `ratified_ref` at
+    all, when `change_dir` carries no `proposal.md` IN THE WORKING TREE — the
+    CURRENT declaration cannot be read, so the gate cannot run — and when the
+    front matter on EITHER side is malformed or unparseable (`read_declaration`
+    refuses it). A `change_dir` outside any git work tree is NOT converted and
+    still surfaces git's own error; the sibling `scope_globs` gate names that
+    case too, and aligning it is a separate arm.
     """
     change_path = Path(change_dir)
     proposal = change_path / "proposal.md"
@@ -737,7 +743,32 @@ def retention_at_archive(change_dir: str | Path, ratified_ref: str) -> str | Non
     change_id = change_id_of_dir(change_path)
     ratified_rel = proposal_path_at_ref(repo_root, ratified_ref, change_id)
     ratified = declaration_at_ref(repo_root, ratified_ref, ratified_rel)
-    current = read_declaration(proposal) if proposal.is_file() else ABSENT
+    if not proposal.is_file():
+        # A MISSING CURRENT-SIDE PROPOSAL IS "CANNOT RUN", NOT A COMPARISON
+        # INPUT. Reading it as `ABSENT` made the gate answer a question it had
+        # not asked: a change that declared nothing at ratification reported
+        # RETAINED, and one that DID declare reported a contested MUTATION — a
+        # declaration nobody removed, because the file that would hold it is
+        # simply not there. Both readings are verdicts about a declaration the
+        # gate never read, and `ABSENT` is a load-bearing FACT in this module
+        # ("no declaration was made"), not a stand-in for "the proposal is
+        # missing" — conflating them is exactly the conflation the ABSENT
+        # sentinel exists to prevent.
+        #
+        # THE SIBLING GATE ALREADY REFUSES THIS CASE:
+        # `scope_globs.scope_retention_at_archive` raises
+        # `ScopeGlobsResolutionError` here (#723, which recorded the divergence
+        # as a follow-on because this file was outside its declared scope).
+        # This is that follow-on: the two archive gates now read the case alike,
+        # each as a named "CANNOT RUN" finding with exit 2.
+        raise SequencedAfterError(
+            f"the change directory {str(change_path)!r} carries no proposal.md "
+            f"in the working tree ({str(proposal)!r}), so the CURRENT "
+            f"{FIELD} declaration cannot be read at all — the gate cannot run; "
+            f"this is NOT a proposal that exists and makes no declaration "
+            f"(the ABSENT reading), which would report a mutation nobody made "
+            f"or a retention nobody earned")
+    current = read_declaration(proposal)
     return retention_problem(ratified, current)
 
 

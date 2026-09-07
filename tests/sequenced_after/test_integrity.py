@@ -330,6 +330,63 @@ def test_the_archive_gate_resolves_a_ratified_ref_that_is_ITSELF_ALREADY_ARCHIVE
     assert sa.retention_at_archive(archive, ratified_ref) is None
 
 
+# --- a MISSING WORKING-TREE proposal is "cannot run" (parity with #723) ------
+#
+# The sibling gate `scope_globs.scope_retention_at_archive` refuses this case
+# outright (#723, fixing #705); this gate used to read it as `ABSENT` and
+# compare on, which is a verdict about a declaration it never read. The two
+# archive gates read the same corpus over the same trees, so they answer this
+# the same way: a named finding and exit 2.
+
+
+def test_a_MISSING_WORKING_TREE_PROPOSAL_is_a_CANNOT_RUN_finding_not_a_verdict(tmp_path):
+    # Reading an ABSENT current-side proposal as "no declaration made" made the
+    # gate answer a question it had never asked. With a declaration ratified at
+    # REF it reported a contested MUTATION — a removal nobody made; with nothing
+    # ratified it reported RETAINED. Both are verdicts about a declaration the
+    # gate never read, and `ABSENT` means "no declaration was made", never "the
+    # proposal is missing".
+    change = _init_change(tmp_path, "[add-parent]")
+    ratified_ref = subprocess.run(
+        ["git", "-C", str(tmp_path), "rev-parse", "HEAD"],
+        capture_output=True, text=True, check=True).stdout.strip()
+    # The directory has to SURVIVE the deletion, so it carries a second file —
+    # the shape a real change directory has (proposal.md beside tasks.md).
+    (change / "tasks.md").write_text("# Tasks\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(tmp_path), "add", "-A"], check=True)
+    subprocess.run(["git", "-C", str(tmp_path), "commit", "-q", "-m", "tasks"],
+                   check=True, env={**os.environ, **_ENV})
+    subprocess.run(["git", "-C", str(tmp_path), "rm", "-q",
+                    str(change / "proposal.md")], check=True)
+    subprocess.run(["git", "-C", str(tmp_path), "commit", "-q", "-m", "drop"],
+                   check=True, env={**os.environ, **_ENV})
+    assert change.is_dir() and not (change / "proposal.md").exists()
+
+    with pytest.raises(sa.SequencedAfterError) as excinfo:
+        sa.retention_at_archive(change, ratified_ref)
+    message = str(excinfo.value)
+    assert "no proposal.md in the working tree" in message, message
+    assert str(change) in message, message
+    # THE MISSING FILE ITSELF, not merely its directory: the diagnostic's whole
+    # job is to tell an operator which path the gate went looking for, and a
+    # directory-only assertion would still pass if that half were dropped.
+    assert str(change / "proposal.md") in message, message
+
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), "--archive-gate", str(change),
+         "--ratified-ref", ratified_ref],
+        capture_output=True, text=True,
+    )
+    assert result.returncode == 2, (result.returncode, result.stdout, result.stderr)
+    assert "Traceback" not in result.stdout, result.stdout
+    assert "Traceback" not in result.stderr, result.stderr
+    assert "CANNOT RUN" in result.stdout, result.stdout
+    assert str(change) in result.stdout, result.stdout
+    assert str(change / "proposal.md") in result.stdout, result.stdout
+    # And NOT as the mutation the old reading mistook it for.
+    assert "contested" not in result.stdout, result.stdout
+
+
 # --- ARCHIVAL DOES NOT REWRITE DECLARATIONS (task 5.2) ----------------------
 
 
