@@ -951,8 +951,15 @@ def test_the_watch_listed_candidate_is_recorded_with_gates_and_not_adopted():
 
 
 def test_no_watch_listed_candidate_is_depended_on_anywhere_in_this_slice():
-    for module in ("doxbench_packet.py", "doxbench_knowledge.py",
-                   "doxbench_telemetry.py", "doxbench_memory_gateway.py"):
+    # WIDENED (never narrowed, per the conftest.py NO_IMPLICIT_PUSH_MODULES
+    # rule this file's own sweep now follows): `doxbench_status_exemption.py`
+    # added after `split-opendox-two-layer-product` § 2.4 carved 72 lines out
+    # of `doxbench_packet.py` into it. Those lines were inside this scan's
+    # coverage before the carve; leaving the new file off the tuple would let
+    # that code walk out of the negative while the suite stayed green.
+    for module in ("doxbench_packet.py", "doxbench_status_exemption.py",
+                   "doxbench_knowledge.py", "doxbench_telemetry.py",
+                   "doxbench_memory_gateway.py"):
         source = (REPO_ROOT / "scripts" / "ideation_dashboard"
                   / module).read_text(encoding="utf-8").lower()
         assert "import headroom" not in source, module

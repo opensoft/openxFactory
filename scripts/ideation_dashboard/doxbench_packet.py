@@ -1396,7 +1396,24 @@ def __getattr__(name: str):
     than a packet quietly assembled with every source unmarked. Choosing a
     declared neutral posture instead is a ruling, not an author's call, and it
     is reported as such rather than taken here.
+
+    THE ABSENT-MODULE CASE IS TRANSLATED, NOT LET THROUGH RAW. `_status_exemption()`
+    performs the import itself, so an absent adapter-column module surfaces
+    there first as `ModuleNotFoundError` — an `ImportError`, not an
+    `AttributeError`, and one `hasattr`/`getattr`-with-default would not
+    swallow. Left uncaught, `hasattr(pk, "lifecycle_status")` would raise
+    instead of answering `False`, which is not the loud-but-ordinary failure
+    this docstring promises. Caught here and re-raised as `AttributeError`, the
+    failure stays loud (fails the first assembly, names the missing
+    attribute) while restoring the semantics an `AttributeError` is supposed
+    to have.
     """
     if name in _STATUS_EXEMPTION_NAMES:
-        return getattr(_status_exemption(), name)
+        try:
+            rail = _status_exemption()
+        except ModuleNotFoundError as exc:
+            raise AttributeError(
+                f"module {__name__!r} has no attribute {name!r}: the "
+                "status-exemption rail is not in this tree") from exc
+        return getattr(rail, name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

@@ -265,6 +265,33 @@ def test_a_name_the_module_never_had_is_an_ordinary_attribute_error():
     assert "definitely_not_a_packet_name" in str(raised.value)
 
 
+def test_the_carved_away_case_is_an_ordinary_attribute_error_too(monkeypatch):
+    """The scenario decision 2 puts to Brett: the adapter-column module is
+    gone from openDox's tree. `_status_exemption()` is where the import of
+    that module lives, so an absent module surfaces there FIRST, as
+    `ModuleNotFoundError` — an `ImportError`, not an `AttributeError`, and one
+    `hasattr`/`getattr`-with-default do not swallow. Left un-translated,
+    `hasattr(pk, "lifecycle_status")` would RAISE instead of answering
+    `False`, which is not the loud-but-ordinary failure `__getattr__`'s
+    docstring promises. `__getattr__` must catch it and re-raise
+    `AttributeError` naming the missing attribute, restoring the semantics an
+    `AttributeError` is supposed to have."""
+    def _absent_rail():
+        raise ModuleNotFoundError(
+            "No module named 'ideation_dashboard.doxbench_status_exemption'")
+    monkeypatch.setattr(pk, "_status_exemption", _absent_rail)
+
+    with pytest.raises(AttributeError) as raised:
+        pk.lifecycle_status
+    assert "lifecycle_status" in str(raised.value)
+    assert not isinstance(raised.value, ModuleNotFoundError)
+    assert isinstance(raised.value.__cause__, ModuleNotFoundError)
+
+    # The whole point: hasattr/getattr-default now degrade instead of raising.
+    assert hasattr(pk, "lifecycle_status") is False
+    assert getattr(pk, "lifecycle_status", "default") == "default"
+
+
 def test_the_alias_set_cannot_drift_from_what_the_carved_module_defines():
     """Both directions, because either drift is silent.
 
@@ -272,17 +299,47 @@ def test_the_alias_set_cannot_drift_from_what_the_carved_module_defines():
     the module every caller uses; a name in the set the rail does not define
     would raise `AttributeError` from inside `__getattr__` at first access,
     which reads as "the packet module lost a name" rather than as the typo it
-    would be."""
+    would be.
+
+    The rail's own surface is PARSED from its syntax tree — the same
+    discipline `test_the_packet_module_no_longer_defines_the_carved_names_itself`
+    uses one file over — rather than built from `vars(rail)` filtered by a
+    value's reported `__module__`. That filter has a blind spot: an instance
+    whose TYPE supplies `__module__` reports the type's home, not the rail's,
+    so a compiled `re.Pattern` (`_STATUS_RE` itself is one) looks like an
+    import and silently drops out of the check. A future regex constant added
+    to the rail and left off the alias set — the single most likely shape of
+    this drift, since the rail already holds one such constant — would pass
+    the old filter unnoticed. Parsing catches it regardless of what kind of
+    value a name is bound to."""
     declared = pk._STATUS_EXEMPTION_NAMES
     assert declared == frozenset(CARVED_NAMES)
     for name in declared:
         assert hasattr(rail, name), f"{name} is aliased but not defined"
-    public = {name for name in vars(rail)
-              if not name.startswith("__") and name not in {"annotations"}
-              and getattr(vars(rail)[name], "__module__", rail.__name__)
-              == rail.__name__}
-    # `re` and `split_keepends` are imports, not the rail's own surface.
-    public -= {"re", "split_keepends"}
+
+    tree = ast.parse(EXEMPTION_MODULE.read_text(encoding="utf-8"),
+                     filename=str(EXEMPTION_MODULE))
+    imported: set[str] = set()
+    public: set[str] = set()
+    for node in tree.body:
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            for alias in node.names:
+                imported.add(alias.asname or alias.name.split(".")[0])
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                               ast.ClassDef)):
+            public.add(node.name)
+        elif isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    public.add(target.id)
+        elif isinstance(node, ast.AnnAssign) and isinstance(node.target,
+                                                            ast.Name):
+            public.add(node.target.id)
+    # Names bound by an import statement (`re`, `split_keepends`, the
+    # `from __future__ import annotations` alias) are not the rail's own
+    # surface; parsing them out this way needs no hand-maintained exclusion
+    # set the way the `vars()` version did.
+    public -= imported
     assert public <= declared, (
         f"the carved module defines {sorted(public - declared)}, which the "
         "packet module's alias set does not reach")

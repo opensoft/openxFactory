@@ -242,6 +242,8 @@ PRESERVED_SCANS: tuple[tuple[str, str], ...] = (
      "def test_module_source_contains_no_network_provider_serve_or_logging_markers"),
     ("test_doxbench_packet.py",
      "def test_the_packet_module_contains_no_forbidden_spelling"),
+    ("test_doxbench_status_exemption.py",
+     "def test_the_carved_module_contains_no_forbidden_spelling"),
     ("test_doxbench_knowledge.py",
      "def test_the_knowledge_module_contains_no_forbidden_spelling"),
     ("test_doxbench_threads.py",
