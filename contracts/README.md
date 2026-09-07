@@ -235,7 +235,7 @@ separately — the exact defect the pin exists to end.
 
 ### If your repository has an `xfactory:` stack pin (the normal case)
 
-Three steps, and they are the shape codexFactory
+Four steps, and steps 1-3 are the shape codexFactory
 (`.github/workflows/validate.yml`) and OpsxFactory
 (`.github/workflows/opsx-validation.yml`) already run:
 
@@ -265,9 +265,21 @@ Three steps, and they are the shape codexFactory
    equal the pin's recorded values — **before** anything is installed and long
    before anything is invoked — and only then runs strict validation. It never
    consults `PATH` in its default mode, so whatever CLI a runner happens to
-   carry cannot change your gate's verdict. Route `openspec archive` through the
-   same entrypoint (openxFactory does this from `scripts/proposal-support.py`),
-   so the act that writes canon runs at the pin too.
+   carry cannot change your gate's verdict.
+4. **Archive through the pinned resolver too — WITH A DIFFERENT COMMAND.**
+   `validate-openspec-cli-pin.py` VALIDATES; it has no archive verb, and
+   `archive <id>` is rejected as an unrecognized argument. The archive act runs
+   through `scripts/proposal-support.py` in the same pinned checkout, which
+   imports that entrypoint's own resolver, verifies the artifact's content
+   address, and invokes the resolved binary — never an ambient `openspec`:
+
+   ```bash
+   python3 "$OPENXFACTORY_ROOT/scripts/proposal-support.py" . archive <change-id>
+   ```
+
+   The first positional is YOUR repository root, exactly as `--repo` is above,
+   so one pinned checkout serves both acts over your tree. A bare `openspec
+   archive` is the unpinned state, whatever version answers.
 
 **Three properties worth knowing before you wire it.** The version literal
 belongs in NO file of yours — write a read of the pin, never the number, or you

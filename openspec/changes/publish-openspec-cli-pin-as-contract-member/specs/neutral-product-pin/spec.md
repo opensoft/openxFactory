@@ -40,6 +40,18 @@ repository is a SECOND pin that moves separately, which is the defect the pin
 grammar exists to end; and a copy is not made lawful by being current on the day
 it is taken.
 
+**WHERE THE TWO GOVERNED ACTS ARE REACHED BY TWO DIFFERENT COMMANDS, THE
+REGISTER SHALL NAME BOTH.** "Run it through the pinned entrypoint" is a claim
+about which BYTES adjudicate, not about a single verb: a repository's published
+adoption instructions SHALL name the ACTUAL command for each governed act they
+cover, and SHALL NOT present one command as accepting a verb it rejects. Where
+an act is reached through a second tool that resolves the pin rather than
+through the entrypoint itself, that tool SHALL be named, with the fact that it
+verifies the content address before invoking the resolved binary — otherwise a
+consumer following the instructions literally gets an unrecognized-argument
+error and falls back to the ambient tool, which is the state the pin exists to
+end.
+
 **THE ONE ADMITTED FALLBACK, AND ITS PRICE.** A repository that carries NO
 `xfactory:` stack pin cannot perform the read above at all, and MAY therefore
 carry a DECLARED consumption copy — a file that names the `openxFactory` commit
@@ -64,6 +76,11 @@ distinguish itself from.
 - **WHEN** a repository that carries an `xfactory:` stack pin copies the pin file, or the entrypoint the pin names, into its own tree and gates on the copy
 - **THEN** the copy is a second pin that moves separately and the enforcement claim in that repository is UNMET
 - **AND** the copy having been correct on the day it was taken is not a mitigating fact, the defect being that two writings can diverge
+
+#### Scenario: The published instructions name a verb the entrypoint rejects
+- **WHEN** adoption instructions tell a consumer to route a governed act through a command that does not accept it
+- **THEN** the instruction is not executable, and a consumer following it literally falls back to the ambient tool
+- **AND** the register names the actual command for each governed act, including a second tool that resolves the pin and verifies the content address before invoking the resolved binary
 
 #### Scenario: A repository with no stack pin adopts the gate anyway
 - **WHEN** a repository that carries no `xfactory:` stack pin wires the gate from a copy

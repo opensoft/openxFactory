@@ -138,10 +138,18 @@ bypass flag.
       contracts*, naming what the pin is, what it is NOT (openxFactory does not
       own the CLI), and the entrypoint it names.
 - [x] 4.3 `contracts/README.md`: the new consumer-facing section **Gating
-      archives on the pinned CLI from a consumer repository** — the three-step
-      checkout-at-`contract_ref` recipe as codexFactory and OpsxFactory already
-      run it, the never-copy rule, and the declared copy-in fallback for a
-      repository with no stack pin (B of #754), citing #754.
+      archives on the pinned CLI from a consumer repository** — the FOUR-step
+      checkout-at-`contract_ref` recipe (steps 1-3 are the shape codexFactory and
+      OpsxFactory already run), the never-copy rule, and the declared copy-in
+      fallback for a repository with no stack pin (B of #754), citing #754.
+      **STEP 4 EXISTS BECAUSE THE FIRST DRAFT'S ARCHIVE INSTRUCTION WAS NOT
+      EXECUTABLE**, found by Codex's P1 on this pull request and verified against
+      the tools: `validate-openspec-cli-pin.py --help` offers `--all`/`--change`
+      and rejects `archive <id>` as an unrecognized argument, and the archive act
+      runs through `scripts/proposal-support.py <root> archive <change>`, which
+      imports that entrypoint's resolver and invokes the resolved binary. The
+      section now names BOTH commands and says which act each performs; R1 gains
+      the clause and the scenario that make it canon rather than a local fix.
 - [x] 4.4 **`contracts/openspec-cli-pin.yaml` IS NOT EDITED** (`design.md` D7) —
       no version, no digest, no `rollback:`, no `dispositions:` entry — and no
       script and no workflow is edited. Publishing a pin and moving a pin are
