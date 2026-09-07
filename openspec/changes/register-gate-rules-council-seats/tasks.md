@@ -152,6 +152,18 @@ gate is green: at the old reader every one of these writes is refused.
       `hermes/domain/review-councils/gate-rules.yaml`, mirroring
       merge-readiness's six declared components with EXACT model identifiers.
       **No grant is issued against a composition that does not exist.**
+      **AMENDED 2026-09-07** (R1/R2, Brett Heap, in-session
+      2026-09-07T12:40:19Z, verbatim *"R1 lead-architect claude-opus-5, R2
+      (a) — re-sequence 5.9a first"*,
+      <https://github.com/opensoft/openxFactory/pull/717#issuecomment-5570774593>):
+      **3.1 realizes AFTER 5.9a.** R1 pins `lead-architect` to
+      `claude-opus-5` via the recorded roster-change act
+      (`guardrails.roster_change: lead_accepted_recorded`); R2(a) sequences
+      codexFactory slice `041-gate-rules-convening-caller` (task 5.9a, the
+      `gate_rules_council` caller with seat briefings) BEFORE this row, so
+      the six mirrored components are declared against a caller that exists
+      rather than asserted. See proposal.md's 2026-09-07 AMENDMENT for the
+      restated § Sequencing.
 - [ ] 3.2 Mint FOUR Ed25519 keypairs, one per registered seat —
       `lead-architect`, `lead-security`, `lead-quality`, `company-policy-lead` —
       plus the body's root key `key-grc-0001`. Private halves NEVER enter git,
