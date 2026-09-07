@@ -30,11 +30,11 @@ LANDED (PR [#715](https://github.com/opensoft/openxFactory/pull/715), squash
 `1897f282`), a defect the first cycle then found in it was repaired (PR
 [#726](https://github.com/opensoft/openxFactory/pull/726), squash `0f9361e0`),
 both lanes ran unattended on their own hourly schedules, and **the first cycle
-was OBSERVED**. Group 5 is therefore no longer entirely unticked: 5.2, 5.3, 5.4 and 5.7 tick
-on run ids, pull requests and merge commits named on their own lines, and
-**5.1, 5.5 and 5.6 STAY OPEN** — each says why in its own place; none is open
-for want of work here, and 5.6 carries its measurement and says why it is not
-yet the figure the box asks for. **Group 6 still stays unticked by rule**;
+was OBSERVED**. Group 5 is therefore no longer entirely unticked. **Boxes 5.2, 5.3, 5.4 and 5.7
+are ticked**, each on the run ids, pull requests and merge commits named on
+its own line. **Boxes 5.1, 5.5 and 5.6 stay open**, each saying why in its
+own place; none is open for want of work here, and 5.6 records its measurement
+and says why that figure is not yet the one the box asks for. **Group 6 still stays unticked by rule**;
 6.4's act was taken and is recorded as a dated note beneath it, the way 6.1's
 and 6.2's are. Nothing is archived by this file: the archive is a separate word.
 
