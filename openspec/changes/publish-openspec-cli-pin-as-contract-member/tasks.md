@@ -320,3 +320,17 @@ bypass flag.
       which carries requirements rather than the Purpose block. **This box ticks
       on the recording** of that obligation in the archive act, and the tick will
       record the naming, not the doing.
+- [ ] 5.9 **THE PIN FILE'S OWN HEADER CARRIES THE UNEXECUTABLE CLAIM TOO, AND
+      THIS PACKET MAY NOT FIX IT.** Codex's P1 and Copilot's two follow-ups found
+      the "route archive through the entrypoint" claim in this packet's four
+      carriers, and all four are corrected. The SAME claim stands in
+      `contracts/openspec-cli-pin.yaml` itself, above `consumer_entrypoint:`
+      (*"Every repository in the estate runs STRICT OpenSpec validation and every
+      OpenSpec ARCHIVE through this entrypoint and through nothing else"*), and
+      that file is NOT this packet's surface — `design.md` D7 refuses to edit it,
+      and nothing here may be read as approving any edit to it. R1's
+      register-names-both-commands clause reaches it by its own terms, so it is a
+      DEFECT OWED on the pin, belonging to a successor in the pin's own change
+      family (`add-openspec-cli-pin` / `bump-openspec-cli-pin-to-1.12`), not to
+      this one. **This box ticks on the recording** of the successor issue that
+      names it, and the tick will record the naming.

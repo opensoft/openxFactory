@@ -3712,7 +3712,13 @@ contracts:
       its own `stack.yaml` `xfactory.contract_ref` and invokes the entrypoint
       this pin NAMES in its `consumer_entrypoint:` field —
       `scripts/validate-openspec-cli-pin.py` — from that checkout, for every
-      strict OpenSpec validation and every archive. Copying the pin, or the
+      strict OpenSpec validation. THE TWO GOVERNED ACTS ARE REACHED BY TWO
+      COMMANDS AND THIS ROW NAMES BOTH: that entrypoint VALIDATES and has no
+      archive verb (`archive <id>` is rejected as an unrecognized argument), and
+      the ARCHIVE act runs through `scripts/proposal-support.py <root> archive
+      <change-id>` in the SAME pinned checkout, which imports that entrypoint's
+      own resolver and verifies the artifact's content address before invoking
+      the resolved binary. Copying the pin, or the
       entrypoint, into a consuming repository is a conformance violation: a copy
       is a second pin that moves separately, which is the defect this pin exists
       to end, and a copy is not made lawful by being current on the day it is
