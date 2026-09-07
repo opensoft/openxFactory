@@ -28,15 +28,22 @@ made the CORE depend on the openDox column, which is the carve backwards.
 
 WIDENED BY PR 3 OF 4, for exactly the same reason it exists. The hosted-plane
 confinement — `HOSTED_SESSION_REFUSAL`, `hosted_ref_refused`, `hosted_index`
-(FR-048) — is read by the CORE (`_divergence_headers`), by the openXdox
-projection column (`serve_projection.py`: the snapshot, index and `/source`
-routes) and by the openxFactory adapter column (`serve_openxfactory_lanes.py`:
-the refresh binding reachable off loopback). Leaving it in `serve.py` would have
-forced both columns to import `serve` while `serve` imported them, which is the
-cycle this module exists to prevent; filing it under either column would have
-made the core depend on a column. It belongs here on this module's own stated
-remit: pure predicates over already-validated inputs, plus fixed refusal prose.
-`serve.py` imports all three back by name, so `serve.hosted_ref_refused` and
+(FR-048) — moves here as a group, but the three names are not read alike.
+`hosted_ref_refused` is read by the CORE (`_divergence_headers`, `serve.py`),
+by the openXdox projection column (`serve_projection.py`: the snapshot, index
+and `/source` routes) and by the openxFactory adapter column
+(`serve_openxfactory_lanes.py`: the refresh binding reachable off loopback).
+`HOSTED_SESSION_REFUSAL` is read by both columns only — the core never names
+it. `hosted_index` has exactly one in-tree reader, `serve_projection.py`'s
+`_serve_index` (an openXdox FR-048 index-confinement rule; the § 3 carve will
+have to re-home it out of this shared module alongside its column). Leaving
+any of the three in `serve.py` would have forced at least one column to
+import `serve` while `serve` imported it, which is the cycle this module
+exists to prevent; filing any of them under a column would have made the core
+(for `hosted_ref_refused`) or the other column (for `HOSTED_SESSION_REFUSAL`)
+depend on a column. It belongs here on this module's own stated remit: pure
+predicates over already-validated inputs, plus fixed refusal prose. `serve.py`
+imports all three back by name, so `serve.hosted_ref_refused` and
 `serve.hosted_index` still resolve for the suites that call them directly.
 
 NOTHING HERE REACHES A PROVIDER, a socket or a filesystem: it is constants,

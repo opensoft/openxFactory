@@ -17,10 +17,11 @@ from __future__ import annotations
 
 # Relative, like the core's own imports of the modules the § 2.4 split created:
 # this tree is importable under two package spellings, and the profile must
-# contribute the column belonging to the SAME spelling as the core that is
-# assembling the parser — otherwise the verbs it registers are a different
-# column's, bound to a different core (see `cli.py`'s note above its own
-# relative import, and `cli_gate._core()`).
+# contribute the column belonging to the SAME spelling as the server it is
+# assembled into — otherwise the routes it registers are a different
+# column's, bound to a different core (see each column module's own
+# `sys.path` idiom, and `build_server`'s note above its lazy import of this
+# module).
 from . import serve_gate
 from . import serve_openxfactory_lanes
 from . import serve_projection
@@ -34,10 +35,11 @@ from . import serve_projection
 #: the adapter reaches the seam the same way the column that leaves does).
 #:
 #: `build_server` registers THIS tuple first and the caller's `route_extensions`
-#: after it, so a server built the way all 35 in-tree call sites build one — with
-#: no `route_extensions` at all — serves exactly the routes it served before the
-#: seam existed. See `build_server`'s own note for why the composition is
-#: additive rather than a sentinel default.
+#: after it, so a server built the way all 31 in-tree test `build_server(...)`
+#: call sites across 27 test files build one — with no `route_extensions` at
+#: all — serves exactly the routes it served before the seam existed. See
+#: `build_server`'s own note for why the composition is additive rather than a
+#: sentinel default.
 ROUTE_EXTENSIONS: tuple = (
     serve_gate.GateRoutesExtension(),
     serve_projection.ProjectionRoutesExtension(),

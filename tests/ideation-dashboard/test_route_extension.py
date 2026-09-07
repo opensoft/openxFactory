@@ -652,6 +652,44 @@ def test_a_contributed_route_cannot_shadow_a_core_route(tmp_path, probes):
     assert "generation" in payload   # the real snapshot, unchanged
 
 
+def test_an_exact_caller_binding_under_a_contributed_prefix_wins_the_match(
+        tmp_path, probes):
+    """CHARACTERIZATION of a gap this PR opens rather than closes, disclosed
+    in PR #761's body as a design decision and raised there for Brett.
+
+    `collect_bindings` keys collisions on `(method, pattern, is_prefix)`, so
+    an EXACT binding is never compared against an already-declared PREFIX
+    binding's pattern, even when the exact path sits inside it. Before § 2.4
+    PR 3 moved the gate console off `serve.py`'s fixed `do_POST` table this
+    could not happen — no caller-suppliable binding stood a chance against a
+    hard-coded `if`. Now that `ACTIONS_GATE_PREFIX` is a CONTRIBUTED prefix
+    binding, a caller who can pass `route_extensions` (in-tree today: only
+    this test file and `test_serve_column_split.py`) can register an exact
+    binding under it, and the build accepts it — no `RouteBindingError`,
+    unlike the loud refusal `test_two_bindings_claiming_one_route_refuse_the_build`
+    pins for a literal duplicate — and it wins the match, so the real
+    `_handle_gate_action` (and its loopback/capability/actor/human-console
+    refusals) never runs for that one path.
+
+    This test PINS today's behaviour so a future tightening of
+    `collect_bindings` (treating an exact pattern that `startswith` an
+    already-declared prefix pattern as a collision, the same
+    `RouteBindingError` a literal duplicate already raises) shows up HERE
+    rather than nowhere. `scripts/route_extension.py` is out of this PR's
+    scope to change.
+    """
+    verb_path = serve_mod.ACTIONS_GATE_PREFIX + "fake-verb"
+    override = ProbeExtension((
+        route_extension.RouteBinding("POST", verb_path, False, PROBE_WRITE),))
+    with serving(tmp_path, route_extensions=(override,)) as (_httpd, host, port):
+        status, payload, _raw = request(host, port, "POST", verb_path)
+    assert (status, payload["probe"]) == (200, "write"), (
+        "the caller's exact binding did not win the match under the "
+        "contributed gate prefix — either the gap this test pins has been "
+        "closed (update this test and PR #761's body together) or "
+        "something else about the seam has changed")
+
+
 def test_the_query_string_is_stripped_before_a_binding_is_matched(tmp_path, probes):
     """The dispatch matches the PATH, as every core arm does — so a contributed
     route keeps its own query handling and does not have to re-split."""

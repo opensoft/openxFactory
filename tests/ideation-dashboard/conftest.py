@@ -186,7 +186,7 @@ NO_IMPLICIT_PUSH_MODULES: tuple[str, ...] = (
 # and say why at each site: a route whose alternative proof needs a live
 # provider, an absence that no positive test can demonstrate, a call site whose
 # enclosing `try` is the property. Those assertions are about THE SERVE, and
-# the serve is now four files rather than one.
+# the serve is now seven files rather than one.
 #
 # So the readers below span the whole surface. This is the same widen-never-
 # narrow move `NO_IMPLICIT_PUSH_MODULES` just made, and for the same reason: an
@@ -204,6 +204,23 @@ SERVE_SURFACE_MODULES: tuple[str, ...] = (
     "serve_gate.py", "serve_projection.py", "serve_openxfactory_lanes.py",
     "serve.py",
 )
+
+# `profile_openxfactory.py` is DELIBERATELY ABSENT from both this tuple and
+# `NO_IMPLICIT_PUSH_MODULES` above, though PR 3 of § 2.4 makes it part of the
+# serve surface too — `build_server` imports it and its `ROUTE_EXTENSIONS`
+# tuple determines the whole contributed route table. It is left out because
+# it is RELATIVE-IMPORT-ONLY BY DESIGN (`from . import serve_gate` etc., the
+# same idiom `cli.py` uses for its own profile import — see the module's own
+# docstring for why): the D12 relative-import guard these tuples feed
+# (`test_serve_module_uses_no_relative_imports`) would fail on those three
+# lines for a reason it does not exist to catch, so scanning it there is not
+# a widening — it is asking the wrong question of the file. This is not a
+# first exception: `snapshot_registry.py` is imported directly by both
+# `serve.py` and `serve_projection.py` and has never been in either tuple
+# either, so "every file the dashboard serve is made of" has never meant
+# "every module `serve.py` transitively imports" — only "every module the
+# CONTENT scans below (the credential-free walk, the hosted-session-arrival
+# scan, the no-implicit-push sweep) should see."
 
 
 def serve_surface_paths() -> tuple[Path, ...]:

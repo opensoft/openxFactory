@@ -1339,8 +1339,9 @@ def build_server(
     HERE, ahead of the caller's tuple, and is NOT passed in by `main()` — the
     same shape `build_parser` uses for `SUBCOMMAND_EXTENSIONS` (PR 4 of § 2.4).
     `build_server(...)` names the whole of THIS assembly's server, which is what
-    all 35 in-tree call sites already read it as, so the routes PR 3 moved out
-    of the fixed tables are served by a caller who passes nothing — and by a
+    all 31 in-tree test `build_server(...)` call sites across 27 test files
+    already read it as, so the routes PR 3 moved out of the fixed tables are
+    served by a caller who passes nothing — and by a
     caller who passes `route_extensions=()` explicitly, which is the same
     request spelled twice. `route_extensions` stays the seam for whatever a
     caller adds ON TOP; the default `()` therefore still means "add nothing".

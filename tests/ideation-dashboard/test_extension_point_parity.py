@@ -78,7 +78,7 @@ MIN_ENTRY_POINTS = 25
 # NARROWED ONCE, DELIBERATELY, BY § 2.4 PR 3 OF 4 — the one legitimate edit to
 # this pinned table, disclosed in that PR's body.
 #
-# PR 3 moved five read arms and five write arms OUT of the fixed tables and
+# PR 3 moved four read arms and five write arms OUT of the fixed tables and
 # registered them as contributed `RouteBinding`s instead (`serve_gate.py`,
 # `serve_projection.py`, `serve_openxfactory_lanes.py`, assembled in
 # `profile_openxfactory.py`). The pin therefore records the new FIXED set. It is
