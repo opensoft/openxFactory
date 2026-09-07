@@ -328,8 +328,14 @@ carrying this group needs a human merge word.**
       aggregation-level OpenSpec act is owed; the lockstep commit is a runbook
       step and a hard ordering constraint.
 - [ ] 9.4 **`opensoft/OpsxFactory` — 16 across 13**, including the MCP hosting
-      plan amendment. Sequenced AFTER the move and BEFORE its task 4.2 approval —
-      see `design.md` § 7.2.1.
+      plan amendment. **Task 4.2 is APPROVED** (Brett Heap, `2026-09-05T23:06Z`,
+      *"approve 4.2, merge #221"*, digest `4e1a4b76…`, recorded on OpsxFactory
+      PR #229), so amending the plan for the new identity **REVOKES that approval
+      and owes a re-approval** under the plan's requirement 2. Sequenced
+      **move → amend the plan's GitHub references → Brett re-approves 4.2 over
+      the new digest → 4.4/4.5 → 5.1 pin → the edge act**. See `design.md`
+      § 7.2.1, which also records that this packet read the plan file's `status:`
+      field and got this wrong once.
 - [ ] 9.5 **`opensoft/codexFactory` itself — 532 across 211.** Its own governed
       content is its own act in its own repository.
 - [ ] 9.6 **Whether a deterministic check family should verify that no live

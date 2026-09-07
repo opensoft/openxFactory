@@ -303,9 +303,11 @@ repository's `stack.yaml` is touched. **No Ed25519 key is re-minted** and no
   further `uses:` paths point at `@main`. No aggregation-level OpenSpec act is
   owed, but the lockstep is a hard ordering constraint on the ceremony.
 - **`opensoft/OpsxFactory` — 16 across 13**, including the MCP contract-service
-  hosting plan, which is registered by digest and whose approval task is **not
-  yet given** on `origin/main` — measured, and it makes the ordering easier
-  rather than harder. See `design.md` § 7.
+  hosting plan. That plan's task 4.2 is **APPROVED by digest** (Brett Heap,
+  `2026-09-05T23:06Z`, *"approve 4.2, merge #221"*, digest `4e1a4b76…`), so the
+  move's amendment **revokes the approval and owes a re-approval** under the
+  plan's requirement 2. The ordering that spends exactly one re-approval and no
+  second acceptance is in `design.md` § 7.2.1.
 - **`opensoft/codexFactory` itself — 532 across 211.** Its own governed content
   is its own act, in its own repository, and is not authored here.
 
@@ -340,7 +342,8 @@ well as what was answered. Full text in `design.md` § 8.
   corpus.)
 - **OQ-4 — OPEN.** When does the `ghcr.io` namespace move, relative to the
   bench-image allowlist flip and to the MCP contract-service hosting plan's
-  still-ungiven approval? (Shaped by two lanes' measured constraints — see
+  **live, digest-bound approval** — which the move's amendment revokes and which
+  then owes a re-approval? (Shaped by two lanes' measured constraints — see
   `design.md` § 7.)
 - **OQ-5 — OPEN.** Is the `MIGRATION_PIN` re-point ceremony exercised as part of
   this move, or is the pin left on the `opensoft` URL under GitHub's redirect for

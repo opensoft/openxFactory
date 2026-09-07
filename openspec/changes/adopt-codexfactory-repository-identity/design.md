@@ -406,23 +406,61 @@ lost is a step nobody can re-derive.
 
 ### 7.2 From lane `hermes-wallet-exercise` (session codeXfactory-2)
 
-1. **The MCP hosting plan forces an amendment.** OpsxFactory
-   `tenants/opensoft-codexfactory-mcp-hosting-plan.yaml` names
-   `opensoft/codexFactory`, so the move forces a plan amendment and the plan
-   digest moves; requirement 2 (*material amendment revokes until
-   re-approval*) then bites. **MEASURED CORRECTION, and it makes the ordering
-   easier rather than harder:** on OpsxFactory `origin/main` today the plan's
-   `status:` is `registered_awaiting_operations_domain_approval` and the
-   repository README records "APPROVAL (task 4.2) NOT GIVEN"; the plan has been
-   amended twice since registration (`0d2bd86d`, `a83e1d95` — "digest
-   re-registered"). **There is therefore no approval to revoke.** Moving BEFORE
-   4.2 is given means the plan is amended for the new identity while unapproved
-   and approved once, instead of being approved, revoked and re-approved. The
-   ordering recommendation is unchanged and its reason is stronger: **move
-   first**, then amend, then 4.2, then 4.4/4.5 acceptance and the 5.1 pin, then
-   the edge act for `mcp.codexfactory.opensoft.dev` (hostname unchanged, and it
-   depends on 4.5/5.1 so it is strictly after the move). Doing 4.5/5.1 before the
-   move would force a second acceptance.
+1. **The MCP hosting plan forces an amendment, and the amendment REVOKES a LIVE
+   APPROVAL.** OpsxFactory `tenants/opensoft-codexfactory-mcp-hosting-plan.yaml`
+   names `opensoft/codexFactory`, so the move forces a plan amendment, the plan
+   digest moves, and requirement 2 (*a material amendment to an approved plan
+   revokes the approval and owes re-approval*) bites.
+
+   **A CORRECTION THIS PACKET GOT WRONG ONCE AND IS RECORDING RATHER THAN
+   QUIETLY FIXING.** An earlier draft of this section read the plan FILE's
+   `status:` field (line 108, `registered_awaiting_operations_domain_approval`)
+   and the OpsxFactory README line ("APPROVAL (task 4.2) NOT GIVEN") and
+   concluded that no approval existed to revoke. **That was wrong, and it was
+   wrong for an instructive reason.** Task 4.2 IS approved:
+   `openspec/changes/host-codexfactory-mcp-contract-service/tasks.md` carries it
+   as `- [x] 4.2 … **APPROVED 2026-09-05**`, Brett Heap, `2026-09-05T23:06Z`,
+   verbatim *"approve 4.2, merge #221"*, over plan digest
+   `4e1a4b763cf911134ac222e0ee7ee52afb2f902b36fabc1dbe4b3e2d7ac9f992`, recorded
+   at `https://github.com/opensoft/OpsxFactory/pull/229#issuecomment-5555392080`.
+   **The plan file's `status:` stays unedited BY DESIGN** — the tick says so in
+   as many words: *"The plan's bytes are NOT edited by this tick — editing them
+   would move the approved digest, which requirement 2 treats as a material
+   amendment revoking this approval."* The approval lives in the tick and the
+   ruling, not in a field inside the approved bytes.
+
+   **This is the same class of mistake as the substring match in § 5**, and it
+   is the second one this packet made: reading a state from the artifact that
+   the state deliberately cannot live in. It is recorded here because a
+   digest-approval regime makes exactly this error attractive, and the next
+   author deserves the warning more than this packet deserves a clean page.
+
+   **So the approve → amend → revoke → re-approve cycle is REAL and must be
+   walked.** The ordering recommendation is unchanged; its reason is now the
+   correct one. Order: **move first** → amend the plan's GITHUB-repository
+   references to `codeXfactory/codexFactory` → **Brett re-approves 4.2 over the
+   new digest** → 4.4/4.5 acceptance → the 5.1 pin → the edge act for
+   `mcp.codexfactory.opensoft.dev` (hostname unchanged, and it depends on 4.5/5.1
+   so it is strictly after the move). Doing 4.5/5.1 before the move would force a
+   SECOND acceptance on top of the re-approval; moving first spends one
+   re-approval and no second acceptance.
+
+   *Observation for the OpsxFactory lane, not a claim by this packet:* the 4.2
+   tick names `4e1a4b76…` as the APPROVED digest while also naming
+   `8abb0e962a5893dd5d6b124a5083f5f79cf207b889340fa42465addd12c82273` as "the
+   digest offered by codexFactory", and the plan file's own `plan_digest` block
+   (line 904) carries the latter, after two post-registration amendments
+   (`0d2bd86d`, `a83e1d95` — "digest re-registered"). Whether those two digests
+   are meant to be the same value is that lane's question and is flagged, not
+   answered, here.
+
+   **A second measured correction, which STANDS:** the plan's image path is
+   `acropensoftxfactoryqa.azurecr.io/opensoft/codexfactory-mcp` (plan line 189) —
+   an **Azure Container Registry** repository path, in which `opensoft/` is an
+   ACR path segment and NOT a GitHub organization. It does NOT move with a GitHub
+   org transfer and is not covered by OQ-4; only the GHCR bench image is
+   organization-bound, and only the plan's GITHUB references move. Renaming the
+   ACR path for consistency is a separate, optional act.
    **A second measured correction:** the plan's image path is
    `acropensoftxfactoryqa.azurecr.io/opensoft/codexfactory-mcp` — an **Azure
    Container Registry** repository namespace, not a GitHub organization
