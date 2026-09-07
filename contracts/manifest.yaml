@@ -3677,3 +3677,51 @@ contracts:
       is the cutting session's and is not reserved here. Consumed through
       the pinned openxFactory checkout with per-file sha256 verified
       before any copy is treated as current.
+  # ---- the OpenSpec CLI consumption pin — published by
+  # `publish-openspec-cli-pin-as-contract-member` (#754). THIS ROW PUBLISHES A
+  # CLAIM, NOT A PRODUCT. openxFactory does not own, vendor or publish
+  # `@fission-ai/openspec`; it CONSUMES it, and this row publishes openxFactory's
+  # own claim about WHICH ARTIFACT adjudicates its corpus, so that a consuming
+  # repository finds that claim in the register it already reads rather than by
+  # knowing the path. The product's ownership, licence and release cadence are
+  # unchanged by the registration; `adapter_owner` and `compatibility` below
+  # describe THE PIN.
+  #
+  # NO `sha256`, on `domain-factory-conformance-validator`'s precedent above and
+  # for a stated reason: the pin file legitimately moves on three distinct
+  # events — a human-only version bump, a disposition ADDED, and a disposition
+  # RETIRED (which the verifier forces the moment a dispositioned finding stops
+  # occurring, including when the change that raised it archives in ANOTHER
+  # repository). A digest here would make each of those a two-file edit whose
+  # omission reds the required suite on `main`. Hand-edit protection is already
+  # carried by the merge-gate floor, which names the pin a never-clearable path.
+  - id: openspec-cli-pin
+    path: contracts/openspec-cli-pin.yaml
+    source_path: openxFactory/contracts/openspec-cli-pin.yaml
+    type: pin
+    schema_version: 1
+    intended_consumers:
+      - every repository running `openspec validate --strict` or `openspec archive` as a governed act
+      - codexFactory CI (`validate.yml` -> `scripts/validate-docs.sh`)
+      - OpsxFactory CI (`opsx-validation.yml` gate 4)
+      - openxFactory's own `openspec-cli-pin-gate` and `scripts/proposal-support.py`
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      CHECK OUT, NEVER COPY. A consuming repository checks openxFactory out at
+      its own `stack.yaml` `xfactory.contract_ref` and invokes the entrypoint
+      this pin NAMES in its `consumer_entrypoint:` field —
+      `scripts/validate-openspec-cli-pin.py` — from that checkout, for every
+      strict OpenSpec validation and every archive. Copying the pin, or the
+      entrypoint, into a consuming repository is a conformance violation: a copy
+      is a second pin that moves separately, which is the defect this pin exists
+      to end, and a copy is not made lawful by being current on the day it is
+      taken. The pinned CLI's referent is the published tarball's SHA-512
+      content address recorded in the pin; the version string beside it is a
+      LABEL and never the thing trusted. A repository that carries NO
+      `xfactory:` stack pin cannot perform that read at all and MAY carry a
+      DECLARED consumption copy as an interim — naming the openxFactory commit
+      it was taken from, the digest of what it copied and the divergence it
+      accepts, and retired when that repository adopts a stack pin. See
+      `contracts/README.md` § "Gating archives on the pinned CLI from a consumer
+      repository".

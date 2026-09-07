@@ -1,0 +1,54 @@
+schema: spec-driven
+created: 2026-09-07
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-07-publish-openspec-cli-pin-as-contract-member
+  reason: >-
+    THE ESTATE-WIDE OpenSpec CLI PIN ROLLOUT, filed as openxFactory issue #754
+    with the read-only survey it was ruled on. The survey read 113 repositories
+    across opensoft and MedxSoft on 2026-09-07: 26 carry `openspec/`, exactly
+    TWO gate on `contracts/openspec-cli-pin.yaml` (openxFactory; codexFactory,
+    required since its #227), one more consumes it with a shadow-only gate
+    (OpsxFactory), and TWENTY have zero pin awareness — three of them archiving
+    this week on whatever `openspec` is on PATH. No archive commit anywhere in
+    the estate names the CLI version that produced it.
+    THE GAP THIS PACKET CLOSES IS PUBLICATION, NOT ENFORCEMENT. The gate is
+    already ratified and running: `add-openspec-cli-pin` requires that a
+    consuming repository invoke the pinned entrypoint FROM the pinned
+    openxFactory checkout and name that version in its `stack.yaml`. What is
+    missing is that `contracts/openspec-cli-pin.yaml` is registered in NEITHER
+    `contracts/manifest.yaml` NOR `contracts/README.md`, so the one file that
+    says which tool decides what canon is, is absent from the register that
+    validator's own docstring calls "what cross-repo consumers read to verify
+    the bytes they pin". The pin was never modelled as publishable because its
+    header says openxFactory CONSUMES the CLI rather than owning it — which is
+    true, and does not reach the conclusion: openxFactory publishes its own
+    CLAIM about which artifact adjudicates, not the artifact.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/INDEX.md` and every topic folder were read on 2026-09-07:
+    no topic carries the OpenSpec CLI pin, the contract-member register, or the
+    consumption-versus-release-membership distinction. `kind: staged` would
+    claim a staging source that does not resolve. The organized source is issue
+    #754 and the survey recorded on it.
+  proposed_by: >-
+    Lane `openxfactory-1` (session `b61273ce`), authoring half A of the rollout
+    issue #754 governs. NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED: Brett
+    Heap's two rulings of 2026-09-07 — rollout "Hybrid A+B" and lane scope
+    "openxFactory only; siblings via their lanes" — admit the work and fix its
+    scope; they ratify no text, decide no requirement wording and take no design
+    decision. The lawful unapproved shape is the one `add-drafted-proposal-origin`
+    added — drafting provenance, no `approved_by`, no `approved_on` — and every
+    document in the packet carries `Status: draft` to match. The decision most
+    worth a veto is `design.md` D1: A-defer, registering in the two editorial
+    files and cutting no bundle, against A-cut, registering AND cutting
+    `contract-v3.5` here with the annotated tag owed after the merge; a third
+    option, A-member, is recorded as not taken rather than foreclosed. A second,
+    smaller veto point is D2, the row carrying no `sha256`.
+  proposed_on: 2026-09-07
+related:
+  - openxFactory:change:add-openspec-cli-pin                     # ACTIVE. Cut the pin (#667) and declared, in its own front matter, that none of its four artifacts is a registered contract row — the gap this packet closes; its requirement 2 already states the consumer's read-from-the-pinned-checkout obligation and is NOT restated here
+  - openxFactory:change:bump-openspec-cli-pin-to-1.12            # ACTIVE. Moved the pin to 1.12.0 and carries the four dispositions; this packet edits the pin file in no way and must not be read as approving a further bump
+  - openxFactory:change:prepare-openspec-1.12-readiness          # ACTIVE. #673, the readiness measurement the bump's dispositions cite; named because it is where the pin's cost to a consuming tree is recorded
+  - openxFactory:change:archive/2026-09-05-add-release-tag-gate  # ARCHIVED. Wrote the gate that judges any pull request touching `contracts/manifest.yaml`; D1's expected-verdict table is read from its refusal set
+  - openxFactory:change:archive/2026-08-25-add-release-inventory-drift-check  # ARCHIVED. The family that grades editorial drift `info` and non-editorial drift `error`, which is why A-defer costs no new error
+  - openxFactory:change:archive/2026-09-04-add-drafted-proposal-origin        # ARCHIVED. The lawful unapproved origin shape this packet is authored in

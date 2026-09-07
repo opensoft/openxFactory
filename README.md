@@ -512,6 +512,58 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [publish-openspec-cli-pin-as-contract-member](openspec/changes/publish-openspec-cli-pin-as-contract-member/proposal.md)
+  — authored 2026-09-07, **`Status: draft` — NOTHING HERE IS RATIFIED**, lane
+  `openxfactory-1`. Half **A** of the estate-wide OpenSpec CLI pin rollout
+  governed by issue [#754](https://github.com/opensoft/openxFactory/issues/754),
+  which records Brett Heap's two rulings of 2026-09-07 — rollout *"Hybrid A+B"*
+  and lane scope *"openxFactory only; siblings via their lanes"*. Those rulings
+  admit the work and fix its scope; they ratify no text and take no design
+  decision. **THE GAP IS PUBLICATION, NOT ENFORCEMENT.** The gate is already
+  ratified and running — `add-openspec-cli-pin` requires a consuming repository
+  to invoke the pinned entrypoint FROM the pinned openxFactory checkout and to
+  name that version in its `stack.yaml` — but `contracts/openspec-cli-pin.yaml`
+  is registered in NEITHER `contracts/manifest.yaml` NOR `contracts/README.md`,
+  so the one file that says which tool decides what canon is, is absent from the
+  register `scripts/validate-manifest-digests.py`'s own docstring calls *"what
+  cross-repo consumers read to verify the bytes they pin"*. Its two siblings,
+  `openxwallet-pin.yaml` and `openreposhape-pin.yaml`, are unregistered too: the
+  pin CLASS has never been published. **2 ADDED requirements** on
+  `neutral-product-pin` — R1, a consumption pin another repository reads is a
+  published contract member adopted by pin-sync (never copied; ONE declared
+  fallback for a repository with no stack pin, which is B of #754 and is
+  OpsxFactory's realized shape); R2, registering a pin in the consumption
+  register is not a bundle cut unless it moves the release membership, with the
+  measurement owed by the registering author. No `## MODIFIED` and no
+  `## REMOVED`: the requirement a modification would land on is under an ACTIVE
+  `## MODIFIED` block held by `add-openspec-cli-pin`, which has not archived.
+  `sequenced_after: [add-openspec-cli-pin]` — and the second entry it would
+  carry is UNWRITEABLE, which is a finding the packet records rather than works
+  around: `scripts/validate-sequenced-after.py` admits no change id containing a
+  `.`, and `bump-openspec-cli-pin-to-1.12`'s own id carries one, so no change in
+  this repository can order itself behind it by any spelling.
+  **REALIZED IN THE SAME PULL REQUEST, IN TWO EDITORIAL FILES**: one
+  `contracts/manifest.yaml` row (`type: pin`, no `sha256`, a never-copy
+  `consumption_rule` on `domain-factory-conformance-validator`'s precedent) and
+  `contracts/README.md`'s matching index row plus a new consumer-facing section,
+  *Gating archives on the pinned CLI from a consumer repository*. **The veto
+  point is `design.md` D1 — A-defer against A-cut**, and A-defer is DESIGNED on
+  a measurement: `release_membership(.)` reads **283 before and 283 after**, the
+  pin absent from both, because membership is a closed set that never walks the
+  manifest's `contracts:` list; both edited files are EDITORIAL members whose
+  movement between cuts `release-surface-integrity` declares expected, so no
+  bundle is spent and no tag is owed. A-cut (`contract-v3.5` here, tag owed
+  after the merge) is written out with four costs, and a third option, A-member
+  (adding the pin to the derived membership in `release.py`, 283 → 285), is
+  recorded as not taken rather than foreclosed. **A CUT IS NOT THIS LANE'S ACT**
+  — if A-cut is chosen it becomes a realization task, ticked when done.
+  `release-tag-gate` DOES run (the diff touches `contracts/manifest.yaml`) and is
+  expected to pass: `contract-v3.4` is published, an annotated tag peeling to
+  `807a4f47`, and `contract_bundle_version` does not move. A second, smaller
+  veto point is **D2**, the row carrying no `sha256`. **B of #754 — the three
+  no-lane repositories — is NOT performed here**, and no sibling's adoption is
+  claimed.
+
 - [extend-merge-master-envelope-to-floor-bot-lanes](openspec/changes/extend-merge-master-envelope-to-floor-bot-lanes/proposal.md)
   — authored 2026-09-07, **`Status: ratified`** (2026-09-07, Brett Heap
   (repository owner), in session at 2026-09-07T12:32:44Z, verbatim *"ratify 746
