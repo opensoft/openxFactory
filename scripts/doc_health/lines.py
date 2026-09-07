@@ -43,7 +43,7 @@ unbounded `text.splitlines()` scan (`_scan_lines`); the `text.splitlines()
 `parse_kind`, `doc_health.families._header_line`,
 `doc_health.inventory._header_value`,
 `doc_health.organizer_dispatch._header_value`,
-`ideation_dashboard.doxbench_packet.lifecycle_status`,
+`ideation_dashboard.doxbench_status_exemption.lifecycle_status`,
 `ideation_dashboard.authoring.missing_required_headers`,
 `ideation_dashboard.generator._header_value`, and
 `doc_health.ideation_readiness._parse_header`; and

@@ -190,7 +190,7 @@ def parse_kind(text: str) -> str | None:
 # fix so the next reader does not have to re-run it to know whether
 # `parse_status`/`parse_kind` were the whole set. They were not: the same
 # `text.splitlines()[:N]` idiom was also carried, independently, by:
-#   scripts/ideation_dashboard/doxbench_packet.py  lifecycle_status()
+#   scripts/ideation_dashboard/doxbench_status_exemption.py  lifecycle_status()
 #   scripts/ideation_dashboard/authoring.py        missing_required_headers()
 #   scripts/ideation_dashboard/generator.py        _header_value()
 #   scripts/doc_health/inventory.py                _header_value()
