@@ -28,9 +28,16 @@ The pipeline this module owns, in the order design §3.1 fixes:
      is left out is one retrieval call away, and the packet names what it
      carries.
   3. **THE LIFECYCLE-STATUS EXEMPTION RAIL** — each item's own ``Status:``
-     header is read HERE, by the assembler, and approved/ratified content is
-     marked exempt from aggressive compression. Upstream of any compressor, and
-     never delegated: only this stage can read a lifecycle status.
+     header is read by the ASSEMBLER, at this stage, and approved/ratified
+     content is marked exempt from aggressive compression. Upstream of any
+     compressor, and never delegated to one: only this stage can read a
+     lifecycle status. The READ itself moved to
+     ``ideation_dashboard.doxbench_status_exemption`` under
+     ``split-opendox-two-layer-product`` § 2.4 (OQ-1) — a corpus's own
+     ``Status:`` vocabulary is that corpus's, and it is what made this file
+     un-carveable; the MARKING, which is generic, stayed here. Nothing about
+     the rail's position in the pipeline changed: it still runs inside the
+     assembler, before the packet exists.
   4. **THE BOUNDS CHECK** — refuse with the MEASURED DIMENSION. No truncation,
      ever, and no packet content in the refusal.
   5. **DETERMINISTIC ASSEMBLY** — the packet, and the prompt sections it
@@ -54,18 +61,19 @@ bypassed to reach a provider.
 
 Stdlib only, pure, and no I/O: threads arrive already parsed, the corpus
 arrives through the injected knowledge boundary, and this module reads no file
-and reaches no network.
+and reaches no network. Since § 2.4 that is also true of its IMPORTS — the one
+dependency this file had on the repository's own document checker
+(``doc_health.lines.split_keepends``, for the ``Status:`` read) left with the
+read, so nothing here names ``doc_health`` and a neutrality scan asserts it.
 """
 
 from __future__ import annotations
 
 import dataclasses
-import re
 import time
 import unicodedata
 from collections.abc import Callable, Mapping, Sequence
 
-from doc_health.lines import split_keepends
 from ideation_dashboard.doxbench_hash import utf8_size
 from ideation_dashboard.doxbench_scope import ScopeKey, ScopeProjection
 from ideation_dashboard.doxbench_threads import (
@@ -116,77 +124,58 @@ class PacketExpired(PacketRejected):
 
 
 # ---------------------------------------------------------------------------
-# the lifecycle-status read (task 10.3) — the assembler's own, never delegated
+# the lifecycle-status read (task 10.3) — carved out, and reached at ONE POINT
 # ---------------------------------------------------------------------------
 
-# The SAME rule the repository's doc-health corpus reader uses: a `Status:`
-# line inside the document's own header block, found by scanning the SAME
-# shared real-line primitive corpus.parse_status scans through
-# (`doc_health.lines.split_keepends` — CR/LF/CRLF only, so an exotic
-# separator cannot inflate this window past a line that is plainly there).
-# The window/regex/loop are still spelled out here rather than calling
-# `corpus.parse_status` itself, because the exemption is the ASSEMBLER'S to
-# apply and this is the read it applies it from; a companion test asserts
-# the two readers agree, including on a synthetic exotic-separator fixture
-# rather than real corpus documents alone (the corpus carries none today —
-# measured zero across 1227 governed aggregation files — so an agreement
-# check limited to it would pass vacuously).
-_STATUS_RE = re.compile(r"^Status:\s*(.+?)\s*$")
-STATUS_SCAN_LINES = 15
-
-# The statuses whose content is EXEMPT from aggressive compression.
+# THE RAIL MOVED COLUMN; THE NAMES DID NOT MOVE
+# (`split-opendox-two-layer-product` § 2.4, OQ-1 as ruled).
 #
-# The delta names "approved or ratified". This repository's own lifecycle
-# vocabulary spells the approved end `ratified` (a change has ratified it) and
-# `standard` (it has been promoted to canon), and the source-ranking hierarchy
-# this same change ratified ranks "ratified or standard canon" TOGETHER at the
-# top. Exempting `ratified` while compressing `standard` would therefore
-# compress the most authoritative material this surface has, which is the
-# opposite of what the exemption is for.
+# The four constants and three functions that read THIS corpus's `Status:`
+# header against THIS corpus's lifecycle vocabulary now live in
+# `ideation_dashboard.doxbench_status_exemption`, on the openxFactory-adapter
+# side of the carve, and they took their `doc_health.lines.split_keepends`
+# import with them. Everything else about the exemption is generic and stays:
+# `exemption_rail` below is the MARKING mechanism, and marking a source with
+# whatever status a reader reports is a thing any corpus's packet assembler
+# does. That split is the whole of OQ-1 — this module travels to openDox with
+# the chat-turn route that calls it, and it can no longer take an
+# openxFactory-only `doc_health` dependency along.
 #
-# `approved` is FOREIGN-CORPUS TOLERANCE, not a fourth local status: the delta
-# names it, this repository's lifecycle vocabulary does not contain it, and a
-# corpus-wide grep finds ZERO documents carrying it. It is honoured so a corpus
-# that does use the word is not silently compressed, and it is recorded here as
-# tolerance so no reader mistakes it for a status this repository issues.
-EXEMPT_STATUSES: frozenset[str] = frozenset({"approved", "ratified", "standard"})
+# WHY A MODULE `__getattr__` AND NOT A TOP-LEVEL `from … import`. A top-level
+# re-export would put the adapter-column module back into THIS module's import
+# graph, which is the fork this carve exists to prevent — the import would read
+# as neutral in the AST scan and be a hard dependency in fact. Resolved lazily,
+# the dependence on the seam sits at ONE readable point (`_status_exemption`
+# below), exactly the discipline `authoring._classify_proposal` states for its
+# own function-local seam imports, and after the carve the names raise a clean
+# `AttributeError` instead of failing an import of the whole module.
+#
+# The exported set includes the two UNDERSCORE names. They are private to the
+# rail, and `test_doxbench_packet.py`'s mutation check reads `pk._STATUS_RE`
+# deliberately — it reverts `lifecycle_status` alone to the pre-fix
+# `str.splitlines()` idiom to prove the exotic-separator fixture pins the
+# defect (`align-status-reader-to-real-lines`, tasks 4.8). A `__getattr__` that
+# refused underscore names would silently break that proof, so it does not.
 
-# A `Status:` value may carry a DECORATION after the status word — this corpus
-# already holds `record · 2026-08-01T01:21Z (session of …)` and
-# `record (in progress — …)` — so the exemption reads the leading status WORD
-# and ignores what follows. Without this, a decorated `Status: ratified (…)`
-# would silently lose its exemption, which is the exact failure this rail
-# exists to prevent. `lifecycle_status` still returns the RAW value, so it goes
-# on agreeing byte for byte with the repository's own corpus reader.
-_STATUS_DECORATORS = "(·|,"
-
-
-def lifecycle_status(text: str) -> str | None:
-    """The document's own declared `Status:`, or None when it declares none."""
-    if not isinstance(text, str):
-        return None
-    for body, _ending in split_keepends(text)[:STATUS_SCAN_LINES]:
-        match = _STATUS_RE.match(body)
-        if match:
-            return match.group(1)
-    return None
+#: What `__getattr__` resolves through the seam. Every name the rail block
+#: exported before the carve, and nothing else — a name outside this set is an
+#: ordinary `AttributeError` on this module, as it was before.
+_STATUS_EXEMPTION_NAMES: frozenset[str] = frozenset({
+    "_STATUS_RE", "STATUS_SCAN_LINES", "EXEMPT_STATUSES", "_STATUS_DECORATORS",
+    "lifecycle_status", "status_word", "is_compression_exempt",
+})
 
 
-def status_word(status: str | None) -> str | None:
-    """The leading status WORD of a possibly-decorated `Status:` value."""
-    if status is None:
-        return None
-    value = status.strip().lower()
-    for decorator in _STATUS_DECORATORS:
-        value = value.split(decorator, 1)[0]
-    parts = value.split()
-    return parts[0] if parts else None
+def _status_exemption():
+    """The status-exemption rail, imported HERE and nowhere else in this file.
 
-
-def is_compression_exempt(text: str) -> bool:
-    """Whether this content is exempt from aggressive compression, read from
-    its OWN lifecycle status header."""
-    return status_word(lifecycle_status(text)) in EXEMPT_STATUSES
+    Function-local for the reason `authoring._classify_proposal` gives for its
+    own: this module's dependence on the seam sits at one readable point that a
+    scan can assert on, and no import ordering between the two modules can turn
+    into a cycle. Repeat calls cost a `sys.modules` lookup.
+    """
+    import ideation_dashboard.doxbench_status_exemption as rail
+    return rail
 
 
 # ---------------------------------------------------------------------------
@@ -964,14 +953,21 @@ def exemption_rail(
     Upstream of any compressor by construction: this runs inside the assembler,
     before the packet exists, and the marking travels WITH the item. It is
     never delegated — a compressor that cannot read a lifecycle status could
-    not apply it, and one that could would be a second place this rule lives."""
+    not apply it, and one that could would be a second place this rule lives.
 
+    The READ moved column with § 2.4's OQ-1 carve; the MARKING did not. `rail`
+    is resolved once per call rather than per source, and the signature is
+    unchanged — `exemption_rail(sources)` positionally, as every caller and
+    `test_doxbench_memory_gateway.py`'s rails-before-I/O check already have
+    it."""
+
+    rail = _status_exemption()
     marked: list[PacketSource] = []
     for source in sources:
-        status = lifecycle_status(source.text)
+        status = rail.lifecycle_status(source.text)
         marked.append(dataclasses.replace(
             source, status=status,
-            compression_exempt=is_compression_exempt(source.text)))
+            compression_exempt=rail.is_compression_exempt(source.text)))
     return tuple(marked)
 
 
@@ -1373,3 +1369,34 @@ def packet_sections(
                 ref=source.ref, status=_status_label(source),
                 exemption=_exemption_label(source)) + source.text))
     return tuple(sections)
+
+
+def __getattr__(name: str):
+    """The rail's seven names, kept on THIS module; the rail itself, gone.
+
+    PEP 562, and the same shape `authoring.__getattr__` uses for
+    `REQUIRED_HEADER_FIELDS` under § 2.3. Every name the lifecycle-status block
+    used to define here still answers here, resolved through
+    `_status_exemption()` on access, so nothing outside this file had to be
+    edited for the carve. Today the only reader outside the module is
+    `tests/ideation-dashboard/test_doxbench_packet.py`, which spells all seven
+    `pk.<name>` across four tests — including the two that guard the wide
+    ruling `align-status-reader-to-real-lines` closed, which must go on
+    pointing at whatever this module's exemption actually uses rather than at
+    a second copy of it.
+
+    ONE POINT OF DEPENDENCE, WHICH IS THE PROPERTY A SCAN CAN CHECK. This
+    function does not import anything itself; it goes through
+    `_status_exemption()`, so the seam is a single import statement in this
+    file and a neutrality test asserts exactly that.
+
+    THE ALIAS IS A BRIDGE, NOT A HOME. After the carve the adapter-column
+    module is not in openDox's tree, and these names then raise `AttributeError`
+    naming the missing attribute — a loud failure at the first assembly rather
+    than a packet quietly assembled with every source unmarked. Choosing a
+    declared neutral posture instead is a ruling, not an author's call, and it
+    is reported as such rather than taken here.
+    """
+    if name in _STATUS_EXEMPTION_NAMES:
+        return getattr(_status_exemption(), name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
