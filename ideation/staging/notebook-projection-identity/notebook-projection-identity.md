@@ -30,9 +30,9 @@ its hosting account at intake time; today that is Opensoft's own tenant
 Staging ID: openxFactory:staging:notebook-projection-identity
 Captured: 2026-08-15
 Source: Brett Heap's live-session ruling 2026-08-15, made immediately after
-he (browsing as his Workspace identity `brett.heap@farheap.com`, managed by
+he (browsing as his Workspace identity `<convener-workspace-identity>`, managed by
 tech-corps.com) hit "request access" on a dashboard "open notebook" link —
-the request landed in the personal Gmail (`brettheap@gmail.com`) that
+the request landed in the personal Gmail (`<convener-personal-mailbox>`) that
 `scripts/sync-notebooklm-books.py` has always run under, by default CLI
 profile, with no declared account of its own.
 Target capabilities: MODIFIED `lifecycle-notebook-projection` (declared
@@ -77,6 +77,9 @@ and only these:
 
 Recorded under Brett Heap's standing one-sweep consent of 2026-08-31. No claim,
 question, disposition, idea note or conflict below is edited.
+
+Identities in this document are role placeholders; the real addresses were
+redacted 2026-09-07 ahead of the repository going public.
 
 ## Last proposal attempt (round-trip provenance)
 
@@ -127,8 +130,8 @@ The entire governed NotebookLM projection — every per-repo `xFactory
 Ideation — <RepoName>` book, `xf-drafts`, `xf-canon`, and every live session
 book — is created by `scripts/sync-notebooklm-books.py` under the `nlm`
 CLI's default profile, which resolves to one person's personal consumer
-Gmail (`brettheap@gmail.com`). This was proven live 2026-08-15: Brett,
-browsing as his Workspace identity (`brett.heap@farheap.com`, managed by
+Gmail (`<convener-personal-mailbox>`). This was proven live 2026-08-15: Brett,
+browsing as his Workspace identity (`<convener-workspace-identity>`, managed by
 tech-corps.com), hit "request access" on a dashboard "open notebook" link,
 and the request sits unmanaged in the personal Gmail's inbox/share dialog.
 `docs/lifecycle-notebook-projection.md` already names the underlying
@@ -215,7 +218,7 @@ rather than an unmanaged inbox item.
 ## Idea notes (pre-document, non-documented)
 
 - Migrating the existing three books (plus every live session book) off
-  `brettheap@gmail.com` should be cheap: NotebookLM has no ownership-transfer
+  `<convener-personal-mailbox>` should be cheap: NotebookLM has no ownership-transfer
   mechanism, but the books are explicitly **derived** artifacts — membership
   is "always derived from `Status:` headers — never hand-curated"
   (`docs/lifecycle-notebook-projection.md` section 1) — so re-creating them
@@ -392,7 +395,7 @@ working name, `xfactory-books@opensoft.one`, with the actual address to be
 confirmed at creation. Not a consumer Gmail, not even one designated "the
 company account" by convention.
 CONFIRMED the same day (2026-08-23, Brett Heap): the account EXISTS and is
-**`xFactor001@opensoft.one`** — a Google Workspace user in `opensoft.one`,
+**`<service-account-identity>`** — a Google Workspace user in `opensoft.one`,
 exactly the ruled shape. That address supersedes the working name above;
 `xfactory-books@opensoft.one` was never created and should not be used.
 Opensoft's own install is therefore a declared Case A instance, and the
@@ -545,7 +548,7 @@ Added-by: Claude Opus 4.8 (session, Brett's direction) · 2026-08-15
 ### Q5. What is the migration sequencing for opensoft's current, personally-hosted books?
 
 Context: today's three live lifecycle books plus every live session book
-sit under `brettheap@gmail.com`. Idea note 1 establishes that re-creating
+sit under `<convener-personal-mailbox>`. Idea note 1 establishes that re-creating
 them under a company account is cheap (they are derived, not migrated,
 data), but a live cutover still needs a moment where old and new
 coexist without doubling sync targets, losing in-progress chat history, or
@@ -623,7 +626,7 @@ there); the new small share-out roster shape Q3 proved is its own
 contract; and one code surface, the sync's profile selection.
 
 The account precondition is MET. Brett confirmed on 2026-08-23 that the
-Workspace account exists — `xFactor001@opensoft.one`, a Google Workspace
+Workspace account exists — `<service-account-identity>`, a Google Workspace
 user in `opensoft.one` — and authorized raising the change on it, so the
 topic exits via that change rather than waiting on anything further.
 Opensoft's own install is the declared Case A instance the change's
