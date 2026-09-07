@@ -1,6 +1,7 @@
 # Add Factory MCP Conformance
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-07 by Brett Heap; record review/ratification-2026-09-07.md
 Kind: architecture
 Proposed: 2026-09-07
 Lane: mcp-family-contract

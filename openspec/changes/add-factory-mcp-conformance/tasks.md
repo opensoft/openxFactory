@@ -9,7 +9,7 @@ will own executable implementation tasks; this file does not duplicate them.
 
 - [x] 1.1 Capture design and write proposal, design and scenario-complete delta; verify all artifacts exist and every requirement has scenarios.
 - [x] 1.2 Validate the exact proposal and origin and record a consistency review; per-change checks pass and unrelated baseline findings are recorded in review/validation-2026-09-07.md.
-- [ ] 1.3 Obtain Brett Heap's repository-local ratification of this exact proposal, spec, design and proposed ad-hoc origin; verify a durable dated decision names the reviewed revision. No implementation before this checkpoint.
+- [x] 1.3 Brett Heap ratified this exact packet and ad-hoc origin on 2026-09-07; review/ratification-2026-09-07.md names the reviewed revision.
 
 ## 2. Speckit realization
 
