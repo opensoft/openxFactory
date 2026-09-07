@@ -945,4 +945,22 @@ from ideation_dashboard.cli_project import (  # noqa: E402,F401
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # THE ENTRYPOINT RUNS THE PACKAGE'S COPY OF THIS MODULE, NEVER THIS ONE.
+    #
+    # Run as a script (`python3 scripts/ideation_dashboard/cli.py ...`) or with
+    # `-m`, this file is loaded under the name `__main__`, while the column
+    # modules beside it reach the spine through `_core()`, which imports
+    # `ideation_dashboard.cli` — a SECOND module object, with its own
+    # `RepoRootRefused` and `GeneratedAtRefused` classes. A refusal raised
+    # inside a moved verb is then an instance of the OTHER copy's class, and
+    # the `except` clauses in `main` above cannot catch it: both documented
+    # invocations would degrade from the deliberate operator-facing message on
+    # stderr to an unhandled traceback, which is exactly the presentation
+    # `RepoRootRefused`'s own docstring exists to guarantee.
+    #
+    # Dispatching into the package copy means only one module object ever runs
+    # anything — one set of exception classes, one set of module-level names to
+    # patch — so the split is invisible here too, as it is everywhere else.
+    from ideation_dashboard import cli as _package_cli
+
+    sys.exit(_package_cli.main())
