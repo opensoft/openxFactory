@@ -24,8 +24,9 @@ Ten lines, for the read that decides whether to ratify.
    owed and is sequenced inside this change.
 8. This packet **does not author** `contracts/policies/repository-identity.yaml`;
    the exemplar does, and this adds one row to it.
-9. OQ-1 (Enterprise membership) and OQ-2 (Apache-2.0) were **ruled the same
-   day**; OQ-3 .. OQ-6 remain for the convener.
+9. OQ-1 (Enterprise membership), OQ-2 (Apache-2.0) and OQ-5 (exercise the
+   `MIGRATION_PIN` ceremony) were **ruled the same day**; OQ-3, OQ-4 and OQ-6
+   remain for the convener.
 10. **Nothing here is performed.** The operational ceremony is a runbook and an
     issue; this is the governed half and it carries `Status: draft`.
 
@@ -559,7 +560,26 @@ the fail-closed window between publish and flip is then measured in minutes
 rather than spanning the transfer itself. The MCP contract-service image is on
 ACR and is out of scope for this question.
 
-**OQ-5 — Is the `MIGRATION_PIN` re-point ceremony exercised?** OPEN.
+**OQ-5 — Is the `MIGRATION_PIN` re-point ceremony exercised?** *RULED
+2026-09-07 by Brett Heap (convener): **EXERCISE the ceremony as part of the
+move**; do not ride GitHub's redirect.* The recommendation below is adopted as
+given and the reasoning is kept as written, because it is the reasoning the
+ruling accepted. The alternative is recorded as NOT TAKEN rather than
+foreclosed. **What the ruling buys and what it costs**, both stated: it buys a
+pin whose correctness does not depend on nobody creating `opensoft/codexFactory`,
+and it costs running the ceremony's three gates INSIDE the transfer window.
+**The ceremony is RE-RUN, not re-opened** — codexFactory
+`add-regular-pr-council-clearance` rows 5.1 and 5.2 are ticked for the
+generalized-core re-point, and this is a second exercise of that recorded shape
+against a new pinned ref, with the prior SHA recorded as the rollback target.
+The three gates it stands on, named so the runbook does not have to invent them:
+**2.19** (golden characterization suite re-proved green, nightly decisions
+byte-identical pre and post), **3.3** (the vendored aggregation envelope fixture
+re-validates unchanged against both the JSON Schema and the hand-rolled mirror),
+and **4.16** (the nightly lane re-proved green end to end on a live run, these
+workflows not being pin-protected); **5.2** then confirms the live decisions
+still match the golden baseline.
+
 `MIGRATION_PIN` is checked out at the aggregation's
 `.github/workflows/merge-master-approval.yml` and `council-convening-lane.yml`
 and held identical between them by `tests/test_merge_master_workflows.py`; it
@@ -567,14 +587,14 @@ advances only at the recorded re-point ceremony (`realize-provenance-gated-auton
 task 5.1), gated on the golden characterization suite, the envelope
 re-validation and the live lane re-prove. The alternative is to leave the pin on
 the `opensoft` URL under GitHub's redirect for a bounded period.
-**Recommended: exercised.** A redirect is not an identity — this packet's first
-inherited requirement says so in as many words — and the ceremony's whole point
-is that the two workflows and the gitlink never disagree about where the decision
-core is. A pin resolving only through a redirect is a pin whose correctness
-depends on nobody creating `opensoft/codexFactory`, which is exactly the
-condition the exemplar refused to rest a contract on. The cost is that the
-ceremony's gates must be run inside the transfer window rather than at leisure,
-and that cost is stated rather than hidden.
+**Recommended: exercised — and so ruled.** A redirect is not an identity — this
+packet's first inherited requirement says so in as many words — and the
+ceremony's whole point is that the two workflows and the gitlink never disagree
+about where the decision core is. A pin resolving only through a redirect is a
+pin whose correctness depends on nobody creating `opensoft/codexFactory`, which
+is exactly the condition the exemplar refused to rest a contract on. The cost is
+that the ceremony's gates must be run inside the transfer window rather than at
+leisure, and that cost is stated rather than hidden.
 
 **OQ-6 — Canonical spelling, and the GHCR lowercasing.** OPEN. The organization
 is spelled `codeXfactory` (capital X) and the repository stays `codexFactory`, so

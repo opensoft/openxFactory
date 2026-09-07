@@ -313,9 +313,10 @@ repository's `stack.yaml` is touched. **No Ed25519 key is re-minted** and no
 
 ## Open questions
 
-Six were opened with this packet; **TWO WERE RULED THE SAME DAY** and are kept
-at their numbers with the ruling recorded, so the record shows what was asked as
-well as what was answered. Full text in `design.md` § 8.
+Six were opened with this packet; **THREE WERE RULED THE SAME DAY** — OQ-1,
+OQ-2 and OQ-5 — and are kept at their numbers with the ruling recorded, so the
+record shows what was asked as well as what was answered. **OQ-3, OQ-4 and OQ-6
+remain open and owe a convener word.** Full text in `design.md` § 8.
 
 - **OQ-1 — RULED, 2026-09-07, Brett Heap (convener).** *Add the `codeXfactory`
   organization to the Opensoft GitHub Enterprise*, so codexFactory's reusable
@@ -345,10 +346,25 @@ well as what was answered. Full text in `design.md` § 8.
   **live, digest-bound approval** — which the move's amendment revokes and which
   then owes a re-approval? (Shaped by two lanes' measured constraints — see
   `design.md` § 7.)
-- **OQ-5 — OPEN.** Is the `MIGRATION_PIN` re-point ceremony exercised as part of
-  this move, or is the pin left on the `opensoft` URL under GitHub's redirect for
-  a bounded period? (Recommended: exercised. A redirect is not an identity, and
-  this packet's first requirement says so.)
+- **OQ-5 — RULED, 2026-09-07, Brett Heap (convener).** **EXERCISE the
+  `MIGRATION_PIN` re-point ceremony as part of the move — do NOT ride GitHub's
+  redirect.** The recommendation is adopted as given, and the alternative (leave
+  the pin on the `opensoft` URL under the redirect for a bounded period) is
+  recorded as NOT TAKEN rather than foreclosed. The ceremony's shape is the one
+  codexFactory `add-regular-pr-council-clearance` task **5.1** performed and
+  recorded — `[xFactory][OPERATOR] Re-point ceremony … performed on the record,
+  with the prior SHA recorded as the rollback target` — gated on **2.19** (the
+  golden characterization suite re-proved green, nightly decisions byte-identical
+  pre and post), **3.3** (the vendored aggregation envelope fixture re-validates
+  unchanged against the schema and the hand-rolled mirror, matching the same pull
+  requests), and **4.16** (the nightly lane re-proved green end to end on a live
+  run), with **5.2** confirming the live decisions still match the golden
+  baseline afterwards. **This is a RE-RUN of a discharged ceremony, not a
+  re-opening of it**: rows 5.1 and 5.2 are ticked for the generalized-core
+  re-point, and the org move is a second exercise of the same recorded shape
+  against a new pinned ref. Ordering consequence: the ceremony's three gates run
+  INSIDE the transfer window rather than at leisure, which is the cost the
+  ruling accepts.
 - **OQ-6 — OPEN.** Is the canonical owner segment spelled `codeXfactory` (capital
   X), and is the GHCR lowercasing consequence accepted and recorded in the
   mapping? (Recommended: yes to both.)

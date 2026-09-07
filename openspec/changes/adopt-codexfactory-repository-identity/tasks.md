@@ -12,10 +12,12 @@ handoff points; it does not own them.
 
 ## 0. Ratification gate
 
-- [ ] 0.1 Convener read of `design.md` § 0 and § 8. **OQ-1 and OQ-2 are RULED**
-      (Enterprise membership; Apache-2.0 for openxFactory and openXwallet, by a
-      separate lane). **OQ-3, OQ-4, OQ-5 and OQ-6 are OPEN and owe a word**
-      before any box below is ticked.
+- [ ] 0.1 Convener read of `design.md` § 0 and § 8. **OQ-1, OQ-2 and OQ-5 are
+      RULED** (add `codeXfactory` to the Opensoft GitHub Enterprise; Apache-2.0
+      for openxFactory and openXwallet, by a separate lane; **EXERCISE the
+      `MIGRATION_PIN` re-point ceremony rather than riding GitHub's redirect**).
+      **OQ-3, OQ-4 and OQ-6 are OPEN and owe a word** before any box below is
+      ticked.
 - [ ] 0.2 Confirm the sequencing premise still holds:
       `adopt-medxsoft-repository-identity` is still active and still authors
       `contracts/policies/repository-identity.yaml` at its task 1.1. If that
