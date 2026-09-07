@@ -19,7 +19,8 @@ check those declarations (`test_session_notebook.py`,
 in `serve.py` for the same reason (memo § 4). Composition belongs to the core.
 
 HOW THIS MODULE REACHES THE SHARED SPINE: through `_core()`, resolved at CALL
-time, never `from ideation_dashboard.cli import _report`. A frozen reference
+time and relative to this module's own package, never a module-level
+`from ideation_dashboard.cli import _report`. A frozen reference
 would still work and would silently stop honouring the module-level patch sites
 the existing tests rely on (`cli_mod._generate_and_write`,
 `cli_mod._locate_validator` behind `_validate`) — green, and wrong. The
@@ -38,11 +39,19 @@ from ideation_dashboard.boundary import HUMAN, OutputBoundary
 
 
 def _core():
-    """The core CLI module, resolved when a verb RUNS.
+    """The core CLI module OF THIS MODULE'S OWN PACKAGE, resolved when a verb RUNS.
 
     Deliberately a function and not a module-level import: see the header. Every
-    reference this module makes into the shared spine goes through it."""
-    from ideation_dashboard import cli
+    reference this module makes into the shared spine goes through it.
+
+    Deliberately RELATIVE, too: the tree is importable both as
+    `ideation_dashboard.x` and as `scripts.ideation_dashboard.x`, each spelling
+    its own module object with its own `RepoRootRefused`/`GeneratedAtRefused`, so
+    a column that named the core absolutely would raise refusals the running
+    `main` cannot catch. `from . import cli` reaches the core that imported this
+    column, whichever spelling that was — see `cli_gate._core()` for the long
+    form of the argument."""
+    from . import cli
 
     return cli
 

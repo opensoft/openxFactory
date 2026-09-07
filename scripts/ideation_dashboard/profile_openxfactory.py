@@ -15,7 +15,13 @@ constructor to negotiate.
 
 from __future__ import annotations
 
-from ideation_dashboard import cli_gate
+# Relative, like the core's own imports of the modules the § 2.4 split created:
+# this tree is importable under two package spellings, and the profile must
+# contribute the column belonging to the SAME spelling as the core that is
+# assembling the parser — otherwise the verbs it registers are a different
+# column's, bound to a different core (see `cli.py`'s note above its own
+# relative import, and `cli_gate._core()`).
+from . import cli_gate
 
 #: The subcommand contributions this assembly's command line carries, in the
 #: order they are registered — which is the order `--help` reads in, so the

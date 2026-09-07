@@ -37,16 +37,19 @@ proof. This file covers what neither of those can see:
      WALKED and every dispatchable verb is required to be the same object on the
      core module.
 
-  4. **THE TWO DOCUMENTED INVOCATIONS.** `cli.py`'s own docstring says it runs
-     both as a script and with `-m`, and in both the file is loaded under the
-     name `__main__` — while a moved verb reaches the core through `_core()`,
-     which imports `ideation_dashboard.cli`. That is a SECOND module object,
-     with its own `RepoRootRefused` and `GeneratedAtRefused` classes, and the
-     `except` clauses in one copy's `main` cannot catch the other copy's
-     exception: every refusal degraded to a traceback the moment a raising verb
-     moved out. No in-process test can see it — `main([...])` called from the
-     suite has only ever one module object — so this file runs the CLI as an
-     OPERATOR runs it, in a real process, in both invocations.
+  4. **ONE MODULE OBJECT, UNDER EVERY WAY OF REACHING THE CLI.** `cli.py`'s own
+     docstring says it runs both as a script and with `-m`, and in both the file
+     is loaded under the name `__main__`; `scripts/__init__.py` makes
+     `scripts.ideation_dashboard.cli` a third spelling beside
+     `ideation_dashboard.cli`. Each of those is a module object of its OWN, with
+     its own `RepoRootRefused` and `GeneratedAtRefused` classes, and the `except`
+     clauses in one copy's `main` cannot catch the other copy's exception: every
+     refusal degraded to a traceback the moment a raising verb moved out and
+     reached back for a core named absolutely. No in-process test in this suite
+     can see it — `main([...])` called from pytest has only ever one module
+     object — so this file reaches the CLI the way the world does: as an operator
+     in a real process, in both documented invocations, and as a LIBRARY caller
+     in a fresh interpreter, under each importable spelling.
 """
 
 from __future__ import annotations
@@ -58,6 +61,7 @@ import os
 import re
 import subprocess
 import sys
+import textwrap
 from pathlib import Path
 
 import pytest
@@ -659,3 +663,173 @@ def test_the_script_bootstrap_runs_the_packages_copy_of_this_module():
         "the bootstrap calls this module's own `main`; run as a script that is "
         "`__main__.main`, and its `except RepoRootRefused` cannot catch the "
         "`ideation_dashboard.cli.RepoRootRefused` a moved verb raises")
+
+
+#: Every package spelling this tree is importable under. `scripts/__init__.py`
+#: exists, so `scripts.ideation_dashboard.cli` is a real second name for the same
+#: FILE and a second module object at runtime — `tests/import_scan.py`'s header
+#: states the rule in writing ("both spellings are always the caller's job … a
+#: one-spelling forbidden list is a hole"), and it is live in-tree for
+#: `scripts.hermes_runtime_validation` and `scripts.intent_compliance`.
+IMPORTABLE_SPELLINGS = ("ideation_dashboard", "scripts.ideation_dashboard")
+
+#: The modules the § 2.4 split created. `cli.py` must reach all four RELATIVELY,
+#: and each of them must reach the core and each other the same way; see
+#: `test_the_split_modules_name_each_other_relatively` for why.
+SPLIT_MODULES = ("cli", "cli_gate", "cli_model_binding", "cli_project",
+                 "profile_openxfactory")
+
+
+def run_probe(spelling: str, body: str, cwd: Path):
+    """Run `body` in a FRESH interpreter, reaching the CLI under `spelling`.
+
+    A new process per spelling, because the claim is about WHICH MODULE OBJECT an
+    import produces, and this suite has already imported one of them — in-process,
+    `sys.modules` would answer for a decision that was made before the test ran.
+    Both roots go on `PYTHONPATH` so either spelling resolves."""
+    program = ("import argparse, importlib, sys\n"
+               f"SPELLING = {spelling!r}\n" + textwrap.dedent(body))
+    env = dict(os.environ, PYTHONPATH=os.pathsep.join(
+        [str(REPO_ROOT), str(REPO_ROOT / "scripts")]))
+    return subprocess.run([sys.executable, "-c", program], capture_output=True,
+                          text=True, cwd=str(cwd), env=env)
+
+
+@pytest.mark.parametrize("spelling", IMPORTABLE_SPELLINGS)
+def test_a_library_caller_gets_the_columns_of_its_own_core(spelling, tmp_path):
+    """THE CLAIM THE BOOTSTRAP CANNOT MAKE ON ITS OWN, for the spelling it does
+    not reach.
+
+    `cli.main([...])` as a LIBRARY entry is contemplated in-tree (`cli.py`'s own
+    comment describes "a scripted `cli.main(["gate", "abandon-session", …])`"),
+    and an importer chooses the spelling. If the core named its columns
+    absolutely, the `scripts.` spelling would run the OTHER core's verbs: the
+    function objects the parser dispatches to would belong to a module whose
+    `_core()` — and therefore whose `RepoRootRefused` — is not the caller's.
+    Every module the split created is therefore named relatively, so an import
+    under either spelling yields ONE coherent set."""
+    result = run_probe(spelling, """
+        core = importlib.import_module(SPELLING + ".cli")
+        gate = importlib.import_module(SPELLING + ".cli_gate")
+        project = importlib.import_module(SPELLING + ".cli_project")
+        profile = importlib.import_module(SPELLING + ".profile_openxfactory")
+
+        assert gate._core() is core, "cli_gate reached a different core object"
+        assert project._core() is core, "cli_project reached a different core"
+        assert profile.cli_gate is gate, "the profile contributed another column"
+
+        def walk(parser, out):
+            default = parser.get_default("func")
+            if default is not None:
+                out.append(default)
+            for action in parser._actions:
+                if isinstance(action, argparse._SubParsersAction):
+                    for sub in action.choices.values():
+                        walk(sub, out)
+            return out
+
+        verbs = walk(core.build_parser(), [])
+        assert len(verbs) >= 28, len(verbs)
+        assert [v.__name__ for v in verbs
+                if getattr(core, v.__name__, None) is not v] == []
+        assert {v.__module__ for v in verbs} == {
+            SPELLING + "." + name for name in
+            ("cli", "cli_gate", "cli_project", "cli_model_binding")}
+        print("OK")
+    """, tmp_path)
+
+    assert result.returncode == 0, result.stderr
+    assert "OK" in result.stdout
+    assert "Traceback" not in result.stderr, result.stderr
+
+
+@pytest.mark.parametrize("spelling", IMPORTABLE_SPELLINGS)
+def test_a_refusal_is_reported_under_every_importable_spelling(spelling, tmp_path):
+    """What that identity BUYS, stated as the operator sees it.
+
+    `RepoRootRefused` is raised inside a moved verb, through the core `_core()`
+    returns, and caught by the `main` the caller invoked. Those have to be the
+    same module object or the `except` clause names a different class and the
+    refusal escapes — the HIGH this section exists for, one spelling over from
+    the invocation the bootstrap fixed."""
+    empty = tmp_path / "not-a-corpus"
+    empty.mkdir()
+
+    result = run_probe(spelling, """
+        core = importlib.import_module(SPELLING + ".cli")
+        rc = core.main(["generate", "--repo-root", "not-a-corpus",
+                        "--repository", "openxFactory", "--output", "snap.json"])
+        assert rc == 1, rc
+        print("OK")
+    """, tmp_path)
+
+    assert result.returncode == 0, result.stderr
+    assert "OK" in result.stdout
+    assert "--repo-root is not a corpus checkout" in result.stderr
+    assert "Traceback" not in result.stderr, result.stderr
+    assert not (tmp_path / "snap.json").exists()
+
+
+def relative_sibling_imports(module) -> dict:
+    """`{name: lineno}` for every `from . import X` / `from .X import …` in
+    `module` that names one of the modules the split created."""
+    found = {}
+    for node in ast.walk(ast.parse(source_of(module))):
+        if not isinstance(node, ast.ImportFrom) or not node.level:
+            continue
+        if node.module in SPLIT_MODULES:                # from .cli_gate import X
+            found[node.module] = node.lineno
+        if node.module is None:                          # from . import cli_gate
+            for alias in node.names:
+                if alias.name in SPLIT_MODULES:
+                    found[alias.name] = node.lineno
+    return found
+
+
+def test_the_split_modules_name_each_other_relatively():
+    """THE STRUCTURAL PIN on the identity above, so it cannot be tidied away.
+
+    `from ideation_dashboard import cli_gate` is the obvious line — it is how
+    every OTHER import in these files is spelled — and it is the wrong one here:
+    an absolute name binds ONE spelling's module no matter which spelling
+    imported the file doing the binding, and that is exactly how a core ends up
+    running another core's verbs.
+
+    The one deliberate exception is the `__main__` bootstrap's import OF THE CORE,
+    which names `ideation_dashboard.cli` absolutely BECAUSE it has no package to
+    be relative to — that is the case it exists to hand over from. The exemption
+    is exactly that one name in exactly that one block: an absolute COLUMN import
+    parked inside a `__main__` guard would still be an offender."""
+    offenders = []
+    for module in (cli_mod, *COLUMN_MODULES, profile_openxfactory):
+        tree = ast.parse(source_of(module))
+        bootstrap = [node for node in tree.body
+                     if isinstance(node, ast.If)
+                     and isinstance(node.test, ast.Compare)
+                     and isinstance(node.test.left, ast.Name)
+                     and node.test.left.id == "__name__"]
+        in_bootstrap = {id(n) for block in bootstrap for n in ast.walk(block)}
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.ImportFrom) or node.level:
+                continue
+            named = [alias.name for alias in node.names
+                     if node.module in CORE_PACKAGE_PATHS
+                     and alias.name in SPLIT_MODULES]
+            if (node.module or "").rsplit(".", 1)[-1] in SPLIT_MODULES:
+                named.append((node.module or "").rsplit(".", 1)[-1])
+            if id(node) in in_bootstrap:
+                named = [name for name in named if name != "cli"]
+            offenders.extend(f"{Path(module.__file__).name}:{node.lineno} {name}"
+                             for name in named)
+    assert offenders == [], (
+        "these imports name a module the split created ABSOLUTELY; a caller "
+        "under the other package spelling would then run a different core's "
+        f"columns, and its refusals would escape `main` uncaught: {offenders}")
+
+    # non-vacuity: the relative imports are really there, in both directions
+    assert set(relative_sibling_imports(cli_mod)) == {
+        "cli_gate", "cli_model_binding", "cli_project", "profile_openxfactory"}
+    assert "cli" in relative_sibling_imports(cli_gate)
+    assert "cli" in relative_sibling_imports(cli_project)
+    assert "cli_gate" in relative_sibling_imports(profile_openxfactory)
+

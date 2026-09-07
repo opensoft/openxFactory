@@ -27,6 +27,36 @@ _SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
+if __name__ == "__main__":
+    # THE ENTRYPOINT RUNS THE PACKAGE'S COPY OF THIS MODULE, NEVER THIS ONE,
+    # AND HANDS OVER BEFORE THE REST OF THIS FILE EXECUTES.
+    #
+    # Run as a script (`python3 scripts/ideation_dashboard/cli.py ...`) or with
+    # `-m`, this file is loaded under the name `__main__` — a module object of
+    # its own, with its own `RepoRootRefused` and `GeneratedAtRefused` classes,
+    # while the column modules beside it reach the spine through `_core()`,
+    # which resolves the core module of the PACKAGE they were imported under. A
+    # refusal raised inside a moved verb would then be an instance of the other
+    # copy's class, and the `except` clauses in `main` below could not catch it:
+    # both documented invocations would degrade from the deliberate
+    # operator-facing message on stderr to an unhandled traceback, which is
+    # exactly the presentation `RepoRootRefused`'s own docstring exists to
+    # guarantee.
+    #
+    # Dispatching into the package copy means only one module object ever runs
+    # anything — one set of exception classes, one set of module-level names to
+    # patch — so the split is invisible here too, as it is everywhere else.
+    #
+    # This block sits ABOVE the imports, not at the foot of the file, for a
+    # second reason: run as a script there is no package at all (`__package__`
+    # is empty), so this copy could not name its own columns relative to itself.
+    # Handing over here means the body below only ever executes as a package
+    # module — under whichever of the spellings imported it — which is what lets
+    # every line beneath this one bind its siblings relatively.
+    from ideation_dashboard import cli as _package_cli
+
+    sys.exit(_package_cli.main())
+
 # The SUBCOMMAND EXTENSION POINT (`split-opendox-two-layer-product` § 2.4,
 # design § D2). A neutral module at the top of `scripts/`, belonging to neither
 # package and importing neither, for the same three reasons `output_boundary`
@@ -40,7 +70,6 @@ from ideation_dashboard import branch_session as branch_session_mod  # noqa: E40
 from ideation_dashboard import doxbench_install as install_mod  # noqa: E402
 from ideation_dashboard import doxbench_knowledge as knowledge_mod  # noqa: E402
 from ideation_dashboard import gate_console as gate_mod  # noqa: E402
-from ideation_dashboard import profile_openxfactory  # noqa: E402
 from ideation_dashboard import serve as serve_mod  # noqa: E402
 from ideation_dashboard import snapshot as snapshot_mod  # noqa: E402
 from ideation_dashboard import workbench as workbench_mod  # noqa: E402
@@ -53,6 +82,26 @@ from ideation_dashboard.corpus_root import (  # noqa: E402
 from ideation_dashboard.generator import (  # noqa: E402
     generate_snapshot, is_rfc3339_datetime,
 )
+
+# THE MODULES THE § 2.4 SPLIT CREATED ARE NAMED RELATIVELY, and they are the
+# only imports in this file that are.
+#
+# `scripts/__init__.py` exists, so this tree is importable BOTH as
+# `ideation_dashboard.cli` and as `scripts.ideation_dashboard.cli`
+# (`tests/import_scan.py`'s header states the rule in writing: both spellings
+# are always the caller's job, and a rule that knows one of them is a rule with
+# a hole in it). Each spelling is a module object of its own, with its own
+# `RepoRootRefused` and `GeneratedAtRefused`. Naming the columns absolutely
+# would mean a caller who imported this file under one spelling ran verbs bound
+# to the other — and a refusal raised through THAT copy's exception classes
+# would escape `main`'s `except` clauses uncaught, which is the same defect the
+# `__main__` bootstrap above closes for the script and `-m` invocations.
+#
+# A relative import is resolved against the package THIS module was imported
+# under, so the core, its three columns and the composition point are always one
+# coherent set: whichever spelling reaches the CLI gets columns whose `_core()`
+# resolves back to the very module object that is running.
+from . import profile_openxfactory  # noqa: E402
 
 WEB_DIR = Path(__file__).resolve().parent / "web"
 
@@ -922,10 +971,12 @@ def main(argv: list[str] | None = None, *,
 #
 # At the BOTTOM of the file on purpose: the column modules resolve this module
 # lazily (`_core()`), so the direction of the dependency is decided here, once,
-# and neither import order can produce a half-initialised module.
+# and neither import order can produce a half-initialised module. RELATIVELY,
+# for the reason given above the `profile_openxfactory` import: the columns a
+# core re-exports must be the columns of its OWN package spelling.
 # ---------------------------------------------------------------------------
 
-from ideation_dashboard.cli_gate import (  # noqa: E402,F401
+from .cli_gate import (  # noqa: E402,F401
     cmd_gate_abandon_session, cmd_gate_cleanup_abandoned_branch,
     cmd_gate_create_document, cmd_gate_create_project, cmd_gate_demote,
     cmd_gate_derive_possibles, cmd_gate_dispose_possible, cmd_gate_edit_apply,
@@ -934,43 +985,12 @@ from ideation_dashboard.cli_gate import (  # noqa: E402,F401
     cmd_gate_promote_to_staging, cmd_gate_propose, cmd_gate_ratify,
     cmd_gate_research_brief, cmd_gate_share_session,
 )
-from ideation_dashboard.cli_model_binding import (  # noqa: E402,F401
+from .cli_model_binding import (  # noqa: E402,F401
     _add_model_binding_parser, cmd_model_binding_add, cmd_model_binding_edit,
     cmd_model_binding_list, cmd_model_binding_remove,
     cmd_model_binding_set_credential,
 )
-from ideation_dashboard.cli_project import (  # noqa: E402,F401
+from .cli_project import (  # noqa: E402,F401
     cmd_create, cmd_edit, cmd_generate,
 )
 
-
-if __name__ == "__main__":
-    # THE ENTRYPOINT RUNS THE PACKAGE'S COPY OF THIS MODULE, NEVER THIS ONE.
-    #
-    # Run as a script (`python3 scripts/ideation_dashboard/cli.py ...`) or with
-    # `-m`, this file is loaded under the name `__main__`, while the column
-    # modules beside it reach the spine through `_core()`, which imports
-    # `ideation_dashboard.cli` — a SECOND module object, with its own
-    # `RepoRootRefused` and `GeneratedAtRefused` classes. A refusal raised
-    # inside a moved verb is then an instance of the OTHER copy's class, and
-    # the `except` clauses in `main` above cannot catch it: both documented
-    # invocations would degrade from the deliberate operator-facing message on
-    # stderr to an unhandled traceback, which is exactly the presentation
-    # `RepoRootRefused`'s own docstring exists to guarantee.
-    #
-    # Dispatching into the package copy means only one module object ever runs
-    # anything under EITHER of the two invocations named above — one set of
-    # exception classes, one set of module-level names to patch — so the split
-    # is invisible here too, as it is everywhere else.
-    #
-    # This does not close every spelling: `scripts/__init__.py` makes
-    # `scripts.ideation_dashboard.cli` a third importable one, and `_core()`
-    # always resolves `ideation_dashboard.cli` regardless of which spelling
-    # called into it, so a caller that did
-    # `from scripts.ideation_dashboard import cli; cli.main([...])` would still
-    # see its OWN `RepoRootRefused`/`GeneratedAtRefused` miss the package
-    # copy's. No caller in this repo does that today (checked) — recorded here,
-    # not left as a silent gap in the claim above.
-    from ideation_dashboard import cli as _package_cli
-
-    sys.exit(_package_cli.main())

@@ -23,7 +23,8 @@ the command line's analogue of the route point's "no privileged route" — one
 authentication path, reached by every verb, and this module cannot reach a gate
 any other way because it does not define one.
 
-HOW THAT SPINE IS REACHED: through `_core()`, resolved at CALL time. Never
+HOW THAT SPINE IS REACHED: through `_core()`, resolved at CALL time and
+RELATIVE to this module's own package. Never a module-level
 `from ideation_dashboard.cli import _notebook_port` — a frozen reference would
 still work and would silently stop honouring the thirteen module-level patch
 sites the existing tests use to inject fakes (`cli_mod._notebook_port`,
@@ -54,13 +55,23 @@ from ideation_dashboard.boundary import BoundaryViolation, HumanGate
 
 
 def _core():
-    """The core CLI module, resolved when a verb RUNS.
+    """The core CLI module OF THIS MODULE'S OWN PACKAGE, resolved when a verb RUNS.
 
     Deliberately a function and not a module-level import: see the header. Every
     reference this module makes into the shared spine goes through it, so a
     `monkeypatch.setattr(cli_mod, ...)` reaches this module's call sites and the
-    two modules stay importable in either order."""
-    from ideation_dashboard import cli
+    two modules stay importable in either order.
+
+    Deliberately RELATIVE, too. `scripts/__init__.py` exists, so the tree is
+    importable both as `ideation_dashboard.x` and as `scripts.ideation_dashboard.x`,
+    and each spelling is a module object of its own with its own
+    `RepoRootRefused`/`GeneratedAtRefused`. Naming the core absolutely would bind
+    every verb in this column to ONE of those cores no matter which one imported
+    it: a refusal raised here would then be an instance of a class the running
+    `main`'s `except` clauses do not name, and it would escape as a traceback.
+    `from . import cli` resolves against the package this module was imported
+    under, so the column always reaches the very core that is running it."""
+    from . import cli
 
     return cli
 
