@@ -110,6 +110,32 @@ while the fact that revokes it is absent. The 2026-08-31 roster flip is the
 worked example of why — it revoked `grant-mrc-0001` precisely because the
 composition WAS declared and DID move.
 
+## AMENDED 2026-09-07 — D3 sequencing
+
+Row 3.1 (this design's own PREREQUISITE) was found BLOCKED on execution,
+measured on codexFactory main `8f4920ce` and reported on openxFactory PR #717
+(<https://github.com/opensoft/openxFactory/pull/717#issuecomment-5564009224>,
+2026-09-07T02:09:57Z): the only renderer
+(`deliberation_packet.py#seat_system_prompt`) hard-codes
+`merge_readiness_council` and refuses `lead-architect` as an unknown seat,
+and `lead-architect` had no enrolled pin anywhere. So `prompt_contract`,
+`tool_manifest`, `parameters` and `retrieval_corpus.seat_prompts_ref` could
+only be ASSERTED against a caller that does not exist — the very thing D3's
+own EXACT-identifiers, execution-matched standard (precedent `016e9f43`)
+refuses.
+
+Brett Heap ruled, in-session, 2026-09-07T12:40:19Z, verbatim *"R1
+lead-architect claude-opus-5, R2 (a) — re-sequence 5.9a first"*
+(<https://github.com/opensoft/openxFactory/pull/717#issuecomment-5570774593>):
+codexFactory task 5.9a (the `gate_rules_council` caller with seat briefings)
+now precedes row 3.1 in this change's § Sequencing — proposal.md's
+2026-09-07 AMENDMENT restates the order — and `lead-architect` is pinned to
+`claude-opus-5` by the recorded roster-change act
+(`guardrails.roster_change: lead_accepted_recorded`). D3's decision that
+composition is a PREREQUISITE of the grant, pinned FIRST, is unchanged; what
+moves is composition's position relative to the CALLER, not relative to the
+grant.
+
 ## D4 — The mint is a runbook Brett executes; nothing is minted here
 
 **Decision.** `docs/council-seat-key-mint-runbook.md` (this change's own
