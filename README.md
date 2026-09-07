@@ -2615,8 +2615,17 @@ Archived changes:
   repository receives, in the conservative direction, a `Skip` becoming the
   grading an EMPTY changelog already receives. `design.md` **D2** was vetoable on
   its own (the `info` against dropping the fact) and was not vetoed either.
-  Nothing green turns red: the one new finding is `info`, which neither
-  `--fail-on error` nor the cut-time release-tag gate reaches.
+  **NOTHING GREEN IN THIS REPOSITORY TURNS RED, AND THE CLAIM IS SCOPED TO IT**
+  (Codex, PR #767, P2, TAKEN): openxFactory carries a readable
+  `contracts/CHANGELOG.md` at its published tip and never reaches the amended
+  arm, so the family reads the same single `info` here before and after, and the
+  one finding the arm can ADD is `info`, which neither `--fail-on error` nor the
+  cut-time release-tag gate reaches. **The estate-wide statement is narrower and
+  is NOT made**: elsewhere a held tip whose tree carries no changelog now FALLS
+  THROUGH to the grading loop, where a bundle can raise an `error` — the absent,
+  superseded or over-distance arms — so a `--fail-on error` run that is green
+  today CAN turn red there. That is `design.md` D1's ratified cost stated
+  plainly, and it is exactly what **#765** exists to measure.
   **TWO SUCCESSORS ARE ARCHIVED AS NAMED RATHER THAN DONE**, filed unclaimed at
   the archive and ticked in `tasks.md` § 6 under Brett Heap's ruling *"Tick on
   the recording"* — the tick records the naming, not the doing: **#765** (the
