@@ -500,10 +500,19 @@ _CHANGELOG_ABSENT_WORDS = ("the commit is held in this store and no readable "
 _CHANGELOG_OVERCLAIM_WORDS = "carries no contracts/CHANGELOG.md"
 # THE THIRD STATE'S TWO ANSWERS, written out as fresh literals for the same
 # reason the ones above are: a reworded skip has to be re-agreed here. The tree
-# is what tells an absent document from a store that cannot serve what it lists,
+# is what tells an absent document from an entry whose blob did not come back,
 # and each answer says WHICH of the two it has.
 _TREE_LISTS_NONE_WORDS = "the tree at that commit LISTS NO SUCH PATH"
 _TREE_CARRIES_WORDS = "WHOSE TREE CARRIES THAT PATH"
+_TREE_ENTRY_WORDS = ("the tree at that commit LISTS AN ENTRY at that path and "
+                     "no readable blob came back for it")
+# AND THE CAUSE THAT WAS NEVER CHECKED IS PINNED AGAINST (PR #753 fix round).
+# `ls_tree_paths` runs `ls-tree -r --name-only`, which filters by no object
+# type, so a GITLINK whose target this clone does not hold lists exactly as a
+# lost blob does — measured on a real repository, a submodule at this path
+# lists while `cat-file --batch` answers `missing`. "An object store that
+# cannot serve what it lists" names one of those two and checks neither.
+_TREE_OVERCLAIM_WORDS = "cannot serve what it lists"
 
 # A realistic tip: codexFactory's own published tip on the 2026-09-03 nightly,
 # whose report line this fixture reproduces exactly.
@@ -2222,14 +2231,19 @@ def test_an_unfetched_tip_still_skips_the_changelog_read():
 
 
 class _TreeListsChangelog(_NoChangelog):
-    """The THIRD STATE: the tree LISTS `contracts/CHANGELOG.md` and the blob
-    does not come back — an object store that cannot serve what it lists.
+    """The THIRD STATE: the tree LISTS AN ENTRY at `contracts/CHANGELOG.md` and
+    no readable blob comes back for it.
 
-    `ls_tree_paths` reads the TREE object, not the blob, so a store missing the
-    loose blob still lists the path; remove the object from a real repository
-    and `cat-file --batch` answers `missing` for a path `ls-tree` plainly
-    carries. That is a read that FAILED, not an absent document, and grading it
-    would read a real SPENT declaration as absent.
+    `ls_tree_paths` reads the TREE object, not the blob, so a path can list
+    while `cat-file --batch` answers `missing` for it. TWO CAUSES DO THAT AND
+    THE ARM TELLS THEM APART FROM NEITHER: a blob this store has lost (remove
+    the loose object from a real repository), and a GITLINK whose target commit
+    this clone does not hold — `ls-tree -r --name-only` filters by no object
+    type, and a submodule at this path lists exactly as a blob does (measured,
+    PR #753 fix round). Which is why the skip these two states share names the
+    two FACTS and not either cause. Either way it is a read that FAILED, not an
+    absent document, and grading it would read a real SPENT declaration as
+    absent.
     """
 
     def ls_tree_paths(self, repo, ref, prefix):
@@ -2276,6 +2290,17 @@ def test_a_held_tip_whose_tree_lists_the_changelog_still_skips():
     assert _TREE_CARRIES_WORDS in out.reason
     assert "not the same fact as there being none" in out.reason
     assert "contract-v2.0" in out.reason
+    # AND IT STATES THE PRESENCE, which this arm has established — it stands
+    # below the held-tip split — so a reader is never sent after a fetch defect
+    # that cannot be (PR #753 fix round; #688's rule over the sibling read).
+    assert _CHANGELOG_HELD_WORDS in out.reason
+    # AND IT CLAIMS THE TWO FACTS IT HAS AND NOT A CAUSE IT NEVER CHECKED.
+    assert _TREE_ENTRY_WORDS in out.reason
+    assert _TREE_OVERCLAIM_WORDS not in out.reason, (
+        "a listing filters by no object type, so an entry that lists may be a "
+        "gitlink this clone does not hold as easily as a blob this store has "
+        "lost — naming either one is a cause this arm did not check"
+    )
     # AND IT IS NEITHER OF THE OTHER TWO ANSWERS' WORDS.
     assert _FETCH_TRIED_WORDS not in out.reason
     assert _TREE_LISTS_NONE_WORDS not in out.reason
@@ -2292,6 +2317,12 @@ def test_a_held_tip_whose_tree_cannot_be_listed_fails_closed():
     assert "UNESTABLISHED" in out.reason
     assert "not the same fact as there being none" in out.reason
     assert "contract-v2.0" in out.reason
+    # AND IT NAMES THE ONE FACT IT DOES HAVE (PR #753 fix round). This arm is
+    # reachable only at a HELD tip, so a skip that left the presence unstated
+    # would read as the unfetched case's and send a reader after a fetch defect
+    # that cannot be — the very confusion #688 ratified against one read over.
+    assert _CHANGELOG_HELD_WORDS in out.reason
+    assert _FETCH_TRIED_WORDS not in out.reason
 
 
 def test_a_below_floor_repository_with_no_changelog_gains_no_trace():
@@ -2309,6 +2340,49 @@ def test_a_below_floor_repository_with_no_changelog_gains_no_trace():
         assert below == [], (
             "below the floor there is no bundle in scope, so there is nothing "
             "to grade and nothing to record"
+        )
+
+
+def test_a_below_floor_repository_reaches_no_third_state_skip_either():
+    """THE FLOOR HOLDS OVER THE TREE CONSULTATION, NOT ONLY OVER THE TRACE
+    (PR #753 fix round).
+
+    The test above runs the below-floor control through `_NoChangelog`, whose
+    tree lists nothing — and that control CANNOT SEE the gate it means to pin.
+    Drop `and in_scope` from the tree-consultation guard and `_NoChangelog`
+    still answers `[]`: the listing comes back empty, the damaged-store branch
+    is not taken, and the `info` below has an `in_scope` gate of its own. The
+    whole of what that gate holds back is the OTHER TWO branches — measured,
+    the mutation left all 151 tests green.
+
+    So the two damaged shims are run below the floor as well, and the fact
+    being pinned is what the mutation would produce: a repository nobody
+    obliged to write a changelog gaining a permanent "not checked" whose skip
+    names an EMPTY set of bundles it declined to look for — a finding that
+    cannot be acted on, about a document nobody owes, naming nothing.
+    """
+    for shim in (_TreeListsChangelog, _UnlistableTree):
+        for held in ({"present_commits": {"tip"}}, {}):
+            below = rtp.check_repo("alphaFactory", Path("r"),
+                                   shim(declared="contract-v1.6",
+                                        remotes={"r": "tip"}, **held))
+            assert below == [], (
+                f"{shim.__name__} below the floor: the tree consultation is "
+                f"gated on there being a bundle in scope, and there is none — "
+                f"got {below!r}"
+            )
+
+    # THE POSITIVE CONTROL, so this cannot pass over a deleted branch. One
+    # version up, the same two shims are IN scope and each still takes its own
+    # skip — the gate narrows the arm, it does not remove it.
+    for shim, expected in ((_TreeListsChangelog, _TREE_CARRIES_WORDS),
+                           (_UnlistableTree, "UNESTABLISHED")):
+        in_scope = rtp.check_repo("alphaFactory", Path("r"),
+                                  shim(declared="contract-v1.7",
+                                       remotes={"r": "tip"},
+                                       present_commits={"tip"}))
+        assert isinstance(in_scope, Skip) and expected in in_scope.reason, (
+            f"{shim.__name__} in scope must still take its own skip"
         )
 
 

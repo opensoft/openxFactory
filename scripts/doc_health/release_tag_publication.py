@@ -1279,39 +1279,59 @@ def check_repo(repo: str, repo_path: Path, git,
         # and answer an EXTINGUISHED obligation with an `error` telling an
         # operator to publish a tag that cannot be published.
         #
-        # SO THE TREE IS CONSULTED, ONCE, AND ONLY HERE. `ls_tree_paths` reads
+        # SO THE TREE IS CONSULTED, ONCE ON THIS ARM. `ls_tree_paths` reads
         # the TREE object rather than the blob, so it answers for a path whose
         # blob this store cannot produce; it is asked with the document's own
         # path as its pathspec, so it costs one bounded call on an arm this
-        # family reaches only where a changelog did not read at all.
+        # family reaches only where a changelog did not read at all. (`ONCE ON
+        # THIS ARM` and not "only here": `cut_bundles` above already lists the
+        # tree under `contracts/releases/`, on every run of every repository.
+        # This is the second listing, not the first, and it is the only one
+        # this packet adds.)
         listed = git.ls_tree_paths(repo_path, tip, CHANGELOG)
         if listed is None:
-            # FAIL CLOSED. Neither the blob nor the tree answered, so which of
-            # the two facts holds is UNESTABLISHED, and an unestablished fact is
-            # the one thing this arm must never grade on.
+            # FAIL CLOSED, AND STILL NAME THE FACT THAT IS IN HAND. Neither the
+            # blob nor the tree answered, so which of the two remaining facts
+            # holds is UNESTABLISHED, and an unestablished fact is the one thing
+            # this arm must never grade on. The PRESENCE, though, IS established
+            # — this arm stands below the held-tip split and is unreachable
+            # above it — so the skip SAYS the commit is held, for the reason
+            # #688 ratified over the sibling read: words that leave the presence
+            # unstated are the unfetched case's words, and they send a reader to
+            # look for a fetch defect that does not exist.
             return Skip(FAMILY, f"{repo}: {CHANGELOG} could not be read at the "
-                                f"published tip {tip[:9]} and the tree at that "
-                                f"commit could not be listed either, so whether "
-                                f"the document is absent or merely unreadable "
-                                f"is UNESTABLISHED; a SPENT declaration for "
-                                f"{', '.join(in_scope)} could not be looked "
-                                f"for, which is not the same fact as there "
-                                f"being none")
-        if CHANGELOG in listed:
-            # THE DAMAGED STORE, AND IT KEEPS THE SKIP. The document IS there —
-            # the tree says so — and this clone cannot produce it. That is a
-            # read that failed, exactly as the unfetched case is, and the
-            # declaration it would have carried is one this run could not LOOK
-            # FOR rather than one that does not exist.
-            return Skip(FAMILY, f"{repo}: {CHANGELOG} could not be read at the "
-                                f"published tip {tip[:9]}, WHOSE TREE CARRIES "
-                                f"THAT PATH — the document is listed at the "
-                                f"commit and no readable blob came back for it, "
-                                f"which is an object store that cannot serve "
-                                f"what it lists rather than an absent document; "
+                                f"published tip {tip[:9]}, WHICH THIS CLONE "
+                                f"HOLDS, and the tree at that commit could not "
+                                f"be listed either, so whether the document is "
+                                f"absent or merely unreadable is UNESTABLISHED; "
                                 f"a SPENT declaration for {', '.join(in_scope)} "
                                 f"could not be looked for, which is not the "
                                 f"same fact as there being none")
+        if CHANGELOG in listed:
+            # THE TREE LISTS AN ENTRY AND NO BLOB CAME BACK, AND THAT KEEPS THE
+            # SKIP. Those two facts are the whole of what this arm has, and the
+            # skip is worded to claim no more (PR #753 fix round). A CAUSE is
+            # NOT among them: `ls_tree_paths` runs `ls-tree -r --name-only`,
+            # which filters by no object type, so an entry that lists here may
+            # be a blob this store has lost OR a GITLINK whose target commit
+            # this clone does not hold — measured on a real repository, a
+            # submodule at this path lists exactly as a blob does while
+            # `cat-file --batch` answers `missing` for it. Calling it "an object
+            # store that cannot serve what it lists" would name one of those and
+            # check neither, which is the very move this arm exists to refuse.
+            # What IS established is enough: the read FAILED, so the declaration
+            # it would have carried is one this run could not LOOK FOR rather
+            # than one that does not exist.
+            return Skip(FAMILY, f"{repo}: {CHANGELOG} could not be read at the "
+                                f"published tip {tip[:9]}, WHICH THIS CLONE "
+                                f"HOLDS AND WHOSE TREE CARRIES THAT PATH — the "
+                                f"tree at that commit LISTS AN ENTRY at that "
+                                f"path and no readable blob came back for it, "
+                                f"which is a READ THAT FAILED rather than an "
+                                f"absent document; a SPENT declaration for "
+                                f"{', '.join(in_scope)} could not be looked "
+                                f"for, which is not the same fact as there "
+                                f"being none")
 
     read = read_changelog(changelog)
     findings, candidates = _refusal_findings(repo, read.declarations, cut,
@@ -1354,8 +1374,8 @@ def check_repo(repo: str, repo_path: Path, git,
             f"WHICH THIS CLONE HOLDS — the commit is held in this store and no "
             f"readable {CHANGELOG} blob is reachable at it, and the tree at "
             f"that commit LISTS NO SUCH PATH, so this is neither an unfetched "
-            f"commit nor an object store that cannot serve what it lists, and "
-            f"NO SPENT DECLARATION EXISTS to be read; "
+            f"commit nor a listed entry whose blob did not come back, and "
+            f"NO SPENT DECLARATION EXISTS at {CHANGELOG} to be read; "
             f"the bundles in scope ({', '.join(in_scope)}) are graded with no "
             f"declarations, exactly as at an empty changelog, rather than "
             f"skipped past",
