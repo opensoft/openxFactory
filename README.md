@@ -517,8 +517,10 @@ Active changes:
   openxFactory operator authority, in-session, *"merge 72 when green, then
   ratify the A packet"*, recorded on #754 at 2026-09-07T14:27:55Z; records
   `openspec/changes/publish-openspec-cli-pin-as-contract-member/review/ratification-2026-09-07.md`
-  and `verification-2026-09-07.md`). `.openspec.yaml` keeps the drafting
-  provenance it was authored with and the approval pair is ADDED beside it —
+  and
+  `openspec/changes/publish-openspec-cli-pin-as-contract-member/review/verification-2026-09-07.md`).
+  `.openspec.yaml` keeps the drafting provenance it was authored with and the
+  approval pair is ADDED beside it —
   `kind`, `id` and `reason` unmoved, the addition-not-rewrite shape
   `add-drafted-proposal-origin` defined. Lane `openxfactory-1`. Half **A** of
   the estate-wide OpenSpec CLI pin rollout governed by issue
