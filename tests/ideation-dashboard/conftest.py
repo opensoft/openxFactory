@@ -174,12 +174,21 @@ NO_IMPLICIT_PUSH_MODULES: tuple[str, ...] = (
 # --------------------------------------------------------------------------
 
 SERVE_SURFACE_MODULES: tuple[str, ...] = (
-    "serve.py", "serve_wire.py", "serve_workbench.py", "serve_project.py",
+    "serve_wire.py", "serve_workbench.py", "serve_project.py", "serve.py",
 )
 
 
 def serve_surface_paths() -> tuple[Path, ...]:
-    """Every file the dashboard serve is made of, in import-graph order."""
+    """Every file the dashboard serve is made of, in import-graph order.
+
+    Dependency-first: `serve_wire.py` imports no sibling; `serve_workbench.py`
+    and `serve_project.py` each import from `serve_wire`; `serve.py` imports
+    all three. No reader of `serve_surface_paths()` /
+    `serve_surface_source()` depends on this particular order (every scan
+    below is a per-file loop, a `.read_text()` join checked for
+    substring/absence, or a `.index()` search that resolves within a single
+    file's own content) — only the docstring claim above does.
+    """
     runtime = REPO_ROOT / "scripts" / "ideation_dashboard"
     return tuple(runtime / name for name in SERVE_SURFACE_MODULES)
 

@@ -46,6 +46,15 @@ MODEL_JS = WEB / "views" / "repo-selector-model.js"
 SERVE_PY = REPO_ROOT / "scripts" / "ideation_dashboard" / "serve.py"
 NODE = shutil.which("node")
 
+# The D12 relative-import guard (see test_serve_module_uses_no_relative_imports
+# below): a single shared pattern, used both by the production scan and by
+# test_the_relative_import_guard_catches_every_dot_and_segment_depth, so a
+# future narrowing of the regex turns the pinning test red rather than leaving
+# it green against its own separately-maintained copy. Matches one or more
+# leading dots (sibling- or parent-relative) followed by an optional
+# dotted module path (`pkg`, `pkg.sub`, ...) before `import`.
+RELATIVE_IMPORT_RE = re.compile(r"\s*from\s+\.+[\w.]*\s+import\b")
+
 
 def _snapshot(repository="fixture-repo", revision=PINNED_REVISION):
     return generate_snapshot(BASE_REPO, repository, source_revision=revision,
@@ -629,16 +638,19 @@ def test_serve_module_uses_no_relative_imports(tmp_path):
     # the D12 hazard is a property of the SCRIPT, and a relative import in a
     # module the script imports 500s exactly the same route. Widened, never
     # narrowed — one of these files is still `serve.py` itself.
-    # `\.+` (one or more leading dots), not `\.` — a bare `from .` catches a
-    # SIBLING-relative import but not a PARENT-relative one (`from .. import
-    # y`, `from ..pkg import y`), and both fail identically once serve.py runs
-    # as a plain script (Copilot review, PR #748).
+    # RELATIVE_IMPORT_RE matches one or more leading dots (sibling- or
+    # PARENT-relative: `from .. import y`, `from ..pkg import y`) followed by
+    # an optional DOTTED module path (`from .pkg.sub import y`, `from
+    # ..pkg.sub import y`) — a bare `\.\w*` catches only a single-segment
+    # sibling import and misses both widenings, and all of them fail
+    # identically once serve.py runs as a plain script (Copilot review, PR
+    # #748).
     offenders = [
         f"{path.name} {n}: {line.strip()}"
         for path in serve_surface_paths()
         for n, line in enumerate(
             path.read_text(encoding="utf-8").splitlines(), 1)
-        if re.match(r"\s*from\s+\.+\w*\s+import\b", line)
+        if RELATIVE_IMPORT_RE.match(line)
     ]
     assert not offenders, "relative import in the serve (D12):\n" + "\n".join(
         offenders)
@@ -661,15 +673,20 @@ def test_serve_module_uses_no_relative_imports(tmp_path):
     "from .. import x",
     "from ..pkg import x",
     "  from ... import x",
+    "from .pkg.sub import x",
+    "from ..pkg.sub import x",
 ])
-def test_the_relative_import_guard_catches_every_dot_depth(line):
-    """A prior version of this guard's regex (`\\.\\w*`, one dot only) matched
-    `from . import x` and `from .pkg import x` but silently missed a
-    PARENT-relative import (`from .. import x`, `from ..pkg import x`) —
-    which fails identically once serve.py runs as a plain script. Pinned here
-    so a future narrowing of the regex is caught by a red test, not by a
-    production 500."""
-    assert re.match(r"\s*from\s+\.+\w*\s+import\b", line), (
+def test_the_relative_import_guard_catches_every_dot_and_segment_depth(line):
+    """A prior version of this guard's regex (`\\.\\w*`, one dot and at most
+    one module segment) matched `from . import x` and `from .pkg import x`
+    but silently missed both a PARENT-relative import (`from .. import x`,
+    `from ..pkg import x`) and a MULTI-SEGMENT one (`from .pkg.sub import
+    x`, `from ..pkg.sub import x`) — all of which fail identically once
+    serve.py runs as a plain script. Exercises the SAME `RELATIVE_IMPORT_RE`
+    the production scan above uses (not a separately-maintained copy), so a
+    future narrowing of that one pattern is caught here by a red test, not by
+    a production 500."""
+    assert RELATIVE_IMPORT_RE.match(line), (
         f"the relative-import guard does not match {line!r}")
 
 
