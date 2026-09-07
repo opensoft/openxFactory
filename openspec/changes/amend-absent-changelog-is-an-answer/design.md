@@ -1,6 +1,7 @@
 # Design: amend-absent-changelog-is-an-answer
 
-Status: draft
+Status: ratified
+Ratified by: amend-absent-changelog-is-an-answer — 2026-09-07, Brett Heap, "merge them when green, then ratify 753" (record `review/ratification-2026-09-07.md`)
 Date: 2026-09-07
 Kind: design
 

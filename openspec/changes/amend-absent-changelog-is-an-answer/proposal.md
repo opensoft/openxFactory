@@ -1,19 +1,23 @@
 ---
 code_surface: openxFactory — ONE guard is SPLIT in `scripts/doc_health/release_tag_publication.py`, and the tests that pin it in `tests/doc-health/test_release_tag_publication.py`. The `if changelog is None:` arm that returned a `Skip` above the `in_scope` loop now returns one only where the document's own absence has NOT been established — the commit not held, the tree at it carrying the path with no readable blob coming back, or the tree not listable — and otherwise falls through so the loop grades the bundles with no declarations, which `read_changelog(None)` already answers. ONE bounded `ls_tree_paths` call is added on that arm and nowhere else. ONE `info` is ADDED, on `contracts/CHANGELOG.md`, carrying the fact the retired skip carried — this is the only new finding, it is `info`, and it cannot redden a `--fail-on error` run. NOTHING ELSE MOVES: no severity of an existing finding, no threshold, no enforcement floor, no path of an existing finding, no other arm, no workflow, no contract member and no other family. Six tests are ADDED and ONE is CONVERTED (its subject — the skip in the established-absence case — is what this packet retires), `tests/doc-health/test_release_tag_publication.py` 146 → 152.
 target_release: implemented (the openxFactory main line). No contract bundle is cut, no release tag is owed, nothing under `contracts/` is touched and no digest set moves. Under `release-realization` a non-empty code surface archives on merged-plus-green realization evidence rather than on landing; the tasks are individually executable, so this packet realizes through its own task list in this pull request and its realization evidence is that pull request's green `pytest-suite` and doc-health runs.
-Status: draft
+Status: ratified
 Proposed: 2026-09-07
-Origin: openxFactory issue **#750** and the ARCHIVED `amend-unreadable-read-sibling-scenarios`, whose `design.md` **D6** and `tasks.md` § 6 record this successor as OWED and write down the reading it needs. THE ORIGIN IS NOT A RATIFICATION: an archived packet's record of what it left undone puts a successor in the queue and decides nothing about its text. No word of Brett Heap's ratifies this packet, `.openspec.yaml` carries drafting provenance ONLY — no `approved_by`, no `approved_on` — and every document here carries `Status: draft` to match. The decision most worth a veto is `design.md` **D1**: option A (split the arm and grade) against option B (keep the skip and give it a distinct reason class).
+Ratified: 2026-09-07 by Brett Heap (openxFactory operator authority) — "merge them when green, then ratify 753"; record at review/ratification-2026-09-07.md
+Origin: openxFactory issue **#750** and the ARCHIVED `amend-unreadable-read-sibling-scenarios`, whose `design.md` **D6** and `tasks.md` § 6 record this successor as OWED and write down the reading it needs. THE ORIGIN IS NOT THE RATIFICATION: an archived packet's record of what it left undone puts a successor in the QUEUE and decides nothing about its text, and issue #750 records a defect and the shape of a remedy rather than approving a word of it — that record is what put this packet in the queue; ratification followed as a SEPARATE act on 2026-09-07, cited ONCE in the line above and recorded at `review/ratification-2026-09-07.md`. `.openspec.yaml` keeps the drafting provenance it was authored with — `kind` and `id` never move — and the approval pair is ADDED beside it, which is the shape `add-drafted-proposal-origin` defined for exactly this transition. The decision the word reaches is `design.md` **D1**: option A (split the arm and grade) against option B (keep the skip and give it a distinct reason class), carried as this packet's veto point in the pull request body, in `tasks.md` § 1.2 and in the README row — **and NOT vetoed**. `design.md` **D2**, the retired skip's fact re-reported at `info` rather than dropped, was carried separately so it could be vetoed on its own — **and was not vetoed either**.
 ---
 
 # Proposal: amend-absent-changelog-is-an-answer
 
-Status: draft
+Status: ratified
 Proposed: 2026-09-07, in lane `openxfactory-1`, as the successor
 `amend-unreadable-read-sibling-scenarios` named before it landed.
 Origin: openxFactory issue **#750** and that packet's own `design.md` **D6** /
-`tasks.md` § 6. The origin is a record of what is owed, not an approval of this
-text: nothing here is ratified, and § Ratification records what is owed.
+`tasks.md` § 6. The origin is a record of what is owed, not an approval; the
+ratification was a SEPARATE act and it has now happened — **ONE citation line
+for this document**, in the front matter, which is what `ratified-provenance`
+counts. § Ratification records the act and what it settled; the record is
+`review/ratification-2026-09-07.md`.
 
 ## Why
 
@@ -168,7 +172,7 @@ so it never reaches this arm: `python3 scripts/doc-health.py --single-repo .
 turns red**, and no `--fail-on error` run can, the one new finding being `info`.
 Whether a REAL untagged bundle at a held tip exists anywhere in the estate is
 the estate-wide question this lane cannot take from one clone — see
-`tasks.md` § 5.2, where it is named as owed at landing rather than claimed.
+`tasks.md` § 6.1, where it is named as owed at landing rather than claimed.
 
 **Tests:** six ADDED, one CONVERTED, 146 → 152 in that module. The converted
 one is `test_an_absent_changelog_says_the_tip_is_held_rather_than_unfetched`,
@@ -210,23 +214,43 @@ and no MOVEMENT LOG entry is owed.**
 
 ## Ratification
 
-**RATIFICATION IS OWED AND HAS NOT HAPPENED.** No word of Brett Heap's has been
-given over this text. Issue **#750** records the defect and names the shape of
-the remedy; the archived predecessor records the successor as owed. Neither is
-an approval, and this packet claims none: `Status: draft` on every document,
-drafting provenance only in `.openspec.yaml`, no `Ratified:` line anywhere.
+**RATIFIED 2026-09-07 by Brett Heap (openxFactory operator authority), in
+session, verbatim: _"merge them when green, then ratify 753"_.** The first clause
+of that word landed three pull requests — openxFactory **#752** (`3a28face`) and
+**#755** (`64aad02e`), and xFactory-Hermes-Install **#72** (`06c9083d`) — and the
+second clause is this act. The citation is the front matter's single `Ratified:`
+line and the record is `review/ratification-2026-09-07.md`; the verification run
+captured beside it is `review/verification-2026-09-07.md`. Issue **#750** and the
+archived predecessor's **D6** remain the ORIGIN — they record a defect and name a
+successor as owed, and they decide no wording; this word is the separate act that
+ratifies the text.
 
-**THE VETO POINT IS `design.md` D1** — option **A** (split the arm on the fact
-the read already establishes, and GRADE the held-and-absent case) against option
-**B** (keep the skip and give the held case a distinct reason class only). A is
-designed and encoded; B is written out beside it with its cost, which is that it
-leaves D6's suppression exactly where D6 found it. A veto of A is a veto of this
-delta's two bullets, and the packet does not land on it.
+**THE VETO POINT WAS PUT AND WAS NOT TAKEN.** `design.md` **D1** — option **A**
+(split the arm on the fact the read already establishes, and GRADE the
+held-and-absent case) against option **B** (keep the skip and give the held case
+a distinct reason class only) — was carried as this packet's veto point in the
+pull request body, in `tasks.md` § 1.2 and in the README row, with B written out
+beside A carrying its cost. The word ratifies **option A as designed**, **and it
+ratifies A's stated cost with it**: A changes which findings an in-scope
+repository receives, which is exactly why D6 refused to take it inside a packet
+whose claim was "one skip's TEXT", and the direction is the conservative one — a
+`Skip` becomes the grading an empty document already receives, so nothing this
+family reports today becomes quieter.
 
-**AND THE SECOND DECISION IS NAMED SEPARATELY SO IT CAN BE VETOED ON ITS OWN**:
+**AND THE SECOND DECISION WAS PUT SEPARATELY, AND WAS NOT VETOED EITHER**:
 `design.md` **D2**, whether the retired skip's fact is carried onto an `info` or
-simply stops being reported. D2 takes the `info`; the alternative is written out
-with the ratified obligation it would silently drop.
+simply stops being reported. D2 takes the `info` — one finding, at `info`, on
+`contracts/CHANGELOG.md`, gated on `in_scope` — and the alternative is written
+out beside it with the ratified obligation it would silently drop.
+
+**WHAT THE WORD DOES NOT REACH.** It does not archive this packet: `code_surface`
+is non-empty, so under `release-realization` the archive is a separate act on
+merged-plus-green realization evidence and on a separate word (`tasks.md`
+§ 6.4), which is why the pull request says `Refs #750` and not `Closes`. It does
+not reach the estate-wide run (§ 6.1), the floor exemption over the skip
+(§ 6.5), the late-`Skip` trace drop and its two named remedies (§ 6.6), or the
+other arms of this family (§ 6.2). All five were present in the text the word was
+given over, and all five remain owed.
 
 ## What this proposal does NOT claim
 
@@ -242,7 +266,7 @@ with the ratified obligation it would silently drop.
   repositories return at the MANIFEST arm long before this one — a fact recorded
   by #612 and carried in canon, and cited here rather than re-measured, because
   a doc-health run over the aggregation FETCHES into every governed clone and
-  this lane will not write into checkouts it does not own (`tasks.md` § 5.2).
+  this lane will not write into checkouts it does not own (`tasks.md` § 6.1).
 - It does not touch `verify_tag` or issue **#338**. The manifest scenario's
   closing `AND` that names them is canon and is carried byte-identical.
 - **It does not amend the archived deltas that carry the retired bullets.**

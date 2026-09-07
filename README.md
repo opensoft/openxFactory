@@ -583,11 +583,19 @@ Active changes:
   declining it makes N-1 (d) the honest outcome.
 
 - [amend-absent-changelog-is-an-answer](openspec/changes/amend-absent-changelog-is-an-answer/proposal.md)
-  — authored 2026-09-07, **`Status: draft`** (NOT ratified; no word has been
-  given over this text), lane `openxfactory-1`, from openxFactory
+  — authored 2026-09-07, **`Status: ratified`** (2026-09-07, Brett Heap,
+  openxFactory operator authority, in-session, *"merge them when green, then
+  ratify 753"*; records
+  `openspec/changes/amend-absent-changelog-is-an-answer/review/ratification-2026-09-07.md`
+  and `verification-2026-09-07.md`). `.openspec.yaml` keeps the drafting
+  provenance it was authored with and the approval pair is ADDED beside it —
+  `kind`, `id` and `reason` unmoved, the addition-not-rewrite shape
+  `add-drafted-proposal-origin` defined. Lane `openxfactory-1`; the ORIGIN is
+  openxFactory
   [#750](https://github.com/opensoft/openxFactory/issues/750) and the ARCHIVED
   `amend-unreadable-read-sibling-scenarios`, whose `design.md` **D6** and
-  `tasks.md` § 6 record this successor as OWED — an ORIGIN, not an approval.
+  `tasks.md` § 6 record this successor as OWED — an ORIGIN, not an approval, and
+  the ratification is the separate act above.
   **THE AMENDMENT THAT PROVED THE READ WAS AN ANSWER LEFT IT REPORTED AS A
   QUESTION.** PR **#688** settled that the changelog read's per-path `None`
   stands, at that arm, for a tip this clone HOLDS at which no readable
@@ -633,11 +641,18 @@ Active changes:
   *"WHICH THIS CLONE HOLDS"*, both standing below the held-tip split.
   `tests/doc-health/test_release_tag_publication.py` 146 → 152, one existing
   test CONVERTED (its subject was the held case's skip) and its every literal
-  re-asserted on the `info`. **THE VETO POINT IS `design.md` D1** — option A
-  (split the arm and grade) against option B (keep the skip, distinct reason
-  class only, which leaves D6's suppression where D6 found it); `design.md`
-  **D2** is named separately so it can be vetoed on its own (the `info` record
-  against dropping the fact). Nothing green today turns red: the one new finding
+  re-asserted on the `info`. **THE VETO POINT WAS `design.md` D1 — PUT, AND NOT
+  VETOED** — option A (split the arm and grade) against option B (keep the skip,
+  distinct reason class only, which leaves D6's suppression where D6 found it).
+  **A is ratified AS DESIGNED, and its cost is ratified with it**: A changes
+  which findings an in-scope repository receives, in the conservative direction
+  — a `Skip` becomes the grading an EMPTY changelog already receives — with the
+  estate-wide consequence named as owed at `tasks.md` § 6.1 rather than claimed.
+  `design.md` **D2** was carried separately so it could be vetoed on its own
+  (the `info` record against dropping the fact) and **was not vetoed either**.
+  Under `release-realization` the packet still archives on merged-plus-green
+  realization evidence rather than on landing, on a separate word.
+  Nothing green today turns red: the one new finding
   is `info`, and this repository never reaches the arm — the family reads the
   same single `info` here before and after. `sequenced_after` elective and
   undeclared: every other writer of the requirement is archived and no active

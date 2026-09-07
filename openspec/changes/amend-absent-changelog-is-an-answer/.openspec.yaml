@@ -58,6 +58,36 @@ origin:
     whether the retired skip's fact is carried onto an `info` beside the grading
     or simply stops being reported.
   proposed_on: 2026-09-07
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — in session on 2026-09-07,
+    lane `openxfactory-1`, verbatim: "merge them when green, then ratify 753".
+    THIS IS THE RATIFICATION ACT AND IT IS ADDED, NOT SUBSTITUTED. The drafting
+    provenance above is kept exactly as authored and `kind`, `id` and `reason`
+    never move, which is the shape `add-drafted-proposal-origin` (issue #318)
+    defined for this transition: approval is a pure ADDITION to a fixed origin
+    identity, so the support manifest that repeats `kind` and `id` never comes
+    to disagree with the packet, and the archive gate's origin-retention arm
+    reads the declaration this commit establishes. The first clause of the word
+    landed openxFactory #752 (`3a28face`) and #755 (`64aad02e`) and
+    xFactory-Hermes-Install #72 (`06c9083d`); the second clause is this.
+    The decision the word reaches is `design.md` D1 — option A, splitting the
+    changelog arm on the fact the read already establishes so a HELD tip with no
+    readable changelog is GRADED with no declarations, against option B, keeping
+    the skip and giving the held case a distinct reason class only — which was
+    carried as the packet's veto point in the pull request body, in `tasks.md`
+    § 1.2 and in the README row, and was NOT vetoed; A is ratified AS DESIGNED
+    and its stated cost is ratified with it, namely that A CHANGES WHICH FINDINGS
+    AN IN-SCOPE REPOSITORY RECEIVES, in the conservative direction — a `Skip`
+    becomes the grading an EMPTY changelog already receives — with the
+    estate-wide consequence named as owed at `tasks.md` § 6.1 rather than
+    claimed. `design.md` D2 was carried separately so it could be vetoed on its
+    own — whether the retired skip's fact is re-reported at `info` beside the
+    grading or simply stops being reported — and it was NOT vetoed either: the
+    `info` stands. Under `release-realization` a non-empty `code_surface` means
+    this packet archives on merged-plus-green realization evidence rather than on
+    landing, on a separate word; this one does not archive it.
+    Record: `review/ratification-2026-09-07.md`.
+  approved_on: 2026-09-07
 related:
   - openxFactory:change:archive/2026-09-05-amend-unreadable-read-sibling-scenarios  # ARCHIVED (PR #688/#703). The direct predecessor: it proved the read is an ANSWER, left it a SKIP, and named this packet in design.md D6 and tasks.md § 6
   - openxFactory:change:archive/2026-09-05-amend-published-tip-unreadable-scenario  # ARCHIVED (PR #678/#685). Wrote the shape both sibling scenarios are now in, and the precedent for a MODIFIED block that replaces a bullet under a reserved marker

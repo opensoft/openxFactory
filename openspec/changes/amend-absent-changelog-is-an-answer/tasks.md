@@ -1,6 +1,7 @@
 # Tasks: amend-absent-changelog-is-an-answer
 
-Status: draft
+Status: ratified
+Ratified by: amend-absent-changelog-is-an-answer — 2026-09-07, Brett Heap, "merge them when green, then ratify 753" (record `review/ratification-2026-09-07.md`)
 Kind: tasks
 
 `code_surface: openxFactory`, `target_release: implemented`. The realization
@@ -10,39 +11,58 @@ realizes through its own task list rather than through a feature DAG.
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in
 this pull request or a measurement recorded verbatim in the pull request body.
-**§ 1 IS NOT TICKED AND NAMES WHY**: ratification has not happened.
+**§ 6.4 STAYS UNTICKED AND NAMES WHY**: the archive is a separate act on
+merged-plus-green realization evidence and on a separate word, and neither
+exists yet.
 
-## 1. Ratification — OWED, NOT GIVEN
+## 1. Ratification — GIVEN 2026-09-07
 
-- [ ] 1.1 **RATIFICATION IS OWED AND NOTHING HERE PERFORMS IT.** openxFactory
-      issue **#750** records the defect and the shape of the remedy, and the
-      ARCHIVED `amend-unreadable-read-sibling-scenarios` records this successor
-      as OWED (`design.md` **D6**, `tasks.md` § 6). Neither decides a word of
-      this text. Both are recorded as the ORIGIN in `proposal.md` front matter
-      and in `.openspec.yaml`, which carries drafting provenance ONLY — no
-      `approved_by`, no `approved_on`, the lawful unapproved shape
-      `add-drafted-proposal-origin` defined. Every document in this packet
-      carries `Status: draft`. When a word is given, this box is ticked with the
-      verbatim utterance, ONE citation line is added to each document's front
-      matter, the approval pair is ADDED beside the drafting provenance (`kind`
-      and `id` never move), and the record is written to
-      `review/ratification-<date>.md`.
-- [ ] 1.2 **THE VETO POINT IS `design.md` D1** — option **A** (split the
-      changelog arm on the fact the read already establishes, so a HELD tip with
-      no readable changelog is graded with no declarations) against option **B**
-      (keep the skip and give the held case a distinct reason class only). A is
-      designed and encoded; B is written out beside it with its cost, which is
-      that it leaves D6's suppression exactly where D6 found it and spends a
-      packet saying so. **A veto of A is a veto of this delta's two bullets**,
-      and the packet does not land on it.
-- [ ] 1.3 **AND THE SECOND DECISION IS SEPARATELY VETOABLE — `design.md` D2**:
-      whether the fact the retired skip carried is re-reported as an `info`
-      beside the grading, or simply stops being reported. D2 takes the `info`,
-      because `fam_release_tag_publication` turns every skip into an `info` so
-      that a reason is *"recorded rather than omitted"*, and dropping it would
-      silently retire the obligation #688 ratified — that the held case STATE
-      THE PRESENCE. A veto of D2 removes one finding and one test and leaves
-      § 3.1 and the delta's `THEN` untouched.
+- [x] 1.1 **RATIFIED 2026-09-07 by Brett Heap** (openxFactory operator
+      authority), in session, verbatim *"merge them when green, then ratify
+      753"*. The first clause of that word landed openxFactory **#752**
+      (`3a28face`) and **#755** (`64aad02e`) and xFactory-Hermes-Install **#72**
+      (`06c9083d`); the second clause is this act. openxFactory issue **#750**
+      and the ARCHIVED `amend-unreadable-read-sibling-scenarios` (`design.md`
+      **D6**, `tasks.md` § 6) remain the ORIGIN and are still recorded as one —
+      they record a defect and name this successor as OWED, and they decide no
+      word of this text. `proposal.md`, `design.md` and this file now carry
+      `Status: ratified` with **ONE** citation line each — `Ratified:` in
+      `proposal.md`'s front matter, `Ratified by:` here and in `design.md` —
+      which is what `ratified-provenance` counts. `.openspec.yaml` gains the
+      approval pair (`approved_by`, `approved_on`) **BESIDE** the drafting
+      provenance it was authored with, `kind`, `id` and `reason` unmoved, which
+      is the addition-not-rewrite shape `add-drafted-proposal-origin` defined
+      for this transition and the shape the archive gate's origin-retention arm
+      reads. Record: `review/ratification-2026-09-07.md`, with the verification
+      run captured beside it at `review/verification-2026-09-07.md`.
+- [x] 1.2 **THE VETO POINT WAS `design.md` D1 AND IT WAS NOT VETOED** — option
+      **A** (split the changelog arm on the fact the read already establishes,
+      so a HELD tip with no readable changelog is graded with no declarations)
+      against option **B** (keep the skip and give the held case a distinct
+      reason class only). It was carried as the veto point in the pull request
+      body, in this file and in the README row, with B written out beside A and
+      its cost: B leaves D6's suppression exactly where D6 found it — the
+      held-and-absent case still returning before the loop, an untagged bundle
+      at such a tip still receiving no finding — and spends a packet, a
+      ratification and an archive act improving the label on that silence.
+      **A is RATIFIED AS DESIGNED**, and A's stated cost is ratified with it:
+      A CHANGES WHICH FINDINGS AN IN-SCOPE REPOSITORY RECEIVES, which is the
+      reason D6 refused to take it inside a packet whose claim was "one skip's
+      TEXT". The direction is the conservative one — a `Skip` becomes the
+      grading an EMPTY changelog already receives, so nothing this family
+      reports today becomes quieter — and the estate-wide consequence is named
+      at § 6.1 rather than claimed.
+- [x] 1.3 **AND THE SECOND DECISION WAS SEPARATELY VETOABLE AND WAS NOT VETOED
+      — `design.md` D2**: whether the fact the retired skip carried is
+      re-reported as an `info` beside the grading, or simply stops being
+      reported. D2 takes the `info`, because `fam_release_tag_publication` turns
+      every skip into an `info` so that a reason is *"recorded rather than
+      omitted"*, and dropping it would silently retire the obligation #688
+      ratified — that the held case STATE THE PRESENCE. **The `info` is
+      RATIFIED**: one finding, at `info`, on `contracts/CHANGELOG.md` rather
+      than on the manifest, gated on `in_scope`, classed `auto-fixable`. A veto
+      of D2 would have removed one finding and part of one test and left § 3.1
+      and the delta's `THEN` standing; it was not taken.
 
 ## 2. The reading D6 owed, and the measurement taken before the design
 
