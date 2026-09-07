@@ -14,10 +14,18 @@ this pull request or a measurement recorded verbatim in the pull request body.
 **§ 5.3 AND § 5.4 STAY UNTICKED AND NAME WHY**: they are residue and an owed
 successor, not work this packet performs.
 
-**AMENDED AT THE ARCHIVE, 2026-09-06 — THE SENTENCE ABOVE IS SUPERSEDED FOR § 5
-ONLY, AND IT IS QUOTED IN PLACE RATHER THAN DELETED.** Every box in § 5 is now
-ticked, on Brett Heap's ruling of 2026-09-06T23:10Z (verbatim **"Tick on the
-recording"**) and because the sanctioned archive path refuses an open box. The
+**AMENDED AT THE ARCHIVE, 2026-09-06 — ONE NAMED SENTENCE ABOVE IS SUPERSEDED,
+FOR § 5 ONLY, AND IT IS QUOTED IN PLACE RATHER THAN DELETED.** The superseded
+sentence is exactly this one, and no other:
+
+> **§ 5.3 AND § 5.4 STAY UNTICKED AND NAME WHY**: they are residue and an owed
+> successor, not work this packet performs.
+
+The sentence before it — *"NOTHING IS TICKED THAT DID NOT LAND"* — is **NOT**
+superseded; it still holds, and the ticks below are what make it hold. Every
+box in § 5 is now ticked, on Brett Heap's ruling of 2026-09-06T23:10Z (verbatim
+**"Tick on the recording"**) and because the sanctioned archive path refuses an
+open box. The
 ticks record the NAMING of three filed, unclaimed successors — **#729**, **#730**,
 **#731** — and the archive evidence; they do NOT record the doing. The full
 disposition is at the head of § 5, and the ratified text of every box is carried
