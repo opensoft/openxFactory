@@ -191,8 +191,20 @@ a reserved marker declares it.
 that a marker's names are the code spans closing BEFORE its first ` — ` standing
 OUTSIDE every code span. A single marker naming two units separated by that
 sequence would therefore declare only the FIRST and report the second — the
-"conservative direction" that amendment deliberately chose. So each dropped unit
-gets its own marker paragraph, one code span each.
+"conservative direction" that amendment deliberately chose.
+
+**AND THE CORPUS'S OWN EXAMPLE SHOWS THE OTHER LAWFUL SHAPE, WHICH IS WHY THIS
+IS A CHOICE AND NOT A CONSTRAINT.** Canon's written-out marker at
+`openspec/specs/doc-health/spec.md:1778` separates two names with `; `, which
+the boundary rule leaves wholly intact — so ONE marker naming both units was
+available and would have parsed correctly. It is not taken, and the reason is
+that **a marker carries ONE reason and these two removals have DIFFERENT
+reasons**: the `THEN` bullet is retired because the skip it requires suppressed a
+grading, and the `AND` bullet because it constrains the wording of a skip the
+held case no longer emits. Folded into one marker, one of those reasons would
+have to be dropped or the two blended into a sentence describing neither
+accurately. So each dropped unit gets its own marker paragraph, one code span
+each, with its own reason beside it.
 
 **AND NEITHER REASON CARRIES A CODE SPAN**, which is the self-reference hazard.
 The predecessors' markers quote `` `WHEN` `` and `` `AND` `` inside their reasons,

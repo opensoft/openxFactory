@@ -172,8 +172,8 @@ _NO_CHANGELOG_ACTION = (
     "no action on this line — it is a READING and not a defect: the bundles in "
     "scope are graded on their tags, and a bundle whose tag obligation was "
     "EXTINGUISHED rather than met needs a SPENT declaration written into "
-    "contracts/CHANGELOG.md, which is the document no readable blob came back "
-    "for at this tip")
+    "contracts/CHANGELOG.md, and that is the document this read did not obtain "
+    "at the published tip")
 
 
 def parse_bundle(manifest: bytes | str | None) -> str | None:

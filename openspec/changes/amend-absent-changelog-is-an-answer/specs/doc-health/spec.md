@@ -426,9 +426,11 @@ else in this requirement is dropped.
 
 **AMENDED BY `amend-absent-changelog-is-an-answer` (2026-09-07).** Every
 paragraph and every scenario above this note stands exactly as promoted —
-including the two notes and the two markers `amend-published-tip-unreadable-scenario`
-and `amend-unreadable-read-sibling-scenarios` left here, which promote with the
-requirement and are carried, not restated — and the ONLY change this block makes
+including every amendment note and every `Removed from canon by` marker left
+here by `declare-spent-bundle-state`, `add-release-tag-gate`,
+`amend-published-tip-unreadable-scenario` and
+`amend-unreadable-read-sibling-scenarios`, which promote with the requirement
+and are carried, not restated — and the ONLY change this block makes
 is to the scenario *The changelog cannot be read at the published tip*: its
 `THEN` bullet and the `AND` bullet below it are REPLACED. No scenario is added,
 removed or retitled, no other scenario's bullets move, no threshold moves, no

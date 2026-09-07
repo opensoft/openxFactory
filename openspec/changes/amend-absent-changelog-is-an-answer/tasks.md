@@ -169,9 +169,15 @@ this pull request or a measurement recorded verbatim in the pull request body.
       #719, archived #739) a marker's names are the code spans closing BEFORE
       its first ` — ` standing outside every span, so ONE marker naming two units
       separated by that sequence would declare only the first and REPORT the
-      second. Two markers, one unit each, each quoted as a DOUBLE-backtick span
-      with the list marker stripped, each saying the unit is REPLACED rather
-      than deleted.
+      second. **A SEMICOLON WOULD HAVE WORKED** — canon's own written-out
+      example at `openspec/specs/doc-health/spec.md:1778` separates two names
+      with `; `, which the boundary leaves intact — **and two markers are still
+      the right shape here, because a marker carries ONE reason and these two
+      removals have DIFFERENT ones**: one bullet required a skip that suppressed
+      a grading, the other constrains the wording of a skip no longer emitted.
+      Two markers, one unit each, each quoted as a DOUBLE-backtick span with the
+      list marker stripped, each saying the unit is REPLACED rather than
+      deleted, each with its own reason.
 - [x] 4.3 **NEITHER MARKER'S REASON CARRIES A CODE SPAN**, which is the
       self-reference hazard (`design.md` **D4**). With no span in the reason,
       the RETIRED grammar (the reason is everything after the LAST span's
