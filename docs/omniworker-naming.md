@@ -115,6 +115,18 @@ seven.
 > template's random suffix — the template actually in force,
 > `%USERNAME:7%-%RAND:5%`, carries a random suffix of its own, because Windows
 > 365 requires one.
+>
+> **The fleet-name table below is HISTORICAL as of 2026-09-05 and must not be
+> read as an inventory.** It says "the two names the fleet actually carries",
+> which was true when it was written and is not true now: `omni001` was
+> reprovisioned that evening and its `CPC-Omni0-P5AJB` — Entra device
+> `08829330-2098-461c-a950-0047e163f2b1` — **no longer exists**. The current
+> name is **`Omni001-XEAON`**, Entra device
+> `cf287ce7-7f73-4da7-adfb-c501bd7dd670`, which is the key; the table is left
+> as ratified because it is the measurement that found `XFACTORY-OMNI001` had
+> never been applied. Brett's workstation-seat row is untouched by this
+> amendment. **Never select a machine from this table — read the name back off
+> the Entra device object.**
 
 **A Windows computer name may not exceed 15 characters.** This is the
 NetBIOS-era limit that Windows still enforces on the machine account.
@@ -334,6 +346,13 @@ of prefix or `%USERNAME%` width:
 | `CPC-OXF-Omni001` — the literal name, no parameters | rejected |
 | `CPC-%USERNAME:4%-%RAND:5%` | accepted |
 | `%USERNAME:7%-%RAND:5%` | accepted |
+
+Every row is a template that was actually submitted to policy validation, not a
+template anyone proposed to run. In particular `CPC-%USERNAME:4%-%RAND:5%` is a
+PROBE — it varies the username width to test whether the refusal turned on that
+rather than on the random segment — and is neither the Windows 365 default
+(`CPC-%USERNAME:5%-%RAND:5%`, quoted earlier in this record) nor the template
+adopted. Only the last row was applied.
 
 **What the measurement establishes, and what it does not.** It establishes that
 a template with no random segment is refused, that `%RAND:2%` is too short, and
