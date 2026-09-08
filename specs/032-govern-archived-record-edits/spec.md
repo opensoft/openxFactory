@@ -171,6 +171,49 @@ named command at the named head and reproduce each stated result.
   counts, canon share). The diff is taken over the FINDING SET, and any residual
   difference is explained or the edit is reworked.
 
+## Clarifications
+
+### Session 2026-09-08 (architect seat, lane `opsXfactory-1`, after cross-model adversarial review)
+
+Ten questions asked and answered; the full block with reasoning is
+`clarify-questions.md` in this directory.
+
+- **Q1 → (b)** tick every box whose act is verifiably DONE, `[OPERATOR]` boxes
+  included (act-done, not actor-class), with no invented quotation, with the
+  three ratified "stays unticked" sentences amended in the same commit, and with
+  3.1 and 4.2 excepted.
+- **Q2 → (a) + (ii)** a top-level bullet at the end of § *Status Claim Rules*;
+  note form plus two explanatory sentences, minimal prose.
+- **Q3 → (b)** the precedent citation form, with the archive-act phrase in a
+  following sentence.
+- **Q4 → (b)** evidence in the packet's `evidence/` directory as well as here.
+- **Q5 → (c)** per-box notes, one NOT-OWED-HERE line per unticked box, tick and
+  evidence in the same commit.
+- **Q6 → (b)** 4.2 measured but left UNTICKED for the archive act.
+- **Q7 → (b)** twin notes cite repository, change id and PR #279; no merge sha.
+- **Q8 → (b)** the pinned-target measurement recorded in both places, worded
+  "no IN-REPO sha256 pin … measured at base `68712924`".
+- **Q9 → (a)** the full Speckit tree is committed.
+- **Q10 → (b)** `tasks.md`, the evidence file, and one additive dated note in
+  `proposal.md`; everything else in the packet frozen.
+
+## Architect rulings open to veto
+
+Three rulings above go beyond what the ratified packet strictly prescribes. They
+proceed unless Brett Heap says otherwise, and they are named here so the
+realization PR body can cite them rather than bury them:
+
+1. **The enumeration note in `proposal.md`** (Q10) — additive dated prose inside
+   text ratified as written. Declining it leaves the ratified enumeration of the
+   packet's whole diff false from the moment realization lands.
+2. **Ticking § 1's `[OPERATOR]` boxes** (Q1) — an agent ticking boxes that record
+   Brett Heap's own acts, together with the amendment of the three ratified
+   "stays unticked" sentences. Declining it leaves five boxes for him to tick
+   before archive.
+3. **Q2b's two explanatory sentences** — arguably more than task 3.4's "record
+   the minimum". Declining them leaves the note recorded with no statement that
+   it is not the authorization.
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
@@ -183,47 +226,74 @@ named command at the named head and reproduce each stated result.
 - **FR-002**: That passage MUST say the note is recorded in the EDITED FILE'S OWN
   lifecycle-header block, and MUST say the note is not the authorization for the
   edit.
-- **FR-003**: That passage MUST carry a ratification citation for
-  `govern-archived-record-edits` in a spelling this document's § *Status Claim
-  Rules* sanctions. [NEEDS CLARIFICATION: Q3 — `Ratified by:`-style inline
-  citation now, while the delta is ratified but not yet promoted, or a form that
-  waits for promotion at the archive act?]
-- **FR-004**: The passage's placement MUST be beside the `Status:` / `Ratified
-  by:` header rules, per task 3.4. [NEEDS CLARIFICATION: Q2 — a bullet inside
-  § *Status Claim Rules*, a `###` subsection under it, or a new top-level
-  section?]
-- **FR-005**: The passage MUST NOT state more of the route than the ratified
-  requirement states, and MUST NOT introduce a rule the delta does not carry.
-  [NEEDS CLARIFICATION: Q2b — note form only, or note form plus the
-  recorded-ruling and bookkeeping-class sentences?]
-- **FR-006**: `tasks.md` boxes whose acts this feature performs MUST be ticked
-  with a dated note naming the evidence. [NEEDS CLARIFICATION: Q1 — which of the
-  28 boxes this realization ticks, and in particular whether the already-performed
-  § 0.1 re-stamp, the § 1 `[OPERATOR]` ratification boxes, the § 2 authoring
-  boxes and § 5.1 are ticked on the record the packet already cites.]
+- **FR-003**: That passage MUST carry the inline citation "Ratified by
+  `govern-archived-record-edits` (2026-09-08)" — the precedent form, WITHOUT a
+  colon after the change name — and MUST state that the requirement reaches
+  promoted canon at the archive act in a FOLLOWING sentence, never inside the
+  citation clause. (Q3 = b.)
+- **FR-004**: The passage MUST be a new TOP-LEVEL BULLET at the end of
+  § *Status Claim Rules*, with sub-bullets, in the shape the
+  `govern-openspec-corpus-membership` bullet already uses in that section.
+  (Q2a = a.)
+- **FR-005**: The passage MUST carry the note form PLUS exactly two further
+  sentences — one saying the ruling is recorded before the edit, one saying the
+  note records WHAT changed and never THAT IT MAY — written as EXPLANATION of
+  why the note is not self-authorizing rather than as requirement text, the
+  requirement text being the packet's and reaching canon at archive. The prose
+  MUST stay minimal: `docs/` is a doc-health governed root and gate 4.4 diffs the
+  finding set. It MUST NOT introduce a rule the delta does not carry, and MUST
+  NOT claim `standard` authority the corpus does not back (the document's own
+  line 57) — the inline citation of FR-003 is what backs it. (Q2b = ii.)
+- **FR-006**: EVERY `tasks.md` box whose act is verifiably DONE MUST be ticked
+  with a dated note naming the evidence — the § 0.1 re-stamp, the § 1
+  `[OPERATOR]` ratification boxes, the § 2 authoring boxes and § 5.1 included.
+  The test is ACT-DONE, not actor-class (precedent: archived
+  `2026-09-04-create-medxchart-overlay-boundary` § 5.3 and
+  `2026-09-05-add-release-tag-gate` § 4.1 are both ticked `[OPERATOR]` boxes).
+  A § 1 note MUST cite the record as the record does — GitHub review
+  `5141756427`, APPROVED `2026-09-08T12:38:36Z`, and
+  `review/ratification-2026-09-08.md` — and MUST NOT quote a word: the approval
+  body is EMPTY and no verbatim word exists. Boxes 3.1 and 4.2 are NOT ticked
+  (FR-007, FR-012). (Q1 = b.)
 - **FR-007**: `tasks.md` boxes belonging to the OpsxFactory twin, another
-  DomainxFactory or another openxFactory packet MUST be left UNTICKED and MUST
-  carry a dated note naming the owing repository or packet.
+  DomainxFactory or another openxFactory packet MUST be left UNTICKED, each
+  carrying ONE dated "NOT OWED HERE" line in the
+  `2026-09-05-mirror-floor-addition-grace` § 6.3 shape. A twin note MUST name
+  the repository, the change id and **PR #279** as the landing vehicle at this
+  date, and MUST NOT cite a merge sha — the twin is not on OpsxFactory `main`
+  and no such sha exists. Task 3.1 stays unticked with a NOT-OWED-YET note.
+  (Q5 = c, Q7 = b.)
 - **FR-008**: The re-derivation obligation of the second ADDED requirement MUST
-  be discharged as a MEASUREMENT for every file this feature edits: each edited
-  path is checked against the repository's content-address pins and the result
-  recorded. [NEEDS CLARIFICATION: Q8 — where that measurement is recorded: the
-  feature's evidence artifact, the packet, or the PR body only?]
+  be discharged as a MEASUREMENT for every file this feature edits, recorded BOTH
+  in the packet's evidence file AND as a dated note in `tasks.md` beside § 4. The
+  note MUST read that **no IN-REPO `sha256` pin names `docs/document-lifecycle.md`,
+  measured at base `68712924`** — "in-repo" is load-bearing, 1.2a's ratified scope
+  being in-repo pointers to in-repo targets, and a broader claim would overstate
+  the measurement. (Q8 = b.)
 - **FR-009**: No file under `openspec/changes/archive/` may be edited by this
   feature, and no ratified requirement text may be reworded.
-- **FR-010**: The ratified packet files other than `tasks.md` MUST NOT be edited
-  unless the architect rules otherwise. [NEEDS CLARIFICATION: Q10 — may this
-  feature touch `proposal.md`/`design.md` at all (for example to resolve the
-  twin's cross-citations at task 3.1), or is `tasks.md` the only packet file
-  this branch may write?]
+- **FR-010**: This branch MUST write exactly three packet files: `tasks.md`, the
+  new `evidence/realization-2026-09-08.md`, and ONE purely additive dated
+  realization note in `proposal.md`'s front-matter area recording that realization
+  adds the evidence file and the `docs/document-lifecycle.md` edit task 3.4 names
+  — without it the ratified enumeration of the packet's whole diff becomes false
+  on landing (precedent: `align-status-reader-to-real-lines`, Brett Heap's
+  2026-08-19 correction of a narrow enumeration). `design.md`, `.openspec.yaml`
+  and the spec delta stay FROZEN. (Q10 = b.)
 - **FR-011**: Every § 4 gate MUST be run at the final head and its output
   recorded verbatim, including the doc-health finding-set diff against `main`.
 - **FR-012**: The § 4.2 MODIFIED-block currency check MUST be re-run at the final
-  head and recorded as a measurement. [NEEDS CLARIFICATION: Q6 — ticked here, or
-  left for the archive act which is where "before archive" lands?]
-- **FR-013**: Gate evidence MUST live in a named artifact a later reader can
-  re-run. [NEEDS CLARIFICATION: Q4 — the Speckit feature directory only, or also
-  an `evidence/` file inside the change packet?]
+  head and recorded as a measurement, and box 4.2 MUST be left **UNTICKED** for
+  the archive act, with a dated note saying it is deliberately open: the rule
+  demands currency CONTINUOUSLY until archive, and a realization tick would retire
+  the clearance signal the `modified-block-currency` family exists to keep live.
+  (Q6 = b, reversed on review.)
+- **FR-013**: Gate evidence MUST live in
+  `openspec/changes/govern-archived-record-edits/evidence/realization-2026-09-08.md`
+  as well as in this feature directory. The `evidence/` segment is excluded from
+  doc-health's lifecycle scan set (`EVIDENCE_PARTS`), so that file owes no
+  lifecycle header and cannot move gate 4.4's finding set; a `review/` record
+  would owe one. (Q4 = b.)
 - **FR-014**: Every commit on this branch MUST carry the `Lane: opsXfactory-1`
   trailer, the `Co-Authored-By` trailer and the session link, and MUST stage
   explicit paths.
@@ -232,6 +302,18 @@ named command at the named head and reproduce each stated result.
   or merge.
 - **FR-016**: This feature MUST write no checker, edit no pin, and repair no
   broken pin — the packet's own § *What This Change Does NOT Do*.
+- **FR-017**: The three ratified `tasks.md` sentences that hold the boxes
+  unticked — the preamble "EVERY BOX IS UNTICKED, AND THAT IS THE STATE OF THE
+  PACKET", § 0.1's "THE BOX STAYS UNTICKED", and § 1's "AND THE BOXES BELOW STAY
+  UNTICKED" — MUST be amended in the SAME COMMIT that ticks the boxes, each
+  amendment NAMING the superseded sentence and the reason, on the precedent of
+  commit `3b530009`. The ratification record's "28 boxes, NONE ticked" baseline
+  is a historical fact about the ratified head and MUST NOT be touched.
+- **FR-018**: A box MUST be ticked in the same commit that records its evidence,
+  or neither happens — a tick landing ahead of its evidence is the failure this
+  packet exists to refuse.
+- **FR-019**: The feature's Speckit tree MUST be committed in full, as features
+  030 and 031 commit theirs. (Q9 = a.)
 
 ### Key Entities
 
@@ -268,9 +350,12 @@ named command at the named head and reproduce each stated result.
   dated evidence note or unticked with a dated note naming its owner; no box is
   left in the pre-realization state.
 - **SC-007**: `git diff main...HEAD --stat` shows changes ONLY under
-  `specs/032-govern-archived-record-edits/`, `docs/document-lifecycle.md`, and
-  `openspec/changes/govern-archived-record-edits/tasks.md` (plus whatever Q4/Q10
-  add), and nothing under any `archive/` path.
+  `specs/032-govern-archived-record-edits/`, `docs/document-lifecycle.md`,
+  `openspec/changes/govern-archived-record-edits/tasks.md`,
+  `openspec/changes/govern-archived-record-edits/evidence/realization-2026-09-08.md`
+  and `openspec/changes/govern-archived-record-edits/proposal.md` — and nothing
+  under any `archive/` path, nothing in `design.md`, `.openspec.yaml` or the spec
+  delta.
 - **SC-008**: The MODIFIED block's currency against promoted canon is recorded
   with a number (canon bytes carried, canon lines removed) at the final head.
 

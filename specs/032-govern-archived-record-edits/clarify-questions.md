@@ -4,7 +4,7 @@
 **Branch head at authoring**: see the report; base `main` `68712924`
 **Answered by**: the ARCHITECT SEAT (lane `opsXfactory-1`). Answers are written
 back into this file inline and applied to `spec.md`.
-**Status**: awaiting answers
+**Status**: ANSWERED 2026-09-08 by the architect seat (lane `opsXfactory-1`), after a cross-model adversarial review (Opus) of the ruling batch. Answers are inline below and applied to `spec.md`.
 
 Ten questions. Q1, Q2 and Q10 are the ones that change what gets written; the
 rest fix placement and evidence. Each carries the measurement that raised it.
@@ -40,6 +40,29 @@ record. (c) (b) but leave the `[OPERATOR]` boxes for Brett Heap to tick himself.
 has an agent tick an operator's boxes. (c) leaves 5 boxes needing a human act
 before archive.
 
+
+**ANSWER — (b), with three corrections.** Tick every box whose act is
+verifiably DONE, the `[OPERATOR]` § 1 boxes included. **The test is
+ACT-DONE, not actor-class**, and the corpus carries ticked operator boxes:
+archived `2026-09-04-create-medxchart-overlay-boundary` § 5.3 (`- [x] 5.3
+**[OPERATOR]**`, ruleset `22272824`, read back rather than reported) and
+archived `2026-09-05-add-release-tag-gate` § 4.1 (`- [x] 4.1
+**[OPERATOR]**`). Both verified in this tree.
+
+- **(i) NO VERBATIM WORD EXISTS.** The ratification record states the approval
+  carries an EMPTY BODY. Every note therefore cites the record as the record
+  does — GitHub review `5141756427`, APPROVED `2026-09-08T12:38:36Z`, plus
+  `review/ratification-2026-09-08.md` — and NEVER an invented quotation.
+- **(ii) THE RATIFIED "STAYS UNTICKED" SENTENCES ARE AMENDED IN THE SAME
+  COMMIT** that ticks the boxes: the preamble "EVERY BOX IS UNTICKED", § 0.1's
+  "THE BOX STAYS UNTICKED", and § 1's "AND THE BOXES BELOW STAY UNTICKED".
+  Each amendment NAMES the superseded sentence and the reason, on the precedent
+  of commit `3b530009` ("Name the superseded sentence in the archive-time header
+  amendment"). The ratification record's "28 boxes, NONE ticked" baseline is a
+  HISTORICAL FACT about the ratified head and is not touched.
+- **(iii) TWO BOXES ARE NOT TICKED** despite work happening against them: 3.1
+  (see Q7) and 4.2 (see Q6).
+
 ---
 
 ## Q2 — Where in `docs/document-lifecycle.md` does the neutral minimum go, and how much of the route does it state?
@@ -68,6 +91,24 @@ delta is ratified but NOT yet promoted (promotion happens at the archive act).
 The more of the route the document states, the more of it is standing on a
 citation to an active change rather than on canon.
 
+
+**ANSWER — Q2a (a); Q2b (ii), framed as EXPLANATION.** A new top-level
+bullet at the end of § *Status Claim Rules* with sub-bullets, in the
+`govern-openspec-corpus-membership` precedent's shape.
+
+Reach is the note form PLUS the two sentences that make it
+non-self-authorizing — one sentence each — and they are written as EXPLANATION
+of why the note is not the authorization, **not as requirement text**. The
+requirement text lives in the packet's delta and reaches canon at archive;
+this document records the minimum and says enough that a reader cannot take
+the note-alone reading.
+
+**Keep the prose MINIMAL.** `docs/` is a doc-health governed root and gate 4.4
+diffs the finding set, so every added line is a line that can move it. The bar
+is `docs/document-lifecycle.md` line 57 — a document may not claim `standard`
+authority the corpus does not back — and the inline change citation (Q3) is
+what backs it.
+
 ---
 
 ## Q3 — What citation does the adopted passage carry, given the delta is ratified but not promoted?
@@ -81,6 +122,15 @@ branch BEFORE that change archived (doc edit `7157fa3e`, archive `01ff3434`).
 `govern-archived-record-edits` (2026-09-08)"; (b) the same plus a phrase saying
 the requirement reaches canon at the archive act; (c) an `xspec:` marker instead
 of prose citation; (d) something else you name.
+
+
+**ANSWER — (b), with the placement fixed.** Mirror the precedent form —
+"Ratified by `govern-archived-record-edits` (2026-09-08)" — and put the
+"reaches canon at the archive act" phrase in a FOLLOWING SENTENCE, never
+inside the citation clause. Two measured reasons: the precedent form carries
+no colon after the change name, and the status-header scanner reads only the
+first 15 real lines (`STATUS_SCAN_LINES = 15`), so a bullet deep in the body is
+parser-safe only while it does not imitate a header line.
 
 ---
 
@@ -96,6 +146,14 @@ doc-health does not scan) and in the PR body; (b) also
 `openspec/changes/govern-archived-record-edits/evidence/realization-2026-09-08.md`;
 (c) also a `review/` record with a `Status: record` header.
 
+
+**ANSWER — (b).** Evidence lives in the Speckit tree AND in
+`openspec/changes/govern-archived-record-edits/evidence/realization-2026-09-08.md`.
+The `evidence/` path segment is excluded from doc-health's lifecycle scan set
+(`EVIDENCE_PARTS`), so the file owes no lifecycle header and cannot move gate
+4.4's finding set; a `review/` record would owe one and would be a governance
+document under the very requirement this packet modifies.
+
 ---
 
 ## Q5 — What shape do the dated notes take in `tasks.md`?
@@ -105,6 +163,13 @@ block at the head of §§ 3, 5 and 6 covering the boxes that stay unticked, with
 per-box notes only where a box is ticked; (c) per-box notes for ticked boxes and
 a single "NOT OWED HERE" line per unticked box, in the
 `2026-09-05-mirror-floor-addition-grace` precedent's shape.
+
+
+**ANSWER — (c), with the mirror-floor discipline.** Per-box dated notes
+for ticked boxes; one dated "NOT OWED HERE" line per unticked box, in the
+`2026-09-05-mirror-floor-addition-grace` § 6.3 shape. **A box is ticked in the
+SAME COMMIT that records its evidence, or neither happens** — a tick landing
+ahead of its evidence is the failure mode the whole packet is about.
 
 ---
 
@@ -119,6 +184,14 @@ openspec/specs/document-lifecycle` is empty).
 archive act re-run it as its own precondition; (b) run and record here but leave
 the box for the archive act.
 
+
+**ANSWER — (b). REVERSED ON REVIEW.** Run the currency check, record the
+measurement, and leave 4.2 **UNTICKED** for the archive act. 4.2's own words are
+"continuously until archive"; a realization tick would retire the clearance
+signal that the `modified-block-currency` family exists to keep live. The
+measurement is recorded in the evidence file and a dated note says the box is
+deliberately open.
+
 ---
 
 ## Q7 — Do the notes on `[OpsxFactory]` boxes cite the twin's PR number?
@@ -132,6 +205,12 @@ realized by a sibling orchestrator. Task 3.1 says the cross-citations are
 cite PR #279 as the twin's landing vehicle at this date; (c) notes cite the
 twin's merge sha if it has landed by the time this branch's last commit is
 written.
+
+
+**ANSWER — (b) only.** Notes name the repository, the change id and
+**PR #279** as the twin's landing vehicle at this date. **No merge sha exists**
+— the twin is not on OpsxFactory `main` — so none is cited. Task 3.1 stays
+UNTICKED with a NOT-OWED-YET note.
 
 ---
 
@@ -148,6 +227,14 @@ own edit, and this packet is the first change in the estate that could say so.
 dated note in `tasks.md` beside § 4; (c) not recorded — an obligation that does
 not attach needs no record.
 
+
+**ANSWER — (b), with the scope stated exactly.** Record the measurement in
+the evidence file AND as a dated note in `tasks.md` beside § 4, and the note
+says: **no IN-REPO `sha256` pin names `docs/document-lifecycle.md`, measured at
+base `68712924`**. The word IN-REPO is load-bearing: 1.2a's ratified scope is
+in-repo pointers to in-repo targets, and a note claiming more than that would
+overstate what was measured.
+
 ---
 
 ## Q9 — Does the feature's own Speckit tree get committed?
@@ -158,6 +245,9 @@ checklists, quickstart, evidence). doc-health does not scan root `specs/`.
 **Options.** (a) commit the full Speckit tree as 030/031 do; (b) commit only
 `spec.md`, `plan.md`, `tasks.md` and the checklists; (c) keep the Speckit tree
 out of the commit entirely.
+
+
+**ANSWER — (a).** Commit the full Speckit tree as features 030 and 031 do.
 
 ---
 
@@ -174,8 +264,38 @@ archive; (b) `tasks.md` plus a purely additive dated realization note in
 `proposal.md`; (c) `tasks.md` plus cross-citation resolution in `proposal.md` /
 `design.md` if the twin has landed.
 
+
+**ANSWER — (b), with the frozen set named.** This branch writes
+`tasks.md`, the new `evidence/` file, and **one purely additive dated
+realization note in `proposal.md`'s front-matter area** stating that realization
+adds the evidence file and the `docs/document-lifecycle.md` edit that task 3.4
+names. Without it the ratified enumeration — "this packet's whole diff is …
+this packet's own four files, one README row … and one ledger row" — becomes
+FALSE the moment realization lands, and a false enumeration in ratified prose is
+worse than an additive note. Precedent: `align-status-reader-to-real-lines`
+(archived 2026-08-21), Brett Heap's 2026-08-19 correction of a narrow
+enumeration.
+
+`design.md`, `.openspec.yaml` and the spec delta stay **FROZEN**.
+
 ---
 
 **Answering.** Reply with the option letter per question (e.g. `Q1: b`), or
 prose where none fits. Everything else in the plan is already determined by the
 packet and by the measurements in `spec.md` § *Measured baseline*.
+
+---
+
+## Rulings flagged for Brett Heap's veto at the realization PR (NOT blocking)
+
+Three of the answers above go beyond what the ratified packet strictly
+prescribes. They are carried in `spec.md` under *Architect rulings open to veto*
+so the PR body can cite them, and they proceed unless he says otherwise:
+
+1. **The enumeration note in `proposal.md`** (Q10) — additive dated prose in
+   ratified text.
+2. **Ticking § 1's `[OPERATOR]` boxes** (Q1) — together with the amendment of
+   the three ratified "stays unticked" sentences.
+3. **Q2b's two explanatory sentences** — arguably more than task 3.4's "record
+   the minimum".
+
