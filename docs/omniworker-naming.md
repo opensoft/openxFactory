@@ -289,11 +289,15 @@ its own release line, and its own boundary — the same act
 ## Open question — the GitHub runner label `omnigent`
 
 > **Amended 2026-09-08 — this open question is ANSWERED, and the answer is
-> ADDITIVE; see Amendments § A2.** `omniworker` is registered as a SECOND
+> ADDITIVE; see Amendments § A2.** `omniworker` is to be registered as a SECOND
 > runner label beside `omnigent`, and `omnigent` is NOT retired by that act —
 > it stays registered until a later, separately worded retirement. A runner may
 > hold both labels, which is why the two halves can be sequenced instead of
-> cut over. The measurement below is re-taken and unchanged in A2: nothing in
+> cut over. **The DECLARED label set carries both spellings from A2 onward; the
+> LIVE runners carry the second one only after Brett Heap's re-registration,
+> which A2 records as owed.** GitHub fixes a runner's label set at
+> `config.cmd` time, so no repository change re-labels a running runner, and
+> the difference in the interval is exactly the one label nothing selects on. The measurement below is re-taken and unchanged in A2: nothing in
 > the xFactory aggregation selects on the label. The text of this section is
 > left as ratified and is not edited — including the sentence "This record does
 > not change it, and does not rule on it", which was true when it was ratified
@@ -582,15 +586,24 @@ repository variable, prose about the orchestrator, and one comment that
 amendment, and the earlier "selected on by at least seven lanes" reading stays
 retracted.
 
-**What this amendment changes.** One fact: the machine key `omniworker` is now
-also a **GitHub runner label**, registered alongside `omnigent` on every runner
-in this fleet. In the three-casings table above, `omniworker`'s surface already
+**What this amendment changes.** One fact: the machine key `omniworker` is also
+a **GitHub runner label** — declared alongside `omnigent` in every label set
+this estate authors, and carried by a live runner as soon as it is next
+registered. In the three-casings table above, `omniworker`'s surface already
 read "any lowercase-on-the-wire label"; this names the label that surface was
-waiting for, and adds no fourth casing. The acts that carry it:
+waiting for, and adds no fourth casing.
+
+**Declared is not yet live, and the record says which is which.** The acts below
+move DESIRED state: manifests, profiles, fixtures, runbooks and registration
+scripts. A runner that is already registered keeps its existing label set until
+an operator re-registers it, because GitHub fixes that set at `config.cmd`
+time — so between the acts landing and the re-registration below, a live runner
+carries `omnigent` and not `omniworker`, and nothing selects on either. The
+acts that carry the declaration:
 
 | Repository | What moves |
 |---|---|
-| opensoft/OmniWorker-Install | the committed host manifest's two worker `labels:` lists, six locally authored `workers/profiles/*.yaml` `runner_labels`, the host app's bootstrap-volunteer `manifest_labels`, the published readiness example and heartbeat fixture corpus, the runbooks' label lists, and a new runbook section stating that both labels are registered and why |
+| opensoft/OmniWorker-Install | the committed host manifest's two worker `labels:` lists, six locally authored `workers/profiles/*.yaml` `runner_labels`, the host app's bootstrap-volunteer `manifest_labels`, the published readiness example and heartbeat fixture corpus, the runbooks' label lists, and a new runbook section stating that both labels are to be registered, which surfaces are desired state, and why |
 | opensoft/CloudPC-Install | both registration-convention label blocks, the runbook `config.cmd --labels` value, the two rider bootstrap scripts' `$labels`, the two heartbeat publishers' attested `runner_labels`, and the non-shipping ruled rider identity record |
 | opensoft/openxFactory | this amendment, and the dated file-forward pointer under the open-question heading |
 
