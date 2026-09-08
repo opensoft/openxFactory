@@ -11,9 +11,10 @@ PC, and every consumer re-pin all build on one settled term instead of three
 spellings settled separately.
 Amended: 2026-09-08 by Brett Heap — one dated amendment, "A1 — the Cloud PC
 template requires `%RAND:5%`" (§ Amendments below, with dated file-forward
-pointers under each affected heading): Windows 365 requires a `%RAND:5%`
-segment in every provisioning-policy device-name template and does not rename a
-Cloud PC after provisioning, so the template ruled below,
+pointers under each affected heading): Windows 365 requires a random
+`%RAND:y%` segment in every provisioning-policy device-name template — measured
+`%RAND:2%` rejected, `%RAND:5%` accepted — and does not rename a Cloud PC after
+provisioning, so the template ruled below,
 `CPC-OXF-%USERNAME:7%`, is unreachable and `CPC-OXF-Omni001` was never an
 attainable name; the template in force is `%USERNAME:7%-%RAND:5%` and the first
 host rendered `Omni001-XEAON`, ruled ACCEPTED 2026-09-05 ~22:50Z, verbatim
@@ -81,9 +82,10 @@ is the right one — it is the spelling the estate had already reached for.
 
 > **Amended 2026-09-08 — this heading and the template it names are
 > SUPERSEDED; see Amendments § A1. Do not configure the template below.**
-> Windows 365 rejects every device-name template that omits a `%RAND:5%`
-> segment, `CPC-OXF-%USERNAME:7%` included, and it does not rename a Cloud PC
-> after provisioning. The template in force is `%USERNAME:7%-%RAND:5%`; the
+> Windows 365 rejects a device-name template that carries no random segment —
+> `CPC-OXF-%USERNAME:7%` included — and rejected `%RAND:2%` as too short; it
+> does not rename a Cloud PC after provisioning either. The template in force
+> is `%USERNAME:7%-%RAND:5%`; the
 > first host is `Omni001-XEAON`, Entra device
 > `cf287ce7-7f73-4da7-adfb-c501bd7dd670`. The text of this section is left as
 > ratified and is not edited.
@@ -141,8 +143,8 @@ template, because the template is what actually names the machine.
 ### Uniqueness rests on the one-Cloud-PC-per-Omni-user convention
 
 > **Amended 2026-09-08 — this section's premise is SUPERSEDED in full; see
-> Amendments § A1.** The template in force carries a MANDATORY `%RAND:5%`
-> segment, so: uniqueness rests on the random suffix, not on the
+> Amendments § A1.** A random segment is MANDATORY, and the template in force
+> carries `%RAND:5%`, so: uniqueness rests on the random suffix, not on the
 > one-Cloud-PC-per-Omni-user convention; one account no longer renders one
 > name, and a name is not predictable before its Cloud PC provisions; and the
 > seven-character collision boundary described below never arises. The fleet
@@ -318,9 +320,10 @@ amendment is that act and nothing wider.
 **What was ruled, and why it could not be applied.** This record ruled the
 device-name template `CPC-OXF-%USERNAME:7%`, rendering `CPC-OXF-Omni001` at
 fifteen characters exactly. Measured against Microsoft Graph on 2026-09-05,
-Windows 365 **rejects every provisioning-policy device-name template that
-omits a `%RAND:5%` segment**, failing policy validation with
-`parameterValidationFailed` regardless of prefix or `%USERNAME%` width:
+Windows 365 **requires a random `%RAND:y%` segment in every
+provisioning-policy device-name template, and rejects a template that carries
+none** — failing policy validation with `parameterValidationFailed` regardless
+of prefix or `%USERNAME%` width:
 
 | Template tried | Result |
 |---|---|
@@ -329,6 +332,16 @@ omits a `%RAND:5%` segment**, failing policy validation with
 | `CPC-OXF-Omni001` — the literal name, no parameters | rejected |
 | `CPC-%USERNAME:4%-%RAND:5%` | accepted |
 | `%USERNAME:7%-%RAND:5%` | accepted |
+
+**What the measurement establishes, and what it does not.** It establishes that
+a template with no random segment is refused, that `%RAND:2%` is too short, and
+that `%RAND:5%` is accepted. **No template with a random segment LONGER than
+five was tried**, so nothing here says `%RAND:6%` or wider would be refused —
+the platform rule this record states is a MINIMUM random length, not the
+literal token `%RAND:5%`. `implement-omniworker-install-repo` § 8 phrased the
+constraint as "the specific token"; that phrasing is narrowed here to what the
+measurement supports, and the acts it records are unaffected. Five is simply
+what was applied, and `%USERNAME:7%-%RAND:5%` is the template in force.
 
 Nor could the name be reached the other way round, by provisioning first and
 renaming after: the rename was attempted on Brett's word and **refused** —
@@ -377,7 +390,7 @@ file-forward pointer to this entry.
 | The device-name template is `CPC-OXF-%USERNAME:7%` (§ heading and code block) | **SUPERSEDED.** The template in force is `%USERNAME:7%-%RAND:5%` |
 | It renders `CPC-OXF-Omni001` | **SUPERSEDED.** It rendered `Omni001-XEAON` |
 | "Fifteen characters exactly" | **NO LONGER HOLDS** as a description of the name: `Omni001-XEAON` is thirteen. The fifteen-character *limit* is unchanged and still binding |
-| "The ruled template carries **no `%RAND%` segment**" | **INVERTED.** `%RAND:5%` is mandatory — the specific token, not merely a random segment of some length |
+| "The ruled template carries **no `%RAND%` segment**" | **INVERTED.** A random segment is mandatory. `%RAND:2%` was rejected as too short and `%RAND:5%` accepted, so the platform rule is a MINIMUM random length, not the literal token: `%RAND:5%` is what the template in force carries, not the only spelling Windows 365 would take |
 | The template "renders **one name per account**" | **NO LONGER HOLDS.** The suffix is random, so a name is neither one-per-account nor predictable before the Cloud PC provisions |
 | Uniqueness rests on *one numbered Omni user, one license, one Cloud PC* | **NARROWED.** Uniqueness of the NAME rests on `%RAND:5%`. The convention still governs the account mapping; it no longer carries name uniqueness |
 | Two accounts agreeing in seven characters would collide (`omni0010`/`omni0011`) | **DOES NOT ARISE** under a mandatory random suffix |
