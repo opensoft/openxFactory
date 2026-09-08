@@ -28,9 +28,9 @@ Update this index in the same commit as any of:
   return here, and the README promoted-list pointer is removed.
 - **Cross-repository move** (the topic's subject belongs to a DomainxFactory,
   so its files go to that repository's own `ideation/` area rather than to an
-  OpenSpec change) — added 2026-09-07 by the ideation split, because the four
-  cases above only anticipated promotion INTO a proposal, and a topic can also
-  leave sideways. Keep the row, UNLINK its topic name so no anchor dangles,
+  OpenSpec change) — added 2026-09-07 by the ideation split, because every
+  case above anticipates movement INTO a proposal, and a topic can also leave
+  sideways. Keep the row, UNLINK its topic name so no anchor dangles,
   and replace its narrative with a one-line `MOVED <date> to
   <org>/<repo>@<sha> <path>` pointer; drop the detail section. The index stays
   the record of what left and where it went, and the packet-level pointer lives
