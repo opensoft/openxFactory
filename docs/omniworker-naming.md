@@ -149,11 +149,10 @@ template, because the template is what actually names the machine.
 > name, and a name is not predictable before its Cloud PC provisions; and the
 > seven-character collision boundary described below is no longer DETERMINISTIC
 > — two independent random suffixes can still coincide, so it is an improbable
-> event to confirm at provision time rather than a certainty to design
-> around. The fleet
-> convention *one numbered Omni user, one Windows 365 license, one Cloud PC*
-> still governs the ACCOUNT mapping — it simply no longer carries the name's
-> uniqueness.
+> event to confirm at provision time rather than a certainty to design around.
+> The fleet convention *one numbered Omni user, one Windows 365 license, one
+> Cloud PC* still governs the ACCOUNT mapping — it simply no longer carries the
+> name's uniqueness.
 
 The ruled template carries **no `%RAND%` segment**, which is what buys the
 name its readability. The default template spends five of its fifteen
