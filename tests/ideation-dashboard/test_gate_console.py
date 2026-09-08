@@ -2020,6 +2020,29 @@ def test_bounded_detail_keeps_the_tail_and_normalises_whitespace():
     assert bounded.endswith("z" * 100)
 
 
+def test_bounded_detail_bounds_the_raw_tail_before_normalising(monkeypatch):
+    """Regression: `_bounded_detail()` used to normalise whitespace over the
+    ENTIRE raw string (`" ".join(s.split())`, materialising a full token
+    list) before bounding it — the exact case the helper exists to make
+    safe for very large validator output. Bounding must happen FIRST: prove
+    it structurally by spying on the normalisation step and asserting it
+    never sees more than the small, fixed-size tail window, regardless of
+    how large the raw input is (a multi-megabyte string here)."""
+    seen_lengths = []
+    real_normalise = gc._normalise_whitespace
+
+    def spy(s):
+        seen_lengths.append(len(s))
+        return real_normalise(s)
+
+    monkeypatch.setattr(gc, "_normalise_whitespace", spy)
+    huge = "word " * 1_000_000                       # ~5,000,000 raw chars
+    result = gc._bounded_detail(huge)
+    assert len(result) <= gc._VALIDATOR_DETAIL_MAX
+    assert seen_lengths == [gc._DETAIL_TAIL_MARGIN]  # bounded BEFORE normalising
+    assert seen_lengths[0] < len(huge)               # never the full raw text
+
+
 # ==========================================================================
 # WHEEL ACTION-ROW VERBS (011; add-wheel-action-verbs)
 #

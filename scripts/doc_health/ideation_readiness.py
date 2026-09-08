@@ -931,9 +931,9 @@ def validate_index(index_path, *, validator=None, repo=None,
     spawning the pinned validator. Returns ``(True, output)`` when clean
     (validator exit 0), ``(False, output)`` on findings (reject-and-report,
     validator exit 1), or ``(None, reason)`` when the validator is
-    unreachable — no checkout, a spawn failure, or any exit code other than
-    0/1 (a harness/environment error, never a real rejection; the caller
-    records a skip). ``repo`` is the checkout the validator resolves
+    unreachable — no checkout, a spawn failure, a timeout, or any exit code
+    other than 0/1 (a harness/environment error, never a real rejection; the
+    caller records a skip). ``repo`` is the checkout the validator resolves
     extension-fit citations against (its ``--repo``); defaults to the
     validator's own openxFactory checkout."""
     validator = validator or find_index_validator()
@@ -947,6 +947,15 @@ def validate_index(index_path, *, validator=None, repo=None,
     try:
         proc = subprocess.run(cmd, capture_output=True, text=True,
                               timeout=DISPATCH_TIMEOUT)
+    except subprocess.TimeoutExpired as exc:
+        # A validator exceeding DISPATCH_TIMEOUT is a harness/environment
+        # error (never a rejection) — the same `None`-unreachable outcome as
+        # a spawn failure, so it can't bypass the mapping and crash callers.
+        partial = ((exc.stdout or "") + (exc.stderr or "")).strip()
+        detail = f"validator timed out after {DISPATCH_TIMEOUT}s (harness error)"
+        if partial:
+            detail += f": {partial}"
+        return None, detail
     except OSError as exc:
         return None, f"validator failed to spawn: {exc}"
     output = (proc.stdout + proc.stderr).strip()
