@@ -388,9 +388,21 @@ Omni001-XEAON            "openXfactory omniWorker 001, rendered"
 
 Thirteen characters — seven for `%USERNAME:7%`, one hyphen, five for
 `%RAND:5%`. The new Cloud PC is Entra device
-`cf287ce7-7f73-4da7-adfb-c501bd7dd670` (registered 22:01:56Z; Intune id
-`ff367aaf-3d42-429a-a939-42f1f5d6d327`); the prior Cloud PC `CPC-Omni0-P5AJB`
-and its Entra device `08829330-2098-461c-a950-0047e163f2b1` no longer exist.
+`cf287ce7-7f73-4da7-adfb-c501bd7dd670` (Entra registration timestamp
+22:01:56Z; Intune id `ff367aaf-3d42-429a-a939-42f1f5d6d327`); the prior Cloud
+PC `CPC-Omni0-P5AJB` and its Entra device
+`08829330-2098-461c-a950-0047e163f2b1` no longer exist.
+
+**The two times above are NOT a reconciled timeline, and neither is a key.**
+"~22:24Z" is the reprovision as recorded in
+`implement-omniworker-install-repo` tasks.md § 5.2; 22:01:56Z is the Entra
+registration timestamp read off the new device object and recorded on
+opensoft/openxFactory#591. The registration therefore reads EARLIER than the
+reprovision it belongs to. Both figures are reproduced here as their records
+state them, and this amendment does not reconcile them — it has no measurement
+that would let it, and inventing an order is worse than naming the gap. Nothing
+in this record depends on either value: the machine is identified by Entra
+device id, which is why that is the key.
 The Entra account was renamed `Omni-001@opensoft.one` → `Omni001@opensoft.one`
 so that `%USERNAME:7%` renders `Omni001` with no hyphen to be truncated into.
 
