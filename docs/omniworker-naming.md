@@ -653,10 +653,15 @@ the acts above. It is NOT, however, a re-registration:
 - **`omniworker` is a CUSTOM label, and a custom label can be added to a live
   runner in place.** `POST /orgs/{org}/actions/runners/{runner_id}/labels` (or
   Settings → Actions → Runners → the runner → Labels) adds one without
-  downtime, without a removal token and without touching the runner service;
-  it needs organization admin (`admin:org`). Only READ-ONLY labels —
-  `self-hosted`, the OS and the architecture — are beyond it, and `omniworker`
-  is not one of those. *This corrects a claim an earlier revision of this
+  downtime, without a removal token and without touching the runner service.
+  It needs organization-admin authority, and the credential shape matters: a
+  classic OAuth/PAT needs the `admin:org` scope; a fine-grained token needs the
+  organization's **Self-hosted runners** permission at **write** — GitHub's
+  fine-grained permissions reference lists this endpoint there, available to
+  fine-grained PATs and marked NOT available to GitHub App installation tokens;
+  an organization owner acting through the UI needs no token at all. Only
+  READ-ONLY labels — `self-hosted`, the OS and the architecture — are beyond the
+  endpoint, and `omniworker` is not one of those. *This corrects a claim an earlier revision of this
   amendment made, that a label set is fixed at `config.cmd` time: `config.cmd
   --labels` sets the set at REGISTRATION, and is not the only way to change it
   afterwards. The correction came from review and is recorded rather than
