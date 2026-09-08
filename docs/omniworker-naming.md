@@ -324,8 +324,9 @@ does is appended, exactly as the convention requires.*
 > scope-declines, closed here by this dated sub-note):** two phrasings below
 > over-claim what this amendment's own measurement supports. "MINIMUM random
 > length" reads as a tested lower bound; the evidence is only that a
-> template with no random segment at all is refused and that `%RAND:5%` was
-> accepted — lengths 3 and 4 were never tried, so no minimum is established,
+> template with no random segment at all is refused, that `%RAND:2%` was
+> rejected as too short, and that `%RAND:5%` was accepted — lengths 3 and 4
+> were never tried, so no minimum is established,
 > only that a random `%RAND:y%` segment is required and `%RAND:5%` is what
 > was observed to work. Likewise "not the only spelling Windows 365 would
 > take" positively asserts that some other width is accepted; no width other

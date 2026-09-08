@@ -330,9 +330,10 @@ and this amendment claims only the first two.
       `CPC-OXF-Omni001`. [Precision note 2026-09-08 (opensoft/openxFactory#787
       → squash `7fa12108`): a random `%RAND:y%` segment is required in the
       device-name template; `%RAND:5%` is what was observed to be accepted,
-      not the required token itself — narrower and wider random lengths were
-      never tried, so read "requires `%RAND:5%`" above as "requires a random
-      segment; `%RAND:5%` is what was observed to be accepted."] Brett ruled
+      not the required token itself — `%RAND:2%` was tried and rejected as
+      too short, and lengths 3, 4, and above 5 were never tried, so read
+      "requires `%RAND:5%`" above as "requires a random segment; `%RAND:5%`
+      is what was observed to be accepted."] Brett ruled
       "Accept Omni001-XEAON" (~22:50Z,
       openxFactory issue #591) — box superseded by ruling, not discharged.
       **Amended 2026-09-07 — SUPERSEDED BY RULING; box closed.** The template
@@ -342,10 +343,11 @@ and this amendment claims only the first two.
       was never an attainable name. [Precision note 2026-09-08
       (opensoft/openxFactory#787 → squash `7fa12108`): "without `%RAND:5%`"
       over-states the evidence — what was measured is that a template with no
-      random segment at all is refused; a template with a random segment
-      shorter or longer than five was never tried, so read this as "refuses a
-      device-name template without a random `%RAND:y%` segment; `%RAND:5%` is
-      what was observed to be accepted."] The template actually applied was
+      random segment at all is refused and that `%RAND:2%` was rejected as
+      too short; lengths 3, 4, and above 5 were never tried, so read this as
+      "refuses a device-name template without a random `%RAND:y%` segment;
+      `%RAND:5%` is what was observed to be accepted."] The template actually
+      applied was
       `%USERNAME:7%-%RAND:5%`, which rendered `Omni001-XEAON` — Entra device
       `cf287ce7-7f73-4da7-adfb-c501bd7dd670`, the key by which the fleet now
       identifies the machine. Brett Heap ruled the outcome 2026-09-05 ~22:50Z
