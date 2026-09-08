@@ -686,19 +686,27 @@ class TheRealFiles(unittest.TestCase):
                     "step %r reaches the approver credential without "
                     "consulting the envelope decision" % (step.get("name"),))
 
-    def test_the_app_token_mint_is_scoped_to_pull_requests_and_issues(self) -> None:
-        """The installation needs `contents: write` for the approval to COUNT.
+    def test_the_app_token_mint_is_scoped_to_pull_requests_only(self) -> None:
+        """`pull-requests: write` alone — and NOTHING wider, `issues` included.
 
-        The TOKEN needs none of that: this lane submits one review
-        (`pull-requests: write`) and posts one sticky comment. The comment is
-        NOT `pull-requests` scope — "Record the envelope outcome" posts and
-        patches through the Issues Comments API, which is what a pull
-        request's general conversation thread actually is, and a GitHub App's
-        `pull_requests` permission does not gate that endpoint; `issues`
-        does. Missing either scope 403s the corresponding call, so both are
-        asserted here and nothing wider is. Scoping the mint this narrowly
-        means a compromised later step holds a token that cannot write
-        contents, merge, or touch anything else.
+        The live installation (App ID 4312542, installation 159938946 on
+        `opensoft`) grants the merge-master App exactly
+        `checks: write, contents: write, metadata: read, pull_requests:
+        write` — no `issues` permission at all. Requesting
+        `permission-issues: write` on the mint does not merely ask for an
+        unused scope: `create-github-app-token` REFUSES THE MINT OUTRIGHT
+        when a requested permission is not granted to the installation,
+        failing this lane before any review or comment is attempted. The
+        installation needs `contents: write` for the approval to COUNT (that
+        is the installation's OWN grant, not the token's). The TOKEN this
+        step mints needs none of that: it submits one review AND posts one
+        sticky comment, both under `pull-requests: write` alone — "Record
+        the envelope outcome" posts and patches through the Issues Comments
+        API, but GitHub accepts EITHER `issues: write` OR `pull_requests:
+        write` on that endpoint when the target is a pull request, so
+        `pull-requests: write` alone covers both writes. xFactory's own
+        production caller mints with `permission-pull-requests: write` only
+        and posts its sticky comment through the same endpoint, proven live.
         """
         mints = [step for step in steps_of(self.document)
                  if str((step or {}).get("uses") or "").startswith(
@@ -711,12 +719,14 @@ class TheRealFiles(unittest.TestCase):
         self.assertEqual(
             with_block.get("permission-pull-requests"), "write",
             "the mint must narrow the token to `pull-requests: write` — "
-            "needed to submit the APPROVE review")
-        self.assertEqual(
-            with_block.get("permission-issues"), "write",
-            "the mint must also carry `issues: write` — the sticky comment "
-            "the 'park' path relies on to explain itself is posted through "
-            "the Issues Comments API, which `pull-requests` does not cover")
+            "needed to submit the APPROVE review and post the sticky "
+            "comment")
+        self.assertNotIn(
+            "permission-issues", with_block,
+            "the mint must NOT request `permission-issues` — the live "
+            "installation (App ID 4312542, installation 159938946) holds no "
+            "`issues` permission, and requesting it refuses the mint "
+            "outright rather than merely granting an unused scope")
         for scope in with_block:
             self.assertNotIn(
                 scope, ("permission-contents", "permission-administration",
