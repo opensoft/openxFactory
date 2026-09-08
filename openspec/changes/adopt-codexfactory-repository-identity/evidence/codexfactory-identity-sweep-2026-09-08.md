@@ -406,3 +406,52 @@ members this realization moves that are not already drifting, plus the one
 already drifting. It does NOT report nine. The predicted number is right; the
 arithmetic behind it is one member different, and that member's drift is somebody
 else's owed cut, discharged by the same cut this change owes.
+
+---
+
+## 13. Addendum: the corpus moved WHILE this sweep was being filed
+
+Recorded because the packet's task 2.2 says *"a drift in the total is expected
+(the corpus moves daily); a drift that does not classify under the published
+rule is a finding"* — and the honest way to discharge that is to show the drift
+happening rather than to describe it.
+
+**Between this sweep's head `e8021fed` and the pull request that files it,
+openxFactory `main` advanced nine commits to `e7c53012`** — Brett Heap merged
+PR **#783** (`adopt-configured-notebook-hosting-identity`, ratified
+2026-09-08, *"Ratify 783 and merge"*). What it moved that matters here:
+
+- **`README.md`** — a new OpenSpec Records entry. **It added no
+  `opensoft/codexFactory` occurrence**: the file still carries exactly nine, and
+  the per-line verdicts of § 5 are unchanged. The LINE NUMBERS shifted for the
+  second time since the packet was written (629 → 704, 678/679 → 753/754,
+  790/792 → 865/867, 1335 → 1410, 1347 → 1422), which is why § 5 records a
+  verdict per line CONTENT and the rename is applied against that set
+  programmatically — a script that refuses on any `README.md` occurrence it has
+  no verdict for, so a tenth occurrence is a stop and never a silent sweep.
+- **`tests/sequenced_after/corpus-ledger.yaml`** — one row added, so the
+  `--ledger-diff` gate had to be re-run rather than trusted.
+
+### Re-measured at the merged head (this pull request's tip)
+
+| class | at `e8021fed` | at the merged tip | attributed cause |
+| --- | ---: | ---: | --- |
+| contracts-live RENAME | 30 / 23 | **22 / 15** | **slice A landed**: the six omnigent and two hermes-domain-overlay example fixtures left the class, exactly 8 hits / 8 files |
+| tests, `.github`, governance, scripts, docs-live, README RENAME | 94 / 37 | 94 / 37 | unchanged — every remaining rename is held in a draft slice |
+| `specs/**` FROZEN | 18 / 9 | **54 / 17** | **+36 / +8 is this feature's own documents** (`specs/030-realize-codexfactory-identity/`, 30 occurrences plus 6 more across the checklist and contract fragment). A Speckit feature's spec, plan, research and task list are dated point-in-time plans, which is exactly what the `specs/**` class freezes; they name the former identity as the SUBJECT of the work |
+| active packets NOT SWEPT | 106 / 36 | **123 / 37** | **+17 / +1 is THIS EVIDENCE FILE**, the self-reference § 11 predicted |
+| other classes | — | unchanged | — |
+| **TOTAL** | 327 / 163 | **372 / 164** | fully attributed; **still no occurrence that fails to classify under the published rule** |
+
+### Gates re-run at the merged head
+
+| check | at `e8021fed` | at the merged tip |
+| --- | --- | --- |
+| `openspec validate --all --strict` | `99 passed, 1 failed` | **`100 passed, 1 failed`** — the corpus gained #783's change; the FAILURE is still exactly `change/disposition-codexfactory-declared-renames` and nothing else |
+| `validate-sequenced-after.py . --ledger-diff` | green, 183 rows | **green, 184 rows** — the ledger tracked #783's new row, so it is consistent rather than stale |
+| `release-inventory-drift` | 1 `ERROR` (pre-existing) | 1 `ERROR` (pre-existing) — slice A moves no inventoried member |
+
+**The point of this addendum is the mechanism, not the numbers.** A hand
+enumeration of 124 paths would now be wrong in its line numbers for the second
+time in two days. A rule over path classes plus a re-runnable command is right
+at every head, and that is the substance of the packet's third new requirement.
