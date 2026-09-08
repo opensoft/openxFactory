@@ -163,10 +163,17 @@ invisible to each other, and because one of the three measured breakages was
 never in the archive tree at all: a rule scoped to `archive/` would have left
 it broken while reporting itself satisfied. Re-derivation is PER FAMILY: for
 consent instruments the rule is the structured `custody_rederivations[]` entry
-proposed by `add-consent-custody-rederivation-record`; for every other family
-the declaring repository names the rule in its own content-address register,
-and OpsxFactory's `add-content-address-integrity-gate` is the first such
-register in the estate. A family that declares no rule has not earned a pin.
+proposed by `add-consent-custody-rederivation-record` — a CONTRACT home; for
+every other family the rule is declared either in the declaring repository's
+content-address register OR in the neutral contract that owns the family, and
+OpsxFactory's `add-content-address-integrity-gate` proposes the estate's first
+REGISTER home. **A family that declares no rule has not earned a pin — and the
+consequence arrives WITH THE DECLARATION, not with this requirement**: until a
+family declares, an edit of its pinned target is REPORTED, naming the family,
+the target and the home that owes the rule, and it becomes a REFUSAL for that
+family the day that family declares. That transition is not a softening; it is
+what keeps the rule from refusing every pinned-target edit in the estate on the
+day it lands, no family having declared one yet (measured in § *Impact*).
 
 ## What This Change Does NOT Do
 

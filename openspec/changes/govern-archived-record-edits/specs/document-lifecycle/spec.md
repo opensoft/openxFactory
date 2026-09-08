@@ -186,7 +186,8 @@ everything it says that this rule does not reach.
 #### Scenario: A lifecycle-header defect is discharged on an archived packet
 - **WHEN** a change repairs a missing or defective `Status:` header or ratification citation on a file under `openspec/changes/archive/`
 - **THEN** a ruling authorizing the class of edit MUST be recorded before the edit, naming ruler, date and class, and resolvable from the change
-- **AND** the packet MUST carry a bookkeeping note clearing the neutral minimum — a dated `Edited (bookkeeping):` line in the edited file's own lifecycle-header block naming the UTC date, the change id and the edit class — or the stricter form its own repository's convention requires
+- **AND** the neutral minimum MUST be present — a dated `Edited (bookkeeping): <UTC date> by <change-id> — <edit class>` line in the edited file's own lifecycle-header block — whatever else the editing repository requires
+- **AND** a stricter local convention MAY require a further note and MUST NOT stand in place of the minimum, a local form ADDING to the minimum rather than substituting for it
 - **AND** nothing beyond the packet's own standing metadata may be altered in the same act
 
 #### Scenario: An edit would change what an archived record asserts

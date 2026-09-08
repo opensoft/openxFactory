@@ -525,7 +525,7 @@ Active changes:
   because attributing both selections to the later one would misquote the record
   this packet exists to protect. **NOTHING IS REALIZED** — no
   archived byte is edited, no pin is re-derived, no checker is written, no
-  repository's convention is amended, and **all 25 boxes in `tasks.md` stay
+  repository's convention is amended, and **all 28 boxes in `tasks.md` stay
   unticked**. **THE ESTATE-NEUTRAL HALF OF A MATCHED PAIR**: the domain half is
   OpsxFactory's `govern-archived-record-edits`, same working id, same ruling,
   and neither is the other's summary. States on the promoted

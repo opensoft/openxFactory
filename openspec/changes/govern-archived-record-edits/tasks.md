@@ -54,17 +54,44 @@ change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
   comment 5571629298. It chose no requirement title, no delta shape, no
   definition of the bookkeeping class, no ordering between ruling and edit, and
   no refusal posture. Each is `design.md`'s D-1..D-8 and each is a veto point.
-- [ ] 1.2 **[OPERATOR] Rule on the TRANSITION CLAUSE of D-7.** The second
-  ADDED requirement REPORTS — and does not refuse — an edit whose pin family has
-  declared no re-derivation rule, and becomes a refusal for that family the day
-  it declares. The alternative, REFUSE OUTRIGHT FROM LANDING, is coherent and is
-  what the first draft said; measured, it freezes every pinned-target edit in
-  the estate on the day this change archives, because NO family has a declared
-  rule today and `code_surface: none` means this change archives on landing with
-  nothing to sequence behind. Choosing it is a one-clause edit plus the removal
-  of one scenario, and the cost is that the estate's corrective work — including
-  the routine lifecycle-header discharge and the F.1/F.2 repairs — stops until
-  the first family declares.
+- [ ] 1.2 **[OPERATOR] TWO named widenings and one split, each a veto point.**
+  Mirrored from the domain twin's 1.2a/1.2b/1.2c, because the same three
+  decisions are open in both halves and a ruling on one is a ruling on both.
+  - [ ] 1.2a **The pin SCOPE.** Your 2026-09-06 shape selection (comment
+    5563099832) says "every dependent **custody** pin". The second ADDED
+    requirement reaches EVERY pin of EVERY declared family. Basis: your
+    2026-09-07 restatement (comment 5571629298) drops the qualifier — "every
+    edit of a pinned target re-derives dependent pins in the same change" —
+    read with your F.2 scope selection of the same day, "Every in-repo sha256
+    pointer to an in-repo target", the widest option put to you and the scope
+    the OpsxFactory gate is built to. **The narrower reading — CUSTODY PINS
+    ONLY — is available**: it matches the 2026-09-06 wording exactly, and its
+    cost is that evidence digests, plan-acceptance references, fence baselines
+    and contract pins are obliged by nothing while that gate re-derives them.
+    Narrowing here forces the same narrowing on the OpsxFactory half.
+  - [ ] 1.2b **The no-rule consequence, and WHEN it bites.** As written the
+    requirement REPORTS such an edit — naming the family, the target and the
+    home that owes the rule — and refuses only once that family declares.
+    **THREE options, not two.** (i) Report-then-refuse, as written. (ii)
+    **REFUSE FROM LANDING**: coherent, and measured it refuses EVERY
+    pinned-target edit in the estate the day this change archives, because no
+    family has a declared rule and `code_surface: none` means it archives on
+    landing with nothing to sequence behind — the routine lifecycle-header
+    discharge and the F.1/F.2 repairs included. (iii) **STRIKE the consequence**,
+    leaving the obligation with no consequence for the families that need it
+    most. Either alternative forces the OpsxFactory half to move in LOCKSTEP: it
+    states the same rule at its own altitude, and a downstream `MUST` may not
+    contradict a neutral `MUST NOT`.
+  - [ ] 1.2c **The ONE-vs-TWO ADDED split.** Your F.3 wording names "an ADDED
+    requirement" — singular — carrying both halves of the rule. This packet
+    splits them into TWO, and `.openspec.yaml` flags the delta shape for veto.
+    The measured reason is that the failures are invisible to each other: one of
+    the three custody pins the motivating commit broke names a target in a
+    change directory that has never been archived, so a single requirement
+    scoped to `openspec/changes/archive/` would report itself satisfied while
+    that pin stayed broken. **If one requirement is wanted**, the cost is that
+    its scope sentence must reach outside the archive tree, and the OpsxFactory
+    half must collapse the same way.
 - [ ] 1.3 **[OPERATOR] Rule on D-3 specifically** — whether the `## MODIFIED`
   block closing *Proposal packets carry the lifecycle header*'s dangling "takes
   the route archived-record edits take" is wanted. Declining it leaves canon

@@ -79,6 +79,12 @@ requirements — the same reasoning the capability already applies to *Ratified
 spec deltas reach the promoted specification* and *A ruling is discharged once*,
 which it states separately for the same stated reason.
 
+**This is a VETO POINT, and it is now a box.** Brett Heap's F.3 wording names
+"an ADDED requirement" — singular. The split is the authoring session's, taken
+on the measurement above, and task 1.2c puts it to him with its cost: one
+requirement means a scope sentence reaching outside the archive tree, and the
+OpsxFactory half collapsing the same way.
+
 **Rejected:** one requirement with two clause-groups (the archive scope would
 read as governing both halves, which is the error above); three requirements
 splitting the recording obligation from the re-derivation obligation (the
