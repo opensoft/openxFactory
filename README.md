@@ -424,6 +424,13 @@ Every DomainxFactory must validate against the canonical contract:
   [contracts/policies/layer-vocabulary.yaml](contracts/policies/layer-vocabulary.yaml)).
 - Validator: `scripts/validate-domain-factory.py <domain-repo> [--strict]`
   — run from the pinned openxFactory checkout, never copied into domain repos.
+- Former repository identities: [contracts/policies/repository-identity.yaml](contracts/policies/repository-identity.yaml)
+  — the former-to-current mapping. A repository that has MOVED ORGANIZATIONS
+  keeps its recorded former spelling wherever that spelling is immutable or
+  dated (an archived packet, a dated verification table, a signature- or
+  digest-covered artifact), and the former identity is resolved BY LOOKUP here,
+  **never** through a provider redirect, which lapses the moment the former
+  owner reuses the name. A transfer moves the OWNER SEGMENT ONLY.
 - Credential contracts: [xfactory-credential-contracts schema](contracts/schemas/xfactory-credential-contracts.schema.yaml)
   and `scripts/validate-credential-contracts.py <domain-repo>` — the five
   credential record kinds under `credentials/` (DTN-004). Registered in

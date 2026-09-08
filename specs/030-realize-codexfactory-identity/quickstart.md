@@ -133,44 +133,71 @@ python3 scripts/validate-signed-execution-chain.py .
 
 ## 6. No BARE name was edited (packet 6.4)
 
-A transfer moves the OWNER segment only. **A grep over diff lines does not test
-this** — it false-positives on every new line of prose that mentions the
-repository by name, and this feature's own documents add over a hundred such
-lines. The check that actually tests the claim compares, per changed
-pre-existing file, the number of `codexFactory` occurrences that carry NO owner
-segment, before and after:
+A transfer moves the OWNER SEGMENT ONLY, so a bare `codexFactory` — a member
+name, a wallet/grant id, a change id, a directory or a submodule path — must be
+byte-identical before and after.
+
+**Two wrong ways to test this, both tried.** A grep over diff lines
+false-positives on every new line of prose that names the repository. Counting
+bare occurrences per file and demanding equality false-positives on any
+**add-only** diff, because prose about this work names the repository and the
+change id `adopt-codexfactory-repository-identity` *contains the bare string
+itself*.
+
+The test that actually holds: a file whose diff **removes no line** cannot have
+edited anything, whatever its count does; a file whose diff removes lines is
+compared on the **multiset of bare occurrences in the removed lines against
+those in the added lines** — every bare occurrence that left must come back.
 
 ```sh
 python3 - origin/main <<'EOF'
-import re, subprocess, sys
+import collections, re, subprocess, sys
 BASE = sys.argv[1]
 OWNED = re.compile(r"(?:opensoft|codeXfactory|codexfactory|MedxSoft)/codexFactory", re.I)
-ANY = re.compile(r"codexFactory", re.I)
-bare = lambda s: len(ANY.findall(OWNED.sub("\x00", s)))
-bad = ok = 0
-for line in subprocess.run(["git","diff","--name-status",BASE],
-                           capture_output=True, text=True).stdout.split("\n"):
-    if not line.strip():
+BARE  = re.compile(r"codexfactory", re.I)
+
+def tokens(lines):                      # bare occurrences, with context, as a multiset
+    bag = collections.Counter()
+    for line in lines:
+        masked = OWNED.sub("\x00", line)
+        for m in BARE.finditer(masked):
+            bag[masked[max(0, m.start() - 24): m.end() + 24]] += 1
+    return bag
+
+addonly = compared = 0; bad = []
+for row in subprocess.run(["git","diff","--name-status",BASE],
+                          capture_output=True, text=True).stdout.split("\n"):
+    if not row.strip():
         continue
-    path = line.split("\t")[-1]
-    before = subprocess.run(["git","show",f"{BASE}:{path}"], capture_output=True, text=True)
-    if before.returncode:                     # a NEW file edits nothing
-        print(f"  new file: {path}")
-        continue
-    after = subprocess.run(["git","show",f":{path}"], capture_output=True, text=True).stdout
-    b, a = bare(before.stdout), bare(after)
-    if b != a:
-        print(f"!!! BARE NAME EDITED  {path}: {b} -> {a}"); bad += 1
-    else:
-        ok += 1
-print(f"pre-existing files changed, bare count identical: {ok}")
+    path = row.split("\t")[-1]
+    if subprocess.run(["git","show",f"{BASE}:{path}"],
+                      capture_output=True, text=True).returncode:
+        print(f"  new file (edits nothing): {path}"); continue
+    diff = subprocess.run(["git","diff","-U0",BASE,"--",path],
+                          capture_output=True, text=True).stdout.split("\n")
+    removed = [l[1:] for l in diff if l.startswith("-") and not l.startswith("---")]
+    added   = [l[1:] for l in diff if l.startswith("+") and not l.startswith("+++")]
+    if not removed:
+        addonly += 1; continue
+    compared += 1
+    lost = tokens(removed) - tokens(added)
+    if lost:
+        bad.append((path, lost))
+print(f"add-only diffs (cannot have edited anything): {addonly}")
+print(f"diffs with removals, bare multiset compared:  {compared}")
+for p, lost in bad:
+    for ctx, n in lost.items():
+        print(f"!!! {p}: lost {n}x ...{ctx.strip()}...")
 sys.exit(1 if bad else 0)
 EOF
 ```
 
-**Result at P1's head**: 8 pre-existing files changed, bare count identical in
-all 8; the new files add bare mentions (prose about the repository) and edit
-none. Filenames are bare names too, so this must also stay empty:
+**Results.** On the rename slices (#801, #802, #805, #806) every changed file has
+removals and the multiset is preserved. On the mapping-row slice all four changed
+pre-existing files are **add-only**, so 6.4 passes there by construction — and
+their bare counts DO rise, which is why the equality form had to be replaced.
+
+Filenames are bare names too, so this must also stay empty:
 
 ```sh
 git diff --name-status --diff-filter=R origin/main || echo "clean: no rename"
