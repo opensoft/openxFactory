@@ -217,7 +217,8 @@ Early pilots should use RLM before council.
   defines baseline and cost comparison.
 - [Evidence and Coverage](governed-recursive-inference-evidence-coverage.md)
   defines acceptance evidence.
-- Medical Omnigent Harness Adaptation — MOVED 2026-09-07 to `MedxSoft/MedxFactory@74bed502`,
+- Medical Omnigent Harness Adaptation — MOVED 2026-09-07 to
+  `MedxSoft/MedxFactory@74bed502`
   `ideation/brainstorm/medical-omnigent-harness-adaptation.md` — supplies the
   later Medx authority and verification boundary.
 - [Synthesis: Adoption and Councils](governed-recursive-inference-synthesis-adoption-and-councils.md)

@@ -372,8 +372,8 @@ dispatch disablement) enforced at write time, the other two options break:
 
 The *authoring* counterpart of this seam — what to write into stored policy at
 all versus leaving it to the model on the fly — is worked out in
-`codexfactory-domain-policy-model.md` (moved 2026-09-07 to `opensoft/codexFactory@83c9c35a`):
-store the delta (choices, bindings,
+`codexfactory-domain-policy-model.md` (moved 2026-09-07 to
+`opensoft/codexFactory@83c9c35a`): store the delta (choices, bindings,
 boundaries, staked positions, learning), improvise the textbook. Same line,
 drawn once.
 

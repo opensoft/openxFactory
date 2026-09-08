@@ -92,6 +92,7 @@ Processing consumes the [evidence-estate manifest](hermes-recursive-subject-esta
 emits evidence for [claim lineage and reconciliation](hermes-recursive-subject-establishment-claim-lineage-and-reconciliation.md),
 and is specialized by the Ledgerx and Medx profiles, both MOVED 2026-09-07
 to their own repositories at the same `ideation/brainstorm/` filenames —
-Ledgerx to `ledgerXfactory/LedgerxFactory@6921aea3`, Medx to `MedxSoft/MedxFactory@74bed502`
-(see `../README.md`, "Moved to a DomainxFactory (2026-09-07)").
+Ledgerx to `ledgerXfactory/LedgerxFactory@6921aea3`, Medx to
+`MedxSoft/MedxFactory@74bed502` (see `../README.md`, "Moved to a
+DomainxFactory (2026-09-07)").
 
