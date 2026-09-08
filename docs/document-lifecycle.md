@@ -135,6 +135,24 @@ reference`.
     carries a `supporting-docs`, `source-snapshots` or `evidence` segment is
     excluded even where its name would otherwise match, because reporting a
     frozen record for the state it preserves is a false finding.
+- The route an archived-record edit takes is *An archived record is edited
+  only as a bookkeeping correction under a recorded ruling*, and the note that
+  route requires has a NEUTRAL MINIMUM this repository owes as much as any
+  DomainxFactory: a dated line in the EDITED FILE'S OWN lifecycle-header block,
+  of the form
+  `Edited (bookkeeping): <UTC date> by <change-id> — <edit class>`.
+  The ruling authorizing the class of edit is recorded BEFORE the edit. The
+  note records WHAT changed and never THAT IT MAY, so it is not the
+  authorization for the edit. The minimum is recorded here on the ratifying
+  change's authority and claims nothing more: the requirement reaches promoted
+  canon at the archive act, and this document does not assert that canon
+  carries it today. Ratified by `govern-archived-record-edits` (2026-09-08).
+  - A repository's own archived-packet convention MAY be stricter and MUST NOT
+    be absent; a local form ADDS to the minimum rather than standing in place
+    of it.
+  - The note sits in the lifecycle header on purpose: that block is the one
+    part of an archived file the requirement already permits the edit to touch,
+    so recording the edit cannot itself become an edit the rule forbids.
 
 ## The Explicit Delta Rule
 

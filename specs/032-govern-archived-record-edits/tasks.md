@@ -25,17 +25,33 @@ below names its path in full.
 
 ## Phase 1: Setup
 
-- [ ] T001 Confirm the working tree: branch `032-govern-archived-record-edits`,
+- [x] T001 Confirm the working tree: branch `032-govern-archived-record-edits`,
       clean status, base `main` `68712924`, and the dedicated clone (never
       `~/projects/xFactory/...`). Confirm the LANE IDENTITY too — this work is
       lane `opsXfactory-1`'s, the trailers say so, and a commit authored under
       another lane's name would misattribute the act. Record the head and the
       lane in the evidence file's header.
-- [ ] T002 Re-take M1 at the current head: `git log --oneline 3504287a..HEAD --
+      **Done 2026-09-08** — head `aafdbf01f276a0a2bd1e4b3051f321a6d32fa694`, branch
+      `032-govern-archived-record-edits`, `git status --porcelain` empty, base `main`
+      `68712924` (also the merge-base with `origin/main`), clone
+      `<scratchpad>/oxf-realize-f3`, never a shared checkout. LANE IDENTITY: this work is
+      lane `opsXfactory-1`'s and every commit carries the `Lane: opsXfactory-1` trailer.
+      MEASURED AND REPORTED, NOT ACTED ON: `origin/main` has moved to `6cc06288` since the
+      branch was cut; no merge is taken here (no task asks for one), so `main` `68712924`
+      remains the comparand for SC-007 and for the doc-health baseline. Carried into the
+      evidence file header at T011.
+
+- [x] T002 Re-take M1 at the current head: `git log --oneline 3504287a..HEAD --
       openspec/changes/govern-archived-record-edits openspec/specs/document-lifecycle
       docs/document-lifecycle.md`. If it is NOT empty, STOP and report — the
       MODIFIED block or the § 3.4 target moved and the plan's premises need
       re-reading.
+      **Done 2026-09-08** — `git log --oneline 3504287a..HEAD -- openspec/changes/govern-archived-record-edits
+      openspec/specs/document-lifecycle docs/document-lifecycle.md` printed NOTHING, and
+      `git merge-base --is-ancestor 3504287a HEAD` succeeded. The MODIFIED block and the
+      § 3.4 target have not moved since ratification; the plan's premises hold. Re-taken at
+      the final head by T029.
+
 
 ---
 
@@ -43,13 +59,19 @@ below names its path in full.
 
 **⚠️ Nothing in Phase 3+ may start until these hold.**
 
-- [ ] T003 Verify the frozen set is untouched and stays so. The set is
+- [x] T003 Verify the frozen set is untouched and stays so. The set is
       enumerated ONCE, in `spec.md` FR-009a, and is NOT re-listed here — the one
       thing worth repeating is its exception: `README.md` is frozen EXCEPT the
       single sentence T028a appends to this change's own Records row. This is a
       standing constraint, re-checked at T030 (the SC-007 path-set check), not a
       one-time act.
-- [ ] T004 [P] Capture the doc-health BASELINE from `main` before any edit, into
+      **Standing constraint, verified at this commit 2026-09-08** — `git diff main...HEAD
+      --name-only` names nothing under `openspec/changes/archive/`, nothing in the packet's
+      `design.md`, `.openspec.yaml` or `specs/document-lifecycle/spec.md`, nothing in
+      `tests/`, `contracts/`, `scripts/` or `.github/`, and no part of `README.md`. Re-checked
+      at T030 as the SC-007 path-set check.
+
+- [x] T004 [P] Capture the doc-health BASELINE from `main` before any edit, into
       the feature's `evidence/` directory, so the 4.4 diff has a fixed comparand
       rather than a re-derived one, and NAME the `main` sha it was taken at
       (FR-029). The baseline checkout MUST carry the SAME directory basename as
@@ -60,6 +82,16 @@ below names its path in full.
       two runs over the SAME commit in the two directories must differ in ZERO
       finding lines. Only then is a branch-vs-main diff evidence of anything.
       (FR-028, panel P1)
+      **Done 2026-09-08** — baseline taken at `main` **`68712924732849fd146c3a1969b79879b44fae7c`**
+      (FR-029), the commit this branch was cut from and has not merged past. Two checkouts of
+      that same sha, BOTH named `oxf-realize-f3`, at `<scratchpad>/dh-base/oxf-realize-f3` and
+      `<scratchpad>/dh-proof/oxf-realize-f3`. RECIPE PROVEN MAIN-VS-MAIN FIRST: `diff` of the
+      two reports returned ZERO differences (rc 0), so the basename stamp is neutralised and a
+      branch-vs-main diff is evidence. Reports: `evidence/doc-health-main-68712924-A.md`
+      (the baseline T016 diffs against) and `evidence/doc-health-main-68712924-B.md` (the
+      proof twin); both runs exited rc 1 on PRE-EXISTING error-level findings that predate this
+      branch (FR-037). Headline at baseline: 10 critical, 9 error, 55 warning, 16 info.
+
 
 ---
 
@@ -72,32 +104,75 @@ with no note obligation written down.
 **Independent test**: read that document alone and recover the note's exact
 form, its placement, and the change that ratified it.
 
-- [ ] T005 [US1] Write ONE top-level bullet at the END of § *Status Claim Rules*
+- [x] T005 [US1] Write ONE top-level bullet at the END of § *Status Claim Rules*
       in `docs/document-lifecycle.md` (after the byte-exact-evidence bullet),
       with sub-bullets, in the `govern-openspec-corpus-membership` bullet's
       shape. The bullet is BODY PROSE in that section — it is NOT placed in this
       document's own lifecycle-header block, and nothing is inserted near the top
       of the file. (FR-004, FR-002)
-- [ ] T006 [US1] In that bullet, quote the note form BYTE-EXACT from the ratified
+      **Done 2026-09-08** — one top-level bullet appended at the END of § *Status Claim
+      Rules*, immediately after the byte-exact-evidence sub-bullet, at
+      `docs/document-lifecycle.md` line 138, with two sub-bullets, in the
+      `govern-openspec-corpus-membership` bullet's shape. It is BODY PROSE: nothing was
+      inserted near the top of the file and the document's own lifecycle-header block is
+      untouched.
+
+- [x] T006 [US1] In that bullet, quote the note form BYTE-EXACT from the ratified
       requirement: `Edited (bookkeeping): <UTC date> by <change-id> — <edit class>`,
       em dash and placeholders included, and say it belongs in the EDITED FILE'S
       OWN lifecycle-header block. (FR-001, FR-002)
-- [ ] T007 [US1] Add exactly TWO explanatory sentences — the ruling is recorded
+      **Done 2026-09-08** — the form was EXTRACTED PROGRAMMATICALLY from line 122 of
+      `openspec/changes/govern-archived-record-edits/specs/document-lifecycle/spec.md` rather
+      than retyped, so the em dash (U+2014, bytes `e2 80 94`) and the placeholder spellings are
+      the ratified bytes. It sits on ONE line, unreflowed (FR-040), as a code span (FR-005a),
+      with the sentence's period OUTSIDE the closing backtick. The bullet says the line belongs
+      in the EDITED FILE'S OWN lifecycle-header block.
+
+- [x] T007 [US1] Add exactly TWO explanatory sentences — the ruling is recorded
       BEFORE the edit; the note records WHAT changed and never THAT IT MAY —
       written as explanation, not as requirement text. No third sentence of
       route. (FR-005)
-- [ ] T008 [US1] Add the inline citation "Ratified by `govern-archived-record-edits`
+      **Done 2026-09-08** — exactly two explanatory sentences: "The ruling authorizing the
+      class of edit is recorded BEFORE the edit." and "The note records WHAT changed and never
+      THAT IT MAY, so it is not the authorization for the edit." Plain prose, not requirement
+      text, and no third sentence of route.
+
+- [x] T008 [US1] Add the inline citation "Ratified by `govern-archived-record-edits`
       (2026-09-08)" in the precedent form (no colon after the change name), and
       put "reaches promoted canon at the archive act" in a FOLLOWING sentence,
       never inside the citation clause. (FR-003)
-- [ ] T009 [US1] Verify locally before committing: the bullet sits below line 15
+      **Done 2026-09-08** — the bullet's parent prose ENDS "Ratified by
+      `govern-archived-record-edits` (2026-09-08)." — the precedent form, no colon after the
+      change name, the last clause before the sub-bullets. The archive-act statement sits in
+      the PRECEDING sentence ("the requirement reaches promoted canon at the archive act, and
+      this document does not assert that canon carries it today"), never inside or after the
+      citation clause.
+
+- [x] T009 [US1] Verify locally before committing: the bullet sits below line 15
       (outside the status-header scan window), the document's own `Status:
       standard` header is untouched, and the added text states no rule the
       ratified requirement does not carry.
-- [ ] T010 [US1] Commit S1 with explicit paths and the three trailers. Before
+      **Done 2026-09-08** — verified before committing: the bullet begins at line 138, far
+      below the 15-real-line status-header scan window; `Status: standard` and the rest of the
+      header block are byte-identical (`git diff` shows +18 lines and no deletion); no trailing
+      whitespace and no CR anywhere in the file; and every clause traces to the ratified
+      requirement — the neutral minimum and its form, the recorded-ruling precedence, the
+      note-is-not-the-authorization reading, the stricter-may-not-absent rule, and the reason
+      the note sits in the lifecycle header. PRE-CHECK (diagnostic, not the gate): doc-health
+      over the working tree against the T004 baseline moved ZERO finding lines; the only
+      differences were the canon/governance word totals and the `standard` stage word count,
+      each +199 because the document grew.
+
+- [x] T010 [US1] Commit S1 with explicit paths and the three trailers. Before
       EVERY commit on this branch, read `git diff --cached --stat` and confirm no
       foreign path is staged — the clone is this feature's alone, and the check
       costs nothing.
+      **Done 2026-09-08** — `git diff --cached --stat` was read before committing and named
+      no foreign path: `docs/document-lifecycle.md`, the four T004 baseline captures under
+      `specs/032-govern-archived-record-edits/evidence/`, and this file. The three trailers
+      (`Lane: opsXfactory-1`, `Co-Authored-By: Claude Fable 5.1`, `Claude-Session:`) are on
+      this commit.
+
 
 **Checkpoint**: US1 is independently landable — the packet's § 6.1 gate reads
 box 3.4, and this is the act behind it.
