@@ -132,7 +132,7 @@ APPROVER_CREDENTIAL = ("secrets.MERGE_MASTER_APP_KEY",
                        "vars.MERGE_MASTER_APP_ID",
                        "steps.mm-token.outputs.token")
 
-PINNED_REPOSITORY = "opensoft/codexFactory"
+PINNED_REPOSITORY = "codeXfactory/codexFactory"
 FLOOR_REPOSITORY = "opensoft/openxFactory"
 
 SHA_RE = re.compile(r"\b[0-9a-f]{40}\b")

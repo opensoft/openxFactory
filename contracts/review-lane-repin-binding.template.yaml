@@ -43,7 +43,7 @@ kind: xfactory_credential_binding_template
 # a named-testcase watch.
 #
 # LEAST PRIVILEGE, AND THE ONE PROHIBITION THAT IS LOAD-BEARING. The lane needs
-# `contents: read` on `opensoft/codexFactory` and `contents: write` +
+# `contents: read` on `codeXfactory/codexFactory` and `contents: write` +
 # `pull-requests: write` in `opensoft/openxFactory` — the workflow
 # `permissions:` spelling, hyphenated, which is the only spelling any workflow
 # in either repository uses; the App INSTALLATION permission of the same
@@ -107,7 +107,7 @@ credential_bindings:
 # PROHIBITION rather than an omission.
 privileges:
   source_repository:
-    repository: opensoft/codexFactory
+    repository: codeXfactory/codexFactory
     grants: [contents:read]
     # Stated as a refusal so a later widening has to delete a line rather than
     # merely fail to add one.

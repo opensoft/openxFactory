@@ -393,7 +393,7 @@ jobs:
         continue-on-error: true
         uses: actions/checkout@v4
         with:
-          repository: opensoft/codexFactory
+          repository: codeXfactory/codexFactory
           ref: "4b12ba83add713666a94129fc45552d8989f8488"
           path: .merge-master-core
           persist-credentials: false

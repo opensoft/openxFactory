@@ -106,12 +106,12 @@ refused, when the credential is unavailable, or when you need an advance now.
 
 ```sh
 # 1. Resolve the codexFactory commit and CONFIRM IT IS ON THE DEFAULT BRANCH.
-gh api repos/opensoft/codexFactory --jq .default_branch
-CORE=$(gh api repos/opensoft/codexFactory/commits/main --jq .sha)
-gh api "repos/opensoft/codexFactory/compare/main...${CORE}" --jq .status   # identical|behind
+gh api repos/codeXfactory/codexFactory --jq .default_branch
+CORE=$(gh api repos/codeXfactory/codexFactory/commits/main --jq .sha)
+gh api "repos/codeXfactory/codexFactory/compare/main...${CORE}" --jq .status   # identical|behind
 
 # 2. Re-copy the snapshot. NEVER hand-edit it: it is a witness.
-gh api "repos/opensoft/codexFactory/contents/scripts/merge_master/openxfactory-review-authority-floor.yaml?ref=${CORE}" \
+gh api "repos/codeXfactory/codexFactory/contents/scripts/merge_master/openxfactory-review-authority-floor.yaml?ref=${CORE}" \
   -H "Accept: application/vnd.github.raw" > contracts/review-lane-floor-snapshot.yaml
 
 # 3. Recompute the two declared witnesses FROM THE BYTES YOU JUST WROTE.
@@ -147,7 +147,7 @@ It needs, and the binding declares, exactly:
 
 | repository | permissions | why |
 |---|---|---|
-| `opensoft/codexFactory` | `contents: read` | resolve the default branch, fetch the floor document |
+| `codeXfactory/codexFactory` | `contents: read` | resolve the default branch, fetch the floor document |
 | `opensoft/openxFactory` | `contents: write`, `pull-requests: write`, `workflows: write` | push `bot/review-lane-repin` — including the two pinned sites that live in `.github/workflows/` — and open and update the one pull request |
 
 `workflows: write` is not decorative. Two of the five pinned sites are workflow

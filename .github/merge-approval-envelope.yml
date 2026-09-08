@@ -1,6 +1,6 @@
 # Merge-approval envelope for `opensoft/openxFactory` — ONE enrolled candidate.
 #
-# Schema: `opensoft/codexFactory` `schemas/merge-approval-envelope.schema.json`,
+# Schema: `codeXfactory/codexFactory` `schemas/merge-approval-envelope.schema.json`,
 # read at the commit `contracts/review-lane-pin.yaml` pins. The evaluating code
 # is that same pinned core's `scripts/merge_master/envelope.py`; this repository
 # re-implements none of it.

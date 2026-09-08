@@ -134,7 +134,7 @@ jobs:
       pull-requests: write
 
     env:
-      SOURCE_REPOSITORY: opensoft/codexFactory
+      SOURCE_REPOSITORY: codeXfactory/codexFactory
       FLOOR_IN_SOURCE: scripts/merge_master/openxfactory-review-authority-floor.yaml
       BOT_BRANCH: bot/review-lane-repin
       BINDING: contracts/review-lane-repin-binding.template.yaml
@@ -382,7 +382,7 @@ jobs:
         if: steps.repin.outputs.action == 'advance'
         uses: actions/checkout@v4
         with:
-          repository: opensoft/codexFactory
+          repository: codeXfactory/codexFactory
           ref: ${{ steps.source.outputs.sha }}
           path: .merge-master-core
           persist-credentials: false
