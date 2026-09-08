@@ -2065,3 +2065,150 @@ def test_TWO_ARCHIVE_DIRECTORIES_for_one_id_are_NOT_date_checked(tmp_path):
         capture_output=True, text=True)
     assert "contradiction" not in result.stdout, result.stdout
 
+
+
+def test_a_STALE_ACTIVE_ROW_for_an_ARCHIVED_id_is_the_LEDGER_DIFFS_finding(
+        tmp_path):
+    """ONE FACT, ONE VOCABULARY, and this one was named twice.
+
+    The arm's own finding reads "an archived row cannot record a move that
+    predates the archive that made it archived" — a sentence about a row that
+    CLAIMS to be archived. A row still saying `active` for an id that is
+    archived on disk claims no such thing: it is simply out of date, which is
+    `--ledger-diff`'s stale-row class and whose repair is a re-seed. Reporting
+    it here as an archive-date contradiction sent the author to a second repair
+    (go and correct `moved_on`) for a row whose `moved_on` is not the problem.
+    """
+    _change(tmp_path, "add-old", archived="2026-08-01")
+    _ledger(tmp_path, [_row("add-old", state="active", moved_on="2026-07-31")])
+    plain = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path)],
+        capture_output=True, text=True)
+    assert "archive-date contradiction" not in plain.stdout, plain.stdout
+    assert "archive-date drift" not in plain.stdout
+    # …and the stale row IS reported, by the mode that owns the class.
+    diff = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--ledger-diff"],
+        capture_output=True, text=True)
+    assert diff.returncode != 0, diff.stdout + diff.stderr
+    assert "add-old" in diff.stdout + diff.stderr
+    # The strict reading agrees: it is the same row, and the same non-finding.
+    strict = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path),
+         "--strict-archive-dates"], capture_output=True, text=True)
+    assert "archive-date drift" not in strict.stdout, strict.stdout
+    assert "archive-date contradiction" not in strict.stdout, strict.stdout
+    assert "archive-date agreement passed" in strict.stdout
+
+
+# ---- the seeder's default `moved_on` is UTC, ON A UTC RUNNER TOO -----------
+#
+# `_utc_today()` replaced `datetime.date.today()`, and every test of it read the
+# host's own clock — so on the UTC runner CI uses, the two readings agree and
+# the mutation `_utc_today -> date.today` passed the whole suite. The clock is
+# therefore FROZEN, in a child process, at an instant where UTC and the
+# machine's local day are two different days.
+
+_FROZEN_CLOCK_DRIVER = '''
+import datetime, importlib.util, os, sys, time
+
+# A REAL ZONE, SET ON THE PROCESS, because the defect is about what
+# `datetime.date.today()` reads: `Pacific/Kiritimati` is UTC+14, the extreme of
+# the ahead-of-UTC direction, and `time.tzset()` is what makes the C library
+# and therefore `astimezone()` honour it.
+os.environ["TZ"] = "Pacific/Kiritimati"
+time.tzset()
+
+# 23:35 UTC: the hour PR #780's archive actually ran at, and an hour at which
+# UTC+14 is already on the NEXT day.
+WHEN = datetime.datetime(2026, 9, 8, 23, 35, tzinfo=datetime.timezone.utc)
+
+
+# BOUND BEFORE THE CLASS BODY: inside `_FrozenDatetimeModule` the name
+# `datetime` is being rebound to the stub, so the real module's own attributes
+# have to be read out here or the class body reads its own half-built self.
+_REAL_TIMEZONE = datetime.timezone
+_REAL_TIMEDELTA = datetime.timedelta
+
+
+class _Datetime(datetime.datetime):
+    @classmethod
+    def now(cls, tz=None):
+        return WHEN.astimezone(tz) if tz is not None else WHEN.astimezone()
+
+
+class _Date(datetime.date):
+    @classmethod
+    def today(cls):
+        # THE MACHINE'S LOCAL CLOCK, which is the value the defect wrote.
+        return WHEN.astimezone().date()
+
+
+class _FrozenDatetimeModule:
+    datetime = _Datetime
+    date = _Date
+    timezone = _REAL_TIMEZONE
+    timedelta = _REAL_TIMEDELTA
+
+
+spec = importlib.util.spec_from_file_location("validator_under_test", sys.argv[1])
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+module.datetime = _FrozenDatetimeModule
+print(module._utc_today())
+print(_Date.today().isoformat())
+'''
+
+
+def test_the_SEEDERS_DEFAULT_DATE_IS_UTC_AND_NOT_THE_LOCAL_DAY(tmp_path):
+    """The guard that fails on a UTC runner, which no earlier test could.
+
+    Mutate `_utc_today` back to `datetime.date.today().isoformat()` and this
+    test reports `2026-09-09` where UTC says `2026-09-08`. The second assertion
+    is its ANTI-VACUITY: at the frozen instant the two days really are two days,
+    so the first assertion cannot pass by the distinction being unobservable.
+    """
+    driver = tmp_path / "frozen_clock_driver.py"
+    driver.write_text(_FROZEN_CLOCK_DRIVER, encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(driver), str(VALIDATOR)],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    utc_day, local_day = result.stdout.split()
+    assert local_day == "2026-09-09", (
+        "the fixture's own premise: under Pacific/Kiritimati at 23:35 UTC the "
+        "machine's local day is tomorrow")
+    assert utc_day == "2026-09-08", (
+        "`--moved-on` defaulted to the MACHINE'S day, which is issue #790 on "
+        "the ledger side of the same archive")
+
+
+def test_the_SEEDER_STAMPS_THE_UTC_DAY_UNDER_AN_AHEAD_OF_UTC_TZ(tmp_path):
+    """The same property END TO END, through the CLI an operator actually runs.
+
+    BRACKETED rather than compared to one reading: the seeder runs in a child
+    process, so a run that crossed midnight UTC between the two readings would
+    legitimately observe two different days. This test DISTINGUISHES the two
+    clocks only while UTC is past 10:00 (the hours in which UTC+14 is already
+    on the next day); the frozen-clock test above is the one that fails
+    wherever it is run.
+    """
+    import datetime as _dt
+    import os
+    _change(tmp_path, "add-a")
+
+    def utc_now() -> str:
+        return _dt.datetime.now(_dt.timezone.utc).date().isoformat()
+
+    before = utc_now()
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#790"],
+        capture_output=True, text=True,
+        env={**os.environ, "TZ": "Pacific/Kiritimati"})
+    after = utc_now()
+    assert result.returncode == 0, result.stdout + result.stderr
+    stamped = sa.load_ledger(sa.ledger_path(tmp_path)).rows["add-a"]["moved_on"]
+    assert stamped in (before, after), (
+        f"{stamped!r} is neither UTC day this run spanned "
+        f"({before!r}, {after!r}) — the local Kiritimati day is a day ahead")

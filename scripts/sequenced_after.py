@@ -1522,12 +1522,13 @@ def archive_date_problems(
     output before returning it, so a finding added there would make the seeder
     refuse to write the very file that repairs the drift.
 
-    Rows are only checked where all three inputs exist: the id is archived in
+    Rows are only checked where all four inputs exist: the id is archived in
     the LIVE corpus (an id both active and archived reads as ACTIVE and is
     skipped — that ambiguity is `resolve`'s finding), it has exactly one dated
-    directory, and it has a row. A missing or extra row is `ledger_problems`'s
-    to name, and naming it twice would send an author to two repairs for one
-    fact.
+    directory, it has a row, and THAT ROW SAYS `archived`. A missing row, an
+    extra row and a row still saying `active` for an id archived on disk are all
+    `ledger_problems`'s to name, and naming one of them twice would send an
+    author to two repairs for one fact.
     """
     # READ WITHOUT `classify_corpus`, which walks every declaration and resolves
     # every chain: this arm runs on the PLAIN validator run, and the only two
@@ -1542,6 +1543,17 @@ def archive_date_problems(
             continue
         row = ledger.rows.get(change_id)
         if row is None:
+            continue
+        if row.get("state") != STATE_ARCHIVED:
+            # A ROW THAT DOES NOT SAY `archived` IS A STALE ROW, AND SAYING SO
+            # IS `--ledger-diff`'S JOB. The finding below reads "an archived row
+            # cannot record a move that predates the archive that made it
+            # archived" — a sentence about a row that CLAIMS to be archived. An
+            # `active` row for an id that is archived on disk claims no such
+            # thing; it is simply out of date, which `ledger_problems` already
+            # reports by name and in the vocabulary whose repair is a re-seed.
+            # Reporting it here as an archive-date contradiction would name one
+            # fact twice and send the author to two different repairs.
             continue
         moved_on = row.get("moved_on")
         if not is_moved_on(moved_on):

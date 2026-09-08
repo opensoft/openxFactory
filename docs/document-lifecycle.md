@@ -416,10 +416,16 @@ its own.>
   `proposal-support.py archive` derives it once as today in UTC, runs the
   pinned OpenSpec CLI with `TZ=UTC` (the CLI has no date option and names
   `openspec/changes/archive/<YYYY-MM-DD>-<change>/` from its own clock),
-  refuses a `--date` that is not today in UTC, and refuses and reverts the
-  move when the directory the CLI named carries any other day — so the
-  bundle's `packaged_at` and the directory name are one date, and the ledger
-  row the archiving change seeds takes that same date at the flip.
+  refuses a `--date` that is not today in UTC, and inspects the tree the CLI
+  left on every exit status. A directory carrying any other day is REFUSED
+  unconditionally; it is also reverted where the wrapper can do so safely —
+  exactly one new directory naming this change, its active path free, and
+  `openspec/specs/` free of uncommitted tracked changes — and where it cannot,
+  it says which part it left behind rather than claiming a revert it did not
+  make. A change already left in two places, and an archive the CLI reports as
+  retained after a failure, are refused WITHOUT a revert. So the bundle's
+  `packaged_at` and the directory name are one date, and the ledger row the
+  archiving change seeds takes that same date at the flip.
 - `promoted -> adopted`: consumers re-pin, replace local copies with
   references plus thin overlays, and retire duplicates — see the
   [Domain-To-Neutral Promotion Process](domain-to-neutral-promotion-process.md).

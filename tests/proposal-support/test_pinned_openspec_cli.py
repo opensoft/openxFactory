@@ -789,7 +789,15 @@ def test_a_WRONG_DAY_directory_is_REFUSED_and_the_move_REVERTED(
 
     assert ("the pinned CLI named the archive directory '2026-09-07-change-a' "
             "but the archive date is '2026-09-08'") in message
-    assert "the CLI's clock is not UTC; nothing committed" in message
+    # THE DIAGNOSIS NAMES THE POSSIBILITIES RATHER THAN ASSERTING ONE. This
+    # wrapper cannot see the child's clock; what it can see is a name it did not
+    # ask for, and "the CLI's clock is not UTC" was an accusation it had no
+    # standing to make on its own (a run crossing midnight UTC produces the same
+    # observation from a perfectly UTC clock, and is named separately below).
+    assert "the CLI's clock is not UTC, or a future CLI ignored the TZ" \
+        in message
+    assert "this run cannot tell which, and does not guess" in message
+    assert "nothing committed" in message
     # THE TREE IS RESTORED: the change is active again and the archive root the
     # CLI created is gone, so a re-run starts from where the operator did.
     assert (root / "openspec" / "changes" / "change-a" / "proposal.md").is_file()
@@ -861,7 +869,8 @@ def test_the_REFUSAL_LEAVES_a_DIRTY_specs_tree_alone_and_SAYS_SO(
     else:
         raise AssertionError("a wrong-day archive directory must be refused")
 
-    assert "carried uncommitted changes BEFORE this archive" in message
+    assert "carried uncommitted changes to TRACKED files BEFORE this archive" \
+        in message
     left = (specs / "spec.md").read_text(encoding="utf-8")
     assert "the OPERATOR'S edit" in left, (
         "the operator's uncommitted work was discarded by the revert")
@@ -949,3 +958,545 @@ def test_the_ARCHIVE_HELP_states_the_UTC_RULE(support, capsys):
     assert "TODAY IN UTC" in text
     assert "REFUSED" in text
     assert "has no date option" in text
+
+
+# ---- the child's EXIT STATUS is an input to the inspection, not a bypass ----
+#
+# `subprocess.run(command, …, check=True)` raised before anything inspected the
+# tree, and pinned `@fission-ai/openspec@1.12.0` has THREE documented failure
+# paths that happen AFTER the move and each end with the archive standing —
+# `MoveDestinationRetainedError` (`dist/core/archive.js:449`),
+# `RetirementBackupsRetainedError` (`:852`) and the rollback-failure rethrow
+# (`:1605-1617`) — plus the SIGINT that leaves a half-copied split. Every one of
+# them left a directory nothing named and nothing date-checked, and the operator
+# was told only that a subprocess had failed.
+
+
+def _answer(argv, returncode, kwargs, stderr=""):
+    """What REAL `subprocess.run` returns — INCLUDING honouring `check`.
+
+    A double that swallowed `check=True` would make every assertion below pass
+    against a wrapper that still ran the child with it, which is precisely the
+    defect this section exists for: `check=True` raises where the inspection
+    would have run. So the double raises exactly where the real function does,
+    and `check=False` becomes a property the tests can actually hold the code to.
+    """
+    if returncode != 0 and kwargs.get("check"):
+        raise subprocess.CalledProcessError(returncode, argv, "", stderr)
+    return subprocess.CompletedProcess(argv, returncode, "", stderr)
+
+
+def _after_the_move_fake(support, day: str, returncode: int = 1,
+                         stderr: str = "Could not remove the staged source."):
+    """A CLI that COMPLETES the move and THEN exits non-zero.
+
+    The shape of all three of the pinned CLI's after-the-move failures: the
+    change is archived, the child is unhappy about something it could not clean
+    up afterwards, and its own message says the archive was retained.
+    """
+
+    def fake_run(argv, **kwargs):
+        argv = [str(item) for item in argv]
+        if argv[:1] == ["git"]:
+            return _REAL_SUBPROCESS_RUN(argv, **kwargs)
+        if argv[1:2] == ["archive"] and len(argv) > 2:
+            change = argv[2]
+            root = Path(kwargs.get("cwd", "."))
+            source = root / "openspec" / "changes" / change
+            if source.is_dir():
+                destination = (root / "openspec" / "changes" / "archive" /
+                               f"{day}-{change}")
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                source.rename(destination)
+            return _answer(argv, returncode, kwargs, stderr)
+        return _answer(argv, 0, kwargs)
+
+    return fake_run
+
+
+def test_a_FAILED_CHILD_that_left_a_WRONG_DAY_directory_is_STILL_reverted(
+        support, registry, monkeypatch, tmp_path, capsys):
+    """The MAJOR arm: a non-zero exit no longer skips the date check.
+
+    Before this round the `CalledProcessError` was raised where the assertion
+    would have run, so the wrong-day directory survived unnamed and the operator
+    saw only a failed subprocess. The date finding is now reached on every exit
+    status, the revert runs exactly as it does on a zero exit, and the child's
+    status is REPORTED beside it rather than swallowed.
+    """
+    root = tmp_path / "repo"
+    a_change(root)
+    monkeypatch.setattr(support.subprocess, "run",
+                        _after_the_move_fake(support, "2026-09-07"))
+    monkeypatch.setattr(support, "utc_today", lambda: "2026-09-08")
+    monkeypatch.setattr(
+        sys, "argv",
+        ["proposal-support.py", str(root), "archive", "change-a", "--yes"])
+
+    with pytest.raises(SystemExit) as raised:
+        support.main()
+
+    assert raised.value.code == 2, "a date refusal is exit 2, not a traceback"
+    err = capsys.readouterr().err
+    assert "REFUSE archive-date-mismatch" in err
+    assert "'2026-09-07-change-a'" in err
+    assert "The child also exited 1" in err, (
+        "the child's own failure is reported, not swallowed by the refusal")
+    assert "reverted: the change directory was moved back" in err
+    assert (root / "openspec" / "changes" / "change-a" / "proposal.md").is_file()
+    assert not (root / "openspec" / "changes" / "archive").exists()
+
+
+def test_a_FAILED_CHILD_that_left_the_RIGHT_DAY_directory_KEEPS_it(
+        support, registry, monkeypatch, tmp_path, capsys):
+    """(iii) A correct archive the CLI says is RETAINED is never reverted.
+
+    All three of the pinned CLI's after-the-move failures end with the change
+    still archived — `:449` "The complete destination was retained for
+    recovery", `:852` "The change remains archived and each listed backup was
+    retained for recovery", `:1605-1617` reporting that the ROLLBACK failed — so
+    moving the destination back would destroy the only complete copy in exactly
+    the cases the CLI was most careful to preserve it. The run still fails, and
+    it says which of the two facts is which.
+    """
+    root = tmp_path / "repo"
+    a_change(root)
+    monkeypatch.setattr(support.subprocess, "run",
+                        _after_the_move_fake(support, "2026-09-08"))
+    monkeypatch.setattr(support, "utc_today", lambda: "2026-09-08")
+    monkeypatch.setattr(
+        sys, "argv",
+        ["proposal-support.py", str(root), "archive", "change-a", "--yes"])
+
+    with pytest.raises(SystemExit) as raised:
+        support.main()
+
+    assert raised.value.code == 2
+    err = capsys.readouterr().err
+    assert "REFUSE archive-cli-failed" in err
+    assert "the pinned CLI exited 1 AFTER archiving 'change-a'" in err
+    assert "THE DATE IS NOT IN QUESTION" in err
+    assert "NOT reverted, deliberately" in err
+    assert "archive-date-mismatch" not in err, (
+        "the name is right; calling this a date finding would send the "
+        "operator to the wrong repair")
+    # THE DIRECTORY STANDS, and the active path was not resurrected.
+    assert (root / "openspec" / "changes" / "archive" / "2026-09-08-change-a"
+            / "proposal.md").is_file()
+    assert not (root / "openspec" / "changes" / "change-a").exists()
+
+
+def _split_fake(support, day: str, returncode: int = -2):
+    """A CLI that COPIES the change and then DIES BY SIGNAL mid-move.
+
+    `moveDirectory` copies to a staged destination and only then removes the
+    source, so an interruption between the two leaves the change in BOTH places.
+    `-2` is what `subprocess` reports for SIGINT — an operator's ctrl-C.
+    """
+
+    def fake_run(argv, **kwargs):
+        argv = [str(item) for item in argv]
+        if argv[:1] == ["git"]:
+            return _REAL_SUBPROCESS_RUN(argv, **kwargs)
+        if argv[1:2] == ["archive"] and len(argv) > 2:
+            change = argv[2]
+            root = Path(kwargs.get("cwd", "."))
+            source = root / "openspec" / "changes" / change
+            if source.is_dir():
+                destination = (root / "openspec" / "changes" / "archive" /
+                               f"{day}-{change}")
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                # COPIED, NOT MOVED, and only partly: the source is still there.
+                destination.mkdir()
+                (destination / "proposal.md").write_text(
+                    (source / "proposal.md").read_text(encoding="utf-8"),
+                    encoding="utf-8")
+            return _answer(argv, returncode, kwargs)
+        return _answer(argv, 0, kwargs)
+
+    return fake_run
+
+
+def test_a_HALF_MOVED_change_is_REFUSED_with_BOTH_paths_named_and_NOTHING_touched(
+        support, registry, monkeypatch, tmp_path, capsys):
+    """(iv) A change standing in two places is refused, not guessed at.
+
+    Which copy is complete cannot be read off the tree, and the CLI's own move
+    says why guessing is wrong. So both paths are NAMED, nothing is moved, and
+    the exit is 2 rather than a bare `CalledProcessError` about a signal.
+    """
+    root = tmp_path / "repo"
+    a_change(root)
+    monkeypatch.setattr(support.subprocess, "run",
+                        _split_fake(support, "2026-09-08"))
+    monkeypatch.setattr(support, "utc_today", lambda: "2026-09-08")
+    monkeypatch.setattr(
+        sys, "argv",
+        ["proposal-support.py", str(root), "archive", "change-a", "--yes"])
+
+    with pytest.raises(SystemExit) as raised:
+        support.main()
+
+    assert raised.value.code == 2
+    err = capsys.readouterr().err
+    assert "REFUSE archive-split" in err
+    assert "the child exited -2" in err, "the signal is named"
+    assert str(root / "openspec" / "changes" / "change-a") in err
+    assert str(root / "openspec" / "changes" / "archive"
+               / "2026-09-08-change-a") in err
+    assert "NOTHING was moved and NOTHING was reverted" in err
+    # BOTH COPIES ARE EXACTLY WHERE THE CHILD LEFT THEM.
+    assert (root / "openspec" / "changes" / "change-a" / "proposal.md").is_file()
+    assert (root / "openspec" / "changes" / "archive" / "2026-09-08-change-a"
+            / "proposal.md").is_file()
+
+
+def test_a_CHILD_THAT_FAILED_HAVING_MOVED_NOTHING_is_STILL_EXIT_ONE(
+        support, registry, monkeypatch, tmp_path):
+    """The ordinary refusal keeps the status it has always had.
+
+    Incomplete tasks, a destination that already exists, a validation the CLI
+    ran itself: the child failed and the tree is exactly as the operator handed
+    it over, which is the fix-and-retry shape exit 1 has always meant here.
+    Turning that into a date finding at exit 2 would rename every routine CLI
+    refusal after a date nothing wrote.
+    """
+    root = tmp_path / "repo"
+    a_change(root)
+
+    def fake_run(argv, **kwargs):
+        argv = [str(item) for item in argv]
+        if argv[:1] == ["git"]:
+            return _REAL_SUBPROCESS_RUN(argv, **kwargs)
+        if argv[1:2] == ["archive"]:
+            return _answer(argv, 1, kwargs, "3 incomplete")
+        return _answer(argv, 0, kwargs)
+
+    monkeypatch.setattr(support.subprocess, "run", fake_run)
+    monkeypatch.setattr(support, "utc_today", lambda: "2026-09-08")
+    monkeypatch.setattr(
+        sys, "argv",
+        ["proposal-support.py", str(root), "archive", "change-a", "--yes"])
+
+    with pytest.raises(SystemExit) as raised:
+        support.main()
+
+    assert raised.value.code != 0
+    assert raised.value.code != 2, (
+        "a CLI that refused before moving anything is not an archive-date or "
+        "archive-tree finding")
+    assert (root / "openspec" / "changes" / "change-a").is_dir()
+
+
+# ---------- a SIBLING lane's directory is not this archive's to judge --------
+
+
+def _sibling_fake(support, day: str, sibling: str):
+    """A correct archive, plus ANOTHER change's directory appearing beside it.
+
+    What a shared checkout does: two lanes archive at once, and the second one's
+    directory lands between this run's before- and after-readings.
+    """
+
+    def fake_run(argv, **kwargs):
+        argv = [str(item) for item in argv]
+        if argv[:1] == ["git"]:
+            return _REAL_SUBPROCESS_RUN(argv, **kwargs)
+        if argv[1:2] == ["archive"] and len(argv) > 2:
+            change = argv[2]
+            root = Path(kwargs.get("cwd", "."))
+            source = root / "openspec" / "changes" / change
+            archive = root / "openspec" / "changes" / "archive"
+            archive.mkdir(parents=True, exist_ok=True)
+            (archive / f"{day}-{sibling}").mkdir()
+            if source.is_dir():
+                source.rename(archive / f"{day}-{change}")
+        return subprocess.CompletedProcess(argv, 0, "", "")
+
+    return fake_run
+
+
+def test_a_CONCURRENT_SIBLING_DIRECTORY_does_NOT_refuse_a_CORRECT_archive(
+        support, registry, monkeypatch, tmp_path, capsys):
+    """`created == [want]` refused a correct archive, and told the operator to
+    move BOTH directories back — one of which belonged to another change.
+
+    The question is whether the directory this run asked for is THERE, not
+    whether it is the only thing that appeared. A sibling lane's archive is
+    named on stderr as a fact and touched by nothing.
+    """
+    root = tmp_path / "repo"
+    a_change(root)
+    monkeypatch.setattr(
+        support.subprocess, "run",
+        _sibling_fake(support, "2026-09-08", "change-from-another-lane"))
+
+    support.archive_change(root, "change-a", "2026-09-08", False, True)
+
+    err = capsys.readouterr().err
+    assert "2026-09-08-change-from-another-lane" in err
+    assert "left exactly as found" in err
+    assert "REFUSE" not in err
+    archive = root / "openspec" / "changes" / "archive"
+    assert (archive / "2026-09-08-change-a").is_dir()
+    assert (archive / "2026-09-08-change-from-another-lane").is_dir(), (
+        "another lane's archive was moved or deleted by this run")
+
+
+def test_a_WRONG_DAY_REFUSAL_NEVER_ASKS_TO_UNDO_ANOTHER_CHANGES_DIRECTORY(
+        support, registry, monkeypatch, tmp_path):
+    """The same fix on the refusing side: the remedy names only what is ours.
+
+    With a sibling directory present the old code took the `len(created) != 1`
+    branch and printed "move THEM back by hand" over a list containing another
+    lane's archive. The wrong-day copy of THIS change is reverted; the sibling
+    is named as left alone.
+    """
+    root = tmp_path / "repo"
+    a_change(root)
+    monkeypatch.setattr(
+        support.subprocess, "run",
+        _sibling_fake(support, "2026-09-07", "change-from-another-lane"))
+
+    try:
+        support.archive_change(root, "change-a", "2026-09-08", False, True)
+    except support.ArchiveDateRefusal as exc:
+        message = str(exc)
+    else:
+        raise AssertionError("a wrong-day archive directory must be refused")
+
+    assert "reverted: the change directory was moved back" in message
+    assert "LEFT ALONE: 2026-09-07-change-from-another-lane" in message
+    assert "does not touch them or ask you to" in message
+    assert (root / "openspec" / "changes" / "change-a" / "proposal.md").is_file()
+    assert (root / "openspec" / "changes" / "archive"
+            / "2026-09-07-change-from-another-lane").is_dir()
+
+
+# ------- the CLI does not RE-PREFIX an id that already carries a date --------
+
+
+def test_the_EXPECTED_NAME_IS_COMPUTED_THE_WAY_THE_PINNED_CLI_COMPUTES_IT(
+        support):
+    """`archive.js:27`'s `/^\\d{4}-\\d{2}-\\d{2}-/`, and `:1124`'s use of it."""
+    assert support.archive_directory_name("add-a", "2026-09-08") \
+        == "2026-09-08-add-a"
+    # ALREADY PREFIXED: the CLI archives it under its own name, deliberately
+    # (upstream #1309 — "re-prefixing would stutter the name").
+    assert support.archive_directory_name("2026-08-04-add-a", "2026-09-08") \
+        == "2026-08-04-add-a"
+    # NOT A DATE PREFIX, so it is prefixed like anything else.
+    assert support.archive_directory_name("2026-8-4-add-a", "2026-09-08") \
+        == "2026-09-08-2026-8-4-add-a"
+
+
+def test_a_DATE_PREFIXED_CHANGE_ID_is_ACCEPTED_and_NOT_falsely_reverted(
+        support, registry, monkeypatch, tmp_path):
+    """The wrapper refused — AND REVERTED — a correct archive of such a change.
+
+    Always prepending today produced an expectation the pinned CLI will never
+    satisfy, so the archive was undone and the operator sent to re-run something
+    that had worked. Nothing else in this file is a worse failure than the one
+    it exists to prevent; this one was.
+    """
+    root = tmp_path / "repo"
+    a_change(root, "2026-08-04-add-dated")
+
+    def fake_run(argv, **kwargs):
+        argv = [str(item) for item in argv]
+        if argv[:1] == ["git"]:
+            return _REAL_SUBPROCESS_RUN(argv, **kwargs)
+        if argv[1:2] == ["archive"] and len(argv) > 2:
+            change = argv[2]
+            root_ = Path(kwargs.get("cwd", "."))
+            source = root_ / "openspec" / "changes" / change
+            if source.is_dir():
+                # THE PINNED CLI'S OWN RULE: the name already carries a date, so
+                # it is archived under that name unchanged.
+                destination = (root_ / "openspec" / "changes" / "archive" /
+                               change)
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                source.rename(destination)
+        return subprocess.CompletedProcess(argv, 0, "", "")
+
+    monkeypatch.setattr(support.subprocess, "run", fake_run)
+
+    support.archive_change(root, "2026-08-04-add-dated", "2026-09-08", False,
+                           True)
+
+    assert (root / "openspec" / "changes" / "archive" / "2026-08-04-add-dated"
+            / "proposal.md").is_file()
+    assert not (root / "openspec" / "changes" / "2026-08-04-add-dated").exists()
+
+
+# ------------------- the diagnosis names what it can KNOW -------------------
+
+
+def test_a_RUN_THAT_CROSSED_MIDNIGHT_UTC_is_NOT_blamed_on_the_CLIs_CLOCK(
+        support, registry, monkeypatch, tmp_path):
+    """(a) The archive date is taken ONCE, before the child; UTC moves anyway.
+
+    A run that began at 23:59:59 UTC takes `archive_date` on one day and the
+    child — with a perfectly UTC clock — names the directory on the next. The
+    refusal stands (the bundle's `packaged_at` would state the earlier day), but
+    "the CLI's clock is not UTC" is an accusation this wrapper cannot support,
+    so the day is RE-READ after the child and the crossing is named instead.
+    """
+    root = tmp_path / "repo"
+    a_change(root)
+    monkeypatch.setattr(support.subprocess, "run",
+                        _wrong_day_fake(support, "2026-09-08"))
+    # the clock moved on while the child ran
+    monkeypatch.setattr(support, "utc_today", lambda: "2026-09-08")
+
+    try:
+        support.archive_change(root, "change-a", "2026-09-07", False, True)
+    except support.ArchiveDateRefusal as exc:
+        message = str(exc)
+    else:
+        raise AssertionError("the packaged_at and the directory still disagree")
+
+    assert "THIS RUN CROSSED MIDNIGHT UTC" in message
+    assert "The CLI's clock is not in question" in message
+    assert "the CLI's clock is not UTC" not in message
+    # and it is still refused and still reverted: one archive, one date.
+    assert (root / "openspec" / "changes" / "change-a" / "proposal.md").is_file()
+
+
+def test_TWO_NEW_DIRECTORIES_NAMING_THIS_CHANGE_are_not_blamed_on_the_clock(
+        support, registry, monkeypatch, tmp_path):
+    """(b) Which directory this archive produced is not readable off the tree."""
+    root = tmp_path / "repo"
+    a_change(root)
+
+    def fake_run(argv, **kwargs):
+        argv = [str(item) for item in argv]
+        if argv[:1] == ["git"]:
+            return _REAL_SUBPROCESS_RUN(argv, **kwargs)
+        if argv[1:2] == ["archive"] and len(argv) > 2:
+            change = argv[2]
+            root_ = Path(kwargs.get("cwd", "."))
+            archive = root_ / "openspec" / "changes" / "archive"
+            archive.mkdir(parents=True, exist_ok=True)
+            (archive / f"2026-09-06-{change}").mkdir()
+            source = root_ / "openspec" / "changes" / change
+            if source.is_dir():
+                source.rename(archive / f"2026-09-07-{change}")
+        return subprocess.CompletedProcess(argv, 0, "", "")
+
+    monkeypatch.setattr(support.subprocess, "run", fake_run)
+    monkeypatch.setattr(support, "utc_today", lambda: "2026-09-08")
+
+    try:
+        support.archive_change(root, "change-a", "2026-09-08", False, True)
+    except support.ArchiveDateRefusal as exc:
+        message = str(exc)
+    else:
+        raise AssertionError("two directories must be refused")
+
+    assert "more than one directory appeared during this run" in message
+    assert "the CLI's clock is not UTC" not in message
+    assert "NOT reverted: 2 directories naming 'change-a'" in message
+
+
+# -------- the specs revert reads TRACKED changes, and only tracked ones ------
+
+
+def test_an_UNTRACKED_FILE_under_specs_does_NOT_DISABLE_the_revert(
+        support, registry, monkeypatch, tmp_path):
+    """`git status --porcelain` counted untracked files, and the revert cannot.
+
+    `git checkout -- openspec/specs` restores TRACKED paths from the index and
+    leaves everything else alone, so an untracked scratch file could not be
+    harmed by it — yet its presence made the tree read "dirty", disabled the
+    revert of the CLI's tracked spec edits, and blamed the operator for
+    uncommitted work they had not done.
+    """
+    root = tmp_path / "repo"
+    a_change(root)
+    specs = root / "openspec" / "specs" / "a-capability"
+    specs.mkdir(parents=True)
+    (specs / "spec.md").write_text("# a-capability\n\nthe committed text\n",
+                                   encoding="utf-8")
+    _REAL_SUBPROCESS_RUN(["git", "-C", str(root), "add", "-A"], check=True,
+                         capture_output=True, text=True)
+    _REAL_SUBPROCESS_RUN(
+        ["git", "-C", str(root), "-c", "user.name=Test", "-c",
+         "user.email=test@example.invalid", "commit", "-q", "-m", "specs"],
+        check=True, capture_output=True, text=True)
+    # THE STRAY FILE. Untracked, unrelated, and unharmed by any revert.
+    (specs / "scratch-note.md").write_text("an operator's note\n",
+                                           encoding="utf-8")
+    monkeypatch.setattr(support.subprocess, "run",
+                        _wrong_day_fake(support, "2026-09-07"))
+
+    try:
+        support.archive_change(root, "change-a", "2026-09-08", False, True)
+    except support.ArchiveDateRefusal as exc:
+        message = str(exc)
+    else:
+        raise AssertionError("a wrong-day archive directory must be refused")
+
+    assert "git checkout -- openspec/specs" in message
+    assert "carried uncommitted changes" not in message
+    assert (specs / "spec.md").read_text(encoding="utf-8") \
+        == "# a-capability\n\nthe committed text\n"
+    assert (specs / "scratch-note.md").is_file(), (
+        "the revert must not remove an untracked file, and did not try")
+
+
+def test_UNTRACKED_ONLY_SPECS_are_NOT_reported_as_a_FAILED_revert(
+        support, registry, monkeypatch, tmp_path):
+    """`git checkout --` exits 1 "pathspec … did not match" with nothing tracked.
+
+    Printing that as "STILL IN THE TREE … undo them by hand" sent an operator
+    hunting for tracked edits that cannot exist: everything under a specs
+    directory git has never seen is an untracked addition, which the message
+    already says is left in place.
+    """
+    root = tmp_path / "repo"
+    a_change(root)  # commits no openspec/specs at all
+    monkeypatch.setattr(support.subprocess, "run",
+                        _wrong_day_fake(support, "2026-09-07"))
+
+    try:
+        support.archive_change(root, "change-a", "2026-09-08", False, True)
+    except support.ArchiveDateRefusal as exc:
+        message = str(exc)
+    else:
+        raise AssertionError("a wrong-day archive directory must be refused")
+
+    assert "nothing to revert under openspec/specs/" in message
+    assert "git tracks no file there" in message
+    assert "`git checkout -- openspec/specs` FAILED" not in message
+    assert "are STILL IN THE TREE" not in message
+    assert "Undo them by hand before re-running" not in message
+
+
+def test_an_EMPTY_DATE_IS_A_VALUE_THE_OPERATOR_TYPED_and_is_REFUSED(
+        support, monkeypatch, tmp_path):
+    """`args.date or today` silently replaced `--date ''` with today.
+
+    A flag reported as honoured when nothing read it. An empty string is not
+    today in UTC, so it takes the refusal every other unhonourable date takes —
+    before the pin is resolved and before anything moves.
+    """
+    root = tmp_path / "repo"
+    a_change(root)
+    ran: list = []
+    monkeypatch.setattr(
+        support.subprocess, "run",
+        lambda argv, **kw: (ran.append([str(i) for i in argv]),
+                            _REAL_SUBPROCESS_RUN([str(i) for i in argv],
+                                                 **kw))[1])
+    monkeypatch.setattr(
+        sys, "argv",
+        ["proposal-support.py", str(root), "archive", "change-a", "--yes",
+         "--date", ""])
+
+    with pytest.raises(SystemExit) as raised:
+        support.main()
+
+    assert raised.value.code == 2
+    assert all(argv[:1] == ["git"] for argv in ran)
+    assert (root / "openspec" / "changes" / "change-a").is_dir()
