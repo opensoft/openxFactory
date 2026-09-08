@@ -147,6 +147,15 @@ tick in the archive commit itself.
       reads `` `Hermes-Install`, and `Omnigent-Install` `` — a comma before the
       final conjunction — so the widening keeps one before the fifth name
       rather than silently restyling the sentence it promises only to extend.
+      **AND THE EDIT IS STATED EXACTLY, BECAUSE IT IS NOT A PURE INSERTION AND
+      CANNOT BE.** Measured character by character against canon: three names
+      are appended to the list AND the conjunction `and ` moves from before
+      `Omnigent-Install` to before `OmniWorker-Install`, which is what
+      extending a serial list requires — the conjunction belongs to the LAST
+      item, whichever that is. Those two are the whole edit. Every other
+      character of the sentence, the serial comma's position relative to the
+      final `and` included, is byte-identical, and no other clause of the
+      `## Purpose` block is touched.
       **NOTHING ELSE IN THE `## Purpose` BLOCK IS TOUCHED** — no clause is
       reworded, reordered or removed, only the enumeration widens — and **no
       promoted requirement's text is edited by it.** No `Removed from canon by`
