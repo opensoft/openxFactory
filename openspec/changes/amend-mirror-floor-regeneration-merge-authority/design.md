@@ -1,6 +1,9 @@
 # Design: amend-mirror-floor-regeneration-merge-authority
 
-Status: draft
+Status: ratified
+Ratified by: amend-mirror-floor-regeneration-merge-authority — 2026-09-08, Brett Heap,
+verbatim "merge 292 when green, then ratify 807" (openxFactory #745 comment
+5586895152; record `review/ratification-2026-09-08.md`)
 Kind: design
 
 Seven decisions, **M-A through M-G**, mirroring the seven — D-1 through D-7 —

@@ -513,9 +513,22 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [amend-mirror-floor-regeneration-merge-authority](openspec/changes/amend-mirror-floor-regeneration-merge-authority/proposal.md)
-  — authored 2026-09-08, **`Status: draft`** (a PROPOSAL awaiting Brett Heap's
-  ratification; it cites none and owes none until its content is ratified as a
-  separate act). Origin: Brett Heap's ruling of 2026-09-08T13:22:40Z, verbatim
+  — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
+  (openxFactory repository owner), in session, verbatim **"merge 292 when green,
+  then ratify 807"** — the SECOND act of a two-act word whose first act landed
+  codexFactory [#292](https://github.com/opensoft/codexFactory/pull/292) at merge
+  commit `406a2afb`; recorded on openxFactory
+  [#745](https://github.com/opensoft/openxFactory/issues/745) comment
+  5586895152, applied over PR
+  [#807](https://github.com/opensoft/openxFactory/pull/807) head `b910e97d` with
+  every check green and 0 unresolved threads; record
+  `openspec/changes/amend-mirror-floor-regeneration-merge-authority/review/ratification-2026-09-08.md`).
+  **M-A THROUGH M-G STAND AS RECOMMENDED — no veto entered.** **NOTHING IS
+  REALIZED BY THE RATIFICATION**: no workflow, no test, no envelope byte, no
+  ruleset, no pin byte, and box 1.1 is the only box ticked. The realization stays
+  gated on the enrolment successor, and `tasks.md` box 1.3 — inert or wait — is
+  NOT ruled by the word. Origin: Brett Heap's ruling of 2026-09-08T13:22:40Z,
+  verbatim
   **"rule on finding 3, do the mirror packet too"** (openxFactory
   [#745](https://github.com/opensoft/openxFactory/issues/745) comment
   5585824802), taking the recommendation codexFactory's ratified

@@ -6,7 +6,22 @@ sequenced_after: [mirror-floor-regeneration-automation, extend-merge-master-enve
 
 # Proposal: amend-mirror-floor-regeneration-merge-authority
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-08, Brett Heap (openxFactory repository owner), in session,
+verbatim **"merge 292 when green, then ratify 807"** — the SECOND act of a
+two-act word whose first act, the landing of codexFactory #292, was performed at
+codexFactory main merge commit `406a2afb8cce758ed645a5f9217a395fb9452246`;
+recorded 2026-09-08T14:39:04Z on openxFactory issue
+[#745](https://github.com/opensoft/openxFactory/issues/745) (comment 5586895152)
+and applied over PR [#807](https://github.com/opensoft/openxFactory/pull/807)
+head `b910e97d` on the condition that its checks be green, which they were;
+record `review/ratification-2026-09-08.md`. **AUTHORING DECISIONS M-A THROUGH
+M-G STAND AS RECOMMENDED** and none is separately ruled; the owner may veto any
+of them by follow-up, and each remains one edit away. **NOTHING IS REALIZED BY
+THE RATIFICATION** — it ratifies the PROPOSAL; the realization is a later word
+and stays gated on the enrolment successor, which the ratifying word says in its
+own recording. **`tasks.md` box 1.3 — inert realization or wait for the
+successor — IS NOT RULED BY THIS WORD.**
 Proposed: 2026-09-08, in lane `openxfactory-2` (display `openXfactory-2`), as
 the lockstep mirror **D-6** of codexFactory's
 `amend-floor-regeneration-merge-authority` recommends and that packet's
@@ -28,6 +43,9 @@ and **NOTHING IS REALIZED** — this packet edits no workflow, flips no test,
 enrols no candidate, touches no ruleset, moves no pin byte and ticks no box.
 Every judgment this authoring session took is listed in `design.md` as
 **M-A through M-G**, each with a recommendation, each put for veto.
+**Ratified 2026-09-08 — see `Ratified:` below; the paragraph above is kept as
+the record of the packet's state at authoring, unedited.**
+
 
 ## Why
 

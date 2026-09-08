@@ -1,33 +1,47 @@
 # Tasks: amend-mirror-floor-regeneration-merge-authority
 
-Status: draft
+Status: ratified
+Ratified by: amend-mirror-floor-regeneration-merge-authority — 2026-09-08, Brett Heap,
+verbatim "merge 292 when green, then ratify 807" (openxFactory #745 comment
+5586895152; record `review/ratification-2026-09-08.md`)
 Kind: tasks
 
 `code_surface: openxFactory`, `target_release:` a code surface — so under
 `release-realization` this packet archives on merged-plus-green realization
 evidence and not on landing.
 
-**THIS PULL REQUEST PERFORMS NOTHING BUT THE PROPOSING.** No workflow is edited,
-no test is flipped, no envelope byte moves, no ruleset is touched, no pin or
-snapshot byte moves, and no box in any other packet is ticked. **EVERY BOX IS
-UNTICKED, AND NO BOX IS "OPEN FOREVER": each one names the act that ticks it.**
+**THIS PULL REQUEST PERFORMS NOTHING BUT THE PROPOSING AND THE RATIFYING.** No
+workflow is edited, no test is flipped, no envelope byte moves, no ruleset is
+touched, no pin or snapshot byte moves, and no box in any other packet is ticked.
+**EXACTLY ONE BOX IS TICKED — 1.1, by the ratifying commit of 2026-09-08 — AND NO
+BOX IS "OPEN FOREVER": each one names the act that ticks it.**
 The acts are, in order: Brett Heap's ratification; the realization landing green;
 the enrolment successor being FILED (which ticks on the successor being NAMED,
 per the tick-on-the-recording rule of 2026-09-06); one cheap precondition
 measurement, Brett Heap's word on the completion path and a codexFactory carve;
 and one observed live cycle.
 
-The tick discipline is the parent's and the twin's, not the sibling amendment's:
-`mirror-floor-regeneration-automation` was ratified with every box unticked
-(*"NOTHING IS REALIZED BY THE RATIFICATION"*), codexFactory's
-`amend-floor-regeneration-merge-authority` likewise, and this packet follows
-both. The commissioning word — *"rule on finding 3, do the mirror packet too"* —
-ruled a finding in the OTHER repository and commissioned this authoring; it
-ratified no text here.
+**AMENDED 2026-09-08 AT RATIFICATION, RATHER THAN LEFT TO CONTRADICT THE TREE.**
+As authored this paragraph read that the tick discipline is the parent's and the
+twin's and that this packet "follows both" with every box unticked. TWO THINGS
+WERE WRONG WITH IT and both are corrected here rather than papered over: the
+parent `mirror-floor-regeneration-automation` did ratify with every box unticked,
+but codexFactory's twin `amend-floor-regeneration-merge-authority` did NOT — it
+ticked 1.1 and 1.2 and disclosed the deviation; and the sentence stopped being
+true of THIS pull request the moment the ratification landed inside it. **What
+actually happened: box 1.1 alone is ticked**, on the landing lane's instruction
+to tick only the box this packet's own rule says ratification ticks. **1.2's
+stated condition IS answered** by `review/ratification-2026-09-08.md` § *Which
+decisions stand* (M-A..M-G, one line each, none vetoed) and the box is
+nevertheless left open; say the word and it ticks in one edit. The commissioning
+word — *"rule on finding 3, do the mirror packet too"* — ruled a finding in the
+OTHER repository and commissioned this authoring; it ratified no text here. The
+RATIFYING word is *"merge 292 when green, then ratify 807"*, and **it still
+realizes nothing**.
 
 ## 1. Ratification — Brett Heap's acts
 
-- [ ] 1.1 **Ratify or refuse this packet.** The word of 2026-09-08T13:22:40Z
+- [x] 1.1 **Ratify or refuse this packet.** The word of 2026-09-08T13:22:40Z
       (*"rule on finding 3, do the mirror packet too"*, openxFactory
       [#745](https://github.com/opensoft/openxFactory/issues/745) comment
       5585824802) commissioned the authoring; it did not ratify this text.
@@ -37,6 +51,15 @@ ratified no text here.
       `proposal.md`/`design.md`/this file moving from `Status: draft` to
       `Status: ratified` with a `Ratified by:` citation, as
       `document-lifecycle`'s ratified-provenance rule requires.
+      **2026-09-08 — RATIFIED, and this box is ticked by the act that satisfies
+      its own stated condition.** Brett Heap, in session, verbatim *"merge 292
+      when green, then ratify 807"* (#745 comment 5586895152, 2026-09-08T14:39Z),
+      the second act of a two-act word whose first act landed codexFactory #292
+      at merge commit `406a2afb`. Record: `review/ratification-2026-09-08.md`,
+      naming the word, the head it was given over (`b910e97d`, all checks green,
+      0 unresolved threads), what it ratifies, and what it does NOT decide.
+      `proposal.md` carries `Ratified:`; `design.md` and this file carry
+      `Ratified by:`. **Nothing is realized by it.**
 - [ ] 1.2 **Veto or let stand M-A through M-G** (`design.md` § 3). Each carries a
       recommendation; ratifying without vetoing adopts them as written, the same
       shape M-1..M-7 and N-1..N-5 were ratified in. **The three worth reading

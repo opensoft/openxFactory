@@ -83,7 +83,37 @@ origin:
     recommended first). M-A's last alternative — hold the arming
     until the successor lands, instead of landing it inert — is carried separately
     as `tasks.md` box 1.3 so it can be ruled on its own.
+    THE PACKET HAS SINCE BEEN RATIFIED — Brett Heap, 2026-09-08, in session,
+    verbatim "merge 292 when green, then ratify 807", the second act of a two-act
+    word whose first act landed codexFactory #292 at merge commit `406a2afb`;
+    recorded 2026-09-08T14:39:04Z on openxFactory #745 (comment 5586895152) and
+    applied over PR #807 head `b910e97d` on the condition that its checks be
+    green, which they were; record `review/ratification-2026-09-08.md`. Decisions
+    M-A through M-G stand as recommended and no veto was exercised. THIS FIELD
+    STILL RECORDS AUTHORIZATION TO FILE ONLY, on the drafting-provenance shape
+    `add-drafted-proposal-origin` added; the ratification is a separate act
+    recorded in the record, and NOTHING IS REALIZED BY EITHER — no workflow, no
+    test, no envelope byte, no ruleset, no pin byte, and box 1.1 is the only box
+    ticked anywhere.
   proposed_on: 2026-09-08
+  approved_by: >-
+    Brett Heap (openxFactory repository owner), in session, 2026-09-08T14:39:02Z,
+    verbatim "merge 292 when green, then ratify 807" — the SECOND act of a
+    two-act word whose first act landed codexFactory #292 at merge commit
+    `406a2afb8cce758ed645a5f9217a395fb9452246`; recorded on openxFactory #745,
+    comment 5586895152, and applied over PR #807 head `b910e97d` with every check
+    green and 0 unresolved review threads. Record:
+    `review/ratification-2026-09-08.md`.
+    THIS PAIR IS A PURE ADDITION BESIDE A FIXED `kind` AND `id`, which is the
+    shape `add-drafted-proposal-origin` (issue #318) defined for exactly this
+    moment and which `proposed_by` above promised: the drafting provenance is
+    KEPT, unedited, as the record of how the packet was filed, and the approval
+    provenance is added beside it now that an approval exists. Decisions M-A
+    through M-G stand as recommended and no veto was exercised. NOTHING IS
+    REALIZED BY THE APPROVAL — no workflow, no test, no envelope byte, no
+    ruleset, no pin byte — and `tasks.md` box 1.1 is the only box ticked
+    anywhere.
+  approved_on: 2026-09-08
 related:
   - openxFactory:change:mirror-floor-regeneration-automation                        # ACTIVE, ratified 2026-09-06 (PR #708). THE PARENT: its requirement 1 is the sentence this packet's one MODIFIED block replaces, and it must archive first
   - openxFactory:change:extend-merge-master-envelope-to-floor-bot-lanes             # ACTIVE, ratified 2026-09-07 (PR #746). The § 6.3 packet: its N-1 admitted the codexFactory regeneration lane ONLY and left this lane on a human merge word, which is why the realization here is gated rather than one click away
