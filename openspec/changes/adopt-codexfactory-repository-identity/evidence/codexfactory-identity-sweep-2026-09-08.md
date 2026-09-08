@@ -516,3 +516,162 @@ completes**, and "runbook step 1.2" on their pull requests should be read as
 **Recorded rather than corrected in place** on the slice pull requests, because
 the runbook is the operator's document and this is a finding about it, not an
 edit to it.
+
+---
+
+## 15. Addendum: group 1 realized under the amended task 1.1, and TWO new occurrence classes
+
+**Task 1.1 was AMENDED on 2026-09-08** by Brett Heap (convener), interactive
+walkthrough, verbatim **"Amend task 1.1: this change creates the file
+(Recommended)"** — resolving the blocker § 9 recorded. Record:
+`review/amendment-2026-09-08-task-1-1.md`. Slice A merged first as PR **#799**,
+merge commit `131adf11`, 2026-09-08T14:32:34Z; this addendum is measured on the
+branch `030-mapping-row-amendment`, cut from `origin/main` at that merge.
+
+`contracts/policies/repository-identity.yaml` now exists, carrying the schema
+both repositories' rows need and the codexFactory row. Tasks **1.2** and **1.3**
+are realized on the row as written; task **1.4** is RE-DERIVED — the
+`contracts/manifest.yaml` entry, its `consumption_rule` and the computed
+per-file `sha256` are owed HERE, not by the exemplar, because the file it
+registers is now authored here.
+
+### 15.1 A NEW disposition class: the mapping's own lookup key
+
+The new file adds **2 occurrences of `opensoft/codexFactory` inside a
+`contracts/**` path** — the RENAME class by pathspec:
+
+```
+contracts/policies/repository-identity.yaml:2
+```
+
+They are `former: opensoft/codexFactory` and the row's own section comment.
+**They are the mapping's LOOKUP KEY and must never be renamed** — renaming them
+would delete the very entry that makes every frozen spelling resolvable, and the
+rule would be eating itself. This is a class the packet's § 2 table has no row
+for, because at authoring time the file did not exist:
+
+| class | hits | files | disposition |
+| --- | ---: | ---: | --- |
+| **mapping key** — `contracts/policies/repository-identity.yaml` | **2** | **1** | **PERMANENTLY the former spelling, by construction** |
+
+**Consequence for task 6.5.** *"Zero remaining live occurrences of
+`opensoft/codexFactory` outside the frozen and not-swept sets"* must exclude the
+mapping file, exactly as it already excludes the frozen sets. Stated here so a
+later reader does not respell the key to satisfy a literal count.
+
+### 15.2 A NEW occurrence no slice covers: `governance/review-authority/grants/grant-grc-0001.yaml`
+
+Discharging task **2.3** at this head found an occurrence that did not exist at
+`e8021fed`:
+
+```
+governance/review-authority/grants/grant-grc-0001.yaml:2
+```
+
+Added by commit `4719f07f`, *"Register act §3.3–3.7: commission
+agent:gate-rules-council (PLACEHOLDERS)"*, Brett Heap, 2026-09-07 — the
+`register-gate-rules-council-seats` mint-and-register ceremony.
+
+**Classified by the published rule, not by fresh judgment**: `governance/**` →
+RENAME. But both occurrences are unusual enough to write out, because they are
+**counterfactual**: they appear in a header comment explaining why `objects:` is
+`opensoft/openxFactory` and deliberately **NOT** `opensoft/codexFactory` —
+
+> `objects: [opensoft/openxFactory]` — STANDS, AND IT NEEDS AN EXPLICIT
+> SENTENCE BECAUSE IT LOOKS WRONG AT FIRST READING. This body governs
+> codexFactory's gate rules, so a reader expects `opensoft/codexFactory`
+> here. … A row naming `opensoft/codexFactory` would be a row this estate
+> cannot resolve, not a wider authority.
+
+The sentence is present-tense and asserts what a reader *would expect*, so it
+respells at the transfer to keep being true. **It is NOT edited by this lane, and
+it is in no open slice.** Three reasons, in order of weight:
+
+1. It belongs to **another lane's live ceremony artifact**, mid-construction, with
+   unfilled `@@…@@` operator placeholders and five Ed25519 keypairs Brett mints
+   on his own host. The commit message says the work *"MUST NOT be pushed until
+   the values are substituted"*.
+2. It is a **review-authority grant** — a key-custody surface, adjacent to the
+   permanently human-only class.
+3. The four rename slices are already authored and under review; adding a file to
+   one of them now would collide with that review.
+
+**Disposition: RENAME, deferred to the `register-gate-rules-council-seats` lane's
+next touch, or to a fifth slice after that ceremony completes.** Flagged on
+codexFactory issue #279 so the owning lane reads it rather than discovering it.
+
+### 15.3 The arithmetic, re-closed at this head
+
+| bucket | hits | files |
+| --- | ---: | ---: |
+| slice A — LANDED in #799 | −8 | −8 |
+| B1 #801 + B2 #802 + B3 #805 + B4 #806, still open | 116 | 52 |
+| **NEW, unassigned** — `grant-grc-0001.yaml` (§ 15.2) | **2** | **1** |
+| **NEW, never renamed** — the mapping key (§ 15.1) | **2** | **1** |
+| **total in RENAME pathspecs at this head** | **120** | **54** |
+
+Measured: `git grep -ic "opensoft/codexfactory"` over the RENAME pathspecs
+returns **120 / 54**. `116 + 2 + 2 = 120` and `52 + 1 + 1 = 54` — **it closes**,
+and the RENAME subtotal of § 2 rises from 124 to **126** for the two new
+occurrences, one of which is never swept.
+
+### 15.4 Group 6 re-verified against the new file
+
+| check | result |
+| --- | --- |
+| **6.1** frozen classes byte-unchanged (`contracts/signed-execution-chain/`, `openspec/changes/archive/`, `docs/decisions/`, `specs/`) | **empty diff** |
+| **6.2** `validate-signed-execution-chain.py .` | **`0 error(s), 0 warning(s)`** |
+| **6.3** not-swept: other lanes' active packets and `ideation/` | **empty diff** |
+| **6.4** no bare name edited | **PASS** — all four changed pre-existing files are **ADD-ONLY**, so nothing could have been edited. **The check itself had to be rewritten**: see § 15.5 |
+| **6.5** live occurrences outside frozen / not-swept / **mapping key** | 118 — the 116 held in the four gated slices plus § 15.2's 2, all accounted |
+
+### 15.5 The 6.4 check was WRONG for an add-only diff, and is now fixed
+
+The form published with slice A compared the count of owner-less `codexFactory`
+occurrences per changed pre-existing file and demanded **equality**. On this
+slice it reported a false positive:
+
+```
+!!! BARE NAME EDITED:
+  contracts/README.md: 3 -> 4
+  contracts/manifest.yaml: 25 -> 27
+```
+
+Nothing was edited. The counts rose because the added lines are prose about this
+work, and **the change id `adopt-codexfactory-repository-identity` contains the
+bare string itself**. The corrected test, in
+`specs/030-realize-codexfactory-identity/quickstart.md` § 6:
+
+- a file whose diff **removes no line** cannot have edited anything → PASS by
+  construction, whatever the count does;
+- a file whose diff removes lines is compared on the **multiset of bare
+  occurrences in the removed lines against those in the added lines** — every
+  bare occurrence that left must come back.
+
+Under it, this slice reads *"add-only diffs (cannot have edited anything): 4"*
+and the four rename slices still pass, since their diffs have removals and their
+multisets are preserved. **Recorded rather than quietly swapped**, because slice
+A's pull request body quoted the old form's output.
+
+### 15.6 Gates at this head
+
+| check | result |
+| --- | --- |
+| `openspec validate adopt-codexfactory-repository-identity --strict` | valid |
+| `openspec validate --all --strict` | **`100 passed, 1 failed`** — the failure is still exactly `change/disposition-codexfactory-declared-renames` (§ 10) and nothing else |
+| `validate-sequenced-after.py . --ledger-diff` | **green**, ledger consistent (**185 rows**), no cycle |
+| `doc-health --single-repo` error+critical | **19 findings on the branch, 19 on `origin/main` `131adf11`, and the two sets are IDENTICAL** — measured by diffing both runs; **this slice introduces no doc-health finding**, and `contracts/policies/repository-identity.yaml` appears in none |
+| `release-inventory-drift` | **1 `ERROR`**, the pre-existing `docs/contract-versioning-policy.md` (§ 12). Registering a new contract adds no finding: `contracts/manifest.yaml` and `contracts/README.md` are EDITORIAL members and report at `info` |
+| `pytest tests/manifest_digests tests/doc-health/test_release_inventory.py tests/hermes_runtime_contracts/test_release_inventory.py tests/credential_contracts/test_manifest_row_digest.py tests/clearing/test_clearing_manifest_rows.py tests/intent-compliance/test_release_boundary.py tests/sequenced_after` | **320 passed** — the manifest digest sweep is what proves the new row's `sha256` was computed and not hand-edited |
+
+### 15.7 `sequenced_after` now points the other way, and is DELIBERATELY not edited
+
+The amendment inverts the file-creation half of
+`sequenced_after: [adopt-medxsoft-repository-identity]`: this change authors the
+file and the exemplar appends to it. **The declaration is left exactly as
+ratified**, because `validate-sequenced-after.py --archive-gate` is a
+parent-declaration RETENTION gate and reports a declaration mutation as exit 1 —
+the freeze exists so a realization cannot quietly re-point a ratified
+dependency. Re-deriving it is the separate governed question task **0.2**
+anticipated. Named in § 5 of the amendment record so the next lane finds it at
+the packet rather than at the gate.

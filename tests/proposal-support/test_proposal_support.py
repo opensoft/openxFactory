@@ -660,8 +660,20 @@ class ProposalSupportTests(unittest.TestCase):
             commit_all(root, "move the support and declare the origin")
             ratify(change / "proposal.md")
             commit_all(root, "record the ratification")
+            # THE ARCHIVE DATE IS TODAY IN UTC AND NOTHING ELSE (#790): since
+            # this wrapper asserts that the pinned CLI named
+            # `archive/<date>-<change>`, and the CLI names it from its own
+            # (now UTC-forced) clock, a literal date here would be a fixture
+            # asserting the CLI archived on a day it did not.
+            # READ ONCE, NOT THREE TIMES. A run that crossed midnight UTC
+            # between the archive and the assertions would compare two
+            # different days and fail for the calendar rather than for the
+            # code; the wrapper itself derives the date once for exactly this
+            # reason, and a fixture that did not would be asserting something
+            # weaker than the property under test.
+            archive_date = support.utc_today()
             support.archive_change(
-                root, "change-a", "2026-07-09", False, True
+                root, "change-a", archive_date, False, True
             )
             archived = list((root / "openspec/changes/archive").glob(
                 "????-??-??-change-a"
@@ -669,6 +681,16 @@ class ProposalSupportTests(unittest.TestCase):
             self.assertEqual(len(archived), 1)
             self.assertTrue((archived[0] / "supporting-docs.tar.gz").is_file())
             self.assertEqual(support.verify_archive(archived[0]), [])
+            # ONE DATE, TWO PLACES, AND THEY AGREE (#790). The bundle's
+            # `packaged_at` and the archive directory's own name are the same
+            # UTC day: the wrapper derives it once and asserts the name the
+            # pinned CLI produced against it, so a local-clock CLI cannot land
+            # a bundle stamped one day beside a directory naming another.
+            manifest = (archived[0] / "supporting-docs.manifest.yaml").read_text(
+                encoding="utf-8")
+            self.assertIn(f'"packaged_at": "{archive_date}"', manifest)
+            self.assertTrue(archived[0].name.startswith(f"{archive_date}-"),
+                            archived[0].name)
             # …and it got there through the PIN: the artifact was fetched and
             # installed by the verifier's own resolver, which is a fact about
             # this run rather than an inference from its result.
@@ -742,7 +764,10 @@ class ProposalSupportTests(unittest.TestCase):
             ratify(change / "proposal.md")
             commit_all(root, "record the ratification")
 
-            support.archive_change(root, "change-b", "2026-07-09", False, True)
+            # Today in UTC, read once, for the reason the sibling archive
+            # test states.
+            archive_date = support.utc_today()
+            support.archive_change(root, "change-b", archive_date, False, True)
 
             archived = list((root / "openspec/changes/archive").glob(
                 "????-??-??-change-b"
