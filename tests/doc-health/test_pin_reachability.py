@@ -947,6 +947,130 @@ def test_the_historical_class_is_answered_without_consulting_the_remote(
     assert not contrast.fully_verified
 
 
+def _init_named(root, branch):
+    """`_init`, but on a branch NOT named `main` — the only way to make
+    `pc.resolve_main` genuinely return `None` in a fixture rather than merely
+    omitting a commit."""
+    root.mkdir(parents=True, exist_ok=True)
+    _git(root, "init", "-q", "-b", branch)
+    _git(root, "config", "user.email", "t@example.invalid")
+    _git(root, "config", "user.name", "T")
+    return root
+
+
+def test_a_main_less_clone_is_inconclusive_and_a_main_ed_one_is_historical_or_pass(
+        tmp_path):
+    """THE BUG (Copilot review, PR #816, `pin_class.py:~2170`): the historical
+    branch answered every intent site HISTORICAL even when `main_ref is None`,
+    reporting "not reached by main" on a question this branch never actually
+    asked — a clone that resolves no `main` cannot ask whether `main` reaches
+    anything. `main_ref is None` is the SAME "the branch half of the ref set
+    could not be consulted" condition every MUST_RESOLVE member already
+    answers INCONCLUSIVE with, and this member owes the identical answer:
+    HISTORICAL is reserved for the concrete "asked of `main`, and not
+    reached" outcome, never substituted for "there was no `main` to ask".
+
+    ONE repository, THREE states, so a single fixture proves all three
+    verdicts rather than three fixtures each proving one in isolation:
+      1. no branch named `main` at all (and no `origin` remote either) ->
+         INCONCLUSIVE.
+      2. `main` created, reaching the cited revision -> PASS.
+      3. a later intent citing a revision `main` (frozen at its creation
+         point) will never reach -> HISTORICAL.
+    """
+    repo = _init_named(tmp_path / "no-main", "trunk")
+    _write(repo, "ideation/brainstorm/one.md", "# one\n\nStatus: brainstorm\n")
+    old = _commit(repo, "corpus, on a branch that is not main")
+    _write(repo, GATE_INTENT_REL, _gate_intent(old))
+    _commit(repo, "an intent citing the corpus commit")
+    assert pc.resolve_main(repo) is None
+    assert _git(repo, "remote").stdout.strip() == ""
+
+    # 1. no `main` in this clone at all.
+    report = _verify(repo)
+    [result] = [r for r in report.results
+                if r.site.member_id == "gate-intent-snapshot-rev"]
+    assert result.verdict == pc.INCONCLUSIVE
+    assert "no `main` in this clone" in result.how
+    assert report.historical == []
+    assert not report.fully_verified
+
+    # 2. `main` now exists and reaches the revision the intent cites -> PASS.
+    _git(repo, "branch", "-q", "main", "trunk")
+    report = _verify(repo)
+    [result] = [r for r in report.results
+                if r.site.member_id == "gate-intent-snapshot-rev"]
+    assert result.verdict == pc.PASS
+    assert "ancestor of" in result.how
+
+    # 3. `main` stays put; the corpus (and the intent's view of it) moves on
+    # past it -> the new view is HISTORICAL, not merely unreached-because-
+    # unasked.
+    _write(repo, "ideation/brainstorm/two.md", "# two\n\nStatus: brainstorm\n")
+    newer = _commit(repo, "corpus moves on, main does not")
+    _write(repo, GATE_INTENT_REL, _gate_intent(newer))
+    _commit(repo, "the intent's view moves past main's frozen tip")
+    report = _verify(repo)
+    [result] = [r for r in report.results
+                if r.site.member_id == "gate-intent-snapshot-rev"]
+    assert result.verdict == pc.HISTORICAL
+    assert "it is not reached by" in result.how
+
+
+GATE_INTENT_WRONG_KIND_REL = ("ideation/dashboard/intents/pos-fixture-possible/"
+                              "not-a-gate-intent-20260908-000000.yaml")
+
+
+def _gate_intent_wrong_kind(pin):
+    """Same shape as `_gate_intent`, but declaring a DIFFERENT `kind` — the
+    verifier finding (PR #816, `pin_class.py:~879-881`): the exemption keyed
+    on the path glob plus `snapshot_rev_seen` alone would exempt ANY record —
+    of any kind — dropped under this tree that happens to carry that field,
+    whether or not it was ever a gate intent."""
+    return yaml.safe_dump(
+        {"schema_version": 1, "kind": "something-else", "actor": "fixture",
+         "verb": "dispose-possible",
+         "target": {"possible_id": "pos-fixture-possible"},
+         "requested_at": "2026-09-08T00:00:00Z",
+         "snapshot_rev_seen": pin, "status": "refused"},
+        sort_keys=False)
+
+
+def test_a_stray_record_of_a_different_kind_is_not_exempt(tmp_path):
+    """THE TIGHTENED MATCH. A record under `ideation/dashboard/intents/**`
+    carrying `snapshot_rev_seen` but a `kind` other than `gate-intent` must
+    NOT inherit the historical exemption: it plants an unreachable revision
+    the same way the genuine-defect fixture does, and asserts the site lands
+    UNCOVERED — falling back to ordinary MUST_RESOLVE handling rather than
+    being silently waved through — and that the class is no longer clean."""
+    repo, _ = reachable_pin_repo(tmp_path)
+    unseen = _unreachable_commit(repo)
+    _write(repo, GATE_INTENT_WRONG_KIND_REL, _gate_intent_wrong_kind(unseen))
+    _commit(repo, "a stray record under the intents tree, wrong kind")
+
+    report = _verify(repo)
+    assert [r for r in report.results
+            if r.site.path == GATE_INTENT_WRONG_KIND_REL] == [], (
+        "a record whose kind is not gate-intent must not be attributed to "
+        "gate-intent-snapshot-rev at all")
+    uncovered_paths = {s.path for s in report.uncovered}
+    assert GATE_INTENT_WRONG_KIND_REL in uncovered_paths, (
+        "a record of a kind other than gate-intent must not silently inherit "
+        "gate-intent-snapshot-rev's historical exemption")
+    assert not report.clean
+
+    # THE GENUINE ARTICLE, IN THE SAME COMMIT, IS UNAFFECTED: the tightened
+    # match narrows what counts as a gate intent, it does not touch how a real
+    # one is judged.
+    _write(repo, GATE_INTENT_REL, _gate_intent(unseen))
+    _commit(repo, "and a real gate intent citing the same unreachable view")
+    report = _verify(repo)
+    [real] = [r for r in report.results
+              if r.site.member_id == "gate-intent-snapshot-rev"]
+    assert real.verdict == pc.HISTORICAL
+    assert GATE_INTENT_WRONG_KIND_REL in {s.path for s in report.uncovered}
+
+
 def test_a_rolling_member_carrying_nothing_is_not_reported_vanished(tmp_path):
     """DEFECT (E), first half. `main` legitimately carries no intent at all
     between custody PRs, and a row that reported VANISHED every time the queue

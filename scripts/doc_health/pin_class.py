@@ -375,6 +375,16 @@ class PinMember:
     # Whether the committed instances persist. Defaulted to `STANDING` for the
     # same reason and in the same direction.
     population: str = STANDING
+    # A companion field:value the RECORD must ALSO carry, beyond path+key, for
+    # a site to belong to this member. Empty (the default) for every row but
+    # one: path+key already disambiguates every other artifact family, so
+    # stating an unused third axis on every row would be guesswork nobody
+    # asked for. `gate-intent-snapshot-rev`'s glob covers a whole DIRECTORY
+    # (`ideation/dashboard/intents/**`) that a future record kind could share,
+    # and `snapshot_rev_seen` alone would not say which one a given file is —
+    # so that member alone states the third axis (verifier finding, PR #816).
+    requires_field: str = ""
+    requires_value: str = ""
 
     def line_re(self) -> re.Pattern:
         if self.pattern:
@@ -389,6 +399,27 @@ class PinMember:
         the non-pin classification; the commit-shaped path still runs
         `line_re()` and is untouched by it."""
         return _wide_field_re(self.key)
+
+    def record_matches(self, text: str) -> bool:
+        """Whether a record's full text carries this member's required
+        companion field:value pair — True unconditionally when the member
+        declares none, which is the ordinary case.
+
+        Reuses `_wide_field_re`, the same "any scalar value under this key"
+        lookup the non-commit-value classification already trusts, so the
+        record's ACTUAL companion field is read rather than guessed at from
+        the path alone. Comment lines are skipped for the same reason every
+        other scan in this module skips them."""
+        if not self.requires_field:
+            return True
+        pattern = _wide_field_re(self.requires_field)
+        for line in text.splitlines():
+            if is_comment_line(line):
+                continue
+            m = pattern.search(line)
+            if m and _scalar(m.group("value")) == self.requires_value:
+                return True
+        return False
 
 
 @dataclass(frozen=True)
@@ -886,13 +917,21 @@ PIN_CLASS: tuple[PinMember, ...] = (
         presence=CURRENT,
         reachability=HISTORICAL_EVIDENCE,
         population=ROLLING,
+        requires_field="kind",
+        requires_value="gate-intent",
         note="`gate-intent.schema.yaml` carries `snapshot_rev_seen` for "
              "optimistic concurrency. PROMOTED FROM `FUTURE` ON ARRIVAL "
              "(ruling D-8(a), 2026-09-08): the live intent-plane dispatch "
              "exercise for openxFactory #656 landed committed refusal records "
              "under `ideation/dashboard/intents/`, and the declaration's "
              "arrival direction said so — which is the case it was written "
-             "for. It is declared HISTORICAL_EVIDENCE because the value is the "
+             "for. `requires_field`/`requires_value` narrow the match to a "
+             "record whose `kind` is actually `gate-intent` (verifier finding, "
+             "PR #816): the directory glob alone would exempt ANY record — of "
+             "any kind — dropped under this tree that happened to carry "
+             "`snapshot_rev_seen`, and a stray one is UNCOVERED rather than "
+             "silently inheriting the historical exemption. It is declared "
+             "HISTORICAL_EVIDENCE because the value is the "
              "revision the actor SAW rather than one this artifact was derived "
              "from: the 2026-08-15 refusal cites `66ca33fd…`, a revision this "
              "checkout resolves to no object, and citing it is exactly what "
@@ -1591,6 +1630,13 @@ def committed_text(repo, rev: str, path: str) -> str | None:
 
 
 def _sites_in(text: str, member: PinMember, path: str) -> list[PinSite]:
+    if not member.record_matches(text):
+        # The record does not carry the member's required companion
+        # field:value (e.g. `kind`), so this path's pin belongs to no member
+        # here — it is picked back up, if it is swept at all, by the generic
+        # vocabulary sweep and reported UNCOVERED rather than silently
+        # exempted.
+        return []
     found, pat = [], member.line_re()
     lines = text.splitlines()
     for n, line in enumerate(lines, start=1):
@@ -1642,20 +1688,43 @@ def swept_sites(repo, rev: str = "HEAD",
     return out
 
 
-def covering_member(path: str, key: str) -> PinMember | None:
+def covering_member(path: str, key: str,
+                    text: str | None = None) -> PinMember | None:
+    """The declared member a swept site belongs to, or None.
+
+    `text` is the record's own committed bytes, consulted ONLY when a member
+    declares a `requires_field` — path+key alone is still sufficient for every
+    other row, and a caller with no text handy (nothing in this module needs
+    that today) simply skips the extra check rather than raising."""
     for member in PIN_CLASS:
         if member.key_form != "field" or member.key != key:
             continue
-        if path_matches(path, member.paths):
-            return member
+        if not path_matches(path, member.paths):
+            continue
+        if (member.requires_field and text is not None
+                and not member.record_matches(text)):
+            continue
+        return member
     return None
 
 
 def uncovered_sites(repo, rev: str = "HEAD",
                     *, paths: list[str] | None = None) -> list[PinSite]:
-    """Swept sites no declared member covers — requirement 4's second half."""
-    return [s for s in swept_sites(repo, rev, paths=paths)
-            if covering_member(s.path, s.key) is None]
+    """Swept sites no declared member covers — requirement 4's second half.
+
+    A site whose path AND key both match a declared member, but whose record
+    fails that member's `requires_field` companion check, is uncovered too:
+    the member that would otherwise claim it has said, in its own
+    declaration, that this particular record is not one of its own."""
+    paths = paths if paths is not None else committed_paths(repo, rev)
+    text_cache: dict[str, str | None] = {}
+    out: list[PinSite] = []
+    for site in swept_sites(repo, rev, paths=paths):
+        if site.path not in text_cache:
+            text_cache[site.path] = committed_text(repo, rev, site.path)
+        if covering_member(site.path, site.key, text_cache[site.path]) is None:
+            out.append(site)
+    return out
 
 
 # ------------------------------------------------------- the non-commit value
@@ -1839,9 +1908,16 @@ def non_pin_sites(repo, rev: str = "HEAD",
     paths = paths if paths is not None else committed_paths(repo, rev)
     covered, absent = member_non_pin_sites(repo, rev, paths=paths)
     known = {(s.path, s.key, s.line) for s in covered}
-    uncovered = [s for s in swept_non_pin_sites(repo, rev, paths=paths)
-                 if (s.path, s.key, s.line) not in known
-                 and covering_member(s.path, s.key) is None]
+    text_cache: dict[str, str | None] = {}
+    uncovered: list[NonPinSite] = []
+    for site in swept_non_pin_sites(repo, rev, paths=paths):
+        if (site.path, site.key, site.line) in known:
+            continue
+        if site.path not in text_cache:
+            text_cache[site.path] = committed_text(repo, rev, site.path)
+        if covering_member(site.path, site.key,
+                           text_cache[site.path]) is None:
+            uncovered.append(site)
     return covered + uncovered, uncovered, absent
 
 
@@ -2149,25 +2225,39 @@ def verify(repo, *, rev: str = "HEAD", remote: str = "origin",
             # would let an unconsultable remote turn a conforming record into an
             # INCONCLUSIVE that holds `fully_verified` open. `main` is a local
             # ancestry query, so the true-and-free observation is still made.
-            if main_ref is not None and reachable_from_main(
-                    repo, site.pin, main_ref):
+            #
+            # `main_ref is None` IS NOT A HISTORICAL FINDING. Before this fix,
+            # a clone with no `main` at all reported every site here HISTORICAL
+            # — the same verdict a genuinely unreached revision earns — which
+            # claimed a "not reached by main" fact this branch never actually
+            # asked for (Copilot review, PR #816). No `main` to ask is the
+            # identical "the branch half of the ref set could not be
+            # consulted" condition every MUST_RESOLVE member below already
+            # answers INCONCLUSIVE with, and this member owes the same
+            # answer: HISTORICAL is reserved for the concrete, asked-and-not-
+            # reached outcome. This still performs no remote read.
+            if main_ref is None:
+                results.append(PinResult(
+                    site, INCONCLUSIVE,
+                    f"no `main` in this clone (looked for "
+                    f"{', '.join(MAIN_REF_ORDER)}), so the branch half of the "
+                    f"ref set could not be consulted"))
+                continue
+            if reachable_from_main(repo, site.pin, main_ref):
                 results.append(PinResult(site, PASS,
                                          f"ancestor of {main_ref}"))
                 continue
-            where = (f"it is not reached by {main_ref}"
-                     if main_ref is not None else
-                     "this clone resolves no `main` to ask")
             results.append(PinResult(
                 site, HISTORICAL,
                 f"HISTORICAL EVIDENCE ({member.generator}): `{site.key}` "
                 f"records the revision this artifact SAW, not one it was "
-                f"derived from, and {where}. That is not a defect and no "
-                f"repair route is owed — retaining the commit would not make "
-                f"the recorded view any more or less what it was, and "
-                f"re-pinning would make the record state something nobody "
-                f"read. The retention namespace is NOT consulted for this "
-                f"class: the question is not asked of it, so no remote read is "
-                f"performed on its behalf."))
+                f"derived from, and it is not reached by {main_ref}. That is "
+                f"not a defect and no repair route is owed — retaining the "
+                f"commit would not make the recorded view any more or less "
+                f"what it was, and re-pinning would make the record state "
+                f"something nobody read. The retention namespace is NOT "
+                f"consulted for this class: the question is not asked of it, "
+                f"so no remote read is performed on its behalf."))
             continue
         if main_ref is None:
             results.append(PinResult(
