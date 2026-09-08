@@ -28,8 +28,7 @@ change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
   is the second time the trap has sprung on this lane —
   `add-consent-custody-rederivation-record`'s provisional `#757` was taken the
   same way while that packet was in review — and it will spring again for
-  anyone who reads a placeholder as provenance. Re-run
-  `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#<real PR>'`
+  anyone who reads a placeholder as provenance.
   **DO NOT RE-RUN THE SEEDER FOR THIS — IT IS A NO-OP HERE, AND THAT IS
   MEASURED, NOT ASSUMED.** `--seed-ledger --moved-by '#<real>'` re-derives the
   corpus and stamps provenance only on rows whose DERIVED keys actually moved;
@@ -44,6 +43,26 @@ change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
   this head with the field edited by hand. That is legitimate because the
   ledger's own doctrine makes `moved_by` AUTHOR-SUPPLIED AND UNVERIFIED,
   shape-checked (`#<digits>`) and never resolved.
+
+  **PERFORMED 2026-09-08.** openxFactory PR
+  [#788](https://github.com/opensoft/openxFactory/pull/788) was opened by
+  `openxfactory[bot]` on head `97d1e7fa`, so the real number is known. The row's
+  `moved_by` was edited directly from `"#785"` to `"#788"` — ONE field, ONE
+  line, nothing else in the file — and
+  `python3 scripts/validate-sequenced-after.py . --ledger-diff` reports
+  `per-change sweep ledger consistent with the corpus (184 rows)`. `moved_on`
+  is NOT re-stamped: it records when the row's derived keys moved, which was
+  2026-09-08, not when its provenance pointer was corrected.
+
+  **THE BOX STAYS UNTICKED, AND THAT IS THE CONVENTION RATHER THAN AN
+  OVERSIGHT.** This file's own preamble holds that every box is unticked while
+  the packet is a proposal, and this packet is `Status: draft` awaiting
+  ratification at task 1.1. The corpus precedent is exact:
+  `add-consent-custody-rederivation-record` is `Status: ratified`, its ledger
+  row carries the REAL pull request `#774`, and its `tasks.md` has ZERO ticked
+  boxes — the ledger carrying a true number and the box staying unticked are
+  not in tension, because the row is bookkeeping the branch carries and the box
+  is a claim about the packet having begun.
 
 ## 1. Ratification — OWED, NOT GIVEN
 
