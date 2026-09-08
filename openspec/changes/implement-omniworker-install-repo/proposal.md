@@ -77,6 +77,14 @@ rewritten by it.
    The dispositions are recorded in [tasks.md § 5](tasks.md) — 5.1 and 5.5
    SUPERSEDED BY RULING, 5.2 DISPOSITION RECORDED — approved 2026-09-07.
 
+   [Narrowed 2026-09-08 by `docs/omniworker-naming.md` A1
+   (opensoft/openxFactory#784 → squash `6c9e3627`): the sentence above,
+   "Windows 365 requires `%RAND:5%` in every device-name template", overstates
+   what was measured — the platform requirement is a random `%RAND:y%`
+   segment of sufficient length; `%RAND:5%` is what was observed to be
+   accepted, and wider values were never tried, so this is a bound, not an
+   exact-token requirement.]
+
 Everything below that is not inside a quote is this packet's proposal or its
 declared open question, and the two are labelled.
 

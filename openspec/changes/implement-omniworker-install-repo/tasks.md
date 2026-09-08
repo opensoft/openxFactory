@@ -595,3 +595,24 @@ canonical machine-naming record"); the finding is accepted as correct and is
 recorded here rather than performed, because the § 5 amendment's approval
 covers this packet's own § 5 dispositions and neither a ratified `docs/` record
 nor the README substrate.
+
+[Narrowed 2026-09-08 by `docs/omniworker-naming.md` A1
+(opensoft/openxFactory#784 → squash `6c9e3627`): the sentence above, "it
+refuses by requiring the specific token `%RAND:5%` in every device-name
+template, not merely some random segment of any length", overstates what was
+measured — the requirement is a random `%RAND:y%` segment of sufficient
+length; `%RAND:5%` is what was observed to be accepted, and wider values were
+never tried, so the record states a bound, not an exact-token requirement.]
+
+**Amended 2026-09-08 — DISCHARGED; box closed.** Recorded 2026-09-08: landed
+as opensoft/openxFactory#784 → squash `6c9e3627` (05:51:36Z),
+`docs/omniworker-naming.md` Amendment A1 + README entries; on Brett Heap's
+word 2026-09-08T03:23Z "archive add-manifests-root-parameter and fix the
+naming record." A1 also narrowed the exact-token phrasing this owed item
+itself carried above (`%RAND:5%` as a minimum random length, not the only
+token Windows 365 accepts) — see the bracketed note immediately above and the
+matching note at `proposal.md`'s § "Origin" (after the ruled-template
+paragraph). Raised on opensoft/openxFactory#784 ("Propagate the narrowing
+into the authoritative packet") by chatgpt-codex-connector; declined to
+perform inside #784 as outside that act's authority, named there as owed to
+this packet, and performed here.
