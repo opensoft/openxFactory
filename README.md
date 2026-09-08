@@ -512,6 +512,55 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [adopt-codexfactory-repository-identity](openspec/changes/adopt-codexfactory-repository-identity/proposal.md)
+  — authored 2026-09-07, **`Status: ratified`** (2026-09-07, Brett Heap
+  (convener), verbatim *"accept all [A] and ratify 763"*, posted
+  2026-09-07T22:21:44Z on
+  [PR #763](https://github.com/opensoft/openxFactory/pull/763#issuecomment-5576174434);
+  ratified head `5bfdcf3c06478167bd7509f1576db3528ce4ede1`; record
+  `openspec/changes/adopt-codexfactory-repository-identity/review/ratification-2026-09-07.md`),
+  lane `provenance-autonomous-merge`,
+  `sequenced_after: [adopt-medxsoft-repository-identity]`. The GOVERNED HALF of
+  the convener's ruling of 2026-09-07 — *"move codeXfactory to the new org.
+  openXfactory should be public and codeXfactory private."* **RATIFICATION
+  PERFORMS NO REALIZATION** — nothing is transferred, no row is added to
+  `contracts/policies/repository-identity.yaml`, and every realization box in
+  `tasks.md` Groups 1-9 stays unticked; the operational ceremony is still an
+  operator runbook and a codexFactory tracking issue, and this packet is still
+  only the part OpenSpec owns, `opensoft/codexFactory` as repository identity
+  inside governed contract content. Measured at `origin/main` `64aad02e`: **281
+  occurrences across 150 files** — 123/60 RENAME, 78/54 FROZEN, 80/36 NOT SWEPT
+  (other lanes' in-flight packets and `ideation/`, a disposition distinct from
+  freezing and recorded separately). Three findings drive the design: **44
+  occurrences across 34 files cannot be respelled at all**, sitting inside
+  `signed_ratification` blocks covered by an ed25519 signature and an
+  `xfc-jcs-sha256-1` chain identity whose private key exists nowhere in this
+  repository; the **bytewise-sorted supported-domain regression denominator
+  reorders**, and how far depends on whether the MedxSoft exemplar lands first,
+  which is the load-bearing reason for the `sequenced_after` declaration; and
+  the **factory-origin identity is an authorization scope**, so the transfer
+  revokes codexFactory's clearing dispatch until `governance/factory-identity/`
+  is re-issued — on a PERMANENTLY HUMAN-ONLY surface, meaning the realizing
+  pull request cannot be cleared autonomously. Four ADDED requirements on
+  `repository-identity` (cryptographic freeze; identity-as-authorization-scope;
+  disposition-by-rule-plus-recorded-sweep; cross-organization reachability), no
+  MODIFIED block anywhere, no new capability, no check family. EIGHT renamed
+  files are `contract-v3.4` inventory members, so a cut is owed and sequenced
+  inside the change. **OQ-1 (add `codeXfactory` to the Opensoft GitHub
+  Enterprise, VERIFIED `plan=enterprise` 2026-09-07T16:41:04Z), OQ-2
+  (Apache-2.0 for openxFactory and openXwallet, authored by a separate lane,
+  landed [openxFactory #762](https://github.com/opensoft/openxFactory/pull/762)
+  / [openXwallet #22](https://github.com/opensoft/openXwallet/pull/22)), OQ-3
+  (what becomes public — **RULED** via the ideation-split decision sheet:
+  redact the two sensitive files, editorially split `treatment-options-engine`
+  between openxFactory and MedxFactory, delete the stale `campaign-marketing`
+  stub, and run three receiving pull requests plus one openxFactory removal
+  pull request; **accept publication, GATED on those four moves landing
+  first**) and OQ-5 (exercise the `MIGRATION_PIN` re-point ceremony rather than
+  riding GitHub's redirect) are RULED; OQ-4 (GHCR sequencing) and OQ-6
+  (canonical case spelling) remain OPEN and owe a convener word before any task
+  box is ticked.**
+
 - [extend-merge-master-envelope-to-floor-bot-lanes](openspec/changes/extend-merge-master-envelope-to-floor-bot-lanes/proposal.md)
   — authored 2026-09-07, **`Status: ratified`** (2026-09-07, Brett Heap
   (repository owner), in session at 2026-09-07T12:32:44Z, verbatim *"ratify 746
