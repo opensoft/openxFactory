@@ -1,6 +1,7 @@
 # Design: govern-archived-record-edits
 
-Status: draft
+Status: ratified
+Ratified by: govern-archived-record-edits — 2026-09-08, Brett Heap, CLI approval `gh pr review 788 --approve` (review 5141756427, APPROVED 2026-09-08T12:38:36Z, empty body) (record `review/ratification-2026-09-08.md`)
 Lane: opsXfactory-1
 
 Eight decisions — **D-1** through **D-8** — each with the alternative it

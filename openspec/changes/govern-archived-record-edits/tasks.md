@@ -1,6 +1,7 @@
 # Tasks: govern-archived-record-edits
 
-Status: draft
+Status: ratified
+Ratified by: govern-archived-record-edits — 2026-09-08, Brett Heap, CLI approval `gh pr review 788 --approve` (review 5141756427, APPROVED 2026-09-08T12:38:36Z, empty body) (record `review/ratification-2026-09-08.md`)
 Lane: opsXfactory-1
 
 **NOTHING BELOW IS DONE. EVERY BOX IS UNTICKED, AND THAT IS THE STATE OF THE
@@ -65,6 +66,21 @@ change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
   is a claim about the packet having begun.
 
 ## 1. Ratification — OWED, NOT GIVEN
+
+**GIVEN 2026-09-08, AND THE BOXES BELOW STAY UNTICKED.** Brett Heap ratified
+this packet by CLI approval on PR #788 (GitHub review 5141756427, APPROVED
+2026-09-08T12:38:36Z, empty body); record
+`review/ratification-2026-09-08.md`. The heading is left as written because it
+names what the section was raised to hold, and the boxes are left unticked
+because that is the convention this corpus keeps: the sibling packet
+`add-consent-custody-rederivation-record` is `Status: ratified` with ZERO of its
+46 boxes ticked, its § 1 among them. Ratification is not realization, and a
+half-ticked list would say the packet had begun.
+
+**THE THREE VETO POINTS AT 1.2 WERE PUT TO HIM VERBATIM IMMEDIATELY BEFORE THE
+APPROVAL AND NONE WAS EXERCISED**, so the packet is ratified AS WRITTEN: every
+declared family (not custody pins only), report-then-refuse (not refuse from
+landing, not strike), and TWO `## ADDED` requirements (not one).
 
 - [ ] 1.1 **[OPERATOR] Ratify or veto.** The F.3 ruling came in TWO comments on
   OpsxFactory PR #248 — the SHAPE

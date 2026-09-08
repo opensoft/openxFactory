@@ -513,15 +513,34 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [govern-archived-record-edits](openspec/changes/govern-archived-record-edits/proposal.md)
-  — authored 2026-09-08, **`Status: draft`**, on Brett Heap's **F.3** ruling,
-  given on OpsxFactory PR #248 in **TWO comments on two days**, each carrying one
-  of the two verbatim selections: the SHAPE
+  — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
+  (reviewer of record), in session, first-hand to lane `opsXfactory-1`, by CLI
+  approval `gh pr review 788 --approve` — GitHub review **5141756427**, state
+  APPROVED, submitted 2026-09-08T12:38:36Z, **with an empty body**, so this
+  record quotes no words and invents none; ratified baseline `8cc76e1b`, carried
+  byte-unchanged into the pre-landing merge `d0f8cccf` (measured: the diff over
+  the packet directory is EMPTY); PR
+  [#788](https://github.com/opensoft/openxFactory/pull/788); record
+  `openspec/changes/govern-archived-record-edits/review/ratification-2026-09-08.md`).
+  **RATIFICATION PERFORMS NO REALIZATION** — no document is amended, no archived
+  byte is edited, no pin is re-derived, no checker is written, no delta is
+  promoted, and **all 28 boxes in `tasks.md` stay unticked**, § 1's ratification
+  boxes included, exactly as the sibling `add-consent-custody-rederivation-record`
+  left its 46. **THE APPROVAL IS THE RATIFICATION; THE LANDING IS THE LANE'S ACT**
+  under Brett Heap's standing authorization to land ruled successors, and is not
+  read out of the approval. **THE THREE VETO POINTS WERE PUT TO HIM VERBATIM
+  IMMEDIATELY BEFORE IT AND NONE WAS EXERCISED**, so the packet stands AS
+  WRITTEN: **every declared family** (not custody pins only), **report-then-refuse**
+  (not refuse-from-landing, not strike), and **TWO `## ADDED` requirements** (not
+  the one his F.3 wording named). Origin: Brett Heap's **F.3** ruling, given on
+  OpsxFactory PR #248 in **TWO comments on two days**, each carrying one of the
+  two verbatim selections: the SHAPE
   *"Header/bookkeeping edits only + re-derive pins"* in comment
   [5563099832](https://github.com/opensoft/OpsxFactory/pull/248#issuecomment-5563099832)
   (2026-09-06T23:42Z), and the HOME *"Both at once"* in comment
   [5571629298](https://github.com/opensoft/OpsxFactory/pull/248#issuecomment-5571629298)
   (2026-09-07T13:51Z), both in session and first-hand to lane `opsXfactory-1`
-  — an ADMISSION TO THE QUEUE, not a ratification. Both comments are named
+  — an ADMISSION TO THE QUEUE, not the approval above. Both comments are named
   because attributing both selections to the later one would misquote the record
   this packet exists to protect. **NOTHING IS REALIZED** — no
   archived byte is edited, no pin is re-derived, no checker is written, no

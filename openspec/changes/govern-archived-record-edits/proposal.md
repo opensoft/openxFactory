@@ -6,9 +6,20 @@ sequenced_after: [govern-openspec-corpus-membership]
 
 # Proposal: govern-archived-record-edits
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-08 by Brett Heap (reviewer of record) — in session, first-hand
+to lane `opsXfactory-1`, by CLI approval `gh pr review 788 --approve` (GitHub
+review 5141756427, APPROVED 2026-09-08T12:38:36Z, empty body); record
+`review/ratification-2026-09-08.md`
 Proposed: 2026-09-08
-Awaiting ratification: Brett Heap
+**RATIFICATION PERFORMS NO REALIZATION.** No document is amended, no archived
+byte is edited, no pin is re-derived, no checker is written, no spec delta is
+promoted, and every box in `tasks.md` stays unticked; realization is a later,
+separately claimed act. The eight decisions D-1..D-8 stand as recommended and
+**the three veto points were NOT exercised** — pin scope, the no-rule
+consequence and the one-vs-two ADDED split were each put to him verbatim
+immediately before the approval — so the defaults stand: **every declared
+family, report-then-refuse, and TWO ADDED requirements.**
 Lane: opsXfactory-1
 
 Origin: Brett Heap's **F.3** ruling, in session, first-hand to lane
