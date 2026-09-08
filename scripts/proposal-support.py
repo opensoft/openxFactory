@@ -1567,6 +1567,19 @@ def pinned_openspec(path_mode: bool = False, npm: str = "npm") -> Path:
     root, shared with `scripts/install-pinned-openspec-cli.py` rather than
     duplicated beside it, and named and stamped with the address that was
     verified.
+
+    AND SINCE 2026-09-08 THE INSTALL IS THE PINNED DEPENDENCY CLOSURE, not a
+    fresh resolution of nine caret ranges: `pinned_lockfile` and
+    `verify_lockfile` are called here — the verifier's own functions, as every
+    other pin question in this file is — and the bytes they return are handed to
+    `resolve_pinned`, which installs them with `npm ci --ignore-scripts`. THE
+    ARCHIVE ACT IS THE REASON THIS MATTERS MOST. `openspec archive` writes a
+    ratified delta into canon, and until now the tree that adjudicated an
+    archive could differ from the tree that adjudicated the validation that
+    cleared it, on the same day, on the same machine. They are one tree now,
+    because both resolve through one lockfile. No version, integrity or lockfile
+    digest is written in this file; the pin is read, as always, by the
+    verifier's parser.
     """
     verifier = pin_verifier()
     key = (bool(path_mode), npm, str(verifier.PIN_PATH))
@@ -1579,14 +1592,26 @@ def pinned_openspec(path_mode: bool = False, npm: str = "npm") -> Path:
         integrity, shasum = verifier.pinned_integrity(pin)
         package = verifier.pinned_package(pin)
         binary = verifier.pinned_binary(pin)
+        lockfile, lockfile_integrity, lockfile_packages = (
+            verifier.pinned_lockfile(pin, verifier.PIN_PATH))
         if path_mode:
+            # The closure is still VERIFIED — that is a statement about this
+            # repository's committed files — but nothing is installed through
+            # it, and the message below already says `--path-mode` checks the
+            # label and not the referent. The same caveat covers the tree.
+            verifier.verify_lockfile(lockfile, lockfile_integrity,
+                                     lockfile_packages, package, integrity)
             executable = verifier.path_executable(binary)
         else:
+            lockfile_bytes = verifier.verify_lockfile(
+                lockfile, lockfile_integrity, lockfile_packages, package,
+                integrity)
             with tempfile.TemporaryDirectory(prefix="proposal-support-cli-") \
                     as scratch:
                 executable = verifier.resolve_pinned(
                     package, version, integrity, shasum, binary, Path(scratch),
-                    verifier.default_cache_root(), npm=npm)
+                    verifier.default_cache_root(), lockfile_bytes,
+                    lockfile_integrity, npm=npm)
         reported = verifier.assert_reported_version(executable, version)
     except verifier.PinRefusal as exc:
         # Re-typed, NEVER reworded: `str(exc)` is the verifier's whole message
@@ -1600,8 +1625,11 @@ def pinned_openspec(path_mode: bool = False, npm: str = "npm") -> Path:
               flush=True)
     else:
         print(f"proposal-support: {package}@{reported} from the pinned "
-              f"artifact ({executable}); integrity {integrity[:23]}… verified",
-              flush=True)
+              f"artifact ({executable}); integrity {integrity[:23]}… verified, "
+              f"over the pinned dependency closure {lockfile.name} "
+              f"({lockfile_packages} packages, lockfile_integrity "
+              f"{lockfile_integrity[:23]}…, installed with `npm ci "
+              f"--ignore-scripts`)", flush=True)
     _RESOLVED_OPENSPEC[key] = executable
     return executable
 

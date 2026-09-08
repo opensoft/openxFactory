@@ -1522,6 +1522,47 @@ def test_the_real_lockfile_holds_the_pinned_packages_declared_dependencies(mod):
             f"{name} is declared by the pinned package and locked by nothing"
 
 
+def test_every_caller_of_the_resolver_hands_it_the_closure():
+    """THE MISS THIS TEST EXISTS FOR, and it was a real one.
+
+    `resolve_pinned` gained two required arguments, and this repository has
+    THREE callers of it, not two: the verifier's own `main`, the INSTALLER
+    (`scripts/install-pinned-openspec-cli.py`, which `pytest-suite.yml` runs),
+    and `scripts/proposal-support.py` — the entrypoint through which the ARCHIVE
+    act runs, named in `contracts/manifest.yaml`'s own consumption rule beside
+    the validation entrypoint. The third was missed on the first pass and CI
+    caught it as ten `TypeError`s.
+
+    A `grep` is the wrong shape for that and a test is the right one: it names
+    the invariant — every caller of the resolver reaches the closure through the
+    verifier's own functions, and none re-implements one — so a FOURTH caller
+    added later fails here rather than in someone else's required check.
+    """
+    callers = sorted(
+        path for path in (ROOT / "scripts").glob("*.py")
+        if "resolve_pinned(" in path.read_text(encoding="utf-8"))
+    assert [path.name for path in callers] == [
+        "install-pinned-openspec-cli.py",
+        "proposal-support.py",
+        "validate-openspec-cli-pin.py",
+    ], "a caller of the pinned resolver appeared or vanished; read it"
+    for path in callers:
+        if path.name == "validate-openspec-cli-pin.py":
+            continue        # the resolver's own file, which defines it
+        source = path.read_text(encoding="utf-8")
+        assert "pinned_lockfile" in source and "verify_lockfile" in source, (
+            f"{path.name} calls resolve_pinned without reaching the closure "
+            "through the verifier's own functions")
+        for literal in (VERSION, INTEGRITY, SHASUM, LOCKFILE_INTEGRITY,
+                        LOCKFILE_NAME):
+            docstring = ast.get_docstring(ast.parse(source), clean=False) or ""
+            body = "\n".join(
+                line for line in source.replace(docstring, "").splitlines()
+                if not line.lstrip().startswith("#"))
+            assert literal not in body, \
+                f"{path.name} restates {literal[:32]}…, which is a second copy"
+
+
 def test_the_installer_carries_no_copy_of_the_pin_at_all():
     """THE SINGLE-PARSER PROPERTY, extended to the third referent.
 

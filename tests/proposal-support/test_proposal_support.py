@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import importlib.util
+import json
 import os
 from pathlib import Path
 import os
@@ -72,6 +73,29 @@ def serve_a_fictional_registry(test: unittest.TestCase) -> list:
     assert forwarded is not None, "guarded by skipUnless"
 
     digest = base64.b64encode(hashlib.sha512(PINNED_CLI_PAYLOAD).digest()).decode()
+    # THE SYNTHETIC PIN NEEDS A SYNTHETIC LOCKFILE, since
+    # `pin-openspec-cli-dependency-closure` (2026-09-08): the closure is
+    # verified before anything is installed, and the lockfile's own entry for
+    # the package must carry the pin's integrity. Written beside the pin,
+    # because that is where `lockfile:` resolves.
+    package = verifier.pinned_package(real_pin)
+    lockfile_name = "synthetic.package-lock.json"
+    lockfile_body = (json.dumps({
+        "name": "openspec-cli-pin-closure", "version": "0.0.0",
+        "lockfileVersion": 3, "requires": True,
+        "packages": {
+            "": {"name": "openspec-cli-pin-closure", "version": "0.0.0",
+                 "dependencies": {package: version}},
+            f"node_modules/{package}": {
+                "version": version,
+                "resolved": (f"https://registry.npmjs.org/{package}/-/"
+                             f"openspec-{version}.tgz"),
+                "integrity": f"sha512-{digest}",
+                "bin": {binary: "bin/openspec.js"}},
+        }}, indent=2) + "\n").encode("utf-8")
+    (workspace / lockfile_name).write_bytes(lockfile_body)
+    lockfile_digest = base64.b64encode(
+        hashlib.sha512(lockfile_body).digest()).decode()
     pin_path = workspace / "pin.yaml"
     pin_path.write_text(
         "# a synthetic pin, in the real pin's own grammar\n"
@@ -86,6 +110,9 @@ def serve_a_fictional_registry(test: unittest.TestCase) -> list:
         f"integrity: \"sha512-{digest}\"\n"
         f"shasum: \"{hashlib.sha1(PINNED_CLI_PAYLOAD).hexdigest()}\"\n"
         f"binary: {binary}\n"
+        f"lockfile: {lockfile_name}\n"
+        f"lockfile_integrity: \"sha512-{lockfile_digest}\"\n"
+        "lockfile_packages: \"1\"\n"
         "verify_pin: scripts/validate-openspec-cli-pin.py\n"
         "consumer_entrypoint: scripts/validate-openspec-cli-pin.py\n",
         encoding="utf-8")
@@ -108,10 +135,14 @@ def serve_a_fictional_registry(test: unittest.TestCase) -> list:
             destination.mkdir(parents=True, exist_ok=True)
             (destination / "openspec.tgz").write_bytes(PINNED_CLI_PAYLOAD)
             return subprocess.CompletedProcess(argv, 0, "", "")
-        if argv[1:2] == ["install"]:
-            prefix = Path(argv[argv.index("--prefix") + 1])
-            (prefix / "bin").mkdir(parents=True, exist_ok=True)
-            shim = prefix / "bin" / binary
+        if argv[1:2] == ["ci"]:
+            # `npm ci` installs a PROJECT in a working directory, so the double
+            # reads `cwd` the way the real one does and the executable lands
+            # where a project's does — `node_modules/.bin/<binary>`.
+            prefix = Path(kwargs["cwd"])
+            binaries = prefix / "node_modules" / ".bin"
+            binaries.mkdir(parents=True, exist_ok=True)
+            shim = binaries / binary
             shim.write_text(f'#!/bin/sh\nexec "{forwarded}" "$@"\n',
                             encoding="utf-8")
             shim.chmod(0o755)
@@ -673,7 +704,12 @@ class ProposalSupportTests(unittest.TestCase):
             # installed by the verifier's own resolver, which is a fact about
             # this run rather than an inference from its result.
             self.assertTrue(any(argv[1:2] == ["pack"] for argv in npm), npm)
-            self.assertTrue(any(argv[1:2] == ["install"] for argv in npm), npm)
+            # `npm ci` and not `npm install`, since
+            # `pin-openspec-cli-dependency-closure` (2026-09-08): the archive
+            # act installs the PINNED DEPENDENCY CLOSURE through the committed
+            # lockfile, and `npm install` would re-resolve the ranges the
+            # lockfile exists to fix.
+            self.assertTrue(any(argv[1:2] == ["ci"] for argv in npm), npm)
 
     @unittest.skipUnless(shutil.which("openspec"), "openspec CLI required")
     def test_archive_wrapper_archives_a_change_that_has_no_supporting_docs(self):
