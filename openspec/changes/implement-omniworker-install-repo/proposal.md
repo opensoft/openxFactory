@@ -80,10 +80,11 @@ rewritten by it.
    [Narrowed 2026-09-08 by `docs/omniworker-naming.md` A1
    (opensoft/openxFactory#784 → squash `6c9e3627`): the sentence above,
    "Windows 365 requires `%RAND:5%` in every device-name template", overstates
-   what was measured — the platform requirement is a random `%RAND:y%`
-   segment of sufficient length; `%RAND:5%` is what was observed to be
-   accepted, and wider values were never tried, so this is a bound, not an
-   exact-token requirement.]
+   what was measured — the platform requires a random `%RAND:y%` segment;
+   `%RAND:2%` was rejected as too short and `%RAND:5%` was accepted, with
+   lengths 3 and 4 never tested — `%RAND:5%` is the observed accepted length,
+   not a proven minimum, and wider values were never tried either, so this is
+   a bound, not an exact-token requirement.]
 
 Everything below that is not inside a quote is this packet's proposal or its
 declared open question, and the two are labelled.

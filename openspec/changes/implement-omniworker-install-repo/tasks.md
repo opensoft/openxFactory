@@ -600,16 +600,19 @@ nor the README substrate.
 (opensoft/openxFactory#784 → squash `6c9e3627`): the sentence above, "it
 refuses by requiring the specific token `%RAND:5%` in every device-name
 template, not merely some random segment of any length", overstates what was
-measured — the requirement is a random `%RAND:y%` segment of sufficient
-length; `%RAND:5%` is what was observed to be accepted, and wider values were
-never tried, so the record states a bound, not an exact-token requirement.]
+measured — the requirement is a random `%RAND:y%` segment; `%RAND:2%` was
+rejected as too short and `%RAND:5%` was accepted, with lengths 3 and 4 never
+tested — `%RAND:5%` is the observed accepted length, not a proven minimum,
+and wider values were never tried either, so the record states a bound, not
+an exact-token requirement.]
 
 **Amended 2026-09-08 — DISCHARGED; box closed.** Recorded 2026-09-08: landed
 as opensoft/openxFactory#784 → squash `6c9e3627` (05:51:36Z),
 `docs/omniworker-naming.md` Amendment A1 + README entries; on Brett Heap's
 word 2026-09-08T03:23Z "archive add-manifests-root-parameter and fix the
 naming record." A1 also narrowed the exact-token phrasing this owed item
-itself carried above (`%RAND:5%` as a minimum random length, not the only
+itself carried above (`%RAND:5%` as the observed accepted length — not a
+proven minimum, since lengths 3 and 4 were never tested — and not the only
 token Windows 365 accepts) — see the bracketed note immediately above and the
 matching note at `proposal.md`'s § "Origin" (after the ruled-template
 paragraph). Raised on opensoft/openxFactory#784 ("Propagate the narrowing
