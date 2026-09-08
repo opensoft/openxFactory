@@ -19,7 +19,7 @@ verified_by:
   name: Brett Heap
   role: responsible operator
   standing: Human Escalation Contract (docs/roles-and-authority.md:103-140)
-verified_at: "@@VERIFIED_AT@@"
+verified_at: "2026-09-08T04:19:00Z"
 verified_against:
   method: operator-minted ed25519 keypairs, derived through the pinned decoders
   basis: >
@@ -61,7 +61,7 @@ holder_execution_context: >
   infer, in three parts, each measured: (1) THE JOB EXISTS, at codexFactory
   `origin/main`, with `environment: worker-credentials`; (2) IT HAS NEVER
   RUN — GitHub Actions workflow id 352457764 reports `total_count: 0` runs,
-  measured @@WALK_DATE@@, so no observation of this context in operation
+  measured 2026-09-08, so no observation of this context in operation
   exists anywhere; (3) IT REFUSES TODAY, deliberately, with
   `seat_signing_unavailable`, a fail-closed presence check that parks the
   convening precisely because these four secrets are absent. And the honest

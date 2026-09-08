@@ -65,7 +65,7 @@ files.
 - [x] 1.6 On ratification, flip `docs/council-seat-key-mint-runbook.md` from
       `Status: draft` to `Status: ratified` and add
       `Ratified by: register-gate-rules-council-seats`.
-      DONE @@WALK_DATE@@: header now reads `Status: ratified` /
+      DONE 2026-09-08: header now reads `Status: ratified` /
       `Ratified by: register-gate-rules-council-seats`, the form
       `docs/factory-origin-key-mint-runbook.md` and `docs/roles-and-authority.md`
       already use and the primary spelling `docs/document-lifecycle.md:66`
@@ -122,7 +122,7 @@ files.
       gitlink `openXwallet` moved with the pin in the same commit, matching the
       wallet-v1.4 precedent (`9cfdeca5`). openxFactory PR (lane
       hermes-wallet-exercise), DO NOT MERGE pending Brett's word.
-- [ ] 2.8 Move the consumer gate's LITERAL assertions in
+- [x] 2.8 Move the consumer gate's LITERAL assertions in
       `.github/workflows/openxwallet-consumer-gate.yml` IN THE SAME PULL REQUEST
       as 2.7 — a stale literal is a red REQUIRED check on a human-only surface,
       which is the parked-candidate shape this whole arc exists to end:
@@ -135,6 +135,32 @@ files.
       2026-09-07: literal flip DEFERRED to the register act (§ 3.6/3.7) per the
       coordinator disposition on PR #717 — 2.9's neutrality gate governs; on a
       one-row register the widened reader emits `4 of 4`.
+      DONE 2026-09-08 — **PERFORMED IN THIS ACT**, per proposal.md's 2026-09-07
+      AMENDMENT (newest of the three texts and therefore governing; § 2.8's own
+      body sentence "IN THE SAME PULL REQUEST as 2.7" was never edited and is
+      superseded). `.github/workflows/openxwallet-consumer-gate.yml`: `:153`
+      `4 of 4` → `8 of 8` with its failure message's "four" → "eight"; a NEW,
+      SEPARATE assertion `^note  wallet 'wal-agent-grc-0001': 5 declared key\(s\)
+      adjudicated ` beside the mrc one at `:193` (NOT a widening — the runbook's
+      § 4: "add one for the new wallet, do not widen the existing one"); and
+      `:196`'s conjunction echo gains `wal-agent-grc-0001` so the new line is
+      shown rather than merely asserted. Every count stays LITERAL.
+      **The test that pins those literals moved in the SAME act, because it is
+      the same precondition one file over:**
+      `tests/openxwallet_consumer_gate/test_gate_invocation.py` —
+      `test_the_four_per_seat_keys_are_asserted_as_adjudicated` renamed to
+      `..._eight_...` with its literal moved (measured: it FAILED on the flipped
+      tree before the move, which would have reddened the REQUIRED
+      `pytest-suite` check), plus a new sibling
+      `test_the_second_bodys_wallet_is_asserted_separately` holding the grc grep
+      in place as a SECOND test rather than a widened one. 17 passed in
+      `tests/openxwallet_consumer_gate`.
+      **VERIFIED BY REPLAY, not by reading:** every `grep` in the workflow's two
+      assertion steps was extracted verbatim and run against this tree's
+      `wallet-gate.log` / `factory-identity-gate.log` — **13 of 13 PASS**,
+      including `:161` (`8 of 8`), `:193` (the grc wallet) and `:196` (the echo,
+      which surfaces 5 lines with both wallets among them). Recorded in the walk
+      at § 5.1.
 - [x] 2.9 **Gate:** with 2.7 + 2.8 landed and the register still carrying ONE
       row, `wallet-validation` is GREEN and the log's `intake register read:`
       note still says `1 row(s)`. The pin advance must be provably neutral
@@ -195,7 +221,7 @@ gate is green: at the old reader every one of these writes is refused.
       LQ-C3 attached**: the pin stands on the operator's judgment alone, no
       soak has been recorded at `claude-opus-5` for this seat, and the
       accepting seat disclosed an uncured conflict.
-- [ ] 3.2 Mint FOUR Ed25519 keypairs, one per registered seat —
+- [x] 3.2 Mint FOUR Ed25519 keypairs, one per registered seat —
       `lead-architect`, `lead-security`, `lead-quality`, `company-policy-lead` —
       plus the body's root key `key-grc-0001`. Private halves NEVER enter git,
       CI logs or an agent session; provision the four seat halves per the
@@ -203,15 +229,51 @@ gate is green: at the old reader every one of these writes is refused.
       fingerprints in a codexFactory mint record, as the 2026-08-28 mrc mint
       did.
       EVIDENCE (PENDING VALUES): mint record drafted at codexFactory
-      `hermes/domain/review-councils/records/@@WALK_DATE@@-gate-rules-seat-signing-keys-minted.md`;
+      `hermes/domain/review-councils/records/2026-09-08-gate-rules-seat-signing-keys-minted.md`;
       five keypairs (`key-grc-0001` root, four `key-grc-seat-<seat>-0001`);
       four private halves provisioned as
       `COUNCIL_SEAT_SIGNING_KEY_GRC_{LEAD_ARCHITECT,LEAD_SECURITY,LEAD_QUALITY,COMPANY_POLICY_LEAD}`
-      on codexFactory environment `worker-credentials` at @@VERIFIED_AT@@;
+      on codexFactory environment `worker-credentials` at 2026-09-08T04:19:00Z;
       root private half in the operator's vault only. Public values derived
       through the pinned decoders (`scripts/validate-factory-identity.py
       --derive`), never a second tool.
-- [ ] 3.3 Write `governance/review-authority/wallets/wal-agent-grc-0001.yaml`:
+      DONE 2026-09-08. **MINTED BY THE OPERATOR (Brett Heap)** with a
+      lane-authored, HOST-SIDE program that is in NO repository —
+      `~/session-prompts/mint-grc-council-seats/tools/mint-grc-council-seats.py`,
+      mirroring openxFactory's own `scripts/mint-factory-origin-key.py` in form
+      (23 tests, passing when the mint ran; they now ERROR AT SETUP because
+      their fixture copies `walk-PENDING-register-act.md`, which the fill step
+      renamed — no assertion fails). Seeds generated in-process
+      (`secrets.token_bytes(32)`), never written to disk; passed to `gh secret
+      set` ON STDIN with no `--body`, so no seed is ever an argv element; public
+      values derived in-process through `scripts/validate-factory-identity.py`'s
+      own `derive` entry point (the PINNED decoders), never a second tool.
+      Command log (argv and stdin LENGTHS only, content never logged):
+      `~/session-prompts/mint-grc-council-seats/mint-grc-command-log.txt`.
+      Public values: `~/session-prompts/mint-grc-council-seats/values.json` —
+      PUBLIC ONLY; both programs refuse outright on any 64 bare hex characters
+      without a `sha256:` prefix, and a re-scan of all nine files this act
+      touches found ZERO such strings.
+      **CUSTODY, stated plainly.** Four seat halves (64 lowercase hex) stored
+      into `opensoft/codexFactory` environment `worker-credentials` and each
+      confirmed present: `COUNCIL_SEAT_SIGNING_KEY_GRC_LEAD_ARCHITECT`
+      2026-09-08T04:18:53Z, `..._GRC_LEAD_SECURITY` 04:18:55Z,
+      `..._GRC_LEAD_QUALITY` 04:18:57Z, `..._GRC_COMPANY_POLICY_LEAD` 04:19:00Z
+      — the fourth being the attestation's `verified_at`. The ROOT
+      (`key-grc-0001`) seed was printed ONCE to the operator's terminal shortly
+      after 04:19:00Z and stayed on that screen until he had stored it in his
+      own vault (1Password; runbook § 2.1 and the 2026-08-28 mrc precedent name
+      no vault tool) and pressed Enter at 12:29:23Z — a window of 8h10m, on the
+      record because it happened and because no rule in this estate bounds it.
+      The program then emitted the clear-screen + scrollback sequence and the
+      operator confirmed the seed was gone (`clear_sequence_emitted: true`,
+      `operator_confirmed_clear: true`). Run completed 2026-09-08T12:31:36Z.
+      **No shred is claimed and none was needed for key material: no seed was
+      ever on disk.**
+      MINT RECORD (codexFactory): `hermes/domain/review-councils/records/
+      2026-09-08-gate-rules-seat-signing-keys-minted.md`, PR CODEXFACTORY-PR-PLACEHOLDER.
+      Full narrative: the walk record § 3B.
+- [x] 3.3 Write `governance/review-authority/wallets/wal-agent-grc-0001.yaml`:
       holder `agent:gate-rules-council`, custody `holder_readable`, root key
       `key-grc-0001` in `key_reference`, the four seat keys in `keys:` with
       per-key custody. FIVE declared keys — the shape rule (r) needs so a seat
@@ -221,7 +283,18 @@ gate is green: at the old reader every one of these writes is refused.
       four `keys[]` entries each with did/key_id/key_fingerprint/multibase/
       signature_algorithm/display_label/custody), outside any `examples/`
       path.
-- [ ] 3.4 Write
+      DONE 2026-09-08: values filled. **Structure diffed against
+      `wal-agent-mrc-0001.yaml` and IDENTICAL** — every key path, in order,
+      compared programmatically rather than by eye. `key_reference` =
+      `key-grc-0001` (`did:key:z6Mkqohim…`, no `key_fingerprint`, the mrc
+      asymmetry); four `keys[]` entries with the seat fingerprints;
+      `declared_at`/`created_at` = `2026-09-08T12:31:36Z`, the one Effective
+      instant. The pinned reader adjudicated all five:
+      `note  wallet 'wal-agent-grc-0001': 5 declared key(s) adjudicated
+      (key-grc-0001, key-grc-seat-company-policy-lead-0001,
+      key-grc-seat-lead-architect-0001, key-grc-seat-lead-quality-0001,
+      key-grc-seat-lead-security-0001)`.
+- [x] 3.4 Write
       `governance/review-authority/attestations/custody-attest-wal-agent-grc-0001.yaml`.
       Without it the unattested cap applies and the grant reaches only
       `request`. State the honest posture, including that the holder execution
@@ -241,7 +314,18 @@ gate is green: at the old reader every one of these writes is refused.
       NOTE (2026-09-08): the holder-context wording above was ruled by Brett
       Heap — "B2 as recommended", in-session 2026-09-08T03:20:24Z —
       https://github.com/opensoft/openxFactory/pull/717#issuecomment-5578601346
-- [ ] 3.5 Write `governance/review-authority/grants/grant-grc-0001.yaml`: a ROOT
+      DONE 2026-09-08: `verified_at: "2026-09-08T04:19:00Z"` — the FOURTH seat
+      secret's confirmation, i.e. the instant custody of the seat halves became
+      complete and therefore never earlier than any single one. KINDLESS
+      confirmed by measurement: `repo scan` counts **2120** skipped documents
+      (up one) while adjudicating **9** artifacts (up two — the wallet and the
+      grant), which is exactly the attestation being skipped by `repo_scan` and
+      consumed by the register reader. Its key set matches
+      `custody-attest-wal-agent-mrc-0001.yaml` plus ONE deliberate addition,
+      `holder_execution_context`, which carries the B2 wording; the reader
+      accepts it and no `[register-tier-act-unattested]` is raised, so
+      `grant-grc-0001` holds tier `act`.
+- [x] 3.5 Write `governance/review-authority/grants/grant-grc-0001.yaml`: a ROOT
       grant (no `parent_grant_ref`), `issued_by` the anchored operator,
       `acts: [review]`, `objects: [opensoft/openxFactory]`,
       `authority_tier: act`, `approval_posture` byte-identical to
@@ -256,7 +340,10 @@ gate is green: at the old reader every one of these writes is refused.
       `objects: [opensoft/openxFactory]` and not `opensoft/codexFactory` —
       set-equality with the row's `target_repo`, and a cross-repository
       audience has no resolution path today (clarifications N7).
-- [ ] 3.6 Write the second authority row in
+      DONE 2026-09-08: `issued_at: "2026-09-08T12:31:36Z"`. Key set diffed
+      against `grant-mrc-0002.yaml` and IDENTICAL; `approval_posture`'s three
+      lines compared as raw text and byte-identical.
+- [x] 3.6 Write the second authority row in
       `governance/review-authority/register.yaml`: `row-grc-0001`, exactly the
       nine fields, `expires_at` CHARACTER-FOR-CHARACTER equal to 3.5's because
       the reader compares the two. **`row-mrc-0001` is not touched.**
@@ -265,7 +352,11 @@ gate is green: at the old reader every one of these writes is refused.
       APPEND-ONLY and that is measured, not asserted: `git diff --numstat` on
       `register.yaml` reports `129  0` — zero deletions — so `row-mrc-0001`
       and `revocation_staleness_bound: P7D` are byte-untouched.
-- [ ] 3.7 Append the FOUR `seat_keys` entries: `council_ref:
+      DONE 2026-09-08: the reader now reports
+      `note  intake register read: governance/review-authority/register.yaml
+      (2 row(s))` with NO `register-minimal-shape-exceeded` and no
+      `[register-*]` finding of any kind.
+- [x] 3.7 Append the FOUR `seat_keys` entries: `council_ref:
       agent:gate-rules-council`, `council_id: gate_rules_council`,
       `authorizing_row: row-grc-0001`, one `key_id` and one recomputing
       `key_fingerprint` each. Key ids are namespaced (`key-grc-seat-<seat>-0001`)
@@ -288,7 +379,17 @@ gate is green: at the old reader every one of these writes is refused.
       wallets. Every count stays LITERAL. Note tasks.md § 2.8's own body still
       says "IN THE SAME PULL REQUEST as 2.7" — that sentence was never edited
       and is superseded by the disposition beneath it.
-- [ ] 3.8 Run the gate LOCALLY before pushing:
+      DONE 2026-09-08, with the public halves filled:
+      `lead-architect` / `key-grc-seat-lead-architect-0001` /
+      `sha256:858abc4c…`; `lead-security` / `key-grc-seat-lead-security-0001` /
+      `sha256:71976b6c…`; `lead-quality` / `key-grc-seat-lead-quality-0001` /
+      `sha256:e76138bb…`; `company-policy-lead` /
+      `key-grc-seat-company-policy-lead-0001` / `sha256:72a6fea0…`. All four
+      adjudicated and resolved by the pinned reader (`8 of 8`), no
+      `register-seat-duplicate` despite three seat ids now appearing twice, and
+      `validate-factory-identity.py` reports **`0 shared`** identifiers across
+      the two registers (4 here, 46 there).
+- [x] 3.8 Run the gate LOCALLY before pushing:
       `python3 openXwallet/scripts/validate-openxwallet.py .` must be clean, and
       the log must say `intake register read: … (2 row(s))` and
       `intake register: 8 of 8 per-seat signing key(s) adjudicated and resolved`.
@@ -318,14 +419,59 @@ gate is green: at the old reader every one of these writes is refused.
       (`verified_at is not an RFC3339 timestamp`) and the
       `[register-tier-act-unattested]` that follows from it. **No structural
       finding.**
-- [ ] 3.9 Record the walk: what each step produced, the citations the act is
+      DONE 2026-09-08 — **AFTER, on the filled tree, branch
+      `act/register-act-grc-0001` at base `6a09a2d4` (deliberately NOT merged
+      forward, so the only difference from the baseline is this act), run from
+      the worktree root with `set -o pipefail`.** The two literal lines the task
+      names, verbatim from `wallet-gate.log`:
+
+          note  intake register read: governance/review-authority/register.yaml (2 row(s))
+          note  intake register: 8 of 8 per-seat signing key(s) adjudicated and resolved
+
+      plus `note  wallet 'wal-agent-grc-0001': 5 declared key(s) adjudicated
+      (key-grc-0001, key-grc-seat-company-policy-lead-0001,
+      key-grc-seat-lead-architect-0001, key-grc-seat-lead-quality-0001,
+      key-grc-seat-lead-security-0001)`, `note  repo scan: 9 openxWallet
+      artifact(s) validated, 2120 document(s) skipped as another kind`, and
+      `validate-openxwallet: 0 error(s), 0 warning(s)`. **NO `[register-*]`
+      line** (`grep -c '[register-' wallet-gate.log` = 0).
+      **`--strict` rc 0**, 0 error(s) 0 warning(s). Also green on the same tree:
+      `verify-openxwallet-pin.py` (openXwallet@`f3eb929b`, tag label
+      `wallet-v1.5`, 8 digests recomputed) rc 0;
+      `wallet-yaml-syntax-gate.py .` rc 0; `validate-factory-identity.py .`
+      rc 0 (`disjointness holds … 0 shared`).
+- [x] 3.9 Record the walk: what each step produced, the citations the act is
       fixed at, the rulings as spoken, the honest limits — including that no
       gate-rules convening has ever run and that the seats are therefore
       registered and unexercised.
       EVIDENCE (PENDING VALUES): drafted at
-      `openspec/changes/register-gate-rules-council-seats/walk-@@WALK_DATE@@-register-act.md`
+      `openspec/changes/register-gate-rules-council-seats/walk-2026-09-08-register-act.md`
       (held at `walk-PENDING-register-act.md` until the date is known), in the
       form of `walk-2026-09-02-register-act.md`.
+      DONE 2026-09-08: `openspec/changes/register-gate-rules-council-seats/
+      walk-2026-09-08-register-act.md` — renamed from
+      `walk-PENDING-register-act.md` on the day it was actually walked, and
+      completed in the 2026-09-02 precedent's form. It carries § 0 the headline;
+      § 1 what each step produced; § 2 the five preconditions; § 3 the roster
+      read before minting; **§ 3A the four citations the act is fixed at, each
+      OPENED AND READ** (the ratification `review/ratification-2026-09-06.md`;
+      the R1/R2 amendment in `proposal.md` / PR #751; codexFactory
+      `records/2026-09-07-gate-rules-roster-lead-architect-pin.md`; the signed
+      `operator-identity-record-2026-09-01.md`); **§ 3B the mint itself** — the
+      program, the command log and the custody timeline; § 4 the acts verbatim
+      with THE RULINGS AS SPOKEN including B2; § 5 the gate before/after and
+      **§ 5.1 the consuming gate's 13 assertions replayed**; § 6 the capacity
+      disclosure; § 7 the projection NOT performed; § 8 the honest limits
+      (LQ-C1..C4 and LQ-A1 carried, no gate-rules convening has EVER run, the
+      seats are REGISTERED AND UNEXERCISED, the projection is not refreshed by
+      this act, the four secrets are read presence-only, the mint program is in
+      no repository, the root seed's 8h10m screen window) and the runbook's own
+      mandatory sentence: "It does not enforce itself. No gate in this estate
+      refuses a register act that skips this document." Effective instant
+      `2026-09-08T12:31:36Z`, following the predecessor's definition of that
+      field exactly — one instant taken once, written into the grant's
+      `issued_at` and the wallet's `declared_at`/`created_at`; NOT the merge
+      instant.
 - [ ] 3.10 **Gate:** the pull request carrying §3 is GREEN on
       `wallet-validation`, and it is human-landed by construction — the register
       is a never-clearable floor member and no council verdict clears it.

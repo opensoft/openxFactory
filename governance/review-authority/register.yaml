@@ -131,7 +131,7 @@ rows:
   # `expires_at` is character-for-character equal to `grant-grc-0001`'s,
   # because the reader compares the two. Ratifying human: Brett Heap
   # (Brett.Heap@opensoft.one), on this permanently human-only surface.
-  # Record: `openspec/changes/register-gate-rules-council-seats/walk-@@WALK_DATE@@-register-act.md`.
+  # Record: `openspec/changes/register-gate-rules-council-seats/walk-2026-09-08-register-act.md`.
   - row_id: row-grc-0001
     holder_ref: agent:gate-rules-council
     wallet_ref: wal-agent-grc-0001
@@ -241,12 +241,12 @@ seat_keys:
   # ── THE GATE-RULES COUNCIL'S FOUR SEAT KEYS ──────────────────────────────
   #
   # Task 3.7 of `register-gate-rules-council-seats`. Four Ed25519 keypairs
-  # minted @@WALK_DATE@@, one per REGISTERED seat of codexFactory's
+  # minted 2026-09-08, one per REGISTERED seat of codexFactory's
   # `gate_rules_council`, their private halves provisioned as
   # `COUNCIL_SEAT_SIGNING_KEY_GRC_<SEAT>` in that repository's
   # `worker-credentials` environment (Q-GRC-1, RULED 2026-09-06T14:13:46Z).
   # The record is codexFactory
-  # `hermes/domain/review-councils/records/@@WALK_DATE@@-gate-rules-seat-signing-keys-minted.md`
+  # `hermes/domain/review-councils/records/2026-09-08-gate-rules-seat-signing-keys-minted.md`
   # and the PUBLIC halves below are copied from it verbatim.
   #
   # WHY THE NAMES ARE GRC-NAMESPACED AND THE MERGE-READINESS ONES ARE NOT.
@@ -287,22 +287,22 @@ seat_keys:
     council_ref: agent:gate-rules-council
     council_id: gate_rules_council
     key_id: key-grc-seat-lead-architect-0001
-    public_key: "@@PUB_LEAD_ARCHITECT@@"
-    key_fingerprint: "@@FP_LEAD_ARCHITECT@@"
+    public_key: gZ8NGuPEWbrF_qyZ9bdgOOmmvBJISAzkPiwNs97VyN4
+    key_fingerprint: sha256:858abc4cff28d7cdf24d9dda7b6f80bb8df69978adfbb7c10336d84c8c62f933
     authorizing_row: row-grc-0001
   - seat_id: lead-security
     council_ref: agent:gate-rules-council
     council_id: gate_rules_council
     key_id: key-grc-seat-lead-security-0001
-    public_key: "@@PUB_LEAD_SECURITY@@"
-    key_fingerprint: "@@FP_LEAD_SECURITY@@"
+    public_key: 4o1Y21LjL_-Kw57xmGrOb1jiYo3i-j3U_zwodm_Fszs
+    key_fingerprint: sha256:71976b6c8952181b85ee5d5aed3fab02b8c40f6a192ea434cb4abc209713707a
     authorizing_row: row-grc-0001
   - seat_id: lead-quality
     council_ref: agent:gate-rules-council
     council_id: gate_rules_council
     key_id: key-grc-seat-lead-quality-0001
-    public_key: "@@PUB_LEAD_QUALITY@@"
-    key_fingerprint: "@@FP_LEAD_QUALITY@@"
+    public_key: yny0ASkMPZ3eBkG8BC6qGfZKl25Qwt5OKU9Eg7FJk90
+    key_fingerprint: sha256:e76138bba4bf500fa0b96f5eaf57980c5d15a6127e43120a9bf7e91348c21bdd
     authorizing_row: row-grc-0001
   # The TENANT-LAYER seat, seated unconditionally by this body's own roster
   # (`members.client.seat`). The CONDITIONAL company-policy pull-in this
@@ -312,6 +312,6 @@ seat_keys:
     council_ref: agent:gate-rules-council
     council_id: gate_rules_council
     key_id: key-grc-seat-company-policy-lead-0001
-    public_key: "@@PUB_COMPANY_POLICY_LEAD@@"
-    key_fingerprint: "@@FP_COMPANY_POLICY_LEAD@@"
+    public_key: qBBLKKy2AEyGCtYW8TI80IZbgbSvCrO1JFNTG5gWy_8
+    key_fingerprint: sha256:72a6fea097059eeddc4e34c01ab2de8ec2639a8fe00ce3dc41f07605eab2d4e7
     authorizing_row: row-grc-0001

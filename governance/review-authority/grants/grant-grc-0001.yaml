@@ -70,7 +70,7 @@
 #         the anchored operator identity this grant's `issued_by` names.
 #
 # The walk record for this act:
-# `openspec/changes/register-gate-rules-council-seats/walk-@@WALK_DATE@@-register-act.md`.
+# `openspec/changes/register-gate-rules-council-seats/walk-2026-09-08-register-act.md`.
 #
 # ============================================================================
 # THE SCOPE — EACH ELEMENT EXAMINED, AND WHY IT STANDS
@@ -198,6 +198,6 @@ scope:
     authority_agents_may_approve: false
     human_escalation_required_for: []
 expires_at: "2027-06-30T00:00:00Z"
-issued_at: "@@ISSUED_AT@@"
+issued_at: "2026-09-08T12:31:36Z"
 issued_by: Brett.Heap@opensoft.one
 state: active

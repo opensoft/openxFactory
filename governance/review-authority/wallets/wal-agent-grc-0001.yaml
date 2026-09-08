@@ -35,20 +35,20 @@ holder:
 key_reference:
   # OPERATOR-MINTED identity (task 3.2 [OPERATOR]): private half retained in
   # the operator's vault, never entering git/CI/agent sessions; only the
-  # public half appears here. Minted and supplied by Brett Heap @@WALK_DATE@@.
+  # public half appears here. Minted and supplied by Brett Heap 2026-09-08.
   #
   # NO `key_fingerprint` HERE, and the omission is the mrc precedent's, not an
   # oversight: `key_reference` carries `did`, `key_id`,
   # `public_key_multibase` and `signature_algorithm`; only `keys[]` entries
   # carry a fingerprint.
-  did: "@@DID_ROOT@@"
+  did: "did:key:z6MkqohimztNL3Moz7JzsoRx13Fbad2VDHBwG7rKMGU2xsaA"
   key_id: key-grc-0001
-  public_key_multibase: "@@MB_ROOT@@"
+  public_key_multibase: z6MkqohimztNL3Moz7JzsoRx13Fbad2VDHBwG7rKMGU2xsaA
   signature_algorithm: ed25519
 custody:
   model: holder_readable
   registry_version: 1
-  declared_at: "@@EFFECTIVE_INSTANT@@"
+  declared_at: "2026-09-08T12:31:36Z"
   # Strict identifier grammar (no '@'): the email-form anchor token
   # Brett.Heap@opensoft.one is scoped to grant issued_by by S2's authorized
   # widening and is deliberately NOT generalized to wallet fields.
@@ -98,7 +98,7 @@ keys:
   # no slot for it — there is no register row for a root key.
   #
   # PROVENANCE OF THESE VALUES. `key_fingerprint` is VERBATIM from codexFactory
-  # `hermes/domain/review-councils/records/@@WALK_DATE@@-gate-rules-seat-signing-keys-minted.md`
+  # `hermes/domain/review-councils/records/2026-09-08-gate-rules-seat-signing-keys-minted.md`
   # and byte-identical to the same key's entry in `../register.yaml`.
   # `public_key_multibase` and `did` are DERIVED from that record's published
   # public half through the PINNED decoders
@@ -122,50 +122,50 @@ keys:
   # RULED 2026-09-06T14:13:46Z: "register neither deferred seat now; delete
   # neither." Their keys are registered by whichever codexFactory roster act
   # binds them, in that same governed act.
-  - did: "@@DID_LEAD_ARCHITECT@@"
+  - did: "did:key:z6MkoBFJbV2XhaoN6kJKrTzYLULZiU85UptzsMgTUfFCPg7f"
     key_id: key-grc-seat-lead-architect-0001
-    key_fingerprint: "@@FP_LEAD_ARCHITECT@@"
-    public_key_multibase: "@@MB_LEAD_ARCHITECT@@"
+    key_fingerprint: sha256:858abc4cff28d7cdf24d9dda7b6f80bb8df69978adfbb7c10336d84c8c62f933
+    public_key_multibase: z6MkoBFJbV2XhaoN6kJKrTzYLULZiU85UptzsMgTUfFCPg7f
     signature_algorithm: ed25519
     display_label: gate rules council — lead-architect seat
     custody:
       model: holder_readable
       registry_version: 1
-      declared_at: "@@EFFECTIVE_INSTANT@@"
+      declared_at: "2026-09-08T12:31:36Z"
       declared_by: Brett.Heap
-  - did: "@@DID_LEAD_SECURITY@@"
+  - did: "did:key:z6MkuhdCAPTFWuZaFYxirVUvda8YirV2RXzRstqfLRsa9fX8"
     key_id: key-grc-seat-lead-security-0001
-    key_fingerprint: "@@FP_LEAD_SECURITY@@"
-    public_key_multibase: "@@MB_LEAD_SECURITY@@"
+    key_fingerprint: sha256:71976b6c8952181b85ee5d5aed3fab02b8c40f6a192ea434cb4abc209713707a
+    public_key_multibase: z6MkuhdCAPTFWuZaFYxirVUvda8YirV2RXzRstqfLRsa9fX8
     signature_algorithm: ed25519
     display_label: gate rules council — lead-security seat
     custody:
       model: holder_readable
       registry_version: 1
-      declared_at: "@@EFFECTIVE_INSTANT@@"
+      declared_at: "2026-09-08T12:31:36Z"
       declared_by: Brett.Heap
-  - did: "@@DID_LEAD_QUALITY@@"
+  - did: "did:key:z6Mkt5ggtRwemWZ6YouaefNXgBXe8tdLSZBs9EwUU4wc94gk"
     key_id: key-grc-seat-lead-quality-0001
-    key_fingerprint: "@@FP_LEAD_QUALITY@@"
-    public_key_multibase: "@@MB_LEAD_QUALITY@@"
+    key_fingerprint: sha256:e76138bba4bf500fa0b96f5eaf57980c5d15a6127e43120a9bf7e91348c21bdd
+    public_key_multibase: z6Mkt5ggtRwemWZ6YouaefNXgBXe8tdLSZBs9EwUU4wc94gk
     signature_algorithm: ed25519
     display_label: gate rules council — lead-quality seat
     custody:
       model: holder_readable
       registry_version: 1
-      declared_at: "@@EFFECTIVE_INSTANT@@"
+      declared_at: "2026-09-08T12:31:36Z"
       declared_by: Brett.Heap
-  - did: "@@DID_COMPANY_POLICY_LEAD@@"
+  - did: "did:key:z6MkqmJwz92kJQEJpcdLkxd19537opBX7MvxSQSs8GuAxsqp"
     key_id: key-grc-seat-company-policy-lead-0001
-    key_fingerprint: "@@FP_COMPANY_POLICY_LEAD@@"
-    public_key_multibase: "@@MB_COMPANY_POLICY_LEAD@@"
+    key_fingerprint: sha256:72a6fea097059eeddc4e34c01ab2de8ec2639a8fe00ce3dc41f07605eab2d4e7
+    public_key_multibase: z6MkqmJwz92kJQEJpcdLkxd19537opBX7MvxSQSs8GuAxsqp
     signature_algorithm: ed25519
     display_label: gate rules council — company-policy-lead seat (tenant layer)
     custody:
       model: holder_readable
       registry_version: 1
-      declared_at: "@@EFFECTIVE_INSTANT@@"
+      declared_at: "2026-09-08T12:31:36Z"
       declared_by: Brett.Heap
 state: active
-created_at: "@@EFFECTIVE_INSTANT@@"
+created_at: "2026-09-08T12:31:36Z"
 policy_version: 1
