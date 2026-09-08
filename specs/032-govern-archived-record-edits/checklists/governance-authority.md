@@ -12,102 +12,119 @@ coverage, no item cap.
 
 ## Authority & Actor Boundaries
 
-- [ ] CHK001 Is the boundary between what an AGENT may do (author prose, tick act-done boxes, run gates) and what only Brett Heap (the OPERATOR) may do stated as an explicit rule, or must it be inferred by cross-reading FR-006, FR-015 and Architect rulings? [Clarity, Spec FR-006/FR-015] **— OPEN:** The spec never states in one place which acts are AGENT-performed versus OPERATOR-only; it must be assembled by cross-reading FR-006, FR-015 and the Architect rulings section. **FIX:** Add a single explicit boundary statement (e.g., in spec.md's Key Entities) naming exactly what an agent may do (author prose, tick act-done boxes, run gates) and reserving ratification, veto and archive acts to Brett Heap.
+- [x] CHK001 Is the boundary between what an AGENT may do (author prose, tick act-done boxes, run gates) and what only Brett Heap (the OPERATOR) may do stated as an explicit rule, or must it be inferred by cross-reading FR-006, FR-015 and Architect rulings? [Clarity, Spec FR-006/FR-015]
 - [x] CHK002 Is the boundary between this feature's acts and "the lane's" acts (claim, open the PR, post LANDING/LANDED, discharge issue #630, archive) enumerated completely, or could "claim" and "post LANDING/LANDED" fall outside FR-015's prohibition list, leaving silence readable as permission? [Completeness, Spec Assumptions/FR-015]
 - [x] CHK003 Is it stated as plainly in requirement text as in Clarifications narrative that an AGENT (not Brett Heap) authors the § 1 `[OPERATOR]` box ticks — given the rejected option was "leave the `[OPERATOR]` boxes for Brett Heap to tick himself"? [Clarity, Spec FR-006/Clarifications Q1]
 - [x] CHK004 Is the domain-twin actor (OpsxFactory, "a sibling orchestrator", PR #279) distinguished precisely enough from this feature's actor that a reader cannot mistake a twin box for one this feature may tick? [Clarity, Spec FR-007/Out of scope]
-- [ ] CHK005 Is lane identity (`opsXfactory-1`) itself a checked precondition anywhere for continuing this feature, or only asserted through the trailer requirement (FR-014) with no gate on WHO may resume the work? [Gap, Spec FR-014] **— OPEN:** No task or requirement checks that the working session is actually the claimed lane `opsXfactory-1` before work proceeds; FR-014 only requires the trailer after the fact. **FIX:** Add a Phase-1 task (or an FR) requiring verification of an existing CLAIMED comment naming lane `opsXfactory-1` on issue #630 before any task in Phase 2 onward begins.
+- [x] CHK005 Is lane identity (`opsXfactory-1`) itself a checked precondition anywhere for continuing this feature, or only asserted through the trailer requirement (FR-014) with no gate on WHO may resume the work? [Gap, Spec FR-014]
 
 ## Ratified Packet as Sole Authority
 
-- [ ] CHK006 Does "THE RATIFIED PACKET IS THE AUTHORITY, NOT THIS FILE" carry an operational consequence stated as a requirement an implementer is directed to follow on conflict, or is it asserted once in prose with no corresponding FR? [Gap, Spec Preamble] **— OPEN:** "THE RATIFIED PACKET IS THE AUTHORITY, NOT THIS FILE" is asserted once in the preamble prose with no corresponding functional requirement directing what an implementer does on a detected conflict. **FIX:** Add an FR (or amend FR-009) stating that any discovered conflict between spec.md and the ratified packet is resolved by treating spec.md as the defect and correcting it forward-only under FR-021.
+- [x] CHK006 Does "THE RATIFIED PACKET IS THE AUTHORITY, NOT THIS FILE" carry an operational consequence stated as a requirement an implementer is directed to follow on conflict, or is it asserted once in prose with no corresponding FR? [Gap, Spec Preamble]
 - [x] CHK007 Is the ratification record — GitHub review `5141756427`, APPROVED `2026-09-08T12:38:36Z`, PR #788, merge `3504287a` — cited identically everywhere it recurs (header, FR-006, research M1), or does any one citation drop a field the others carry? [Consistency, Spec Header/FR-006/Research M1]
 - [x] CHK008 Is the ratified packet's scope ("1 MODIFIED and two ADDED requirements, 18 scenarios") precise enough for an implementer to verify this feature's requirements do not exceed it, or must the count be taken on faith with no pointer to the promoted spec file? [Traceability, Spec Key Entities]
-- [ ] CHK009 Is there a named escalation or correction procedure for the case where a requirement in this spec appears to WIDEN or NARROW a ratified block, or only the bare statement that the file would then be "the defect"? [Gap, Spec Preamble] **— OPEN:** Beyond the bare "the file is the defect" statement, no escalation or correction procedure is named for a requirement found to widen or narrow a ratified block. **FIX:** Add a sentence directing that such a discovery triggers a STOP-and-report (as T002 does for a moved packet) followed by an FR-021 forward-only correction to spec.md.
+- [x] CHK009 Is there a named escalation or correction procedure for the case where a requirement in this spec appears to WIDEN or NARROW a ratified block, or only the bare statement that the file would then be "the defect"? [Gap, Spec Preamble]
 
 ## Operator-Box Ticking Discipline
 
 - [x] CHK010 Is "ACT-DONE, not actor-class" (FR-006) defined as a general, mechanically applicable procedure, or does it rely entirely on analogy to the two cited precedents with no rule extracted from them for a box neither precedent resembles? [Ambiguity, Spec FR-006]
 - [x] CHK011 Is it specified what evidence is sufficient to call EACH of boxes 1.1–1.5 "verifiably DONE" individually, or does FR-006 give one evidentiary standard for all five without addressing whether each needs distinct evidence? [Clarity, Spec FR-006/Tasks T021]
-- [ ] CHK012 Is there a requirement preventing an agent from ticking an `[OPERATOR]` box whose underlying act has NO independent record (unlike review `5141756427`), so the act-done test cannot be satisfied by the agent's own assertion alone? [Completeness, Spec FR-006] **— OPEN:** FR-006's evidentiary standard is written only against this feature's two known, independently-recorded boxes; no requirement generalizes that an `[OPERATOR]` tick always needs an independent record rather than the agent's own assertion. **FIX:** Add a durable clause to FR-006 stating that an `[OPERATOR]` box's act-done test always requires an independent, resolvable record, and an agent's own assertion never suffices, for any future box.
-- [ ] CHK013 Does the spec state whether the act-done test is durable beyond this feature's own 28 boxes — for a FUTURE `[OPERATOR]` box lacking a precedent as clean as the two cited, is the rule still applicable, or scoped narrowly to this feature? [Gap, Spec FR-006] **— OPEN:** The spec does not say whether the act-done test is a durable rule for future `[OPERATOR]` boxes across the corpus or is scoped narrowly to this feature's own 28 boxes. **FIX:** Add a sentence to FR-006 stating explicitly whether the act-done standard is intended as a durable precedent beyond this feature or is scoped to it alone.
+- [x] CHK012 Is there a requirement preventing an agent from ticking an `[OPERATOR]` box whose underlying act has NO independent record (unlike review `5141756427`), so the act-done test cannot be satisfied by the agent's own assertion alone? [Completeness, Spec FR-006]
+- [x] CHK013 Does the spec state whether the act-done test is durable beyond this feature's own 28 boxes — for a FUTURE `[OPERATOR]` box lacking a precedent as clean as the two cited, is the rule still applicable, or scoped narrowly to this feature? [Gap, Spec FR-006]
 
 ## Non-Fabrication of Ratification Quotes
 
 - [x] CHK014 Is "the approval body is EMPTY and no verbatim word exists... MUST NOT quote a word" (FR-006) paired with an explicit prohibition on quotation marks around a near-verbatim PARAPHRASE, closing the gap a literal reading of "quote" might leave open? [Precision, Spec FR-006]
 - [x] CHK015 Is the citation triple required for a § 1 note — review id, timestamp, record path — stated as a MINIMUM (all three required) or a menu (any one suffices), and is that reading unambiguous from FR-006's wording alone? [Ambiguity, Spec FR-006]
 - [x] CHK016 Is a bright-line test given for whether a drafted phrase "counts as quoting a word" from the empty approval body, or only the negative instruction "MUST NOT quote" with no test for the boundary case? [Ambiguity, Spec FR-006]
-- [ ] CHK017 Does the spec state the CONSEQUENCE of a note that does invent a quotation — a blocking defect, a gate failure, or reliance on reviewer vigilance alone — or is that left unstated? [Gap, Spec FR-006] **— OPEN:** No requirement states the consequence of a note that invents a ratification quotation — whether it is a blocking defect, a gate failure, or left to reviewer vigilance. **FIX:** Add a clause to FR-006 or FR-020 declaring an invented quotation a blocking defect that must be corrected under FR-021 before STOP (B).
+- [x] CHK017 Does the spec state the CONSEQUENCE of a note that does invent a quotation — a blocking defect, a gate failure, or reliance on reviewer vigilance alone — or is that left unstated? [Gap, Spec FR-006]
 
 ## Amendment-of-Ratified-Text Discipline
 
 - [x] CHK018 Are the THREE sentences FR-017 targets identified precisely enough (exact wording and location: preamble, § 0.1, § 1) that an implementer could not mistake a fourth similar sentence for one of the three, or amend a wrong one? [Precision, Spec FR-017]
-- [ ] CHK019 Is "each amendment NAMING the superseded sentence and the reason" (FR-017) specified with a required FORM the way FR-001's note is byte-exact, or is the amendment's own wording left free-form, risking three inconsistently shaped amendments? [Clarity, Spec FR-017] **— OPEN:** FR-017 requires each amendment to "name the superseded sentence and the reason" but gives no required template or byte-exact form, unlike FR-001's note text, risking three differently-shaped amendments. **FIX:** Add a template sentence (or the precedent's exact block-quote shape) to FR-017 so all three amendments follow one required form.
-- [ ] CHK020 Is precedent commit `3b530009` accompanied by enough excerpted text in this spec that an implementer without shell access could reproduce its shape, or does satisfying FR-017 require looking up an external commit with nothing quoted here? [Gap, Spec FR-017] **— OPEN:** Commit `3b530009`'s shape is referenced by hash only; research.md paraphrases it ("names the sentence it supersedes and gives the reason") but no artifact excerpts its actual text. **FIX:** Add a short verbatim excerpt of commit `3b530009`'s amendment (the block-quote pattern) to research.md's M7 entry so FR-017 is self-contained.
+- [x] CHK019 Is "each amendment NAMING the superseded sentence and the reason" (FR-017) specified with a required FORM the way FR-001's note is byte-exact, or is the amendment's own wording left free-form, risking three inconsistently shaped amendments? [Clarity, Spec FR-017]
+- [x] CHK020 Is precedent commit `3b530009` accompanied by enough excerpted text in this spec that an implementer without shell access could reproduce its shape, or does satisfying FR-017 require looking up an external commit with nothing quoted here? [Gap, Spec FR-017]
 - [x] CHK021 Is "the SAME COMMIT" in FR-017 defined precisely enough to rule out a separate fixup/amend commit as satisfying it? [Precision, Spec FR-017]
 - [x] CHK022 Is the ratification record's own "28 boxes, NONE ticked" baseline sentence (which FR-017 says MUST NOT be touched) located precisely enough that an implementer amending the three nearby "stays unticked" sentences will not touch it by accident? [Completeness, Spec FR-017]
 
 ## Frozen Set Integrity
 
-- [ ] CHK023 Is the frozen set enumerated IDENTICALLY everywhere it appears (spec.md FR-009/FR-010/Out of scope, Plan Project Structure, Tasks T003), or does one list include an item another omits, leaving an implementer to guess which is authoritative? [Consistency, Spec FR-010/Plan Project Structure/Tasks T003] **— OPEN:** Plan.md's Project Structure and Tasks T003 enumerate a 7-item frozen set (including `corpus-ledger.yaml`, `README.md`, `contracts/**`) that spec.md's FR-009/FR-010 do not name together; a reader of the Functional Requirements alone gets a shorter list. **FIX:** Add the full 7-item frozen-set enumeration to spec.md itself (e.g., a new Key Entities bullet) matching Tasks T003 verbatim.
+- [x] CHK023 Is the frozen set enumerated IDENTICALLY everywhere it appears (spec.md FR-009/FR-010/Out of scope, Plan Project Structure, Tasks T003), or does one list include an item another omits, leaving an implementer to guess which is authoritative? [Consistency, Spec FR-010/Plan Project Structure/Tasks T003]
 - [x] CHK024 Is "no ratified requirement text may be reworded" (FR-009) scoped precisely enough to be distinguished from FR-017's permitted amendment of `tasks.md` sentences, so FR-009 cannot be read as forbidding FR-017's own action? [Conflict, Spec FR-009/FR-017]
-- [ ] CHK025 Is the freeze on `design.md`, `.openspec.yaml` and the spec delta stated as a CONTINUOUS constraint (re-checked at every commit, per Tasks T003's "not a one-time act") in spec.md itself, or only in tasks.md with spec.md asserting it once? [Traceability, Tasks T003] **— OPEN:** Only Tasks T003 states the freeze is "a standing constraint... not a one-time act"; FR-009/FR-010 in spec.md assert the freeze once with no continuity language. **FIX:** Add "continuously, re-checked at every commit" language to FR-009 or FR-010 in spec.md, mirroring Tasks T003's framing.
+- [x] CHK025 Is the freeze on `design.md`, `.openspec.yaml` and the spec delta stated as a CONTINUOUS constraint (re-checked at every commit, per Tasks T003's "not a one-time act") in spec.md itself, or only in tasks.md with spec.md asserting it once? [Traceability, Tasks T003]
 - [x] CHK026 Is "everything under `openspec/changes/archive/`" bounded to cover a file added to that tree AFTER branch cut (another lane's archive act landing on `main` mid-flight), or does the freeze contemplate only the archive tree as it stood at branch cut? [Edge Case, Spec FR-009]
 - [x] CHK027 Is a verification method for the frozen-set freeze named as a REQUIREMENT (not just Tasks T003/T030), so an implementer reading only the Functional Requirements would know how it is checked? [Gap, Spec FR-009/Tasks T030]
 
 ## Veto Points (Brett Heap)
 
-- [ ] CHK028 Are all three architect rulings flagged for veto (the `proposal.md` note, ticking § 1 `[OPERATOR]` boxes, the two explanatory sentences) each traced to the exact FR(s) that would need to be UNDONE on veto, so the blast radius is knowable without re-deriving it? [Traceability, Spec Architect rulings] **— OPEN:** The three veto rulings are traced to Clarification question numbers (Q1, Q2, Q10) but not to the FR numbers (FR-005, FR-006, FR-010/FR-010a, FR-017) an implementer would need to undo. **FIX:** Add the specific FR citations next to each ruling in "Architect rulings open to veto" (e.g., ruling 2 → FR-006, FR-017).
-- [ ] CHK029 Is the MECHANISM for exercising the veto specified (a comment, a ruling record, a named channel), or does the spec only say the rulings "proceed unless Brett Heap says otherwise" with no stated form for "otherwise"? [Gap, Spec Architect rulings] **— OPEN:** The rulings section says they "proceed unless Brett Heap says otherwise" but never names the channel or form (comment, ruling record) through which "otherwise" is exercised. **FIX:** Add a sentence naming the veto mechanism, e.g. a PR comment or in-session ruling citing the ruling number, in the "Architect rulings open to veto" section.
-- [ ] CHK030 Is a deadline or gating point stated by which the veto must be exercised — before the PR opens, before archive, or open indefinitely including after landing? [Ambiguity, Spec Architect rulings] **— OPEN:** "The branch does not wait on the word" establishes no gating checkpoint, but no sentence states whether the veto window stays open indefinitely (including after landing) or closes at some point. **FIX:** Add an explicit sentence stating the veto window is open indefinitely, including after landing, consistent with the stated reversal mechanism.
+- [x] CHK028 Are all three architect rulings flagged for veto (the `proposal.md` note, ticking § 1 `[OPERATOR]` boxes, the two explanatory sentences) each traced to the exact FR(s) that would need to be UNDONE on veto, so the blast radius is knowable without re-deriving it? [Traceability, Spec Architect rulings]
+- [x] CHK029 Is the MECHANISM for exercising the veto specified (a comment, a ruling record, a named channel), or does the spec only say the rulings "proceed unless Brett Heap says otherwise" with no stated form for "otherwise"? [Gap, Spec Architect rulings]
+- [x] CHK030 Is a deadline or gating point stated by which the veto must be exercised — before the PR opens, before archive, or open indefinitely including after landing? [Ambiguity, Spec Architect rulings]
 - [x] CHK031 If Brett Heap exercises the veto on ruling 2 (ticking § 1's `[OPERATOR]` boxes) AFTER the branch already ticked them, is a rollback or correction procedure specified, or does the spec describe only the pre-veto consequence with no post-hoc path? [Recovery, Spec Architect rulings]
 
 ## Prohibited Acts (PR / Comment / Merge / Archive)
 
 - [x] CHK032 Does FR-015's prohibition list (`openspec archive`, open a PR, post a comment, merge) cover every lane act named in Assumptions ("claim, opens the PR, posts LANDING/LANDED, discharges the claims on issue #630, and performs the archive act"), or do "claim" and "post LANDING/LANDED" fall outside FR-015's enumerated verbs? [Completeness, Spec FR-015/Assumptions]
-- [ ] CHK033 Is "post a GitHub comment" (FR-015) scoped to comments on this packet/PR, or could it be read to also forbid comments on unrelated issues — and is that ambiguity resolved? [Ambiguity, Spec FR-015] **— OPEN:** FR-015's "MUST NOT post a GitHub comment" is unscoped; nothing states whether it is limited to this packet's PR or forbids comments anywhere. **FIX:** Amend FR-015 to state the comment prohibition covers any GitHub comment regardless of target, closing the scope question explicitly.
-- [ ] CHK034 Is the STOP condition ("STOP (B) → architect report") defined precisely enough — what "(B)" designates, what the report must contain — that reaching it cannot be mistaken for authorization to continue into a prohibited act? [Precision, Tasks T032/Plan Implementation sequence] **— OPEN:** "(B)" is used as a label (STOP (B)) throughout plan.md and tasks.md but is never defined anywhere in this feature's own artifacts. **FIX:** Add a sentence in spec.md or plan.md defining what "(B)" designates (e.g., the architect checkpoint following clarify's "(A)") so the label is self-contained.
+- [x] CHK033 Is "post a GitHub comment" (FR-015) scoped to comments on this packet/PR, or could it be read to also forbid comments on unrelated issues — and is that ambiguity resolved? [Ambiguity, Spec FR-015]
+- [x] CHK034 Is the STOP condition ("STOP (B) → architect report") defined precisely enough — what "(B)" designates, what the report must contain — that reaching it cannot be mistaken for authorization to continue into a prohibited act? [Precision, Tasks T032/Plan Implementation sequence]
 - [x] CHK035 Is `gh` (the GitHub CLI) named explicitly as prohibited anywhere in spec.md's Functional Requirements, or does that prohibition exist only in the task-runner's operating constraints outside the spec, risking a reader of spec.md alone missing it? [Gap, Spec FR-015]
 
 ## Commit Trailer & Lane Discipline
 
-- [ ] CHK036 Is the full required trailer set — `Lane: opsXfactory-1`, `Co-Authored-By`, the session link (FR-014) — specified with exact trailer key spellings and format, or could a differently formatted line satisfy "MUST carry... the session link" while missing T031's verification grep? [Precision, Spec FR-014/Tasks T031] **— OPEN:** FR-014 requires "the session link" without naming the trailer key itself; only Tasks T031 names `Claude-Session` as the key to grep for. **FIX:** Amend FR-014 to name the exact trailer key, e.g. "the `Claude-Session:` trailer carrying the session link."
+- [x] CHK036 Is the full required trailer set — `Lane: opsXfactory-1`, `Co-Authored-By`, the session link (FR-014) — specified with exact trailer key spellings and format, or could a differently formatted line satisfy "MUST carry... the session link" while missing T031's verification grep? [Precision, Spec FR-014/Tasks T031]
 - [x] CHK037 Is "MUST stage explicit paths" (FR-014) precise enough to distinguish a compliant multi-path `git add` from a non-compliant `git add -A`/`git add .`? [Clarity, Spec FR-014]
-- [ ] CHK038 Is the verification method for FR-014 (Tasks T031's trailer grep) named as part of the requirement itself, so a reader of spec.md alone knows how conformance is checked, or does spec.md stay silent on verification? [Traceability, Spec FR-014/Tasks T031] **— OPEN:** No Functional Requirement or Success Criterion in spec.md names a verification method for the commit-trailer rule; it exists only in Tasks T031. **FIX:** Add a Success Criterion (e.g. SC-009) to spec.md naming the `git log --format='%(trailers:key=Lane)'` check T031 performs.
-- [ ] CHK039 Does FR-014 or any other requirement state whether a forward-merge commit from `main` (Assumptions) must ALSO carry the three trailers, or is it exempt — and is that exemption, or the lack of one, stated anywhere? [Gap, Spec FR-014/Assumptions] **— OPEN:** Nothing states whether a forward-merge commit from `main` (Assumptions) is exempt from FR-014's three-trailer requirement or must also carry it, and git merge commits do not naturally carry custom trailers. **FIX:** Add a clause to FR-014 or Assumptions stating explicitly whether forward-merge commits are exempt, and if not, how the trailers are added to them.
+- [x] CHK038 Is the verification method for FR-014 (Tasks T031's trailer grep) named as part of the requirement itself, so a reader of spec.md alone knows how conformance is checked, or does spec.md stay silent on verification? [Traceability, Spec FR-014/Tasks T031]
+- [x] CHK039 Does FR-014 or any other requirement state whether a forward-merge commit from `main` (Assumptions) must ALSO carry the three trailers, or is it exempt — and is that exemption, or the lack of one, stated anywhere? [Gap, Spec FR-014/Assumptions]
 
 ## Precision Sufficiency (residual)
 
 - [x] CHK040 Taking FR-006, FR-007, FR-012 and FR-017 together as the full ticking/amendment rule, could a careful implementer follow every sentence literally and still leave one of the 28 boxes without an actor-identifying note? [Gap, Spec FR-006/FR-007/FR-012/FR-017]
-- [ ] CHK041 Could an implementer satisfy FR-015's letter (stop, no PR, no comment, no merge, no archive) while performing a functionally equivalent adjacent act (e.g., pushing the branch and separately instructing the lane out-of-band to open the PR)? [Ambiguity, Spec FR-015] **— OPEN:** FR-015 enumerates prohibited acts (archive, gh, comment, merge) but does not close the loophole of pushing the branch and instructing the lane out-of-band to perform them. **FIX:** Add a closing clause to FR-015 prohibiting arranging, instructing, or triggering the lane (or any other process) to perform the prohibited acts before STOP (B).
-- [ ] CHK042 Is every authority-relevant term this feature relies on ("the lane", "the archive act", "the twin", "a sibling orchestrator") defined in spec.md's own Key Entities, or does any of them force an implementer to import meaning from the wider repository CLAUDE.md rather than from this feature's governing document? [Completeness, Spec Key Entities] **— OPEN:** "The lane," "the archive act," "the twin" and "a sibling orchestrator" are used throughout spec.md but none is defined in Key Entities; a reader must import meaning from context or the wider repository CLAUDE.md. **FIX:** Add each term as a defined Key Entities bullet in spec.md with a one-line, self-contained definition.
+- [x] CHK041 Could an implementer satisfy FR-015's letter (stop, no PR, no comment, no merge, no archive) while performing a functionally equivalent adjacent act (e.g., pushing the branch and separately instructing the lane out-of-band to open the PR)? [Ambiguity, Spec FR-015]
+- [x] CHK042 Is every authority-relevant term this feature relies on ("the lane", "the archive act", "the twin", "a sibling orchestrator") defined in spec.md's own Key Entities, or does any of them force an implementer to import meaning from the wider repository CLAUDE.md rather than from this feature's governing document? [Completeness, Spec Key Entities]
 
-## Evaluation — 2026-09-08
+## Evaluation — 2026-09-08 (round 3, re-evaluated after amendments)
 
-**Tally**: 21 passed / 21 open / 0 deferred (total 42).
+**Tally**: 41 passed / 1 open / 0 dispositioned (total 42).
+
+Fourteen of the fifteen previously-open items flipped to PASS on this round.
+The closing amendments, by item: CHK001 — Key Entities now states "THE
+AGENT/OPERATOR BOUNDARY, stated once" directly. CHK005 — T001 now confirms
+lane identity as a named Phase-1 precondition. CHK006/CHK009 — FR-025's
+STOP-AND-REPORT trigger list now names a conflict discovered between this
+feature's artifacts and the ratified packet, with the packet governing.
+CHK012/CHK013 — new FR-006a requires an independent durable record (sha,
+review id, path — never recollection) for any act-done tick, stated as a
+general, durable rule rather than scoped to this feature's two known
+precedents. CHK023 — new FR-009a enumerates the frozen set once in one place;
+`plan.md` and Tasks T003 now both point at it by reference (T003 no longer
+calls `README.md` wholly frozen). CHK029/CHK030 — the rulings section now
+names the veto's mechanism (an architect ruling relayed, or Brett Heap's word
+on the PR) and states there is no waiting period, with a later veto performed
+as the named reversal act. CHK033/CHK041 — FR-015 now scopes the comment
+prohibition to every GitHub surface in every repository by any means, and
+explicitly closes the out-of-band-instruction loophole. CHK036/CHK038 — FR-014
+now names the three trailer keys verbatim and states its own verification
+method (`git log main..HEAD` read for the three keys, T031) inline. CHK042 —
+the Glossary now also defines "the archive act" and "a sibling orchestrator".
 
 ### Open items
-- CHK001 — no single explicit AGENT/OPERATOR boundary statement; requires cross-reading FR-006, FR-015, Architect rulings → add one explicit boundary statement to spec.md
-- CHK005 — lane identity is never a checked precondition, only a post-hoc trailer → add a Phase-1 task verifying the CLAIMED comment for lane opsXfactory-1
-- CHK006 — "the packet governs, this file is the defect" has no corresponding FR → add an FR directing forward-only correction on detected conflict
-- CHK009 — no named escalation/correction procedure for a widen/narrow discovery → add a STOP-and-report + FR-021 correction sentence
-- CHK012 — no durable rule barring an agent's own assertion from satisfying act-done without an independent record → add a durable clause to FR-006
-- CHK013 — durability of the act-done test beyond this feature's 28 boxes is unstated → add a scoping sentence to FR-006
-- CHK017 — no stated consequence for a note that invents a quotation → add a blocking-defect clause to FR-006/FR-020
-- CHK019 — FR-017 amendments have no required uniform form → add a template/shape to FR-017
-- CHK020 — commit 3b530009's shape is cited but never excerpted → add a verbatim excerpt to research.md M7
-- CHK023 — spec.md's FR-009/FR-010 omit 4 of the 7 frozen-set items Plan/Tasks T003 list → add the full 7-item list to spec.md
-- CHK025 — "continuous, not one-time" freeze framing exists only in Tasks T003, not spec.md → add continuity language to FR-009/FR-010
-- CHK028 — veto rulings cite Clarification Q-numbers, not the FR(s) to undo → add explicit FR citations to each ruling
-- CHK029 — no named mechanism (comment, record, channel) for exercising the veto → add a sentence naming the veto mechanism
-- CHK030 — no stated deadline/window for the veto (before PR, before archive, indefinite) → add an explicit veto-window sentence
-- CHK033 — "MUST NOT post a GitHub comment" is unscoped (this packet only, or anywhere) → amend FR-015 to state it covers any GitHub comment
-- CHK034 — "(B)" in STOP (B) is never defined in this feature's own artifacts → add a definition of "(B)" to spec.md or plan.md
-- CHK036 — FR-014's "the session link" doesn't name the trailer key; only Tasks T031 names `Claude-Session` → amend FR-014 to name the exact trailer key
-- CHK038 — no FR/SC in spec.md names the trailer verification method; it exists only in Tasks T031 → add an SC naming the git-log trailer check
-- CHK039 — whether a forward-merge commit must also carry the three trailers is unstated → add an exemption/inclusion clause to FR-014
-- CHK041 — FR-015 doesn't close the loophole of pushing the branch and instructing the lane out-of-band → add a closing clause to FR-015
-- CHK042 — "the lane", "the archive act", "the twin", "a sibling orchestrator" are undefined in Key Entities → add each as a defined Key Entities bullet
+- CHK025 — FR-009a enumerates the frozen set once, but neither it nor any other FR/SC in spec.md states the freeze is a CONTINUOUS constraint re-checked at every commit; that framing ("standing constraint... not a one-time act") still lives only in Tasks T003 → add one sentence to FR-009/FR-009a in spec.md stating the freeze is continuously binding, not a one-time check
+
+### Dispositioned items
+(none — the one remaining open item is a within-scope spec.md text addition, not an act outside this feature's scope)
 
 ### Deferred items
 (none — every item concerned the written requirements, which exist now and were judged against the current text)
+
+## Final closure — 2026-09-08 (orchestrator, after the amendment round)
+
+Every item this file left OPEN after round 3 was closed by the amendments the
+requirements now carry (FR-033..FR-040 and the targeted edits to FR-005b,
+FR-008b, FR-012, FR-025, FR-028, SC-007, the Edge-Cases record obligation, and
+tasks T010/T029/T030a/T033a). Items closed in this pass: CHK025.
+
+**Final tally: 42 passed / 0 dispositioned / 0 open.** A DISPOSITIONED
+item is one that cannot be closed from inside this feature — it needs an act in a
+frozen file, another repository's process, or a later act's own decision — and it
+carries that reason inline.
+

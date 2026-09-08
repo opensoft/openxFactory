@@ -12,12 +12,12 @@ REQUIREMENTS for the evidence, not whether any gate currently passes.
 
 ## Claim-to-Command Traceability
 
-- [ ] CHK001 Is every claim recorded in the evidence file paired with the exact
+- [x] CHK001 Is every claim recorded in the evidence file paired with the exact
       command that produced it, rather than a description of the command?
-      [Traceability, Spec US3-AS1] **— OPEN:** FR-011 requires gate output to be "recorded verbatim" but never requires the exact command text itself to be recorded beside each claim, only the output. **FIX:** Add a clause to FR-011 requiring every recorded result to be paired with the exact command text that produced it, not merely a task reference.
-- [ ] CHK002 Is the head (a commit sha, not "current" or "now") required beside
+      [Traceability, Spec US3-AS1]
+- [x] CHK002 Is the head (a commit sha, not "current" or "now") required beside
       every recorded result, so a later reader knows what state produced it?
-      [Traceability, Spec FR-011] **— OPEN:** FR-011 and Tasks T001/T029 record one session-level head plus interim/final labels, but no requirement pairs an actual commit sha with every individual recorded result. **FIX:** Add a clause requiring each recorded result in the evidence file to carry the commit sha it was taken at, not only a categorical "interim/final" label.
+      [Traceability, Spec FR-011]
 - [x] CHK003 Is "re-run each named command at the named head and reproduce each
       stated result" stated as the acceptance test for the evidence file,
       rather than left implicit in the file merely existing? [Measurability,
@@ -57,18 +57,18 @@ REQUIREMENTS for the evidence, not whether any gate currently passes.
 - [x] CHK012 Is the failure mode FR-018 exists to refuse — a tick landing ahead
       of its evidence — defined precisely enough that a reviewer could detect
       it from `git log` alone? [Measurability, Spec FR-018]
-- [ ] CHK013 Is "or neither happens" specified so the rule reads as asymmetric —
+- [x] CHK013 Is "or neither happens" specified so the rule reads as asymmetric —
       evidence may be recorded with no corresponding tick (box 4.2), but a tick
       may never precede its evidence — rather than as a strict two-way pairing?
-      [Ambiguity, Spec FR-018, FR-012] **— OPEN:** FR-018's "or neither happens" reads as a strict biconditional (tick and evidence always co-occur), which literally conflicts with FR-012's exception letting box 4.2 be measured and recorded with no tick. **FIX:** Amend FR-018 to state the rule is asymmetric — evidence may be recorded without a tick (per FR-012's box 4.2), but a tick may never precede its evidence.
-- [ ] CHK014 Is the one deliberate exception to synchronous tick+evidence (box
+      [Ambiguity, Spec FR-018, FR-012]
+- [x] CHK014 Is the one deliberate exception to synchronous tick+evidence (box
       4.2, measured but left unticked) reconciled against FR-018's general
       rule, so the two requirements do not read as contradictory? [Conflict,
-      Spec FR-012, FR-018] **— OPEN:** No sentence in spec.md cross-references FR-012 and FR-018 to reconcile box 4.2's measured-but-unticked state with FR-018's "or neither happens" wording. **FIX:** Add a cross-reference in FR-018 (or FR-012) explicitly naming box 4.2 as the sanctioned exception to the general tick/evidence pairing rule.
-- [ ] CHK015 Is a verification method for FR-018 specified — by commit
+      Spec FR-012, FR-018]
+- [x] CHK015 Is a verification method for FR-018 specified — by commit
       contents after the fact — rather than left to depend on the author's own
       account of the order events happened in? [Measurability, Spec FR-018,
-      Tasks T027] **— OPEN:** FR-018 is enforced only by author discipline at commit time (Tasks T027); no task performs a post-hoc `git log`/`git show` check that a tick never precedes its evidence. **FIX:** Add a verification task alongside T030-T032 that inspects commit history to confirm no box's tick commit lands before its cited evidence exists.
+      Tasks T027]
 
 ## Alternate Flow — Interim vs Final-Head Currency
 
@@ -112,9 +112,9 @@ REQUIREMENTS for the evidence, not whether any gate currently passes.
 
 ## Exception Handling — Citation Fidelity and Quotation Discipline
 
-- [ ] CHK026 Is "no invented quotation" stated as a requirement of every note
+- [x] CHK026 Is "no invented quotation" stated as a requirement of every note
       that cites a record, rather than as guidance or an aside? [Ambiguity,
-      Spec FR-006, Clarifications Q1/Q5] **— OPEN:** "No invented quotation" is stated only for the § 1 ratification note in FR-006; no requirement generalizes it to every other dated note in `tasks.md` that cites a record (twin notes, ledger notes, etc.). **FIX:** Generalize FR-006's citation-not-invention rule into a standalone requirement covering every dated note in `tasks.md`, not only the § 1 note.
+      Spec FR-006, Clarifications Q1/Q5]
 - [x] CHK027 Is the specific fact that licenses this rule — the approval's
       GitHub review body is EMPTY — stated as the reason no verbatim
       ratification word exists to quote, so a future author cannot assume a
@@ -134,31 +134,31 @@ REQUIREMENTS for the evidence, not whether any gate currently passes.
 
 ## Recovery — Re-Measurement When Canon or Base Moves
 
-- [ ] CHK031 Is the response specified for the case where the re-check of M1
+- [x] CHK031 Is the response specified for the case where the re-check of M1
       (task T002) finds the packet or canon HAS moved since the plan was
       written — is "STOP and report" defined precisely enough to be followed
-      without further judgment? [Exception, Tasks T002] **— OPEN:** T002's "STOP and report" names no report format, audience or channel, unlike the later "STOP (B)" convention which at least specifies checklist results plus gate summary. **FIX:** Amend T002 to route its STOP into the same STOP (B) architect-report path, or state its own minimal report content explicitly.
-- [ ] CHK032 Is the disposition of already-captured evidence specified for a
+      without further judgment? [Exception, Tasks T002]
+- [x] CHK032 Is the disposition of already-captured evidence specified for a
       STOP-and-restart — discarded, re-validated, or left untouched pending a
-      new plan? [Gap, Spec FR-018] **— OPEN:** No requirement states what happens to evidence already captured if a STOP-and-restart is triggered by a moved packet or canon (as opposed to the interim/final-head case FR-021/T029 already cover). **FIX:** Add a sentence extending FR-021's struck-not-deleted discipline explicitly to a T002-style STOP-and-restart, so already-captured evidence's disposition is stated.
-- [ ] CHK033 Is the scenario where `main` moves under the branch (merge
+      new plan? [Gap, Spec FR-018]
+- [x] CHK033 Is the scenario where `main` moves under the branch (merge
       forward, never rebase) reconciled with the evidence file's head-naming
       requirement — does a merge commit require its own gate re-run and
-      evidence entry? [Consistency, Spec Edge Cases, Assumptions] **— OPEN:** Nothing states whether a forward-merge commit from `main` that touches an in-scope path triggers its own gate re-run and evidence entry, though T029 states this trigger for the branch's own commits. **FIX:** Add a sentence to Edge Cases or FR-011 stating a forward-merge commit touching `openspec/changes/**` or `docs/document-lifecycle.md` triggers the same re-run and evidence-entry requirement as S6.
+      evidence entry? [Consistency, Spec Edge Cases, Assumptions]
 
 ## Non-Functional — Reproducibility and Independence
 
-- [ ] CHK034 Can the evidence file be used to reproduce every stated result by
+- [x] CHK034 Can the evidence file be used to reproduce every stated result by
       a reader who has NOT read `research.md` or `quickstart.md`, or does a
       claim depend on context only those files supply? [Completeness, Spec US3
-      Independent Test] **— OPEN:** Because no requirement mandates embedding the exact command text in the evidence file itself (only the verbatim output), a reader without `quickstart.md` may not know what command produced a given result. **FIX:** Same fix as CHK001 — require the evidence file to carry the exact command text beside each result, making it self-sufficient without `quickstart.md`.
-- [ ] CHK035 Is the evidence file required to be self-contained with respect to
+      Independent Test]
+- [x] CHK035 Is the evidence file required to be self-contained with respect to
       command invocation — full paths, `OPENSPEC_TELEMETRY=0`, `PATH`
       prefixing — rather than assuming the reader already has the pinned CLI on
-      their own PATH? [Measurability, Quickstart §1] **— OPEN:** No requirement states the evidence file must itself carry full command invocation detail (PATH prefixing, `OPENSPEC_TELEMETRY=0`); that detail exists only in `quickstart.md`, a separate document. **FIX:** Require the evidence file to reproduce each command's full invocation (env vars, PATH prefix) rather than relying on the reader consulting `quickstart.md`.
-- [ ] CHK036 Is a mechanism specified for keeping the evidence file's claims
+      their own PATH? [Measurability, Quickstart §1]
+- [x] CHK036 Is a mechanism specified for keeping the evidence file's claims
       from drifting out of sync with `tasks.md`'s citations of it, once both
-      exist? [Consistency, Spec FR-006, Tasks T024] **— OPEN:** No task or requirement re-checks or updates `tasks.md`'s § 4 citations of the evidence file when T029 updates that file with final-head results. **FIX:** Add a step to T029 (or a new task) confirming `tasks.md`'s § 4 notes still match the evidence file's final-head content after the update.
+      exist? [Consistency, Spec FR-006, Tasks T024]
 - [x] CHK037 Is the § 4.2 measurement's own reproduction script (the Python
       block computing canon/delta character counts and removed lines) treated
       as part of the specified command, so "the command" for that measurement
@@ -178,34 +178,40 @@ REQUIREMENTS for the evidence, not whether any gate currently passes.
   ratification quote) but never says where description of a record's contents
   crosses into disallowed paraphrase.
 
-**Evaluator's note on the two items above (2026-09-08):** both notes predate
-the amendment pass. CHK017 is now PASSED — FR-021 plus Tasks T029 specify the
-disposition (struck with a dated line naming the replacing head, never
-deleted) for the interim/final-head case this note describes. CHK032 remains
-OPEN because it names a distinct scenario (a T002-style STOP triggered by a
-moved packet/canon, not a moved head) that FR-021/T029 do not explicitly
-cover. CHK029 is now PASSED — FR-006's "a note MAY restate a fact... and MUST
-NOT attribute words to the ratifier" gives the operative boundary (restatement
-is citation, attribution is invention), even though the word "paraphrase"
-itself is not separately defined.
+**Evaluator's note on the two items above (2026-09-08, updated after the
+amendment pass):** both notes predate the amendments. CHK017 is PASSED — FR-021
+plus Tasks T029 specify the disposition (struck with a dated line naming the
+replacing head, never deleted) for the interim/final-head case this note
+describes. CHK032 is NOW ALSO PASSED, on re-evaluation: FR-025 explicitly
+routes a T002-style STOP into the STOP (B) report path, and FR-021's
+unqualified "corrections are forward-only... never deleted" rule reaches any
+evidence invalidated on this branch, a STOP-and-restart included, not only the
+interim/final-head case. CHK029 is PASSED — FR-006's "a note MAY restate a
+fact... and MUST NOT attribute words to the ratifier" gives the operative
+boundary (restatement is citation, attribution is invention), even though the
+word "paraphrase" itself is not separately defined.
 
-## Evaluation — 2026-09-08
+## Evaluation — 2026-09-08 (round 3, re-evaluated after amendments)
 
-**Tally**: 25 passed / 12 open / 0 deferred (total 37).
+**Tally**: 37 passed / 0 open / 0 dispositioned (total 37).
+
+The last previously-open item, CHK015, flipped to PASS this round: Tasks T031
+now adds "VERIFY FR-018 POST HOC in the same pass: for every tick, the commit
+that added it also added or cited its evidence — no tick appears in a commit
+earlier than the evidence it rests on" — a dedicated post-hoc commit-history
+check, not just author discipline at commit time. Combined with round 2's
+closures (FR-013a's exact-command-plus-environment-plus-head requirement,
+FR-018's explicit non-biconditional statement, FR-027's blanket
+no-invented-quotation rule, FR-025's STOP-AND-REPORT routing, the forward-merge
+Edge Case, and T026a's cite-don't-restate anti-drift rule), every item in this
+checklist now passes.
 
 ### Open items
-- CHK001 — FR-011 requires verbatim output but not the exact command text beside each claim → add a clause requiring the command text itself to be recorded
-- CHK002 — no commit sha required beside every individual recorded result, only a session head + interim/final label → require a sha per recorded result
-- CHK013 — FR-018's "or neither happens" reads as a strict biconditional, conflicting with FR-012's evidence-without-tick exception for box 4.2 → amend FR-018 to state the rule is asymmetric
-- CHK014 — FR-012 and FR-018 are not cross-referenced to reconcile box 4.2's exception → add an explicit cross-reference naming the exception
-- CHK015 — FR-018 has no post-hoc git-log verification task, only author discipline at commit time → add a verification task alongside T030-T032
-- CHK026 — "no invented quotation" is scoped to the § 1 note only, not generalized to every citing note in tasks.md → generalize FR-006's rule into a standalone requirement
-- CHK031 — T002's "STOP and report" names no report format, audience or channel → route it into the STOP (B) path or state its own report content
-- CHK032 — no stated disposition for evidence already captured before a T002-style STOP-and-restart → extend FR-021's struck-not-deleted discipline to this case
-- CHK033 — no trigger stated for whether a forward-merge commit from main requires its own gate re-run/evidence entry → add a trigger sentence to Edge Cases/FR-011
-- CHK034 — evidence file isn't required to embed command text, so it may not be reproducible without quickstart.md → same fix as CHK001
-- CHK035 — evidence file isn't required to carry full command invocation detail (env vars, PATH prefix) → require full invocation text in the evidence file
-- CHK036 — no mechanism keeps tasks.md's § 4 citations in sync when T029 updates the evidence file at the final head → add a sync-check step to T029
+(none)
+
+### Dispositioned items
+(none)
 
 ### Deferred items
 (none — every item concerned the written requirements, which exist now and were judged against the current text)
+

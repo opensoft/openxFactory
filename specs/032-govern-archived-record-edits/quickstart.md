@@ -42,30 +42,57 @@ with the corpus`.
 
 ## 3. doc-health, diffed against `main` (task 4.4)
 
+**The identity trap first.** doc-health stamps the CHECKOUT'S DIRECTORY BASENAME
+into every finding line (`repo=<basename>`), into the `Repo-Identity:` header and
+into the "scope limited to single repo <name>" line. A baseline taken in
+`../oxf-main` and a branch report taken in `oxf-realize-f3` therefore differ on
+EVERY line, and `--previous-report` refuses the pair outright
+(`REFUSE previous-report-identity-mismatch`).
+
 ```bash
-# BEFORE the doc edit: the baseline, from a checkout of main
-git worktree add ../oxf-main main        # or a second clone
-python3 scripts/doc-health.py --single-repo ../oxf-main --fail-on error \
-        --report-out /tmp/dh-main.md
-# at the branch head:
+# 1. baseline under an IDENTICAL basename, at a NAMED main sha
+mkdir -p "$S/dh-base" && git -C "$S/dh-base" clone -q <this-repo> oxf-realize-f3
+git -C "$S/dh-base/oxf-realize-f3" checkout -q <main-sha>
+
+# 2. PROVE the recipe main-vs-main before trusting it: same commit, two dirs
+python3 scripts/doc-health.py --single-repo "$S/dh-base/oxf-realize-f3" \
+        --fail-on error --report-out /tmp/dh-a.md
+python3 scripts/doc-health.py --single-repo <a second checkout of the same sha> \
+        --fail-on error --report-out /tmp/dh-b.md
+diff /tmp/dh-a.md /tmp/dh-b.md          # expect: ZERO differences
+
+# 3. the real comparison
 python3 scripts/doc-health.py --single-repo . --fail-on error \
         --report-out /tmp/dh-branch.md
-# normalize the run-identity/date lines, then diff
-norm() { grep -v -E '^(repo identity|Generated|Run date|As of)' "$1"; }
+diff /tmp/dh-main.md /tmp/dh-branch.md
+```
+
+If the basenames cannot be made identical, normalize all THREE stamped places
+plus the run date before diffing:
+
+```bash
+norm() { sed -E 's/repo=[^ ,)]+/repo=X/g; /^Repo-Identity:/d; /scope limited to single repo/d' "$1" \
+         | grep -v -E '^(Generated|Run date|As of)'; }
 diff <(norm /tmp/dh-main.md) <(norm /tmp/dh-branch.md)
 ```
 
-Expected: the FINDING SET is identical. Two cautions, both measured.
+Expected: the FINDING SET is identical. Counts that move only because the
+document GREW (word totals, canon share) are not findings — state them
+separately, never smooth them away. A non-empty finding-set diff is a BLOCKER.
 
-- **Do NOT use `--previous-report`.** It refuses on a repo-identity mismatch
-  (`REFUSE previous-report-identity-mismatch`): the stamp is the checkout's slug,
-  so a `main` checkout under a different directory name is a foreign identity by
-  construction and every finding key misses.
-- Counts that move only because the document GREW (word totals, canon share) are
-  not findings. State them separately; never smooth them away, and never let one
-  hide a real difference.
+## 3a. The cross-citations against the landed twin (FR-007a, SC-010)
 
-A non-empty finding-set diff is a BLOCKER, not a note.
+```bash
+git clone --filter=blob:none git@github.com:opensoft/OpsxFactory.git "$S/opsx-verify"
+git -C "$S/opsx-verify" merge-base --is-ancestor \
+    bbbef015cd394e2de31586b9718356586c413884 origin/main && echo "twin on main"
+grep -rn 'govern-archived-record-edits' "$S/opsx-verify/openspec/changes" | head
+grep -rn 'OpsxFactory' openspec/changes/govern-archived-record-edits | head
+```
+
+Every citation each packet makes of the other MUST resolve at the two heads the
+evidence file names. One that does not resolve STOPS the branch — it is not a
+note.
 
 ## 4. The test suite (task 4.5)
 

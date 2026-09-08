@@ -63,7 +63,7 @@ file, 1 additive proposal note, 1 Speckit feature directory.
 | III. Document Lifecycle and Status Discipline | The one edited governance document keeps its `Status: standard` header and gains an inline change citation; the new `evidence/` file is deliberately outside the lifecycle scan set. | PASS |
 | IV. Schema and Artifact Discipline | No YAML artifact is authored or changed. | PASS (N/A) |
 | V. Validation Gates (NON-NEGOTIABLE) | Every § 4 gate runs at the final head and its output is recorded verbatim; the doc-health finding set is diffed against `main`. | PASS |
-| VI. Versioned, Content-Addressed Releases | No contract bundle is cut; `contracts/manifest.yaml` is untouched; measured — no in-repo `sha256` pin names any file this feature edits. | PASS (N/A) |
+| VI. Versioned, Content-Addressed Releases | No contract bundle is cut and `contracts/**` is frozen. The pinned-target measurement covers `docs/document-lifecycle.md` specifically (FR-008); the other five written paths are the packet's own working files, the packet's `proposal.md`, and one README row sentence, none of which any in-repo pin names — re-measured at the final head per FR-008a. | PASS (N/A) |
 | VII. Fail-Closed Authority Boundaries | The realization performs no operator act it was not given: the § 1 `[OPERATOR]` boxes are ticked against a resolvable record (review `5141756427`) and never against an invented word. | PASS |
 
 **Complexity**: none to justify. No new project, no new dependency, no new
@@ -92,14 +92,17 @@ docs/document-lifecycle.md                                   # + one top-level b
 openspec/changes/govern-archived-record-edits/
 ├── proposal.md                                              # + one additive dated realization note
 ├── tasks.md                                                 # 28 boxes annotated; ticks where the act is done
-└── evidence/realization-2026-09-08.md                        # NEW — gate output + two measurements
+└── evidence/realization-2026-09-08.md                        # NEW — gate output + three measurements
+README.md                                                    # + one dated sentence at the END of this change's Records row
 ```
 
 **Frozen, and named so the freeze is checkable**:
 `openspec/changes/govern-archived-record-edits/design.md`, `.openspec.yaml`,
 `specs/document-lifecycle/spec.md`, every path under
 `openspec/changes/archive/`, `tests/sequenced_after/corpus-ledger.yaml`,
-`README.md`, `contracts/**`.
+`contracts/**`, and every part of `README.md` EXCEPT the one appended sentence at
+the end of this change's own Records row (FR-010c). The authoritative enumeration
+is `spec.md` FR-009a; this line points at it rather than duplicating it.
 
 **Structure Decision**: single repository, Speckit feature directory at
 `specs/032-govern-archived-record-edits/`, worked on the feature branch inside a
@@ -146,6 +149,9 @@ interface. `quickstart.md` stands in for both, as the re-run recipe.
 
 ## Implementation sequence (dependency order)
 
+0. **S0 — the identity-safe doc-health baseline.** `main` checked out under an
+   IDENTICALLY-NAMED directory, the recipe proven main-vs-main at zero
+   differences, and the `main` sha recorded (T004).
 1. **S1 — the doc bullet.** `docs/document-lifecycle.md`. Independent of
    everything else; it is the only act that can move gate 4.4.
 2. **S2 — the evidence file skeleton + the two measurements.** The pinned-target
@@ -165,8 +171,11 @@ interface. `quickstart.md` stands in for both, as the re-run recipe.
 8. **STOP (B) → architect report.** Then the analyze loop's fixes, then the gate
    report; the lane claims, opens the PR, lands and archives.
 
-**Sequence → task mapping**: S1 = T005–T010; S2 = T011–T013; S3 = T014–T018;
-S4 = T019–T027; S5 = T028; S6 = T029–T031; S7 = T032–T033; STOP (B) = T034.
+**Sequence → task mapping**: S1 = T005–T010; S2 = T011–T013 plus T012a (the
+cross-citation check against the landed twin); S3 = T014–T018; S4 = T019–T027,
+which now carries the two heading amendments (T019a) and the CORRECTED block
+(T019b) and the note-class audit (T026a); S5 = T028 and T028a (the README row
+sentence); S6 = T029–T031; S7 = T030a, T030b, T032–T033; STOP (B) = T034.
 
 ## Risks and how each is refused rather than accepted
 

@@ -69,6 +69,70 @@ its anchor is now measured rather than assumed.
 **Metrics**: requirements 24 + 8 SC; tasks 34; requirement coverage 100%;
 unmapped tasks 0; ambiguity count 0; duplication count 0; CRITICAL issues 0.
 
+## Round 3 — the consistency panel (gates-only fan-out), 9 rulings + 4 mirror rulings
+
+The panel read the branch at `2de9cca7` against the ratified packet and the ten
+architect rulings, and returned PROCEED AFTER FIXES. All thirteen are applied.
+
+| Ruling | Finding | Resolution |
+| --- | --- | --- |
+| P1 | BLOCKER — the doc-health recipe was identity-unsafe: `runner.build_context` stamps the checkout's DIRECTORY BASENAME into `repo=<basename>` on every finding, the `Repo-Identity:` header and the "scope limited to single repo" line, so a baseline under another name differs on every line. | FR-028 (identical basename or normalize all three, proven main-vs-main first), FR-029 (baseline names its sha), T004/T016, quickstart § 3 rewritten. |
+| P2 | BLOCKER — the twin HAS LANDED: OpsxFactory `main` `bbbef015cd394e2de31586b9718356586c413884`, PR #279, 2026-09-08T15:28:23Z. The branch asserted "no such sha exists". | Verified in a read-only clone (research M9). FR-007 cites the sha; FR-007a requires the cross-citations re-checked on BOTH mains (T012a); SC-010; 3.1 is ticked on the performed check, not on the merge. |
+| P3 | The final-head re-run needed a forward-only obligation. | T029: a failed gate STRIKES the tick it supported with a dated line, never deletes it; a veto after the run re-opens it. |
+| P4 | The amendment form was underspecified. | FR-017a: commit `3b530009`'s form — BLOCK-QUOTE the superseded sentence, NAME the neighbouring clause that is not superseded — over every measured passage (research M12). |
+| P5 | `proposal.md` lines 17 and 44 also assert the unticked state. | FR-010b: the note quotes both. |
+| P6 | The packet holds SIX files, not the ratification record's five (which predates its own review record). | Counted; research M10; Key Entities corrected. |
+| P7 | SC-002's two-direction comparison had no task. | T014 compares the dispositioned-exception count against the ratified baseline in both directions. |
+| P8 | SC-001 was a substring check. | SC-001 is now the FULL LINE FORM; T030a verifies it and word-diffs the two explanatory sentences. |
+| P9 | The precedent bullet ENDS with its citation. | FR-003: the citation is the parent prose's last clause, the archive-act statement earlier; verified unique in research M8a. |
+| M-A1 | This change's README Records row asserts "all 28 boxes stay unticked". | FR-010c + T028a: ONE dated sentence appended at the row's END, never near the block anchor. `README.md` joins the written set; VETO POINT 4. |
+| M-A7 | § 1's heading is ratified as deliberately left alone. | FR-017b + T019a: a whole-token marker naming that clause as superseded; VETO POINT 5. |
+| M-A3 | § 3's heading stops being true when 3.1 is ticked. | FR-017b + T019a, same form. |
+| M-A6 | Stale-but-true-when-written text, and the note classes. | FR-017c (dated CORRECTED blocks quoting the stale words; T019b) and FR-026 (three classes that SUM to 28; T026a audits). |
+
+## Round 4 — the 331-item checklist, run and closed
+
+The checklists were RUN by four evaluation lanes against the amended artifacts,
+three times.
+
+| Pass | Result |
+| --- | --- |
+| Run 1 | 193 passed / 138 open / 0 deferred. Nothing was deferrable: an item asking whether a REQUIREMENT is written is answerable today. |
+| Run 2 (after the panel amendments) | 248 passed / 83 open. |
+| Run 3 (after the targeted amendments) | 299 passed / 28 open / 4 dispositioned. |
+| Final closure | **327 passed / 4 dispositioned / 0 open.** |
+
+The last 28 were closed by FR-033..FR-040 and targeted edits (FR-005a/b's
+Explicit-Delta-Rule reasoning and typography, FR-006a/b's durable record and note
+content, FR-008b's fixture criterion, FR-009a's continuity, FR-012's merge
+re-take, FR-013c's evidence header, FR-025's resume-not-restart, FR-028's
+finding-key fields, SC-007's three-dot mechanics, the Edge-Cases record
+obligation, and tasks T010/T029/T030a/T033a).
+
+**The four DISPOSITIONED items are named, not hidden**: two ask this feature to
+define the lane's Rule-7 README union procedure, one asks what the adopted bullet
+becomes after promotion, and one asks it to reword ratified task-3.5 text. Each
+needs an act outside this feature — a frozen file, another actor's process, or a
+later act's own decision — and each carries that reason inline.
+
+**Two live contradictions were caught by the lanes rather than by me**, and both
+were mine: `tasks.md` T003 still called `README.md` wholly frozen after
+FR-010c authorized the row sentence, and the veto section still said "All three"
+after the list grew to five. Fixed.
+
+## Round 5 — analyze re-run on the amended artifacts: zero
+
+- **Coverage**: 60 functional requirements and 10 success criteria, each mapped
+  to at least one task in the new `## Requirement → task map`; 43 tasks, every
+  one mapped to a requirement. No requirement without a task, no task without a
+  requirement.
+- **Duplication / Ambiguity**: no `NEEDS CLARIFICATION`, `TODO` or placeholder
+  anywhere; the FR list is in ascending id order after a re-sort (the amendment
+  rounds had appended out of sequence).
+- **Constitution**: Principle VI's claim narrowed to what was actually measured
+  across the six written paths.
+- **Inconsistency**: the two contradictions above, both closed.
+
 ## Next action
 
 Proceed to implementation (Phase 3 onward) after the architect's STOP (B)

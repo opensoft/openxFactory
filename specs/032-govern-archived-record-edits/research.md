@@ -103,6 +103,60 @@ was still active. Consequence: FR-003's citation form is the corpus's own, not a
 invention, and adopting on the realization branch rather than at archive is the
 established order.
 
+## M9 — The OpsxFactory twin HAS LANDED
+
+```bash
+git clone --filter=blob:none git@github.com:opensoft/OpsxFactory.git <tmp>
+git -C <tmp> merge-base --is-ancestor bbbef015cd394e2de31586b9718356586c413884 origin/main
+git -C <tmp> log -1 --format='%H %ad %s' --date=iso-strict bbbef015…
+```
+
+`bbbef015cd394e2de31586b9718356586c413884` — "Merge pull request #279 from
+opensoft/change/govern-archived-record-edits", 2026-09-08T11:28:23-04:00 =
+**2026-09-08T15:28:23Z** — IS an ancestor of that repository's `main`. Read-only
+clone; nothing in OpsxFactory is written by this feature. Consequence: task 3.1's
+act is done, the "no merge sha exists" reading is superseded by measurement, and
+the tick rests on the cross-citation check T012a performs rather than on the
+merge alone.
+
+## M10 — The packet holds SIX files
+
+`.openspec.yaml`, `design.md`, `proposal.md`, `tasks.md`,
+`review/ratification-2026-09-08.md`, `specs/document-lifecycle/spec.md`. The
+ratification record's "five files and no others" describes the RATIFIED BASELINE,
+which predates its own review record; carrying that number forward into a
+realization-era enumeration would state a false count.
+
+## M11 — doc-health stamps the checkout's directory basename
+
+`runner.build_context` puts the basename into `repo=<basename>` on every finding
+line, into the `Repo-Identity:` header and into the "scope limited to single repo
+<name>" line. A baseline taken in a differently-named directory therefore differs
+on EVERY line, and `--previous-report` refuses outright on the mismatch. The
+comparison uses an identically-named baseline checkout, or normalizes all three
+places, and is proven main-vs-main before it is trusted.
+
+## M12 — The passages the realization supersedes, located rather than guessed
+
+`openspec/changes/govern-archived-record-edits/tasks.md`: line 7 (preamble,
+"EVERY BOX IS UNTICKED"), lines 58–66 (§ 0.1, "THE BOX STAYS UNTICKED", with the
+stale-but-true-when-written "this packet is `Status: draft` awaiting ratification
+at task 1.1" at line 60), line 68 (§ 1 heading), line 70 ("GIVEN 2026-09-08, AND
+THE BOXES BELOW STAY UNTICKED"), line 73 ("The heading is left as written because
+it names what the section was raised to hold"), lines 74–78 (the re-assertion),
+line 161 (§ 3 heading). `proposal.md`: lines 17 and 44, each asserting every box
+stays unticked. `README.md`: line 527, "all 28 boxes in `tasks.md` stay unticked",
+inside this change's Records row.
+
+## M8a — The doc-adoption precedent is the ONLY one of its kind in this document
+
+Re-measured at base `68712924`: `docs/document-lifecycle.md` § *Status Claim
+Rules* carries exactly ONE bullet citing its ratifying change inline
+(`govern-openspec-corpus-membership`, 2026-08-23, at lines 104–105), and the
+citation is the LAST clause of that bullet's parent prose with sub-bullets
+following. So the form FR-003 adopts is not a common pattern read loosely — it is
+the single precedent, quoted from the file rather than remembered.
+
 ## Open questions
 
 None. The ten of round 1 were answered by the architect seat on 2026-09-08 and
