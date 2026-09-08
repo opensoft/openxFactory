@@ -894,57 +894,6 @@ Active changes:
   accruing). `sequenced_after: [codexFactory:add-floor-regeneration-automation,
   mirror-floor-addition-grace]` — the corpus's second cross-repository entry.
 
-- [implement-omniworker-install-repo](openspec/changes/implement-omniworker-install-repo/proposal.md)
-  — authored 2026-09-05, **`Status: ratified`** (2026-09-05, Brett Heap, in-session,
-  *"ratify 680 and merge 16"*, against head `91866619`; recorded at `176b3104`),
-  on Brett Heap's in-session rulings of the same day: the name **`omniWorker`** covers *"The worker-host
-  product only"*, so the host material SPLITS out of `opensoft/Omnigent-Install`
-  into a NEW repository `OmniWorker-Install` rather than renaming it —
-  **Omnigent remains the orchestrator's name**, and the neutral
-  `contracts/omnigent/` family, the `omnigent-domain-overlay` and
-  `omnigent-install-manifest` specs and the five domain `omnigent/` overlays are
-  UNTOUCHED. **IT PERFORMS NOTHING.** No repository is created, no file moves,
-  no consumer is re-pinned and `Omnigent-Install` is not touched by one byte;
-  every box in `tasks.md` is unchecked. What it authors is ONE
-  `repo-boundary-governance` requirement (*OmniWorker install repository
-  boundary*, in the family style of its four siblings), the naming record
-  `docs/omniworker-naming.md` (`Status: ratified` with the packet; three
-  casings — `omniWorker` brand, `OmniWorker-Install` repository,
-  `omniworker` machine keys, the last already deployed as `svc-omniworker`), a
-  directory-by-directory split table in which **every row is tagged RULED,
-  JUDGED or OPEN** and nothing is guessed, and a copy-first choreography whose
-  only destructive step is LAST. It also carries Brett's machine ruling: the
-  Windows 365 device-name template becomes `CPC-OXF-%USERNAME:7%` →
-  `CPC-OXF-Omni001`, fifteen characters exactly — which is how the
-  measurement found that CloudPC-Install's governed convention
-  `XFACTORY-OMNI001` is **SIXTEEN characters against a fifteen-character
-  Windows limit and was therefore never applied to any machine** (Windows 365
-  silently used its default `CPC-%USERNAME:5%-%RAND:5%`, which is where
-  `CPC-Omni0-P5AJB` and `CPC-brett-TUBV0` come from); that doc fix ships as a
-  sibling PR against CloudPC-Install. **[Amended 2026-09-08 — the machine ruling
-  recorded immediately above was superseded by Brett Heap's own later ruling;
-  the correction lives in `docs/omniworker-naming.md` § Amendments A1, not in a
-  rewrite of this entry. Windows 365 requires a random `%RAND:y%` segment in
-  every device-name template (`%RAND:2%` measured too short, `%RAND:5%`
-  accepted) and does not rename a Cloud PC after provisioning, so
-  `CPC-OXF-%USERNAME:7%` could not be set and `CPC-OXF-Omni001` was never
-  attainable; the template in force is `%USERNAME:7%-%RAND:5%`, omni001
-  rendered `Omni001-XEAON` (Entra device
-  `cf287ce7-7f73-4da7-adfb-c501bd7dd670`), and Brett Heap ruled "Accept
-  Omni001-XEAON" (2026-09-05 ~22:50Z, opensoft/openxFactory#591). The
-  dispositions are recorded in this packet's `tasks.md` § 5 via
-  opensoft/openxFactory#773 → `bd263dca`. The `XFACTORY-OMNI001` finding stands
-  unchanged. The OpsxFactory fleet re-attestation this entry records as OWED has
-  since LANDED — opensoft/OpsxFactory#233 → `83a91c58`.]** TEN open questions are
-  PUT, not answered
-  — among them the in-flight `Omnigent-Install` change
-  `add-worker-enrollment-broker-integration` (PR #40), whose two lawful
-  sequences are stated with their costs and neither chosen, and the live GitHub
-  runner label `omnigent`. Recorded as OWED and NOT done here: the OpsxFactory
-  fleet re-attestation after omni001's reprovision, which destroys Entra device
-  `08829330-2098-461c-a950-0047e163f2b1` — today the only endpoint in that
-  factory's live targeting scope — and issues a new id.
-
 - [bump-openspec-cli-pin-to-1.12](openspec/changes/bump-openspec-cli-pin-to-1.12/proposal.md)
   — authored 2026-09-05, **`Status: draft`**, on Brett Heap's ruling *"take exit
   2"* — a decision among the three exits #673 enumerated, **not** a ratification
@@ -2715,6 +2664,127 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [implement-omniworker-install-repo](openspec/changes/archive/2026-09-08-implement-omniworker-install-repo/proposal.md)
+  — **ARCHIVED 2026-09-08**, on Brett Heap's separate word of the same day (in
+  session, verbatim *"archive implement-omniworker-install-repo"*, ~12:2xZ,
+  recorded and claimed on issue
+  [#591](https://github.com/opensoft/openxFactory/issues/591)) and the
+  `release-realization` rule its own front matter names:
+  `target_release: repository-bootstrap`, on the archived
+  `add-xfactory-installer-repository` (2026-07-10) and
+  `admit-install-repos-to-aggregation` (2026-08-25) precedents for a
+  repository-creation act — **no contract bundle is cut, no contract schema
+  moves, no version is allocated or reserved** — and a code surface spanning
+  **FIVE repositories, two of them operator estates**, so the packet archives on
+  **merged-plus-green realization evidence, never on landing**. Ratified
+  2026-09-05, verbatim *"ratify 680 and merge 16"*, PR
+  [#680](https://github.com/opensoft/openxFactory/pull/680) at head `91866619`;
+  ratifying commit `76434aac`, against which **both origin gates were
+  RETAINED** inside the archive.
+  **THE RULING WAS A SPLIT, NOT A RENAME, AND THAT IS THE WHOLE PACKET.** The
+  name `omniWorker` covers *"The worker-host product only"*, so the host
+  material LEFT `opensoft/Omnigent-Install` for a new repository
+  `opensoft/OmniWorker-Install` — **Omnigent remains the orchestrator's name**,
+  and the neutral `contracts/omnigent/` family, the `omnigent-domain-overlay`
+  and `omnigent-install-manifest` specs and the five domain `omnigent/`
+  overlays are UNTOUCHED, exactly as ratified.
+  **THE EVIDENCE, PER REPOSITORY, CITED RATHER THAN ASSERTED — and every merge
+  state below was re-read with `gh` at the archive, not copied forward.**
+  (1) `opensoft/OmniWorker-Install` — created 2026-09-05T16:15:48Z, PRIVATE,
+  default branch `main`, seed `c5d0f1f6` whose README quotes the ownership
+  boundary verbatim; copy-first migration in PR #1 → `eb0c9675` (72 files) and
+  PR #2 → `d617e68e`; suites green at the new location (HostApp 1027, Deploy
+  256, unittest 76, four Python modules 45, boundary validator 0 findings with
+  its planted-secret cases all caught); `main` green through #3 `33eed467`, #5
+  `54daeb3c`, #6 `322ee4da`, #7 `187d75b6`.
+  (2) `opensoft/Omnigent-Install` — Brett Heap's ruling *"Orchestrator pins
+  OmniWorker-Install"* realized across TWELVE groups (#214 `544c6319` … #235
+  `bbba916d`) and archived (#237 `07bdc9c3`, capability
+  `omniworker-install-pin` promoted there), re-pinned routinely (#246
+  `16963099`), with the retirement in two parts — **Part 1's 70 pin-declared
+  paths `bbba916d`** (2026-09-07T12:12:15Z) and **Part 2's 50 Worker Host App
+  paths #213 → `9c9c9355`** (2026-09-08T13:05:48Z, on Brett Heap's word *"merge
+  213"*).
+  (3) `opensoft/xFactory` — the sibling submodule and the four re-pointed
+  workflow comments (#268 → `2f767ac8`, four checks green) and the **governed
+  aggregation admission record** (#274 → `648c8bd3`), a deliberately SEPARATE
+  reviewed act because the ADDED requirement's own scenario says the creation
+  change MUST NOT be accepted as that record.
+  (4) `opensoft/OpsxFactory` — the closed code-surface vocabulary entry (#228 →
+  `6a0d9467`, landed AFTER the aggregation pin so the registry arm re-derives
+  rather than reports) and the fleet re-attestation binding the new Entra
+  device (#233 → `83a91c58`, ratified #235 → `3e4cd248`).
+  (5) `opensoft/CloudPC-Install` — the `OMNIWORKER_ROOT` seam with a
+  one-release deprecating fallback, proved by a run that does NOT skip (#17 →
+  `bba9da8a`), and the fleet-identity correction (#18 → `349d539d`).
+  **PROMOTED INTO `repo-boundary-governance` CANON — ONE ADDED REQUIREMENT,
+  BYTE-IDENTICAL TO THE ARCHIVED DELTA**: *"OmniWorker install repository
+  boundary"*, **6,391 bytes**, sha256
+  `ad04308bd63ca30de4c1566f5b0a983d2a3ef274af1ff80370b62b9a844ca80a` on both
+  sides, extracted programmatically from delta and canon and hashed. The
+  capability goes **9 → 10 requirements**; `git diff --numstat` and
+  `git diff -w --numstat` are IDENTICAL at 90 added / 0 removed, so no line is
+  whitespace-only and **no existing requirement is touched** — in particular
+  the *"Install repository scope"* enumeration is left alone, on
+  `implement-keycloak-install-repo`'s own reasoning that two changes sharing one
+  requirement collide at archive time. **No file is added under
+  `openspec/specs/`, so no codexFactory floor advance is owed.**
+  **ALL FORTY BOXES ARE `[x]`, AND EACH ONE NAMES WHICH KIND OF CLOSE IT IS**,
+  under Brett Heap's ruling of 2026-09-06 (verbatim *"Tick on the recording"*).
+  On the EVIDENCE: 1.2/7.4 (`docs/omniworker-naming.md` has read
+  `Status: ratified` since this change's own landing squash `76434aac`, and the
+  two 2026-09-08 amendment passes left both header lines untouched), 7.1, 7.2,
+  8.1, 8.2, and 6.1/7.3/8.5 on the retirement's two merges. ANSWERED BY THE ACT
+  — five of the ten open questions the packet PUT and refused to guess: **OQ-2**
+  (the `workers/scaleout/` seam ACCEPTED and mechanized through
+  `${OMNIWORKER_ROOT}`, where a missing value is a named refusal and never a
+  relative fallback), **OQ-3** (a worker host still checks out the ORCHESTRATOR
+  repository, deliberately), **OQ-4** (root `schemas/`, forced by two
+  consumers' hard-coded paths), **OQ-8** (the `archive/` history stays whole —
+  *"an archive is a record of what happened, not an index of what is present"*)
+  and **OQ-10** (PRIVATE, verified live). **OQ-6 and OQ-7 were RULED** by Brett
+  Heap on 2026-09-05 — *"Land it in Omnigent-Install first, then copy"* and
+  *"yes, land it and then move it"* — both carried as dated `design.md` § D5
+  amendments and ratified on PR
+  [#704](https://github.com/opensoft/openxFactory/pull/704). ON NAMED
+  SUCCESSORS, **six issues filed at this archive, all UNCLAIMED**:
+  [#794](https://github.com/opensoft/openxFactory/issues/794) (OQ-1 — the
+  execution-lane-enablement runbook stayed with the orchestrator BY DEFAULT, not
+  by decision, measured present there and absent from the new repository),
+  [#795](https://github.com/opensoft/openxFactory/issues/795) (OQ-5 / § 8.3, the
+  runner label `omnigent`, carrying the corrected measurement that NOTHING in
+  the aggregation selects on it),
+  [#796](https://github.com/opensoft/openxFactory/issues/796) (OQ-9 / § 8.4, the
+  three install-repository enumerations a fifth repository made incomplete),
+  [#800](https://github.com/opensoft/openxFactory/issues/800) (§ 2.3's fourth
+  clause — the App can be MINTED for the repository at `contents: read` but has
+  never AUTHORED there: all six pull requests are human-authored),
+  opensoft/xFactory#346 and opensoft/CloudPC-Install#19 (the two halves of
+  § 6.3's post-retirement re-run, one per repository because neither can perform
+  the other's act).
+  **NO TICK CLAIMS WORK THAT WAS NOT DONE, and three admissions are carried
+  rather than smoothed.** § 6.3's re-run **has not run** and cannot have — the
+  packet sequences it after a Part 2 that landed the same day — so § 7.3 says so
+  in terms. § 2.3 moves `[~]` → `[x]` **as a recording, not a discharge**, its
+  two original OWED notes left standing. And § 5.2's second imperative — the
+  immediately-pre-act confirmation that omni001 was empty — remains **DISPOSED,
+  not discharged**: it never happened, the old device is gone from Entra so it
+  can no longer be evidenced, and § 5's amendment header records that gap rather
+  than curing it. **The OQ-6 hold was SUPERSEDED, not satisfied**: Brett's
+  *"merge 213"* landed the retirement while `add-worker-acr-push` was still
+  active in `Omnigent-Install`, so two of its four declared `code_surface` paths
+  no longer exist in the repository that hosts it — byte-identical to `main` at
+  the merge (tree `7bb94b12`), so nothing was re-homed by side effect, but the
+  `code_surface:` amendment is owed in that change's own repository and this
+  packet neither performs nor discharges it.
+  **THE ARCHIVE MOVES NO REGISTER AND CUTS NOTHING.**
+  `contracts/manifest.yaml`, `contracts/README.md` and `contracts/releases/**`
+  are untouched, `contract_bundle_version` does not move, no version is
+  allocated or reserved and no tag is pushed. The five frozen files are PURE
+  RENAMES (`git diff -M` reports 100% similarity and 0 changed lines on all
+  five); `tasks.md`'s two lawful tick commits land BEFORE the serializer's
+  output so they are separable from it.
 
 - [publish-openspec-cli-pin-as-contract-member](openspec/changes/archive/2026-09-08-publish-openspec-cli-pin-as-contract-member/proposal.md)
   — **ARCHIVED 2026-09-08**, on Brett Heap's separate word (in session,
