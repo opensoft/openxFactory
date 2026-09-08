@@ -722,6 +722,36 @@ _LEDGER_SUBJECTS = {
     # — measured, not assumed: a `--family modified-block-currency` run over
     # this tree after the act returns ZERO lines mentioning the change id, at
     # any path.
+    # ADDED 2026-09-08 BY `adopt-configured-notebook-hosting-identity` (PR
+    # #783), the Q2 arm of Brett Heap's public-flip redaction ruling of
+    # 2026-09-08T03:36Z. ONE ROW, ONE UNIT, AND THE UNIT IS THE POINT: canon's
+    # scenario *An operating party declares the company account* carries a
+    # third bullet that names Opensoft's own install AND THE LIVE WORKSPACE
+    # SERVICE-ACCOUNT ADDRESS IT IS HOSTED ON, and that bullet is the only line
+    # of the promoted corpus stating a real identity as a normative example.
+    # The block restates it in ROLE TERMS — "naming the CONFIGURED HOSTING
+    # IDENTITY it resolves at run time rather than an address written into this
+    # repository" — and carries all four promoted body paragraphs
+    # byte-identically, all five promoted scenario titles, and every other
+    # promoted bullet verbatim, adding two body paragraphs and two scenarios of
+    # its own. So this is a DELIBERATE REWORDING of exactly one unit, which is
+    # the class this arm exists to log and cannot distinguish from drift.
+    #
+    # WHY NO MARKER RETIRES THIS ROW, WHICH IS THE ONE THING A READER WILL
+    # REACH FOR. `document-lifecycle`'s reserved `Removed from canon by` marker
+    # names the retired unit as a CODE SPAN CARRYING THAT UNIT'S EXACT TEXT —
+    # here, the address — so declaring the deletion the family's action line
+    # asks for would reprint in the delta the value the delta exists to remove,
+    # in a repository that is about to become public. A marker naming a
+    # REDACTED spelling names no canon unit at all, and `_suppression()` skips
+    # such a name ("names nothing; buys nothing"), so it would buy no
+    # suppression and raise no marker defect either — it would be decoration.
+    # The declaration therefore lives in the delta's own header paragraph, this
+    # row is the audit trail, and the finding is INFO with no gate on it.
+    # Retires when the packet archives and its block is promoted.
+    ("adopt-configured-notebook-hosting-identity",
+     "lifecycle-notebook-projection",
+     "The projection's hosting identity is declared at install"),
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -1091,7 +1121,13 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "over two requirements; 12 since add-drafted-proposal-origin brought "
         "two blocks of its own on 2026-09-03; 10 again on 2026-09-04 when that "
         "packet archived on merged-plus-green and both its blocks promoted "
-        "byte-identically)",
+        "byte-identically; 9 SINCE 2026-09-08, when "
+        "adopt-configured-notebook-hosting-identity opened ONE row over "
+        "lifecycle-notebook-projection — a single reworded bullet, the only "
+        "line of the promoted corpus that stated a real identity as a "
+        "normative example, and the one row in this ledger that CANNOT be "
+        "retired by the reserved marker, because the marker names the retired "
+        "unit by its exact text and that text is the value being removed)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
