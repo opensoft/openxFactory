@@ -29,6 +29,18 @@ Usage:
     archive. Exit 0 when all pass; exit 1 (naming the offending change, entry and
     rule) otherwise.
 
+    THE PLAIN RUN ALSO REPORTS ARCHIVE-DATE AGREEMENT: every archived change's
+    `archive/<YYYY-MM-DD>-<id>` directory against the `moved_on` of its ledger
+    row. The two are ONE FACT — the OpenSpec CLI names that directory at the
+    moment it archives — and issue #790 measured them drifting, because the CLI
+    reads its own LOCAL clock and `--seed-ledger` read the machine's. The
+    findings are NAMED AND COUNTED but do not change the exit status while the
+    124 pre-existing rows measured on 2026-09-08 remain unrepaired;
+    `--strict-archive-dates` gates on them (exit 1), and is how a repair run
+    proves the count reached zero. A missing or unreadable ledger is not this
+    arm's finding — `--ledger-diff` owns that class — so the arm says it did not
+    run and the verdict is unchanged.
+
     --archive-gate CHANGE_DIR --ratified-ref REF
         Parent-declaration retention (freeze) gate. CHANGE_DIR may name either
         the change's ACTIVE or its ARCHIVED directory — the ratified-side
@@ -88,7 +100,15 @@ Usage:
         row that did not. This is how an author moves a row: run it, then read
         the diff as the list of rows the change moved. `--moved-by` is REQUIRED
         — a moved row with no moving pull request is provenance nobody can
-        follow. `--moved-on` defaults to today.
+        follow. `--moved-on` defaults to TODAY IN UTC, never the machine's local
+        date.
+
+        A MOVED ROW WHOSE STATE IS `archived` TAKES ITS DIRECTORY'S DATE, not
+        the run's: `moved_on` and `archive/<YYYY-MM-DD>-<id>` are one fact. An
+        explicit `--moved-on` that disagrees with such a row's directory is
+        REFUSED (exit 2, naming the rows and their dates) rather than silently
+        overridden — a caller who typed a date and got another one written was
+        told their flag was honoured when it was not.
 
         AN EXISTING LEDGER TOO MALFORMED TO READ DOES NOT BLOCK THE REPAIR: the
         seeder says so on stderr and rewrites from the live corpus, stamping
@@ -108,9 +128,10 @@ Usage:
 
     A FLAG OUTSIDE ITS MODE IS REFUSED FOR THE SAME REASON, rather than accepted
     and ignored. `--ratified-ref` belongs to `--archive-gate`;
-    `--moved-by`, `--moved-on` and `--seeded-from` belong to `--seed-ledger`.
-    `--ledger-diff --moved-by garbage` exiting 0 would tell a caller their flag
-    was honoured when nothing read it.
+    `--moved-by`, `--moved-on` and `--seeded-from` belong to `--seed-ledger`;
+    `--strict-archive-dates` belongs to the plain run, which is the only place
+    the archive-date arm runs. `--ledger-diff --moved-by garbage` exiting 0
+    would tell a caller their flag was honoured when nothing read it.
 """
 from __future__ import annotations
 
@@ -123,6 +144,19 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import sequenced_after as sa  # noqa: E402
+
+
+def _utc_today() -> str:
+    """TODAY IN UTC — what an unspecified `--moved-on` stamps.
+
+    `datetime.date.today()` read the MACHINE'S LOCAL clock, so a row moved at
+    23:35 local recorded the previous UTC day (issue #790, the same defect
+    `scripts/proposal-support.py` carried on the other side of the same
+    archive). Every other date in this estate is UTC, and a provenance date
+    whose meaning depends on where the author was sitting is provenance nobody
+    can place.
+    """
+    return datetime.datetime.now(datetime.timezone.utc).date().isoformat()
 
 
 def _validate_change(repo_root: Path, change_id: str, proposal: Path,
@@ -145,7 +179,28 @@ def _validate_change(repo_root: Path, change_id: str, proposal: Path,
     return []
 
 
-def validate_corpus(repo_root: Path, repository: str) -> int:
+def _archive_date_arm(repo_root: Path) -> tuple[list[str], str | None]:
+    """The archive-date findings, or the reason the arm could not run.
+
+    The ledger is READ HERE and nowhere else on this path, and a ledger that is
+    missing or unparseable is NOT this arm's finding: `--ledger-diff` owns
+    ledger readability and answers it with exit 2, a status this run does not
+    have and must not invent. So the arm says it could not run, and the plain
+    run's own verdict is untouched.
+    """
+    path = sa.ledger_path(repo_root)
+    if not path.is_file():
+        return [], f"there is no per-change sweep ledger at {path}"
+    try:
+        ledger = sa.load_ledger(path)
+    except sa.SequencedAfterError as exc:
+        return [], (f"the per-change sweep ledger could not be read ({exc}); "
+                    "--ledger-diff reports that class")
+    return sa.archive_date_problems(repo_root, ledger), None
+
+
+def validate_corpus(repo_root: Path, repository: str,
+                    strict_archive_dates: bool = False) -> int:
     problems: list[str] = []
     declared = 0
     active = sa.active_change_dirs(repo_root)
@@ -167,6 +222,39 @@ def validate_corpus(repo_root: Path, repository: str) -> int:
         return 1
     print(f"sequenced_after validation passed ({len(active)} active changes, "
           f"{declared} declaring the field).")
+
+    # THE ARCHIVE-DATE ARM, AND IT WARNS RATHER THAN GATES — a disclosed,
+    # measured, temporary class, not a preference. It was measured against this
+    # corpus when it was written (2026-09-08): 124 of the 143 archived rows
+    # already disagree with their directories, because `moved_on` has until now
+    # meant "the date this row was last re-seeded" and a row is re-seeded by
+    # every change that touches it. Shipping the arm as an ERROR would red the
+    # required `pytest-suite` check on 124 rows that no author in flight put
+    # there and that this pull request deliberately does NOT re-seed (a
+    # repair of 124 provenance stamps is its own act, with its own pull
+    # request to stamp them with). So: NAMED, COUNTED and PRINTED on every
+    # plain run, gating on none of them, and `--strict-archive-dates` is the
+    # switch the repair flips — it is what proves the count reached zero, and
+    # what a follow-up makes the default.
+    findings, unavailable = _archive_date_arm(repo_root)
+    if unavailable is not None:
+        print(f"archive-date arm NOT RUN: {unavailable}.")
+        return 0
+    if findings:
+        label = "FAILED" if strict_archive_dates else "WARNING"
+        print(f"archive-date agreement {label} ({len(findings)} archived "
+              f"row(s) whose moved_on is not the date on their directory):")
+        for problem in findings:
+            print(f"  - {problem}")
+        if strict_archive_dates:
+            return 1
+        print("  These are REPORTED, not gated: an archived row's moved_on has "
+              "historically recorded the last re-seed rather than the archive. "
+              "`--strict-archive-dates` gates on them, and is what a repair "
+              "run proves itself with.")
+        return 0
+    print("archive-date agreement passed (every archived row's moved_on is the "
+          "date on its directory).")
     return 0
 
 
@@ -295,10 +383,35 @@ def _seed_ledger_inner(repo_root: Path, repository: str, moved_by: str,
     # the summary cannot overcount: a row that merely already carried this pull
     # request is NOT one this run moved.
     moved = sa.moved_rows(readings, previous)
+    dates = sa.archive_dates(repo_root)
+    # AN EXPLICIT `--moved-on` THAT THE ARCHIVE DIRECTORIES CONTRADICT IS
+    # REFUSED, never quietly overridden. An archived row's `moved_on` and its
+    # `archive/<YYYY-MM-DD>-<id>` directory are ONE FACT (issue #790), so the
+    # directory wins — but a caller who typed a date and got a different one
+    # written was told their flag was honoured when it was not, which is the
+    # same mistake `_mode_only` refuses one level up.
+    if moved_on is not None:
+        disagreeing = [
+            (change_id, dates[change_id]) for change_id in moved
+            if readings[change_id].state == sa.STATE_ARCHIVED
+            and change_id in dates and dates[change_id] != moved_on]
+        if disagreeing:
+            listed = ", ".join(f"{cid} ({on})" for cid, on in disagreeing[:5])
+            more = ("" if len(disagreeing) <= 5
+                    else f", … and {len(disagreeing) - 5} more")
+            raise sa.SequencedAfterError(
+                f"--moved-on {moved_on!r} disagrees with the archived "
+                f"directory of {len(disagreeing)} row(s) this re-seed moves: "
+                f"{listed}{more}. An archived row's moved_on IS the date its "
+                f"archive/<YYYY-MM-DD>-<id> directory carries — they are one "
+                f"fact — so a re-seed cannot stamp another day on it. Drop "
+                f"--moved-on (an archived row then takes its directory's date "
+                f"and every other row takes today in UTC), or pass the date "
+                f"those directories carry")
     text = sa.render_ledger(
         readings, moved_by=moved_by,
-        moved_on=moved_on or datetime.date.today().isoformat(),
-        previous=previous, seeded_from=seeded_from)
+        moved_on=moved_on or _utc_today(),
+        previous=previous, seeded_from=seeded_from, archive_dates=dates)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
     print(f"wrote {path} ({len(readings)} rows, {len(moved)} moved by "
@@ -351,6 +464,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--seeded-from", metavar="SHA",
                         help="record the commit the ledger was first seeded "
                              "from; omitted, the existing value is preserved")
+    parser.add_argument("--strict-archive-dates", action="store_true",
+                        help="gate on the archive-date agreement arm (exit 1) "
+                             "instead of only reporting it; the plain run "
+                             "WARNS while the pre-existing rows are unrepaired")
     parser.add_argument("--repository", default=sa.DECLARING_REPOSITORY,
                         help="declaring repository token (default: "
                              f"{sa.DECLARING_REPOSITORY})")
@@ -363,6 +480,10 @@ def main(argv: list[str] | None = None) -> int:
     # hat — the caller believed the flag did something, and it did nothing.
     _mode_only(parser, args, "--ratified-ref", args.ratified_ref is not None,
                "--archive-gate", args.archive_gate)
+    if args.strict_archive_dates and (args.archive_gate or args.sweep
+                                      or args.ledger_diff or args.seed_ledger):
+        parser.error("--strict-archive-dates is only meaningful on the plain "
+                     "validation run, which is where the archive-date arm runs")
     for flag, given in (("--moved-by", args.moved_by is not None),
                         ("--moved-on", args.moved_on is not None),
                         ("--seeded-from", args.seeded_from is not None)):
@@ -408,7 +529,8 @@ def main(argv: list[str] | None = None) -> int:
                               declaring_repository=args.repository).render())
         return 0
 
-    return validate_corpus(Path(args.repo_root), args.repository)
+    return validate_corpus(Path(args.repo_root), args.repository,
+                           strict_archive_dates=args.strict_archive_dates)
 
 
 if __name__ == "__main__":

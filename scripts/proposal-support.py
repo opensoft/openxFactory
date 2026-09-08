@@ -44,10 +44,31 @@ try:
 except ImportError:  # pragma: no cover
     yaml = None
 import tarfile
-from datetime import date
+from datetime import datetime, timezone
 
 
 LINK_RE = re.compile(r"(!?\[[^\]]*\])\(([^)]+)\)")
+
+
+def utc_today() -> str:
+    """TODAY IN UTC — the ONE clock every date this script stamps reads.
+
+    `date.today()` reads the MACHINE'S LOCAL clock, and this script's dates end
+    up in two places that are then compared to each other: the support bundle's
+    `packaged_at`, and — through the pinned OpenSpec CLI, which reads its own
+    local clock and has no date option — the name of
+    `openspec/changes/archive/<YYYY-MM-DD>-<change>/`. Archiving
+    `publish-openspec-cli-pin-as-contract-member` at 23:35 local / 03:35 UTC
+    produced a `2026-09-07-` directory for a UTC 2026-09-08 archive (issue
+    #790, PR #780's packet). Every other date in this estate — the lane rows,
+    the records, the ratification lines — is UTC, so this is the clock that
+    makes the archive agree with them rather than with whoever ran it.
+
+    `datetime.now(timezone.utc).date()` rather than the deprecated
+    `datetime.utcnow()`: the latter returns a NAIVE datetime that reads as
+    local time to anything that later attaches a timezone.
+    """
+    return datetime.now(timezone.utc).date().isoformat()
 
 
 class SupportError(ValueError):
@@ -1641,6 +1662,166 @@ def validate_through_the_pin(root: Path, change: str,
             f"over a strict failure")
 
 
+class ArchiveDateRefusal(RuntimeError):
+    """The archive date and the directory the pinned CLI named DO NOT AGREE.
+
+    A THIRD exit-2 refusal beside `OriginRetentionError` and
+    `PinnedCliRefusal`, and deliberately not either of them. It is not "this
+    change cannot be archived" (exit 1, fix the packet and retry) and it is not
+    "which tool would archive it is unsettled" — it is "the act happened under a
+    clock this wrapper does not control, so the name on disk states a date the
+    archive is not". Which one it was is in the message, never in the number;
+    all three share exit 2 because none is the fix-and-retry shape.
+
+    Raised for BOTH halves of the same fact: a `--date` that cannot be honoured
+    (refused BEFORE the CLI runs, so nothing moves) and a directory the CLI
+    named on a different day (refused AFTER it returns, with the move reverted).
+    """
+
+
+def archive_environment() -> dict:
+    """The entrypoint's environment PLUS `TZ=UTC`, for the CLI child.
+
+    MERGED INTO `validation_environment()`, never substituted for it: that
+    function settles `OPENSPEC_TELEMETRY=0` for both halves of an archive, and
+    an environment assembled here from scratch would be the second answer to a
+    question the entrypoint already owns.
+
+    `TZ` is SET, not `setdefault`-ed. An operator's ambient `TZ` is precisely
+    the input this refuses to trust — the archive that produced a `2026-09-07-`
+    directory on a UTC 2026-09-08 (issue #790) inherited exactly such a value —
+    so the one variable this wrapper does add, it decides.
+
+    The pinned CLI has NO date option (`archive` takes `--yes --skip-specs
+    --no-validate --json --store` and nothing else), so its clock is the only
+    surface through which the directory name can be steered at all. That the
+    steering WORKED is not assumed: `archive_change` asserts the name the CLI
+    actually produced, below.
+    """
+    environment = dict(pin_verifier().validation_environment())
+    environment["TZ"] = "UTC"
+    return environment
+
+
+def archive_root(root: Path) -> Path:
+    return root / "openspec" / "changes" / "archive"
+
+
+def archive_dir_names(root: Path) -> set[str]:
+    """The names directly under `openspec/changes/archive/`, or an empty set."""
+    directory = archive_root(root)
+    if not directory.is_dir():
+        return set()
+    return {child.name for child in directory.iterdir() if child.is_dir()}
+
+
+def specs_are_clean(root: Path) -> bool | None:
+    """Is `openspec/specs/` free of uncommitted changes RIGHT NOW?
+
+    `True`/`False`, or `None` when the question cannot be asked — `root` is not
+    inside a git work tree, or git could not be run. Read BEFORE the CLI is
+    invoked, because it is the only moment at which the answer is about the
+    operator's tree rather than about the CLI's own edits; a revert that ran
+    `git checkout -- openspec/specs` over a dirty tree would discard work this
+    wrapper never made.
+    """
+    try:
+        completed = subprocess.run(
+            ["git", "-C", str(root), "status", "--porcelain", "--",
+             "openspec/specs"],
+            check=False, capture_output=True, text=True)
+    except OSError:  # pragma: no cover - git absent
+        return None
+    if completed.returncode != 0:
+        return None
+    return completed.stdout.strip() == ""
+
+
+def assert_archived_directory_date(root: Path, change: str, archive_date: str,
+                                   before: set[str], archive_existed: bool,
+                                   specs_clean: bool | None) -> None:
+    """The directory the CLI created is EXACTLY `<archive_date>-<change>`, or refuse.
+
+    THE ASSERTION IS THE POINT, not the `TZ=UTC` above it. `TZ` is an ask of a
+    child process this repository does not own; whether the child honoured it is
+    a fact, and the fact is checked here rather than assumed — a wrong-day
+    directory can then never reach a commit, whatever the CLI does with its
+    clock in a future version.
+
+    On a mismatch the CLI's move is REVERTED (the change directory goes back to
+    its active path, and the spec edits are undone when — and only when —
+    `openspec/specs/` was clean before the run) and the refusal names both
+    dates. `packaged_at` is deliberately NOT unpacked: `package()` ran before
+    the CLI and its bundle stays, which the refusal says out loud rather than
+    leaving for the operator to discover.
+    """
+    want = f"{archive_date}-{change}"
+    created = sorted(archive_dir_names(root) - before)
+    if created == [want]:
+        return
+
+    if not created:
+        got = "<no new directory>"
+    elif len(created) == 1:
+        got = created[0]
+    else:
+        got = ", ".join(created)
+    lines = [
+        f"REFUSE archive-date-mismatch: the pinned CLI named the archive "
+        f"directory '{got}' but the archive date is '{archive_date}' — the "
+        f"CLI's clock is not UTC; nothing committed."]
+
+    active = root / "openspec" / "changes" / change
+    if len(created) == 1 and (archive_root(root) / created[0]).is_dir() \
+            and not active.exists():
+        shutil.move(str(archive_root(root) / created[0]), str(active))
+        lines.append(
+            f"  reverted: the change directory was moved back to "
+            f"openspec/changes/{change}/.")
+        if not archive_existed and not archive_dir_names(root):
+            try:
+                archive_root(root).rmdir()
+            except OSError:  # pragma: no cover - a non-empty archive root
+                pass
+    elif created:
+        lines.append(
+            f"  NOT reverted: {len(created)} directories appeared under "
+            f"openspec/changes/archive/ ({', '.join(created)}) or "
+            f"openspec/changes/{change}/ already exists; move them back by "
+            f"hand.")
+
+    if specs_clean is True:
+        subprocess.run(["git", "-C", str(root), "checkout", "--",
+                        "openspec/specs"], check=False, capture_output=True,
+                       text=True)
+        lines.append(
+            "  reverted: the CLI's edits under openspec/specs/ "
+            "(`git checkout -- openspec/specs`). Files it ADDED there are "
+            "untracked and are left in place rather than deleted.")
+    elif specs_clean is False:
+        lines.append(
+            "  NOT reverted: openspec/specs/ carried uncommitted changes "
+            "BEFORE this archive, so the CLI's spec edits were left alone — "
+            "reverting them would have discarded work this wrapper did not "
+            "make. Undo them by hand.")
+    else:
+        lines.append(
+            "  NOT reverted: openspec/specs/ could not be read through git "
+            "(no work tree), so the CLI's spec edits, if any, were left "
+            "alone.")
+
+    if (active / "supporting-docs.tar.gz").is_file():
+        lines.append(
+            "  NOT reverted: the supporting-docs bundle was written before the "
+            "CLI ran and is still there; the support folder was not restored.")
+    lines.append(
+        f"  The archive is REFUSED rather than committed under a name that "
+        f"states a day it did not happen on. Re-run once the CLI names "
+        f"'{want}'; this wrapper already hands it TZ=UTC, so a mismatch means "
+        f"the child ignored it.")
+    raise ArchiveDateRefusal("\n".join(lines))
+
+
 def archive_change(root: Path, change: str, packaged_at: str,
                    final_import_complete: bool, yes: bool,
                    path_mode: bool = False) -> None:
@@ -1719,11 +1900,22 @@ def archive_change(root: Path, change: str, packaged_at: str,
     command = [str(executable), "archive", change]
     if yes:
         command.append("--yes")
+    # READ BEFORE THE CLI RUNS, both of them, because both questions are about
+    # the tree the operator handed over rather than about what the CLI did to
+    # it: which archive directories already existed (so the one the CLI creates
+    # can be named exactly), and whether `openspec/specs/` was clean (so a
+    # revert can only ever undo the CLI's own edits).
+    existing = archive_dir_names(root)
+    existed = archive_root(root).is_dir()
+    clean = specs_are_clean(root)
     # The entrypoint's own environment, so this process does not archive under
     # one environment having validated under another; `OPENSPEC_TELEMETRY=0` is
-    # the only thing it settles, and it settles it for both halves.
-    subprocess.run(command, cwd=root, check=True,
-                   env=pin_verifier().validation_environment())
+    # the only thing it settles, and it settles it for both halves — PLUS
+    # `TZ=UTC`, because the directory name this call produces comes from the
+    # child's clock and from nothing else (issue #790).
+    subprocess.run(command, cwd=root, check=True, env=archive_environment())
+    assert_archived_directory_date(root, change, packaged_at, existing,
+                                   existed, clean)
 
 
 def parser() -> argparse.ArgumentParser:
@@ -1736,13 +1928,19 @@ def parser() -> argparse.ArgumentParser:
     move.add_argument("source", help="path below ideation/staging")
     move.add_argument("--file", action="append", default=[])
     move.add_argument("--workspace")
-    move.add_argument("--date", default=date.today().isoformat())
+    move.add_argument(
+        "--date", default=utc_today(),
+        help="the transition date recorded in the support manifest "
+             "(default: TODAY IN UTC, not the machine's local date)")
     move.add_argument("--archived", action="store_true")
     move.add_argument("--apply", action="store_true")
 
     pack = sub.add_parser("package")
     pack.add_argument("change")
-    pack.add_argument("--date", default=date.today().isoformat())
+    pack.add_argument(
+        "--date", default=utc_today(),
+        help="the bundle's `packaged_at` (default: TODAY IN UTC, not the "
+             "machine's local date)")
     pack.add_argument("--archived", action="store_true")
     pack.add_argument("--final-import-complete", action="store_true")
     pack.add_argument("--apply", action="store_true")
@@ -1766,7 +1964,23 @@ def parser() -> argparse.ArgumentParser:
 
     archive = sub.add_parser("archive")
     archive.add_argument("change")
-    archive.add_argument("--date", default=date.today().isoformat())
+    # DEFAULT `None`, resolved in `main` — not `utc_today()` here — so that
+    # "the operator named a date" and "the operator named nothing" are
+    # distinguishable. They are treated differently: a date that is not today
+    # in UTC is REFUSED rather than stamped, because the pinned CLI has no date
+    # option and would name the directory from its own clock regardless, and a
+    # `packaged_at` that disagreed with the directory beside it is exactly the
+    # split issue #790 is about.
+    archive.add_argument(
+        "--date", default=None,
+        help="the archive date: the bundle's `packaged_at` AND the date the "
+             "archive directory must carry (default: TODAY IN UTC). The "
+             "pinned OpenSpec CLI has no date option — it names "
+             "openspec/changes/archive/<date>-<change> from its own clock, "
+             "which this wrapper fixes to UTC — so a --date that is not "
+             "today in UTC cannot be honoured and is REFUSED (exit 2) before "
+             "the CLI runs, rather than stamped onto a bundle beside a "
+             "directory naming a different day")
     archive.add_argument("--final-import-complete", action="store_true")
     archive.add_argument("--yes", action="store_true")
     # THE ENTRYPOINT'S OWN ESCAPE, PASSED THROUGH — not a bypass invented here.
@@ -1822,7 +2036,23 @@ def main() -> None:
                 raise SupportError("\n".join(errors))
             print("proposal support verification ok")
         else:
-            archive_change(args.root.resolve(), args.change, args.date,
+            # DERIVED ONCE, and compared against itself rather than recomputed:
+            # two `utc_today()` calls straddling midnight would refuse a run
+            # whose own default was correct when it was taken.
+            today = utc_today()
+            stamp = args.date or today
+            if stamp != today:
+                raise ArchiveDateRefusal(
+                    f"REFUSE archive-date-not-utc-today: --date '{stamp}' is "
+                    f"not today in UTC ('{today}'). The pinned OpenSpec CLI "
+                    f"has no date option — it names "
+                    f"openspec/changes/archive/<date>-<change> from its own "
+                    f"clock, which this wrapper fixes to UTC — so an archive "
+                    f"cannot be stamped with any other day: the bundle's "
+                    f"`packaged_at` would state one date and the directory "
+                    f"beside it another. Re-run without --date, or pass "
+                    f"'{today}'.")
+            archive_change(args.root.resolve(), args.change, stamp,
                            args.final_import_complete, args.yes,
                            args.path_mode)
     except OriginRetentionError as exc:
@@ -1840,6 +2070,12 @@ def main() -> None:
         # handler.) `archive_change` raises this BEFORE the pin is ever
         # resolved — retention is checked first, so this arm is reached
         # first when both could apply.
+        print(str(exc), file=sys.stderr)
+        raise SystemExit(2) from exc
+    except ArchiveDateRefusal as exc:
+        # EXIT 2, THE THIRD OF THREE. See the class docstring: the archive
+        # happened (or would happen) under a clock this wrapper does not
+        # control, which is neither "fix the packet" (1) nor a pin question.
         print(str(exc), file=sys.stderr)
         raise SystemExit(2) from exc
     except PinnedCliRefusal as exc:

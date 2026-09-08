@@ -368,6 +368,35 @@ def archived_change_dirs(repo_root: str | Path) -> dict[str, list[Path]]:
     return found
 
 
+def archive_dates(repo_root: str | Path) -> dict[str, str]:
+    """Change id -> the DATE ITS ARCHIVED DIRECTORY IS NAMED WITH.
+
+    Only ids with EXACTLY ONE archived directory appear. Two dated directories
+    for one id is the ambiguity `resolve` reports; picking one here would decide
+    it silently, and the caller of this function is a provenance stamp, which is
+    the last place to guess.
+
+    The archive date is a FACT ON DISK — the directory name the OpenSpec CLI
+    wrote — and it is what `moved_on` records for an archived row: the day the
+    change entered canon. Issue #790: the pinned CLI names that directory from
+    its OWN clock and the ledger seeder stamped `moved_on` from the machine's
+    local one, so the two could disagree and nothing compared them.
+    """
+    found: dict[str, str] = {}
+    for change_id, dirs in archived_change_dirs(repo_root).items():
+        if len(dirs) != 1:
+            continue
+        match = ARCHIVE_DIR.match(dirs[0].name)
+        # A REAL CALENDAR DATE, not merely a digit-shaped one — `ARCHIVE_DIR`
+        # accepts `2026-13-45` and `is_moved_on` does not. A directory named
+        # that is a different defect from the one this function serves, and
+        # stamping it onto a row would produce a ledger the renderer's own
+        # read-back then refuses.
+        if match is not None and is_moved_on(match.group("date")):
+            found[change_id] = match.group("date")
+    return found
+
+
 def candidate_dirs(repo_root: str | Path, change_id: str) -> list[Path]:
     """Every directory the EXACTLY TWO anchored locations offer for `change_id`."""
     candidates: list[Path] = []
@@ -1454,6 +1483,59 @@ def ledger_problems(
     return problems
 
 
+def archive_date_problems(
+    repo_root: str | Path,
+    ledger: Ledger,
+) -> list[str]:
+    """Every archived row whose `moved_on` DISAGREES with its directory's date.
+
+    THE TWO ARE ONE FACT. An archived change's directory is named
+    `archive/<YYYY-MM-DD>-<id>` by the OpenSpec CLI at the moment it archives,
+    and `moved_on` is the date the row recording that archive was stamped; a
+    row whose state is `archived` therefore has exactly one honest date, and two
+    spellings of it that can drift apart are two chances to be wrong. Issue
+    #790 measured the drift: the CLI reads its own LOCAL clock, the seeder read
+    the machine's, and a 23:35-local archive produced a `2026-09-07-` directory
+    on a UTC `2026-09-08` day.
+
+    KEPT OUT OF `ledger_problems` DELIBERATELY. That function is the ledger's
+    staleness contract, it is what `--ledger-diff` gates on, and it is what
+    `render_ledger` re-runs over its own output before returning it — so a
+    finding added there would make the seeder refuse to write the very file that
+    repairs the drift. This is a separate reading with a separate class, and
+    `validate-sequenced-after.py` decides what to do with it.
+
+    Rows are only checked where all three inputs exist: the id is archived in
+    the LIVE corpus (an id both active and archived reads as ACTIVE and is
+    skipped — that ambiguity is `resolve`'s finding), it has exactly one dated
+    directory, and it has a row. A missing or extra row is `ledger_problems`'s
+    to name, and naming it twice would send an author to two repairs for one
+    fact.
+    """
+    # READ WITHOUT `classify_corpus`, which walks every declaration and resolves
+    # every chain: this arm runs on the PLAIN validator run, and the only two
+    # facts it needs are on the directory names. The archived/active test is the
+    # classifier's own — an id present in both corpora reads as ACTIVE there, so
+    # it reads as active here and is skipped.
+    active = set(active_change_dirs(repo_root))
+    dates = archive_dates(repo_root)
+    problems: list[str] = []
+    for change_id, date_on_disk in sorted(dates.items()):
+        if change_id in active:
+            continue
+        row = ledger.rows.get(change_id)
+        if row is None:
+            continue
+        moved_on = row.get("moved_on")
+        if moved_on != date_on_disk:
+            problems.append(
+                f"archive-date drift: {change_id}: the archived directory is "
+                f"dated {date_on_disk!r} and the row's moved_on is "
+                f"{moved_on!r}; an archived row's moved_on IS its archive date "
+                f"(they are one fact)")
+    return problems
+
+
 def readings_from_ledger(ledger: Ledger) -> dict[str, Reading]:
     """The ledger's OWN reading of the corpus, as `Reading`s.
 
@@ -1592,7 +1674,11 @@ kind: {kind}
 #             (`#<digits>`), never that the pull request exists, that it touched
 #             this row, or that it had landed when the row was stamped. It is a
 #             pointer for a human reading the history, not evidence.
-#   moved_on  the date it did. Shape- and calendar-checked, likewise unverified.
+#   moved_on  the date it did, IN UTC. Shape- and calendar-checked, likewise
+#             unverified. On an `archived` row it is not the re-seed's date but
+#             THE DATE ITS `archive/<YYYY-MM-DD>-<id>` DIRECTORY CARRIES: the
+#             two are one fact, and `validate-sequenced-after.py` reports every
+#             archived row where they disagree (issue #790).
 #
 # FILE KEYS (not row keys)
 #   seeded_from  the commit this file was FIRST seeded from, once, as history.
@@ -1658,6 +1744,7 @@ def render_ledger(
     moved_on: str,
     previous: Ledger | None = None,
     seeded_from: str | None = None,
+    archive_dates: dict[str, str] | None = None,
 ) -> str:
     """Render the whole ledger, PRESERVING the provenance of unmoved rows.
 
@@ -1665,7 +1752,17 @@ def render_ledger(
     already carried, so re-seeding after a merge stamps only the rows that
     actually moved and the diff stays readable as "these rows moved, and this
     pull request moved them".
+
+    `archive_dates` — `archive_dates(repo_root)` — makes a MOVED ARCHIVED row
+    take `moved_on` FROM ITS DIRECTORY'S DATE PREFIX rather than from the run's
+    date. An archived change's `moved_on` and its `archive/<date>-<id>`
+    directory are one fact (issue #790), and the run's own date is the wrong
+    one wherever the two differ: a row re-seeded a week after the archive would
+    otherwise record the re-seed. Passing nothing keeps the run's date for every
+    row, which is what a caller with no corpus in hand can honestly say;
+    `validate-sequenced-after.py --seed-ledger` always passes them.
     """
+    archive_dates = archive_dates or {}
     if not MOVED_BY.match(moved_by):
         raise SequencedAfterError(
             f"--moved-by must be a pull request reference like '#620', not "
@@ -1690,7 +1787,9 @@ def render_ledger(
     for change_id, reading in sorted(readings.items()):
         body = reading.row()
         if change_id in moved or previous is None:
-            by, on = moved_by, moved_on
+            by = moved_by
+            on = (archive_dates.get(change_id, moved_on)
+                  if reading.state == STATE_ARCHIVED else moved_on)
         else:
             row = previous.rows[change_id]
             by, on = str(row["moved_by"]), str(row["moved_on"])
