@@ -542,6 +542,18 @@ jobs:
       # `continue-on-error` on both mints: an App that exists but cannot see
       # codexFactory must produce the NAMED checkout failure in step 4, not an
       # opaque action failure here.
+      #
+      # `owner: codeXfactory`, NOT `github.repository_owner`. The decision core
+      # moved organizations, and `actions/create-github-app-token` resolves the
+      # installation from `owner:` (`GET /orgs/<owner>/installation`): the token
+      # it returns reaches only THAT installation's repositories. Transfer step
+      # 1.6 creates a SECOND, SEPARATE installation on `codeXfactory`; it does
+      # not widen the `opensoft` one. `github.repository_owner` is `opensoft`
+      # here (this workflow runs in openxFactory), so leaving it would mint a
+      # token that cannot see the core however Phase 1 goes — the checkout in
+      # step 4 would fail for a credential reason while naming a repository
+      # reason. `repositories: codexFactory` keeps each token narrowed to the
+      # one repository it reads.
       - name: Mint content-App token (this repository's App)
         id: repo-token
         if: steps.preflight.outputs.identity == 'repo'
@@ -550,7 +562,7 @@ jobs:
         with:
           app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
           private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
+          owner: codeXfactory
           repositories: codexFactory
 
       - name: Mint content-App token (the org App)
@@ -561,7 +573,7 @@ jobs:
         with:
           app-id: ${{ secrets.XFACTORY_APP_ID }}
           private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
+          owner: codeXfactory
           repositories: codexFactory
 
       # ---- 3. The base tree, never the pull-request head --------------------

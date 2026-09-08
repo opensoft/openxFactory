@@ -388,6 +388,46 @@ jobs:
       # the real tree — the trust-anchor gate, the release inventory, the
       # workbench guard — and this file's own header explains why that tree's
       # layout is explicit rather than lucky.
+      # A SECOND MINT, FOR THE CROSS-ORGANIZATION READ ONLY.
+      #
+      # `actions/create-github-app-token` resolves the installation from
+      # `owner:` (`GET /orgs/<owner>/installation`) and the token it returns
+      # reaches ONLY that installation's repositories. The decision core now
+      # lives in the `codeXfactory` organization, and transfer step 1.6 creates
+      # a SECOND, SEPARATE installation there — it does not widen the
+      # `opensoft` one. So the `app-token` step above, which is
+      # `github.repository_owner`-scoped, cannot read it however Phase 1 goes.
+      # The automated-advance binding template this repository keeps under
+      # `contracts/` states the same rule about the same App: "`owner:` alone
+      # would yield a token good for every repository this App is installed on
+      # IN THE ORGANIZATION". Its FILENAME is deliberately not spelled here:
+      # `test_repin_lane.py::TheBotIsJudgedWithNoExemption` forbids this
+      # required suite from naming that lane at all, so that an author-keyed
+      # exemption could never hide in one of its comments. The circumlocution
+      # is the guard working, not an oversight.
+      #
+      # THE `app-token` STEP ABOVE IS DELIBERATELY UNCHANGED: the URL rewrite
+      # beneath it authenticates the `opensoft/openXwallet` gitlink
+      # (`contracts/openxwallet-pin.yaml`), which did not move. Two targets in
+      # two organizations need two tokens; one token cannot be both.
+      #
+      # `repositories:` narrows this one to the single repository it reads,
+      # rather than to every repository the App holds on `codeXfactory`.
+      # `continue-on-error` matches the checkout below: a missing installation
+      # must present as the SKIP the `EXPECT_SKIPPED` pin and the two named
+      # verifiers already fail closed on, not as an unexplained hard error.
+      - name: Mint the decision-core read token (codeXfactory installation)
+        id: core-token
+        if: env.HAS_APP_KEY == 'true'
+        continue-on-error: true
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
+          private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
+          owner: codeXfactory
+          repositories: codexFactory
+          permission-contents: read
+
       - name: Check out the pinned decision core (freshness verifier only)
         id: core
         continue-on-error: true
@@ -397,7 +437,11 @@ jobs:
           ref: "4b12ba83add713666a94129fc45552d8989f8488"
           path: .merge-master-core
           persist-credentials: false
-          token: ${{ steps.app-token.outputs.token || github.token }}
+          # The codeXfactory-scoped token, NOT `app-token`: see the mint above.
+          # `github.token` is the fallback and cannot read a private repository
+          # in another organization either, which is why the failure is a
+          # fail-closed SKIP rather than a silent pass.
+          token: ${{ steps.core-token.outputs.token || github.token }}
 
       # No `if: always()`. The checkout above is `continue-on-error`, so this
       # step is reached on both of its outcomes already; `always()` would ALSO
