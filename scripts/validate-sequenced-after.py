@@ -434,7 +434,9 @@ def _seed_ledger_inner(repo_root: Path, repository: str, moved_by: str,
                 f"carry")
     text = sa.render_ledger(
         readings, moved_by=moved_by,
-        moved_on=moved_on or _utc_today(),
+        # `today`, READ ONCE ABOVE, not a second reading: two calls straddling
+        # midnight UTC would refuse against one date and stamp another.
+        moved_on=moved_on or today,
         previous=previous, seeded_from=seeded_from, archive_dates=dates)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
@@ -484,7 +486,10 @@ def main(argv: list[str] | None = None) -> int:
                              "re-seed moves; REQUIRED with --seed-ledger")
     parser.add_argument("--moved-on", metavar="YYYY-MM-DD",
                         help="the date stamped on the rows this re-seed moves "
-                             "(default: today)")
+                             "(default: TODAY IN UTC, never the machine's "
+                             "local date). A row FLIPPING to archived takes "
+                             "its directory's date instead, and a --moved-on "
+                             "that contradicts one is REFUSED")
     parser.add_argument("--seeded-from", metavar="SHA",
                         help="record the commit the ledger was first seeded "
                              "from; omitted, the existing value is preserved")

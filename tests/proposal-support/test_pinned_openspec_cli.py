@@ -257,6 +257,14 @@ def recorded(support, monkeypatch):
     watch, not about the fixture's own git plumbing.
     """
     ran: list = []
+    # THE DATE IS FROZEN FOR THE WHOLE TEST, once, on the module the test and
+    # the double BOTH read it from. Without this the fixture reads
+    # `utc_today()` when it names the directory and the test reads it again
+    # when it passes `--date`, and a run straddling midnight UTC would make the
+    # wrapper CORRECTLY refuse `archive-date-mismatch` — a green assertion
+    # turned into a nightly flake by the calendar rather than by the code.
+    frozen = support.utc_today()
+    monkeypatch.setattr(support, "utc_today", lambda: frozen)
 
     def fake_run(argv, **kwargs):
         argv = [str(item) for item in argv]
