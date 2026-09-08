@@ -20,6 +20,15 @@ measurement; the ten-step sequence under the ruling "Orchestrator pins OmniWorke
 RATIFIED 2026-09-05 in-session, verbatim "ratify and merge 704, 214 and 18", on openxFactory
 PR #704 (Rule 6 landing window at merge). opensoft/Omnigent-Install#213 is HELD until
 `add-worker-acr-push` lands there.
+Amended: 2026-09-07 by Brett Heap — one dated amendment, "Amendment: § 5
+dispositions" (tasks.md § 5, with a superseding note in § 6.1 and in Origin § 2
+below): task 5.1 and task 5.5 CLOSED as SUPERSEDED BY RULING on "Accept
+Omni001-XEAON" (2026-09-05 ~22:50Z, opensoft/openxFactory#591), and task 5.2
+CLOSED by a recorded DISPOSITION — a disposition, not evidence that its pre-act
+emptiness confirmation happened. APPROVED 2026-09-07 ~22:55Z by Brett Heap,
+in-session, verbatim "do all 4, they are all approved", recorded on
+opensoft/openxFactory#591 (Rule 6 landing window at merge). No ratified text is
+rewritten by it.
 
 ## Origin — Brett Heap's rulings of 2026-09-05
 
@@ -54,6 +63,19 @@ PR #704 (Rule 6 landing window at merge). opensoft/Omnigent-Install#213 is HELD 
    requires the OpsxFactory fleet-registration snapshot to be re-attested
    afterwards. **That re-attestation is NOT this change** and is recorded as
    owed.
+
+   **Amended 2026-09-07 — the ruled template was not reachable, and the name
+   that was rendered is ruled ACCEPTED.** The text of this item is left exactly
+   as ratified and is not edited; this note is the file-forward correction.
+   Windows 365 requires `%RAND:5%` in every device-name template and refuses a
+   post-provision rename, so `CPC-OXF-%USERNAME:7%` could not be applied and
+   `CPC-OXF-Omni001` was never an attainable name by supported means. The
+   provisioning that ran used `%USERNAME:7%-%RAND:5%` and rendered
+   `Omni001-XEAON`; the key is Entra device
+   `cf287ce7-7f73-4da7-adfb-c501bd7dd670`. Brett Heap ruled it 2026-09-05
+   ~22:50Z on opensoft/openxFactory#591, verbatim: **"Accept Omni001-XEAON"**.
+   The dispositions are recorded in [tasks.md § 5](tasks.md) — 5.1 and 5.5
+   SUPERSEDED BY RULING, 5.2 DISPOSITION RECORDED — approved 2026-09-07.
 
 Everything below that is not inside a quote is this packet's proposal or its
 declared open question, and the two are labelled.
