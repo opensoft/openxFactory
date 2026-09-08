@@ -512,6 +512,135 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [govern-archived-record-edits](openspec/changes/govern-archived-record-edits/proposal.md)
+  — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
+  (reviewer of record), in session, first-hand to lane `opsXfactory-1`, by CLI
+  approval `gh pr review 788 --approve` — GitHub review **5141756427**, state
+  APPROVED, submitted 2026-09-08T12:38:36Z, **with an empty body**, so this
+  record quotes no words and invents none; ratified baseline `8cc76e1b`, carried
+  byte-unchanged into the pre-landing merge `d0f8cccf` (measured: the diff over
+  the packet directory is EMPTY); PR
+  [#788](https://github.com/opensoft/openxFactory/pull/788); record
+  `openspec/changes/govern-archived-record-edits/review/ratification-2026-09-08.md`).
+  **RATIFICATION PERFORMS NO REALIZATION** — no document is amended, no archived
+  byte is edited, no pin is re-derived, no checker is written, no delta is
+  promoted, and **all 28 boxes in `tasks.md` stay unticked**, § 1's ratification
+  boxes included, exactly as the sibling `add-consent-custody-rederivation-record`
+  left its 46. **THE APPROVAL IS THE RATIFICATION; THE LANDING IS THE LANE'S ACT**
+  under Brett Heap's standing authorization to land ruled successors, and is not
+  read out of the approval. **THE THREE VETO POINTS WERE PUT TO HIM VERBATIM
+  IMMEDIATELY BEFORE IT AND NONE WAS EXERCISED**, so the packet stands AS
+  WRITTEN: **every declared family** (not custody pins only), **report-then-refuse**
+  (not refuse-from-landing, not strike), and **TWO `## ADDED` requirements** (not
+  the one his F.3 wording named). Origin: Brett Heap's **F.3** ruling, given on
+  OpsxFactory PR #248 in **TWO comments on two days**, each carrying one of the
+  two verbatim selections: the SHAPE
+  *"Header/bookkeeping edits only + re-derive pins"* in comment
+  [5563099832](https://github.com/opensoft/OpsxFactory/pull/248#issuecomment-5563099832)
+  (2026-09-06T23:42Z), and the HOME *"Both at once"* in comment
+  [5571629298](https://github.com/opensoft/OpsxFactory/pull/248#issuecomment-5571629298)
+  (2026-09-07T13:51Z), both in session and first-hand to lane `opsXfactory-1`
+  — an ADMISSION TO THE QUEUE, not the approval above. Both comments are named
+  because attributing both selections to the later one would misquote the record
+  this packet exists to protect. **NOTHING IS REALIZED** — no
+  archived byte is edited, no pin is re-derived, no checker is written, no
+  repository's convention is amended, and **all 28 boxes in `tasks.md` stay
+  unticked**. **THE ESTATE-NEUTRAL HALF OF A MATCHED PAIR**: the domain half is
+  OpsxFactory's `govern-archived-record-edits`, same working id, same ruling,
+  and neither is the other's summary. States on the promoted
+  `document-lifecycle` that a file under `openspec/changes/archive/` may be
+  edited ONLY as a lifecycle-header or bookkeeping correction, **under a ruling
+  RECORDED BEFORE THE EDIT**, carrying a bookkeeping note that clears a
+  **NEUTRAL MINIMUM** (a dated `Edited (bookkeeping):` line in the edited file's
+  own lifecycle-header block) — stated here because **openxFactory, the
+  repository promoting this capability, has NO archived-packet convention of its
+  own**, so delegating the note to local conventions left the obligation absent
+  in the loosest repository in the estate; task 3.4 adopts the minimum in
+  `docs/document-lifecycle.md`. The bookkeeping class is defined **BY EFFECT** ("does the edit change what the record ASSERTS?") rather than by
+  a list of filenames, because `proposal.md` carries both classes and a
+  path-keyed rule would license a substantive rewrite inside a file the list
+  called safe. And, as a SEPARATE requirement, that a change editing a **PINNED
+  TARGET — archived OR live** — must re-derive every dependent pin and record it
+  IN THE SAME change, by the rule that pin's family declares. **The split is
+  measured, not stylistic**: of the three custody pins the motivating commit
+  broke, ONE names a target in a change directory that has never been archived,
+  so a rule scoped to `archive/` would have reported itself satisfied while that
+  pin stayed broken. **A TRANSITION CLAUSE KEEPS THE RULE FROM FREEZING THE
+  ESTATE ON LANDING, and it is there because of a measurement**: NO family
+  anywhere has a declared re-derivation rule today — the consent family's is
+  PROPOSED only (`contract_schema_version: 2`, no `custody_rederivations`
+  property, `contract-v3.4`, 46/46 boxes unticked) and the register home
+  `models/content-address-families.yaml` exists neither on OpsxFactory's `main`
+  nor on the branch proposing it — while `code_surface: none` means this change
+  archives ON LANDING with nothing to sequence behind. So an edit whose family
+  has declared no rule is **REPORTED**, naming the family and the register or
+  neutral contract that owes it, and becomes a **REFUSAL for that family the day
+  it declares** — a report, not a warning: it names the owing party, lands as a
+  gate finding, and converts on declaration. The refusal posture survived in
+  four other places through two drafts and is now struck from all of them. The refuse-outright reading is recorded as Brett Heap's veto
+  point (design D-7, task 1.2): coherent, and it stops the estate's corrective
+  work — the routine lifecycle-header discharge and the F.1/F.2 repairs
+  included — until the first family declares. **THE MOTIVATION IS CITED, NOT RE-DERIVED.** OpsxFactory
+  `docs/packet-lifecycle-headers.md` § *Editing an archived packet* (ratified
+  2026-08-24) permitted an archived-packet edit on a BOOKKEEPING NOTE ALONE; on
+  that same day commit `57fd9fd2` ("Discharge all 55 lifecycle-header defects in
+  the OpenSpec scan set", 63 files) wrote **SIXTEEN files** under that
+  repository's archive tree under it, one `Ratified:` line per target, and broke
+  **THREE executed consent instruments' `custody.sha256`** — **thirteen days**
+  unnoticed. The "`FR-072` forbids archive writes" reading two packets cited was
+  feature 010's close-time fence, not a general rule, so **there was no general
+  rule to break** — the permissive convention was the whole of the governance.
+  Register: OpsxFactory's `add-pre-archive-citation-gate` owed-findings
+  register § F.3 — **MID-ARCHIVE, so both paths are named rather than one
+  asserted**: the LIVE path
+  `openspec/changes/add-pre-archive-citation-gate/supporting-docs/owed-findings.md`
+  at that repository's `main` today, filing on merge of its in-flight PR #273 at
+  `openspec/changes/archive/2026-09-07-add-pre-archive-citation-gate/supporting-docs/owed-findings.md` (F.1, the custody half, is ADDRESSED — not discharged — by
+  `add-consent-custody-rederivation-record`, merged 2026-09-08 as `543d47a9`,
+  whose `custody_rederivations[]` this packet NAMES as the consent family's rule
+  and restates none of — that packet is a ratified PROPOSAL with all 46 boxes
+  unticked, so the three pins are still broken and "discharged" would claim a
+  repair nobody has performed). **The delta also carries ONE `## MODIFIED`** on
+  *Proposal packets carry the lifecycle header*, which since 2026-08-24 has ended
+  "Backfilling a header onto an archived packet is an archived-record edit and
+  **takes the route archived-record edits take**" — a forward reference to a
+  route the corpus does not contain, written by the same
+  `govern-openspec-corpus-membership`, whose archive commit `01ff3434` is
+  authored `2026-08-23T23:06:12-04:00` = **`2026-08-24T03:06:12Z`** against
+  `57fd9fd2`'s `2026-08-24T04:08:48-04:00` = **`2026-08-24T08:08:48Z`** — the
+  SAME DAY IN UTC and different days in the authoring clock, five hours apart,
+  and the clock is named rather than left to be discovered. The block carries
+  EVERY canon byte verbatim — **canon's block is 5,815 chars, the delta block
+  7,186, and the 1,371-char difference is entirely INSERTED** — all six promoted
+  scenarios restated, with exactly two hunks of difference, both PURE
+  INSERTIONS: the
+  dangling sentence itself is untouched and a paragraph after it names the
+  route. Nothing is reworded and nothing is deleted, so no
+  ``**Removed from canon by …**`` marker is owed and doc-health's
+  `modified-block-currency` arm reports nothing against it (the first draft DID
+  reword the sentence in place and that arm caught it — its body units are
+  sentence-granular). **ENFORCEMENT IS BY THE
+  GATES, NOT BY THE NOTE**, and this packet builds no checker: OpsxFactory's
+  citation gate (live since its PR #248) and its proposed
+  `add-content-address-integrity-gate` are what make an unrecorded edit visible,
+  and the obligation this packet creates is the RECORDING. `sequenced_after:
+  [govern-openspec-corpus-membership]` — MEASURED, not chosen: a grep of the
+  whole change corpus for the modified requirement's title returns that change's
+  ADDED delta and nothing else, and an explicit `[]` root claim would be refused
+  as contradicted by a co-modifier. `code_surface: none`, so it archives on
+  landing. **Three readings are recorded as NOT taken** in `design.md`: a strict
+  read-only archive, keeping the current convention, and enforcing via the note
+  alone. Claims: object
+  [#630 comment 5578961492](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5578961492),
+  substrate
+  […#issuecomment-5578961805](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5578961805);
+  and the twin's two on OpsxFactory issue #207, object
+  [5578960955](https://github.com/opensoft/OpsxFactory/issues/207#issuecomment-5578960955)
+  and substrate
+  […#issuecomment-5578961206](https://github.com/opensoft/OpsxFactory/issues/207#issuecomment-5578961206)
+  — FOUR in all, because "Both at once" names two repositories and each carries
+  its own object and its own substrate.
+
 - [adopt-configured-notebook-hosting-identity](openspec/changes/adopt-configured-notebook-hosting-identity/proposal.md)
   — authored 2026-09-08, **`Status: draft`** (a PROPOSAL awaiting Brett Heap's
   ratification; it cites none and owes none until its content is ratified as a
