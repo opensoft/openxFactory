@@ -1486,24 +1486,41 @@ def ledger_problems(
 def archive_date_problems(
     repo_root: str | Path,
     ledger: Ledger,
+    require_equal: bool = False,
 ) -> list[str]:
-    """Every archived row whose `moved_on` DISAGREES with its directory's date.
+    """Archived rows whose `moved_on` CONTRADICTS their directory's date.
 
-    THE TWO ARE ONE FACT. An archived change's directory is named
-    `archive/<YYYY-MM-DD>-<id>` by the OpenSpec CLI at the moment it archives,
-    and `moved_on` is the date the row recording that archive was stamped; a
-    row whose state is `archived` therefore has exactly one honest date, and two
-    spellings of it that can drift apart are two chances to be wrong. Issue
-    #790 measured the drift: the CLI reads its own LOCAL clock, the seeder read
-    the machine's, and a 23:35-local archive produced a `2026-09-07-` directory
-    on a UTC `2026-09-08` day.
+    TWO READINGS, AND THE DEFAULT IS THE ONE THAT IS ALWAYS TRUE.
 
-    KEPT OUT OF `ledger_problems` DELIBERATELY. That function is the ledger's
-    staleness contract, it is what `--ledger-diff` gates on, and it is what
-    `render_ledger` re-runs over its own output before returning it — so a
-    finding added there would make the seeder refuse to write the very file that
-    repairs the drift. This is a separate reading with a separate class, and
-    `validate-sequenced-after.py` decides what to do with it.
+    The default (`require_equal=False`) reports a `moved_on` EARLIER than the
+    directory's date prefix. That is a contradiction under any reading: the row
+    says `archived`, and a row cannot record its last move BEFORE the archive
+    that put it in that state — the flip is the earliest move an archived row
+    can carry, and every later move only pushes the date forward. It is also
+    exactly the shape a CLI clock running AHEAD of UTC produces (issue #790:
+    under `Pacific/Kiritimati` the pinned CLI names tomorrow's directory for
+    today's archive), and it was measured CLEAN across all 143 archived rows
+    before it was made a gate.
+
+    `require_equal=True` additionally reports every archived row whose
+    `moved_on` is merely DIFFERENT from the directory's date. That is the
+    stronger reading issue #790 asked for, and it is opt-in rather than the
+    default because `release-realization`'s per-subject-row requirement defines
+    `moved_on` as the date the ROW last moved — so an archived row legitimately
+    moved later by another change carries a later date, and 124 of this corpus's
+    143 archived rows do. Requiring equality would report a correct ledger as
+    stale. `--strict-archive-dates` is what asks for it.
+
+    NEITHER READING CATCHES A CLOCK RUNNING BEHIND UTC — the direction #780's
+    archive actually took — because a `moved_on` LATER than the directory is
+    indistinguishable from a legitimate later move. That direction is caught at
+    the moment it happens, by `proposal-support.py archive` asserting the name
+    the CLI produced, and not here.
+
+    KEPT OUT OF `ledger_problems` DELIBERATELY. That function is what
+    `--ledger-diff` gates on AND what `render_ledger` re-runs over its own
+    output before returning it, so a finding added there would make the seeder
+    refuse to write the very file that repairs the drift.
 
     Rows are only checked where all three inputs exist: the id is archived in
     the LIVE corpus (an id both active and archived reads as ACTIVE and is
@@ -1527,12 +1544,24 @@ def archive_date_problems(
         if row is None:
             continue
         moved_on = row.get("moved_on")
-        if moved_on != date_on_disk:
+        if not is_moved_on(moved_on):
+            # `ledger_problems` already reports unreadable provenance by name;
+            # comparing a value that is not a date would report the same defect
+            # twice, in a vocabulary that sends the author to the wrong repair.
+            continue
+        if moved_on < date_on_disk:
+            problems.append(
+                f"archive-date contradiction: {change_id}: the row says it "
+                f"last moved on {moved_on!r}, BEFORE the archive directory it "
+                f"describes ({date_on_disk!r}); an archived row cannot record "
+                f"a move that predates the archive that made it archived")
+        elif require_equal and moved_on != date_on_disk:
             problems.append(
                 f"archive-date drift: {change_id}: the archived directory is "
                 f"dated {date_on_disk!r} and the row's moved_on is "
-                f"{moved_on!r}; an archived row's moved_on IS its archive date "
-                f"(they are one fact)")
+                f"{moved_on!r}; --strict-archive-dates asks for the stronger "
+                f"reading in which an archived row's moved_on IS its archive "
+                f"date")
     return problems
 
 
@@ -1675,10 +1704,12 @@ kind: {kind}
 #             this row, or that it had landed when the row was stamped. It is a
 #             pointer for a human reading the history, not evidence.
 #   moved_on  the date it did, IN UTC. Shape- and calendar-checked, likewise
-#             unverified. On an `archived` row it is not the re-seed's date but
-#             THE DATE ITS `archive/<YYYY-MM-DD>-<id>` DIRECTORY CARRIES: the
-#             two are one fact, and `validate-sequenced-after.py` reports every
-#             archived row where they disagree (issue #790).
+#             unverified. A row FLIPPING active -> archived takes the date its
+#             `archive/<YYYY-MM-DD>-<id>` directory carries, because at that one
+#             moment the row's move and the archive are the same act; every
+#             other move records the day it happened.
+#             `validate-sequenced-after.py` reports any archived row whose
+#             moved_on PREDATES its directory, which no move can (issue #790).
 #
 # FILE KEYS (not row keys)
 #   seeded_from  the commit this file was FIRST seeded from, once, as history.
@@ -1738,6 +1769,27 @@ def moved_rows(
     return tuple(moved)
 
 
+def flips_to_archived(
+    change_id: str,
+    reading: Reading,
+    previous: Ledger | None,
+) -> bool:
+    """Is this row FLIPPING `active` -> `archived` in this re-seed?
+
+    THE ONE PLACE THAT DECIDES IT, so the renderer's stamp and the seeder's
+    refusal cannot disagree about which rows the archive date applies to — the
+    same reason `moved_rows` exists.
+
+    A row with no predecessor is NOT a flip: it is being created for a change
+    that is already archived, and its move is its creation. Neither is a row
+    that was already `archived` and moved for some other reason.
+    """
+    if reading.state != STATE_ARCHIVED or previous is None:
+        return False
+    row = previous.rows.get(change_id)
+    return row is not None and row.get("state") == STATE_ACTIVE
+
+
 def render_ledger(
     readings: dict[str, Reading],
     moved_by: str,
@@ -1753,14 +1805,25 @@ def render_ledger(
     actually moved and the diff stays readable as "these rows moved, and this
     pull request moved them".
 
-    `archive_dates` — `archive_dates(repo_root)` — makes a MOVED ARCHIVED row
-    take `moved_on` FROM ITS DIRECTORY'S DATE PREFIX rather than from the run's
-    date. An archived change's `moved_on` and its `archive/<date>-<id>`
-    directory are one fact (issue #790), and the run's own date is the wrong
-    one wherever the two differ: a row re-seeded a week after the archive would
-    otherwise record the re-seed. Passing nothing keeps the run's date for every
-    row, which is what a caller with no corpus in hand can honestly say;
-    `validate-sequenced-after.py --seed-ledger` always passes them.
+    `archive_dates` — `archive_dates(repo_root)` — makes a row FLIPPING
+    `active` -> `archived` take `moved_on` FROM ITS DIRECTORY'S DATE PREFIX
+    rather than from the run's date. At the flip, and ONLY there, the two are
+    one fact: the row moves BECAUSE the change archived, and the archiving pull
+    request seeds its own row in that same act (issue #790).
+
+    EVERY OTHER ARCHIVED ROW KEEPS THE RUN'S DATE, and that is a correction
+    taken from review rather than an omission. `release-realization`'s
+    "A pinned corpus measurement is carried per subject" requirement defines the
+    provenance pair as "the pull request that last moved it AND THE DATE" — the
+    date of THAT MOVE. A September pull request that flips an already-archived
+    row from sole to co-modifier moved it in September; writing the August
+    archive date beside a September `moved_by` would make the pair state two
+    different moves. A row created for a change that was ALREADY archived is
+    likewise not a flip: its move is its creation, today.
+
+    Passing nothing keeps the run's date for every row, which is what a caller
+    with no corpus in hand can honestly say; `validate-sequenced-after.py
+    --seed-ledger` always passes them.
     """
     archive_dates = archive_dates or {}
     if not MOVED_BY.match(moved_by):
@@ -1788,8 +1851,9 @@ def render_ledger(
         body = reading.row()
         if change_id in moved or previous is None:
             by = moved_by
-            on = (archive_dates.get(change_id, moved_on)
-                  if reading.state == STATE_ARCHIVED else moved_on)
+            on = moved_on
+            if flips_to_archived(change_id, reading, previous):
+                on = archive_dates.get(change_id, moved_on)
         else:
             row = previous.rows[change_id]
             by, on = str(row["moved_by"]), str(row["moved_on"])

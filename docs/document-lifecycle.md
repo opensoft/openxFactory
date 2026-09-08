@@ -418,8 +418,8 @@ its own.>
   `openspec/changes/archive/<YYYY-MM-DD>-<change>/` from its own clock),
   refuses a `--date` that is not today in UTC, and refuses and reverts the
   move when the directory the CLI named carries any other day — so the
-  bundle's `packaged_at`, the directory name and the ledger row's `moved_on`
-  are one date.
+  bundle's `packaged_at` and the directory name are one date, and the ledger
+  row the archiving change seeds takes that same date at the flip.
 - `promoted -> adopted`: consumers re-pin, replace local copies with
   references plus thin overlays, and retire duplicates — see the
   [Domain-To-Neutral Promotion Process](domain-to-neutral-promotion-process.md).

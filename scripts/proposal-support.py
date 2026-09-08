@@ -1791,13 +1791,29 @@ def assert_archived_directory_date(root: Path, change: str, archive_date: str,
             f"hand.")
 
     if specs_clean is True:
-        subprocess.run(["git", "-C", str(root), "checkout", "--",
-                        "openspec/specs"], check=False, capture_output=True,
-                       text=True)
-        lines.append(
-            "  reverted: the CLI's edits under openspec/specs/ "
-            "(`git checkout -- openspec/specs`). Files it ADDED there are "
-            "untracked and are left in place rather than deleted.")
+        # THE RETURN CODE IS READ. `check=False` keeps a failed revert from
+        # replacing the refusal being raised with a `CalledProcessError` about
+        # the revert — but a discarded status would let this message claim a
+        # revert that did not happen (an index lock taken by another git
+        # process between the cleanliness read and here is enough), and the
+        # operator would then leave the CLI's spec edits in a tree they were
+        # told was clean.
+        completed = subprocess.run(
+            ["git", "-C", str(root), "checkout", "--", "openspec/specs"],
+            check=False, capture_output=True, text=True)
+        if completed.returncode == 0:
+            lines.append(
+                "  reverted: the CLI's edits under openspec/specs/ "
+                "(`git checkout -- openspec/specs`). Files it ADDED there are "
+                "untracked and are left in place rather than deleted.")
+        else:
+            detail = " ".join(
+                (completed.stderr or completed.stdout or "").split())[:200]
+            lines.append(
+                f"  NOT reverted: `git checkout -- openspec/specs` FAILED "
+                f"(exit {completed.returncode}: {detail or 'no output'}), so "
+                f"the CLI's edits under openspec/specs/ are STILL IN THE TREE. "
+                f"Undo them by hand before re-running.")
     elif specs_clean is False:
         lines.append(
             "  NOT reverted: openspec/specs/ carried uncommitted changes "
