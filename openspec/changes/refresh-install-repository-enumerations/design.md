@@ -284,9 +284,19 @@ The ADDED requirement *"Install-repository enumerations are an index with a
 named authority"* does three things and deliberately not a fourth.
 
 - **It fixes the READING.** An enumeration is an index; the authority for
-  existence is the aggregation's `installs/` mount list; the authority for
-  scope is each repository's own boundary requirement; an omission is an index
-  defect and changes no repository's obligations. This is the sentence
+  ADMISSION AND MOUNTING is the aggregation's `installs/` mount list; the
+  authority for a repository's EXISTENCE, and for its scope, is the reviewed
+  act that created it plus its own boundary requirement; an omission is an
+  index defect and changes no repository's obligations. **The
+  existence-versus-admission split is load-bearing and this summary carries it
+  rather than rounding it off** — this capability requires aggregation
+  admission to be a separate reviewed change and says *"repository creation
+  SHALL NOT be treated as aggregation admission"*, so a created, governed,
+  not-yet-mounted install repository must not read as non-existent. An earlier
+  draft of both this decision and the requirement said the mount list was the
+  authority for existence; the requirement was corrected at `47f89af0` and this
+  summary at `2026-09-08`'s fix round 7, after Codex found the two had drifted
+  apart. This is the sentence
   `admit-install-repos-to-aggregation` already wrote inside *"Install
   repository scope"* (*"This enumeration is an index of admitted install
   repositories; it neither widens nor narrows the scope…"*), lifted to a

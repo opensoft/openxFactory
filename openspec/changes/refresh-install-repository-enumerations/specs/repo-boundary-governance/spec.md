@@ -53,11 +53,11 @@ DomainxFactory.
 - **AND** `openxFactory` MUST reference it only as a specialization of neutral workflow gates
 
 #### Scenario: Install repo needs policy context
-- **WHEN** `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install` or `OmniWorker-Install` needs to implement a factory policy
+- **WHEN** `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`, or `OmniWorker-Install` needs to implement a factory policy
 - **THEN** the install repo MUST link to the canonical `openxFactory` policy for neutral workflow concerns
 - **AND** it MUST link to the owning DomainxFactory policy when implementing domain-specific execution behavior
 
-**Removed from canon by refresh-install-repository-enumerations (2026-09-08):** ``**WHEN** `Hermes-Install` or `Omnigent-Install` needs to implement a factory policy`` — the bullet is REPLACED rather than deleted, by the widened trigger above it. **THE EDIT IS A LIST EXTENSION AND NOTHING ELSE:** the two names become five, in canon's own order, and every other word, the `or` and the surrounding grammar included, is byte-identical. Nothing else in this requirement changes: its body, its two other scenarios and this scenario's own two `THEN`/`AND` bullets are word for word what canon states.
+**Removed from canon by refresh-install-repository-enumerations (2026-09-08):** ``**WHEN** `Hermes-Install` or `Omnigent-Install` needs to implement a factory policy`` — the bullet is REPLACED rather than deleted, by the widened trigger above it. **THE EDIT IS A LIST EXTENSION PLUS THE PUNCTUATION A LONGER LIST TAKES, AND NOTHING ELSE:** the two names become five, in canon's own order, keeping canon's own `or` and its surrounding grammar word for word, and a serial comma is added before that `or` because a five-item list takes one where canon's two-item list correctly did not. The style is MEASURED rather than preferred — `openspec/specs` carries 561 lines with a serial comma before a final `or` against 232 without, and this requirement's own body uses one before its final `and`. Nothing else in this requirement changes: its body, its two other scenarios and this scenario's own two `THEN`/`AND` bullets are word for word what canon states.
 
 ### Requirement: Copy-first migration
 Repo-boundary migration SHALL use copy-first migration until canonical
@@ -66,7 +66,7 @@ migration SHALL be dogfooded through OpenSpec, Hermes approval,
 Omnigent/Polly decomposition, PR admission, merge council, and GitHub PRs.
 
 #### Scenario: Canonical policy exists in an install repo
-- **WHEN** policy currently lives in `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install` or `OmniWorker-Install`
+- **WHEN** policy currently lives in `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`, or `OmniWorker-Install`
 - **THEN** the policy MUST be copied or summarized into `openxFactory` before the install repo copy is deleted or marked legacy
 
 #### Scenario: Existing proof harness depends on current files
@@ -77,7 +77,7 @@ Omnigent/Polly decomposition, PR admission, merge council, and GitHub PRs.
 - **WHEN** canonical policy or contract content is migrated after the repo-boundary pilot
 - **THEN** the work MUST be proposed, decomposed, reviewed, admitted to PR, and merged using the factory workflow itself
 
-**Removed from canon by refresh-install-repository-enumerations (2026-09-08):** `` **WHEN** policy currently lives in `Hermes-Install` or `Omnigent-Install` `` — the bullet is REPLACED rather than deleted, by the widened trigger above it. **THE EDIT IS A LIST EXTENSION AND NOTHING ELSE:** the two names become five, in canon's own order, and every other word, the `or` and the surrounding grammar included, is byte-identical. The copy-first obligation itself, its dogfooding sentence and the two other scenarios are word for word what canon states — this requirement is the one `implement-omniworker-install-repo`'s own migration clause cites by name, and nothing in it is narrowed here.
+**Removed from canon by refresh-install-repository-enumerations (2026-09-08):** `` **WHEN** policy currently lives in `Hermes-Install` or `Omnigent-Install` `` — the bullet is REPLACED rather than deleted, by the widened trigger above it. **THE EDIT IS A LIST EXTENSION PLUS THE PUNCTUATION A LONGER LIST TAKES, AND NOTHING ELSE:** the two names become five, in canon's own order, keeping canon's own `or` and its surrounding grammar word for word, and a serial comma is added before that `or` because a five-item list takes one where canon's two-item list correctly did not. The style is MEASURED rather than preferred — `openspec/specs` carries 561 lines with a serial comma before a final `or` against 232 without, and this requirement's own body uses one before its final `and`. The copy-first obligation itself, its dogfooding sentence and the two other scenarios are word for word what canon states — this requirement is the one `implement-omniworker-install-repo`'s own migration clause cites by name, and nothing in it is narrowed here.
 
 ## ADDED Requirements
 
