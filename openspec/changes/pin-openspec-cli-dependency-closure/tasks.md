@@ -80,27 +80,40 @@ happens; nothing below decides it.
       name and the `.pin-verified` stamp carries BOTH addresses, so a different
       tree is a different cache entry and a directory stamped for another closure
       is rebuilt rather than reused.
-- [x] 3.5 `scripts/install-pinned-openspec-cli.py` keeps working by CALLING the
-      verifier's own `pinned_lockfile`/`verify_lockfile` and passing the bytes
-      to `resolve_pinned`. No second parser, no `subprocess`, no staging project
-      of its own, and no copy of the version, the integrity, the lockfile's name
-      or the lockfile's address in any line that runs. Asserted by
-      `test_the_installer_carries_no_copy_of_the_pin_at_all`.
+- [x] 3.5 BOTH OTHER CALLERS keep working by CALLING the verifier's own
+      `pinned_lockfile`/`verify_lockfile` and passing the bytes to
+      `resolve_pinned` — `scripts/install-pinned-openspec-cli.py` (the installer
+      `pytest-suite.yml` runs) and `scripts/proposal-support.py` (the entrypoint
+      through which the ARCHIVE act runs). No second parser, no `subprocess`, no
+      staging project and no copy of the version, the integrity, the lockfile's
+      name or its address in any line that runs, in either. Asserted by
+      `test_the_installer_carries_no_copy_of_the_pin_at_all` and by
+      `test_every_caller_of_the_resolver_hands_it_the_closure`, which pins the
+      caller list at exactly three.
+      THE ARCHIVE CALLER WAS MISSED ON THE FIRST PASS and this pull request's own
+      `pytest-suite` reported it as ten `TypeError`s. Recorded rather than
+      quietly repaired, because the miss is also the reason the invariant is now
+      a TEST rather than a habit: `openspec archive` writes a ratified delta into
+      canon, and until this the tree adjudicating an ARCHIVE could differ from
+      the tree adjudicating the VALIDATION that cleared it.
 - [x] 3.6 No `--verify-only` mode is added and none is considered; the
       prohibition is a ratified contract decision and
       `test_there_is_no_verify_only_mode` still asserts the absence.
 
 ## 4. Tests and proof
 
-- [x] 4.1 `tests/openspec_cli_pin/test_openspec_cli_pin.py`: **93 → 123**. The
-      thirty cover the closure declaration's shape, the three mismatch forms, the
+- [x] 4.1 `tests/openspec_cli_pin/test_openspec_cli_pin.py`: **93 → 124**. The
+      thirty-one cover the closure declaration's shape, the three mismatch forms, the
       unreadable/absent lockfile, the ordering (no npm call is spent before a
       lockfile disagreement is reported), `npm ci` rather than `npm install`, the
       derived staging manifest, the cache key and the two-address stamp,
       `--path-mode` saying it did not install the closure, `--tarball` installing
       through it anyway, and — offline, against the REAL committed files — that
       the pin and its lockfile agree with each other.
-      `python3 -m pytest tests/openspec_cli_pin -q` → **`123 passed`**.
+      `python3 -m pytest tests/openspec_cli_pin -q` → **`124 passed`**; and,
+      with the pinned CLI on PATH exactly as the required job supplies it,
+      `pytest tests/proposal-support tests/openspec_cli_pin -q` →
+      **`192 passed, 2 subtests passed`**.
 - [x] 4.2 No test skips, so `pytest-suite.yml`'s exact `EXPECT_SKIPPED: "21"` is
       untouched and its two FLOORS only rise. No `conftest.py` is added.
 - [x] 4.3 Prove the entrypoint end to end for real, against the live registry, at

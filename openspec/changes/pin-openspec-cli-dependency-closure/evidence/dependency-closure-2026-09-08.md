@@ -183,3 +183,57 @@ The executable path is the giveaway that the closure ran: `…/prefix/node_modul
 is a PROJECT install produced by `npm ci`, not the `…/prefix/bin/openspec` a
 `npm install --global --prefix` used to produce. The REQUIRED check is green
 THROUGH the lockfile path, on a machine that had nothing cached.
+
+The INSTALLER's own CI line, from `pytest-suite`'s "Install the pinned OpenSpec
+CLI for tests/proposal-support" step on the same pull request — the second of the
+three callers, resolving the same closure into the runner's `$GITHUB_PATH`:
+
+```
+install-pinned-openspec-cli: @fission-ai/openspec@1.12.0 verified against its content address (integrity sha512-oFE2Lj7WVSc87nSi…) and installed at /home/runner/work/_temp/openspec-cli-pin/@fission-ai__openspec-1.12.0-c844543999f673cdd72445879b86a4abea4c07ef-6b0e6520de39b50a/node_modules/.bin/openspec, over the pinned dependency closure openspec-cli-pin.1.12.0.package-lock.json (80 packages, lockfile_integrity sha512-aw5lIN45tQq2WZll…, installed with `npm ci --ignore-scripts`).
+```
+
+The cache directory's name carries BOTH addresses — the artifact's shasum
+`c844543999…` and the closure's `6b0e6520de39b50a` — which is the cache key doing
+its job on a real runner.
+
+## 9. THE THIRD CALLER, MISSED AND THEN CAUGHT BY THIS PULL REQUEST'S OWN GATE
+
+`resolve_pinned` gained two required arguments. The estate has THREE callers of
+it, not two, and the third — `scripts/proposal-support.py`, the entrypoint
+through which the ARCHIVE act runs — was missed on the first pass. This pull
+request's `pytest-suite` reported it as ten `TypeError`s
+(`resolve_pinned() missing 2 required positional arguments: 'lockfile_bytes' and
+'lockfile_integrity'`), which is the required check working exactly as intended.
+
+It is recorded here rather than quietly repaired for two reasons. **The first is
+that the archive act is where the closure matters most**: `openspec archive`
+writes a ratified delta into canon, and until this fix the tree that adjudicated
+an ARCHIVE could differ from the tree that adjudicated the VALIDATION that
+cleared it — same day, same machine, nine caret ranges resolved twice. They are
+one tree now. **The second is that the miss is the reason the invariant is now a
+TEST**: `test_every_caller_of_the_resolver_hands_it_the_closure` enumerates the
+callers under `scripts/`, pins the list at exactly those three, and requires each
+non-defining caller to reach the closure through the verifier's own functions and
+to restate no literal. A fourth caller added later fails there rather than in
+somebody else's required check.
+
+Measured after the fix, with the pinned CLI on PATH exactly as the required job
+supplies it:
+
+```
+$ pytest tests/proposal-support tests/openspec_cli_pin -q
+192 passed, 2 subtests passed
+```
+
+## 10. THE REQUIRED SUITE, GREEN, ON THE FIXED HEAD
+
+`pytest-suite` run `34247095390`, the pinned-triple step's own arithmetic:
+
+```
+selected=10413 passed=10392 skipped=21 failures=0 errors=0
+floors: selected>=7090 (margin 3323) passed>=7070 (margin 3322) skipped==21
+```
+
+`EXPECT_SKIPPED` is EXACT and it did not move: this change adds no skip, which is
+what task 4.2 claims and this is the measurement of it. Both floors only rose.
+All nine checks on the pull request are green.
