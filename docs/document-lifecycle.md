@@ -412,13 +412,14 @@ its own.>
   under canonical specs; affected docs may claim `standard`. Before archive,
   proposal support is packaged as `supporting-docs.tar.gz` beside the archived
   change with a readable checksum manifest. Historical bundles never live
-  under canonical `openspec/specs/`. THE ARCHIVE DATE IS UTC: `proposal-support.py
-  archive` derives it once as today in UTC, runs the pinned OpenSpec CLI with
-  `TZ=UTC` (the CLI has no date option and names
-  `openspec/changes/archive/<YYYY-MM-DD>-<change>/` from its own clock), refuses
-  a `--date` that is not today in UTC, and refuses and reverts the move when the
-  directory the CLI named carries any other day — so the bundle's `packaged_at`,
-  the directory name and the ledger row's `moved_on` are one date.
+  under canonical `openspec/specs/`. THE ARCHIVE DATE IS UTC:
+  `proposal-support.py archive` derives it once as today in UTC, runs the
+  pinned OpenSpec CLI with `TZ=UTC` (the CLI has no date option and names
+  `openspec/changes/archive/<YYYY-MM-DD>-<change>/` from its own clock),
+  refuses a `--date` that is not today in UTC, and refuses and reverts the
+  move when the directory the CLI named carries any other day — so the
+  bundle's `packaged_at`, the directory name and the ledger row's `moved_on`
+  are one date.
 - `promoted -> adopted`: consumers re-pin, replace local copies with
   references plus thin overlays, and retire duplicates — see the
   [Domain-To-Neutral Promotion Process](domain-to-neutral-promotion-process.md).

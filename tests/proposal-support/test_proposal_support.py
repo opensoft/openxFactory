@@ -665,8 +665,15 @@ class ProposalSupportTests(unittest.TestCase):
             # `archive/<date>-<change>`, and the CLI names it from its own
             # (now UTC-forced) clock, a literal date here would be a fixture
             # asserting the CLI archived on a day it did not.
+            # READ ONCE, NOT THREE TIMES. A run that crossed midnight UTC
+            # between the archive and the assertions would compare two
+            # different days and fail for the calendar rather than for the
+            # code; the wrapper itself derives the date once for exactly this
+            # reason, and a fixture that did not would be asserting something
+            # weaker than the property under test.
+            archive_date = support.utc_today()
             support.archive_change(
-                root, "change-a", support.utc_today(), False, True
+                root, "change-a", archive_date, False, True
             )
             archived = list((root / "openspec/changes/archive").glob(
                 "????-??-??-change-a"
@@ -681,9 +688,9 @@ class ProposalSupportTests(unittest.TestCase):
             # a bundle stamped one day beside a directory naming another.
             manifest = (archived[0] / "supporting-docs.manifest.yaml").read_text(
                 encoding="utf-8")
-            self.assertIn(f'"packaged_at": "{support.utc_today()}"', manifest)
-            self.assertTrue(archived[0].name.startswith(
-                f"{support.utc_today()}-"), archived[0].name)
+            self.assertIn(f'"packaged_at": "{archive_date}"', manifest)
+            self.assertTrue(archived[0].name.startswith(f"{archive_date}-"),
+                            archived[0].name)
             # …and it got there through the PIN: the artifact was fetched and
             # installed by the verifier's own resolver, which is a fact about
             # this run rather than an inference from its result.
@@ -757,9 +764,10 @@ class ProposalSupportTests(unittest.TestCase):
             ratify(change / "proposal.md")
             commit_all(root, "record the ratification")
 
-            # Today in UTC, for the reason the sibling archive test states.
-            support.archive_change(root, "change-b", support.utc_today(),
-                                   False, True)
+            # Today in UTC, read once, for the reason the sibling archive
+            # test states.
+            archive_date = support.utc_today()
+            support.archive_change(root, "change-b", archive_date, False, True)
 
             archived = list((root / "openspec/changes/archive").glob(
                 "????-??-??-change-b"

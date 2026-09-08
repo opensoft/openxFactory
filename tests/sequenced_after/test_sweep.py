@@ -1815,16 +1815,26 @@ def _utc_today() -> str:
 def test_the_SEEDER_takes_an_ARCHIVED_rows_moved_on_FROM_ITS_DIRECTORY(tmp_path):
     _change(tmp_path, "add-a")
     _change(tmp_path, "add-old", archived="2026-08-01")
+    # BRACKETED, NOT COMPARED TO ONE READING. The seeder runs in a CHILD
+    # process, so a run that crossed midnight UTC between these two readings
+    # would legitimately observe two different days and an equality assertion
+    # would fail for the calendar rather than for the code. The claim under
+    # test is "the active row took a UTC date from the run", and the bracket
+    # states exactly that without inviting a nightly flake.
+    before = _utc_today()
     result = subprocess.run(
         [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
          "--moved-by", "#790"], capture_output=True, text=True)
+    after = _utc_today()
     assert result.returncode == 0, result.stdout + result.stderr
     rows = sa.load_ledger(sa.ledger_path(tmp_path)).rows
     assert rows["add-old"]["moved_on"] == "2026-08-01", (
         "an archived row records the day it archived, which is the day its "
         "directory is named for")
     # …and an ACTIVE row still takes the run's date, which is TODAY IN UTC.
-    assert rows["add-a"]["moved_on"] == _utc_today()
+    assert rows["add-a"]["moved_on"] in {before, after}
+    assert rows["add-a"]["moved_on"] != rows["add-old"]["moved_on"], (
+        "anti-vacuity: the two dates must come from different places")
 
 
 def test_the_SEEDER_stamps_the_DIRECTORY_date_when_a_row_FLIPS_to_archived(
