@@ -123,7 +123,7 @@ change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
   ``**Removed from canon by …**`` marker is owed and doc-health's
   `modified-block-currency` arm reports nothing against this block.
 
-## 3. Cross-repository composition — named, not performed here
+## 3. Composition — named here; 3.4 alone is this packet's own act
 
 - [ ] 3.1 **[OpsxFactory]** The domain twin `govern-archived-record-edits`
   lands and is ratified. Both packets cross-cite by change id and repository;
@@ -186,12 +186,17 @@ change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
 - [ ] 6.1 **Archive WHEN ITS ARTIFACTS LAND**, per `release-realization`: the
   declared `code_surface` is `none`, so the archive gate is not merged-plus-green
   realization evidence. **This box said "nothing in § 3 gates it: those are
-  other packets' acts", and that was FALSE for one of them** — 3.1, 3.2, 3.3 and
-  3.5 are other repositories' acts, but **3.4 is THIS repository's own**: the
-  adoption of the neutral minimum in `docs/document-lifecycle.md`. What holds the
-  packet open is therefore not the archive gate but the UNTICKED BOX 3.4, which
-  the archive act reads, alongside the cross-repository acts named beside it for
-  the chain's readability.
+  other packets' acts", and § 3 holds THREE different kinds of act, not one.**
+  3.1, 3.2 and 3.5 are OTHER REPOSITORIES' acts, all OpsxFactory's or a further
+  DomainxFactory's. **3.3 is ANOTHER PACKET'S ACT IN THIS REPOSITORY** —
+  `add-consent-custody-rederivation-record` is an ACTIVE openxFactory change
+  (untagged, per the Tags note above; `543d47a9` resolves in this tree), so its
+  contract cut is owed here even though its consumer re-pin is OpsxFactory's.
+  **3.4 is THIS PACKET'S OWN act in this repository**: adopting the neutral
+  minimum in `docs/document-lifecycle.md`. Only the last of the three can hold
+  this packet open, and it does — what the archive act reads is the UNTICKED BOX
+  3.4, with 3.1/3.2/3.3/3.5 named beside it for the chain's readability and
+  gating nothing here.
 - [ ] 6.2 Confirm at the archive act that the three requirement blocks reach
   `openspec/specs/document-lifecycle/spec.md` — *Ratified spec deltas reach the
   promoted specification* is checked against the archived delta's own bytes,
