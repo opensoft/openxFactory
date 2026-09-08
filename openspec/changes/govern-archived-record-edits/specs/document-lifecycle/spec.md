@@ -44,8 +44,8 @@ archived-record edit and takes the route archived-record edits take.
 
 THAT ROUTE IS NOW STATED AND NOT ONLY NAMED. It is *An archived record is
 edited only as a bookkeeping correction under a recorded ruling*, and a header
-derived from the packet's own record is within that route's bookkeeping class,
-needing nothing further from it. Where the backfilled file is ALSO a pinned
+derived from the packet's own record is within that route's bookkeeping class;
+it still takes the route's recorded ruling. Where the backfilled file is ALSO a pinned
 target, *A change that edits a pinned target re-derives every dependent pin in
 the same change* attaches as well and the backfill carries the re-derivation.
 The two obligations are independent: clearing the first says nothing about the
@@ -143,7 +143,7 @@ same thing as authorizing every edit.
 **THE NARROW PERMISSION IS NOT A PRECAUTION — THE PERMISSIVE READING WAS TRIED
 AND MEASURED.** OpsxFactory's `docs/packet-lifecycle-headers.md` § *Editing an
 archived packet*, ratified 2026-08-24, permitted an archived-packet edit on a
-bookkeeping note alone. On that same day commit `57fd9fd2` ("Discharge all 55
+bookkeeping note alone. On that same UTC day commit `57fd9fd2` ("Discharge all 55
 lifecycle-header defects in the OpenSpec scan set", 63 files) wrote SIXTEEN
 files under that repository's archive tree under it, inserting one `Ratified:`
 line per target, and broke THREE executed consent instruments' `custody.sha256`
@@ -184,10 +184,10 @@ everything it says that this rule does not reach.
 - **AND** the convention MUST be amended by a DATED AMENDMENT that keeps its stale text rather than by a rewrite, an archived-record rule that erased its own history being self-refuting
 
 ### Requirement: A change that edits a pinned target re-derives every dependent pin in the same change
-A change that edits a PINNED TARGET — a file that any in-repo content-address
-pin names, whether that file is archived or live — SHALL re-derive every
-dependent pin and RECORD the re-derivation in the SAME change, by the rule the
-pin's own family declares.
+A change that edits a PINNED TARGET SHALL re-derive every dependent pin and
+SHALL RECORD the re-derivation in the SAME change, by the rule that pin's own
+family declares. A PINNED TARGET is any file that an in-repo content-address pin
+names, whether that file is ARCHIVED OR LIVE.
 
 **THE REACH IS PINS, NOT THE ARCHIVE.** This requirement and its neighbour
 above are stated separately because their failures are invisible to each other.
@@ -210,14 +210,41 @@ this obligation exactly as much, with nothing but review to catch a breach.
 **PER FAMILY, BY THE FAMILY'S OWN RULE, WHICH THE FAMILY MUST DECLARE.**
 Re-derivation is not one act: a consent instrument's custody pin, an evidence
 digest, a plan-acceptance desired-state reference and a contract-bundle digest
-each re-derive differently and record differently. For consent instruments the
-rule is the structured `custody_rederivations[]` entry proposed by
-`add-consent-custody-rederivation-record`. For every other family the declaring
-repository names the rule in its own content-address register; OpsxFactory's
-`add-content-address-integrity-gate` is the first such register in the estate.
-A FAMILY THAT DECLARES NO RE-DERIVATION RULE HAS NOT EARNED A PIN: where no
-rule exists, the edit MUST be refused until one is declared, because "re-derive
-by whatever means" is a promise nobody can check and nobody can repeat.
+each re-derive differently and record differently. A family's rule SHALL be
+declared either in the declaring repository's content-address register OR in
+the neutral contract that owns the family — both homes are real and the
+distinction is not cosmetic: the consent family's rule is a property of the
+INSTRUMENT SCHEMA and lives in the contract wherever the instrument is held,
+while a repository-local family's rule has no contract to live in. For consent
+instruments the rule is the structured `custody_rederivations[]` entry proposed
+by `add-consent-custody-rederivation-record`, which is a CONTRACT home;
+OpsxFactory's `add-content-address-integrity-gate` proposes the estate's first
+REGISTER home.
+
+**A FAMILY THAT DECLARES NO RE-DERIVATION RULE HAS NOT EARNED A PIN — AND THE
+CONSEQUENCE ARRIVES WITH THE DECLARATION, NOT WITH THIS REQUIREMENT.** Until a
+family has declared its rule, an edit of that family's pinned target SHALL be
+REPORTED — naming the family, the pinned target, and the register or contract
+that owes the rule — and SHALL NOT be refused on that ground. It becomes a
+REFUSAL for that family on the day that family declares, and thereafter an
+ad-hoc re-derivation performed for the occasion is not accepted in place of the
+declared rule, because "re-derive by whatever means" is a promise nobody can
+check and nobody can repeat.
+
+**THE TRANSITION IS NOT A SOFTENING; IT IS WHAT KEEPS THE RULE FROM FREEZING
+THE ESTATE ON THE DAY IT LANDS.** Measured at this packet's authoring: NO
+family anywhere in the estate has a declared re-derivation rule. The consent
+family's is PROPOSED and not declared — the contract still reads
+`contract_schema_version: 2`, the schema carries no `custody_rederivations`
+property, and all 46 boxes of the proposing packet are unticked. The register
+home does not exist at all: `models/content-address-families.yaml` is absent
+from OpsxFactory's `main` AND from the branch that proposes it, where it is
+task 2.1. A refuse-on-landing reading would therefore refuse EVERY pinned-target
+edit in the estate from the moment this requirement is promoted — including the
+routine lifecycle-header discharge that the neighbouring requirement and
+*Proposal packets carry the lifecycle header* both require to be performed. A
+rule whose first act is to forbid the corrective work it exists to govern is a
+rule that will be worked around rather than followed.
 
 **"IN THE SAME CHANGE" IS THE WHOLE OF IT.** A re-derivation deferred to a
 successor is a broken pin with a promise attached, and the promise is not what
@@ -243,10 +270,16 @@ measured case sat in for thirteen days.
 - **THEN** the dependent pin's locator MUST be re-derived in the same change and the record MUST say that the bytes did not change
 - **AND** an unchanged digest MUST NOT be read as an unchanged pin, a locator being half of a content address
 
-#### Scenario: A pin's family declares no re-derivation rule
-- **WHEN** a change would edit a pinned target whose pin family has declared no re-derivation rule
-- **THEN** the edit MUST be refused until the family's rule is declared in the declaring repository's content-address register
-- **AND** an ad-hoc re-derivation performed for the occasion MUST NOT be accepted in place of a declared rule
+#### Scenario: A pin's family has not yet declared a re-derivation rule
+- **WHEN** a change edits a pinned target whose family has declared no re-derivation rule, in either home
+- **THEN** the edit MUST be REPORTED, naming the family, the pinned target, and the content-address register or neutral contract that owes the rule
+- **AND** it MUST NOT be refused on that ground, no family in the estate having declared one when this requirement was written
+- **AND** the report MUST NOT be read as a re-derivation having been performed
+
+#### Scenario: A family has declared its rule and an edit does not follow it
+- **WHEN** a family has declared its re-derivation rule, in its register or in the neutral contract that owns it, and a change edits one of its pinned targets without following that rule
+- **THEN** the edit MUST be refused
+- **AND** an ad-hoc re-derivation performed for the occasion MUST NOT be accepted in place of the declared rule
 
 #### Scenario: A dependent pin lives in another repository
 - **WHEN** the pin depending on the edited target is held by a consuming repository

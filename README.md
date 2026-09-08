@@ -520,7 +520,7 @@ Active changes:
   *"Header/bookkeeping edits only + re-derive pins"* with home *"Both at once"*
   — an ADMISSION TO THE QUEUE, not a ratification. **NOTHING IS REALIZED** — no
   archived byte is edited, no pin is re-derived, no checker is written, no
-  repository's convention is amended, and **all 23 boxes in `tasks.md` stay
+  repository's convention is amended, and **all 24 boxes in `tasks.md` stay
   unticked**. **THE ESTATE-NEUTRAL HALF OF A MATCHED PAIR**: the domain half is
   OpsxFactory's `govern-archived-record-edits`, same working id, same ruling,
   and neither is the other's summary. States on the promoted
@@ -537,7 +537,20 @@ Active changes:
   measured, not stylistic**: of the three custody pins the motivating commit
   broke, ONE names a target in a change directory that has never been archived,
   so a rule scoped to `archive/` would have reported itself satisfied while that
-  pin stayed broken. **THE MOTIVATION IS CITED, NOT RE-DERIVED.** OpsxFactory
+  pin stayed broken. **A TRANSITION CLAUSE KEEPS THE RULE FROM FREEZING THE
+  ESTATE ON LANDING, and it is there because of a measurement**: NO family
+  anywhere has a declared re-derivation rule today — the consent family's is
+  PROPOSED only (`contract_schema_version: 2`, no `custody_rederivations`
+  property, `contract-v3.4`, 46/46 boxes unticked) and the register home
+  `models/content-address-families.yaml` exists neither on OpsxFactory's `main`
+  nor on the branch proposing it — while `code_surface: none` means this change
+  archives ON LANDING with nothing to sequence behind. So an edit whose family
+  has declared no rule is **REPORTED**, naming the family and the register or
+  neutral contract that owes it, and becomes a **REFUSAL for that family the day
+  it declares**. The refuse-outright reading is recorded as Brett Heap's veto
+  point (design D-7, task 1.2): coherent, and it stops the estate's corrective
+  work — the routine lifecycle-header discharge and the F.1/F.2 repairs
+  included — until the first family declares. **THE MOTIVATION IS CITED, NOT RE-DERIVED.** OpsxFactory
   `docs/packet-lifecycle-headers.md` § *Editing an archived packet* (ratified
   2026-08-24) permitted an archived-packet edit on a BOOKKEEPING NOTE ALONE; on
   that same day commit `57fd9fd2` ("Discharge all 55 lifecycle-header defects in
@@ -547,9 +560,12 @@ Active changes:
   unnoticed. The "`FR-072` forbids archive writes" reading two packets cited was
   feature 010's close-time fence, not a general rule, so **there was no general
   rule to break** — the permissive convention was the whole of the governance.
-  Register: OpsxFactory
-  `openspec/changes/archive/2026-09-07-add-pre-archive-citation-gate/supporting-docs/owed-findings.md`
-  § F.3 (F.1, the custody half, is discharged by
+  Register: OpsxFactory's `add-pre-archive-citation-gate` owed-findings
+  register § F.3 — **MID-ARCHIVE, so both paths are named rather than one
+  asserted**: the LIVE path
+  `openspec/changes/add-pre-archive-citation-gate/supporting-docs/owed-findings.md`
+  at that repository's `main` today, filing on merge of its in-flight PR #273 at
+  `openspec/changes/archive/2026-09-07-add-pre-archive-citation-gate/supporting-docs/owed-findings.md` (F.1, the custody half, is discharged by
   `add-consent-custody-rederivation-record`, merged 2026-09-08 as `543d47a9`,
   whose `custody_rederivations[]` this packet NAMES as the consent family's rule
   and restates none of). **The delta also carries ONE `## MODIFIED`** on
@@ -557,9 +573,15 @@ Active changes:
   "Backfilling a header onto an archived packet is an archived-record edit and
   **takes the route archived-record edits take**" — a forward reference to a
   route the corpus does not contain, written by the same
-  `govern-openspec-corpus-membership` on the same day as the breakage. The block
-  carries EVERY canon byte verbatim — 7,139 chars, all six promoted scenarios
-  restated — with exactly two hunks of difference, both PURE INSERTIONS: the
+  `govern-openspec-corpus-membership`, whose archive commit `01ff3434` is
+  authored `2026-08-23T23:06:12-04:00` = **`2026-08-24T03:06:12Z`** against
+  `57fd9fd2`'s `2026-08-24T04:08:48-04:00` = **`2026-08-24T08:08:48Z`** — the
+  SAME DAY IN UTC and different days in the authoring clock, five hours apart,
+  and the clock is named rather than left to be discovered. The block carries
+  EVERY canon byte verbatim — **canon's block is 5,815 chars, the delta block
+  7,150, and the 1,335-char difference is entirely INSERTED** — all six promoted
+  scenarios restated, with exactly two hunks of difference, both PURE
+  INSERTIONS: the
   dangling sentence itself is untouched and a paragraph after it names the
   route. Nothing is reworded and nothing is deleted, so no
   ``**Removed from canon by …**`` marker is owed and doc-health's

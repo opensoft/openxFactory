@@ -21,13 +21,18 @@ change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
   when the seeder ran, and the value is a placeholder rather than an observed
   number. The ledger's own doctrine makes `moved_by` AUTHOR-SUPPLIED AND
   UNVERIFIED (only its `#<digits>` shape is checked), so this reds no gate; it
-  is a pointer a human follows and it should be true. `add-consent-custody-rederivation-record`
-  learned this the hard way: its provisional `#757` was taken by another lane
-  while the packet was in review. Re-run
+  is a pointer a human follows and it should be true.
+  **IT IS ALREADY KNOWN TO BE WRONG, SO THIS BOX IS MANDATORY AND NOT TIDY-UP.**
+  `#785` was the next number free when the seeder ran; it is now
+  `ideation/remove-moved-domain-files`, another lane's OPEN pull request. This
+  is the second time the trap has sprung on this lane —
+  `add-consent-custody-rederivation-record`'s provisional `#757` was taken the
+  same way while that packet was in review — and it will spring again for
+  anyone who reads a placeholder as provenance. Re-run
   `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#<real PR>'`
-  once the number is known and read the diff: **exactly one row must move**, and
-  because this packet's corpus effect is provenance-only the seeder is otherwise
-  a no-op, so the re-stamp is a one-field edit.
+  AT PR-OPEN and read the diff: **exactly one row must move**. Because this
+  packet's corpus effect is provenance-only, the seeder is otherwise a NO-OP and
+  the re-stamp is a ONE-FIELD edit.
 
 ## 1. Ratification — OWED, NOT GIVEN
 
@@ -36,18 +41,29 @@ change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
   HOMES (*"Both at once"*). It chose no requirement title, no delta shape, no
   definition of the bookkeeping class, no ordering between ruling and edit, and
   no refusal posture. Each is `design.md`'s D-1..D-8 and each is a veto point.
-- [ ] 1.2 **[OPERATOR] Rule on D-3 specifically** — whether the `## MODIFIED`
+- [ ] 1.2 **[OPERATOR] Rule on the TRANSITION CLAUSE of D-7.** The second
+  ADDED requirement REPORTS — and does not refuse — an edit whose pin family has
+  declared no re-derivation rule, and becomes a refusal for that family the day
+  it declares. The alternative, REFUSE OUTRIGHT FROM LANDING, is coherent and is
+  what the first draft said; measured, it freezes every pinned-target edit in
+  the estate on the day this change archives, because NO family has a declared
+  rule today and `code_surface: none` means this change archives on landing with
+  nothing to sequence behind. Choosing it is a one-clause edit plus the removal
+  of one scenario, and the cost is that the estate's corrective work — including
+  the routine lifecycle-header discharge and the F.1/F.2 repairs — stops until
+  the first family declares.
+- [ ] 1.3 **[OPERATOR] Rule on D-3 specifically** — whether the `## MODIFIED`
   block closing *Proposal packets carry the lifecycle header*'s dangling "takes
   the route archived-record edits take" is wanted. Declining it leaves canon
   naming a route it does not define, which is the state that produced the
   finding; taking it means a MODIFIED block that must stay current until
   archive (task 4.2).
-- [ ] 1.3 **[OPERATOR] Rule on the reading NOT taken** — a STRICT READ-ONLY
+- [ ] 1.4 **[OPERATOR] Rule on the reading NOT taken** — a STRICT READ-ONLY
   ARCHIVE. `design.md` § *Readings not taken* 1 records why this packet declines
   it (it would make the pre-existing header population permanently unfixable,
   contradicting canon in force, and it would overturn the F.3 selection). It
   remains available and would be a different change.
-- [ ] 1.4 Write `review/ratification-<date>.md` recording the word verbatim, the
+- [ ] 1.5 Write `review/ratification-<date>.md` recording the word verbatim, the
   head it was given against, and what it does and does not authorize.
 
 ## 2. The delta — three requirement blocks, authored
@@ -57,10 +73,13 @@ change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
 - [ ] 2.2 `## ADDED` — *A change that edits a pinned target re-derives every
   dependent pin in the same change*. Authored.
 - [ ] 2.3 `## MODIFIED` — *Proposal packets carry the lifecycle header*.
-  Authored. Verified against canon: 7,139 characters, EVERY canon byte carried
-  verbatim, all six promoted scenarios restated, and exactly two hunks of
-  difference — both PURE INSERTIONS (one paragraph naming the route, one added
-  scenario). Nothing is reworded and nothing is deleted, so no
+  Authored. Verified against canon: **canon's block is 5,815 characters, the
+  delta block is 7,150, and the 1,335-character difference is entirely
+  INSERTED** (slice from the requirement heading to the next, trailing newlines
+  stripped both sides). EVERY canon byte is carried verbatim, all six promoted
+  scenarios restated, and exactly two hunks of difference — both PURE INSERTIONS
+  (one paragraph naming the route, one added scenario). Nothing is reworded and
+  nothing is deleted, so no
   ``**Removed from canon by …**`` marker is owed and doc-health's
   `modified-block-currency` arm reports nothing against this block.
 

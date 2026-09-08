@@ -64,10 +64,17 @@ anything noticed.**
 
 These facts are CITED, not re-derived here. They were measured by OpsxFactory's
 citation sweep on 2026-09-06 at `ddc03ad7` and are recorded in that
-repository's owed-findings register at
-`openspec/changes/archive/2026-09-07-add-pre-archive-citation-gate/supporting-docs/owed-findings.md`
-§ F.3 (the same register's § F.1 carries the custody half, discharged by
-`add-consent-custody-rederivation-record`, merged 2026-09-08 as `543d47a9`).
+repository's owed-findings register, § F.3. **THAT REGISTER IS MID-ARCHIVE AND
+ITS PATH IS NOT YET A FACT.** At OpsxFactory `main` today it is the LIVE path
+`openspec/changes/add-pre-archive-citation-gate/supporting-docs/owed-findings.md`;
+its archive PR is in flight (OpsxFactory #273, still OPEN at this writing) and
+on merge the register files at
+`openspec/changes/archive/2026-09-07-add-pre-archive-citation-gate/supporting-docs/owed-findings.md`.
+Both are named here rather than one asserted, because a citation of the archive
+path written before the archive lands is a claim about a file that does not yet
+exist — which is the class of defect the citing repository's own gate was built
+to refuse. The same register's § F.1 carries the custody half, discharged by
+`add-consent-custody-rederivation-record`, merged 2026-09-08 as `543d47a9`.
 
 **There was no general rule to break.** Two OpsxFactory packets had cited
 `FR-072` as forbidding archive writes. That reading was wrong: `FR-072` is
@@ -100,9 +107,12 @@ One `document-lifecycle` spec delta, three requirement blocks.
 **`## MODIFIED` — *Proposal packets carry the lifecycle header*.** The block
 restates the promoted requirement as canon states it and the restatement was
 VERIFIED rather than asserted: extracted programmatically from
-`openspec/specs/document-lifecycle/spec.md` and diffed against it — 7,139
-characters, EVERY canon byte carried verbatim, all six promoted scenarios
-restated, and exactly two hunks of difference, **both PURE INSERTIONS**. The
+`openspec/specs/document-lifecycle/spec.md` and diffed against it. **Canon's
+block is 5,815 characters; the delta block is 7,150; the difference of 1,335 is
+entirely INSERTED** (measured over the slice from the requirement heading to the
+next one, trailing newlines stripped on both sides). EVERY canon byte is carried
+verbatim, all six promoted scenarios are restated, and there are exactly two
+hunks of difference, **both PURE INSERTIONS**. The
 dangling sentence "takes the route archived-record edits take" is left
 UNTOUCHED and a paragraph after it names the route and says that where the
 backfilled file is also a pinned target the second requirement attaches as well,
@@ -164,3 +174,29 @@ register in the estate. A family that declares no rule has not earned a pin.
   what is looser.
 - Archive gate: `code_surface: none`, so this change archives on landing per
   `release-realization`.
+
+**THE TRANSITION CLAUSE EXISTS BECAUSE OF A MEASUREMENT, AND THE MEASUREMENT IS
+THIS.** On the day this packet is authored, **NO family anywhere in the estate
+has a declared re-derivation rule**, in either home. The consent family's is
+PROPOSED and not declared: `contracts/schemas/consent-instrument.schema.yaml`
+still reads `contract_schema_version: 2`, the schema carries no
+`custody_rederivations` property, `contracts/manifest.yaml` still declares
+`contract-v3.4`, and all **46 boxes** of `add-consent-custody-rederivation-record`
+are unticked — ratification performed no realization and said so. The register
+home does not exist at all: `models/content-address-families.yaml` is absent
+from OpsxFactory's `main` AND from `change/add-content-address-integrity-gate`,
+the branch that proposes it, where authoring it is task 2.1.
+
+**And this change has nothing to sequence behind.** `code_surface: none` means
+it archives ON LANDING, so its requirements reach canon the day it merges,
+before either home exists. A refuse-on-landing reading of "a family that
+declares no rule has not earned a pin" would therefore refuse EVERY
+pinned-target edit in the estate from that moment — including the routine
+lifecycle-header discharge that the neighbouring ADDED requirement and
+*Proposal packets carry the lifecycle header* both require to be performed, and
+including the very repairs F.1 and F.2 are sequenced to make. The requirement
+therefore REPORTS an edit whose family has declared no rule, naming the family
+and the home that owes it, and becomes a REFUSAL for that family the day it
+declares. **The refuse-outright reading is recorded in `design.md` D-7 as
+Brett Heap's veto point**: taking it is coherent and it freezes the corrective
+work until the first family declares.

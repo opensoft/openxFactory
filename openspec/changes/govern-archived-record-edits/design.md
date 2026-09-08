@@ -27,9 +27,14 @@ two facts that make an archived byte load-bearing:
    edit and **takes the route archived-record edits take**" — a forward
    reference to a route the corpus does not contain.
 
-Both sentences were written by `govern-openspec-corpus-membership`, archived
-2026-08-24. On that same day, OpsxFactory's `57fd9fd2` did the thing the second
-sentence gestures at — a 55-defect lifecycle-header discharge — under a local
+Both sentences were written by `govern-openspec-corpus-membership`, whose
+archive commit `01ff3434` is authored **2026-08-23T23:06:12-04:00 =
+2026-08-24T03:06:12Z**. OpsxFactory's `57fd9fd2` is authored
+**2026-08-24T04:08:48-04:00 = 2026-08-24T08:08:48Z**. **They fall on the same
+day IN UTC and on different days in the authoring clock**, and the coincidence
+is stated with its clock rather than left to be discovered — five hours apart,
+same UTC date, one calendar day apart at `-04:00`. On that same UTC day,
+`57fd9fd2` did the thing the second sentence gestures at — a 55-defect lifecycle-header discharge — under a local
 convention that asked only for a bookkeeping note, wrote 16 files under that
 repository's archive tree, and broke three executed consent instruments'
 custody pins. The dangling reference and the breakage are one gap seen from two
@@ -94,8 +99,12 @@ inference from a requirement it is not mentioned in.
 
 **The restatement was verified, not asserted.** The block is extracted
 programmatically from `openspec/specs/document-lifecycle/spec.md` and diffed
-against it: 7,139 characters, all six promoted scenarios carried, and exactly
-two hunks of difference — BOTH PURE INSERTIONS. **The first draft of this block
+against it. **Canon's block is 5,815 characters and the delta block is 7,150;
+the 1,335-character difference is entirely INSERTED** — the slice runs from the
+requirement heading to the next one with trailing newlines stripped on both
+sides, and the earlier draft of this sentence reported 7,150 as though it were
+the size of the change rather than of the block. All six promoted scenarios are
+carried and there are exactly two hunks of difference — BOTH PURE INSERTIONS. **The first draft of this block
 REWORDED the dangling sentence in place, and doc-health's
 `modified-block-currency` arm caught it**: that arm reads body units at SENTENCE
 granularity, so a rewritten sentence is a body unit canon states and the block
@@ -197,6 +206,50 @@ families or so general as to say nothing.
 promise nobody can check and nobody can repeat, and an ad-hoc re-derivation
 performed for the occasion cannot be re-run by the next reviewer. Refusing puts
 the cost on declaring the rule once, which is where the estate wants it.
+
+**BUT THE REFUSAL ARRIVES WITH THE DECLARATION, NOT WITH THIS REQUIREMENT, AND
+THAT WAS A DEFECT FOUND BY REVIEW RATHER THAN A NUANCE DESIGNED IN.** The first
+draft of this packet said the edit "MUST be refused until one is declared", full
+stop. Measured, that reading freezes the estate on the day this change lands:
+NO family anywhere has a declared rule — the consent family's is proposed only
+(`contract_schema_version: 2`, no `custody_rederivations` property,
+`contract-v3.4`, 46/46 boxes unticked) and the register home
+`models/content-address-families.yaml` exists neither on OpsxFactory's `main`
+nor on the branch that proposes it, where authoring it is task 2.1 — and this
+change carries `code_surface: none`, so it archives ON LANDING with nothing to
+sequence behind. Every pinned-target edit in the estate would be refused from
+that moment, including the routine lifecycle-header discharge the neighbouring
+requirement and *Proposal packets carry the lifecycle header* both require, and
+including the F.1 and F.2 repairs themselves. So the requirement now REPORTS an
+edit whose family has declared no rule — naming the family, the target, and the
+home that owes the rule — and becomes a REFUSAL for that family the day it
+declares.
+
+**THE REFUSE-OUTRIGHT READING IS BRETT HEAP'S VETO POINT, and it is coherent.**
+It says: no pin without a rule, starting now, and the cost is that the estate's
+corrective work stops until the first family declares. Taking it is a one-clause
+edit to this requirement plus the removal of one scenario. It is recorded here
+so that choosing it is a decision rather than a rediscovery, and it is flagged
+at task 1.2.
+
+**A SECOND-ORDER FIND, RECORDED BECAUSE IT WAS NEARLY MISSED.** The domain
+twin's review caught that this requirement's FIRST BODY LINE did not carry
+SHALL — the keyword sat on line two, and the OpenSpec parser reads only line one
+when checking. The identical defect was present HERE and was not separately
+reported; it was found by running the same check over this delta rather than by
+assuming the twin's finding was local. The keyword now leads and the definition
+of a pinned target follows it, in both repositories. The lesson generalizes: a
+finding raised against one half of a matched pair is a hypothesis about the
+other half until measured.
+
+**Why BOTH homes, and not only the register.** A family's rule may be declared
+in the declaring repository's content-address register OR in the neutral
+contract that owns the family. That is not a hedge: the consent family's rule is
+a property of the INSTRUMENT SCHEMA and belongs in the contract wherever the
+instrument is held — `add-consent-custody-rederivation-record` puts it there —
+while a repository-local family has no contract to live in and needs the
+register. Naming only the register would have made the estate's one nearly-ready
+rule homeless.
 
 **Rejected:** a neutral default procedure (recompute sha256 of the named path)
 — C-6a of the sibling packet MEASURED that this fails: every OpsxFactory
