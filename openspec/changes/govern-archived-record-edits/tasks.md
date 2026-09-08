@@ -183,9 +183,15 @@ change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
 
 ## 6. Archive
 
-- [ ] 6.1 `code_surface: none`, so this change archives ON LANDING per
-  `release-realization` rather than on realization evidence. Nothing in § 3 gates
-  it: those are other packets' acts, named so the chain is readable.
+- [ ] 6.1 **Archive WHEN ITS ARTIFACTS LAND**, per `release-realization`: the
+  declared `code_surface` is `none`, so the archive gate is not merged-plus-green
+  realization evidence. **This box said "nothing in § 3 gates it: those are
+  other packets' acts", and that was FALSE for one of them** — 3.1, 3.2, 3.3 and
+  3.5 are other repositories' acts, but **3.4 is THIS repository's own**: the
+  adoption of the neutral minimum in `docs/document-lifecycle.md`. What holds the
+  packet open is therefore not the archive gate but the UNTICKED BOX 3.4, which
+  the archive act reads, alongside the cross-repository acts named beside it for
+  the chain's readability.
 - [ ] 6.2 Confirm at the archive act that the three requirement blocks reach
   `openspec/specs/document-lifecycle/spec.md` — *Ratified spec deltas reach the
   promoted specification* is checked against the archived delta's own bytes,
