@@ -73,8 +73,12 @@ on merge the register files at
 Both are named here rather than one asserted, because a citation of the archive
 path written before the archive lands is a claim about a file that does not yet
 exist — which is the class of defect the citing repository's own gate was built
-to refuse. The same register's § F.1 carries the custody half, discharged by
-`add-consent-custody-rederivation-record`, merged 2026-09-08 as `543d47a9`.
+to refuse. The same register's § F.1 carries the custody half, ADDRESSED BY —
+not discharged by — `add-consent-custody-rederivation-record`, merged 2026-09-08
+as `543d47a9`: that packet is a ratified PROPOSAL whose 46 boxes are all
+unticked, so the three broken pins are still broken and the contract still reads
+`contract_schema_version: 2`. "Discharged" would claim a repair nobody has
+performed, which is the class of overstatement this packet exists to refuse.
 
 **There was no general rule to break.** Two OpsxFactory packets had cited
 `FR-072` as forbidding archive writes. That reading was wrong: `FR-072` is
@@ -108,7 +112,7 @@ One `document-lifecycle` spec delta, three requirement blocks.
 restates the promoted requirement as canon states it and the restatement was
 VERIFIED rather than asserted: extracted programmatically from
 `openspec/specs/document-lifecycle/spec.md` and diffed against it. **Canon's
-block is 5,815 characters; the delta block is 7,150; the difference of 1,335 is
+block is 5,815 characters; the delta block is 7,186; the difference of 1,371 is
 entirely INSERTED** (measured over the slice from the requirement heading to the
 next one, trailing newlines stripped on both sides). EVERY canon byte is carried
 verbatim, all six promoted scenarios are restated, and there are exactly two
@@ -124,9 +128,17 @@ canon` marker is owed.
 **`## ADDED` — *An archived record is edited only as a bookkeeping correction
 under a recorded ruling*.** The route. A file under `openspec/changes/archive/`
 may be edited ONLY as a lifecycle-header or bookkeeping correction, under a
-ruling RECORDED BEFORE THE EDIT, carrying the bookkeeping note the editing
-repository's own convention already requires; every other edit of an archived
-byte is refused. The bookkeeping class is defined BY EFFECT ("does the edit
+ruling RECORDED BEFORE THE EDIT, carrying a bookkeeping note; every other edit
+of an archived byte is refused. **The note has a NEUTRAL MINIMUM** — a dated
+`Edited (bookkeeping): <UTC date> by <change-id> — <edit class>` line in the
+edited file's own lifecycle-header block — because an earlier spelling
+delegated the note to "the editing repository's own convention" and
+**openxFactory, the repository promoting this capability, HAS NONE**; only
+OpsxFactory has written one down, so the delegation left the obligation absent
+in the loosest repository in the estate. A local convention MAY be stricter and
+MUST NOT be absent, and the note sits in the lifecycle header on purpose: that
+block is the one part of an archived file this rule already permits the edit to
+touch, so recording the edit cannot itself be an edit the rule forbids. The bookkeeping class is defined BY EFFECT ("does the edit
 change what the record asserts?") rather than by a list of filenames, because
 `proposal.md` carries both classes and a path-keyed rule would license a
 substantive rewrite inside a file the list called safe. And the note is
@@ -167,11 +179,16 @@ register in the estate. A family that declares no rule has not earned a pin.
 - Affected repositories: every repository the capability governs — openxFactory
   and every DomainxFactory. The first domain realization is OpsxFactory's
   `govern-archived-record-edits`.
-- Owed consumer acts, named and NOT performed here: OpsxFactory's amendment of
+- Owed acts, named and NOT performed here. **openxFactory — THIS repository —
+  owes one too, and it was missed for two drafts**: it has NO archived-packet
+  convention of its own, so a rule delegating the note obligation to local
+  conventions was absent exactly in the repository promoting it. The requirement
+  now states a NEUTRAL MINIMUM, and task 3.4 adopts it in
+  `docs/document-lifecycle.md` at realization. Then: OpsxFactory's amendment of
   its own convention; OpsxFactory's `add-content-address-integrity-gate`
   register naming a re-derivation rule per family; every other DomainxFactory
   reading its local archived-packet convention against this rule and amending
-  what is looser.
+  what is looser or absent.
 - Archive gate: `code_surface: none`, so this change archives on landing per
   `release-realization`.
 

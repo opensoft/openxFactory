@@ -520,15 +520,19 @@ Active changes:
   *"Header/bookkeeping edits only + re-derive pins"* with home *"Both at once"*
   — an ADMISSION TO THE QUEUE, not a ratification. **NOTHING IS REALIZED** — no
   archived byte is edited, no pin is re-derived, no checker is written, no
-  repository's convention is amended, and **all 24 boxes in `tasks.md` stay
+  repository's convention is amended, and **all 25 boxes in `tasks.md` stay
   unticked**. **THE ESTATE-NEUTRAL HALF OF A MATCHED PAIR**: the domain half is
   OpsxFactory's `govern-archived-record-edits`, same working id, same ruling,
   and neither is the other's summary. States on the promoted
   `document-lifecycle` that a file under `openspec/changes/archive/` may be
   edited ONLY as a lifecycle-header or bookkeeping correction, **under a ruling
-  RECORDED BEFORE THE EDIT**, carrying the bookkeeping note the editing
-  repository's own convention already requires — the bookkeeping class defined
-  **BY EFFECT** ("does the edit change what the record ASSERTS?") rather than by
+  RECORDED BEFORE THE EDIT**, carrying a bookkeeping note that clears a
+  **NEUTRAL MINIMUM** (a dated `Edited (bookkeeping):` line in the edited file's
+  own lifecycle-header block) — stated here because **openxFactory, the
+  repository promoting this capability, has NO archived-packet convention of its
+  own**, so delegating the note to local conventions left the obligation absent
+  in the loosest repository in the estate; task 3.4 adopts the minimum in
+  `docs/document-lifecycle.md`. The bookkeeping class is defined **BY EFFECT** ("does the edit change what the record ASSERTS?") rather than by
   a list of filenames, because `proposal.md` carries both classes and a
   path-keyed rule would license a substantive rewrite inside a file the list
   called safe. And, as a SEPARATE requirement, that a change editing a **PINNED
@@ -547,7 +551,9 @@ Active changes:
   archives ON LANDING with nothing to sequence behind. So an edit whose family
   has declared no rule is **REPORTED**, naming the family and the register or
   neutral contract that owes it, and becomes a **REFUSAL for that family the day
-  it declares**. The refuse-outright reading is recorded as Brett Heap's veto
+  it declares** — a report, not a warning: it names the owing party, lands as a
+  gate finding, and converts on declaration. The refusal posture survived in
+  four other places through two drafts and is now struck from all of them. The refuse-outright reading is recorded as Brett Heap's veto
   point (design D-7, task 1.2): coherent, and it stops the estate's corrective
   work — the routine lifecycle-header discharge and the F.1/F.2 repairs
   included — until the first family declares. **THE MOTIVATION IS CITED, NOT RE-DERIVED.** OpsxFactory
@@ -565,10 +571,12 @@ Active changes:
   asserted**: the LIVE path
   `openspec/changes/add-pre-archive-citation-gate/supporting-docs/owed-findings.md`
   at that repository's `main` today, filing on merge of its in-flight PR #273 at
-  `openspec/changes/archive/2026-09-07-add-pre-archive-citation-gate/supporting-docs/owed-findings.md` (F.1, the custody half, is discharged by
+  `openspec/changes/archive/2026-09-07-add-pre-archive-citation-gate/supporting-docs/owed-findings.md` (F.1, the custody half, is ADDRESSED — not discharged — by
   `add-consent-custody-rederivation-record`, merged 2026-09-08 as `543d47a9`,
   whose `custody_rederivations[]` this packet NAMES as the consent family's rule
-  and restates none of). **The delta also carries ONE `## MODIFIED`** on
+  and restates none of — that packet is a ratified PROPOSAL with all 46 boxes
+  unticked, so the three pins are still broken and "discharged" would claim a
+  repair nobody has performed). **The delta also carries ONE `## MODIFIED`** on
   *Proposal packets carry the lifecycle header*, which since 2026-08-24 has ended
   "Backfilling a header onto an archived packet is an archived-record edit and
   **takes the route archived-record edits take**" — a forward reference to a
@@ -579,7 +587,7 @@ Active changes:
   SAME DAY IN UTC and different days in the authoring clock, five hours apart,
   and the clock is named rather than left to be discovered. The block carries
   EVERY canon byte verbatim — **canon's block is 5,815 chars, the delta block
-  7,150, and the 1,335-char difference is entirely INSERTED** — all six promoted
+  7,186, and the 1,371-char difference is entirely INSERTED** — all six promoted
   scenarios restated, with exactly two hunks of difference, both PURE
   INSERTIONS: the
   dangling sentence itself is untouched and a paragraph after it names the

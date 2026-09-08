@@ -93,7 +93,7 @@ that decision; overturning it takes a ruling naming it, not a backfill pass.
 
 #### Scenario: A header defect is discharged on an archived packet
 - **WHEN** a missing or defective `Status:` header or ratification citation is repaired on a packet under `openspec/changes/archive/`
-- **THEN** the repair MUST take the archived-record edit route — a ruling recorded before the edit, the bookkeeping note the repository's archived-packet convention requires, and nothing altered beyond the packet's own standing metadata
+- **THEN** the repair MUST take the archived-record edit route — a ruling recorded before the edit, a bookkeeping note clearing the neutral minimum or the stricter form the repository's own convention requires, and nothing altered beyond the packet's own standing metadata
 - **AND** where the edited file is a pinned target, every dependent pin MUST be re-derived and recorded in the same change
 - **AND** a discharge that repairs the header and leaves a dependent pin naming bytes that no longer exist MUST be reported against the change that made it, a repair being incomplete while it holds a pin open
 
@@ -102,9 +102,30 @@ that decision; overturning it takes a ruling naming it, not a backfill pass.
 ### Requirement: An archived record is edited only as a bookkeeping correction under a recorded ruling
 A file under `openspec/changes/archive/` SHALL be edited ONLY as a
 lifecycle-header or bookkeeping correction, under a ruling recorded BEFORE the
-edit, and carrying the bookkeeping note the editing repository's own
-archived-packet convention already requires; every other edit of an archived
-byte SHALL be refused.
+edit, and carrying a bookkeeping note; every other edit of an archived byte
+SHALL be refused.
+
+**THE NOTE HAS A NEUTRAL MINIMUM, BECAUSE THE PROMOTING REPOSITORY HAS NO
+CONVENTION OF ITS OWN.** An earlier spelling of this requirement said "the
+bookkeeping note the editing repository's own archived-packet convention already
+requires", which is unsatisfiable where no such convention exists — and
+openxFactory, the repository this capability is promoted in, HAS NONE. Only
+OpsxFactory has written one down. A rule whose note obligation is delegated
+entirely to local conventions is absent exactly where no local convention
+exists, which would leave the loosest repository in the estate the one that
+promoted the rule.
+
+The minimum is therefore stated here: a DATED LINE in the edited file's OWN
+lifecycle-header block — the block every governance document already carries
+under *Controlled document status taxonomy* — of the form
+
+`Edited (bookkeeping): <UTC date> by <change-id> — <edit class>`
+
+A repository's own convention MAY be stricter and MUST NOT be absent;
+OpsxFactory's note on the archived change's `tasks.md` is such a stricter form
+and is unaffected. The note sits in the lifecycle header ON PURPOSE: that block
+is the one part of an archived file this requirement already permits the edit to
+touch, so recording the edit cannot itself become an edit the rule forbids.
 
 **AN ARCHIVE IS NOT MERELY HISTORY, AND THAT IS WHY THIS RULE EXISTS.** Two
 things in this corpus read archived bytes as CURRENT. *Ratified spec deltas
@@ -165,7 +186,7 @@ everything it says that this rule does not reach.
 #### Scenario: A lifecycle-header defect is discharged on an archived packet
 - **WHEN** a change repairs a missing or defective `Status:` header or ratification citation on a file under `openspec/changes/archive/`
 - **THEN** a ruling authorizing the class of edit MUST be recorded before the edit, naming ruler, date and class, and resolvable from the change
-- **AND** the packet MUST carry the bookkeeping note the editing repository's archived-packet convention requires
+- **AND** the packet MUST carry a bookkeeping note clearing the neutral minimum — a dated `Edited (bookkeeping):` line in the edited file's own lifecycle-header block naming the UTC date, the change id and the edit class — or the stricter form its own repository's convention requires
 - **AND** nothing beyond the packet's own standing metadata may be altered in the same act
 
 #### Scenario: An edit would change what an archived record asserts
@@ -177,6 +198,11 @@ everything it says that this rule does not reach.
 - **WHEN** an archived file is edited under a local convention satisfied by a bookkeeping note alone, with no ruling recorded before the edit
 - **THEN** the edit MUST be reported, the note recording WHAT changed and never THAT IT MAY
 - **AND** the report MUST name the archived files the change wrote, so the scope of an unruled edit is visible rather than inferred
+
+#### Scenario: The editing repository has no archived-packet convention
+- **WHEN** an archived-record edit is made in a repository that has written no archived-packet convention of its own
+- **THEN** the neutral minimum applies unchanged — a dated `Edited (bookkeeping): <UTC date> by <change-id> — <edit class>` line in the edited file's own lifecycle-header block
+- **AND** the absence of a local convention MUST NOT be read as the absence of a note obligation
 
 #### Scenario: A local convention is more permissive than this requirement
 - **WHEN** a repository's own archived-packet convention permits an edit this requirement refuses
@@ -254,11 +280,14 @@ re-pin is that repository's change — deferral ACROSS a boundary is legitimate
 because the bytes are not in one tree; deferral WITHIN one is not.
 
 **AN EDIT THAT CANNOT RE-DERIVE ITS DEPENDENTS MAY NOT LAND.** Where a
-dependent pin cannot be re-derived — the rule is undeclared, the target cannot
-be resolved, or the re-derivation does not verify — the correct outcome is a
-REFUSAL naming what could not be derived, never an edit that lands with the
+dependent pin cannot be re-derived — the target cannot be resolved through its
+declared mapping, or the re-derivation does not verify — the correct outcome is
+a REFUSAL naming what could not be derived, never an edit that lands with the
 question open. Converting "cannot tell" into "fine" is precisely the state the
-measured case sat in for thirteen days.
+measured case sat in for thirteen days. **An UNDECLARED RULE is deliberately
+NOT in that list**: it is not a failed re-derivation but an absent obligation,
+it is the state of every family in the estate today, and it takes the REPORT
+above rather than a refusal until that family declares.
 
 #### Scenario: A pinned target's bytes change
 - **WHEN** a change edits a file that an in-repo content-address pin names, whether that file is archived or live
@@ -273,7 +302,7 @@ measured case sat in for thirteen days.
 #### Scenario: A pin's family has not yet declared a re-derivation rule
 - **WHEN** a change edits a pinned target whose family has declared no re-derivation rule, in either home
 - **THEN** the edit MUST be REPORTED, naming the family, the pinned target, and the content-address register or neutral contract that owes the rule
-- **AND** it MUST NOT be refused on that ground, no family in the estate having declared one when this requirement was written
+- **AND** it MUST NOT be refused on that ground, an absent obligation being a different fact from a failed re-derivation
 - **AND** the report MUST NOT be read as a re-derivation having been performed
 
 #### Scenario: A family has declared its rule and an edit does not follow it

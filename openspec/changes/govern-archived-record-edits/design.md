@@ -99,10 +99,10 @@ inference from a requirement it is not mentioned in.
 
 **The restatement was verified, not asserted.** The block is extracted
 programmatically from `openspec/specs/document-lifecycle/spec.md` and diffed
-against it. **Canon's block is 5,815 characters and the delta block is 7,150;
-the 1,335-character difference is entirely INSERTED** — the slice runs from the
+against it. **Canon's block is 5,815 characters and the delta block is 7,186;
+the 1,371-character difference is entirely INSERTED** — the slice runs from the
 requirement heading to the next one with trailing newlines stripped on both
-sides, and the earlier draft of this sentence reported 7,150 as though it were
+sides, and the earlier draft of this sentence reported 7,186 as though it were
 the size of the change rather than of the block. All six promoted scenarios are
 carried and there are exactly two hunks of difference — BOTH PURE INSERTIONS. **The first draft of this block
 REWORDED the dangling sentence in place, and doc-health's
@@ -189,11 +189,17 @@ quietly narrowed — this packet would then state only what its own checker coul
 see); making the rule conditional on a gate existing (a rule that switches off
 where it is hardest to enforce).
 
-## D-7. Re-derivation is PER FAMILY, and a family with no declared rule may not hold a pin
+## D-7. Re-derivation is PER FAMILY, and an undeclared family is REPORTED until it declares
 
 **Decision.** The requirement names no re-derivation procedure. It obliges the
-pin's FAMILY to declare one and obliges the editing change to follow it. Where
-no rule is declared, the edit is refused until one is.
+pin's FAMILY to declare one — in the declaring repository's content-address
+register or in the neutral contract that owns the family — and obliges the
+editing change to follow it. **Where no rule is declared, the edit is REPORTED,
+naming the family, the target and the home that owes the rule, and is NOT
+refused on that ground; it becomes a refusal for that family the day that family
+declares.** This heading and this decision said "refused until one is" through
+two drafts, contradicting the transition clause the rest of this section argues
+for — the refusal reading is the RECORDED VETO below, never the decision.
 
 **Why not one procedure.** A consent instrument's custody chain, an evidence
 digest, a plan-acceptance desired-state reference and a contract-bundle digest
@@ -255,8 +261,18 @@ rule homeless.
 — C-6a of the sibling packet MEASURED that this fails: every OpsxFactory
 custody locator carries an `opsx:opensoft/` scheme and three of four targets
 resolve at NO ref under their literal path, so an inferred rewrite can
-manufacture agreement with a file nobody pinned; a warning where the rule is
-undeclared (a warning is an admission with a softer voice).
+manufacture agreement with a file nobody pinned; and an unrecorded WARNING
+where the rule is undeclared.
+
+**That last rejection needs its line drawn, because this packet's own transition
+clause could be mistaken for it.** A warning is an admission with a softer
+voice: it names nothing in particular, is recorded nowhere durable, and expires
+with the terminal buffer. **The REPORT this requirement makes is none of those.**
+It NAMES the family, the pinned target, and the register or neutral contract
+that owes the rule; it is a gate finding and lands in that gate's output; and it
+CONVERTS to a refusal for that family the day the family declares. A warning
+says "this might matter"; the report says "this family owes a rule, here is who
+owes it, and the obligation binds the moment it arrives".
 
 ## D-8. Cross-boundary deferral is legitimate; within-repository deferral is not
 

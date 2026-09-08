@@ -28,8 +28,13 @@ origin:
     packets cited was feature 010's close-time fence, not a general rule — so
     there was no general rule, only the permissive convention. Register:
     OpsxFactory
-    `openspec/changes/archive/2026-09-07-add-pre-archive-citation-gate/supporting-docs/owed-findings.md`
-    § F.3.
+    `openspec/changes/add-pre-archive-citation-gate/supporting-docs/owed-findings.md`
+    § F.3 — the LIVE path at OpsxFactory main today. That packet's archive is IN
+    FLIGHT (OpsxFactory PR #273, still OPEN at this writing) and on merge the
+    register files at
+    `openspec/changes/archive/2026-09-07-add-pre-archive-citation-gate/supporting-docs/owed-findings.md`.
+    Both are named rather than one asserted: citing an archive path before the
+    archive lands is a claim about a file that does not yet exist.
     WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
     `ideation/staging/` was listed in full (33 topic folders) and `INDEX.md`
     read: no topic names archived-record editing, archive immutability,
@@ -61,4 +66,4 @@ related:
   - openxFactory:change:add-consent-custody-rederivation-record   # merged 2026-09-08 (main 543d47a9); the CONSENT-INSTRUMENT family's re-derivation rule, which the second ADDED requirement names rather than restates. F.1 to this packet's F.3.
   - OpsxFactory:change:govern-archived-record-edits   # the DOMAIN half of this matched pair, same working id, same ruling. Neither is the other's summary.
   - OpsxFactory:change:add-content-address-integrity-gate   # F.2; the first content-address register in the estate, which the second ADDED requirement names as where a per-family rule is declared.
-  - OpsxFactory:change:add-pre-archive-citation-gate   # archived 2026-09-07; the sweep that raised F.3 and the register that owns it. The consumer of this rule, not a parent.
+  - OpsxFactory:change:add-pre-archive-citation-gate   # the sweep that raised F.3 and the register that owns it. ARCHIVE IN FLIGHT (OpsxFactory PR #273, OPEN): live path at that repository's main today, archive path on merge. The consumer of this rule, not a parent.

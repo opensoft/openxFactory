@@ -30,9 +30,20 @@ change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
   same way while that packet was in review — and it will spring again for
   anyone who reads a placeholder as provenance. Re-run
   `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#<real PR>'`
-  AT PR-OPEN and read the diff: **exactly one row must move**. Because this
-  packet's corpus effect is provenance-only, the seeder is otherwise a NO-OP and
-  the re-stamp is a ONE-FIELD edit.
+  **DO NOT RE-RUN THE SEEDER FOR THIS — IT IS A NO-OP HERE, AND THAT IS
+  MEASURED, NOT ASSUMED.** `--seed-ledger --moved-by '#<real>'` re-derives the
+  corpus and stamps provenance only on rows whose DERIVED keys actually moved;
+  this row's derived keys are already correct, so the seeder PRESERVES its
+  existing provenance. Run at this head with a different number it reported
+  `184 rows, 0 moved by #999` and produced a **ZERO-LINE DIFF**, leaving
+  `moved_by: "#785"` in place — the documented recipe would look like a
+  re-stamp and change nothing. **The re-stamp is a DIRECT ONE-FIELD EDIT** of
+  this row's `moved_by` in `tests/sequenced_after/corpus-ledger.yaml`, followed
+  by `python3 scripts/validate-sequenced-after.py . --ledger-diff`, which MUST
+  report `per-change sweep ledger consistent with the corpus` — also measured at
+  this head with the field edited by hand. That is legitimate because the
+  ledger's own doctrine makes `moved_by` AUTHOR-SUPPLIED AND UNVERIFIED,
+  shape-checked (`#<digits>`) and never resolved.
 
 ## 1. Ratification — OWED, NOT GIVEN
 
@@ -74,7 +85,7 @@ change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
   dependent pin in the same change*. Authored.
 - [ ] 2.3 `## MODIFIED` — *Proposal packets carry the lifecycle header*.
   Authored. Verified against canon: **canon's block is 5,815 characters, the
-  delta block is 7,150, and the 1,335-character difference is entirely
+  delta block is 7,186, and the 1,371-character difference is entirely
   INSERTED** (slice from the requirement heading to the next, trailing newlines
   stripped both sides). EVERY canon byte is carried verbatim, all six promoted
   scenarios restated, and exactly two hunks of difference — both PURE INSERTIONS
@@ -90,13 +101,27 @@ change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
   the citations are re-checked to resolve once both heads settle.
 - [ ] 3.2 **[OpsxFactory]** `add-content-address-integrity-gate`'s family
   register declares a re-derivation rule per family. The second ADDED
-  requirement REFUSES an edit where none is declared, so an undeclared family is
-  a refusal this packet creates and that register closes.
+  requirement REPORTS an edit whose family has declared no rule — naming the
+  family, the target and the home that owes it — and becomes a REFUSAL for that
+  family the day it declares. So each family the register leaves undeclared is a
+  standing report this packet creates and that register closes, and the day the
+  register lands is the day those families' edits start being refused.
 - [ ] 3.3 The consent family's rule is `add-consent-custody-rederivation-record`'s
   `custody_rederivations[]`, merged 2026-09-08 as `543d47a9`. This packet NAMES
   it and restates none of it. Its contract cut and OpsxFactory's re-pin are that
   packet's tasks, not these.
-- [ ] 3.4 Every OTHER DomainxFactory reads its own archived-packet convention
+- [ ] 3.4 **openxFactory ADOPTS THE NEUTRAL MINIMUM IN ITS OWN DOCS.** The
+  first ADDED requirement states a neutral minimum for the bookkeeping note — a
+  dated `Edited (bookkeeping): <UTC date> by <change-id> — <edit class>` line in
+  the edited file's own lifecycle-header block. **This repository has no
+  archived-packet convention at all**, which is why the minimum exists: an
+  earlier spelling delegated the note to "the editing repository's own
+  convention", leaving the obligation absent in the very repository promoting
+  the rule, with only OpsxFactory having written one down. Record the minimum in
+  `docs/document-lifecycle.md` beside the `Status:` / `Ratified by:` header
+  rules, as a form the lifecycle header block accepts. A governance document, so
+  `code_surface` stays `none`.
+- [ ] 3.5 Every OTHER DomainxFactory reads its own archived-packet convention
   against the first ADDED requirement and amends whatever is looser, by a dated
   amendment keeping the stale text. Named as owed; not surveyed here.
 
