@@ -1,0 +1,65 @@
+schema: spec-driven
+created: 2026-09-08
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-08-adopt-configured-notebook-hosting-identity
+  reason: >-
+    A RULING ON A DECISION SHEET QUEUED THIS PACKET BY NAME, AND THE FORCING
+    FACT IS A VISIBILITY FLIP THAT HAS NOT HAPPENED YET. Brett Heap ruled on
+    2026-09-07 that `openxFactory` becomes PUBLIC (the governed half of that
+    ruling is `adopt-codexfactory-repository-identity`, ratified 2026-09-07 and
+    on main at `eb30db7a`). The redaction sheet
+    `~/session-prompts/redaction-outside-ideation-decision-2026-09-07.md`
+    then classified every line outside `ideation/` that carries one of four
+    real addresses — 119 lines across 22 files, measured at main `543d47a9`
+    (the sheet counted 123 across 22 at `f2355208`; `main` has moved and the
+    Q1 arm has begun landing) — into three questions, and Q2 is this packet.
+    Q2's ruling, verbatim option [A], 2026-09-08T03:36Z: "one small governed
+    change (proposal -> your ratification -> Speckit realization): MODIFY the
+    lifecycle-notebook-projection scenario to name a role placeholder; the
+    committed example becomes a synthetic instance; Opensoft's real
+    declaration becomes a configured value outside the public tree
+    (hermes-install config or a private aggregation path — the realization
+    decides, both are already private); test fixtures switch to synthetic
+    literals in the same feature."
+    WHY A GOVERNED CHANGE RATHER THAN A DOCS PULL REQUEST, WHICH IS THE WHOLE
+    OF Q2's ARGUMENT. Forty of the 119 lines are not prose about an account,
+    they are FUNCTIONAL VALUES: one of them is a scenario bullet inside a
+    PROMOTED capability spec, eighteen are the live hosting declaration
+    itself, and twenty-one are fixture literals in three test modules. The
+    promoted bullet cannot be edited except through a delta, and the live
+    declaration cannot be redacted in place at all — `hosting.account`,
+    `hosting.migration.from_account` and every roster row are the values
+    `enforce_hosting_profile()` compares against the address a `nlm` CLI
+    profile is actually signed in as, so a placeholder there does not redact
+    the record, it breaks the guard. Q2's option [B] (tests and example only,
+    no governed change) was declined for exactly that reason: it would leave
+    the one address in the promoted spec and would move the live
+    declaration's home by informal practice.
+    NOTHING IS REALIZED BY THIS PACKET. No promoted spec byte moves, the
+    committed example is not edited, no test literal changes, no resolver is
+    written, no file is moved into a private tree, and every box in `tasks.md`
+    below Group 0 is unticked. Two open questions (OQ-A, OQ-B) plus three
+    smaller ones (OQ-C, OQ-D, OQ-E) are named for the convener rather than
+    answered here.
+  approved_by: >-
+    Brett Heap (convener; openxFactory repository owner) — the Q2[A] ruling of
+    2026-09-08T03:36Z on
+    `~/session-prompts/redaction-outside-ideation-decision-2026-09-07.md`,
+    taken through an interactive multi-choice walkthrough in session, which
+    named this repository, this capability and this act.
+    THIS FIELD RECORDS AUTHORIZATION TO AUTHOR, NOT RATIFICATION OF CONTENT.
+    The ruling chose the FORM of the repair over two declined alternatives and
+    left the home of the live declaration explicitly to the realization ("the
+    realization decides"). It settled nothing about the resolver's shape, the
+    synthetic vocabulary, what happens to the roster's record of eight
+    governed acts, or the ordering against the Q1/Q3 docs pull request. Every
+    one of those is the authoring session's proposal, flagged as design
+    decisions D-1..D-6 and open questions OQ-A..OQ-E. The packet carries
+    `Status: draft`, cites no ratification, and owes none until its content is
+    ratified as a separate act.
+  approved_on: 2026-09-08
+related:
+  - openxFactory:change:add-notebook-projection-identity   # archived 2026-08-31; ratified the requirement this delta modifies AND authored the committed record — the declared `sequenced_after` parent
+  - openxFactory:change:add-notebook-hosting-credential-custody   # archived 2026-08-31; authored the record's `custody:` block, which this change does not touch (it names a binding, never an address)
+  - openxFactory:change:adopt-codexfactory-repository-identity   # ratified 2026-09-07; the governed half of the public-flip ruling this packet's forcing fact comes from
