@@ -3,9 +3,9 @@
 ## MODIFIED Requirements
 
 ### Requirement: Install repository scope
-`Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`, and `OmniWorker-Install` SHALL be scoped to subsystem
-install, operations, backup, restore, upgrade, verification, and disaster
-recovery.
+`Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`,
+and `OmniWorker-Install` SHALL be scoped to subsystem install, operations,
+backup, restore, upgrade, verification, and disaster recovery.
 
 `Keycloak-Install` (`opensoft/Keycloak-Install`, pinned at
 `installs/keycloak-install`) and `OpenXPKI-Install`
@@ -18,10 +18,9 @@ requirements demand. `OmniWorker-Install` (`opensoft/OmniWorker-Install`,
 pinned at `installs/omniworker-install`) was admitted on the same terms on
 2026-09-05 by opensoft/xFactory#274 (merge commit
 `648c8bd3fc4717e5b969cd95ea3e0207700e8925`), the record its own
-*"Worker-host aggregation pin is proposed"* scenario demands. This
-enumeration is an index of admitted install
-repositories; it neither widens nor narrows the scope each repository's own
-`repo-boundary-governance` requirement fixes.
+*"Worker-host aggregation pin is proposed"* scenario demands. This enumeration
+is an index of admitted install repositories; it neither widens nor narrows the
+scope each repository's own `repo-boundary-governance` requirement fixes.
 
 #### Scenario: Hermes runtime procedure is changed
 - **WHEN** a change installs, restores, backs up, upgrades, or verifies Hermes runtime behavior
