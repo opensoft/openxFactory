@@ -57,11 +57,11 @@ are DIFFERENT SETS.** Read back from `opensoft/xFactory`'s `.gitmodules` on
 
 | `installs/` mount | Remote | In the indexed set? |
 |---|---|---|
-| `agenttower` | `opensoft/AgentTower` | **No** — no `repo-boundary-governance` requirement mentions it |
-| `cloudpc-install` | `opensoft/CloudPC-Install` | **No** — likewise, though it is a named CONSUMER in the OmniWorker split |
+| `agenttower` | `opensoft/AgentTower` | **No** — the string appears NOWHERE in `repo-boundary-governance`; it is named in `project-repo-schema` instead, so it is governed ELSEWHERE rather than ungoverned |
+| `cloudpc-install` | `opensoft/CloudPC-Install` | **No** — likewise absent from this capability and named in `workstation-intake` instead, though it IS a named consumer in the OmniWorker split |
 | `hermes-install` | `opensoft/xFactory-Hermes-Install` | Yes |
 | `keycloak-install` | `opensoft/Keycloak-Install` | Yes |
-| `medx-roottruth-install` | `opensoft/xFactory-MedxRootTruth-Install` | **No** — a Medx satellite install, governed nowhere in this capability |
+| `medx-roottruth-install` | `opensoft/xFactory-MedxRootTruth-Install` | **No** — a Medx satellite install; the string appears in NO promoted specification at all |
 | `omnigent-install` | `opensoft/Omnigent-Install` | Yes |
 | `omniworker-install` | `opensoft/OmniWorker-Install` | Yes |
 | `openxpki-install` | `opensoft/OpenXPKI-Install` | Yes |
@@ -71,8 +71,12 @@ A derivation over that group would do three separate wrong things. It would
 enrol `AgentTower`, `CloudPC-Install` and `xFactory-MedxRootTruth-Install` into
 a requirement no reviewed act placed them under — a silent widening of scope by
 a script, which is the exact opposite of how every other boundary in this
-capability was established. It would put `xFactory-Installer` under TWO
-requirements at once, one of which fixes its scope differently. And it would
+capability was established, and two of the three are already governed by a
+DIFFERENT capability whose scope a derivation here would silently overlap. It
+would put `xFactory-Installer` under TWO requirements at once, one of which
+fixes its scope differently (measured: `installs/xfactory-installer` and
+`opensoft/xFactory-Installer` appear in `repo-boundary-governance` at its own
+*"Neutral installer repository integration"* requirement). And it would
 make the enumeration's contents depend on a file in ANOTHER repository at read
 time, so `openxFactory`'s canon would say different things at different
 aggregation commits with no reviewed act in between.
@@ -166,9 +170,10 @@ enumeration is the mistake this design exists to avoid making a fourth time.
 
 **Consequence for this packet.** Grepping all 41 other active change
 directories for each of the SEVEN requirement titles this packet writes — the
-six it MODIFIES plus the one it ADDS — returns ZERO hits. So no requirement here is *"already modified by an active RATIFIED
-change"*, `release-realization`'s ordered-deltas rule is not engaged, and there
-is no archive-time race with either packet #796 named.
+six it MODIFIES plus the one it ADDS — returns ZERO hits. So no requirement
+here is *"already modified by an active RATIFIED change"*,
+`release-realization`'s ordered-deltas rule is not engaged, and there is no
+archive-time race with either packet #796 named.
 
 **AND THE LEDGER ROW IS `co-modifier` ANYWAY, WHICH IS NOT A CONTRADICTION —
 IT IS THE SAME TRAP READ THE OTHER WAY ROUND.** The ledger's corpus is active
