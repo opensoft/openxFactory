@@ -9,13 +9,38 @@ permissions:
 
 jobs:
   lane-line:
-    # Bots are exempt by PR AUTHOR type (`github.event.pull_request.user.type`),
-    # never by body. `gh pr list --json author` renders these as
-    # `app/dependabot`, `app/openxfactory`.
-    if: github.event.pull_request.user.type != 'Bot'
+    # Ruling D-7 (a) (2026-09-08, oxF #656): `lane-line` is a required check
+    # in a ruleset, and the merge-approval envelope's `require_all_checks`
+    # reads a `skipped` check-run conclusion as not green. Bot authors were
+    # previously exempted via a job-level `if:`, which makes the whole
+    # check-run report `skipped` and parks every bot-authored candidate
+    # (custody PR #176, approval runs 34227891490 / 34229369636). The job now
+    # always runs so the check-run always concludes; the same exemption
+    # predicate moved into the first step below, which reports success with
+    # a notice for bot authors and gates the real lane-line steps on that
+    # step's output. Human/App-authored PR behaviour is unchanged.
     runs-on: ubuntu-latest
     steps:
+      - name: "Detect bot-authored PRs (exempt from the Lane: line requirement)"
+        id: author
+        env:
+          # Via env, never inlined into `run:` — PR author fields are
+          # untrusted input. Bots are detected by PR AUTHOR type
+          # (`github.event.pull_request.user.type`), never by body.
+          # `gh pr list --json author` renders these as `app/dependabot`,
+          # `app/openxfactory`.
+          ACTOR_TYPE: ${{ github.event.pull_request.user.type }}
+          ACTOR_LOGIN: ${{ github.event.pull_request.user.login }}
+        run: |
+          if [ "$ACTOR_TYPE" = "Bot" ]; then
+            echo "exempt=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::lane-line: bot-authored pull request (${ACTOR_LOGIN}) — exempt from the Lane: line requirement; reporting success so the merge-approval envelope's all-checks rule can read it"
+          else
+            echo "exempt=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: The first non-empty body line names the lane
+        if: steps.author.outputs.exempt != 'true'
         env:
           # Via env, never inlined into `run:` — a PR body is untrusted input.
           BODY: ${{ github.event.pull_request.body }}
