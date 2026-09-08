@@ -24,18 +24,25 @@ closed below, and each one says WHICH KIND of close it is, because the kinds are
 not interchangeable:
 
 - **on the evidence** — the act was performed and the record cites the landed
-  commit that performed it (1.2, 7.1, 7.2, 7.4, 8.1, 8.2, and 6.1/7.3/8.5 on
-  opensoft/Omnigent-Install#213's merge);
+  commit that performed it: 1.2, 7.1, 7.2, 7.4, 8.1 and 8.2; 6.1 and 7.3 on
+  opensoft/Omnigent-Install#213's merge `9c9c9355`; and **8.5 on
+  opensoft/Omnigent-Install#235 `bbba916d`, NOT on #213** — § 6.2 performed the
+  scope link with Part 1, a day before Part 2 completed the retirement, so that
+  box's own "as part of retirement" guess is corrected by its note rather than
+  carried;
 - **answered by the act** — an open question the packet refused to guess was
   settled by what was actually done, and the record cites the artefact that
   settles it (1.3/7.5's OQ-2, OQ-3, OQ-4, OQ-8, OQ-10);
 - **on a NAMED SUCCESSOR** — the act is NOT done, is owed elsewhere, and an
   issue now names it with a date, under Brett Heap's ruling of 2026-09-06,
   verbatim **"Tick on the recording"** (6.3, 8.3, 8.4, and 1.3/7.5's OQ-1,
-  OQ-5, OQ-9). Five issues were filed at this archive, all UNCLAIMED:
-  opensoft/openxFactory#794 (OQ-1), opensoft/openxFactory#795 (OQ-5 / § 8.3),
-  opensoft/openxFactory#796 (OQ-9 / § 8.4), opensoft/xFactory#346 and
-  opensoft/CloudPC-Install#19 (the two halves of § 6.3);
+  OQ-5, OQ-9), and 2.3 — whose `[~]` becomes `[x]` **as a recording, not a
+  discharge**, its two original OWED notes left standing. **SIX issues were
+  filed at this archive, all UNCLAIMED**: opensoft/openxFactory#794 (OQ-1),
+  opensoft/openxFactory#795 (OQ-5 / § 8.3), opensoft/openxFactory#796
+  (OQ-9 / § 8.4), opensoft/openxFactory#800 (§ 2.3's fourth clause),
+  opensoft/xFactory#346 and opensoft/CloudPC-Install#19 (the two halves of
+  § 6.3);
 - **the archive's own statement** — 7.6, which ticks at the archive with the
   evidence summary because that is what the box is.
 
