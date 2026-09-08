@@ -455,3 +455,64 @@ PR **#783** (`adopt-configured-notebook-hosting-identity`, ratified
 enumeration of 124 paths would now be wrong in its line numbers for the second
 time in two days. A rule over path classes plus a re-runnable command is right
 at every head, and that is the substance of the packet's third new requirement.
+
+---
+
+## 14. The gate FIRED, and it refined itself
+
+Slice B1's pull request (openxFactory **#801**) ran `pytest-suite` and it went
+**RED** — which is the classification of § 6 being proved rather than argued.
+The run:
+
+```
+selected=10333 passed=10310 skipped=23 failures=0 errors=0
+floors: selected>=7090 (margin 3243) passed>=7070 (margin 3240) skipped==21
+```
+
+**Zero failures, zero errors, both floors clear by ~3,240 — no test regressed.**
+The job failed on three assertions that are all one fact:
+
+```
+##[error] skipped 23, pinned exactly 21 — a directory that silently turned into
+         skips is exactly what this pin exists to catch
+##[error] snapshot freshness verifier did not run — pinned core checkout unavailable
+         (tests.review_lane_pin.test_floor_snapshot.TheFreshnessVerifier::
+          test_the_snapshot_is_byte_identical_to_the_pinned_core is 'skipped')
+##[error] vector replay did not run — pinned core checkout unavailable
+         (tests.review_lane_pin.test_floor_snapshot.TheVectorReplay::
+          test_every_vector_replays is 'skipped')
+```
+
+`.github/workflows/pytest-suite.yml`'s *"Check out the pinned decision core"*
+step now names `repository: codeXfactory/codexFactory`, which does not exist.
+The step is `continue-on-error: true`, so the two cross-repository tests SKIP
+rather than error — the skipped count moves 21 → 23 and the two named verifiers
+report `skipped` where the workflow demands `passed`.
+
+**`EXPECT_SKIPPED: 21` is therefore a live, fail-closed probe for whether the
+cross-repository checkout resolved.** After the transfer and the App re-grant,
+`pytest-suite` on that branch must read `skipped=21` with both verifiers
+`passed`; that number is the merge-time check, and it is better evidence than
+reading the checkout step's own warning because it is a required check.
+
+### The refinement: slice B1's gate is Phase 1 COMPLETE, not step 1.2 alone
+
+Step **1.2** only confirms the repository exists. The checkout authenticates
+with `steps.app-token.outputs.token`, minted by the openxFactory GitHub App —
+and **App installations are per organization and do NOT travel with a transfer**
+(`design.md` § 7, item 6). So slice B1 additionally needs runbook step **1.6**
+(*reinstall the Apps on `codeXfactory` and re-grant repository access*).
+Without it the repository exists, the token still cannot read it, and
+`pytest-suite` stays red for the same three assertions.
+
+Runbook step **1.3** (`access_level=enterprise`) governs cross-organization
+**reusable-workflow `uses:` resolution** — what OQ-1 exists for — and is a
+precondition of the aggregation's `uses:` paths in Phase 2 rather than of this
+`actions/checkout`. All three steps sit inside the Phase 1 window, so the
+practical instruction keeps its shape: **the gated slices merge after Phase 1
+completes**, and "runbook step 1.2" on their pull requests should be read as
+"Phase 1 complete, 1.6 included".
+
+**Recorded rather than corrected in place** on the slice pull requests, because
+the runbook is the operator's document and this is a finding about it, not an
+edit to it.
