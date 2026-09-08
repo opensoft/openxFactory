@@ -15,7 +15,15 @@ scan target, and resolves the consuming repository's nested checkout ahead
 of any other reachable one. It also carries the reverse direction — a
 neutral product may vendor exactly one digest-pinned openxFactory contract
 as a consumed, never owned, manifest member — and makes repointing the
-reader while editing what it reads a human-only act.
+reader while editing what it reads a human-only act. And it carries a
+THIRD direction, in which openxFactory is the PUBLISHER of its own
+consumption claim: a consumption pin that another repository reads is a
+PUBLISHED contract member — registered in `contracts/manifest.yaml`,
+indexed in `contracts/README.md`, adopted by the consumer's ordinary
+pin-sync and read from the pinned checkout rather than copied — together
+with the accounting of what such a registration does and does not move, an
+act on the consumption register and not a bundle cut unless it moves the
+closed release membership.
 
 ## Requirements
 
