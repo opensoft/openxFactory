@@ -144,10 +144,13 @@ template, because the template is what actually names the machine.
 
 > **Amended 2026-09-08 — this section's premise is SUPERSEDED in full; see
 > Amendments § A1.** A random segment is MANDATORY, and the template in force
-> carries `%RAND:5%`, so: uniqueness rests on the random suffix, not on the
-> one-Cloud-PC-per-Omni-user convention; one account no longer renders one
+> carries `%RAND:5%`, so: name uniqueness rests on the random suffix, not on
+> the one-Cloud-PC-per-Omni-user convention; one account no longer renders one
 > name, and a name is not predictable before its Cloud PC provisions; and the
-> seven-character collision boundary described below never arises. The fleet
+> seven-character collision boundary described below is no longer DETERMINISTIC
+> — two independent random suffixes can still coincide, so it is an improbable
+> event to confirm at provision time rather than a certainty to design
+> around. The fleet
 > convention *one numbered Omni user, one Windows 365 license, one Cloud PC*
 > still governs the ACCOUNT mapping — it simply no longer carries the name's
 > uniqueness.
@@ -392,8 +395,8 @@ file-forward pointer to this entry.
 | "Fifteen characters exactly" | **NO LONGER HOLDS** as a description of the name: `Omni001-XEAON` is thirteen. The fifteen-character *limit* is unchanged and still binding |
 | "The ruled template carries **no `%RAND%` segment**" | **INVERTED.** A random segment is mandatory. `%RAND:2%` was rejected as too short and `%RAND:5%` accepted, so the platform rule is a MINIMUM random length, not the literal token: `%RAND:5%` is what the template in force carries, not the only spelling Windows 365 would take |
 | The template "renders **one name per account**" | **NO LONGER HOLDS.** The suffix is random, so a name is neither one-per-account nor predictable before the Cloud PC provisions |
-| Uniqueness rests on *one numbered Omni user, one license, one Cloud PC* | **NARROWED.** Uniqueness of the NAME rests on `%RAND:5%`. The convention still governs the account mapping; it no longer carries name uniqueness |
-| Two accounts agreeing in seven characters would collide (`omni0010`/`omni0011`) | **DOES NOT ARISE** under a mandatory random suffix |
+| Uniqueness rests on *one numbered Omni user, one license, one Cloud PC* | **NARROWED.** Name uniqueness now rests on `%RAND:5%` — probabilistically, not by construction. The convention still governs the account mapping; it no longer carries name uniqueness |
+| Two accounts agreeing in seven characters would collide (`omni0010`/`omni0011`) | **NO LONGER DETERMINISTIC.** The random suffix breaks the CERTAIN collision the ruled template created. It does not make collision impossible — two independent `%RAND:5%` draws can coincide — so this is now an improbable event to confirm at provision time, not a boundary to design around |
 | A template change applies to new provisions only | **STANDS**, and is stronger: a provisioned Cloud PC cannot be renamed at all, so reprovisioning is the only way a name changes |
 | The Entra device id is the canonical key; names are mutable aliases | **UNCHANGED, and now load-bearing.** It is the only stable handle on the machine — recorded again in opensoft/CloudPC-Install#18 |
 | The OpsxFactory fleet re-attestation is OWED | **DISCHARGED** — opensoft/OpsxFactory#233 → merge commit `83a91c58` |
@@ -407,6 +410,15 @@ both rename and reprovision, and the machine keys stay lowercase exactly as
 this record's three-casings table already rules. Spell every later Omni account
 `Omni002`, `Omni003`, … before its first provision, or the number will not
 render legibly. Recorded in opensoft/CloudPC-Install#18.
+
+**Confirm the rendered name; do not predict it.** `%RAND:5%` is unknown until
+a Cloud PC actually provisions, so no rendered name may be written into this
+record, a registration record or a preflight table ahead of that event — and
+because two independent draws can coincide, a name is not guaranteed unique by
+construction either. Read the actual name back off the Entra device object at
+provision time. That is the operating rule `docs/omni-fleet-identity.md` in
+opensoft/CloudPC-Install states, and it is the mitigation for the collision
+class this amendment narrows rather than eliminates.
 
 **What this amendment does NOT touch — read it narrowly.** It reaches ONE fact:
 the Windows 365 device-name template and the name it renders. Unaffected, and
