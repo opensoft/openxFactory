@@ -885,3 +885,15 @@ Both halves carry a pointer to the other, and the topic keeps its row in
 Prose in the retained brainstorms still cites the moved documents by their
 filenames, because a citation of design history stays true after the history
 moves house; each citation now carries the destination repository inline.
+
+`ideation/cross-reference.yaml`'s machine-derived `topic_entries` were
+regenerated and name no departed file. Eight entries in its
+`possibles_register` still name one in `provenance.document` /
+`supporting_evidence.document`, and that is deliberate: each is a
+human-dispositioned record of what the 2026-07-23 derive-possibles run
+(`DPOSS-71aecbb1422d`) actually read, carrying Brett's accept plus a
+`passage_sha256`. Rewriting those paths would falsify the record of a run —
+the same reasoning `ideation-cross-reference`'s "An orphaned pin on an
+immutable record is repaired by retention, never by editing the record"
+applies to pins. Resolve them through this section, or through the
+openxFactory history the files keep.
