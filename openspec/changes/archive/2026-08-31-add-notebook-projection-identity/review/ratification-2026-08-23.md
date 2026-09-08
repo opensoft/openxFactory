@@ -11,6 +11,8 @@ requirements, specs/credential-contracts/spec.md — 1 MODIFIED requirement),
 validated `--strict` and `--all --strict`, 69/69 across 20 changes and 49
 specs.
 
+> REDACTED 2026-09-07: email addresses -> role placeholders per `review/redaction-disposition-2026-09-07.md`; original bytes at 543d47a9.
+
 ## Decision
 
 Brett ratified the change: the NotebookLM projection's hosting identity
@@ -49,7 +51,7 @@ prompts:
    (a Google Workspace USER account in the operating tenant's own domain,
    never a consumer Gmail), and the **account timing** (create now/soon) —
    followed the same day by his CONFIRMATION that the account exists as
-   `xFactor001@opensoft.one` and his authorization to raise this change on it.
+   `<service-account-identity>` and his authorization to raise this change on it.
    Q1, Q3, Q4 and Q5 are architect adjudications on executed evidence,
    recorded per-question on the staged fragment with dated disposition
    paragraphs and `Dispositioned-by:` lines.
@@ -159,7 +161,7 @@ the declared-field read and profile pass-through in
 `scripts/sync-notebooklm-books.py`, the parity/report mode, the share-out
 roster in whatever form the realization flags, the
 `docs/lifecycle-notebook-projection.md` amendments, Opensoft's own Case A
-declaration on `xFactor001@opensoft.one`, and the tie-in that closes
+declaration on `<service-account-identity>`, and the tie-in that closes
 `docs/notebooklm-sync-open-item.md`.
 
 The LIVE MIGRATION is gated on Brett's interactive authentication and is not

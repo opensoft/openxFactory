@@ -77,7 +77,8 @@ synthesizer(evidence)           → advisory_answer{summary, citations[], author
   for a Hermes decider, never itself a governance decision.
 
 This pipeline *is* an MoA `panel_synthesis` over sources (see
-`codexfactory-domain-deliberation.md`): it advises; Hermes decides.
+`codexfactory-domain-deliberation.md`, moved 2026-09-07 to
+`opensoft/codexFactory@83c9c35a`): it advises; Hermes decides.
 
 ## Ranking recipe (Cerebras)
 

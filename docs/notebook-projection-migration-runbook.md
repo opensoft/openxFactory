@@ -7,8 +7,8 @@ another, under the requirements ratified 2026-08-23 — re-derive, prove parity
 against the corpus scan, then retire the originals by recorded act.
 
 This runbook is written for the migration it was ratified for: Opensoft's own
-projection, from the personal `brettheap@gmail.com` (`nlm` profile `personal`)
-to the declared Workspace account `xFactor001@opensoft.one` (profile
+projection, from the personal `<convener-personal-mailbox>` (`nlm` profile `personal`)
+to the declared Workspace account `<service-account-identity>` (profile
 `company`). It generalizes to any hosting change.
 
 **Read step 1 before running anything.** The alias store is a single flat file
@@ -34,7 +34,7 @@ The migration begins when Brett runs, in a host shell with a browser:
 nlm login --profile company
 ```
 
-and signs in as **`xFactor001@opensoft.one`**. On WSL2 without a Linux
+and signs in as **`<service-account-identity>`**. On WSL2 without a Linux
 browser, add `--wsl` (it launches Windows Chrome); if that corrupts the
 terminal, use the CDP route recorded in the open item
 (`nlm login --cdp-url http://127.0.0.1:9444 --profile company`).

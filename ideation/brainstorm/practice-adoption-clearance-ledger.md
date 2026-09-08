@@ -46,7 +46,8 @@ not perform a merge or decide whether a project accepts the practice.
 
 Related sources:
 [Practice Clearance and Project Realization](practice-clearance-and-project-realization.md),
-[Nightly-Sweep Council Clearance](nightly-sweep-council-clearance-rule.md),
+Nightly-Sweep Council Clearance (MOVED 2026-09-07 to `opensoft/codexFactory@83c9c35a`,
+`ideation/brainstorm/nightly-sweep-council-clearance-rule.md`),
 and [Cost Accountability and Efficiency](cost-accountability-and-efficiency-model.md).
 
 ## Alternatives and tensions

@@ -107,7 +107,9 @@ minimum-evidence and professional-authority checks.
 Readiness closes the [durable establishment episode](hermes-recursive-subject-establishment-durable-establishment-episode.md),
 measures the [recursive evidence frontier](hermes-recursive-subject-establishment-recursive-evidence-frontier.md),
 and evaluates [subject-model assembly](hermes-recursive-subject-establishment-subject-model-assembly-and-admission.md).
-The domain coverage shapes appear in the [Ledgerx](hermes-recursive-subject-establishment-ledgerx-company-intake-profile.md)
-and [Medx](hermes-recursive-subject-establishment-medx-patient-intake-profile.md)
-profiles.
+The domain coverage shapes appear in the Ledgerx and Medx profiles, both
+MOVED 2026-09-07 to their own repositories at the same
+`ideation/brainstorm/` filenames — Ledgerx to `ledgerXfactory/LedgerxFactory@6921aea3`,
+Medx to `MedxSoft/MedxFactory@74bed502` (see `../README.md`,
+"Moved to a DomainxFactory (2026-09-07)").
 

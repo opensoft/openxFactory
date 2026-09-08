@@ -126,7 +126,8 @@ Authored once in the domain repo, install-invariant, consumed by pin:
   `workers/scaleout/` job-assignment and lane policy.
 - **Merge-council / review-council configuration** — the Omnigent-side (Plane-2)
   counterpart of the Hermes-side deciders described in
-  `codexfactory-domain-hermes-content.md` ("MoA advises, Hermes roles decide,
+  `codexfactory-domain-hermes-content.md` (moved 2026-09-07 to
+  `opensoft/codexFactory@83c9c35a`) ("MoA advises, Hermes roles decide,
   openxFactory enforces the rail").
 
 ### Layer mapping for the first consumer (today's install)

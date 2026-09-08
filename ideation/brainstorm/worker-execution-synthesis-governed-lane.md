@@ -55,7 +55,8 @@ external enforcement.
 The lane can execute
 [Omnigent micro-agents](omnigent-micro-agent-overview.md), consume the
 [identity and custody trust plane](identity-custody-overview.md), and host
-the [medical domain overlay](medical-domain-overview.md).
+the medical domain overlay (MOVED 2026-09-07 to `MedxSoft/MedxFactory@74bed502`,
+`ideation/brainstorm/medical-domain-overview.md`).
 
 ## Open questions
 

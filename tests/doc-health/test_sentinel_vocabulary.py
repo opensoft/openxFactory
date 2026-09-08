@@ -962,7 +962,29 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     # unrecorded step, so the path is corrected rather than left to be found.
     # RE-ENUMERATED WITH `pin_class.verify()` ON THE COMMITTED TREE after the
     # move (`pass`, member `proposal-support-manifest`), never by arithmetic.
-    assert len(report.results) == 70
+    #
+    # 70 -> 71, `ideation/remove-moved-domain-files` (the ideation split's removal
+    # half, 2026-09-08): a REGENERATION of the cross-reference index persists an
+    # `ideation_readiness_run` evidence record beside it, and that record's
+    # `source_revision` is the 71st site. This is the SECOND mechanism that moves
+    # this number by design — the full-promotion manifest above is the first — and
+    # unlike that one it fires whenever the readiness lane's merge phase runs and
+    # commits, which the nightly does on `main` and a packet does on a branch. It
+    # joins the EXISTING `ideation-readiness-run` member (whose two 2026-08-24
+    # records are already here), so the member count does NOT move and holds at 24.
+    # `lost` stays 1, and `uncovered` / `vanished` / `arrived` are untouched.
+    # ENUMERATED WITH `pin_class.verify()` ON THE COMMITTED TREE (71 results, 24
+    # members), never by arithmetic.
+    #
+    # THE BRANCH-SIDE PIN IS WHY THAT PACKET ALSO PUBLISHED A RETENTION REF. The
+    # nightly generates on `main`, so its pin is main's own tip and resolves as an
+    # ancestor; a packet that regenerates on a branch pins a commit `main` does not
+    # yet contain, which `pin_class` correctly calls an orphan. The repair is the
+    # one `ideation-cross-reference`'s "An orphaned pin on an immutable record is
+    # repaired by retention, never by editing the record" names —
+    # `refs/retention/pins/<full-sha>` on the remote — which is also how the two
+    # 2026-08-24 records resolve, and NOT a rewrite of the pin.
+    assert len(report.results) == 71
     assert len({r.site.member_id for r in report.results}) == 24
     assert len(report.lost) == 1
     assert len(report.lost_awaiting_record) == 0

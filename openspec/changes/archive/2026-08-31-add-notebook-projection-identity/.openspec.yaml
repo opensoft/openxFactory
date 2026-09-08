@@ -1,3 +1,4 @@
+# REDACTED 2026-09-07: email addresses -> role placeholders per review/redaction-disposition-2026-09-07.md; original bytes at 543d47a9.
 schema: spec-driven
 created: 2026-08-23
 origin:
@@ -8,10 +9,10 @@ origin:
     The single exit of the staged topic, raised on the day its last
     precondition was met. The topic was captured 2026-08-15 from Brett Heap's
     live-session ruling, made immediately after he — browsing as his Workspace
-    identity `brett.heap@farheap.com` — hit a "request access" wall on a
+    identity `<convener-workspace-identity>` — hit a "request access" wall on a
     dashboard "open notebook" link, because the entire governed projection is
     created under one person's personal consumer Gmail
-    (`brettheap@gmail.com`), the `nlm` CLI's default profile. Six claims were
+    (`<convener-personal-mailbox>`), the `nlm` CLI's default profile. Six claims were
     settled at capture and five questions left open. All five were
     dispositioned 2026-08-23 (merged as PR #272): Q2 and the account timing
     RULED BY BRETT HEAP in session, Q1/Q3/Q4/Q5 adjudicated against executed
@@ -23,11 +24,11 @@ origin:
     retirement runbook, with two review-found realization gaps recorded
     against it. The exit's account precondition — "raised only once a real
     company account exists" — was MET the same day when Brett confirmed
-    `xFactor001@opensoft.one` and authorized raising the change.
+    `<service-account-identity>` and authorized raising the change.
   approved_by: >-
     Brett Heap (in-session rulings 2026-08-23: the Workspace-user account
     type, the create-now/soon timing, the confirmation of
-    `xFactor001@opensoft.one`, and the explicit authorization to raise this
+    `<service-account-identity>`, and the explicit authorization to raise this
     change; the rulings are recorded on the staged topic fragment, merged as
     openxFactory PR #272)
   approved_on: 2026-08-23
