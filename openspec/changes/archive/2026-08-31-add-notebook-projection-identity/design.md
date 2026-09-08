@@ -3,6 +3,8 @@
 Status: ratified
 Ratified: 2026-08-23 — `review/ratification-2026-08-23.md`
 
+> REDACTED 2026-09-07: email addresses -> role placeholders per `review/redaction-disposition-2026-09-07.md`; original bytes at 543d47a9.
+
 The five decisions this change encodes were dispositioned on the staged topic
 `notebook-projection-identity` on 2026-08-23 and merged as PR #272. This
 document carries the EVIDENCE behind them — what was executed, what was
@@ -176,7 +178,7 @@ retires the legacy PROVIDER NOTEBOOK and preserves the act in the record's
 history, and retires a workspace record in place only where the migration leaves
 a genuinely separate one under a distinct id, as the per-repo split did.
 
-## Ruling 5 — The hosting identity must be a Google user account, and Opensoft's is `xFactor001@opensoft.one`
+## Ruling 5 — The hosting identity must be a Google user account, and Opensoft's is `<service-account-identity>`
 
 Brett Heap ruled the account type in session: a dedicated Google Workspace USER
 account in the operating tenant's own domain, never a consumer Gmail. A
@@ -187,7 +189,7 @@ Workspace user is. That also settles the staged fragment's loose "company
 service account" wording, which Claim 4 had already spelled out correctly as a
 "company xFactory user account (Google)".
 
-Brett confirmed the account the same day: **`xFactor001@opensoft.one`**, a
+Brett confirmed the account the same day: **`<service-account-identity>`**, a
 Workspace user in `opensoft.one`, and authorized raising this change on it. The
 earlier `xfactory-books@opensoft.one` was a working name and was never created.
 
@@ -240,5 +242,5 @@ likely route: ratification authorizes the realization tasks, which then land
 directly rather than through a successor change. The ratification read decides;
 `target_release: implementation_pending` holds either way, because the change
 archives only on merged code with green evidence — Opensoft's own cutover onto
-`xFactor001@opensoft.one`, parity proven against the corpus scan, and the
+`<service-account-identity>`, parity proven against the corpus scan, and the
 personal-hosted books retired by recorded act.

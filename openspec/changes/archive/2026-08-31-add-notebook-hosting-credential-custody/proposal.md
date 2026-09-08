@@ -18,6 +18,8 @@ Proposed: 2026-08-23, the same day `add-notebook-projection-identity` was
 ratified and realized. This is its follow-up, authored on Brett Heap's
 direction.
 
+> REDACTED 2026-09-07: email addresses -> role placeholders per `review/redaction-disposition-2026-09-07.md`; original bytes at 543d47a9.
+
 THE REALIZATION RUNS POST-RATIFICATION. No hosting-record, validator, doc or
 example edit lands with this proposal itself, and **no live secret is created,
 moved, or read by authoring it**. Putting the actual password into the vault is
@@ -26,7 +28,7 @@ an operator's act under the landed rule, evidenced per `credential-contracts`.
 ## Why
 
 `add-notebook-projection-identity` made the projection's hosting identity a
-declared fact and named Opensoft's account: `xFactor001@opensoft.one`. It
+declared fact and named Opensoft's account: `<service-account-identity>`. It
 deliberately said nothing about the account's CREDENTIAL. That leaves the
 governance half-built — the account is named, and the password authenticating
 it lives wherever the person who created it put it.

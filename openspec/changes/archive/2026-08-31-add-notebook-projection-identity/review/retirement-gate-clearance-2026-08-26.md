@@ -13,6 +13,8 @@ Supersedes: the 2026-08-24 hold recorded in
 `docs/notebook-projection-migration-evidence-2026-08-24.md` § "Step 8 — HELD by
 ruling"
 
+> REDACTED 2026-09-07: email addresses -> role placeholders per `review/redaction-disposition-2026-09-07.md`; original bytes at 543d47a9.
+
 ## 1. The hold, in its own words
 
 Brett ruled on 2026-08-24:
@@ -184,7 +186,7 @@ Recorded so the limit travels with the permission:
 
 ## 5. Step 8 is READY — AWAITING OPERATOR EXECUTION
 
-Step 8 archive-renames seven notebooks **in `brettheap@gmail.com`**. Nothing in
+Step 8 archive-renames seven notebooks **in `<convener-personal-mailbox>`**. Nothing in
 this repository can perform it: it requires an authenticated `nlm` session bound
 to the legacy account, and profile selection is process-global user state the
 sync deliberately refuses to switch.
@@ -269,7 +271,7 @@ shape and is worth restating precisely:
 
 | # | Blocker | Who | State after 2026-08-27 |
 | --- | --- | --- | --- |
-| 1 | **4.7** — first roster entries by governed act | **Brett** | 2.4 no longer blocks it. It now blocks on an INPUT THIS REPOSITORY DOES NOT HOLD: the COMPANY books' reader set is owner-only, so there is nobody to share out to unless Brett names them, and the one known outstanding decision is 2.5's 2026-08-15 request whose requester lives only in Brett's mail. (The LEGACY books remain readable by their owner `brettheap@gmail.com` — expected, since step 8 retired by rename and not by deletion; whether that standing access is accepted or wound down is a question for the sitting.) An agent cannot write the entries — the task forbids backfilling by name. |
+| 1 | **4.7** — first roster entries by governed act | **Brett** | 2.4 no longer blocks it. It now blocks on an INPUT THIS REPOSITORY DOES NOT HOLD: the COMPANY books' reader set is owner-only, so there is nobody to share out to unless Brett names them, and the one known outstanding decision is 2.5's 2026-08-15 request whose requester lives only in Brett's mail. (The LEGACY books remain readable by their owner `<convener-personal-mailbox>` — expected, since step 8 retired by rename and not by deletion; whether that standing access is accepted or wound down is a question for the sitting.) An agent cannot write the entries — the task forbids backfilling by name. |
 | 2 | **5.1** — the operational open item | successor change | Unchanged. Blocks on unattended re-authentication, which does not exist; a named future change, not this one. |
 | 3 | **A reconciling `--apply`** | **agent** | Unchanged and the only agent-executable one. Clears the derived-side drift § 7 recorded (four books pending; live 675 unmoved). |
 
@@ -291,7 +293,7 @@ nobody predicted:
 
 | # | Blocker | Who | State |
 | --- | --- | --- | --- |
-| 1 | **4.7** — both named readers holding edit | **Brett / admin** | 7 of 14 grants landed. `brett.heap@farheap.com` is `editor` on all seven books, VERIFIED. `brett.heap@gmail.com` is refused by the provider on all seven (`code 7`, PERMISSION_DENIED, no reason) — and refused identically under the undotted spelling, so it is the ACCOUNT, not the string. Needs the provider UI or a Workspace external-sharing policy change. |
+| 1 | **4.7** — both named readers holding edit | **Brett / admin** | 7 of 14 grants landed. `<convener-workspace-identity>` is `editor` on all seven books, VERIFIED. `<convener-personal-mailbox>` is refused by the provider on all seven (`code 7`, PERMISSION_DENIED, no reason) — and refused identically under the undotted spelling, so it is the ACCOUNT, not the string. Needs the provider UI or a Workspace external-sharing policy change. |
 | 2 | **5.1** — the operational open item | successor change | Unchanged: unattended re-auth does not exist. |
 | 3 | **A reconciling `--apply`** | **agent** | Unchanged, and still the only agent-executable one. |
 
@@ -332,7 +334,7 @@ The blocker list drops from three to **TWO**:
 
 | # | Blocker | Who |
 | --- | --- | --- |
-| 1 | **4.7's remaining half** — `brett.heap@gmail.com` refused by the provider on all seven books | **Brett / Workspace admin** |
+| 1 | **4.7's remaining half** — `<convener-personal-mailbox>` refused by the provider on all seven books | **Brett / Workspace admin** |
 | 2 | **5.1** — unattended re-authentication does not exist | successor change |
 
 **A new defect was found and is not one of them** — **FIXED 2026-08-27** in
