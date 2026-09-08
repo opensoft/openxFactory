@@ -316,6 +316,18 @@ the reviewed facts; *"any install repository"* in a scope or ownership
 requirement would be a standing grant to a repository nobody has reviewed, and
 D1's whole argument is that the set is not derivable.
 
+**AND EVERY WIDENING IS A PURE LIST EXTENSION** — canon's grammar,
+conjunctions and serial commas byte-identical, only the names between them
+changed. This packet's first draft was looser: three bullets read *"an admitted
+install repository — <five names> —"* and the `canonical-contract-migration`
+trigger was re-grammared into *"a runtime adapter in an admitted install
+repository"*. Copilot's second round objected that the markers claimed
+*"otherwise the same trigger"* while the phrasing had moved, and it was right
+twice over — the claim was inaccurate, AND *"admitted install repository"* was
+a forward reference into the requirement D4 ADDS in this same packet. Both are
+gone. The lesson is worth keeping: an index refresh that reaches for better
+wording stops being auditable as an index refresh.
+
 ## D6 — The `## Purpose` widening is OWED, not delta-carried
 
 `repo-boundary-governance`'s `## Purpose` is the fourth enumeration and the

@@ -81,9 +81,19 @@ it lacked there: an owed task in a ratified packet (`tasks.md` § 4.1).
   blocks were BUILT from the promoted text programmatically rather than
   retyped, so nothing is dropped by transcription.
 
+  **EVERY WIDENING IS A LIST EXTENSION AND NOTHING ELSE**, which is stricter
+  than this packet's first draft and is the form Copilot's second round asked
+  for. Canon's grammar, conjunctions and serial commas stay byte-identical and
+  only the names between them change; no widened unit introduces a phrase
+  canon does not already use, and in particular none adds the term *"admitted
+  install repository"*, which would have been a forward reference into the
+  requirement this same packet ADDS. The ONE deliberate exception is
+  *"Submodule sequencing"*, which does not close its list (D5), and its marker
+  says so in those words.
+
   | Capability | Requirement | The unit that moves |
   |---|---|---|
-  | `repo-boundary-governance` | Install repository scope | the four-name body sentence → five; the admission paragraph gains `OmniWorker-Install`'s own record (path, remote, opensoft/xFactory#274's merge commit); a third routing scenario is ADDED beside the Hermes and Omnigent ones |
+  | `repo-boundary-governance` | Install repository scope | the four-name body sentence → five, serial comma preserved; the admission paragraph gains `OmniWorker-Install`'s own record (path, remote, opensoft/xFactory#274's merge commit); a third routing scenario is ADDED beside the Hermes and Omnigent ones |
   | `repo-boundary-governance` | Canonical workflow authority | *"Install repo needs policy context"* — its `WHEN` bullet named two |
   | `repo-boundary-governance` | Copy-first migration | *"Canonical policy exists in an install repo"* — its `WHEN` bullet named two |
   | `shared-contract-ownership` | Contract version pinning | *"Install repo consumes a contract"* — its `WHEN` bullet named two |

@@ -11,7 +11,7 @@ expectations.
 - **THEN** it MUST identify its source path, intended consumers, compatibility version or commit, and adapter ownership rule
 
 #### Scenario: Contract breaks an adapter
-- **WHEN** a contract change would break a runtime adapter in an admitted install repository — Hermes, Omnigent, Keycloak, OpenXPKI or worker-host
+- **WHEN** a contract change would break Hermes, Omnigent, Keycloak, OpenXPKI or worker-host runtime adapters
 - **THEN** the contract change MUST be split from adapter migration or explicitly approved as a breaking change
 
-**Removed from canon by refresh-install-repository-enumerations (2026-09-08):** `**WHEN** a contract change would break Hermes or Omnigent runtime adapters` — the bullet is REPLACED rather than deleted, by the widened trigger above it. This is the only unit in this capability that a fifth install repository made incomplete: the trigger enumerated TWO runtime adapter families while five install repositories now hold adapters over `openxFactory` contracts, the worker host's among them. The requirement's body and its *"Contract is migrated"* scenario are word for word what canon states.
+**Removed from canon by refresh-install-repository-enumerations (2026-09-08):** `**WHEN** a contract change would break Hermes or Omnigent runtime adapters` — the bullet is REPLACED rather than deleted, by the widened trigger above it. **THE EDIT IS A LIST EXTENSION AND NOTHING ELSE:** canon's grammar `would break <families> runtime adapters` is kept exactly and only the family list widens, from two to five. This is the only unit in this capability that a fifth install repository made incomplete: the trigger enumerated TWO runtime ADAPTER FAMILIES — not repositories — while five install repositories now hold adapters over `openxFactory` contracts, the worker host's among them. The requirement's body and its *"Contract is migrated"* scenario are word for word what canon states.

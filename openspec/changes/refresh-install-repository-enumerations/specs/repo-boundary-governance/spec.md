@@ -3,9 +3,9 @@
 ## MODIFIED Requirements
 
 ### Requirement: Install repository scope
-`Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`
-and `OmniWorker-Install` SHALL be scoped to subsystem install, operations,
-backup, restore, upgrade, verification, and disaster recovery.
+`Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`, and `OmniWorker-Install` SHALL be scoped to subsystem
+install, operations, backup, restore, upgrade, verification, and disaster
+recovery.
 
 `Keycloak-Install` (`opensoft/Keycloak-Install`, pinned at
 `installs/keycloak-install`) and `OpenXPKI-Install`
@@ -35,7 +35,7 @@ repositories; it neither widens nor narrows the scope each repository's own
 - **WHEN** a change installs, restores, backs up, upgrades, or verifies worker-host runtime behavior
 - **THEN** the implementation detail MUST live in `OmniWorker-Install`
 
-**Removed from canon by refresh-install-repository-enumerations (2026-09-08):** `` `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, and `OpenXPKI-Install` SHALL be scoped to subsystem install, operations, backup, restore, upgrade, verification, and disaster recovery. `` — ONE unit, and one only. The enumeration sentence is REPLACED rather than deleted, by the sentence above it, which gains `OmniWorker-Install` and is otherwise word for word what canon states. **NOTHING ELSE IN THIS REQUIREMENT IS NAMED, BECAUSE NOTHING ELSE IS ABSENT:** the 2026-08-21 admission sentence, the index sentence that follows it, and both routing scenarios are carried BYTE-IDENTICAL, and the fifth repository's own admission record and its routing scenario are APPENDED beside them — which adds units and removes none.
+**Removed from canon by refresh-install-repository-enumerations (2026-09-08):** `` `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, and `OpenXPKI-Install` SHALL be scoped to subsystem install, operations, backup, restore, upgrade, verification, and disaster recovery. `` — ONE unit, and one only. The enumeration sentence is REPLACED rather than deleted, by the sentence above it. **THE EDIT IS A LIST EXTENSION AND NOTHING ELSE:** `OpenXPKI-Install` gains a following comma and `and `OmniWorker-Install`` is appended, so canon's serial comma before the final `and` is PRESERVED and every other word is byte-identical. **NOTHING ELSE IN THIS REQUIREMENT IS NAMED, BECAUSE NOTHING ELSE IS ABSENT:** the 2026-08-21 admission sentence, the index sentence that follows it, and both routing scenarios are carried BYTE-IDENTICAL, and the fifth repository's own admission record and its routing scenario are APPENDED beside them — which adds units and removes none.
 
 ### Requirement: Canonical workflow authority
 `openxFactory` SHALL be the canonical repository for domain-neutral factory
@@ -54,11 +54,11 @@ DomainxFactory.
 - **AND** `openxFactory` MUST reference it only as a specialization of neutral workflow gates
 
 #### Scenario: Install repo needs policy context
-- **WHEN** an admitted install repository — `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install` or `OmniWorker-Install` — needs to implement a factory policy
+- **WHEN** `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install` or `OmniWorker-Install` needs to implement a factory policy
 - **THEN** the install repo MUST link to the canonical `openxFactory` policy for neutral workflow concerns
 - **AND** it MUST link to the owning DomainxFactory policy when implementing domain-specific execution behavior
 
-**Removed from canon by refresh-install-repository-enumerations (2026-09-08):** ``**WHEN** `Hermes-Install` or `Omnigent-Install` needs to implement a factory policy`` — the bullet is REPLACED rather than deleted, by the widened trigger above it, which names all five admitted install repositories and is otherwise the same trigger. Nothing else in this requirement changes: its body, its two other scenarios and this scenario's own two `THEN`/`AND` bullets are word for word what canon states.
+**Removed from canon by refresh-install-repository-enumerations (2026-09-08):** ``**WHEN** `Hermes-Install` or `Omnigent-Install` needs to implement a factory policy`` — the bullet is REPLACED rather than deleted, by the widened trigger above it. **THE EDIT IS A LIST EXTENSION AND NOTHING ELSE:** the two names become five, in canon's own order, and every other word, the `or` and the surrounding grammar included, is byte-identical. Nothing else in this requirement changes: its body, its two other scenarios and this scenario's own two `THEN`/`AND` bullets are word for word what canon states.
 
 ### Requirement: Copy-first migration
 Repo-boundary migration SHALL use copy-first migration until canonical
@@ -67,7 +67,7 @@ migration SHALL be dogfooded through OpenSpec, Hermes approval,
 Omnigent/Polly decomposition, PR admission, merge council, and GitHub PRs.
 
 #### Scenario: Canonical policy exists in an install repo
-- **WHEN** policy currently lives in an admitted install repository — `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install` or `OmniWorker-Install`
+- **WHEN** policy currently lives in `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install` or `OmniWorker-Install`
 - **THEN** the policy MUST be copied or summarized into `openxFactory` before the install repo copy is deleted or marked legacy
 
 #### Scenario: Existing proof harness depends on current files
@@ -78,7 +78,7 @@ Omnigent/Polly decomposition, PR admission, merge council, and GitHub PRs.
 - **WHEN** canonical policy or contract content is migrated after the repo-boundary pilot
 - **THEN** the work MUST be proposed, decomposed, reviewed, admitted to PR, and merged using the factory workflow itself
 
-**Removed from canon by refresh-install-repository-enumerations (2026-09-08):** `` **WHEN** policy currently lives in `Hermes-Install` or `Omnigent-Install` `` — the bullet is REPLACED rather than deleted, by the widened trigger above it, which names all five admitted install repositories and is otherwise the same trigger. The copy-first obligation itself, its dogfooding sentence and the two other scenarios are word for word what canon states — this requirement is the one `implement-omniworker-install-repo`'s own migration clause cites by name, and nothing in it is narrowed here.
+**Removed from canon by refresh-install-repository-enumerations (2026-09-08):** `` **WHEN** policy currently lives in `Hermes-Install` or `Omnigent-Install` `` — the bullet is REPLACED rather than deleted, by the widened trigger above it. **THE EDIT IS A LIST EXTENSION AND NOTHING ELSE:** the two names become five, in canon's own order, and every other word, the `or` and the surrounding grammar included, is byte-identical. The copy-first obligation itself, its dogfooding sentence and the two other scenarios are word for word what canon states — this requirement is the one `implement-omniworker-install-repo`'s own migration clause cites by name, and nothing in it is narrowed here.
 
 ## ADDED Requirements
 
