@@ -69,8 +69,11 @@ commits, or publishes a synthetic declaration as if it were live. `design.md`
       YAML dependency and this must not introduce one.
 - [ ] 2.2 `scripts/sync-notebooklm-books.py`: `HOSTING_REL` becomes the
       resolver's output rather than a constant. `read_hosting_declaration()`
-      keeps its narrow scalar parse UNCHANGED and gains one branch — a record
-      marked as an example is not a declaration.
+      keeps its narrow scalar parse UNCHANGED in SHAPE and gains exactly two
+      things: `instance` joins `_HOSTING_SCALARS` (without which the reader
+      cannot see the marker at all — it reads only the keys in that tuple at
+      `indent == 2`), and one branch says a record marked as an example is not
+      a declaration.
       `_refuse_unusable_declaration()` gains the matching refusal, worded like
       its siblings (what was found, why it is refused, the exact remedy).
       `enforce_hosting_profile()`'s five steps and every refusal message are
