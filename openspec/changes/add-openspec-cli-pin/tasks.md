@@ -157,10 +157,80 @@ validator conventions and its own `stack.yaml`.
 - [ ] **6.2** `OpsxFactory` — same. Its corpus is the one measured at
       `34 passed, 10 failed (44 items)` under 1.12.0, so it is where the pin's
       value is felt first.
-- [ ] **6.3** `MedxFactory` — same; it has no workflows at all today, so this
-      would be its first OpenSpec gate.
-- [ ] **6.4** `LedgerxFactory` — same.
-- [ ] **6.5** `AdxFactory` — same.
+- [x] **6.3** **(DONE 2026-09-08, via two landings.)** `MedxFactory` — same;
+      it has no workflows at all today, so this would be its first OpenSpec
+      gate. MedxSoft/MedxFactory #25 `prepare-openspec-1.12-readiness`
+      (`3d8cef76`, merged) took its gate reading from `9 passed, 4 failed` to
+      `14 passed, 0 failed`: three real Purposes authored, and the two
+      `patient-snapshot-ledger-custody` requirements that had sat under a
+      hand-written `## Modified by …` heading since 2026-08-06 brought back
+      inside `## Requirements`, where the pinned CLI can see them. Admitted to
+      the queue on Brett Heap's 2026-09-06 word "go", ratified and merged on
+      his 2026-09-07 word "ratify and merge". MedxSoft/MedxFactory #28
+      `adopt-openspec-cli-pin-gate` (`9884668d`, merged) pins `stack.yaml`'s
+      `xfactory.contract_ref` at `724a2a4fb3dc0fb996bb5f3736634eecc8f829c3` —
+      this change's own merge commit, resolved through the aggregation's
+      openxFactory pointer — and wires `.github/workflows/validate.yml`
+      (new) to mint a downscoped openxfactory App installation token, check
+      openxFactory out at that pin, and run `make validate` with the CLI-pin
+      gate as one of its legs; the same PR's Sonar `Scan` job also reads
+      openxFactory through the App now, on Brett Heap's 2026-09-08 word "do
+      option 1". CI's gate at that pin: `Totals: 15 passed, 0 failed`. Merged
+      on Brett Heap's first-hand 2026-09-08 word "merge all 3" (~13:14Z),
+      heard by lane codeXfactory-1. The per-repository secrets
+      `OPENXFACTORY_APP_ID` / `OPENXFACTORY_APP_PRIVATE_KEY` were provisioned
+      by lane codeXfactory-1 on Brett's word on 2026-09-07; MedxFactory does
+      not need the App installed on its own org — the mint is against the
+      App's opensoft installation for openxFactory. No disposition owed in
+      `contracts/openspec-cli-pin.yaml`: no MODIFIED deltas, no markers, no
+      scenario-currency findings. Was: `MedxFactory` — same; it has no
+      workflows at all today, so this would be its first OpenSpec gate. That
+      claim was already stale by the time this box ticks — `sonarcloud.yml`
+      and `session-open-pr.yml` existed in MedxFactory before either PR
+      landed — but the part that held is narrower and true: neither workflow
+      ran an OpenSpec gate, and #28 is the first that does.
+- [x] **6.4** **(DONE 2026-09-08, via two landings.)** `LedgerxFactory` —
+      same. ledgerXfactory/LedgerxFactory #32 `prepare-openspec-1.12-readiness`
+      (`8c2ffe29`, merged while the repository still lived at
+      `opensoft/LedgerxFactory`) took its gate reading from `5 passed, 11
+      failed` to `17 passed, 0 failed`: eleven Purposes written for the
+      promoted specs, plus a protected-surface re-pin. Admitted to the queue
+      on Brett Heap's 2026-09-06 word "go", ratified and merged on his
+      2026-09-07 word "ratify and merge". The repository itself moved twice
+      in the interim, both on 2026-09-07 and both redirecting from the old
+      path: `opensoft/LedgerxFactory` → `LedgerXcorp/LedgerxFactory` →
+      `ledgerXfactory/LedgerxFactory`. #34 `adopt-openspec-cli-pin-gate`
+      (`0f265d8c`, merged at the settled `ledgerXfactory/LedgerxFactory`
+      address) pins `stack.yaml`'s `xfactory.contract_ref` at
+      `724a2a4fb3dc0fb996bb5f3736634eecc8f829c3` and wires this repository's
+      FIRST workflow, `.github/workflows/validate.yml`, to mint a downscoped
+      openxfactory App installation token, check openxFactory out at that
+      pin, and run `scripts/validate-openspec-cli-pin.py --all --no-cache`.
+      CI's gate at that pin: `18 passed, 0 failed`, and all 19 of
+      LedgerxFactory's validators now run in CI. Merged on Brett Heap's
+      first-hand 2026-09-08 word "merge all 3" (~13:14Z), heard by lane
+      codeXfactory-1. Same secret provisioning as 6.3 (`OPENXFACTORY_APP_ID`
+      / `OPENXFACTORY_APP_PRIVATE_KEY`, lane codeXfactory-1, 2026-09-07); no
+      App install needed on LedgerxFactory's own org. No disposition owed in
+      `contracts/openspec-cli-pin.yaml`.
+- [x] **6.5** **(DONE 2026-09-08, via two landings.)** `AdxFactory` — same.
+      opensoft/AdxFactory #7 `prepare-openspec-1.12-readiness` (`fea04fee`,
+      merged) took its gate reading from `1 passed, 2 failed` to `4 passed, 0
+      failed`: two Purposes written for the promoted specs. Admitted to the
+      queue on Brett Heap's 2026-09-06 word "go", ratified and merged on his
+      2026-09-07 word "ratify and merge". opensoft/AdxFactory #8
+      `adopt-openspec-cli-pin-gate` (`a9deb245`, merged) pins `stack.yaml`'s
+      `xfactory.contract_ref` at `724a2a4fb3dc0fb996bb5f3736634eecc8f829c3`
+      and wires this repository's FIRST workflow,
+      `.github/workflows/validate.yml`, to mint a downscoped openxfactory
+      App installation token, check openxFactory out at that pin, and run
+      `scripts/validate-openspec-cli-pin.py --all --no-cache`. CI's gate at
+      that pin: `5 passed, 0 failed`. Merged on Brett Heap's first-hand
+      2026-09-08 word "merge all 3" (~13:14Z), heard by lane codeXfactory-1.
+      Same secret provisioning as 6.3 (`OPENXFACTORY_APP_ID` /
+      `OPENXFACTORY_APP_PRIVATE_KEY`, lane codeXfactory-1, 2026-09-07); no
+      App install needed on AdxFactory's own org. No disposition owed in
+      `contracts/openspec-cli-pin.yaml`.
 
 ## Slice 7 — archive preflight
 
