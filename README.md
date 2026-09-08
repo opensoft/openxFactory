@@ -512,6 +512,51 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [relocate-review-authority-floor-mirror](openspec/changes/relocate-review-authority-floor-mirror/proposal.md)
+  — authored 2026-09-08, **`Status: draft`**, lane `openxfactory-2`. The
+  openxFactory half of Brett Heap's shape-1 ruling of 2026-09-08T13:49:30Z,
+  verbatim *"rule shape 1, measure first, this lane realizes it"*
+  ([codexFactory #232](https://github.com/opensoft/codexFactory/issues/232)
+  comment 5586188401, mirrored on
+  [#745](https://github.com/opensoft/openxFactory/issues/745)) — **the word
+  rules the SHAPE and ratifies no text.** codexFactory is to move
+  `scripts/merge_master/openxfactory-review-authority-floor.yaml` off every
+  CODEOWNERS prefix (its packet `relocate-review-authority-floor`, DRAFT at
+  [codexFactory #293](https://github.com/opensoft/codexFactory/pull/293),
+  decision D-7 names this companion and D-2 sequences it FIRST). **THIS
+  REPOSITORY'S RE-PIN LANE FETCHES THAT DOCUMENT BY PATH** —
+  `.github/workflows/review-lane-repin.yml:138` `FLOOR_IN_SOURCE`, fetched at
+  `:301`, with the constant deliberately duplicated in
+  `scripts/review_lane_repin.py:69` and in two `tests/review_lane_pin/`
+  literals, *"for the reason … a value read from the artifact it is used to
+  check makes the check a tautology"* — so on the day codexFactory moves, every
+  firing of this lane becomes `floor_document_unobtainable`. The packet makes
+  `FLOOR_IN_SOURCE` an **ORDERED LIST** of candidate paths, old first,
+  first-obtained-wins, refusing only when EVERY candidate fails and naming every
+  path tried. ONE `## MODIFIED` against `review-lane-floor-mirror` (*"The
+  automated advance re-copies the vendored snapshot and recomputes its witnesses
+  from the bytes it wrote"* — the copy, the byte-witness rule and the refusal
+  are untouched; what changes is what *obtain* means). Decisions **M-1 … M-7**,
+  each vetoable except M-1, the ordering: **(1)** this repository accepts BOTH
+  paths → **(2)** codexFactory moves → **(3)** this repository drops the old
+  path. **M-2's whole point is that realization (1) is observably a NO-OP** —
+  old path first means behaviour is byte-identical until the document actually
+  moves, which is what makes it safe to land ahead of another repository.
+  **M-7: the lane is never taught to SEARCH** for the document — a discovered
+  file is one an author elsewhere can plant, and the byte copy goes into this
+  repository's witnessed snapshot. **M-5: nothing about the snapshot changes** —
+  the document's bytes do not move (`sha256 926d536d…f3c0`), so
+  `contracts/review-lane-floor-snapshot.yaml` is byte-identical throughout, and
+  the realization asserts that rather than assuming it. The measurement the
+  ruling required (*"measure first"*) is the sibling's and is not restated here:
+  codexFactory `openspec/changes/relocate-review-authority-floor/research/automerge-measurement-2026-09-08.md`.
+  `sequenced_after: [mirror-floor-regeneration-automation,
+  codexFactory:relocate-review-authority-floor]`. **THIS PULL REQUEST PERFORMS
+  NOTHING** — no workflow, script, contract, test or pin byte is edited, nothing
+  in codexFactory is touched, and every `tasks.md` box is unticked. **OPEN TO
+  BRETT (MQ-1):** does this ratify on the same word as codexFactory #293, or
+  separately?
+
 - [govern-archived-record-edits](openspec/changes/govern-archived-record-edits/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
   (reviewer of record), in session, first-hand to lane `opsXfactory-1`, by CLI

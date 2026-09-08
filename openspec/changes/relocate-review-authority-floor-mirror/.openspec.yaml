@@ -1,0 +1,43 @@
+schema: spec-driven
+created: 2026-09-08
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-08-relocate-review-authority-floor-mirror
+  reason: >-
+    THE SOURCE IS ANOTHER REPOSITORY'S RULED SHAPE, and this packet is the half
+    that repository cannot author. codexFactory issue #232's finding (3) was
+    STOPPED rather than performed on 2026-09-08T13:35:01Z (comment 5585989018),
+    and Brett Heap ruled shape 1 at 13:49:30Z (comment 5586188401, mirrored on
+    openxFactory issue #745), verbatim "rule shape 1, measure first, this lane
+    realizes it": relocate the floored document
+    `scripts/merge_master/openxfactory-review-authority-floor.yaml` off every
+    CODEOWNERS prefix, no bypass actor anywhere. The codexFactory packet
+    `relocate-review-authority-floor` (pull request #293, DRAFT) names THIS
+    packet as its owed companion in decision D-7 and sequences it FIRST in
+    decision D-2, because this repository's re-pin lane fetches that document BY
+    PATH and would 404 if codexFactory moved first. Not from an openxFactory
+    staged topic, and that was CHECKED rather than assumed: no folder under
+    `ideation/staging/` names the review-lane pin, the floor document, its path
+    or CODEOWNERS routing, and `ideation/staging/INDEX.md` declares no topic
+    exit naming any of them. ad_hoc is the correct kind and is not a substitute
+    for staging.
+  approved_by: >-
+    Brett Heap (openxFactory repository owner) — in session, lane
+    openxfactory-2 (openXfactory-2), session 78b27179, 2026-09-08T13:49:30Z,
+    verbatim **"rule shape 1, measure first, this lane realizes it"**, recorded
+    on codexFactory issue #232 (comment 5586188401) and mirrored on openxFactory
+    issue #745. THE WORD RULES THE SHAPE AND NAMES THE LANE; IT RATIFIES NO
+    TEXT, and it did not separately name this companion — the companion is
+    owed BY the shape, because the shape cannot be realized without it. Whether
+    this packet's text is the right dual-path acceptance is a separate act that
+    has not happened and is Brett Heap's alone. OPEN QUESTION PUT TO HIM
+    (OQ-3 of #293): whether this packet ratifies on the same word as its
+    codexFactory sibling or separately. The packet is `Status: draft`, carries
+    no ratification citation and owes none. NOTHING IS REALIZED BY FILING IT:
+    no workflow, script, contract, test or pin byte moves, and every box in
+    `tasks.md` is unticked.
+  approved_on: 2026-09-08
+related:
+  - codexFactory:change:relocate-review-authority-floor   # the sibling this mirrors; DRAFT at codexFactory #293, carries the measurement record
+  - openxFactory:change:mirror-floor-regeneration-automation  # the packet whose requirement 4 this amends; ratified 2026-09-06
+  - codexFactory:change:amend-floor-regeneration-merge-authority  # ratified and realized 2026-09-08 (`93f0f0d7`); its realization #292 arms auto-merge
