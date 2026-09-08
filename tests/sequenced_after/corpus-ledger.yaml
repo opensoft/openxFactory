@@ -172,6 +172,7 @@ rows:
   admit-deliberation-clearing-operation: {state: active, class: sole, declares: absent, prose: false, moved_by: "#645", moved_on: "2026-09-04"}
   admit-install-repos-to-aggregation: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   adopt-avatar-client-lab-candidates: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  adopt-codexfactory-repository-identity: {state: active, class: sole, declares: [adopt-medxsoft-repository-identity], depth: 1, prose: false, moved_by: "#763", moved_on: "2026-09-07"}
   adopt-medxsoft-repository-identity: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   adopt-neutral-tooling-home: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   adopt-neutral-utility-pack: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
