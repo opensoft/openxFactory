@@ -92,15 +92,27 @@ boxes are the statement of what the realization must not drift from.
       and no self-enrolment; **the inert state named as a CONFORMING state**; the
       releasing approval another party's and bound to the head it names; and the
       arming reported where the run is read.
-- [ ] 2.5 **SIX SCENARIOS ADDED, ONE CARRIED WITH NARROWED BULLETS, TWO CARRIED
-      VERBATIM — nine in the block.** Added: the envelope-approved fully green
-      merge with no human act; a park does not merge; a moved head is not merged
-      on the old approval; the lane never posts an approval; **no mechanism can
-      release the arming, and the lane says so**; the arming is reported.
-      Narrowed: *The lane opens a pull request and stops there*. Verbatim: *The
-      lane never writes to the default branch*, *The advance carries nothing but
-      the advance*. Nothing retitled, nothing loses a bullet, no requirement
-      removed.
+- [ ] 2.5 **SEVEN SCENARIOS ADDED, ONE CARRIED WITH NARROWED BULLETS, TWO
+      CARRIED VERBATIM — ten in the block.** Added: the envelope-approved fully
+      green merge with no human act; a park does not merge; **a further advance
+      owed while the armed pull request is parked UPDATES it and re-arms**; a
+      moved head is not merged on the old approval; the lane never posts an
+      approval; **no mechanism can release the arming, and the lane says so**;
+      the arming is reported. Narrowed: *The lane opens a pull request and stops
+      there*. Verbatim: *The lane never writes to the default branch*, *The
+      advance carries nothing but the advance*. Nothing retitled, nothing loses a
+      bullet, no requirement removed.
+      **AMENDED 2026-09-08, and the count moved because the TEXT did.** As first
+      drafted this box said six added and nine in the block, which was true of
+      the delta as it then stood. Codex's review (P1) found that the block's
+      *"no second act after the arming"* forbade the single-flight UPDATE the
+      parent's *The automated advance lane is triggered by the pinned core's own
+      movement and every firing is idempotent* REQUIRES; the prohibition was
+      narrowed to *"no second act TOWARD THE MERGE"* and the update-and-re-arm
+      scenario was added with it. Copilot then found this box still reading nine,
+      which is the defect that matters here: a checklist that describes a delta
+      it no longer matches is a false witness to its own packet. The count is
+      re-read from the delta rather than adjusted by arithmetic.
 - [ ] 2.6 `proposal.md` states the commissioning ruling **verbatim** with its
       comment id, the parent sentence **verbatim** as this repository ratified
       it, what does NOT change, the four-refusal realization gate with the
