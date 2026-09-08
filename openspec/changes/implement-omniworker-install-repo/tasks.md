@@ -184,7 +184,7 @@ superseded by this amendment and its four predecessors.**
       released with, `Omnigent-Install`.
       Recorded 2026-09-05: own `main`, own ruleset, own harnesses (§3.4) —
       no subtree relationship to `Omnigent-Install` at any point in the copy.
-- [~] 2.3 Install the governance plumbing AT CREATION, not later — the `main`
+- [x] 2.3 Install the governance plumbing AT CREATION, not later — the `main`
       ruleset requiring one approving review, the repository added to the
       `openxfactory` GitHub App installation so the content App can author
       PRs, the App secrets, and the `session-open-pr.yml` mirror. The
@@ -201,6 +201,36 @@ superseded by this amendment and its four predecessors.**
       approve it).
       Confirmed 2026-09-05: still OWED — the App-repository-access half
       remains Brett Heap's web act, unchanged by the §4 re-pins below.
+      **Recorded 2026-09-08 — SUCCESSOR NAMED: opensoft/openxFactory#800**,
+      filed at this archive and holding the one clause of four that is still
+      owed. Ticks on the recording under Brett Heap's ruling of 2026-09-06,
+      verbatim "Tick on the recording". **The two OWED notes above are left
+      exactly as they stand — this note names their successor, it does not
+      claim their work was done**, and the box moves from `[~]` to `[x]` as a
+      RECORDING, not as a discharge.
+      *Three clauses of four discharged, unchanged from the notes above*: the
+      `main` ruleset **22342039** "main review gate", the App secrets
+      `OPENXFACTORY_APP_ID` / `OPENXFACTORY_APP_PRIVATE_KEY`, and the
+      `session-open-pr.yml` mirror — which is, measured 2026-09-08, that
+      repository's ONLY workflow file.
+      *The fourth, measured in both directions and neither direction hidden.*
+      TOWARD DISCHARGED: the `openxfactory` App's installation is
+      `repository_selection: all`, so `OmniWorker-Install` sits inside it
+      without a per-repository add, and a down-scoped token for that repository
+      WAS actually minted in CI — `Omnigent-Install`'s
+      `dartwing-activation-validation.yml` ran `actions/create-github-app-token`
+      with `repositories: OmniWorker-Install`, `permission-contents: read`, log
+      reading `creating token for repositories "OmniWorker-Install"` and the
+      token revoked at cleanup (run 34041914618, re-proved on 34042785728).
+      STILL OWED: that mint proves `contents: read`, while AUTHORING a pull
+      request needs `contents: write` PLUS `pull_requests: write`, which no run
+      has requested against this repository — and **all six pull requests in
+      `OmniWorker-Install` are authored by `brettheap`** (#1, #2, #3, #5, #6,
+      #7), none by the App. Six pull requests in, the authorship route has never
+      been exercised, which is exactly the failure mode this box's last sentence
+      names. #800 records what would prove it (one authoring attempt with both
+      write permissions, the resulting `author.login`, then close and delete)
+      and that the permission grant, if one is needed, is Brett Heap's.
 - [x] 2.4 Seed the README with the ownership boundary quoted VERBATIM from the
       ratified requirement — `openxFactory` owns factory workflow policy;
       `OmniWorker-Install` owns worker-host install, operations, and DR;
@@ -653,7 +683,7 @@ live-host confirmation and its archive.
       (opensoft/Omnigent-Install#237 `07bdc9c3`, 2026-09-07; capability
       `omniworker-install-pin` promoted).
 
-- [ ] 6.1 Delete the §3.1 and §3.2 paths from `Omnigent-Install`, in ONE
+- [x] 6.1 Delete the §3.1 and §3.2 paths from `Omnigent-Install`, in ONE
       reviewed PR against that repository, **only after every §4 box is
       checked and green**. Before this PR, every step is revertible by a
       single `git revert`; after it, recovery is a restore.
@@ -675,6 +705,38 @@ live-host confirmation and its archive.
       remaining dependency is Part 2 —
       opensoft/Omnigent-Install#213, HELD on OQ-6 until `add-worker-acr-push`
       lands there.
+      **Recorded 2026-09-08 — CLOSED; ticks on the evidence, both parts.**
+      Part 1 (the 70 pin-declared paths) was retired by
+      opensoft/Omnigent-Install#235 `bbba916d` (2026-09-07T12:12:15Z) after
+      byte-identity 70/70 and CI green with the paths gone. **Part 2 (the 50
+      Worker Host App paths) LANDED as opensoft/Omnigent-Install#213 → merge
+      commit `9c9c9355` (2026-09-08T13:05:48Z, from head `6feafc2d`)**, under a
+      Rule 6 landing window because it re-homed
+      `openspec/changes/add-worker-enrollment-broker-integration/` out of that
+      repository — OQ-7 sequence (a) completing there. Its head was
+      MERGEABLE/CLEAN with all four checks green (`validate`,
+      `merge-master-approval`, `Digest-only pin scope`, `openspec-cli-pin`) and
+      0 open review threads.
+      *The OQ-6 hold recorded above was SUPERSEDED, and the supersession is
+      stated rather than glossed.* The hold said #213 waits until
+      `add-worker-acr-push` lands, because #213 retires two of the four paths
+      that change declares as its `code_surface`. Brett Heap's word of
+      2026-09-08 ~12:10Z, verbatim **"merge 213"** (recorded on
+      opensoft/openxFactory#591), supersedes it. `add-worker-acr-push` was
+      byte-identical to `main` at the merge (tree `7bb94b12`), so the
+      retirement re-homed nothing by side effect in that directory — but the
+      consequence is real and is recorded on the pull request and in that
+      repository's `docs/omniworker-split.md`: two of its declared paths no
+      longer exist in the repository that hosts it, and the `code_surface:`
+      amendment naming `OmniWorker-Install` is owed in the COPY's own packet,
+      there. **Brett's word is the authority for that outcome; this packet
+      neither performs nor discharges that amendment**, which is design § D5's
+      named cost of sequence (a), paid here rather than hidden.
+      *The ordering rule holds for the acts.* § 4 is fully checked and § 5 is
+      CLOSED on the record (amended 2026-09-07), so "§4 and §5 complete before
+      §6" is satisfied — with the single clause § 5.2 records as DISPOSED, not
+      discharged, and § 5's amendment header says exactly what that leaves
+      unsatisfied.
 - [x] 6.2 Update the `Omnigent-Install` README's scope list — remove "Cloud PC
       worker host registration", "worker containers and worker lane setup",
       "native Claude Code / Codex harness setup", "subsystem-specific worker
@@ -795,7 +857,26 @@ live-host confirmation and its archive.
       twelve-group realization, its archive (opensoft/Omnigent-Install#237 →
       `07bdc9c3`) and the routine re-pin that followed
       (opensoft/Omnigent-Install#246 → `16963099`).
-- [ ] 7.3 §6 retirement is merged and the post-retirement re-run (6.3) is green.
+- [x] 7.3 §6 retirement is merged and the post-retirement re-run (6.3) is green.
+      **Recorded 2026-09-08 — MET ON THE RETIREMENT HALF, SUCCESSOR-NAMED ON
+      THE RE-RUN HALF, and the two are not conflated.**
+      *Retirement merged, in full.* Part 1 — opensoft/Omnigent-Install#235
+      `bbba916d` (2026-09-07T12:12:15Z). Part 2 —
+      opensoft/Omnigent-Install#213 → merge commit `9c9c9355`
+      (2026-09-08T13:05:48Z), on Brett Heap's word "merge 213". § 6.2's README
+      scope edit landed inside #235. § 6 is therefore merged in full, and § 6.1
+      above carries the OQ-6 supersession this required.
+      *The post-retirement re-run is NOT green, because it has not run — and
+      this box does not claim otherwise.* § 6.3's own text sequences it after
+      Part 2, which landed today, so no run could precede it; measured
+      2026-09-08 there is no post-retirement run of any of the four lanes and
+      none in CloudPC-Install since 2026-09-05. The obligation closes on the two
+      NAMED successors § 6.3 records — **opensoft/xFactory#346** (the four moved
+      worker lanes) and **opensoft/CloudPC-Install#19** (the service-rider
+      selftests), both unclaimed — under Brett Heap's "Tick on the recording"
+      ruling of 2026-09-06. What this box asserts is that the retirement is
+      merged and that the proof obligation the re-run carries is owed to two
+      dated issues rather than to nobody.
 - [x] 7.4 `docs/omniworker-naming.md` reads `Status: ratified`.
       **Recorded 2026-09-08 — MET; ticks on the evidence.** Verified by reading
       the file at `main` `9581ed9b`: line 3 is `Status: ratified`, line 4 is
@@ -958,10 +1039,28 @@ live-host confirmation and its archive.
       lists, or stop enumerating and derive the list (the aggregation
       `.gitmodules`, which OpsxFactory's `code_surface_repository_registry`
       already re-derives), so the sixth repository does not reopen this box.
-- [ ] 8.5 **The `Omnigent-Install` scope-link half.** §6.2 performs it as part
+- [x] 8.5 **The `Omnigent-Install` scope-link half.** §6.2 performs it as part
       of retirement; if retirement is deferred, the scope link is still owed
       the moment the new repository exists, because "Install repo scope links"
       binds both repositories and not only the new one.
+      **Recorded 2026-09-08 — PERFORMED; ticks on the evidence, and the evidence
+      is the live file rather than a pull request's promise.** Read at
+      `opensoft/Omnigent-Install@main` on 2026-09-08, that repository's
+      `README.md` carries BOTH halves this box binds: the four scope items are
+      gone from its scope list, and in their place a paragraph names
+      `opensoft/OmniWorker-Install` as owning "worker-host install, operations
+      and disaster recovery", links it, and quotes Brett Heap's boundary ruling
+      of 2026-09-05 — with the doc index carrying the same link for the three
+      moved docs. That is the scope link the ratified "Install repo scope links"
+      requirement demands of BOTH repositories; openxFactory's own half has been
+      in place since the packet landed.
+      *Which act performed it, stated precisely because this box's own wording
+      guesses differently.* § 6.2's, in opensoft/Omnigent-Install#235
+      `bbba916d` (2026-09-07T12:12:15Z) — **not** the Part 2 retirement. So the
+      contingency this box was written for ("if retirement is deferred, the
+      scope link is still owed the moment the new repository exists") never had
+      to fire: the link landed with Part 1, a day before
+      opensoft/Omnigent-Install#213 → `9c9c9355` completed the retirement.
 
 **Amended 2026-09-07 — one further follow-up is NAMED here and is NOT performed
 by the § 5 amendment, because it falls outside what that amendment was approved
