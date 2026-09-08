@@ -85,11 +85,18 @@ Omnigent/Polly decomposition, PR admission, merge council, and GitHub PRs.
 ### Requirement: Install-repository enumerations are an index with a named authority
 An install-repository enumeration SHALL be read as an INDEX and SHALL NOT be
 read as the authority for which install repositories exist or are governed.
-The authority for existence and mounting is the top-level xFactory
-aggregation's `installs/` mount list in its `.gitmodules`; the authority for
-what each repository owns is that repository's own `repo-boundary-governance`
-requirement. A repository absent from an enumeration it belongs in is an INDEX
-DEFECT, and its governance is unaffected by the omission.
+The authority for which repositories are ADMITTED AND MOUNTED is the top-level
+xFactory aggregation's `installs/` mount list in its `.gitmodules`; the
+authority for a repository's EXISTENCE, and for what it owns, is the reviewed
+act that created it together with its own `repo-boundary-governance`
+requirement. **EXISTENCE AND ADMISSION ARE DISTINCT AND SHALL NOT BE
+CONFLATED** — this capability already separates them, requiring that adding a
+repository to the aggregation be a separate reviewed change and that
+*"repository creation SHALL NOT be treated as aggregation admission"* — so a
+created, governed, not-yet-mounted install repository SHALL NOT be read as
+non-existent because the mount list does not name it. A repository absent from
+an enumeration it belongs in is an INDEX DEFECT, and its governance is
+unaffected by the omission.
 
 **THE MOUNT LIST AND THE INDEX ARE DIFFERENT SETS, and that is why the index is
 not derived.** Measured on 2026-09-08, the aggregation mounts NINE paths under

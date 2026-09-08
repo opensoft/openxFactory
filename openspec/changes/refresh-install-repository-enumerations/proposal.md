@@ -104,9 +104,12 @@ it lacked there: an owed task in a ratified packet (`tasks.md` § 4.1).
   repository is a one-line index edit rather than a fifth archaeology
   exercise: *"Install-repository enumerations are an index with a named
   authority"*. It says the enumerations are an INDEX and not the authority for
-  which repositories exist; that the authority for existence is the
-  aggregation's `installs/` mount list and the authority for scope is each
-  repository's own boundary requirement; that the two sets are DIFFERENT (nine
+  which repositories exist; that the authority for which repositories are
+  ADMITTED AND MOUNTED is the aggregation's `installs/` mount list, while the
+  authority for a repository's EXISTENCE and scope is the reviewed act that
+  created it plus its own boundary requirement — this capability already
+  separates creation from admission, so a created-but-unmounted install
+  repository is not made non-existent by the mount list's silence; that the two sets are DIFFERENT (nine
   mounts against five indexed repositories, measured 2026-09-08) so a
   mechanical derivation must declare its filter; and that a change admitting a
   further install repository must either refresh every enumeration or NAME the

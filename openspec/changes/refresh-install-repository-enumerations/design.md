@@ -57,8 +57,8 @@ are DIFFERENT SETS.** Read back from `opensoft/xFactory`'s `.gitmodules` on
 
 | `installs/` mount | Remote | In the indexed set? |
 |---|---|---|
-| `agenttower` | `opensoft/AgentTower` | **No** — the string appears NOWHERE in `repo-boundary-governance`; it is named in `project-repo-schema` instead, so it is governed ELSEWHERE rather than ungoverned |
-| `cloudpc-install` | `opensoft/CloudPC-Install` | **No** — likewise absent from this capability and named in `workstation-intake` instead, though it IS a named consumer in the OmniWorker split |
+| `agenttower` | `opensoft/AgentTower` | **No** — the string appears NOWHERE in `repo-boundary-governance`. Its only mention in any promoted specification is `project-repo-schema`, and that is a NAMING mention only (an example of a live repository fitting no suffix family), in a capability whose own Purpose says electing it *"CONFERS NOTHING"*. So no capability assigns `AgentTower` a boundary at all |
+| `cloudpc-install` | `opensoft/CloudPC-Install` | **No** — absent from this capability, but genuinely governed by ANOTHER: `workstation-intake` carries a requirement whose body reads, verbatim and without backticks, *"CloudPC-Install SHALL own host eligibility and required end state"*. It is also a named consumer in the OmniWorker split |
 | `hermes-install` | `opensoft/xFactory-Hermes-Install` | Yes |
 | `keycloak-install` | `opensoft/Keycloak-Install` | Yes |
 | `medx-roottruth-install` | `opensoft/xFactory-MedxRootTruth-Install` | **No** — a Medx satellite install; the string appears in NO promoted specification at all |
@@ -71,9 +71,15 @@ A derivation over that group would do three separate wrong things. It would
 enrol `AgentTower`, `CloudPC-Install` and `xFactory-MedxRootTruth-Install` into
 a requirement no reviewed act placed them under — a silent widening of scope by
 a script, which is the exact opposite of how every other boundary in this
-capability was established, and two of the three are already governed by a
-DIFFERENT capability whose scope a derivation here would silently overlap. It
-would put `xFactory-Installer` under TWO requirements at once, one of which
+capability was established. **The three are not alike, and the difference
+sharpens the point rather than blunting it:** `CloudPC-Install` is already
+governed by a DIFFERENT capability — `workstation-intake` says in a requirement
+body that it *"SHALL own host eligibility and required end state"* — so a
+derivation here would silently overlap another capability's scope;
+`AgentTower` is governed by NOTHING, its only promoted mention being a naming
+example in `project-repo-schema`, a capability that confers nothing; and
+`xFactory-MedxRootTruth-Install` appears in no promoted specification at all.
+One overlap, two silent enrolments. It would also put `xFactory-Installer` under TWO requirements at once, one of which
 fixes its scope differently (measured: `installs/xfactory-installer` and
 `opensoft/xFactory-Installer` appear in `repo-boundary-governance` at its own
 *"Neutral installer repository integration"* requirement). And it would
