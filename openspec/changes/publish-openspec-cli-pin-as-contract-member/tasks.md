@@ -12,6 +12,18 @@ packet realizes through its own task list rather than through a feature DAG.
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in this
 pull request or a measurement recorded verbatim in the pull request body.
 
+**DISPOSITION 2026-09-08, AT THE ARCHIVE — THE SENTENCE ABOVE IS EXTENDED, NOT
+SUPERSEDED, AND IT IS QUOTED IN PLACE RATHER THAN REWRITTEN.** *"Every ticked
+box below is a diff in this pull request or a measurement recorded verbatim in
+the pull request body"* was written of the RATIFICATION pull request
+([#757](https://github.com/opensoft/openxFactory/pull/757)), where every box
+then ticked was exactly that. **§ 5's nine ticks are added by the ARCHIVE pull
+request**, and each is a diff in it, a measurement recorded verbatim in ITS
+body, or the naming of a successor — which is what the next paragraph but one
+already provides for. The first sentence, *"NOTHING IS TICKED THAT DID NOT
+LAND"*, is **NOT** extended and needs no disposition: it still holds without
+qualification, and the archive-time clauses in § 5 are what make it hold.
+
 **§ 1 IS TICKED, AND IT NAMES WHAT DISCHARGED IT: ratification was GIVEN on
 2026-09-07.** It ticked on Brett Heap's word, with the verbatim utterance, one
 `Ratified`/`Ratified by` citation line added to each document, the approval pair
@@ -243,7 +255,69 @@ bypass flag.
 
 ## 5. Owed, and deliberately not taken here
 
-- [ ] 5.1 **B OF #754 — THE THREE NO-LANE REPOSITORIES.** Omnigent-Install,
+**DISPOSITION 2026-09-08 — WHAT THIS ARCHIVE ADDED TO THIS SECTION, AND WHAT IT
+DID NOT.** Every box below is ticked, and **the ruling used is the one the
+header of this file already named**: Brett Heap, 2026-09-06T23:10Z, in session,
+by multiple choice, the option labelled verbatim *"Tick on the recording"* — an
+owed successor's box ticks once the successor is NAMED, with the box text saying
+the tick records the naming and not the doing. Nothing in that ruling is
+superseded and nothing in this section's ratified text is deleted: **the
+ratified text of every box is carried VERBATIM beneath its archive-time
+clause.**
+
+**THE NINE TICKS ARE OF FOUR KINDS, AND EACH BOX SAYS WHICH IT IS.** § 5.1 and
+§ 5.5 tick **ON THE EVIDENCE** — landed merge commits, and the ratification plus
+two green `pytest-suite` runs on `main` commits MEASURED to contain it. § 5.2
+ticks on a record that **already exists**, openxFactory
+[#754](https://github.com/opensoft/openxFactory/issues/754), which stays OPEN as
+the rollout's governing tracker; no second issue is filed for it, a second
+tracker forking the record it would be filed to carry. § 5.3, § 5.4, § 5.6,
+§ 5.7 and § 5.9 tick on **FIVE ISSUES FILED AT THIS ARCHIVE, ALL UNCLAIMED** —
+openxFactory [#775](https://github.com/opensoft/openxFactory/issues/775),
+[#776](https://github.com/opensoft/openxFactory/issues/776),
+[#777](https://github.com/opensoft/openxFactory/issues/777),
+[#778](https://github.com/opensoft/openxFactory/issues/778) and
+[#779](https://github.com/opensoft/openxFactory/issues/779). And § 5.8 ticks
+**ON THE DOING**: the `neutral-product-pin` Purpose widening it declared owed AT
+THE ARCHIVE is taken here, as one disclosed sentence in a hunk separate from the
+promotion.
+
+**NO TICK IN THIS SECTION CLAIMS WORK THAT WAS NOT DONE.** No sibling repository
+is adopted from this lane; no checker is written; no grammar is widened and no
+change is renamed; no release is cut and no version is allocated or reserved;
+`contracts/openspec-cli-pin.yaml` is not edited; and the per-file digest owed on
+xFactory-Hermes-Install is named as owed rather than counted as met. All five
+issues above are **open and unclaimed at this commit**.
+
+**THE RATIFICATION RECORD IS NOT EDITED.** `review/ratification-2026-09-07.md`
+is `Status: record` — immutable, untouched, standing exactly as written,
+including its § 4 enumeration of this whole residue. Its § 4 item 5 anticipated
+this act in terms: *"THE ARCHIVE IS A SEPARATE ACT … This word ratifies; it does
+not archive."* Its § 4 item 8 anticipated § 5.8's edit in the same way: the
+Purpose widening *"belongs in the archive act, where the spec file is
+rewritten"*.
+
+- [x] 5.1 **TICKED ON THE EVIDENCE, NOT ON A NAMING — ROLLOUT B IS COMPLETE,
+      THREE OF THREE, AND ITS ONE SHORTFALL IS NAMED RATHER THAN COUNTED AS
+      MET.** All three no-lane repositories landed their copy-in on 2026-09-07,
+      each on a word of Brett Heap's, and each is cited by MERGE COMMIT:
+      xFactory-Hermes-Install **#72** -> `06c9083d` (14:42:30Z); openXwallet
+      **#21** -> `b7c6e0b8` (16:37:10Z), preceded by its 1.12 readiness **#23**
+      -> `5f36486c` (16:31Z) and carrying the vendored tarball on the ruling
+      *"Vendor the tarball into the repo"*; Omnigent-Install **#241** ->
+      `47454e0a` (16:57:14Z), preceded by its readiness **#245** -> `8c42bdfe`
+      (16:23:24Z). Recorded on
+      [#754](https://github.com/opensoft/openxFactory/issues/754) at
+      2026-09-07T16:57:43Z, where the rollout is called COMPLETE, 3 of 3, every
+      gate green on its own repository's corpus under the pinned 1.12.0. **WHAT
+      THIS TICK DOES NOT CLAIM, and the ratified text below already said it:**
+      the Hermes copy's per-file `sha256` — R1's THIRD field — is **STILL OWED
+      on xFactory-Hermes-Install**, is that repository's act and not this
+      lane's, and stands on #754's record of 19:22:36Z as owed and unclaimed.
+      Making `openspec-cli-pin` a REQUIRED check in each of the three is Brett
+      Heap's console act and is likewise not done here. The ratified text
+      follows unchanged:
+      **B OF #754 — THE THREE NO-LANE REPOSITORIES.** Omnigent-Install,
       openXwallet and xFactory-Hermes-Install carry no `xfactory:` stack pin and
       archive on whatever `openspec` is on PATH; R1's fallback scenario is what
       their copy-in must satisfy. It is separate work, in separate repositories,
@@ -265,14 +339,51 @@ bypass flag.
       it is not the field R1 names, so **the digest is OWED on
       xFactory-Hermes-Install**, is that repository's act and not this lane's,
       and is stated here as owed rather than counted as met.
-- [ ] 5.2 **EVERY OTHER SIBLING'S ADOPTION BELONGS TO ITS OWN LANE**, by #754's
+
+- [x] 5.2 **TICKED ON THE RECORDING — THE ESTATE-WIDE ADOPTION TRACKER IS
+      [#754](https://github.com/opensoft/openxFactory/issues/754) ITSELF, WHICH
+      STAYS OPEN, AND NO NEW ISSUE IS FILED BECAUSE A SECOND TRACKER WOULD FORK
+      THE RECORD.** Per Brett Heap's ruling of 2026-09-06, verbatim *"Tick on
+      the recording"*: the box ticks once the successor is NAMED, and this
+      clause is the box text saying the tick records the naming and not the
+      doing. #754's comment of 2026-09-07T19:22:36Z is that record and it
+      ENUMERATES what is owed and unclaimed — the three stack-pin consumers
+      standing BEHIND the entrypoint commit `1d8cd54e`, **MedxFactory and
+      AdxFactory at `6c03d783`, LedgerxFactory at `af7ac0fa`**, which advance
+      their pins through their own lanes and which is R1's ratified
+      PRECONDITION rather than a defect in those repositories; **OpsxFactory's
+      shadow gate** becoming required; **the Hermes copy's per-file digest**;
+      and the openxFactory tooling follow-ons. **NO SIBLING ADOPTION IS
+      PERFORMED FROM THIS LANE**, by Brett Heap's ruling of 2026-09-07,
+      verbatim *"openxFactory only; siblings via their lanes"*. The ratified
+      text follows unchanged:
+      **EVERY OTHER SIBLING'S ADOPTION BELONGS TO ITS OWN LANE**, by #754's
       second ruling: OpsxFactory's shadow gate becoming required (four live
       lanes), MedxFactory / AdxFactory / LedgerxFactory (their owners), the
       openDox family (lane `openXfactory-4`). Named so the omission reads as
       scope rather than oversight. **This box ticks on the recording** of the
       issue that carries the estate-wide adoption tracker, and the tick will
       record the naming.
-- [ ] 5.3 **THE TWO SIBLING PINS ARE UNREGISTERED TOO** —
+
+- [x] 5.3 **TICKED ON THE RECORDING — THE SUCCESSOR IS openxFactory
+      [#775](https://github.com/opensoft/openxFactory/issues/775), FILED AT
+      THIS ARCHIVE AND UNCLAIMED, AND NEITHER SIBLING PIN IS REGISTERED BY THIS
+      ACT.** Per Brett Heap's ruling of 2026-09-06, verbatim *"Tick on the
+      recording"*: the box ticks once the successor is NAMED, and this clause
+      is the box text saying the tick records the naming and not the doing.
+      #775 carries the measurement RE-TAKEN at this archive's base `bd263dca` —
+      `contracts/manifest.yaml` holds **206 rows and exactly ONE of `type:
+      pin`**, `openspec-cli-pin`; **neither** `contracts/openxwallet-pin.yaml`
+      **nor** `contracts/openreposhape-pin.yaml` has a `contracts:` row; the
+      wallet pin's two `contracts/README.md` occurrences are a HISTORICAL row
+      recording its REMOVAL from the manifest at `contract-v2.0` rather than a
+      registration, and the openRepoShape pin has **zero** occurrences there —
+      and it carries the reason a sweep was refused: R1's predicate is per pin
+      and unmeasured for these two, one pinning a MOUNTED product and the other
+      a CITED one that its own header says openxFactory *"does not MOUNT"*.
+      **#775 picks no wording and no shape**, and asks each pin's reading
+      first. The ratified text follows unchanged:
+      **THE TWO SIBLING PINS ARE UNREGISTERED TOO** —
       `contracts/openxwallet-pin.yaml` and `contracts/openreposhape-pin.yaml`,
       measured in § 2.1. R1 reaches them by its own terms wherever another
       repository reads them, and neither is registered by this packet: each needs
@@ -280,7 +391,25 @@ bypass flag.
       three pins into one row-block would be asserting three consumption rules on
       one word. **This box ticks on the recording** of the successor issue that
       names them, and the tick will record the naming.
-- [ ] 5.4 **A REGISTRATION IS NOT A CHECK, AND THE ROW'S ONE RESIDUAL COUPLING IS
+
+- [x] 5.4 **TICKED ON THE RECORDING — THE SUCCESSOR IS openxFactory
+      [#776](https://github.com/opensoft/openxFactory/issues/776), FILED AT
+      THIS ARCHIVE AND UNCLAIMED, AND NO CHECKER IS WRITTEN HERE.** Per Brett
+      Heap's ruling of 2026-09-06, verbatim *"Tick on the recording"*: the box
+      ticks once the successor is NAMED, and this clause is the box text saying
+      the tick records the naming and not the doing. #776 carries BOTH owed
+      assertions and **re-verifies the second against the tree at this
+      archive's base** rather than restating it: the ONLY comparison of
+      `consumer_entrypoint:` against anything in this repository is
+      `tests/proposal-support/test_pinned_openspec_cli.py:275`, which asserts
+      `support.PIN_VERIFIER == ROOT / real_pin["consumer_entrypoint"]` —
+      **`proposal-support`'s own constant against the PIN, not the MANIFEST ROW
+      against the pin** — so that test stays green through exactly the failure
+      this assertion exists to catch. #776 leaves the finding class, how *"is
+      read"* is decided, and whether the second assertion compares a string or
+      resolves a path **deliberately unpicked**, each needing its own reading.
+      The ratified text follows unchanged:
+      **A REGISTRATION IS NOT A CHECK, AND THE ROW'S ONE RESIDUAL COUPLING IS
       UNVERIFIED.** Nothing in this repository asserts that a pin another
       repository reads IS registered — R1 states the obligation, and `doc-health`
       has no family that reads it. **AND THE SAME CHECKER OWES A SECOND
@@ -295,13 +424,49 @@ bypass flag.
       `release-inventory-drift` rather than inside it, and neither is written
       here. **This box ticks on the recording** of the successor issue that
       proposes it, and the tick will record the naming.
-- [ ] 5.5 **ARCHIVE — NOT TAKEN, AND ON A SEPARATE WORD.** `code_surface` is
+
+- [x] 5.5 **TICKED ON THE ARCHIVE EVIDENCE, BOTH HALVES CITED RATHER THAN
+      ASSERTED, AND ON A WORD DISTINCT FROM THE RATIFICATION.** **RATIFIED AND
+      LANDED:** PR [#757](https://github.com/opensoft/openxFactory/pull/757) ->
+      merge commit **`a5940811`**, 2026-09-07T19:22:23Z; ratifying commit
+      **`05a9db8b`**; records `review/ratification-2026-09-07.md` and
+      `review/verification-2026-09-07.md`, both `Status: record` and both
+      untouched by this archive. **GREEN ON MAIN, TWICE, WITH CONTAINMENT
+      MEASURED RATHER THAN ASSUMED:** `pytest-suite` run **34159620759**,
+      conclusion **`success`**, `headSha` **`7992b87a`**; and run
+      **34173088424**, conclusion **`success`**, `headSha` **`bd263dca`**,
+      which is this branch's base. `gh api
+      repos/opensoft/openxFactory/compare/a5940811...<sha>` answers `ahead`
+      with **`behind_by: 0`** for both (7 and 12 commits ahead), so each is a
+      `main` commit CONTAINING the merge rather than merely later than it.
+      **THE SEPARATE WORD IS BRETT HEAP'S**, 2026-09-07, in session, verbatim
+      **"archive the A packet when green"**, recorded and claimed on
+      [#754](https://github.com/opensoft/openxFactory/issues/754) — and **this
+      is that act**. The ratified text follows unchanged:
+      **ARCHIVE — NOT TAKEN, AND ON A SEPARATE WORD.** `code_surface` is
       non-empty, so under `release-realization` this packet archives on
       merged-plus-green realization evidence rather than on landing, and on a
       word distinct from the ratification. This box ticks when both halves exist
       and are CITED rather than asserted — the merge commit on `main` and the
       workflow run id of a green required suite at that commit.
-- [ ] 5.6 **A CHANGE ID THAT NO `sequenced_after:` CAN NAME.**
+
+- [x] 5.6 **TICKED ON THE RECORDING — THE SUCCESSOR IS openxFactory
+      [#777](https://github.com/opensoft/openxFactory/issues/777), FILED AT
+      THIS ARCHIVE AND UNCLAIMED, AND NONE OF THE THREE EXITS IS TAKEN.** Per
+      Brett Heap's ruling of 2026-09-06, verbatim *"Tick on the recording"*:
+      the box ticks once the successor is NAMED, and this clause is the box
+      text saying the tick records the naming and not the doing. #777
+      re-measures the grammar at this archive's base —
+      `scripts/sequenced_after.py:174`, `CHANGE_ID =
+      re.compile(r"^[a-z0-9][a-z0-9-]*$")` — and finds the class is **TWO
+      active changes rather than one**: `bump-openspec-cli-pin-to-1.12`, which
+      this box names, **and `prepare-openspec-1.12-readiness` beside it**. It
+      records all three exits with their costs — the widening reaching a second
+      grammar (`scripts/doc_health/modified_block_currency.py:588`) and the
+      recorded decision O7 behind it, the rename moving a ratified change's
+      identity, and the prose status quo made explicit — and **picks none**,
+      exactly as the ratifying word did. The ratified text follows unchanged:
+      **A CHANGE ID THAT NO `sequenced_after:` CAN NAME.**
       `bump-openspec-cli-pin-to-1.12` is an ACTIVE change whose id contains a
       `.`, and the substrate's grammar (`^[a-z0-9][a-z0-9-]*$`, enforced by
       `scripts/validate-sequenced-after.py`) admits no such id — so no change in
@@ -312,7 +477,22 @@ bypass flag.
       consequences), or record the ordering in prose and accept that no machine
       reads it. **This box ticks on the recording** of the successor issue that
       names the choice, and the tick will record the naming.
-- [ ] 5.7 **THE `contracts/CHANGELOG.md` ENTRY IS OWED AT THE NEXT CUT.**
+
+- [x] 5.7 **TICKED ON THE RECORDING — THE OBLIGATION IS CARRIED FORWARD AS
+      openxFactory [#778](https://github.com/opensoft/openxFactory/issues/778),
+      FILED AT THIS ARCHIVE AND UNCLAIMED, AND NO RELEASE IS CUT AND NO VERSION
+      IS ALLOCATED OR RESERVED HERE.** Per Brett Heap's ruling of 2026-09-06,
+      verbatim *"Tick on the recording"*: the box ticks once the successor is
+      NAMED, and this clause is the box text saying the tick records the naming
+      and not the doing. #778 is addressed to **whoever takes the NEXT CUT** —
+      the obligation is the cutter's, not this lane's — and it carries what
+      that session would otherwise re-derive: the registered row's identity,
+      the fact that it bears **no per-file `sha256`** (`design.md` **D2**) and
+      is therefore a register row rather than a digest member, R2 as the rule
+      governing the reading, and the atomicity clause's discharge, the diff
+      having added no contract FILE because the pin file already existed on
+      `main` and is untouched per **D7**. The ratified text follows unchanged:
+      **THE `contracts/CHANGELOG.md` ENTRY IS OWED AT THE NEXT CUT.**
       `docs/contract-versioning-policy.md` § *Change Classes* grades *"new
       contracts"* as **Additive (minor)**, and § *Version Identity* item 5
       requires the changelog to carry *"one entry per release listing every
@@ -332,7 +512,31 @@ bypass flag.
       register row, and the membership/digest accounting of D1 is unmoved by a
       changelog line. **This box ticks on the recording** of the cut, or of the
       issue that carries it, and the tick will record the naming.
-- [ ] 5.8 **`neutral-product-pin`'s PURPOSE WILL NEED WIDENING AT ARCHIVE.** The
+
+- [x] 5.8 **TICKED ON THE DOING — AND THIS IS THE ONE BOX IN THIS SECTION WHOSE
+      TICK RECORDS WORK PERFORMED HERE RATHER THAN A NAMING.** The widening is
+      TAKEN IN THIS ARCHIVE, as **ONE SENTENCE** appended to
+      `openspec/specs/neutral-product-pin/spec.md`'s `## Purpose`, written from
+      R1's and R2's own words and **mirroring the file's own precedent
+      construction** — *"It also carries the reverse direction — …"*, which is
+      how that Purpose already names its second direction. The sentence is
+      quoted here in full so the edit is on the record and not merely in a
+      diff: *"And it carries a THIRD direction, in which openxFactory is the
+      PUBLISHER of its own consumption claim: a consumption pin that another
+      repository reads is a PUBLISHED contract member — registered in
+      `contracts/manifest.yaml`, indexed in `contracts/README.md`, adopted by
+      the consumer's ordinary pin-sync and read from the pinned checkout rather
+      than copied — together with the accounting of what such a registration
+      does and does not move, an act on the consumption register and not a
+      bundle cut unless it moves the closed release membership."* **IT IS A
+      SEPARATE HUNK FROM THE PROMOTION**, taken AFTER
+      `scripts/proposal-support.py … archive` had written the two ADDED
+      requirements into canon, so the serializer's output and this editorial
+      sentence are visibly distinct in the diff. **NOTHING ELSE IN THE `##
+      Purpose` BLOCK IS TOUCHED** — no existing clause is reworded, reordered
+      or removed — and **no promoted requirement's text is edited by it**. The
+      ratified text follows unchanged:
+      **`neutral-product-pin`'s PURPOSE WILL NEED WIDENING AT ARCHIVE.** The
       promoted Purpose frames the capability in ONE direction — *"Govern
       openxFactory's consumption of an EXTERNAL neutral product, the direction in
       which it is the consumer rather than the publisher"* — with one reverse
@@ -346,7 +550,26 @@ bypass flag.
       which carries requirements rather than the Purpose block. **This box ticks
       on the recording** of that obligation in the archive act, and the tick will
       record the naming, not the doing.
-- [ ] 5.9 **THE PIN FILE'S OWN HEADER CARRIES THE UNEXECUTABLE CLAIM TOO, AND
+
+- [x] 5.9 **TICKED ON THE RECORDING — THE SUCCESSOR IS openxFactory
+      [#779](https://github.com/opensoft/openxFactory/issues/779), FILED AT
+      THIS ARCHIVE AND UNCLAIMED, AND `contracts/openspec-cli-pin.yaml` IS NOT
+      EDITED BY THIS ARCHIVE ANY MORE THAN IT WAS BY THE RATIFICATION.** Per
+      Brett Heap's ruling of 2026-09-06, verbatim *"Tick on the recording"*:
+      the box ticks once the successor is NAMED, and this clause is the box
+      text saying the tick records the naming and not the doing. #779 quotes
+      the header claim VERBATIM from the comment block above
+      `consumer_entrypoint:` (`:248`), records that the packet corrected the
+      identical claim in its four carriers while `design.md` **D7** forbade
+      touching the fifth, states R1's promoted clause that reaches it — *"WHERE
+      THE TWO GOVERNED ACTS ARE REACHED BY TWO DIFFERENT COMMANDS, THE REGISTER
+      SHALL NAME BOTH"* — and **bounds the remedy**: the text at issue is a
+      COMMENT above the field, no key, digest, version or disposition moves,
+      and nothing in it proposes moving the pin. Whether the correction rides
+      an existing change of the pin's family or needs its own is **that
+      family's call and is not decided here**. The ratified text follows
+      unchanged:
+      **THE PIN FILE'S OWN HEADER CARRIES THE UNEXECUTABLE CLAIM TOO, AND
       THIS PACKET MAY NOT FIX IT.** Codex's P1 and Copilot's two follow-ups found
       the "route archive through the entrypoint" claim in this packet's four
       carriers, and all four are corrected. The SAME claim stands in
