@@ -1394,7 +1394,8 @@ def test_TWO_NEW_DIRECTORIES_NAMING_THIS_CHANGE_are_not_blamed_on_the_clock(
     else:
         raise AssertionError("two directories must be refused")
 
-    assert "more than one directory appeared during this run" in message
+    assert "more than one directory naming this change appeared during this " \
+        "run" in message
     assert "the CLI's clock is not UTC" not in message
     assert "NOT reverted: 2 directories naming 'change-a'" in message
 
@@ -1500,3 +1501,184 @@ def test_an_EMPTY_DATE_IS_A_VALUE_THE_OPERATOR_TYPED_and_is_REFUSED(
     assert raised.value.code == 2
     assert all(argv[:1] == ["git"] for argv in ran)
     assert (root / "openspec" / "changes" / "change-a").is_dir()
+
+
+# ---- a shared checkout: another lane's work is neither judged nor undone ----
+#
+# Codex round 2 named both of these. The inspection reads "did a directory for
+# THIS change appear?", and every question that used to be asked about `created`
+# globally is now asked about `mine` — because the answer to the global question
+# is a fact about a sibling lane, and acting on it destroys their work.
+
+
+def _sibling_only_fake(support, day: str, sibling: str, returncode: int = 1):
+    """THIS change's child fails having moved NOTHING, while another lane lands.
+
+    The exact shape of the P1: `created` is non-empty (the sibling's directory)
+    while the child that this run is waiting on refused before it touched
+    anything. The sibling also edits `openspec/specs/`, as a real archive does.
+    """
+
+    def fake_run(argv, **kwargs):
+        argv = [str(item) for item in argv]
+        if argv[:1] == ["git"]:
+            return _REAL_SUBPROCESS_RUN(argv, **kwargs)
+        if argv[1:2] == ["archive"] and len(argv) > 2:
+            root = Path(kwargs.get("cwd", "."))
+            archive = root / "openspec" / "changes" / "archive"
+            archive.mkdir(parents=True, exist_ok=True)
+            (archive / f"{day}-{sibling}").mkdir()
+            # THE SIBLING'S CANONICAL SPEC EDIT, tracked and committed before
+            # this run started — exactly what a revert would erase.
+            spec = root / "openspec" / "specs" / "a-capability" / "spec.md"
+            spec.write_text(
+                spec.read_text(encoding="utf-8")
+                + "the SIBLING lane's spec edit\n", encoding="utf-8")
+            # …and this change's own child moved nothing and refused.
+            return _answer(argv, returncode, kwargs, "3 incomplete task(s)")
+        return _answer(argv, 0, kwargs)
+
+    return fake_run
+
+
+def _committed_spec(root: Path) -> Path:
+    specs = root / "openspec" / "specs" / "a-capability"
+    specs.mkdir(parents=True, exist_ok=True)
+    (specs / "spec.md").write_text("# a-capability\n\nthe committed text\n",
+                                   encoding="utf-8")
+    _REAL_SUBPROCESS_RUN(["git", "-C", str(root), "add", "-A"], check=True,
+                         capture_output=True, text=True)
+    _REAL_SUBPROCESS_RUN(
+        ["git", "-C", str(root), "-c", "user.name=Test", "-c",
+         "user.email=test@example.invalid", "commit", "-q", "-m", "specs"],
+        check=True, capture_output=True, text=True)
+    return specs / "spec.md"
+
+
+def test_a_SIBLINGS_DIRECTORY_does_not_MASK_this_childs_ORDINARY_FAILURE(
+        support, registry, monkeypatch, tmp_path):
+    """(Codex round 2, P1) `not created` asked a global question.
+
+    A child that refused having moved nothing leaves the tree as the operator
+    handed it over — exit 1, the child's own error. Read globally, a sibling
+    lane's directory landing in the same instant made that condition false, and
+    the run fell through to a date finding about a directory that is not its own.
+    """
+    root = tmp_path / "repo"
+    a_change(root)
+    _committed_spec(root)
+    monkeypatch.setattr(
+        support.subprocess, "run",
+        _sibling_only_fake(support, "2026-09-08", "change-from-another-lane"))
+
+    with pytest.raises(subprocess.CalledProcessError) as raised:
+        support.archive_change(root, "change-a", "2026-09-08", False, True)
+
+    assert raised.value.returncode == 1
+    assert (root / "openspec" / "changes" / "change-a").is_dir()
+
+
+def test_the_REFUSAL_NEVER_REVERTS_SPECS_when_THIS_run_produced_NOTHING(
+        support, registry, monkeypatch, tmp_path):
+    """(Codex round 2, P1) The revert's blast radius is the other lane's work.
+
+    `specs_clean` is read before THIS child — which in a shared checkout is also
+    before a SIBLING's — and `git checkout -- openspec/specs` cannot tell the two
+    apart. A run that produced no directory of its own has no spec edit of its
+    own to undo, so it undoes nothing and says why.
+    """
+    root = tmp_path / "repo"
+    a_change(root)
+    spec = _committed_spec(root)
+    # exit 0 this time, so the run reaches the mismatch path rather than the
+    # child's own error: the property is about the REVERT, not the status.
+    monkeypatch.setattr(
+        support.subprocess, "run",
+        _sibling_only_fake(support, "2026-09-08", "change-from-another-lane",
+                           returncode=0))
+
+    try:
+        support.archive_change(root, "change-a", "2026-09-08", False, True)
+    except support.ArchiveDateRefusal as exc:
+        message = str(exc)
+    else:
+        raise AssertionError("a CLI that archived nothing must be refused")
+
+    assert "'<no new directory>'" in message, (
+        "the refusal must not quote a sibling's directory as the name the CLI "
+        "gave THIS change")
+    assert "change-from-another-lane" not in message.split("LEFT ALONE:")[0]
+    assert "this run produced no archive directory of its own" in message
+    assert "would discard another lane's" in message
+    assert "the SIBLING lane's spec edit" in spec.read_text(encoding="utf-8"), (
+        "the concurrent archive's canonical spec edit was reverted by a run "
+        "that had produced nothing of its own")
+
+
+def test_a_DATE_PREFIXED_SIBLING_ID_is_NOT_read_as_THIS_CHANGES_wrong_day_copy(
+        support, registry, monkeypatch, tmp_path):
+    """(Codex round 2, P2) `2026-08-04-change-a` is a change id, not a prefix.
+
+    Stripping the prefix makes the sibling's directory look like a wrong-day
+    archive of `change-a`. The two readings are indistinguishable FROM THE NAME,
+    so the name does not decide: the active change ids read BEFORE the child do.
+    """
+    root = tmp_path / "repo"
+    a_change(root)
+    # A SECOND, REAL CHANGE whose id already carries a date — the shape
+    # `archive_directory_name` exists to support.
+    a_change(root, "2026-08-04-change-a")
+    _committed_spec(root)
+
+    def fake_run(argv, **kwargs):
+        argv = [str(item) for item in argv]
+        if argv[:1] == ["git"]:
+            return _REAL_SUBPROCESS_RUN(argv, **kwargs)
+        if argv[1:2] == ["archive"] and len(argv) > 2:
+            root_ = Path(kwargs.get("cwd", "."))
+            archive = root_ / "openspec" / "changes" / "archive"
+            archive.mkdir(parents=True, exist_ok=True)
+            # THE SIBLING LANE archives `2026-08-04-change-a` under its own
+            # name, which is what the pinned CLI does with a dated id.
+            source = root_ / "openspec" / "changes" / "2026-08-04-change-a"
+            source.rename(archive / "2026-08-04-change-a")
+            # …and THIS change's child refused, having moved nothing.
+            return _answer(argv, 1, kwargs, "3 incomplete task(s)")
+        return _answer(argv, 0, kwargs)
+
+    monkeypatch.setattr(support.subprocess, "run", fake_run)
+
+    with pytest.raises(subprocess.CalledProcessError) as raised:
+        support.archive_change(root, "change-a", "2026-09-08", False, True)
+
+    assert raised.value.returncode == 1, (
+        "the sibling's dated id was read as a wrong-day copy of change-a, so "
+        "the child's ordinary failure became an archive-split")
+    # BOTH trees are exactly where their owners left them.
+    assert (root / "openspec" / "changes" / "change-a").is_dir()
+    assert (root / "openspec" / "changes" / "archive"
+            / "2026-08-04-change-a").is_dir()
+
+
+def test_the_DISAMBIGUATION_still_reverts_a_REAL_wrong_day_copy(
+        support, registry, monkeypatch, tmp_path):
+    """The anti-vacuity control for the test above.
+
+    Without a change id of that name in the corpus, `2026-09-07-change-a` IS a
+    wrong-day copy of `change-a` and is reverted exactly as before — otherwise
+    the disambiguation would have bought its precision by disabling the arm.
+    """
+    root = tmp_path / "repo"
+    a_change(root)
+    monkeypatch.setattr(support.subprocess, "run",
+                        _wrong_day_fake(support, "2026-09-07"))
+
+    try:
+        support.archive_change(root, "change-a", "2026-09-08", False, True)
+    except support.ArchiveDateRefusal as exc:
+        message = str(exc)
+    else:
+        raise AssertionError("a wrong-day archive directory must be refused")
+
+    assert "reverted: the change directory was moved back" in message
+    assert (root / "openspec" / "changes" / "change-a" / "proposal.md").is_file()

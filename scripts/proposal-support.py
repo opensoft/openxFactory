@@ -1784,7 +1784,18 @@ def archive_directory_name(change: str, archive_date: str) -> str:
     return f"{archive_date}-{change}"
 
 
-def names_this_change(directory_name: str, change: str) -> bool:
+def change_dir_names(root: Path) -> set[str]:
+    """The ACTIVE change ids under `openspec/changes/`, `archive/` excluded."""
+    directory = root / "openspec" / "changes"
+    if not directory.is_dir():
+        return set()
+    return {child.name for child in directory.iterdir()
+            if child.is_dir() and child.name != "archive"}
+
+
+def names_this_change(directory_name: str, change: str,
+                      other_change_ids: frozenset[str] | set[str] = frozenset()
+                      ) -> bool:
     """Is `directory_name` under `archive/` a directory FOR `change`?
 
     The question the refusal below has to answer before it moves anything: a
@@ -1792,9 +1803,30 @@ def names_this_change(directory_name: str, change: str) -> bool:
     change being archived (revert it) or a sibling lane's archive landing in a
     shared checkout (never touch it, and never tell the operator to move it
     back — it is not theirs to undo).
+
+    ONE SHAPE IS GENUINELY AMBIGUOUS, and `other_change_ids` is what settles it.
+    A directory called `2026-08-04-foo` is a wrong-day archive of `foo` AND the
+    archive of a change whose id IS `2026-08-04-foo` — which
+    `archive_directory_name` above exists to support, because the pinned CLI
+    archives such an id under its own name unchanged. The two readings are
+    indistinguishable from the name, so the name is not what decides: the ACTIVE
+    change ids READ BEFORE THE CHILD RAN are. If `2026-08-04-foo` was a change
+    in this repository when the run started, a new archive directory of that
+    name is THAT change's archive and not a mis-dated copy of `foo`'s, and this
+    run has no standing over it. (Codex round 2, P2.)
+
+    The reading has to be taken BEFORE the child, because a sibling lane
+    archiving concurrently removes its own active directory as it goes; asked
+    afterwards the question would answer "no such change" for exactly the
+    directory it was asked about.
     """
-    return (directory_name == change
-            or ARCHIVE_DATE_PREFIX.sub("", directory_name, count=1) == change)
+    if directory_name == change:
+        return True
+    if not ARCHIVE_DATE_PREFIX.match(directory_name):
+        return False
+    if directory_name in other_change_ids:
+        return False
+    return ARCHIVE_DATE_PREFIX.sub("", directory_name, count=1) == change
 
 
 def specs_are_clean(root: Path) -> bool | None:
@@ -1854,7 +1886,9 @@ def assert_archived_directory_date(root: Path, change: str, archive_date: str,
                                    before: set[str], archive_existed: bool,
                                    specs_clean: bool | None,
                                    returncode: int = 0,
-                                   command: list[str] | None = None) -> None:
+                                   command: list[str] | None = None,
+                                   other_change_ids: frozenset[str] | set[str]
+                                   = frozenset()) -> None:
     """INSPECT THE TREE THE CHILD LEFT, whatever status the child returned.
 
     THE INSPECTION IS THE POINT, not the `TZ=UTC` above it. `TZ` is an ask of a
@@ -1908,7 +1942,8 @@ def assert_archived_directory_date(root: Path, change: str, archive_date: str,
     """
     want = archive_directory_name(change, archive_date)
     created = sorted(archive_dir_names(root) - before)
-    mine = [name for name in created if names_this_change(name, change)]
+    mine = [name for name in created
+            if names_this_change(name, change, other_change_ids)]
     others = [name for name in created if name not in mine]
     active = root / "openspec" / "changes" / change
 
@@ -1973,30 +2008,44 @@ def assert_archived_directory_date(root: Path, change: str, archive_date: str,
     # fix-and-retry shape exit 1 has always meant here, so this stays the
     # child's own `CalledProcessError` rather than becoming a date finding
     # about a date nothing wrote.
-    if returncode != 0 and not created and active.exists():
+    #
+    # `not mine`, NOT `not created`, and the difference is a shared checkout.
+    # Read globally, a sibling lane's directory landing between the two
+    # readings made this condition false for a child that had moved NOTHING —
+    # so the run fell through to the mismatch path, reported a date finding
+    # about a directory that is not its own, and ran `git checkout --
+    # openspec/specs` over a cleanliness reading taken before EITHER child ran,
+    # erasing the concurrent archive's canonical spec edits. (Codex round 2,
+    # P1.) The question is about THIS change, so it is asked about this
+    # change's directories.
+    if returncode != 0 and not mine and active.exists():
         raise subprocess.CalledProcessError(returncode, command or "openspec")
 
-    if not created:
+    # NAMED FROM `mine`, for the same reason: the refusal is about the
+    # directory this archive did or did not produce, and quoting a sibling's
+    # name as the one "the pinned CLI named" for this change is a false
+    # statement about another lane's work.
+    if not mine:
         got = "<no new directory>"
-    elif len(created) == 1:
-        got = created[0]
+    elif len(mine) == 1:
+        got = mine[0]
     else:
-        got = ", ".join(created)
+        got = ", ".join(mine)
 
     # RE-READ AFTER THE CHILD, and compared rather than assumed: a run that
     # began at 23:59:59 UTC took `archive_date` on one day and the child named
     # the directory on the next, and the old wording called that "the CLI's
     # clock is not UTC" — an accusation this wrapper cannot support.
     now = utc_today()
-    if len(created) > 1:
-        diagnosis = ("more than one directory appeared during this run, so "
-                     "which one this archive produced cannot be read off the "
-                     "tree")
-    elif not created:
-        diagnosis = ("the CLI created no archive directory at all"
+    if len(mine) > 1:
+        diagnosis = ("more than one directory naming this change appeared "
+                     "during this run, so which one this archive produced "
+                     "cannot be read off the tree")
+    elif not mine:
+        diagnosis = ("the CLI created no archive directory for this change"
                      + (f" and exited {returncode}" if returncode
                         else ", and exited 0"))
-    elif now != archive_date and created[0] == f"{now}-{change}":
+    elif now != archive_date and mine[0] == f"{now}-{change}":
         diagnosis = (f"THIS RUN CROSSED MIDNIGHT UTC — the archive date was "
                      f"taken as '{archive_date}' before the CLI ran and it is "
                      f"now '{now}', which is the day the directory carries. "
@@ -2012,7 +2061,7 @@ def assert_archived_directory_date(root: Path, change: str, archive_date: str,
         f"REFUSE archive-date-mismatch: the pinned CLI named the archive "
         f"directory '{got}' but the archive date is '{archive_date}' — "
         f"{diagnosis}; nothing committed."]
-    if returncode and created:
+    if returncode and mine:
         lines.append(
             f"  The child also exited {returncode}; its own output is above.")
 
@@ -2039,7 +2088,19 @@ def assert_archived_directory_date(root: Path, change: str, archive_date: str,
             f"changes — a concurrent archive in a shared checkout — and this "
             f"refusal does not touch them or ask you to.")
 
-    if specs_clean is True and specs_are_tracked(root) is False:
+    if not mine:
+        # NOTHING OF OURS MOVED, SO NOTHING OF OURS IS REVERTED. `specs_clean`
+        # was read before the child; in a shared checkout it is also before a
+        # SIBLING's child, and `git checkout -- openspec/specs` cannot tell the
+        # two apart. A run that produced no directory of its own has no spec
+        # edit of its own to undo, and reverting on its behalf would discard
+        # another lane's. (Codex round 2, P1.)
+        lines.append(
+            "  NOT reverted: this run produced no archive directory of its "
+            "own, so it has no spec edits of its own to undo — and in a shared "
+            "checkout `git checkout -- openspec/specs` would discard another "
+            "lane's. Read the child's output above for what it did do.")
+    elif specs_clean is True and specs_are_tracked(root) is False:
         # NOT A FAILED REVERT, AND NOT REPORTED AS ONE. `git checkout --
         # openspec/specs` exits 1 with "pathspec ... did not match" where git
         # tracks nothing under that path, and printing that as "STILL IN THE
@@ -2182,6 +2243,12 @@ def archive_change(root: Path, change: str, packaged_at: str,
     existing = archive_dir_names(root)
     existed = archive_root(root).is_dir()
     clean = specs_are_clean(root)
+    # AND THE ACTIVE CHANGE IDS, for the same reason and at the same moment: a
+    # concurrent lane archiving `2026-08-04-foo` removes that active directory
+    # as it goes, and the question "is this new archive directory a wrong-day
+    # copy of MY change, or that change's own archive?" can only be answered
+    # from the corpus as it stood BEFORE either child ran.
+    other_ids = change_dir_names(root) - {change}
     # The entrypoint's own environment MERGED WITH `TZ=UTC`, so the two halves
     # of an archive share whatever `validation_environment()` settles
     # (`OPENSPEC_TELEMETRY=0` is currently the whole of it) rather than one of
@@ -2206,7 +2273,8 @@ def archive_change(root: Path, change: str, packaged_at: str,
     assert_archived_directory_date(root, change, packaged_at, existing,
                                    existed, clean,
                                    returncode=completed.returncode,
-                                   command=command)
+                                   command=command,
+                                   other_change_ids=other_ids)
 
 
 def parser() -> argparse.ArgumentParser:

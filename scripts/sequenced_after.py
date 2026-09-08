@@ -1865,6 +1865,34 @@ def render_ledger(
             by = moved_by
             on = moved_on
             if flips_to_archived(change_id, reading, previous):
+                # THE FLIP TAKES THE ARCHIVE'S DATE, AND OVERWRITES THE RUN'S.
+                # At the flip the row's move and the archive are the SAME ACT —
+                # the state change this row records is "became archived", and
+                # that happened on the day the directory carries — so the pair
+                # reads "recorded by <this pull request>, moved on <the archive
+                # date>". A `--moved-on` that contradicts it is refused rather
+                # than silently overridden (see the seeder), so the rule cannot
+                # be worked around by accident.
+                #
+                # THE SHARP EDGE, NAMED RATHER THAN LEFT TO BE FOUND (Codex
+                # round 2, P1): `flips_to_archived` reads only the PREVIOUS row
+                # state, so it cannot tell "the archiving change seeded its own
+                # row" from "the archiving change forgot, and a later repair is
+                # seeding it now". Both are flips, and both take the archive's
+                # date — so a delayed repair's row states the repair's pull
+                # request beside the original archive's day, and there is no way
+                # to record the repair's own date instead.
+                #
+                # THAT IS DELIBERATE AND IS NOT CHANGED HERE. `moved_on` is the
+                # date the ROW MOVED, and the move a flip records is the archive
+                # — which happened when the directory says it did, whoever wrote
+                # the row down afterwards. The alternative reading (a delayed
+                # repair stamps its own day) is defensible and would still pass
+                # the validator's archive-date arm, but choosing between them is
+                # a reading of `release-realization`'s per-subject-row
+                # requirement, not an implementation detail to settle in a fix
+                # round: it changes what every future flipped row means. Named
+                # in the pull request as a successor.
                 on = archive_dates.get(change_id, moved_on)
         else:
             row = previous.rows[change_id]
