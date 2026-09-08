@@ -1,0 +1,91 @@
+schema: spec-driven
+created: 2026-09-08
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-08-amend-mirror-floor-regeneration-merge-authority
+  reason: >-
+    THE LOCKSTEP MIRROR codexFactory's `amend-floor-regeneration-merge-authority`
+    NAMES AS OWED. That packet was ratified 2026-09-08 and landed at codexFactory
+    main merge commit `93f0f0d71ed00dbb384101be779d62233f6367f5`; its `design.md`
+    D-6 measured this repository's twin sentence — `mirror-floor-regeneration-automation/specs/review-lane-floor-mirror/spec.md:5`,
+    requirement *An automated pin advance only ever proposes*, which carries the
+    same "SHALL NOT merge, SHALL NOT approve" — recommended NOT amending it there
+    (cross-repository requirement text is not that repository's to move) and
+    recommended filing this packet separately, and its `tasks.md` box 5.1 records
+    the successor as owed. Brett Heap took that recommendation in session on
+    2026-09-08T13:22:40Z, verbatim "rule on finding 3, do the mirror packet too",
+    recorded on openxFactory issue #745 (comment 5585824802), which states the
+    scope on this side: "proposal only, Brett ratifies; its realization is gated
+    on an approver existing for the `review-lane-repin` lane (openxFactory's
+    envelope enrols only `intent-rolling-custody` today)".
+    WHY IT IS A PACKET AND NOT AN EDIT. Working rule 3: a ratified requirement
+    changes only by a ratified change. The sentence being narrowed was ratified
+    here on 2026-09-06 as part of `mirror-floor-regeneration-automation` (PR #708,
+    pair word "ratify both when green, then land them"), and it is enforced in
+    running code by
+    `tests/review_lane_pin/test_repin_lane.py::AnAutomatedPinAdvanceOnlyEverProposes::test_the_lane_opens_a_pull_request_and_stops_there`,
+    a ten-term disposal sweep over the shell the runner executes. No ruling on a
+    task box moves either.
+    THE REALIZATION GATE IS FOUR REFUSALS DEEP AND IS STATED RATHER THAN
+    DISCOVERED, which is the one place this mirror is not a transcription of its
+    twin. Measured live 2026-09-08 against `opensoft/openxFactory`: (1)
+    `.github/merge-approval-envelope.yml` enrols exactly one candidate,
+    `intent-rolling-custody`, and the re-pin lane's branch and four writable paths
+    are none of its; (2) `.github/workflows/merge-master-approval.yml:1504` parks
+    any candidate touching a never-clearable path "whatever the envelope says",
+    and `contracts/review-lane-pin.yaml` is such a path; (3) ORGANIZATION ruleset 18834180
+    (`repository_name: ~ALL`, `ref_name: ~DEFAULT_BRANCH`) requires code-owner
+    review on `main`, all four sites the lane writes are CODEOWNERS-routed, and a
+    GitHub App cannot be named in CODEOWNERS — and NO BYPASS IS PROPOSED, because
+    codexFactory's D-4 (i) was withdrawn on 2026-09-08 (its #232 comment
+    5585989018) and the grant would be worse here (org-wide over every default
+    branch, carrying `deletion`/`non_fast_forward`, removing the very gate that
+    makes this repository's pin routing binding, and reportedly not honoured by
+    the async auto-merge path at all); codexFactory's relocate-off-CODEOWNERS
+    escape is measured UNAVAILABLE here because two of the four sites are
+    workflow files; (4) codexFactory's promoted *Bounded autonomous surface* forbids
+    the approval and `extend-merge-master-envelope-to-floor-bot-lanes`'s ratified
+    N-1 narrowed it for the codexFactory REGENERATION lane ONLY. The remedy is
+    named as a successor — `admit-review-lane-repin-to-merge-approval-envelope` —
+    and is NOT authored here, and the COMPLETION PATH is left OPEN for Brett
+    Heap's word with seven shapes costed in design.md M-D. The cheap precondition
+    is recommended first and is unmeasured: openxFactory `main` carries NO classic
+    branch protection (404) so protection is rulesets-only, and ZERO of the last
+    60 closed pull requests here ever used auto-merge.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and `INDEX.md` read on 2026-09-08: no topic
+    folder and no INDEX row names the review-lane pin, the re-pin lane, the
+    merge-approval envelope, the repository gate floor or bot merge authority.
+    `kind: staged` would claim a staging source that does not resolve. The
+    organized source is codexFactory's ratified packet at `93f0f0d7`, openxFactory
+    issue #745 and codexFactory issue #232.
+  proposed_by: >-
+    Lane `openxfactory-2` (display `openXfactory-2`), session `78b27179`, on Brett
+    Heap's word of 2026-09-08T13:22:40Z. NO APPROVAL PAIR IS DECLARED AND NONE IS
+    IMPLIED: that word commissioned the AUTHORING and ruled a finding in the other
+    repository; it admits no text here to canon and ratifies no design decision.
+    The lawful unapproved shape is the one `add-drafted-proposal-origin` (issue
+    #318) added — drafting provenance, no `approved_by`, no `approved_on` — and
+    every document in the packet carries `Status: draft` to match; approval, when
+    it comes, is a pure ADDITION beside a fixed `kind` and `id`.
+    THE DECISIONS MOST WORTH A VETO are the three that DEPART from their
+    codexFactory counterparts on a measurement of this repository rather than on
+    preference: `design.md` M-B (merge method — openxFactory permits merge, squash
+    and rebase, so unlike codexFactory the method is a choice; squash is
+    recommended on the observed precedent of PR #732, the lane's only merged
+    advance, which landed with one parent), M-C (a driver-side disposal control
+    must be ADDED, because this repository's sweep reads only the workflow's
+    `run:` blocks and `scripts/review_lane_repin.py` has never been measured), and
+    M-D (four refusals rather than one; NO bypass actor recommended anywhere, on
+    the withdrawal of codexFactory's D-4 (i) and on this repository's own
+    measurements; the relocate-off-CODEOWNERS escape measured UNAVAILABLE; and
+    the completion path left OPEN for a word with a cheap precondition
+    recommended first). M-A's last alternative — hold the arming
+    until the successor lands, instead of landing it inert — is carried separately
+    as `tasks.md` box 1.3 so it can be ruled on its own.
+  proposed_on: 2026-09-08
+related:
+  - openxFactory:change:mirror-floor-regeneration-automation                        # ACTIVE, ratified 2026-09-06 (PR #708). THE PARENT: its requirement 1 is the sentence this packet's one MODIFIED block replaces, and it must archive first
+  - openxFactory:change:extend-merge-master-envelope-to-floor-bot-lanes             # ACTIVE, ratified 2026-09-07 (PR #746). The § 6.3 packet: its N-1 admitted the codexFactory regeneration lane ONLY and left this lane on a human merge word, which is why the realization here is gated rather than one click away
+  - openxFactory:change:archive/2026-09-05-mirror-floor-addition-grace              # ARCHIVED. Promoted the seven `review-lane-floor-mirror` requirements the parent composes with, and its archive taught the negative-control lesson (`ca9fafe6`) that `design.md` M-C applies
+  - openxFactory:change:archive/2026-09-03-add-per-change-sweep-ledger              # ARCHIVED. The per-change sweep ledger this packet seeds a row in rather than editing a shared scalar
