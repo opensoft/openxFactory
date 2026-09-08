@@ -10,7 +10,7 @@ stack_identity:
     digest: 9f2c8e1a7b4d5f60312a8c9e0d1f2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c
 domain_overlays:
   - domain_id: example-engineering
-    repository: opensoft/codexFactory
+    repository: codeXfactory/codexFactory
     commit: 89abcdef0123456789abcdef0123456789abcdef
     overlay_root: omnigent
     overlay_manifest_path: omnigent/overlay-manifest.yaml

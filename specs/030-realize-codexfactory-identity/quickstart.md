@@ -133,19 +133,47 @@ python3 scripts/validate-signed-execution-chain.py .
 
 ## 6. No BARE name was edited (packet 6.4)
 
-A transfer moves the OWNER segment only. This must return nothing — no diff line
-that changes a `codexFactory` occurrence which is not preceded by `opensoft/`:
+A transfer moves the OWNER segment only. **A grep over diff lines does not test
+this** — it false-positives on every new line of prose that mentions the
+repository by name, and this feature's own documents add over a hundred such
+lines. The check that actually tests the claim compares, per changed
+pre-existing file, the number of `codexFactory` occurrences that carry NO owner
+segment, before and after:
 
 ```sh
-git diff -U0 origin/main... \
-  | grep -E '^[-+].*codexFactory' \
-  | grep -viE 'opensoft/codexFactory|codeXfactory/codexFactory' || echo "clean: no bare name edited"
+python3 - origin/main <<'EOF'
+import re, subprocess, sys
+BASE = sys.argv[1]
+OWNED = re.compile(r"(?:opensoft|codeXfactory|codexfactory|MedxSoft)/codexFactory", re.I)
+ANY = re.compile(r"codexFactory", re.I)
+bare = lambda s: len(ANY.findall(OWNED.sub("\x00", s)))
+bad = ok = 0
+for line in subprocess.run(["git","diff","--name-status",BASE],
+                           capture_output=True, text=True).stdout.split("\n"):
+    if not line.strip():
+        continue
+    path = line.split("\t")[-1]
+    before = subprocess.run(["git","show",f"{BASE}:{path}"], capture_output=True, text=True)
+    if before.returncode:                     # a NEW file edits nothing
+        print(f"  new file: {path}")
+        continue
+    after = subprocess.run(["git","show",f":{path}"], capture_output=True, text=True).stdout
+    b, a = bare(before.stdout), bare(after)
+    if b != a:
+        print(f"!!! BARE NAME EDITED  {path}: {b} -> {a}"); bad += 1
+    else:
+        ok += 1
+print(f"pre-existing files changed, bare count identical: {ok}")
+sys.exit(1 if bad else 0)
+EOF
 ```
 
-Filenames are bare names too, so this must also be empty:
+**Result at P1's head**: 8 pre-existing files changed, bare count identical in
+all 8; the new files add bare mentions (prose about the repository) and edit
+none. Filenames are bare names too, so this must also stay empty:
 
 ```sh
-git diff --name-status --diff-filter=R origin/main... || echo "clean: no rename"
+git diff --name-status --diff-filter=R origin/main || echo "clean: no rename"
 ```
 
 ## 7. The affected validators and suites (packet 7.1)
@@ -157,7 +185,7 @@ python3 scripts/validate-hermes-runtime-contracts.py .
 python3 scripts/validate-factory-identity.py .
 python3 scripts/validate-clearing-dispatch.py .
 python3 scripts/validate-signed-execution-chain.py .
-python3 scripts/validate-omnigent-contracts.py .
+python3 scripts/validate-omnigent-contracts.py        # NO argument = self-test; a path argument means REPO mode and fails on this tree
 python3 scripts/validate-hermes-domain-overlay.py .
 ```
 
