@@ -2086,8 +2086,9 @@ repo scope.
   (the engine) — and now HOLDS it: the clinical content moved 2026-09-07 to
   `MedxSoft/MedxFactory@74bed502`
   `ideation/staging/treatment-plan-generation/treatment-options-engine-clinical.md`,
-  by Brett Heap's ruling of 2026-09-07T22:21Z ("accept all [A]", Q2[A]). Until then one 696-line fragment interleaved both halves; the
-  fragment here is now 253 lines of neutral delta. The fragment still does NOT
+  by Brett Heap's ruling of 2026-09-07T22:21Z ("accept all [A]", Q2[A]). Until
+  then one 696-line fragment interleaved both halves; the fragment here is now
+  253 lines of neutral delta. The fragment still does NOT
   fence the Medx capabilities as `xspec:candidate` targets — they do not
   resolve from an openxFactory document and fencing them would emit tag-hygiene
   findings for a claim this repository cannot host.
