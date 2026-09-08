@@ -1522,6 +1522,30 @@ def test_the_real_lockfile_holds_the_pinned_packages_declared_dependencies(mod):
             f"{name} is declared by the pinned package and locked by nothing"
 
 
+def running_lines(source: str) -> str:
+    """The lines of a module that RUN, with every comment and docstring removed.
+
+    THE RULE THE TWO TESTS BELOW SHARE, and it is the two workflow tests' rule
+    applied to Python: a line that RUNS may not restate the pin; a line that
+    EXPLAINS may quote it. `scripts/proposal-support.py` names
+    `@fission-ai/openspec@1.12.0` four times in prose — once in a `#` comment and
+    three times inside FUNCTION docstrings, describing that version's three
+    documented archive failure paths — and that narrative is exactly the kind of
+    writing the rule protects. Stripping only the MODULE docstring would have
+    caught the comment and missed the three, which is why this walks the AST for
+    every bare string expression rather than reaching for `ast.get_docstring`.
+    """
+    tree = ast.parse(source)
+    prose: set[int] = set()
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant)
+                and isinstance(node.value.value, str)):
+            prose.update(range(node.lineno - 1, (node.end_lineno or node.lineno)))
+    return "\n".join(
+        line for index, line in enumerate(source.splitlines())
+        if index not in prose and not line.lstrip().startswith("#"))
+
+
 def test_every_caller_of_the_resolver_hands_it_the_closure():
     """THE MISS THIS TEST EXISTS FOR, and it was a real one.
 
@@ -1553,12 +1577,9 @@ def test_every_caller_of_the_resolver_hands_it_the_closure():
         assert "pinned_lockfile" in source and "verify_lockfile" in source, (
             f"{path.name} calls resolve_pinned without reaching the closure "
             "through the verifier's own functions")
+        body = running_lines(source)
         for literal in (VERSION, INTEGRITY, SHASUM, LOCKFILE_INTEGRITY,
                         LOCKFILE_NAME):
-            docstring = ast.get_docstring(ast.parse(source), clean=False) or ""
-            body = "\n".join(
-                line for line in source.replace(docstring, "").splitlines()
-                if not line.lstrip().startswith("#"))
             assert literal not in body, \
                 f"{path.name} restates {literal[:32]}…, which is a second copy"
 
@@ -1572,17 +1593,13 @@ def test_the_installer_carries_no_copy_of_the_pin_at_all():
     are written in RUNNING CODE in this file exactly as often as they were
     before: never.
 
-    THE MODULE DOCSTRING AND THE `#` COMMENTS ARE EXCLUDED, on the two workflow
-    tests' own rule: this file's history NAMES the two versions that moved apart
-    ("the pin went to 1.12.0 while the workflow still installed 1.2.0"), and that
-    narrative is the ARGUMENT for the absence. A line that RUNS may not restate
-    the pin; a line that explains why may quote it.
+    DOCSTRINGS AND `#` COMMENTS ARE EXCLUDED by `running_lines`, on the two
+    workflow tests' own rule: this file's history NAMES the two versions that
+    moved apart ("the pin went to 1.12.0 while the workflow still installed
+    1.2.0"), and that narrative is the ARGUMENT for the absence. A line that RUNS
+    may not restate the pin; a line that explains why may quote it.
     """
-    source = INSTALLER.read_text(encoding="utf-8")
-    docstring = ast.get_docstring(ast.parse(source), clean=False) or ""
-    body = "\n".join(
-        line for line in source.replace(docstring, "").splitlines()
-        if not line.lstrip().startswith("#"))
+    body = running_lines(INSTALLER.read_text(encoding="utf-8"))
     for literal in (VERSION, INTEGRITY, SHASUM, LOCKFILE_INTEGRITY,
                     LOCKFILE_NAME):
         assert literal not in body, \
