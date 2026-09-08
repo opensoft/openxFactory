@@ -436,7 +436,22 @@ def _seed_ledger_inner(repo_root: Path, repository: str, moved_by: str,
         readings, moved_by=moved_by,
         # `today`, READ ONCE ABOVE, not a second reading: two calls straddling
         # midnight UTC would refuse against one date and stamp another.
-        moved_on=moved_on or today,
+        #
+        # `is None`, NOT `or`, and for the reason the archive half states: `or`
+        # cannot tell "the caller named nothing" from "the caller named
+        # something falsy", and silently substituting today for a value someone
+        # passed would report a flag as honoured when nothing read it.
+        #
+        # THIS ONE WAS ALREADY UNREACHABLE, and the record should say so rather
+        # than claim a fix it did not make: an empty `--moved-on` is refused by
+        # `main` (`--moved-on must be an ISO date (YYYY-MM-DD), not ''`) and
+        # AGAIN by `render_ledger` itself, which runs `is_moved_on` over the
+        # value before it writes a line — remove either guard and the other
+        # still refuses. Unlike `archive`'s `args.date or today`, which was a
+        # live defect, this is a predicate that says what it means where it
+        # previously only happened to be right. (Copilot round 3, taken as
+        # clarity; the finding's premise that the value reaches here was wrong.)
+        moved_on=today if moved_on is None else moved_on,
         previous=previous, seeded_from=seeded_from, archive_dates=dates)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")

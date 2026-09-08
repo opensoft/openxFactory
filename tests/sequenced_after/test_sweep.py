@@ -1685,6 +1685,12 @@ def test_the_SEEDER_REFUSES_a_bad_provenance_WITHOUT_a_traceback(tmp_path):
          "--moved-on must be an ISO date"),
         (["--moved-by", "#620", "--moved-on", "2026-13-45"],
          "--moved-on must be an ISO date"),
+        # AN EMPTY STRING IS A VALUE THE OPERATOR TYPED. It was already
+        # refused — here, and again inside `render_ledger` — but nothing PINNED
+        # that, so a later edit to either guard could have let it through to a
+        # `moved_on or today` that stamps today over it. (Copilot round 3.)
+        (["--moved-by", "#620", "--moved-on", ""],
+         "--moved-on must be an ISO date"),
     ):
         result = subprocess.run(
             [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
