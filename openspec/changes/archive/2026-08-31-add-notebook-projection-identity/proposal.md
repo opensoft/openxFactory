@@ -1,6 +1,6 @@
 ---
 code_surface: openxFactory (`scripts/sync-notebooklm-books.py` — the declared-field read, `nlm` profile selection at every CLI invocation, a bulk session-migration mode, an explicit workspace-record replacement step, and a parity/report mode; a share-out roster artifact and its validation; `docs/lifecycle-notebook-projection.md` — section 1's "one shared account" framing and section 6's operator runbook, both written assuming one human's browser session; the install/tenant intake surface that carries the declared field). The GOVERNED SHARE-APPROVAL ACT itself is a human act in Google's own UI, not code — this change gives it a record, not an automation.
-target_release: implementation_pending — the requirements land now; the change archives only on merged code with green realization evidence, because its load-bearing claims are executable ones (the sync runs under the declared account; the migration re-derives, proves parity and records the retirement). The evidence gate is Opensoft's own cutover onto `xFactor001@opensoft.one`, parity proven against the corpus scan, and the personal-hosted books retired by recorded act.
+target_release: implementation_pending — the requirements land now; the change archives only on merged code with green realization evidence, because its load-bearing claims are executable ones (the sync runs under the declared account; the migration re-derives, proves parity and records the retirement). The evidence gate is Opensoft's own cutover onto `<service-account-identity>`, parity proven against the corpus scan, and the personal-hosted books retired by recorded act.
 ---
 
 # Proposal: add-notebook-projection-identity
@@ -19,8 +19,10 @@ The change stays ACTIVE — `target_release: implementation_pending` archives it
 only on merged code with green realization evidence.
 Proposed: 2026-08-23, the day the staged topic's last precondition was met.
 All five of its questions carry dispositions (merged as PR #272), and Brett
-Heap confirmed the hosting account — `xFactor001@opensoft.one` — and
+Heap confirmed the hosting account — `<service-account-identity>` — and
 authorized raising this change.
+
+> REDACTED 2026-09-07: email addresses -> role placeholders per `review/redaction-disposition-2026-09-07.md`; original bytes at 543d47a9.
 
 THE REALIZATION RUNS POST-RATIFICATION. No sync-script, roster, doc or intake
 edit lands with this proposal itself; its own diff is spec text plus these
@@ -32,11 +34,11 @@ The entire governed NotebookLM projection — every per-repo `xFactory Ideation
 — <RepoName>` book, `xf-drafts`, `xf-canon`, and every live `xf-session-*`
 notebook — is created by `scripts/sync-notebooklm-books.py` under the `nlm`
 CLI's DEFAULT profile, which resolves to one person's personal consumer Gmail
-(`brettheap@gmail.com`). Nothing declares that. It is an incidental fact of
+(`<convener-personal-mailbox>`). Nothing declares that. It is an incidental fact of
 whoever ran `nlm login` first.
 
 This was proven live on 2026-08-15. Brett, browsing as his own Workspace
-identity (`brett.heap@farheap.com`, managed by tech-corps.com), hit "request
+identity (`<convener-workspace-identity>`, managed by tech-corps.com), hit "request
 access" on a dashboard "open notebook" link — and the request landed in the
 personal Gmail's inbox, where it sat unmanaged. The governed corpus of a
 governed product was gated behind one individual's mail.
@@ -75,7 +77,7 @@ projection. A Workspace user is exactly the shape that works, and it brings
 what a consumer Gmail cannot: admin-console policy, org-owned retention,
 offboarding, and no personal-recovery path back to one individual.
 
-**Opensoft's own install declares Case A on `xFactor001@opensoft.one`** — a
+**Opensoft's own install declares Case A on `<service-account-identity>`** — a
 Google Workspace user in `opensoft.one`, confirmed by Brett Heap on 2026-08-23.
 
 **The sync runs under the declared account.** `scripts/sync-notebooklm-books.py`
@@ -132,7 +134,7 @@ rulings, the rest are adjudications on executed evidence.
    ONE COMBINED change — one mechanism, one custody rule, one code surface.
 2. **Q2 — account type (RULED BY BRETT HEAP).** A dedicated Google Workspace
    USER account in the operating tenant's own domain, never a consumer Gmail.
-   Confirmed the same day as `xFactor001@opensoft.one`, with the change
+   Confirmed the same day as `<service-account-identity>`, with the change
    authorized to raise on it.
 3. **Q3 — does the share-out roster reuse `client-identity-roster`? (resolved
    on an EXECUTED mapping).** No, and the reason is structural. Run against the

@@ -1,3 +1,4 @@
+# REDACTED 2026-09-07: email addresses -> role placeholders per review/redaction-disposition-2026-09-07.md; original bytes at 543d47a9.
 schema: spec-driven
 created: 2026-08-23
 origin:
@@ -8,7 +9,7 @@ origin:
     extending the change he ratified the same day
     (`add-notebook-projection-identity`, which made the projection's hosting
     identity a declared two-case intake fact and named
-    `xFactor001@opensoft.one` as Opensoft's declared account). His direction,
+    `<service-account-identity>` as Opensoft's declared account). His direction,
     verbatim: "this is a xFactor001 login. and we want to store the password
     in a kv and have xFactory and openXdox login with its own authority."
     Three question-prompt refinements followed, all his: (1) the vault is the

@@ -14,7 +14,8 @@ question to actual counsel — it never practices law. Legal responsibility is
 cross-layer: the client owns the legal *authority*, the domain carries
 engineering-legal *practices* (license/IP scanning), and project archetypes
 carry audience-specific *expectations*. Parent: `client-layer-roster-draft.md`;
-principle: `codexfactory-domain-policy-model.md`.
+principle: `codexfactory-domain-policy-model.md` (moved 2026-09-07 to
+`opensoft/codexFactory@83c9c35a`).
 Topics: hermes, legal-compliance, client-hermes, ip-law, licensing, age-appropriate,
 financial-regulation, data-protection, accessibility, legal-counsel,
 human-escalation, fail-closed, cross-layer, plane-3
@@ -39,7 +40,8 @@ No persona owns *that* today.
 
 ## Why legal is the strongest "store, don't improvise" case
 
-The store-the-delta principle (`codexfactory-domain-policy-model.md`) says pin
+The store-the-delta principle (`codexfactory-domain-policy-model.md`, moved
+2026-09-07 to `opensoft/codexFactory@83c9c35a`) says pin
 what must be consistent, enforceable, and boundary-critical. Law maxes out every
 criterion **and adds one more**: models are unreliable on legal specifics and
 the exposure is high-stakes, so the safe posture is not "store the delta and
