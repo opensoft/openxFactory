@@ -424,6 +424,13 @@ Every DomainxFactory must validate against the canonical contract:
   [contracts/policies/layer-vocabulary.yaml](contracts/policies/layer-vocabulary.yaml)).
 - Validator: `scripts/validate-domain-factory.py <domain-repo> [--strict]`
   — run from the pinned openxFactory checkout, never copied into domain repos.
+- Former repository identities: [contracts/policies/repository-identity.yaml](contracts/policies/repository-identity.yaml)
+  — the former-to-current mapping. A repository that has MOVED ORGANIZATIONS
+  keeps its recorded former spelling wherever that spelling is immutable or
+  dated (an archived packet, a dated verification table, a signature- or
+  digest-covered artifact), and the former identity is resolved BY LOOKUP here,
+  **never** through a provider redirect, which lapses the moment the former
+  owner reuses the name. A transfer moves the OWNER SEGMENT ONLY.
 - Credential contracts: [xfactory-credential-contracts schema](contracts/schemas/xfactory-credential-contracts.schema.yaml)
   and `scripts/validate-credential-contracts.py <domain-repo>` — the five
   credential record kinds under `credentials/` (DTN-004). Registered in
@@ -554,6 +561,101 @@ Active changes:
   a delta cannot carry and which is taken in the archive commit as a separate
   hunk on the `publish-openspec-cli-pin-as-contract-member` § 5.8 precedent.
   Lane `openxfactory-3`.
+
+- [amend-mirror-floor-regeneration-merge-authority](openspec/changes/amend-mirror-floor-regeneration-merge-authority/proposal.md)
+  — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
+  (openxFactory repository owner), in session, verbatim **"merge 292 when green,
+  then ratify 807"** — the SECOND act of a two-act word whose first act landed
+  codexFactory [#292](https://github.com/opensoft/codexFactory/pull/292) at merge
+  commit `406a2afb`; recorded on openxFactory
+  [#745](https://github.com/opensoft/openxFactory/issues/745) comment
+  5586895152, applied over PR
+  [#807](https://github.com/opensoft/openxFactory/pull/807) head `b910e97d` with
+  every check green and 0 unresolved threads; record
+  `openspec/changes/amend-mirror-floor-regeneration-merge-authority/review/ratification-2026-09-08.md`).
+  **M-A THROUGH M-G STAND AS RECOMMENDED — no veto entered.** **NOTHING IS
+  REALIZED BY THE RATIFICATION**: no workflow, no test, no envelope byte, no
+  ruleset, no pin byte, and box 1.1 is the only box ticked. The realization stays
+  gated on the enrolment successor, and `tasks.md` box 1.3 — inert or wait — is
+  NOT ruled by the word. Origin: Brett Heap's ruling of 2026-09-08T13:22:40Z,
+  verbatim
+  **"rule on finding 3, do the mirror packet too"** (openxFactory
+  [#745](https://github.com/opensoft/openxFactory/issues/745) comment
+  5585824802), taking the recommendation codexFactory's ratified
+  `amend-floor-regeneration-merge-authority` made in its `design.md` **D-6** and
+  named as owed in its `tasks.md` box 5.1. **THE LOCKSTEP MIRROR OF A NARROWING
+  THAT LANDED IN THE OTHER REPOSITORY THREE HOURS EARLIER** (codexFactory main
+  merge commit `93f0f0d71ed00dbb384101be779d62233f6367f5`). **ONE
+  `## MODIFIED Requirements` block, over ONE requirement, in ONE capability**:
+  `review-lane-floor-mirror` § *An automated pin advance only ever proposes*,
+  ratified here 2026-09-06 by `mirror-floor-regeneration-automation` (PR #708)
+  and enforced in running code by a ten-term disposal sweep over the shell
+  `.github/workflows/review-lane-repin.yml` executes. **What is ADMITTED**:
+  "SHALL NOT merge" becomes "SHALL NOT merge **by its own act**", and the lane
+  **MAY arm the platform's auto-merge** on its own pull request so the merge
+  completes only when (a) the merge-master envelope approval for that exact head
+  stands and (b) every required check has succeeded. **What stays FORBIDDEN, in
+  the requirement's own words rather than left to the implementation**: "SHALL
+  NOT approve" untouched under any identity; "SHALL NOT push to this
+  repository's default branch" untouched and restated as a bar on the LANE'S OWN
+  WRITES so a platform-completed merge is not a loophole in it; no
+  administrative override, no direct merge endpoint, no undeclared merge queue,
+  no review dismissal or solicitation, no closing the pull request, no second
+  act TOWARD THE MERGE after the arming; and where a rule is unsatisfiable the
+  lane may not widen it, add anyone to a bypass list, remove a floor path or
+  enrol itself. **What is explicitly PERMITTED after the arming, because the
+  parent requires it and the first draft forbade it (Codex P1, taken)**: the
+  single-flight UPDATE of an already-armed pull request, with an idempotent
+  re-arm — delivery is not disposal, and GitHub disables an armed auto-merge only
+  on a push by an actor WITHOUT write permission, which this lane's declared
+  identity is not. **Seven scenarios added, one carried narrowed, two carried
+  verbatim — ten in the block.** **The pairing is DECLARED**: the basis is an
+  active sibling's addition (`mirror-floor-regeneration-automation`, ratified but
+  unarchived), so the block carries the reserved `Modified over` marker in the
+  requirement body and the archive waits on that change promoting. **THE REALIZATION IS GATED FOUR DEEP, AND THAT IS THE ONE PLACE THIS
+  MIRROR IS NOT A TRANSCRIPTION OF ITS TWIN** — measured live 2026-09-08: this
+  repository's envelope enrols only `intent-rolling-custody`, so no candidate
+  class admits `bot/review-lane-repin`; the never-clearable floor is composed
+  OVER the envelope at `merge-master-approval.yml:1504` and
+  `contracts/review-lane-pin.yaml` is a floor member; **ORGANIZATION** ruleset
+  **18834180** (`repository_name: ~ALL`) requires code-owner review on `main`,
+  all four sites the lane writes are CODEOWNERS-routed, and a GitHub App cannot
+  be named in CODEOWNERS; and codexFactory's promoted *Bounded autonomous
+  surface* was narrowed by
+  `extend-merge-master-envelope-to-floor-bot-lanes`'s ratified **N-1** for the
+  codexFactory REGENERATION lane ONLY. **NO BYPASS ACTOR IS PROPOSED ANYWHERE** —
+  codexFactory's D-4 (i) was WITHDRAWN 2026-09-08 (its #232 comment
+  `5585989018`), and the grant would be worse here: 18834180 is org-wide over
+  every default branch in `opensoft`, it carries `deletion` and
+  `non_fast_forward` too, it is what gives THIS repository its code-owner gate,
+  and the async auto-merge path is reported not to honour `bypass_actors` at all.
+  codexFactory's relocate-off-CODEOWNERS escape is measured **UNAVAILABLE** here,
+  because two of the four sites are workflow files that cannot leave
+  `.github/workflows/`. So the remedy is a NAMED successor,
+  `admit-review-lane-repin-to-merge-approval-envelope`, whose measured shape is
+  written out in the proposal and which this packet does NOT author — filing it
+  re-opens what N-1 answered the other way — **plus a COMPLETION-PATH word left
+  OPEN**, with seven shapes costed in `design.md` M-D and the cheap precondition
+  recommended first: `main` here has **no classic branch protection** (`404`),
+  protection is rulesets-only, and **zero** of the last 60 closed pull requests
+  ever used auto-merge, so whether the mechanism fires at all is unmeasured. **The repository's own
+  merge facts are measured rather than copied**: `allow_auto_merge: true`; all
+  three merge methods permitted (codexFactory permits only a merge commit), so
+  the method is a CHOICE and `--squash` is recommended on PR #732's observed
+  precedent; required checks `signed-execution-chain-gate`, `lane-line`,
+  `wallet-validation`, `pytest-suite`, `release-tag-gate`;
+  `strict_required_status_checks_policy: false` on both rulesets, so the
+  up-to-date-push head movement codexFactory's D-1 warns about does not arise
+  here. **NOTHING IS REALIZED BY THE PROPOSING**: no workflow edited, no test
+  flipped, no envelope byte moved, no ruleset touched, no pin or snapshot byte
+  moved, every box unticked. Seven decisions **M-A..M-G**, each with a
+  recommendation and each put for veto; the three that DEPART from D-1..D-7 on a
+  measurement of this repository are **M-B** (merge method), **M-C** (a
+  driver-side control must be ADDED, because the sweep reads only the workflow's
+  `run:` blocks and `scripts/review_lane_repin.py` has never been measured) and
+  **M-D** (four refusals, not one). `sequenced_after:` declares the parent, the
+  § 6.3 packet, and the codexFactory amendment as a qualified foreign entry.
+
 - [govern-archived-record-edits](openspec/changes/govern-archived-record-edits/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
   (reviewer of record), in session, first-hand to lane `opsXfactory-1`, by CLI

@@ -51,6 +51,24 @@ handoff points; it does not own them.
       date>`, and a `redirect` note stating that the provider redirect lapses if
       `opensoft` reuses the name — which it may, `opensoft` remaining an active
       organization that holds the aggregation repository.
+      > **AMENDED 2026-09-08.** The task body above is retained as ratified
+      > 2026-09-07. Brett Heap (convener), interactive walkthrough, verbatim
+      > **"Amend task 1.1: this change creates the file (Recommended)"**:
+      > **THIS CHANGE CREATES** `contracts/policies/repository-identity.yaml`,
+      > with the schema both repositories' rows need and its own row.
+      > `adopt-medxsoft-repository-identity` APPENDS its two 2026-08-26 rows to
+      > `transfers:` when it realizes. The amendment was taken because the
+      > exemplar is still active, `Status: draft` and UNREALIZED, so the file did
+      > not exist and the premise of "Do not create the file here" had not held
+      > in time; task 0.2's conditional covers only *archived or withdrawn* and
+      > therefore did not fire. **The ROW CONTENT is unchanged** except
+      > `transferred_on`, which is `null` with `transfer_state: pending` until
+      > the transfer is CONFIRMED at runbook step 1.2 — a date recording a
+      > completed act cannot be written before the act. The file-level
+      > `pending_row_rule` forbids resolving `former` -> `current` for any live
+      > reference while a row is `pending`, which is what makes this row safe to
+      > land ahead of the transfer while groups 3-5 are held. Record:
+      > `review/amendment-2026-09-08-task-1-1.md`.
 - [ ] 1.2 Record on the row the TWO divergences a reader will otherwise trip on
       (OQ-6): that the owner segment is compared CASE-SENSITIVELY by this estate
       even though the provider compares it case-insensitively, and that the
@@ -66,6 +84,17 @@ handoff points; it does not own them.
       `contracts/manifest.yaml` entry and its `consumption_rule` are created by
       the exemplar's task 1.3. Adding a row does not add an entry. Re-verify the
       per-file `sha256` moves with the row and is recomputed, not hand-edited.
+      > **RE-DERIVED 2026-09-08 by the 1.1 amendment.** The task body above is
+      > retained as ratified. Its premise was that the exemplar creates the file
+      > and therefore its `contracts/manifest.yaml` entry. **This change now
+      > creates the file, so the registration IS owed here**: the entry, its
+      > `consumption_rule` and the per-file `sha256` are authored by this change.
+      > The `sha256` is COMPUTED, never hand-edited — the one clause of the
+      > original wording that survives verbatim and is the reason this box is
+      > re-derived rather than simply reversed. The exemplar's task 1.3 then
+      > RECOMPUTES that digest when its rows change the file's bytes, and
+      > re-authors nothing. Record:
+      > `review/amendment-2026-09-08-task-1-1.md`.
 
 ## 2. The recorded classification sweep — the evidence
 

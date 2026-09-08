@@ -9,9 +9,9 @@ carry it, and the Cloud PC machine-name template — so that the split of the
 host material out of `Omnigent-Install`, the reprovision of the first Cloud
 PC, and every consumer re-pin all build on one settled term instead of three
 spellings settled separately.
-Amended: 2026-09-08 by Brett Heap — one dated amendment, "A1 — the Cloud PC
-template requires a random `%RAND:y%` segment" (§ Amendments below, with dated
-file-forward pointers under each affected heading): every Windows 365
+Amended: 2026-09-08 by Brett Heap — two dated amendments (§ Amendments below,
+with dated file-forward pointers under each affected heading). "A1 — the Cloud
+PC template requires a random `%RAND:y%` segment": every Windows 365
 provisioning-policy device-name template must carry one — `%RAND:2%` measured
 too short, `%RAND:5%` accepted, longer never tried — and a Cloud PC is not
 renamed after provisioning, so the template ruled below,
@@ -21,9 +21,19 @@ host rendered `Omni001-XEAON`, ruled ACCEPTED 2026-09-05 ~22:50Z, verbatim
 "Accept Omni001-XEAON" (opensoft/openxFactory#591). AUTHORIZED 2026-09-08
 ~03:23Z by Brett Heap, in-session, verbatim "archive
 add-manifests-root-parameter and fix the naming record", recorded on the same
-issue. No ratified text is rewritten by it: `Status: ratified` and `Ratified
-by:` above are unchanged, and the product name, the repository name and the
-machine keys are untouched.
+issue. "A2 — the machine key `omniworker` is also a GitHub runner label;
+`omnigent` retained pending retirement": the open question raised below is
+ANSWERED by a RULING that `omniworker` IS TO BE registered beside `omnigent` on
+every registration surface, with `omnigent` kept registered until a later,
+separately worded retirement — a ruling and a declaration, not a completed
+rollout; putting the label on the already-running runners is an operator act
+still owed. Nothing in the xFactory aggregation selects on either label, so no
+lane loses its dispatch path while the two halves are sequenced. AUTHORIZED 2026-09-08 by
+Brett Heap, in-session, verbatim "do 794, 795 and 796", recorded on the same
+issue and claimed against this act at 14:40Z on opensoft/openxFactory#795;
+it carries exit 3 of that issue. No ratified text is rewritten by either
+amendment: `Status: ratified` and `Ratified by:` above are unchanged, and the
+product name, the repository name and the machine keys are untouched.
 
 **This record is `Status: ratified` as of 2026-09-05.** The decision below is LOCKED — it is
 Brett Heap's, taken in session on 2026-09-05 — and its lifecycle ratification is his word
@@ -280,6 +290,24 @@ its own release line, and its own boundary — the same act
 
 ## Open question — the GitHub runner label `omnigent`
 
+> **Amended 2026-09-08 — this open question is ANSWERED, and the answer is
+> ADDITIVE; see Amendments § A2.** `omniworker` is to be registered as a SECOND
+> runner label beside `omnigent`, and `omnigent` is NOT retired by that act —
+> it stays registered until a later, separately worded retirement. A runner may
+> hold both labels, which is why the two halves can be sequenced instead of
+> cut over. **The DECLARED label set carries both spellings from A2 onward; the
+> LIVE runners carry the second one only after Brett Heap's operator act, which
+> A2 records as owed** — no change in any repository re-labels a running
+> runner, and in the interval the difference is exactly one label that nothing
+> selects on. The measurement below is re-taken and unchanged in A2: nothing in
+> the xFactory aggregation selects on the label.
+>
+> **The ratified text below is left byte-unchanged** — including the sentence
+> "This record does not change it, and does not rule on it", which was true
+> when it was ratified and which A2 is the change it anticipated. This pointer
+> stands beside that text rather than editing it, exactly as A1's pointer does
+> under § "Machine names".
+
 Every self-hosted runner in this fleet registers the label `omnigent`:
 
 ```text
@@ -494,3 +522,186 @@ not to be read as amended by it:
 | `docs/omni-fleet-identity.md` in opensoft/CloudPC-Install | opensoft/CloudPC-Install#18 → squash `349d539d` | the mandatory `%RAND:5%`, the rejected-template measurements, `Omni001-XEAON`, and the host-id vs Entra-account casing rule |
 | The OpsxFactory fleet-registration record | opensoft/OpsxFactory#233 → merge commit `83a91c58` | the fleet re-attested to device `cf287ce7-7f73-4da7-adfb-c501bd7dd670` |
 | The ruling itself | opensoft/openxFactory#591, 2026-09-05 ~22:50Z (recorded 22:56Z) | "Accept Omni001-XEAON" |
+
+### A2 — 2026-09-08 · The machine key `omniworker` is also a GitHub runner label, and `omnigent` is retained pending retirement
+
+**Authority for this amendment.** Brett Heap, 2026-09-08, in session, verbatim:
+
+> do 794, 795 and 796
+
+recorded on opensoft/openxFactory#591. The middle number is
+opensoft/openxFactory#795 — **OQ-5**, the runner-label question — named as OWED,
+with the content it owes, in
+[`implement-omniworker-install-repo`](../openspec/changes/archive/2026-09-08-implement-omniworker-install-repo/tasks.md)
+§ 8.3, the packet that ratified this record, so that the box would tick on a
+recording rather than stay open forever. The lane claimed that issue on this
+word at 14:40Z and recorded the claim there.
+
+**The reading is the lane's, and is disclosed.** Brett Heap's words name three
+issue numbers; they do not spell an exit. Reading "do 795" as authority to take
+**that issue's own RECOMMENDED exit** — and no wider act — is the lane's
+reading, disclosed on opensoft/openxFactory#591. Nothing beyond exit 3 is
+attributed to him, and in particular no retirement of `omnigent` is.
+
+**What the open question asked, and why this record could not answer it.**
+§ "Open question — the GitHub runner label `omnigent`" above records that every
+self-hosted runner in the fleet registers `omnigent`; that under *"Omnigent
+orchestrates; omniWorker hosts"* the label means "the machine that executes";
+and that it was therefore the one live machine key still spelled the old way
+after the three casings were fixed. It then says, in terms: **"This record does
+not change it, and does not rule on it."** A1 left it alone for the same reason,
+and said so. #795 is where it was put to Brett Heap.
+
+**The three exits #795 put, and the one taken.**
+
+| Exit | What it does | Standing |
+|---|---|---|
+| 1 | change `omnigent` → `omniworker` on the runners | **not taken** |
+| 2 | keep `omnigent` | **not taken** |
+| 3 | **ADD `omniworker` as a SECOND label, and retire `omnigent` later** | **TAKEN** — and it was the issue's own recommendation |
+
+Exit 3 is cheap for one structural reason, which is why the packet recommended
+it: **a GitHub runner may hold both labels at once.** There is therefore no
+cutover, no window in which a runner is mislabelled, and no lane to sweep
+first. The retirement of `omnigent` becomes a separate, later act that is free
+once nothing names the old spelling — and it is **not** performed here.
+`omnigent` stays registered.
+
+**The measurement, RE-TAKEN before the act rather than quoted.** #795's central
+claim — corrected once, in the direction that made the ruling cheaper — is that
+nothing in the aggregation selects on the label. Re-measured 2026-09-08 over
+every workflow file in `opensoft/xFactory/.github/workflows/`, each `runs-on`
+read rather than inferred from a runbook's label list:
+
+| Measurement | Value |
+|---|---|
+| workflow files | 23 |
+| `runs-on` entries naming `omnigent` | **0** |
+| self-hosted jobs (a `runs-on:` block with a runner `group:`) | 12, across 10 files |
+| — selecting by `group` + `labels: ${{ inputs.dispatch_label }}` | 8 |
+| — selecting by `group` + a literal per-host label (`host-coding-cpc-brett01`, `host-rider-cpc-brett01`) | 2 (`clearing-dispatch.yml`) |
+| — selecting by `group` ALONE, with no `labels:` at all | 2 (`council-deliberation-worker.yml`) |
+| runner groups in use | `xfactory-artifact-workers` (10 jobs), `xfactory-execution-lane-workers` (2) |
+| `dispatch_label` inputs carrying a default that could fall back to a common label | **0** — `required: true`, no default, in every reusable workflow that declares it |
+
+The claim holds: **zero**. The textual `omnigent` occurrences in those
+workflows are the `Omnigent-Install` repository name, the `OMNIGENT_WORKER`
+repository variable, prose about the orchestrator, and one comment that
+*describes* the registered label set. So no aggregation act falls out of this
+amendment, and the earlier "selected on by at least seven lanes" reading stays
+retracted.
+
+**What this amendment changes.** One fact: the machine key `omniworker` is also
+a **GitHub runner label** — RULED to be registered beside `omnigent`, and
+declared as such in every label set this estate authors. It is a ruling plus a
+declaration; on the runners already running it is not yet true, and the
+paragraph after next says so. In the three-casings table above, `omniworker`'s surface already
+read "any lowercase-on-the-wire label"; this names the label that surface was
+waiting for, and adds no fourth casing.
+
+**Declared is not yet live, and the record says which is which.** The acts below
+move DESIRED state: manifests, profiles, fixtures, runbooks and registration
+scripts. **A runner's label set lives server-side at GitHub**, not in a file any
+of these acts can write — the Worker Host App says so itself, in terms
+("labels and the runner group live server-side … `.runner` carries neither"),
+which is why it keeps a sidecar of what it configured. So a runner that is
+already registered keeps its existing label set until an operator changes it at
+GitHub, and between the acts landing and the operator act below a live runner
+carries `omnigent` and not `omniworker` — a difference nothing selects on. The
+acts that carry the declaration:
+
+| Repository | What moves |
+|---|---|
+| opensoft/OmniWorker-Install | the committed host manifest's two worker `labels:` lists, six locally authored `workers/profiles/*.yaml` `runner_labels`, the host app's bootstrap-volunteer `manifest_labels`, the published readiness example and heartbeat fixture corpus, the runbooks' label lists, and a new runbook section stating that both labels are to be registered, which surfaces are desired state, and why |
+| opensoft/CloudPC-Install | both registration-convention label blocks, the runbook `config.cmd --labels` value, the two rider bootstrap scripts' `$labels`, the two heartbeat publishers' attested `runner_labels`, and the non-shipping ruled rider identity record |
+| opensoft/openxFactory | this amendment, and the dated file-forward pointer under the open-question heading |
+
+**What this amendment does NOT touch — read it narrowly.**
+
+- **`omnigent` is not retired, anywhere.** It stays a registered label on every
+  runner. Its retirement needs its own separately worded ruling, and until then
+  a consumer outside the aggregation — a codexFactory lane, an operator's
+  ad-hoc dispatch — is not swept and does not need to be.
+- **No workflow changes**, in this repository or in the aggregation. Nothing
+  selected on the old label, so nothing gains the new one.
+- **"What the name does NOT cover" in full.** `Omnigent-Install` keeps its name;
+  the neutral `contracts/omnigent/` family, the `omnigent-domain-overlay` and
+  `omnigent-install-manifest` specifications and the five domain `omnigent/`
+  overlays are untouched. A runner label is "the machine that executes"; every
+  one of those is "the thing that decides".
+- **The product name `omniWorker`, the repository name `OmniWorker-Install`,
+  and the machine keys** — including `svc-omniworker` and
+  `installs/omniworker-install` — are exactly as ratified. So is A1's single
+  fact, the Windows 365 device-name template.
+- **The Hermes worker capability string `omnigent`** in
+  `OmniWorker-Install/scripts/register-worker.sh`, and every `OMNIGENT_*`
+  environment variable. Those are not GitHub runner labels; the exit taken
+  reaches the label and stops.
+- **One label set that IS a runner label and still does not move:**
+  `workers/profiles/coding-patch-worker.yaml` and
+  `rendered/effective-profiles/coding-patch-worker.yaml` in
+  `OmniWorker-Install` are byte-verbatim, digest-pinned projections of
+  `omnigent/profiles/coding-patch-worker.yaml` in **opensoft/codexFactory**
+  (digest `f2f70eb2…`, source commit `e3507ab4`, `mode: byte_verbatim`; the
+  renderer fails closed on a mismatch). Editing them outside codexFactory would
+  fork a governed projection, so that one is a **codexFactory** act — an
+  overlay change, a re-digest and a re-render — and it is named here rather
+  than performed.
+
+**Owed to Brett Heap: putting the label on the live runners.** A runner's label
+set lives server-side at GitHub, so **no change in any repository re-labels a
+running runner.** It is an operator act, owed, and deliberately not attempted by
+the acts above. It is NOT, however, a re-registration:
+
+- **`omniworker` is a CUSTOM label, and a custom label can be added to a live
+  runner in place.** `POST /orgs/{org}/actions/runners/{runner_id}/labels` (or
+  Settings → Actions → Runners → the runner → Labels) adds one without
+  downtime, without a removal token and without touching the runner service.
+  It needs organization-admin authority, and the credential shape matters: a
+  classic OAuth/PAT needs the `admin:org` scope; a fine-grained token needs the
+  organization's **Self-hosted runners** permission at **write** — GitHub's
+  fine-grained permissions reference lists this endpoint there, available to
+  fine-grained PATs and marked NOT available to GitHub App installation tokens;
+  an organization owner acting through the UI needs no token at all. Only
+  READ-ONLY labels — `self-hosted`, the OS and the architecture — are beyond the
+  endpoint, and `omniworker` is not one of those. *This corrects a claim an earlier revision of this
+  amendment made, that a label set is fixed at `config.cmd` time: `config.cmd
+  --labels` sets the set at REGISTRATION, and is not the only way to change it
+  afterwards. The correction came from review and is recorded rather than
+  quietly swapped.*
+- **On a rider** (`cpc-brett01`) that in-place addition is the whole act, paired
+  with the same addition to the ACL-protected heartbeat data configuration so
+  the attestation and the runner agree. The remove-and-re-register sequence the
+  CloudPC-Install runbook spells out is the FALLBACK, not the prescribed path —
+  and note that `config.cmd --replace` REPLACES the label set, so a label left
+  out of that command is a label removed.
+- **On the brokered fleet host** (`cpc-omni01` / `Omni001-XEAON`) the in-place
+  addition is NOT sufficient, and the reason is structural rather than a
+  platform limit: the manifest's labels are ADVISORY, the enrollment lease's
+  `binding.labels` decide, and the Worker Host App compares its own sidecar of
+  what it configured against that desired set. An addition made only at GitHub
+  changes neither the lease nor the sidecar, so the two halves would disagree;
+  and once the lease binding gains `omniworker`, the app finds sidecar drift,
+  plans a reconfigure, and under an ACTIVE lease refuses it — `blocked`, then
+  `enrollment_refused`, naming "revoke the lease" as the operator action,
+  because the local token-minting path was deleted by design. So there the
+  governed act is the broker-side per-estate enrollment-policy change plus a
+  lease revoke-and-re-enroll.
+
+Until the operator act happens, the one difference between what a host attests
+and what GitHub holds is the single extra label `omniworker` — and nothing
+selects on it, so nothing dispatches differently either way.
+
+**Where else this is recorded.**
+
+| Record | Act | What it carries |
+|---|---|---|
+| `docs/runbooks/cloudpc-worker-pack.md` § Runner Labels, in opensoft/OmniWorker-Install | opensoft/OmniWorker-Install#8 | the ruling, the re-measurement, the desired-vs-live distinction, the lease-decides caveat and the codexFactory carve-out |
+| `docs/omni-fleet-identity.md` § Registration Convention and `docs/doc-analysis-worker-host.md`, in opensoft/CloudPC-Install | opensoft/CloudPC-Install#20 | both label blocks, the `config.cmd --labels` value, and the exact re-registration step owed to the operator |
+| The issue that put the question, its three exits and its measurement | opensoft/openxFactory#795 | OQ-5, owed by `implement-omniworker-install-repo` § 8.3 / design § D6 |
+| The ruling itself, and this lane's disclosed reading of it | opensoft/openxFactory#591, 2026-09-08 | "do 794, 795 and 796" |
+
+The three acts land as independent pull requests; their squash commits are
+gathered on opensoft/openxFactory#795 rather than restated here, because a
+merge commit written into this record before it exists would be exactly the
+kind of predicted value A1's own closing rule forbids.

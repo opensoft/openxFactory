@@ -1987,6 +1987,40 @@ def edit_apply(
 # index validator, and a schema-valid gate-action record beside the write.
 # ==========================================================================
 
+_VALIDATOR_DETAIL_MAX = 2000
+# Raw-tail window taken BEFORE whitespace normalisation — large enough that
+# realistic validator output still fills the full `_VALIDATOR_DETAIL_MAX`
+# after collapsing whitespace, but a small fixed bound regardless of how
+# much the validator printed (a multi-megabyte overrun never gets its full
+# token list materialised just to keep its last 2,000 characters).
+_DETAIL_TAIL_MARGIN = 4 * _VALIDATOR_DETAIL_MAX
+
+
+def _normalise_whitespace(s: str) -> str:
+    """Collapse whitespace runs to a single space and strip the ends."""
+    return " ".join(s.split())
+
+
+def _bounded_detail(detail: str) -> str:
+    """The pinned validator's diagnosis (stdout+stderr, or an unreachable
+    reason), whitespace-normalised and bounded to the last
+    `_VALIDATOR_DETAIL_MAX` characters — so a refusal that carries it
+    verbatim (`GateRefused` message, commit message, gate-action record)
+    stays readable no matter how much the validator printed.
+
+    Bounds the RAW tail to `_DETAIL_TAIL_MARGIN` characters FIRST, then
+    normalises whitespace on that (already small, fixed-size) window — never
+    the other way around. Normalising the whole string before bounding it
+    would build a full token list (`" ".join(s.split())`) over arbitrarily
+    large validator output, the exact case this helper exists to make safe.
+    The final slice to `_VALIDATOR_DETAIL_MAX` is a belt-and-suspenders
+    re-bound of the normalised result, kept even though normalising only
+    ever shortens text (collapsed whitespace runs, stripped ends)."""
+    windowed = str(detail or "")[-_DETAIL_TAIL_MARGIN:]
+    normalised = _normalise_whitespace(windowed)
+    return normalised[-_VALIDATOR_DETAIL_MAX:]
+
+
 @dataclass
 class DisposePossibleResult:
     possible_id: str
@@ -2050,9 +2084,9 @@ def dispose_possible(gate: Any, possible_id: str, outcome: str, *,
             pass
     if ok is not True:
         raise GateRefused(
-            "updated index rejected by the pinned validator"
-            if ok is False else "index validator unreachable"
-            + f": {detail}")
+            ("updated index rejected by the pinned validator"
+             if ok is False else "index validator unreachable")
+            + f": {_bounded_detail(detail)}")
 
     human.write_gate_artifact(dp.INDEX_REL, dp.render_index_yaml(updated))
     index_md_path = None
