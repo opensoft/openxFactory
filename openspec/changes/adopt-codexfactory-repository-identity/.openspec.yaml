@@ -1,0 +1,48 @@
+schema: spec-driven
+created: 2026-09-07
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-07-adopt-codexfactory-repository-identity
+  reason: >-
+    THE FORCING FACT IS A CONVENER RULING, AND THE TRANSFER HAS NOT HAPPENED
+    YET. This is the one structural difference from the exemplar
+    `adopt-medxsoft-repository-identity`, which was authored AFTER an
+    accomplished transfer. On 2026-09-07 Brett Heap (convener) ruled, verbatim,
+    "move codeXfactory to the new org. openXfactory should be public and
+    codeXfactory private." The GitHub organization `codeXfactory` exists (free
+    plan, zero repositories, Brett admin); `opensoft` is on the Enterprise plan.
+    Nothing has been transferred, no visibility has been flipped, no pin has
+    moved and no remote has been repointed. This packet is the GOVERNED HALF
+    ONLY: `opensoft/codexFactory` as REPOSITORY IDENTITY inside openxFactory's
+    governed content, where it is a normative value in the supported-domain
+    regression denominator, in the review-lane decision-core pin, in the
+    factory-origin identity register and the grant whose object narrowing IS
+    that identity, in clearing and omnigent fixtures, in four workflows, in
+    eight tests and in eighteen live governance documents. TWO HUNDRED
+    EIGHTY-ONE occurrences across ONE HUNDRED FIFTY files, measured at
+    origin/main 64aad02e on 2026-09-07 — nine times the exemplar's thirty. Of
+    those, 123 across 60 files are live normative surfaces that rename, 78
+    across 54 files are frozen (15 archived, 44 covered by an ed25519 signature
+    whose private half exists nowhere in this repository, 18 dated Speckit
+    verification tables, 1 dated decision record), and 80 across 36 files are
+    other lanes' in-flight packets and pre-governance ideation, which this
+    packet deliberately does not sweep. BECAUSE THE MOVE HAS NOT HAPPENED, THE
+    ORDERING IS STILL FREE, and the packet's substantive contribution is to say
+    what must be true BEFORE, WITH and AFTER the transfer rather than to catch
+    the corpus up afterwards.
+  approved_by: >-
+    Brett Heap (convener), 2026-09-07, first-hand to the orchestrating session,
+    verbatim: "move codeXfactory to the new org. openXfactory should be public
+    and codeXfactory private." THAT RULING SETTLES THE DESTINATION AND THE TWO
+    VISIBILITIES. It settles nothing else, and this packet claims nothing else
+    from it. The per-surface disposition set below (which surfaces rename, which
+    are frozen and why, which are left to their owning lanes), the origin-identity
+    re-issuance, the bundle treatment and the whole sequencing argument are this
+    packet's PROPOSALS and are unratified. THIS IS AN ADMISSION TO THE QUEUE
+    PLUS A DISPOSITION SET, NOT A RATIFICATION OF CONTENT: the packet carries
+    `Status: draft`, it carries no ratification citation, none is owed until its
+    content is ratified as a separate act, and six open questions (OQ-1 .. OQ-6
+    in `design.md`) are named for the convener rather than answered here. The
+    shape is the one `adopt-medxsoft-repository-identity` used on 2026-08-27 for
+    the same class of act.
+  approved_on: 2026-09-07
