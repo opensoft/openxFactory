@@ -271,7 +271,11 @@ gate is green: at the old reader every one of these writes is refused.
       **No shred is claimed and none was needed for key material: no seed was
       ever on disk.**
       MINT RECORD (codexFactory): `hermes/domain/review-councils/records/
-      2026-09-08-gate-rules-seat-signing-keys-minted.md`, PR CODEXFACTORY-PR-PLACEHOLDER.
+      2026-09-08-gate-rules-seat-signing-keys-minted.md`, opened as codexFactory
+      **PR #290** (<https://github.com/opensoft/codexFactory/pull/290>), which
+      also links the record from `hermes/domain/README.md`'s
+      `gate_rules_council` paragraph. This act's own openxFactory PR is **#798**
+      (<https://github.com/opensoft/openxFactory/pull/798>).
       Full narrative: the walk record § 3B.
 - [x] 3.3 Write `governance/review-authority/wallets/wal-agent-grc-0001.yaml`:
       holder `agent:gate-rules-council`, custody `holder_readable`, root key
