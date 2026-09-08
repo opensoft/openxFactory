@@ -75,7 +75,7 @@ Core domain-neutral docs:
 - [Architecture](docs/architecture.md)
 - [Terminology And Repository Topology](docs/terminology-and-repo-topology.md)
 - [openXdox — Capability Naming Record](docs/openxdox-naming.md) (the neutral review-and-disposition workbench; handle `dox`, surface `doxBench`)
-- [omniWorker — Product And Machine Naming Record](docs/omniworker-naming.md) (the worker-host product; repository `OmniWorker-Install`, machine keys `omniworker`, Cloud PC template `CPC-OXF-%USERNAME:7%`)
+- [omniWorker — Product And Machine Naming Record](docs/omniworker-naming.md) (the worker-host product; repository `OmniWorker-Install`, machine keys `omniworker`; Cloud PC template `%USERNAME:7%-%RAND:5%`, rendering `Omni001-XEAON` — **amended 2026-09-08, see that record's Amendments § A1**, which supersedes the `CPC-OXF-%USERNAME:7%` this line carried: Windows 365 requires `%RAND:5%` in every device-name template)
 - [openXdox Dispatch-Credential Binding Runbook](docs/openxdox-dispatch-credential-binding.md) (operator-hosted vs self-hosted binding for the intent-plane dispatch credential)
 - [Party Ladder](docs/party-ladder.md) (author/operator → tenant → subject → third parties; frozen-word reading rules)
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
@@ -923,7 +923,21 @@ Active changes:
   Windows limit and was therefore never applied to any machine** (Windows 365
   silently used its default `CPC-%USERNAME:5%-%RAND:5%`, which is where
   `CPC-Omni0-P5AJB` and `CPC-brett-TUBV0` come from); that doc fix ships as a
-  sibling PR against CloudPC-Install. TEN open questions are PUT, not answered
+  sibling PR against CloudPC-Install. **[Amended 2026-09-08 — the machine ruling
+  recorded immediately above was superseded by Brett Heap's own later ruling;
+  the correction lives in `docs/omniworker-naming.md` § Amendments A1, not in a
+  rewrite of this entry. Windows 365 requires a `%RAND:5%` segment in every
+  device-name template and does not rename a Cloud PC after provisioning, so
+  `CPC-OXF-%USERNAME:7%` could not be set and `CPC-OXF-Omni001` was never
+  attainable; the template in force is `%USERNAME:7%-%RAND:5%`, omni001
+  rendered `Omni001-XEAON` (Entra device
+  `cf287ce7-7f73-4da7-adfb-c501bd7dd670`), and Brett Heap ruled "Accept
+  Omni001-XEAON" (2026-09-05 ~22:50Z, opensoft/openxFactory#591). The
+  dispositions are recorded in this packet's `tasks.md` § 5 via
+  opensoft/openxFactory#773 → `bd263dca`. The `XFACTORY-OMNI001` finding stands
+  unchanged. The OpsxFactory fleet re-attestation this entry records as OWED has
+  since LANDED — opensoft/OpsxFactory#233 → `83a91c58`.]** TEN open questions are
+  PUT, not answered
   — among them the in-flight `Omnigent-Install` change
   `add-worker-enrollment-broker-integration` (PR #40), whose two lawful
   sequences are stated with their costs and neither chosen, and the live GitHub
