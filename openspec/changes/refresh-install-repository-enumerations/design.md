@@ -23,11 +23,17 @@ Eight lines, for the read that decides whether to ratify.
 4. **D2 measured the collision #796 said to check for, and it does not
    exist.** Neither active packet writes *"Install repository scope"*; both are
    `class: co-modifier` for an unrelated reason.
-5. So the widening can happen now, and this packet is `class: sole` with
-   nothing to sequence behind.
-6. Scope is SEVEN `## MODIFIED` requirements — three more units than #796
-   listed (**D3**), each measured and each inside a capability the issue
-   already names.
+5. So the widening can happen now. The ledger row still reads
+   `class: co-modifier` — the ledger's corpus includes ARCHIVED changes and
+   `admit-install-repos-to-aggregation` wrote the same key in August — which is
+   why the packet DECLARES `sequenced_after: [admit-install-repos-to-aggregation]`
+   rather than claiming there is nothing to sequence behind. `co-modifier` is a
+   fact about history; the absence of a live collision is the separate fact D2
+   measures.
+6. Scope is SIX `## MODIFIED` requirements. Only **TWO** of the widened units
+   are absent from #796's list (**D3**); one more is its item 2 under a
+   CORRECTED reading, and the rest are its items 1 and 3. Every unit is
+   measured and every one sits inside a capability the issue names.
 7. ONE `## ADDED` requirement makes the index rule explicit so the sixth
    repository is a one-line edit (**D4**). **No generator is built** — that is
    the whole content of D1's refusal.
@@ -101,12 +107,19 @@ how to catch, instead of a quiet omission.
   filter problem, one repository further away. A neutral `openxFactory`
   requirement whose content is read from OpsxFactory inverts rule 1 of the
   workspace contract (domain repos never author neutral contracts).
-- **D1-d, defer again.** This is the fourth opportunity — `add-trust-anchor`
-  § 8.1 deferred it, `implement-keycloak-install-repo` deferred it,
-  `admit-install-repos-to-aggregation` took it for two of four and left the
-  Purpose, and `implement-omniworker-install-repo` deferred it to #796. The
-  reason each deferral was sound (the collision) is measured absent in D2, so
-  there is nothing left to defer for.
+- **D1-d, defer again.** `add-trust-anchor` § 8.1 booked the refresh as an
+  owed task gated on two preconditions — both install repositories exist, and
+  *"nothing else is replacing that requirement"*;
+  `implement-keycloak-install-repo` declined to take it;
+  `admit-install-repos-to-aggregation` discharged § 8.1 for two of four
+  repositories and left the `## Purpose` behind; and
+  `implement-omniworker-install-repo` deferred the next round to #796. **The
+  precedent for taking it is therefore the SAME MEASUREMENT this design makes,
+  by the same method:** § 8.1's tick records that *"the four active
+  `repo-boundary-governance` deltas name only the two boundary requirements"* —
+  a grep of the active deltas' requirement titles, which is D2 done in August
+  with a smaller corpus. Both of § 8.1's preconditions hold again today, and
+  D2 is the verification.
 
 ## D2 — The collision #796 said to check for, measured: it does not exist
 
@@ -152,8 +165,8 @@ repository boundary"*. Reading the `co-modifier` flag as being ABOUT the
 enumeration is the mistake this design exists to avoid making a fourth time.
 
 **Consequence for this packet.** Grepping all 41 other active change
-directories for each of the seven requirement titles this packet writes returns
-ZERO hits. So no requirement here is *"already modified by an active RATIFIED
+directories for each of the SEVEN requirement titles this packet writes — the
+six it MODIFIES plus the one it ADDS — returns ZERO hits. So no requirement here is *"already modified by an active RATIFIED
 change"*, `release-realization`'s ordered-deltas rule is not engaged, and there
 is no archive-time race with either packet #796 named.
 
@@ -192,7 +205,7 @@ capability that would genuinely race them, so it is out of scope — see
 `proposal.md` § *What it does NOT change*, item 3. #796's warning was sound
 about the capability; it was aimed one requirement to the left.
 
-## D3 — Scope: SEVEN requirements, not three — the three extra are measured
+## D3 — Scope: SIX MODIFIED requirements — the two extra units, and one corrected reading, are measured
 
 **RECOMMENDED. Second veto point.**
 
@@ -230,20 +243,29 @@ hold adapters over `openxFactory` contracts and the trigger names two. The
 open. Stating this rather than quietly widening whatever was nearest is what
 lets a reviewer check the claim.
 
-**Why the three unlisted bullets are in scope rather than a second issue.** The
-issue's own 2026-09-08 addendum makes the argument: `admit-install-repos-to-aggregation`
-widened the requirement, left the Purpose, and the Purpose went four
+**EXACTLY TWO UNITS ARE ABSENT FROM #796's LIST, and the count is derived from
+the table above rather than asserted.** They are rows 2 and 3 — the
+*"Canonical workflow authority"* and *"Copy-first migration"* `WHEN` bullets in
+`repo-boundary-governance`. Row 5 is #796's item 1 at its second site (the
+issue names the capability, not one line in it); row 6 is #796's item 2 under
+the corrected reading; rows 1 and 7 are its items 3 and 4.
+
+**Why those two are in scope rather than a second issue.** The issue's own
+2026-09-08 addendum makes the argument: `admit-install-repos-to-aggregation`
+widened the requirement, left the `## Purpose`, and the Purpose went three
 repositories behind. A packet whose stated purpose is *"the enumerations are
 stale"* that widens one bullet in a requirement and leaves the bullet two
 requirements below it reproduces that failure inside its own diff. Each of the
-three is a single `WHEN` line in a requirement this packet must restate in full
-anyway, so the marginal review cost is three lines and the marginal risk is
-zero.
+two is a single `WHEN` line in a requirement this packet must restate in full
+anyway, so the marginal review cost is two lines and the marginal risk is zero.
 
-**Veto shape.** Refusing D3 means dropping items 2, 3 and 6 from the table and
-keeping 1, 4, 5 and 7 — #796's list exactly. The packet is coherent either
-way; the deltas are per-requirement blocks and three of them can be deleted
-without touching the rest.
+**Veto shape, stated exactly.** Refusing D3 means dropping **rows 2 and 3**
+from the table — those two MODIFIED blocks in the `repo-boundary-governance`
+delta — and keeping 1, 4, 5, 6 and 7, which is #796's list. **Row 6 is NOT
+part of this veto**: the `canonical-contract-migration` widening IS #796's item
+2, so refusing the extra scope leaves that delta standing. The packet is
+coherent either way; the deltas are per-requirement blocks and two of them can
+be deleted without touching the rest.
 
 ## D4 — One ADDED requirement, no generator
 

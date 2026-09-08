@@ -28,10 +28,17 @@ origin:
     keycloak-install-repo` and `implement-openxpki-install-repo` comes from each
     sharing its OWN sibling boundary requirement with an active partner (`add-
     identity-brokering`, `add-trust-anchor`), not from the enumeration. Grepping
-    all 41 active change directories for each of the seven requirement titles
-    this packet writes returns zero hits, so nothing is owed under `release-
-    realization`'s ordered-deltas rule and this change's ledger row is expected
-    to seed `class: sole`.
+    all 41 other active change directories for each of the seven requirement
+    titles this packet writes -- the six it MODIFIES plus the one it ADDS --
+    returns zero hits, so nothing is owed under `release-realization`'s
+    ordered-deltas rule. THE LEDGER ROW NEVERTHELESS SEEDS `class: co-modifier`,
+    and that is not a contradiction: the ledger's corpus is active PLUS
+    archived, and `admit-install-repos-to-aggregation` -- archived -- wrote
+    `Install repository scope` in August. `class:` states a fact about HISTORY;
+    the absence of a LIVE collision is the separate fact above. Which is why
+    this packet DECLARES `sequenced_after: [admit-install-repos-to-aggregation]`
+    at depth 1, the positive claim that its deltas are relative to that
+    change's outcome, rather than leaving the field absent.
     WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
     `ideation/staging/INDEX.md` and every topic folder were read on 2026-09-08:
     no topic carries the install-repository enumerations, the index-versus-

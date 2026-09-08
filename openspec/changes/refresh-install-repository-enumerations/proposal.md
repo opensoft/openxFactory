@@ -71,7 +71,7 @@ it lacked there: an owed task in a ratified packet (`tasks.md` § 4.1).
 
 ## What Changes
 
-- **Widen the enumerations to five, in three capabilities, as SEVEN
+- **Widen the enumerations to five, in three capabilities, as SIX
   `## MODIFIED` requirements.** Each block restates the promoted requirement
   word for word and changes only the named unit, and each carries a
   `**Removed from canon by refresh-install-repository-enumerations
@@ -180,7 +180,8 @@ moves.
   boundary requirements; nothing that passed validation before this change
   fails after it, and nothing that failed before now passes.
 - **Collision**: none live, measured — see `design.md` D2. No ACTIVE change
-  writes any of the seven requirement keys this packet writes, so
+  writes any of the seven requirement keys this packet writes — the six it
+  MODIFIES plus the one it ADDS — so
   `release-realization`'s ordered-deltas rule is not engaged and there is no
   archive-time race with either packet #796 named. The sweep-ledger row
   nevertheless reads `class: co-modifier`, because the ledger's corpus includes
@@ -206,10 +207,11 @@ requirement, and would duplicate `xFactory-Installer`, which its own *"Neutral
 installer repository integration"* requirement already governs.
 
 **Two smaller veto points are carried separately** so each can be refused on
-its own: **D3**, the seven-requirement scope — this packet widens FOUR units
-#796 did not list (three more bullets in `repo-boundary-governance` and
-`shared-contract-ownership`, plus the corrected reading of
-`canonical-contract-migration`), on the reasoning that leaving stale pairs
-inside the very capabilities being refreshed is the defect the issue's own
-addendum names; and **D5**, the open-ended widening of *"Submodule
+its own: **D3**, the six-MODIFIED scope — **TWO** widened units are absent
+from #796's list, both of them `WHEN` bullets in `repo-boundary-governance`
+(*"Canonical workflow authority"* and *"Copy-first migration"*), on the
+reasoning that leaving stale pairs inside the very capability being refreshed
+is the defect the issue's own addendum names. A third unit,
+`canonical-contract-migration`'s runtime-adapter bullet, is NOT extra scope: it
+IS #796's item 2, under the corrected reading of what that capability says; and **D5**, the open-ended widening of *"Submodule
 sequencing"*, the one place where a closed list would be wrong.

@@ -526,7 +526,7 @@ Active changes:
   #796's two options and decides no requirement wording. Refreshes the FOUR
   hand-maintained install-repository enumerations a fifth install repository
   (`opensoft/OmniWorker-Install`, admitted by opensoft/xFactory#274 →
-  `648c8bd3`) made incomplete: **7 `## MODIFIED` requirements** across
+  `648c8bd3`) made incomplete: **6 `## MODIFIED` requirements** across
   `repo-boundary-governance` (3), `shared-contract-ownership` (2) and
   `canonical-contract-migration` (1), each restating the promoted text word for
   word with a `Removed from canon by` marker naming the replaced unit, plus
@@ -537,7 +537,12 @@ Active changes:
   scope"* key (two archived writers only), and the `co-modifier` class on
   `implement-keycloak-install-repo` / `implement-openxpki-install-repo` comes
   from each sharing its OWN sibling boundary requirement with an active
-  partner — so this packet is `class: sole` and owes no `sequenced_after:`.
+  partner, NOT from the enumeration. This packet's OWN ledger row nonetheless
+  reads `class: co-modifier`, because the ledger's corpus includes ARCHIVED
+  changes and `admit-install-repos-to-aggregation` wrote the same key in
+  August — so the packet DECLARES the sequence it is in,
+  `sequenced_after: [admit-install-repos-to-aggregation]`, resolving at depth 1;
+  `co-modifier` is a fact about history and not a live collision.
   **#796's SECOND OPTION IS REFUSED, NOT FORECLOSED** (`design.md` D1): a list
   derived from the aggregation's `installs/` group would carry NINE mounts
   against an indexed set of FIVE, enrolling three repositories no reviewed act

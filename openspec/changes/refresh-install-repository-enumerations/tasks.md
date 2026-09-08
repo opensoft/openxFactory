@@ -6,7 +6,7 @@ Lane: openxfactory-3 (openXfactory-3)
 **EVERY BOX BELOW IS UNTICKED, AND THAT IS THE STATE OF THE PACKET RATHER THAN
 AN OVERSIGHT.** This is a PROPOSAL. No promoted specification byte moves, no
 `## Purpose` is edited, no issue is closed, no ledger row is claimed as final
-and no repository is touched anywhere in the estate. The seven `## MODIFIED`
+and no repository is touched anywhere in the estate. The six `## MODIFIED`
 blocks and the one `## ADDED` requirement under `specs/` are a proposal ABOUT
 canon; canon is written by the archive act, which is § 4.
 
@@ -24,11 +24,12 @@ canon; canon is written by the archive act, which is § 4.
         from the aggregation's `installs/` mount list. Refused on the
         nine-against-five measurement; the derived option is recorded as NOT
         TAKEN rather than foreclosed.
-      - **D3** — the SEVEN-requirement scope, three units wider than #796's
-        list. Refusing it means deleting the `Canonical workflow authority`
-        and `Copy-first migration` blocks from the `repo-boundary-governance`
-        delta and the whole `canonical-contract-migration` delta; the rest of
-        the packet stands unchanged.
+      - **D3** — the SIX-MODIFIED scope. **TWO** widened units are absent
+        from #796's list, both `WHEN` bullets in `repo-boundary-governance`:
+        *"Canonical workflow authority"* and *"Copy-first migration"*.
+        Refusing it means deleting exactly those two MODIFIED blocks; the
+        `canonical-contract-migration` delta STAYS, because that widening is
+        #796's own item 2 under the corrected reading, not extra scope.
       - **D5** — the OPEN-ENDED widening of *"Submodule sequencing"*, the one
         place a closed five-name list would be wrong.
 - [ ] 1.3 On ratification, flip `Status: draft` to `Status: ratified` in
