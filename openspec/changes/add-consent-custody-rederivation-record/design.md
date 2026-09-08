@@ -1,6 +1,7 @@
 # Design: add-consent-custody-rederivation-record
 
-Status: draft
+Status: ratified
+Ratified by: add-consent-custody-rederivation-record — 2026-09-08, Brett Heap, "ratify 774, merge it and land it" (record `review/ratification-2026-09-08.md`)
 Lane: opsXfactory-1
 
 Eleven decisions — **C-1** through **C-8**, **C-6a**, **C-9** and **C-10** —

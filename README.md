@@ -513,13 +513,23 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-consent-custody-rederivation-record](openspec/changes/add-consent-custody-rederivation-record/proposal.md)
-  — authored 2026-09-07, **`Status: draft`**, on Brett Heap's F.1 ruling of
-  2026-09-07T13:51Z (OpsxFactory PR
+  — authored 2026-09-07, **`Status: ratified`** (2026-09-08, Brett Heap
+  (reviewer of record), in session, first-hand to lane `opsXfactory-1`, verbatim
+  *"ratify 774, merge it and land it"* — the word has TWO clauses and only the
+  first ratifies: *"merge it and land it"* is an order to proceed, and what
+  landing puts on `main` is a ratified PROPOSAL; ratified head `6cfe9ba6`,
+  PR [#774](https://github.com/opensoft/openxFactory/pull/774); record
+  `openspec/changes/add-consent-custody-rederivation-record/review/ratification-2026-09-08.md`).
+  **RATIFICATION PERFORMS NO REALIZATION** — no schema byte moves, no contract
+  version is cut, no consumer file is edited, and **all 46 boxes in `tasks.md`
+  stay unticked**. Origin: Brett Heap's F.1 ruling of 2026-09-07T13:51Z
+  (OpsxFactory PR
   [#248](https://github.com/opensoft/OpsxFactory/pull/248#issuecomment-5571629298),
-  in session, first-hand to lane opsXfactory-1), verbatim *"Bump the openxFactory
-  instrument schema first"* — an ADMISSION TO THE QUEUE AND AN INSTRUCTION TO
-  AUTHOR, **not a ratification**. **PROPOSAL ONLY: NO SCHEMA BYTE MOVES, NO
-  CONTRACT VERSION IS CUT, AND EVERY BOX IN `tasks.md` IS UNTICKED.** Gives
+  in session, first-hand to the same lane), verbatim *"Bump the openxFactory
+  instrument schema first"* — an ADMISSION TO THE QUEUE, not the approval above.
+  **DECISIONS C-1..C-10 PLUS C-6a STAND AS RECOMMENDED, NO VETO EXERCISED** —
+  including **task 1.3's**, so the default stands: **no `amendments` entry is
+  written and the three instruments stay `executed`.** Gives
   `contracts/schemas/consent-instrument.schema.yaml` a structured, closed
   SIBLING of `custody` — `custody_rederivations[]`, entries closed at
   `{at, commit, previous_locator, observed_locator, previous_sha256,

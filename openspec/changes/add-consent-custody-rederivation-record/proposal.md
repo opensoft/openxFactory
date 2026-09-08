@@ -6,13 +6,17 @@ sequenced_after: [add-consent-instrument]
 
 # Proposal: add-consent-custody-rederivation-record
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-08 by Brett Heap (reviewer of record) — in session, first-hand
+to lane `opsXfactory-1`, verbatim *"ratify 774, merge it and land it"*; record
+`review/ratification-2026-09-08.md`
 Proposed: 2026-09-07
-Awaiting ratification: Brett Heap (repository owner). **NOTHING IN THIS PACKET
-IS RATIFIED.** The F.1 ruling below chose the repair FORM and ordered this
-authoring; it did not approve a field name, an enum member, a closure posture,
-a chain rule or a validator split. Those are design decisions C-1..C-8 and each
-is a veto point.
+**RATIFICATION PERFORMS NO REALIZATION.** No schema byte moves, no contract
+version is cut, no consumer file is edited, and every box in `tasks.md` stays
+unticked; realization is a later, separately claimed act. The eleven decisions
+C-1..C-10 plus C-6a stand as recommended — **no veto was exercised**, task 1.3's
+included, so the default stands: no `amendments` entry is written and the three
+instruments stay `executed`.
 Lane: opsXfactory-1
 
 Origin: OpsxFactory PR **#248** (merged `40aaa93b`), ruling comment
