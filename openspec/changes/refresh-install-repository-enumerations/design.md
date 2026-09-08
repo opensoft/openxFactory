@@ -313,9 +313,14 @@ proposed"* — it governs the act of ADMITTING a repository as a submodule. A
 repository being admitted is by definition not yet in any index, so a closed
 five-name trigger there would exempt the sixth admission from the decision
 record the scenario exists to require, which is the reverse of this packet's
-purpose. It reads *"an install repository — `Hermes-Install`,
-`Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`, `OmniWorker-Install`
-or a later one — as a submodule"*, and its marker says why in the same words.
+purpose. **Quoted as the delta now proposes it** — the framing this paragraph
+carried before fix round 2 is withdrawn, and the wording below is what a
+ratification would ratify: *"a change proposes adding `Hermes-Install`,
+`Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`,
+`OmniWorker-Install` or a later install repository as a submodule"*. Canon's
+own grammar is kept; the only difference from the other five widenings is the
+open tail `or a later install repository`, and the marker says so in those
+words.
 
 Every other widening is a CLOSED five-name list, on purpose. The five names are
 the reviewed facts; *"any install repository"* in a scope or ownership

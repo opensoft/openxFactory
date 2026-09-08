@@ -119,8 +119,12 @@ it lacked there: an owed task in a ratified packet (`tasks.md` § 4.1).
   *"Submodule sequencing"*'s scenario governs the act of ADMITTING a
   repository — which by definition is not yet in any index — so a closed
   five-name list there would exempt the sixth admission from the decision
-  record the scenario exists to require. It reads *"an install repository —
-  … or a later one — as a submodule"*.
+  record the scenario exists to require. Quoted as the delta proposes it, so
+  what is summarized here is what would be ratified: *"a change proposes
+  adding `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`,
+  `OpenXPKI-Install`, `OmniWorker-Install` or a later install repository as a
+  submodule"* — canon's grammar, with the open tail as the only difference
+  from the other five widenings.
 
 - **Declare the `## Purpose` widening OWED, and apply it in the archive
   commit.** `repo-boundary-governance`'s Purpose is prose about a capability,

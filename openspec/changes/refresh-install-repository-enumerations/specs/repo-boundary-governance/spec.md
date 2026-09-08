@@ -106,10 +106,15 @@ not derived.** Measured on 2026-09-08, the aggregation mounts NINE paths under
 install repositories this capability's *"Install repository scope"* requirement
 indexes number FIVE. A change proposing to replace an index with a list
 derived mechanically from the mount list SHALL declare which mounts are in
-scope and on what test, because a derivation without that filter enrols
-repositories no reviewed act placed under this requirement and duplicates
+scope and on what test, and its derivation SHALL NOT select outside that
+declared scope, because an unfiltered derivation enrols repositories no
+reviewed act placed under this requirement and duplicates
 `xFactory-Installer`, which its own *"Neutral installer repository
-integration"* requirement already governs.
+integration"* requirement already governs. **THE MEASUREMENT IS THE REASON,
+NOT THE RULE:** the nine-against-five count is what makes the filter
+necessary today, and a later topology in which the two sets coincide would
+satisfy the same obligation rather than escape it — derivation is constrained
+here, never foreclosed.
 
 **AN INDEX IS REFRESHED BY A NAMED ACT, NOT BY A GENERATOR.** When a further
 install repository is admitted to the aggregation, the admitting change SHALL
@@ -133,4 +138,4 @@ enumerations two repositories behind and one of them four.
 #### Scenario: A change proposes deriving an enumeration from the mount list
 - **WHEN** a change proposes replacing a hand-maintained enumeration with a list derived from the aggregation's `installs/` mount list
 - **THEN** it MUST declare which mounts are in scope and the test that selects them
-- **AND** a derivation that selects every `installs/` mount MUST be refused, because the mount list carried nine paths on 2026-09-08 against an indexed set of five and includes repositories governed by other requirements or by none
+- **AND** a derivation whose SELECTED SET EXCEEDS ITS DECLARED SCOPE MUST be refused, the two sets being unequal by default rather than by accident: the mount list carried nine paths on 2026-09-08 against an indexed set of five, and the surplus held repositories governed by another capability, by their own requirement, or by nothing at all
