@@ -10,11 +10,11 @@ host material out of `Omnigent-Install`, the reprovision of the first Cloud
 PC, and every consumer re-pin all build on one settled term instead of three
 spellings settled separately.
 Amended: 2026-09-08 by Brett Heap — one dated amendment, "A1 — the Cloud PC
-template requires `%RAND:5%`" (§ Amendments below, with dated file-forward
-pointers under each affected heading): Windows 365 requires a random
-`%RAND:y%` segment in every provisioning-policy device-name template — measured
-`%RAND:2%` rejected, `%RAND:5%` accepted — and does not rename a Cloud PC after
-provisioning, so the template ruled below,
+template requires a random `%RAND:y%` segment" (§ Amendments below, with dated
+file-forward pointers under each affected heading): every Windows 365
+provisioning-policy device-name template must carry one — `%RAND:2%` measured
+too short, `%RAND:5%` accepted, longer never tried — and a Cloud PC is not
+renamed after provisioning, so the template ruled below,
 `CPC-OXF-%USERNAME:7%`, is unreachable and `CPC-OXF-Omni001` was never an
 attainable name; the template in force is `%USERNAME:7%-%RAND:5%` and the first
 host rendered `Omni001-XEAON`, ruled ACCEPTED 2026-09-05 ~22:50Z, verbatim
@@ -303,7 +303,7 @@ beneath it — is the ONLY deletion amendment A1 makes anywhere in this record.
 The convention sentence above is otherwise byte-unchanged; everything else A1
 does is appended, exactly as the convention requires.*
 
-### A1 — 2026-09-08 · The Cloud PC template requires `%RAND:5%`, and `Omni001-XEAON` is accepted
+### A1 — 2026-09-08 · The Cloud PC template requires a random `%RAND:y%` segment, and `Omni001-XEAON` is accepted
 
 **Authority for this amendment.** Brett Heap, 2026-09-08 ~03:23Z, in session,
 verbatim:
