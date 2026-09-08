@@ -294,7 +294,7 @@ local checkout is never regression evidence. The supported set is named with
 exact commits in
 `contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml`:
 currently `opensoft/AdxFactory`, `opensoft/LedgerxFactory`,
-`opensoft/MedxFactory`, `opensoft/OpsxFactory`, and `opensoft/codexFactory`,
+`opensoft/MedxFactory`, `opensoft/OpsxFactory`, and `codeXfactory/codexFactory`,
 with `opensoft/LegalxFactory` recorded as an explicit exclusion until it has
 a canonical `stack.yaml`.
 
@@ -885,9 +885,9 @@ opensoft/AdxFactory
   marketing, advertising, growth, and campaign domain stack
   https://github.com/opensoft/AdxFactory
 
-opensoft/codexFactory
+codeXfactory/codexFactory
   software, code, repo, and engineering domain stack
-  https://github.com/opensoft/codexFactory
+  https://github.com/codeXfactory/codexFactory
 ```
 
 Each domain stack repo defines one productized domain factory. It may contain
