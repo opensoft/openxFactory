@@ -98,6 +98,31 @@ where the advance moved while a pull request was open. Re-arming on every delive
 costs one API call and removes a state where an armed intent was silently dropped.
 `gh pr merge --auto` on an already-armed pull request is a no-op.
 
+*WHAT AN UPDATE DOES TO AN ALREADY-ARMED PULL REQUEST — MEASURED, because
+Codex's review of this packet (2026-09-08, P1) was right that the requirement as
+first drafted forbade the very update the parent obliges.* The parent's
+*The automated advance lane is triggered by the pinned core's own movement and
+every firing is idempotent* requires a firing that finds an open advance to
+UPDATE it rather than open a second, so an armed pull request must remain
+updatable; the spec delta now says so in terms, and the prohibition it carries is
+on a second ROUTE TO THE MERGE rather than on the lane's own delivery. What
+happens to the armed state on that update is the platform's answer, and it is
+documented: *"Auto-merge is disabled if someone without write permissions pushes
+new changes to the head branch or switches the base branch"*
+(`github/docs@main`, `content/pull-requests/how-tos/merge-and-close-pull-requests/automatically-merging-a-pull-request.md:23`;
+the same page states *"People with write permissions to a repository can enable
+auto-merge for a pull request"*). **The condition is the pusher's permission, and
+this lane's pusher HOLDS write**: `.github/workflows/review-lane-repin.yml` mints
+its installation token with `permission-contents: write` and
+`permission-pull-requests: write` (lines 219-220), so an update pushed by the
+lane is not a push by an actor without write permission and does not disable the
+arming. **The recommendation does not rest on that**: re-arming happens on BOTH
+paths unconditionally, so the outcome is identical whether the platform kept the
+intent (the call is a no-op) or dropped it (the call restores it), and the lane
+never has to reason about which. The one thing an update genuinely does lose is
+the APPROVAL, by the two rules named in the next paragraph — which is the
+intended behaviour and the scenario that states it.
+
 *The head-movement consequence, and how it differs from codexFactory's.* This
 repository's required-check rulesets both declare
 `strict_required_status_checks_policy: false`, so — unlike codexFactory, whose

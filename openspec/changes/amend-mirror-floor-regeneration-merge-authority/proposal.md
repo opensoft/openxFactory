@@ -120,16 +120,47 @@ add itself or anyone to a bypass list, or re-arm with a stronger act; and the
 releasing approval must be another party's and must bind to the head it was
 given for.
 
-**SIX SCENARIOS ARE ADDED, ONE CARRIED WITH NARROWED BULLETS, TWO CARRIED
+**SEVEN SCENARIOS ARE ADDED, ONE CARRIED WITH NARROWED BULLETS, TWO CARRIED
 VERBATIM.** Added: the envelope-approved, fully green advance that merges with
-no human act; the parked advance; the head that moves after an approval; the
-lane never posting an approval; **the inert arming this repository will actually
-observe, because no candidate class admits the lane**; and the arming reported
-where the run is read. Narrowed: *The lane opens a pull request and stops there*
+no human act; the parked advance; **a further advance owed while the armed pull
+request is parked, which UPDATES it and re-arms**; the head that moves after an
+approval; the lane never posting an approval; **the inert arming this repository
+will actually observe, because no candidate class admits the lane**; and the
+arming reported where the run is read. Narrowed: *The lane opens a pull request and stops there*
 (the stop is now "no further action beyond arming"). Carried verbatim: *The lane
 never writes to the default branch* and *The advance carries nothing but the
 advance*. Nothing is retitled, nothing loses a bullet, and no requirement is
 removed.
+
+**THE UPDATE PATH IS NAMED IN THE REQUIREMENT RATHER THAN LEFT TO INFERENCE
+(Codex review of this pull request, 2026-09-08, P1 — a real defect, taken).** As
+first drafted the block ended its list of forbidden paths with *"no second act
+after the arming"*, which read as a blanket bar and so forbade the very act the
+parent's *The automated advance lane is triggered by the pinned core's own
+movement and every firing is idempotent* REQUIRES: a firing that finds an open
+advance must bring it up to date rather than open a second. No implementation
+could satisfy both. The prohibition is now *"no second act TOWARD THE MERGE"*,
+with two paragraphs saying what follows from it — that an update is delivery and
+not disposal, that the lane re-arms idempotently on it, and what becomes of the
+armed state, measured rather than assumed: GitHub disables auto-merge when the
+head branch is pushed by an actor WITHOUT write permission, and this lane's
+declared identity holds `contents: write`, so its own update does not disable the
+arming and the unconditional re-arm makes the state true either way. The APPROVAL
+does fall, by `dismiss_stale_reviews_on_push` and `require_last_push_approval`,
+which is the head-movement scenario working as intended. `design.md` M-A carries
+the citation and the token measurement.
+
+**THE PAIRING IS DECLARED (`Modified over`).** The requirement this block
+restates is not in canon: `mirror-floor-regeneration-automation` is ratified but
+not yet archived, so the basis is an ACTIVE SIBLING'S ADDITION, and
+`govern-sibling-added-modified-deltas` requires the declaration in the
+requirement body rather than in a section-level note. The marker names the basis,
+this packet as its `by` identifier, the date and the reason; the archive hold it
+implies is the one `.openspec.yaml`'s `related` entry and the `sequenced_after`
+front matter already record. Without it the `modified-block-currency` family
+reports `sibling-pairing declaration: 1 (warning)` and openxFactory's own
+self-gate reds — which is how the omission was caught (`pytest-suite` on
+`70eac2d7`), and it is now `0`.
 
 ## What does NOT change
 
