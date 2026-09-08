@@ -255,10 +255,15 @@ credential that opens it already lives.
   exists to remove, inside the delta that removes it. `info` carries no gate.
   The `pytest-suite` SKIPPED pin does not move (no test is added skipped) and
   the SELECTED/PASSED floors only rise (four new tests).
-- **Sweep ledger:** one row added, `class: co-modifier` (the archived
-  `add-notebook-projection-identity` writes the same requirement title and is
-  ALREADY `co-modifier`, so no partner row flips), `declares:
-  [add-notebook-projection-identity]`, `depth: 0`.
+- **Sweep ledger:** ONE row added and no partner row moved, seeded at PR #783
+  and measured rather than predicted:
+  `adopt-configured-notebook-hosting-identity: {state: active, class:
+  co-modifier, declares: [add-notebook-projection-identity], depth: 1}`. The
+  archived `add-notebook-projection-identity` writes the same requirement title
+  and is ALREADY `co-modifier`, so it does not flip; `depth: 1` is the one hop
+  to that declared parent (an earlier draft of this line said `depth: 0`, which
+  the tool corrected — a chain of one hop is a chain, and `0` would read as a
+  resolved root).
 
 ## Ordering
 

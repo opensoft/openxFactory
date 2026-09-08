@@ -567,7 +567,11 @@ Active changes:
   `contracts/releases/contract-v3.4.digests.yaml`'s 283 entries — the record is
   deliberately not a `contracts/` member and nothing pins it. Declares
   `sequenced_after: [add-notebook-projection-identity]`, the archived change
-  that ratified both the requirement and the record. **FIVE OPEN QUESTIONS,
+  that ratified both the requirement and the record, and takes the sweep-ledger
+  row `{state: active, class: co-modifier, declares:
+  [add-notebook-projection-identity], depth: 1}` at PR
+  [#783](https://github.com/opensoft/openxFactory/pull/783) — ONE row, no
+  partner row moved. **FIVE OPEN QUESTIONS,
   NONE ANSWERED HERE**: OQ-A where the live record lives (recommended
   `installs/hermes-install` `config/clients/opensoft/`, because the record's own
   `custody:` block already names `binding_client: opensoft`, the ratified
