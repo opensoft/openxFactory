@@ -89,5 +89,6 @@ granularity.
 - [Domain Practice Suggestion Generation](domain-practice-suggestion-generation.md)
 - [Hermes-Governed Nightly Sweep](hermes-governed-nightly-sweep.md)
 - [Practice Clearance and Project Realization](practice-clearance-and-project-realization.md)
-- [Nightly-Sweep Council Clearance](nightly-sweep-council-clearance-rule.md)
+- Nightly-Sweep Council Clearance — MOVED 2026-09-07 to `opensoft/codexFactory@83c9c35a`,
+  same `ideation/brainstorm/` filename
 - [Cost Accountability and Efficiency](cost-accountability-and-efficiency-model.md)

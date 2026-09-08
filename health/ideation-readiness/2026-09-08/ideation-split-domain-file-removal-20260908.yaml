@@ -1,0 +1,11 @@
+schema_version: 1
+kind: ideation_readiness_run
+status: record
+run_id: ideation-split-domain-file-removal-20260908
+source_revision: 50959c1831362d1f36dcc6bad19642bb5af5149f
+generated_at: '2026-09-08T00:00:00Z'
+prompt_contract_version: 1
+readiness_profile: ideation-readiness
+generator_version: ideation-xref-scorer-0.1.0
+envelopes: []
+scored_clusters: []

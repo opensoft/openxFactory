@@ -20,9 +20,11 @@ Atomic members:
 [Durable Subject-Establishment Episode](hermes-recursive-subject-establishment-durable-establishment-episode.md),
 [Recursive Evidence Frontier](hermes-recursive-subject-establishment-recursive-evidence-frontier.md),
 [Coverage, Gaps, and Establishment Readiness](hermes-recursive-subject-establishment-coverage-gaps-and-readiness.md),
-[Ledgerx Company-Intake Profile](hermes-recursive-subject-establishment-ledgerx-company-intake-profile.md),
-and
-[Medx Patient-Intake Profile](hermes-recursive-subject-establishment-medx-patient-intake-profile.md).
+the Ledgerx Company-Intake Profile (MOVED 2026-09-07 to
+`ledgerXfactory/LedgerxFactory@6921aea3`),
+and the Medx Patient-Intake Profile (MOVED 2026-09-07 to
+`MedxSoft/MedxFactory@74bed502`) — both at the same `ideation/brainstorm/`
+filenames they had here.
 
 ### Same neutral closure motion
 
