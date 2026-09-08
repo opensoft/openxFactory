@@ -530,7 +530,15 @@ Active changes:
   `npm ci --ignore-scripts` through the lockfile — never `npm install` — in a
   staging project whose `package.json` is DERIVED from the lockfile's own root
   entry, with the reuse cache keyed on the lockfile's digest as well as the
-  artifact's. **RULED**, not chosen by the lane: Brett Heap,
+  artifact's. **ALL THREE CALLERS of `resolve_pinned` are bound to it** — the
+  verifier's own `main`, `scripts/install-pinned-openspec-cli.py` (the install
+  `pytest-suite` runs) and `scripts/proposal-support.py`, the entrypoint through
+  which the ARCHIVE act runs; the third was MISSED on the first pass and this
+  pull request's own required `pytest-suite` caught it, which is why the
+  invariant is now a test that pins the caller list rather than a habit. The
+  archive caller is where the closure matters most: `openspec archive` writes a
+  ratified delta into canon, and until this the tree adjudicating an archive
+  could differ from the tree adjudicating the validation that cleared it. **RULED**, not chosen by the lane: Brett Heap,
   2026-09-08T14:14:49Z, first-hand, verbatim *"Vendor a lockfile
   (Recommended)"*, on a four-option packet whose other three exits — enumerate
   the resolved tree in the pin, vendor the built tree as one artifact by digest,
