@@ -35,11 +35,14 @@
 #     `statuses: read` and nothing else. THE ONLY WRITE AUTHORITY IN THIS LANE
 #     is a per-run GitHub App token, minted from `MERGE_MASTER_APP_ID` /
 #     `MERGE_MASTER_APP_KEY` only AFTER the pinned core has decided, scoped to
-#     `permission-pull-requests: write` (the APPROVE review) and
-#     `permission-issues: write` (the sticky comment, which is the Issues
-#     Comments API even on a pull request) on this repository alone. That is
-#     a STRICTER posture than xFactory's caller, which carries
-#     `pull-requests: write` on its own `GITHUB_TOKEN`.
+#     `permission-pull-requests: write` ALONE (the APPROVE review AND the
+#     sticky comment: GitHub accepts EITHER `issues: write` OR
+#     `pull_requests: write` on the Issues Comments API when the target is a
+#     pull request, and the merge-master App — installation 159938946, App
+#     ID 4312542 — holds no `issues` permission on this installation at all,
+#     by design) on this repository alone. That is a STRICTER posture than
+#     xFactory's caller, which carries `pull-requests: write` on its own
+#     `GITHUB_TOKEN`.
 #   * THE ADVISORY FLOOR VERDICT still runs on every pull request exactly as
 #     before, and is now COMPOSED OVER the envelope: a candidate touching ANY
 #     never-clearable path is refused before the envelope decides, so an
@@ -433,15 +436,17 @@ concurrency:
 # READ-ONLY, DELIBERATELY, AND STILL READ-ONLY AFTER ACT A4. Not one scope
 # here can submit a review, post a comment, merge, or enable auto-merge — the
 # approval and its explanatory comment are written with a separately minted,
-# per-repository App token scoped to `pull-requests: write` (the review) and
-# `issues: write` (the sticky comment — the Issues Comments API, which a
-# pull request's conversation thread actually is), and nothing else in this
-# job can reach that token. `issues:` is absent BELOW, on THIS workflow's own
-# `GITHUB_TOKEN` (this lane files no notice with it) and no `write` scope
-# appears anywhere in this block. The two READ scopes added by act A4 are
-# what the envelope's all-checks-green condition quantifies over; a declared
-# `permissions:` block sets every undeclared scope to `none`, so they have to be
-# named to be readable at all.
+# per-repository App token scoped to `pull-requests: write` ALONE (the
+# review AND the sticky comment: GitHub accepts EITHER `issues: write` OR
+# `pull_requests: write` on the Issues Comments API even though a pull
+# request's conversation thread is what is actually being posted to, and the
+# merge-master App holds no `issues` permission on its installation at all),
+# and nothing else in this job can reach that token. `issues:` is absent
+# BELOW, on THIS workflow's own `GITHUB_TOKEN` (this lane files no notice
+# with it) and no `write` scope appears anywhere in this block. The two READ
+# scopes added by act A4 are what the envelope's all-checks-green condition
+# quantifies over; a declared `permissions:` block sets every undeclared
+# scope to `none`, so they have to be named to be readable at all.
 permissions:
   contents: read # base checkout + the pinned decision core
   pull-requests: read # candidate metadata and the changed-file listing
@@ -1669,18 +1674,25 @@ jobs:
       # PER-MINT NARROWING. The App installation itself needs `contents: write`
       # for GitHub to COUNT its approval (counting is computed from the
       # installation's permissions, live-proven on xFactory). The TOKEN this
-      # step mints needs none of that: it submits one review
-      # (`pull-requests: write`) and posts one comment. THE COMMENT IS NOT
-      # `pull-requests` SCOPE: the "Record the envelope outcome" step below
-      # posts and patches through `POST`/`PATCH .../issues/{n}/comments` —
-      # the Issues Comments API, which is what backs a pull request's general
-      # conversation thread even though the number is a PR number — and a
-      # GitHub App's `pull_requests` permission does not gate that endpoint;
-      # `issues` does. Without `permission-issues: write` here the sticky
-      # comment 403s on every run, silently losing the one thing a parked
-      # candidate has to explain itself with. Scoping the mint to exactly
-      # these two means a compromised downstream step still holds a token
-      # that cannot write contents, merge, or touch anything else.
+      # step mints needs none of that: it submits one review AND posts one
+      # sticky comment, BOTH under `pull-requests: write` alone. The comment
+      # is Issues-Comments-API shaped — the "Record the envelope outcome"
+      # step below posts and patches through
+      # `POST`/`PATCH .../issues/{n}/comments`, which is what backs a pull
+      # request's general conversation thread even though the number is a PR
+      # number — but GitHub accepts EITHER `issues: write` OR
+      # `pull_requests: write` on that endpoint when the target is a pull
+      # request. The merge-master App's installation on this org (159938946,
+      # App ID 4312542) holds NO `issues` permission at all: requesting
+      # `permission-issues: write` here does not merely omit a nice-to-have,
+      # it makes `create-github-app-token` REFUSE THE MINT OUTRIGHT
+      # ("requested permission not granted"), failing the whole lane before
+      # any review or comment is attempted. xFactory's own production caller
+      # mints with `permission-pull-requests: write` only and posts its
+      # sticky comment through this same endpoint, proven live. Scoping the
+      # mint to exactly this one permission means a compromised downstream
+      # step still holds a token that cannot write contents, merge, post
+      # issues, or touch anything else.
       - name: Mint the merge-master App token
         id: mm-token
         if: >-
@@ -1694,7 +1706,6 @@ jobs:
           owner: ${{ github.repository_owner }}
           repositories: ${{ github.event.repository.name || 'openxFactory' }}
           permission-pull-requests: write
-          permission-issues: write
 
       # ---- 13. THE APPROVAL ------------------------------------------------
       # THE ONE DOOR. `steps.envelope.outputs.decision == 'approve'` is written
