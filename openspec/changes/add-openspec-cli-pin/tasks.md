@@ -70,9 +70,27 @@ ratification when it happens and nothing below decides it.
       pin with its own parser, so there is one place the referent is written;
       `test_the_gate_workflow_reads_the_pin_and_carries_no_fourth_copy` asserts
       the absence against the workflow's own non-comment bytes.
-- [ ] **3.3** Select `openspec-cli-pin` as a REQUIRED check on the organisation
-      ruleset. **OPERATOR ACT, Brett Heap** — not this packet's to take, and not
-      possible before the workflow has reported once.
+- [x] **3.3** **(DONE 2026-09-08, via the org API.)** Created org ruleset
+      `22551797`, `openxFactory pin-gate (require openspec-cli-pin)`, cloned
+      from the precedent ruleset `21957695` `openxFactory chain-gate (require
+      signed-execution-chain-gate)` (the house keeps one ruleset per gate
+      family; `21538893` is the wallet-gate): target branch, enforcement
+      active, conditions `ref_name` `~DEFAULT_BRANCH` and `repository_name`
+      include `openxFactory` only, one rule `required_status_checks` with
+      context `openspec-cli-pin` (`strict_required_status_checks_policy:
+      false`), bypass `OrganizationAdmin` always. Scoped to openxFactory only
+      because in every consuming repository the gate runs inside that
+      repository's own `validate` job, so a check named `openspec-cli-pin`
+      would never report there and would block every merge. Verified in force:
+      `GET /repos/opensoft/openxFactory/rules/branches/main` lists
+      `openspec-cli-pin` under ruleset `22551797`. Brett Heap ruled, first-hand
+      to lane codeXfactory-1 at 2026-09-08T14:16Z (session
+      `session_01UQzYv1nEcjEkidnMUCaJcB`), verbatim: "for 3.3 create it through
+      the API on your word, the way I mirrored the LedgerxFactory rulesets,
+      then tick 3.3 citing the ruleset id." Was: Select `openspec-cli-pin` as a
+      REQUIRED check on the organisation ruleset. **OPERATOR ACT, Brett Heap**
+      — not this packet's to take, and not possible before the workflow has
+      reported once.
 
 ## Slice 4 — tests and proof
 

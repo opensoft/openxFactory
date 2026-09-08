@@ -1,8 +1,23 @@
 #!/usr/bin/env python3
 """Validate the notebook projection's hosting declaration and share-out roster.
 
-Governs `examples/notebook-projection-hosting.yaml`, the record ratified by
-`add-notebook-projection-identity` (2026-08-23).
+Governs the hosting record ratified by `add-notebook-projection-identity`
+(2026-08-23), of which there are now TWO instances
+(`adopt-configured-notebook-hosting-identity`, 2026-09-08): the SYNTHETIC one
+committed here at `examples/notebook-projection-hosting.yaml`, which is the
+shape's example and this script's default fixture, and an install's own LIVE
+declaration, which lives wherever configuration says and is validated by
+`--resolved`. The split exists because the record's addresses are the values an
+implementation compares against a live Google account — so they could not be
+redacted in place — and this repository is becoming public.
+
+WHAT `--resolved` IS FOR. It is the operator check that replaces the CI one.
+While the live record and the committed file were the same file,
+`test_the_committed_record_conforms` was the live declaration's only automatic
+conformance check; after the split, this repository's CI cannot reach the live
+record without publishing it. `--resolved` is the command whose green line is
+that record's conformance evidence, which is why it REFUSES to fall back to the
+fixture and refuses a record marked as one.
 
 WHY THIS IS NOT A `contracts/` SCHEMA. The record is the operator's own
 governance artifact for one install's tooling account: no other repository,
@@ -34,12 +49,31 @@ Exit 0 when the record conforms, 1 otherwise.
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
 import yaml
 
+#: THE SHIPPED SYNTHETIC FIXTURE — not this install's declaration.
+#: `adopt-configured-notebook-hosting-identity` (ratified 2026-09-08) split one
+#: file into two: the live record lives in a configured, private home because
+#: its `account`, its `migration.from_account` and its roster rows are the
+#: values an implementation compares against a live Google account, and this
+#: repository is becoming public. This path stays what it was (OQ-C: renaming it
+#: would move twenty-one references for a signal a FIELD carries better) and the
+#: record itself now says which kind of instance it is.
 DEFAULT_REL = "examples/notebook-projection-hosting.yaml"
+#: The resolution order, shared with `scripts/sync-notebooklm-books.py`.
+#: TWO IMPLEMENTATIONS OF ONE ORDER, and that is deliberate: the sync carries no
+#: YAML dependency and must not gain one, and it is HANDED its workspace root
+#: (so it may not look outside it), while this validator takes no root argument
+#: and discovers one. `tests/notebooklm/test_validate_hosting.py::
+#: TheResolutionOrderIsOneOrder` refuses them to diverge on the order itself.
+HOSTING_ENV = "XFACTORY_NOTEBOOK_HOSTING_DECLARATION"
+HOSTING_CONFIG_REL = ".xfactory/notebook-hosting.yaml"
+#: The `hosting.instance` value that marks a record as a fixture.
+HOSTING_EXAMPLE_MARKER = "example"
 CASES = ("operator_hosted", "self_hosted")
 ENTRY_FIELDS = ("hosting_account", "user", "book_or_alias", "role",
                 "granted_at", "granted_by")
@@ -413,18 +447,131 @@ def _check_grants_are_by_the_designated_actor(record, actor, errors: list[str]):
                  f"letting the roster and the designation disagree")
 
 
+def workspace_root(repo_root: Path) -> Path | None:
+    """The workspace holding `.xfactory/notebook-hosting.yaml`, or None.
+
+    WALKED UP FROM THE REPOSITORY RATHER THAN ASSUMED, because this script has
+    no root argument and its callers sit in three different shapes: the
+    aggregation checkout (the configuration is the aggregation's), a bare clone
+    of this repository alone (it is this repository's), and a feature worktree
+    under `openxFactory-worktrees/` (it is the aggregation's, two levels up).
+    Walking finds all three the way tooling finds a `.git`.
+
+    `scripts/sync-notebooklm-books.py` deliberately does NOT walk: it is handed
+    its workspace root and looking outside it would let a real machine's
+    configuration reach into a temporary tree.
+    """
+    here = repo_root.resolve()
+    for candidate in (here, *here.parents):
+        if (candidate / HOSTING_CONFIG_REL).is_file():
+            return candidate
+    return None
+
+
+def hosting_declaration_path(repo_root: Path) -> Path | None:
+    """Where this install's live declaration is, or None when UNDECLARED.
+
+    Env var, then the workspace configuration's `declaration_path:`, then
+    nothing. THE SHIPPED FIXTURE IS NOT THE LAST STEP — `main()` falls back to
+    it only as a FIXTURE to validate, never as a resolution result, and
+    `--resolved` refuses that fallback outright.
+    """
+    named = os.environ.get(HOSTING_ENV, "").strip()
+    root = workspace_root(repo_root)
+    if named:
+        candidate = Path(named).expanduser()
+        if candidate.is_absolute():
+            return candidate
+        return (root or repo_root) / candidate
+    if root is None:
+        return None
+    try:
+        config = yaml.safe_load((root / HOSTING_CONFIG_REL).read_text(
+            encoding="utf-8"))
+    except (OSError, yaml.YAMLError):
+        return None
+    if not isinstance(config, dict):
+        return None
+    declared = config.get("declaration_path")
+    if not isinstance(declared, str) or not declared.strip():
+        return None
+    candidate = Path(declared.strip()).expanduser()
+    return candidate if candidate.is_absolute() else root / candidate
+
+
+def _is_example(path: Path) -> bool:
+    """True when the record says of itself that it is a fixture.
+
+    Read from the RECORD and never inferred from the path: a copy, a symlink or
+    a worktree makes a path comparison unreliable, and the marker is the one
+    signal both readers can agree on (OQ-C).
+    """
+    try:
+        record = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError):
+        return False
+    if not isinstance(record, dict):
+        return False
+    hosting = record.get("hosting")
+    if not isinstance(hosting, dict):
+        return False
+    return hosting.get("instance") == HOSTING_EXAMPLE_MARKER
+
+
 def main(argv: list[str]) -> int:
     repo_root = Path(__file__).resolve().parent.parent
-    path = Path(argv[1]) if len(argv) > 1 else repo_root / DEFAULT_REL
+    args = [a for a in argv[1:] if a != "--resolved"]
+    resolved_only = "--resolved" in argv[1:]
+
+    # PRECEDENCE: an explicit path, then the resolver, then the shipped
+    # instance AS A FIXTURE. The third arm is what keeps the record's SHAPE
+    # gated in CI after the live record has moved out of this repository; it is
+    # not a guess about which install is running.
+    if args:
+        path, source = Path(args[0]).expanduser(), "the path given"
+    else:
+        resolved = hosting_declaration_path(repo_root)
+        if resolved is not None:
+            path, source = resolved, "configuration"
+        elif resolved_only:
+            print(f"validate-notebook-projection-hosting: nothing is "
+                  f"configured — this install has NOT declared a hosting "
+                  f"identity, which is a transition state rather than a "
+                  f"passing one. Set {HOSTING_CONFIG_REL}'s "
+                  f"`declaration_path:` or {HOSTING_ENV}. --resolved "
+                  f"deliberately does NOT fall back to "
+                  f"{DEFAULT_REL}: that file is a synthetic fixture and "
+                  f"validating it would answer a question nobody asked.")
+            return 1
+        else:
+            path, source = repo_root / DEFAULT_REL, "the shipped fixture"
+
     if not path.is_file():
         print(f"validate-notebook-projection-hosting: {path} not found "
-              f"— this install has NOT declared a hosting identity, which is a "
-              f"transition state rather than a passing one")
+              f"({source}) — this install has NOT declared a hosting identity, "
+              f"which is a transition state rather than a passing one")
         return 1
+
+    # A GREEN LINE OVER A FIXTURE IS FALSE EVIDENCE, so `--resolved` refuses one.
+    # The sync refuses the same record for the same reason; this arm exists
+    # because `--resolved`'s whole job is to be the live record's conformance
+    # evidence, and evidence that a fixture conforms proves nothing about the
+    # install.
+    if resolved_only and _is_example(path):
+        print(f"validate-notebook-projection-hosting: {path} carries "
+              f"`hosting.instance: {HOSTING_EXAMPLE_MARKER}` — configuration is "
+              f"pointing at a SYNTHETIC FIXTURE, not at this install's "
+              f"declaration. Refusing: a green line here would be evidence "
+              f"about a fixture, and --resolved exists to be evidence about "
+              f"the live record. Point {HOSTING_CONFIG_REL}'s "
+              f"`declaration_path:` at the real one.")
+        return 1
+
     errors = validate(path)
     for error in errors:
         print(f"{path.name}: {error}")
-    print(f"validate-notebook-projection-hosting: {len(errors)} error(s)")
+    print(f"validate-notebook-projection-hosting: {len(errors)} error(s) "
+          f"over {path} ({source})")
     return 1 if errors else 0
 
 

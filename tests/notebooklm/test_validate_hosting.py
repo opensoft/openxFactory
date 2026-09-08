@@ -11,11 +11,14 @@ current one.
 
 from __future__ import annotations
 
+import functools
 import importlib.util
+import os
 import sys
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = REPO_ROOT / "scripts" / "validate-notebook-projection-hosting.py"
@@ -25,6 +28,26 @@ validator = importlib.util.module_from_spec(spec)
 assert spec.loader is not None
 sys.modules[spec.name] = validator
 spec.loader.exec_module(validator)
+
+
+@functools.cache
+def _sync():
+    """The sync module, loaded from its path and only when actually needed.
+
+    From its PATH because the script is hyphenated and so not importable by
+    name; LAZILY and cached because this module's other tests have no business
+    paying for a three-thousand-line import, and the one class that needs it
+    needs it to prove the two readers resolve identically.
+    """
+    sync_spec = importlib.util.spec_from_file_location(
+        "sync_notebooklm_books_for_order_check",
+        REPO_ROOT / "scripts" / "sync-notebooklm-books.py")
+    module = importlib.util.module_from_spec(sync_spec)
+    assert sync_spec.loader is not None
+    sys.modules[sync_spec.name] = module
+    sync_spec.loader.exec_module(module)
+    return module
+
 
 # The custody block is part of a CONFORMING operator-hosted declaration since
 # add-notebook-hosting-credential-custody: an operated identity with no declared
@@ -36,9 +59,9 @@ BASE = """schema_version: 1
 kind: notebook_projection_hosting
 hosting:
   case: operator_hosted
-  account: xFactor001@opensoft.one
+  account: projection-host@example.invalid
   account_type: google_workspace_user
-  domain: opensoft.one
+  domain: example.invalid
   nlm_profile: company
   custody:
     binding_kind: xfactory_credential_binding_template
@@ -76,9 +99,25 @@ def _validate(text: str) -> list[str]:
 
 class HostingDeclarationValidationTests(unittest.TestCase):
 
-    def test_the_committed_record_conforms(self):
+    def test_the_committed_example_conforms(self):
+        """RE-AIMED, not weakened (adopt-configured-notebook-hosting-identity).
+
+        This was `test_the_committed_record_conforms`, and it worked because the
+        live record and the committed file were ONE FILE — so it was the only
+        automatic conformance check the live declaration had. The split costs
+        that, and the change is obliged to replace it rather than lose it. This
+        test keeps the SHAPE gated in CI;
+        `test_a_resolved_declaration_is_validated` below proves the resolved
+        path is validated at all; and the live record's own conformance becomes
+        an operator command (`--resolved`) whose green line is the evidence.
+        Three things for one, because the live record cannot be checked by this
+        repository's CI without publishing it — which is the trade the ruling
+        accepts, and the check quietly disappearing is what must not happen.
+        """
         errors = validator.validate(REPO_ROOT / validator.DEFAULT_REL)
-        self.assertEqual(errors, [], "this install's own declaration must pass")
+        self.assertEqual(errors, [],
+                         "the shipped instance must pass: it is the shape's "
+                         "example and this validator's own fixture")
 
     def test_a_conforming_declaration_passes(self):
         self.assertEqual(_validate(BASE), [])
@@ -103,9 +142,9 @@ share_out: []
 
     def test_a_service_account_cannot_host_a_projection(self):
         errors = _validate(BASE.replace(
-            "account: xFactor001@opensoft.one",
+            "account: projection-host@example.invalid",
             "account: books@xf-proj.iam.gserviceaccount.com").replace(
-            "domain: opensoft.one", "domain: xf-proj.iam.gserviceaccount.com"))
+            "domain: example.invalid", "domain: xf-proj.iam.gserviceaccount.com"))
         self.assertTrue(any("service account" in e for e in errors),
                         "NotebookLM has no API and a service account cannot "
                         "drive its consumer web UI")
@@ -117,7 +156,7 @@ share_out: []
         self.assertTrue(any("account_type" in e for e in errors))
 
     def test_the_account_must_live_in_the_declared_domain(self):
-        errors = _validate(BASE.replace("domain: opensoft.one",
+        errors = _validate(BASE.replace("domain: example.invalid",
                                         "domain: elsewhere.example"))
         self.assertTrue(any("not in the declared domain" in e for e in errors))
 
@@ -141,8 +180,8 @@ approval:"""))
 class ShareOutRosterValidationTests(unittest.TestCase):
 
     ENTRY = """share_out:
-  - hosting_account: xFactor001@opensoft.one
-    user: reader@example.com
+  - hosting_account: projection-host@example.invalid
+    user: reader@example.invalid
     book_or_alias: xf-canon
     role: viewer
     granted_at: "2026-08-24"
@@ -156,8 +195,8 @@ class ShareOutRosterValidationTests(unittest.TestCase):
         self.assertEqual(self._with_roster(self.ENTRY), [])
 
     FIELDS = {
-        "hosting_account": "xFactor001@opensoft.one",
-        "user": "reader@example.com",
+        "hosting_account": "projection-host@example.invalid",
+        "user": "reader@example.invalid",
         "book_or_alias": "xf-canon",
         "role": "viewer",
         "granted_at": '"2026-08-24"',
@@ -182,8 +221,8 @@ class ShareOutRosterValidationTests(unittest.TestCase):
                                 f"{field} must be required")
 
     def test_two_people_on_one_book_are_distinct_entries(self):
-        roster = self.ENTRY + """  - hosting_account: xFactor001@opensoft.one
-    user: second@example.com
+        roster = self.ENTRY + """  - hosting_account: projection-host@example.invalid
+    user: second@example.invalid
     book_or_alias: xf-canon
     role: viewer
     granted_at: "2026-08-24"
@@ -194,8 +233,8 @@ class ShareOutRosterValidationTests(unittest.TestCase):
                          "that broke the client-identity roster")
 
     def test_a_re_decision_must_update_rather_than_add_a_second_entry(self):
-        roster = self.ENTRY + """  - hosting_account: xFactor001@opensoft.one
-    user: reader@example.com
+        roster = self.ENTRY + """  - hosting_account: projection-host@example.invalid
+    user: reader@example.invalid
     book_or_alias: xf-canon
     role: editor
     granted_at: "2026-08-25"
@@ -208,7 +247,7 @@ class ShareOutRosterValidationTests(unittest.TestCase):
                         "one")
 
     def test_an_entry_for_another_hosting_account_is_refused(self):
-        roster = self.ENTRY.replace("hosting_account: xFactor001@opensoft.one",
+        roster = self.ENTRY.replace("hosting_account: projection-host@example.invalid",
                                     "hosting_account: someone@gmail.com")
         errors = self._with_roster(roster)
         self.assertTrue(any("declared hosting account" in e for e in errors))
@@ -293,8 +332,8 @@ class GrantActorCrossCheckTests(unittest.TestCase):
         base = BASE.replace("share_out: []\n", "")
         return base + self.APPROVAL + (
             "share_out:\n"
-            "  - hosting_account: xFactor001@opensoft.one\n"
-            "    user: someone@example.com\n"
+            "  - hosting_account: projection-host@example.invalid\n"
+            "    user: someone@example.invalid\n"
             "    book_or_alias: xf-canon\n"
             "    role: viewer\n"
             "    granted_at: '2026-08-27'\n"
@@ -490,6 +529,185 @@ class SecretsNestedInSequencesTests(unittest.TestCase):
         """The complement — the walk must not refuse sequences as such."""
         self.assertEqual(
             self._with("  harmless:\n    - name: a\n    - name: b\n"), [])
+
+
+class TheResolvedDeclarationIsValidatedTests(unittest.TestCase):
+    """The path resolves from configuration, and what it finds IS VALIDATED.
+
+    adopt-configured-notebook-hosting-identity: "moving the record out of this
+    repository moves WHERE it is checked and never WHETHER it is checked".
+    These are the validator's half of that sentence — the sync's half is
+    `tests/notebooklm/test_sync_notebooklm_books.py::
+    TheDeclarationsPathResolvesFromConfigurationTests`.
+    """
+
+    def setUp(self):
+        super().setUp()
+        # The env var is FIRST in the resolution order, so an exported one on a
+        # developer machine would point these tests at a real declaration.
+        env = patch.dict(os.environ, {}, clear=False)
+        env.start()
+        self.addCleanup(env.stop)
+        os.environ.pop(validator.HOSTING_ENV, None)
+
+    @staticmethod
+    def _tree(td: str, text: str = BASE, rel: str = "private/hosting.yaml"):
+        root = Path(td)
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+        return root, path
+
+    def test_a_resolved_declaration_is_validated(self):
+        """One of the three things replacing the lost CI check (design § 3.4)."""
+        with TemporaryDirectory() as td:
+            root, path = self._tree(td)
+            os.environ[validator.HOSTING_ENV] = str(path)
+            self.assertEqual(validator.hosting_declaration_path(root), path)
+            self.assertEqual(validator.validate(path), [],
+                             "a resolved declaration is checked by the SAME "
+                             "validator, against the same requirement")
+
+    def test_a_resolved_declaration_that_does_not_conform_still_fails(self):
+        """The point of the previous test is only worth anything with this one."""
+        with TemporaryDirectory() as td:
+            root, path = self._tree(
+                td, BASE.replace("case: operator_hosted", "case: partly_hosted"))
+            os.environ[validator.HOSTING_ENV] = str(path)
+            errors = validator.validate(
+                validator.hosting_declaration_path(root))
+        self.assertTrue(any("hosting.case" in e for e in errors), errors)
+
+    def test_the_workspace_configuration_resolves_the_declaration(self):
+        with TemporaryDirectory() as td:
+            root, path = self._tree(td)
+            cfg = root / validator.HOSTING_CONFIG_REL
+            cfg.parent.mkdir(parents=True, exist_ok=True)
+            cfg.write_text("declaration_path: private/hosting.yaml\n",
+                           encoding="utf-8")
+            self.assertEqual(validator.hosting_declaration_path(root), path)
+
+    def test_the_env_var_wins_over_the_workspace_configuration(self):
+        with TemporaryDirectory() as td:
+            root, path = self._tree(td, rel="from-env/hosting.yaml")
+            self._tree(td, rel="from-config/hosting.yaml")
+            cfg = root / validator.HOSTING_CONFIG_REL
+            cfg.parent.mkdir(parents=True, exist_ok=True)
+            cfg.write_text("declaration_path: from-config/hosting.yaml\n",
+                           encoding="utf-8")
+            os.environ[validator.HOSTING_ENV] = str(path)
+            self.assertEqual(validator.hosting_declaration_path(root), path)
+
+    def test_absent_configuration_resolves_to_nothing(self):
+        with TemporaryDirectory() as td:
+            self.assertIsNone(
+                validator.hosting_declaration_path(Path(td)))
+
+    def test_resolved_refuses_rather_than_falling_back_to_the_fixture(self):
+        """--resolved is the LIVE record's evidence, so it may not answer about
+        the fixture. A green line over a synthetic instance would be evidence
+        about a synthetic instance, which is not what an operator asked."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            with patch.object(validator, "workspace_root",
+                              lambda _repo: root):
+                code = validator.main(["prog", "--resolved"])
+        self.assertEqual(code, 1)
+
+    def test_resolved_refuses_a_record_marked_as_an_example(self):
+        """The same fail-closed arm the sync carries, for the same reason."""
+        with TemporaryDirectory() as td:
+            marked = BASE.replace("  case: operator_hosted",
+                                  "  instance: example\n  case: operator_hosted")
+            root, path = self._tree(td, marked)
+            os.environ[validator.HOSTING_ENV] = str(path)
+            self.assertTrue(validator._is_example(path))
+            code = validator.main(["prog", "--resolved"])
+        self.assertEqual(code, 1, "configuration pointing at a fixture must "
+                                  "not produce a green conformance line")
+
+    def test_the_marker_does_not_make_an_otherwise_conforming_record_invalid(self):
+        """`instance:` is metadata about the instance, not a conformance failure.
+
+        The shipped example carries it and must still pass `validate()` — the
+        refusal belongs to the RESOLUTION path, not to the record's shape.
+        """
+        marked = BASE.replace("  case: operator_hosted",
+                              "  instance: example\n  case: operator_hosted")
+        self.assertEqual(_validate(marked), [])
+
+    def test_an_explicit_path_still_wins_over_everything(self):
+        """`argv[1]` was already the override and stays the first arm."""
+        with TemporaryDirectory() as td:
+            root, path = self._tree(td)
+            os.environ[validator.HOSTING_ENV] = str(root / "nowhere.yaml")
+            code = validator.main(["prog", str(path)])
+        self.assertEqual(code, 0)
+
+
+class TheResolutionOrderIsOneOrderTests(unittest.TestCase):
+    """TWO IMPLEMENTATIONS, ONE ORDER — and this refuses them to diverge.
+
+    The sync carries no YAML dependency and must not gain one, and it is HANDED
+    its workspace root rather than discovering one, so the resolver could not
+    simply be shared as code. What CAN be shared is the order, the variable name
+    and the configuration path — and a duplicated order that drifts is worse
+    than no sharing at all, because each reader would bind a different file
+    while both reported success.
+    """
+
+    def test_both_readers_name_the_same_environment_variable(self):
+        self.assertEqual(validator.HOSTING_ENV,
+                         "XFACTORY_NOTEBOOK_HOSTING_DECLARATION")
+        self.assertEqual(_sync().HOSTING_ENV, validator.HOSTING_ENV)
+
+    def test_both_readers_name_the_same_configuration_file(self):
+        self.assertEqual(validator.HOSTING_CONFIG_REL,
+                         ".xfactory/notebook-hosting.yaml")
+        self.assertEqual(_sync().HOSTING_CONFIG_REL,
+                         validator.HOSTING_CONFIG_REL)
+
+    def test_both_readers_agree_on_the_example_marker(self):
+        self.assertEqual(_sync().HOSTING_EXAMPLE_MARKER,
+                         validator.HOSTING_EXAMPLE_MARKER)
+
+    def test_both_readers_resolve_the_same_three_cases_the_same_way(self):
+        """The order itself, driven through both implementations."""
+        sync = _sync()
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "a").mkdir()
+            (root / "b").mkdir()
+            from_env = root / "a" / "hosting.yaml"
+            from_cfg = root / "b" / "hosting.yaml"
+            from_env.write_text(BASE, encoding="utf-8")
+            from_cfg.write_text(BASE, encoding="utf-8")
+            cfg = root / validator.HOSTING_CONFIG_REL
+            cfg.parent.mkdir(parents=True, exist_ok=True)
+            cfg.write_text("declaration_path: b/hosting.yaml\n",
+                           encoding="utf-8")
+            with patch.dict(os.environ, {}, clear=False):
+                os.environ.pop(validator.HOSTING_ENV, None)
+                # step 2 — the workspace configuration
+                self.assertEqual(sync.hosting_declaration_path(root), from_cfg)
+                self.assertEqual(validator.hosting_declaration_path(root),
+                                 from_cfg)
+                # step 1 — the environment variable, relative spelling
+                os.environ[validator.HOSTING_ENV] = "a/hosting.yaml"
+                self.assertEqual(sync.hosting_declaration_path(root), from_env)
+                self.assertEqual(validator.hosting_declaration_path(root),
+                                 from_env)
+                # step 1 — absolute spelling
+                os.environ[validator.HOSTING_ENV] = str(from_env)
+                self.assertEqual(sync.hosting_declaration_path(root), from_env)
+                self.assertEqual(validator.hosting_declaration_path(root),
+                                 from_env)
+            # step 3 — nothing configured
+            cfg.unlink()
+            with patch.dict(os.environ, {}, clear=False):
+                os.environ.pop(validator.HOSTING_ENV, None)
+                self.assertIsNone(sync.hosting_declaration_path(root))
+                self.assertIsNone(validator.hosting_declaration_path(root))
 
 
 # MUST STAY LAST. This block sat mid-file, so `python3 tests/.../test_validate_hosting.py`
