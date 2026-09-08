@@ -23,10 +23,12 @@ host rendered `Omni001-XEAON`, ruled ACCEPTED 2026-09-05 ~22:50Z, verbatim
 add-manifests-root-parameter and fix the naming record", recorded on the same
 issue. "A2 — the machine key `omniworker` is also a GitHub runner label;
 `omnigent` retained pending retirement": the open question raised below is
-ANSWERED by ADDING `omniworker` beside `omnigent` on every registration
-surface and keeping `omnigent` registered until a later, separately worded
-retirement — nothing in the xFactory aggregation selects on either label, so
-no lane loses its dispatch path while it happens. AUTHORIZED 2026-09-08 by
+ANSWERED by a RULING that `omniworker` IS TO BE registered beside `omnigent` on
+every registration surface, with `omnigent` kept registered until a later,
+separately worded retirement — a ruling and a declaration, not a completed
+rollout; putting the label on the already-running runners is an operator act
+still owed. Nothing in the xFactory aggregation selects on either label, so no
+lane loses its dispatch path while the two halves are sequenced. AUTHORIZED 2026-09-08 by
 Brett Heap, in-session, verbatim "do 794, 795 and 796", recorded on the same
 issue and claimed against this act at 14:40Z on opensoft/openxFactory#795;
 it carries exit 3 of that issue. No ratified text is rewritten by either
@@ -590,9 +592,10 @@ amendment, and the earlier "selected on by at least seven lanes" reading stays
 retracted.
 
 **What this amendment changes.** One fact: the machine key `omniworker` is also
-a **GitHub runner label** — declared alongside `omnigent` in every label set
-this estate authors, and carried by a live runner as soon as it is next
-registered. In the three-casings table above, `omniworker`'s surface already
+a **GitHub runner label** — RULED to be registered beside `omnigent`, and
+declared as such in every label set this estate authors. It is a ruling plus a
+declaration; on the runners already running it is not yet true, and the
+paragraph after next says so. In the three-casings table above, `omniworker`'s surface already
 read "any lowercase-on-the-wire label"; this names the label that surface was
 waiting for, and adds no fourth casing.
 
