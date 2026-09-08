@@ -294,14 +294,17 @@ its own release line, and its own boundary — the same act
 > it stays registered until a later, separately worded retirement. A runner may
 > hold both labels, which is why the two halves can be sequenced instead of
 > cut over. **The DECLARED label set carries both spellings from A2 onward; the
-> LIVE runners carry the second one only after Brett Heap's re-registration,
-> which A2 records as owed.** GitHub fixes a runner's label set at
-> `config.cmd` time, so no repository change re-labels a running runner, and
-> the difference in the interval is exactly the one label nothing selects on. The measurement below is re-taken and unchanged in A2: nothing in
-> the xFactory aggregation selects on the label. The text of this section is
-> left as ratified and is not edited — including the sentence "This record does
-> not change it, and does not rule on it", which was true when it was ratified
-> and which A2 is the change it anticipated.
+> LIVE runners carry the second one only after Brett Heap's operator act, which
+> A2 records as owed** — no change in any repository re-labels a running
+> runner, and in the interval the difference is exactly one label that nothing
+> selects on. The measurement below is re-taken and unchanged in A2: nothing in
+> the xFactory aggregation selects on the label.
+>
+> **The ratified text below is left byte-unchanged** — including the sentence
+> "This record does not change it, and does not rule on it", which was true
+> when it was ratified and which A2 is the change it anticipated. This pointer
+> stands beside that text rather than editing it, exactly as A1's pointer does
+> under § "Machine names".
 
 Every self-hosted runner in this fleet registers the label `omnigent`:
 
@@ -595,10 +598,13 @@ waiting for, and adds no fourth casing.
 
 **Declared is not yet live, and the record says which is which.** The acts below
 move DESIRED state: manifests, profiles, fixtures, runbooks and registration
-scripts. A runner that is already registered keeps its existing label set until
-an operator re-registers it, because GitHub fixes that set at `config.cmd`
-time — so between the acts landing and the re-registration below, a live runner
-carries `omnigent` and not `omniworker`, and nothing selects on either. The
+scripts. **A runner's label set lives server-side at GitHub**, not in a file any
+of these acts can write — the Worker Host App says so itself, in terms
+("labels and the runner group live server-side … `.runner` carries neither"),
+which is why it keeps a sidecar of what it configured. So a runner that is
+already registered keeps its existing label set until an operator changes it at
+GitHub, and between the acts landing and the operator act below a live runner
+carries `omnigent` and not `omniworker` — a difference nothing selects on. The
 acts that carry the declaration:
 
 | Repository | What moves |
@@ -639,22 +645,44 @@ acts that carry the declaration:
   overlay change, a re-digest and a re-render — and it is named here rather
   than performed.
 
-**Owed to Brett Heap: the live re-registration.** GitHub fixes a runner's label
-set at `config.cmd` time, so **no change in any repository re-labels a running
-runner.** Giving the live runners the new label is an operator act, owed, and
-deliberately not attempted by the acts above:
+**Owed to Brett Heap: putting the label on the live runners.** A runner's label
+set lives server-side at GitHub, so **no change in any repository re-labels a
+running runner.** It is an operator act, owed, and deliberately not attempted by
+the acts above. It is NOT, however, a re-registration:
 
-- on a **rider** (`cpc-brett01`) it is `.\config.cmd remove --token …` followed
-  by a re-register with `--labels omnigent,omniworker,…` and `--replace`, the
-  step the CloudPC-Install runbook now spells out;
-- on the **brokered** fleet host (`cpc-omni01` / `Omni001-XEAON`) the manifest's
-  labels are ADVISORY and the enrollment lease's `binding.labels` decide, so it
-  is a broker-side per-estate enrollment-policy change in the enrollment broker
-  plus a lease revoke-and-re-enroll.
+- **`omniworker` is a CUSTOM label, and a custom label can be added to a live
+  runner in place.** `POST /orgs/{org}/actions/runners/{runner_id}/labels` (or
+  Settings → Actions → Runners → the runner → Labels) adds one without
+  downtime, without a removal token and without touching the runner service;
+  it needs organization admin (`admin:org`). Only READ-ONLY labels —
+  `self-hosted`, the OS and the architecture — are beyond it, and `omniworker`
+  is not one of those. *This corrects a claim an earlier revision of this
+  amendment made, that a label set is fixed at `config.cmd` time: `config.cmd
+  --labels` sets the set at REGISTRATION, and is not the only way to change it
+  afterwards. The correction came from review and is recorded rather than
+  quietly swapped.*
+- **On a rider** (`cpc-brett01`) that in-place addition is the whole act, paired
+  with the same addition to the ACL-protected heartbeat data configuration so
+  the attestation and the runner agree. The remove-and-re-register sequence the
+  CloudPC-Install runbook spells out is the FALLBACK, not the prescribed path —
+  and note that `config.cmd --replace` REPLACES the label set, so a label left
+  out of that command is a label removed.
+- **On the brokered fleet host** (`cpc-omni01` / `Omni001-XEAON`) the in-place
+  addition is NOT sufficient, and the reason is structural rather than a
+  platform limit: the manifest's labels are ADVISORY, the enrollment lease's
+  `binding.labels` decide, and the Worker Host App compares its own sidecar of
+  what it configured against that desired set. An addition made only at GitHub
+  changes neither the lease nor the sidecar, so the two halves would disagree;
+  and once the lease binding gains `omniworker`, the app finds sidecar drift,
+  plans a reconfigure, and under an ACTIVE lease refuses it — `blocked`, then
+  `enrollment_refused`, naming "revoke the lease" as the operator action,
+  because the local token-minting path was deleted by design. So there the
+  governed act is the broker-side per-estate enrollment-policy change plus a
+  lease revoke-and-re-enroll.
 
-Until then, the one difference between what a host attests and what GitHub
-holds is the single extra label `omniworker` — and nothing selects on it, so
-nothing dispatches differently either way.
+Until the operator act happens, the one difference between what a host attests
+and what GitHub holds is the single extra label `omniworker` — and nothing
+selects on it, so nothing dispatches differently either way.
 
 **Where else this is recorded.**
 
