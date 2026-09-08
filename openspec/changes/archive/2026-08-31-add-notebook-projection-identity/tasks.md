@@ -5,6 +5,8 @@ Ratified: 2026-08-23 — `review/ratification-2026-08-23.md`. Realization mode: 
 (Brett, at the read). These tasks are AUTHORIZED, not performed, by the
 ratification.
 
+> REDACTED 2026-09-07: email addresses -> role placeholders per `review/redaction-disposition-2026-09-07.md`; original bytes at 543d47a9.
+
 NOTHING BELOW RUNS BEFORE RATIFICATION. This change's own diff is the spec
 deltas and these records; every task here is realization, authorized by the
 ratification read and not by the landing of this proposal.
@@ -40,10 +42,10 @@ first thing to run under a declared account.
   rather than a bare validation failure.
   - REALIZED 2026-08-23: `scripts/validate-notebook-projection-hosting.py` refuses a consumer account for the operator-hosted case (naming the missing administrative control) and any service account (naming the platform constraint), plus a domain mismatch and a third case.
 - [x] 1.5 Record Opensoft's own declaration: operator-hosted,
-  `xFactor001@opensoft.one`.
+  `<service-account-identity>`.
 
 ## 2. The share-out roster and the governed approval lane
-  - REALIZED 2026-08-23: Opensoft's declaration: operator-hosted, `xFactor001@opensoft.one`, Workspace user in `opensoft.one`, profile `company`, migration pending from `brettheap@gmail.com`/`personal`.
+  - REALIZED 2026-08-23: Opensoft's declaration: operator-hosted, `<service-account-identity>`, Workspace user in `opensoft.one`, profile `company`, migration pending from `<convener-personal-mailbox>`/`personal`.
 - [x] 2.1 Decide and build the roster's artifact form — a contract-family schema
   with a validator, or a lighter governed record. The requirement fixes the six
   fields an entry carries, the stable `(hosting_account, user, book_or_alias)`
@@ -91,7 +93,7 @@ first thing to run under a declared account.
   require naming them, whereas leaving it unrecorded would have been the failure
   this lane exists to prevent.
   Original text: Retire the standing workaround honestly — the pending request from
-  2026-08-15 sitting in `brettheap@gmail.com` is either granted through the new
+  2026-08-15 sitting in `<convener-personal-mailbox>` is either granted through the new
   lane or recorded as denied. It is not left to expire unrecorded.
 
 ## 3. Documentation amendments
@@ -176,7 +178,7 @@ first thing to run under a declared account.
     `openspec/changes/archive/2026-08-31-add-notebook-projection-identity/tasks.md`.
     Nothing is currently unregistered; what #536 buys is that the NEXT hosting
     move does not depend on an operator remembering a manual step.
-- [x] 4.4 Re-derive the three lifecycle books under `xFactor001@opensoft.one`
+- [x] 4.4 Re-derive the three lifecycle books under `<service-account-identity>`
   in one `--apply` (precedent: 314 sources, roughly 40 minutes), then migrate
   every live session notebook per §4.2.
   - **DONE 2026-08-24**, evidence in PR #289 (`546e0a98`),
@@ -205,7 +207,7 @@ first thing to run under a declared account.
     unaccounted**, and a convergence dry run planning ZERO operations. Full
     reasoning: `review/retirement-gate-clearance-2026-08-26.md` § 3.
 - [x] 4.6 **EXECUTED 2026-08-26.** Seven legacy notebooks were archive-renamed in
-  `brettheap@gmail.com`: renamed=7 skipped=0 failed=0; no alias resolves to a
+  `<convener-personal-mailbox>`: renamed=7 skipped=0 failed=0; no alias resolves to a
   legacy id; the seven COMPANY books were verified present and un-retitled in the same
   run. NOTHING DELETED. Recorded output, gate-by-gate transcript, provenance and
   the post-hoc parity in
@@ -221,7 +223,7 @@ first thing to run under a declared account.
   `review/retirement-gate-clearance-2026-08-26.md`.
   This box stays UNTICKED because retirement is an ACT and nothing in this
   repository can perform it: it renames seven notebooks inside
-  `brettheap@gmail.com`, which needs an `nlm` session bound to the legacy
+  `<convener-personal-mailbox>`, which needs an `nlm` session bound to the legacy
   account, and profile selection is process-global user state the sync refuses to
   switch. Prepared instead, to be run in one sitting:
   **`docs/notebook-projection-retirement-runbook-step8.md`** — seven exact
@@ -247,14 +249,14 @@ first thing to run under a declared account.
   first and unretracted; the ruling follows it.
   Brett named two readers and ruled full edit access on all seven company books.
   Executed through the § 2.4 lane on his recorded instruction:
-    * **`brett.heap@farheap.com` — GRANTED as `editor` on all seven books.**
+    * **`<convener-workspace-identity>` — GRANTED as `editor` on all seven books.**
       Verified after the fact with `nlm share status <alias> --json --profile
       company`: every book
       lists it beside the owner. The seven `share_out` entries are the record of
       that act, written from grants actually cast rather than backfilled.
-    * **`brett.heap@gmail.com` — REFUSED BY THE PROVIDER on all seven**, with
+    * **`<convener-personal-mailbox>` — REFUSED BY THE PROVIDER on all seven**, with
       `API error (code 7)` (PERMISSION_DENIED) and no reason text. Retried with
-      the undotted spelling `brettheap@gmail.com`, which Gmail treats as the same
+      the undotted spelling of the same mailbox, which Gmail treats as the same
       account: **identical refusal**, so it is the ACCOUNT that is refused, not
       the string. The farheap.com address — a Workspace domain — succeeded on
       every book in the same session, which isolates the difference to an
@@ -262,7 +264,7 @@ first thing to run under a declared account.
   **THE RULING, 2026-08-31 (Brett Heap, in session `openxfactory-f5`, by explicit
   multi-choice): THE GMAIL GRANTEE IS DROPPED. THE SECOND READER IS NOT WANTED.**
   The task's satisfying set is therefore the SEVEN grants to
-  `brett.heap@farheap.com` — cast through the § 2.4 lane, verified after the
+  `<convener-workspace-identity>` — cast through the § 2.4 lane, verified after the
   fact, and recorded as the seven `share_out` entries. **Ticked at 7 of 7.**
   There is no eighth-through-fourteenth grant owed, because the grantee those
   seven were owed to is **withdrawn**, not deferred: the denominator changed by
@@ -281,10 +283,10 @@ first thing to run under a declared account.
       Fewer standing external principals is the posture's own direction of
       travel.
   **The provider refusal becomes a FINDING, not a debt.** Nothing measured above
-  is retracted: `brett.heap@gmail.com` was refused on all seven with `API error
-  (code 7)` (PERMISSION_DENIED), the undotted `brettheap@gmail.com` was refused
+  is retracted: `<convener-personal-mailbox>` was refused on all seven with `API error
+  (code 7)` (PERMISSION_DENIED), the same mailbox undotted was refused
   identically — so it was the ACCOUNT that was refused and not the string — and
-  `brett.heap@farheap.com` succeeded on every book in the same session, which
+  `<convener-workspace-identity>` succeeded on every book in the same session, which
   isolates the difference to an external CONSUMER account. That measurement is
   the record of a real platform boundary. What the ruling changes is that
   **nobody is owed the act it blocked.**
@@ -298,10 +300,10 @@ first thing to run under a declared account.
       **DISCHARGED 2026-08-27 AS DENIED** by Brett as the designated actor —
       ruled stale ("old request and not valid") and written into `denied` in the
       hosting record with date, actor and reason. See § 2.5, which is ticked.
-  **What this tick does NOT claim:** that `brett.heap@gmail.com` can reach the
+  **What this tick does NOT claim:** that `<convener-personal-mailbox>` can reach the
   company books. It cannot; it is no longer meant to; and the record above says
   so in terms. The current human reader of the seven company books is
-  `brett.heap@farheap.com` beside the owner `xFactor001@opensoft.one`.
+  `<convener-workspace-identity>` beside the owner `<service-account-identity>`.
   **SUPERSEDED BY THE RULING ABOVE — kept verbatim for the record:**
   **This box stays unticked deliberately.** Brett asked to "test that they both
   have access", and that test cannot pass today. Ticking would assert a state he
@@ -321,10 +323,10 @@ first thing to run under a declared account.
   earlier draft of this note said "nobody", which was wrong as stated.
   Migration evidence step 9 records it precisely:
     * **COMPANY books — owner-only.** Sole collaborator
-      `xFactor001@opensoft.one (owner)`. No third party holds access, and no
+      `<service-account-identity> (owner)`. No third party holds access, and no
       pending collaborator request is visible through the provider. So there is
       nobody to share out TO under this task unless Brett names them.
-    * **LEGACY books — still readable by `brettheap@gmail.com (owner)`.** The
+    * **LEGACY books — still readable by `<convener-personal-mailbox> (owner)`.** The
       legacy owner IS a current reader of the retired content. That is EXPECTED
       rather than a leak: step 8 retired those notebooks BY RENAME and
       deliberately did not delete them, so their owner necessarily still reaches
@@ -362,7 +364,7 @@ first thing to run under a declared account.
   Ticking it would assert a capability nobody has, which is the exact defect
   class this change exists to remove.
   **THE THREE GROUNDS, re-read at this act and all still true:**
-    1. **Google's sign-in for `xFactor001@opensoft.one` is an interactive browser
+    1. **Google's sign-in for `<service-account-identity>` is an interactive browser
        flow.** There is no unattended path today.
     2. **`nlm login` is additionally broken UPSTREAM** by the notebook.google.com
        rebrand: the CLI's `_is_notebooklm_url()` allow-list accepts only
@@ -394,7 +396,7 @@ first thing to run under a declared account.
   direction (retires the blocker)" is a machine account *"so xFactory can
   re-authenticate **unattended** from a persistent profile — the 'log in whenever
   it wants' property"*. The account moved; **the property does not exist**:
-  Google's sign-in for `xFactor001@opensoft.one` is an interactive browser flow,
+  Google's sign-in for `<service-account-identity>` is an interactive browser flow,
   `nlm login` is additionally broken by the notebook.google.com rebrand, and
   `add-notebook-hosting-credential-custody` states in ratified text that custody
   governs who may obtain the credential and **does not deliver automation**.
@@ -615,7 +617,7 @@ packet merges, are **dated restatements inside a record** and are left exactly
 as that lane wrote them: the very sentence that goes stale is the one directing
 a reader to this act, so it points at the truth rather than away from it.
 
-**WHAT IS NOT CLAIMED ANYWHERE IN THIS PACKET:** that `brett.heap@gmail.com` can
+**WHAT IS NOT CLAIMED ANYWHERE IN THIS PACKET:** that `<convener-personal-mailbox>` can
 reach the company books (§ 4.7 — it cannot, and by ruling it is no longer meant
 to); that a live `--session-sweep` under the personal profile has been run
 (§ 4.2 — it needs the auth § 5.1 lacks, and rides #537); that a bulk

@@ -4,8 +4,12 @@ Status: record
 Kind: report
 Captured: 2026-08-24
 Repository context: openxFactory
-Summary: Evidence for the hosting migration of the lifecycle notebook projection from the personal account (brettheap@gmail.com, profile `personal`) to the declared operator account (xFactor001@opensoft.one, profile `company`) — the recorded ids, the re-derivation, the parity numbers, Brett's 2026-08-24 rulings, and the three steps that are HELD rather than done.
+Summary: Evidence for the hosting migration of the lifecycle notebook projection from the personal account (`<convener-personal-mailbox>`, profile `personal`) to the declared operator account (`<service-account-identity>`, profile `company`) — the recorded ids, the re-derivation, the parity numbers, Brett's 2026-08-24 rulings, and the three steps that are HELD rather than done.
 Topics: notebooklm, lifecycle-notebook-projection, hosting-migration, parity, acceptance-evidence
+
+> REDACTED 2026-09-07: email addresses -> role placeholders per
+> `openspec/changes/archive/2026-08-31-add-notebook-projection-identity/review/redaction-disposition-2026-09-07.md`;
+> original bytes at 543d47a9.
 
 Executed against
 [the ratified runbook](notebook-projection-migration-runbook.md). Steps are
@@ -42,7 +46,7 @@ was captured instead with the repo's own harness,
 (cookie list + csrf_token + session_id). Authentication was then PROVEN with a
 real call, `nlm notebook list --profile company`, not with `login --check`.
 
-`profiles/company/metadata.json` records `email: xFactor001@opensoft.one`. The
+`profiles/company/metadata.json` records `email: <service-account-identity>`. The
 harness writes that field null, so it was set from the vault-held username; the
 sync's binding check reads it.
 
@@ -51,7 +55,7 @@ sync's binding check reads it.
 Recorded before any `--apply`, from the flat alias store, and the aliases then
 deleted so the re-derivation could not silently repoint them:
 
-| alias | legacy notebook id (brettheap@gmail.com) | title | sources |
+| alias | legacy notebook id (`<convener-personal-mailbox>`) | title | sources |
 | --- | --- | --- | --- |
 | `xf-canon` | `6f10282a-7b5b-41c5-9109-55e603890730` | xFactory — Canon | 101 |
 | `xf-drafts` | `b83e63e3-262a-4dfe-9b9f-332b3d27d1bb` | xFactory — Working Drafts | 186 |
@@ -81,7 +85,7 @@ refresh, under a background refresher, and completed with **zero failures**.
 
 The books created:
 
-| book | new notebook id (xFactor001@opensoft.one) | managed sources |
+| book | new notebook id (`<service-account-identity>`) | managed sources |
 | --- | --- | --- |
 | `xf-drafts` | `991f0af7-2077-4c26-ac1d-d92e2af9f99c` | 186 |
 | `xf-canon` | `b331ed13-fa0b-456a-8004-184f66939ecd` | 102 |
@@ -170,7 +174,7 @@ The runbook conditions retirement on parity holding. It does not hold, and
 > books stay untouched.
 
 The legacy books were therefore **not archive-renamed and not touched**; they
-remain live and intact in brettheap@gmail.com under the ids recorded in step 1.
+remain live and intact in `<convener-personal-mailbox>` under the ids recorded in step 1.
 The operator's reading — that a provider-imposed, pre-existing gap might be
 treated as parity "holding" — was NOT adopted. The gate stands until the
 document is projectable.
@@ -239,7 +243,7 @@ PHASE 4  active profile: company — company books present: 7 of 7, none retitle
 The phase-1 listing preserves the PRE-RENAME titles, which the renames overwrote
 and which exist nowhere else now.
 
-**Nothing was deleted.** Seven notebooks were renamed in `brettheap@gmail.com`
+**Nothing was deleted.** Seven notebooks were renamed in `<convener-personal-mailbox>`
 and remain there intact.
 
 ### The post-hoc parity confirmation
@@ -251,7 +255,7 @@ aggregation main** — not from the shared checkout, which was 273 commits behin
 with 112 uncommitted entries and would have derived from stale repo states.
 
 ```
-hosting: operator_hosted — xFactor001@opensoft.one (nlm profile 'company', verified active)
+hosting: operator_hosted — <service-account-identity> (nlm profile 'company', verified active)
 [canon] PARITY FAIL: 3 missing, 0 extra (derived 116, live 113)
 [canon]   MISSING [ratified] LedgerxFactory: accounting-roles-and-authority
 [canon]   MISSING [ratified] OpsxFactory: managed-service-mapping
@@ -501,14 +505,14 @@ stay empty.
 
 Legacy books (personal account) — all seven identical:
 `is_public: false`, `access_level: restricted`, sole collaborator
-`brettheap@gmail.com (owner)`. **No pending collaborator requests exist on any
+`<convener-personal-mailbox> (owner)`. **No pending collaborator requests exist on any
 of them**; the 2026-08-15 request the runbook anticipates is not visible
 through the provider's sharing API and must be resolved from whatever record
 originated it.
 
 New books (company account) — all seven: sole collaborator
 `xfactor001@opensoft.one (owner)` — lower-cased **as the CLI rendered it**, kept
-verbatim rather than normalised to the canonical `xFactor001@opensoft.one`
+verbatim rather than normalised to the canonical `<service-account-identity>`
 because this line quotes provider output and a tidied quote is not a quote. The CLI additionally reported
 `is_public: true` / `access_level: public`; **that report is false**, and F5
 below carries the proof.
@@ -526,7 +530,7 @@ toggle having no-opped. **No tightening was necessary: the books were already
 Google-side deny-by-default**, and the provider offers no control to change
 that would have made them more restricted.
 
-Verified per book, 2026-08-24, as `xFactor001@opensoft.one`, driven by the
+Verified per book, 2026-08-24, as `<service-account-identity>`, driven by the
 governed lane under Brett's ruling:
 
 | book | collaborators | sharing-policy triple | link sharing |
