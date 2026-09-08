@@ -1537,6 +1537,10 @@ def test_the_SEED_LEDGER_cli_writes_a_ledger_the_diff_then_ACCEPTS(tmp_path):
     rows = sa.load_ledger(sa.ledger_path(tmp_path)).rows
     assert rows["add-a"]["class"] == "co-modifier"
     assert rows["add-old"]["state"] == "archived"
+    # `add-old` is a NEW row for a change that was ALREADY archived, which is
+    # not a flip: its move is its creation, so it records the run's date and
+    # `--moved-on` is honoured (#790, narrowed on review).
+    assert rows["add-old"]["moved_on"] == "2026-09-03"
 
 
 def test_MOVED_ROWS_names_exactly_the_rows_a_re_seed_moves(tmp_path):
@@ -1681,6 +1685,12 @@ def test_the_SEEDER_REFUSES_a_bad_provenance_WITHOUT_a_traceback(tmp_path):
          "--moved-on must be an ISO date"),
         (["--moved-by", "#620", "--moved-on", "2026-13-45"],
          "--moved-on must be an ISO date"),
+        # AN EMPTY STRING IS A VALUE THE OPERATOR TYPED. It was already
+        # refused — here, and again inside `render_ledger` — but nothing PINNED
+        # that, so a later edit to either guard could have let it through to a
+        # `moved_on or today` that stamps today over it. (Copilot round 3.)
+        (["--moved-by", "#620", "--moved-on", ""],
+         "--moved-on must be an ISO date"),
     ):
         result = subprocess.run(
             [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
@@ -1786,3 +1796,425 @@ def test_the_SWEEP_output_is_UNCHANGED_by_this_change(tmp_path):
         capture_output=True, text=True)
     assert result.returncode == 0, result.stdout + result.stderr
     assert result.stdout.rstrip("\n") == sa.corpus_sweep(tmp_path).render()
+
+
+# --- the archive date and `moved_on` are ONE FACT (issue #790) --------------
+#
+# `--seed-ledger` stamped `moved_on` from `datetime.date.today()` — the
+# MACHINE'S LOCAL clock — while the OpenSpec CLI names
+# `openspec/changes/archive/<YYYY-MM-DD>-<id>/` from its own, and nothing
+# compared them. A 23:35-local archive therefore produced a `2026-09-07-`
+# directory on a UTC `2026-09-08` day (PR #780's packet). The seeder now takes
+# an archived row's date FROM ITS DIRECTORY, and the plain validator run reports
+# every archived row where the two disagree.
+
+
+def _utc_today() -> str:
+    """Today in UTC, the clock `--moved-on` now defaults to."""
+    import datetime
+    return datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+
+
+def test_a_NEW_row_for_an_ALREADY_ARCHIVED_change_takes_the_RUN_DATE(tmp_path):
+    """NOT A FLIP, so not the archive's date — the narrowing taken from review.
+
+    `release-realization`'s per-subject-row requirement defines the provenance
+    pair as the pull request that last moved the row AND THE DATE OF THAT MOVE.
+    A row created today for a change archived in August moved today; writing
+    August beside today's pull request would make the pair state two different
+    moves.
+    """
+    _change(tmp_path, "add-a")
+    _change(tmp_path, "add-old", archived="2026-08-01")
+    # BRACKETED, NOT COMPARED TO ONE READING. The seeder runs in a CHILD
+    # process, so a run that crossed midnight UTC between these two readings
+    # would legitimately observe two different days and an equality assertion
+    # would fail for the calendar rather than for the code.
+    before = _utc_today()
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#790"], capture_output=True, text=True)
+    after = _utc_today()
+    assert result.returncode == 0, result.stdout + result.stderr
+    rows = sa.load_ledger(sa.ledger_path(tmp_path)).rows
+    assert rows["add-old"]["state"] == "archived"
+    assert rows["add-old"]["moved_on"] in {before, after}
+    assert rows["add-a"]["moved_on"] in {before, after}
+    assert rows["add-old"]["moved_on"] != "2026-08-01", (
+        "an already-archived change's NEW row is not a flip and must not take "
+        "the archive's date")
+
+
+def test_the_SEEDER_stamps_the_DIRECTORY_date_when_a_row_FLIPS_to_archived(
+        tmp_path):
+    """THE FLIP is the moment the two facts become one, and it is the moment
+    the old seeder got wrong: the row moves BECAUSE the change archived, so the
+    date it records is the archive's, not the re-seed's."""
+    _change(tmp_path, "add-a")
+    path = _ledger(tmp_path, [_row("add-a", moved_by="#1",
+                                   moved_on="2026-01-01")])
+    assert sa.load_ledger(path).rows["add-a"]["state"] == "active"
+    _change(tmp_path, "add-a", archived="2026-08-14")
+    import shutil
+    shutil.rmtree(tmp_path / "openspec" / "changes" / "add-a")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#790"], capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    row = sa.load_ledger(path).rows["add-a"]
+    assert row["state"] == "archived"
+    assert row["moved_by"] == "#790"
+    assert row["moved_on"] == "2026-08-14"
+
+
+def test_an_EXPLICIT_moved_on_that_the_DIRECTORY_CONTRADICTS_is_REFUSED(tmp_path):
+    """NEVER SILENTLY OVERRIDDEN. A caller who typed a date and got a different
+    one written was told their flag was honoured when it was not — the same
+    mistake `--ledger-diff --moved-by garbage` is refused for."""
+    _change(tmp_path, "add-old")
+    path = _ledger(tmp_path, [_row("add-old", moved_by="#1",
+                                   moved_on="2026-01-01")])
+    before = path.read_text(encoding="utf-8")
+    _change(tmp_path, "add-old", archived="2026-08-01")
+    import shutil
+    shutil.rmtree(tmp_path / "openspec" / "changes" / "add-old")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#790", "--moved-on", "2026-09-08"],
+        capture_output=True, text=True)
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "add-old (2026-08-01)" in result.stderr
+    assert "the same act" in result.stderr
+    assert "Traceback" not in result.stderr
+    assert path.read_text(encoding="utf-8") == before, (
+        "a refused re-seed writes nothing")
+
+
+def test_an_EXPLICIT_moved_on_that_AGREES_with_every_directory_is_ACCEPTED(
+        tmp_path):
+    # ANTI-VACUITY for the refusal above: the flag is not simply banned in the
+    # presence of an archived row.
+    _change(tmp_path, "add-old")
+    _ledger(tmp_path, [_row("add-old", moved_by="#1", moved_on="2026-01-01")])
+    _change(tmp_path, "add-old", archived="2026-08-01")
+    import shutil
+    shutil.rmtree(tmp_path / "openspec" / "changes" / "add-old")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#790", "--moved-on", "2026-08-01"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert sa.load_ledger(sa.ledger_path(tmp_path)).rows["add-old"]["moved_on"] \
+        == "2026-08-01"
+
+
+def test_an_UNMOVED_archived_row_is_NOT_RESTAMPED_by_the_new_rule(tmp_path):
+    """The seeder's oldest promise still holds: a row that did not move keeps
+    the provenance it carried. A seeder that rewrote the 124 archived rows
+    whose date is later than their directory would make every re-seed a
+    124-row diff — and those rows are not defects: they record later moves,
+    which is what `release-realization` says `moved_on` means."""
+    _change(tmp_path, "add-old", archived="2026-08-01")
+    path = _ledger(tmp_path, [_row("add-old", state="archived", moved_by="#1",
+                                   moved_on="2026-09-03")])
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#790"], capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert sa.load_ledger(path).rows["add-old"]["moved_on"] == "2026-09-03"
+    assert sa.load_ledger(path).rows["add-old"]["moved_by"] == "#1"
+
+
+def test_the_PLAIN_RUN_GATES_on_a_moved_on_that_PREDATES_its_directory(tmp_path):
+    """THE CONTRADICTION, which no reading of the provenance pair permits: the
+    row says `archived` and claims a move OLDER than the archive that made it
+    archived. It is also the shape a CLI clock running AHEAD of UTC produces."""
+    _change(tmp_path, "add-old", archived="2026-08-01")
+    _ledger(tmp_path, [_row("add-old", state="archived", moved_on="2026-07-31")])
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path)],
+        capture_output=True, text=True)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "archive-date contradiction: add-old" in result.stdout, result.stdout
+    assert "'2026-07-31'" in result.stdout and "'2026-08-01'" in result.stdout
+
+
+def test_a_LATER_moved_on_is_NOT_a_finding_by_default(tmp_path):
+    """A LEGITIMATE later move, and the correction taken from review.
+
+    `release-realization` defines `moved_on` as the date the ROW last moved, so
+    an archived change whose reading is moved by a later pull request carries a
+    later date. 124 of this corpus's 143 archived rows do. Reporting them would
+    call a correct ledger stale."""
+    _change(tmp_path, "add-old", archived="2026-08-01")
+    _ledger(tmp_path, [_row("add-old", state="archived", moved_on="2026-09-03")])
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path)],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "contradiction" not in result.stdout
+    assert "drift" not in result.stdout
+
+
+def test_an_UNREADABLE_moved_on_is_left_to_the_LEDGER_DIFF_to_name(tmp_path):
+    """Reported once, in one vocabulary. `ledger_problems` already names
+    malformed provenance; comparing a value that is not a date would send the
+    author to a second, wrong repair."""
+    _change(tmp_path, "add-old", archived="2026-08-01")
+    _ledger(tmp_path, [_row("add-old", state="archived", moved_on="September")])
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path)],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "archive-date contradiction" not in result.stdout
+
+
+def test_the_SEEDER_REFUSES_a_FLIP_whose_directory_is_dated_AFTER_TODAY(tmp_path):
+    """The ahead-clock refusal, at the moment the stamp would be written: a
+    directory dated in the future can only have been named by a clock running
+    ahead of UTC, and stamping its date would create the contradiction the
+    validator gates on."""
+    _change(tmp_path, "add-old")
+    _ledger(tmp_path, [_row("add-old", moved_by="#1", moved_on="2026-01-01")])
+    _change(tmp_path, "add-old", archived="2999-01-01")
+    import shutil
+    shutil.rmtree(tmp_path / "openspec" / "changes" / "add-old")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#790"], capture_output=True, text=True)
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "add-old (2999-01-01)" in result.stderr
+    assert "ahead of UTC" in result.stderr
+    assert "Traceback" not in result.stderr
+
+
+def test_a_CONSISTENT_corpus_is_SILENT_and_says_the_arm_PASSED(tmp_path):
+    _change(tmp_path, "add-old", archived="2026-08-01")
+    _ledger(tmp_path, [_row("add-old", state="archived", moved_on="2026-08-01")])
+    for flags in ([], ["--strict-archive-dates"]):
+        result = subprocess.run(
+            [sys.executable, str(VALIDATOR), str(tmp_path), *flags],
+            capture_output=True, text=True)
+        assert result.returncode == 0, (flags, result.stdout, result.stderr)
+        assert "archive-date agreement passed" in result.stdout
+        assert "contradiction" not in result.stdout
+        assert "drift" not in result.stdout
+
+
+def test_STRICT_ARCHIVE_DATES_asks_for_the_STRONGER_reading(tmp_path):
+    """The reading issue #790 proposed, kept and made OPT-IN rather than
+    dropped: an archived row's moved_on IS its archive date. 124 live rows do
+    not satisfy it and are not defects, which is why it is not the default."""
+    _change(tmp_path, "add-old", archived="2026-08-01")
+    _ledger(tmp_path, [_row("add-old", state="archived", moved_on="2026-09-03")])
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path),
+         "--strict-archive-dates"], capture_output=True, text=True)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "archive-date agreement FAILED" in result.stdout
+    assert "archive-date drift: add-old" in result.stdout
+
+
+def test_STRICT_ARCHIVE_DATES_is_REFUSED_OUTSIDE_the_plain_run(tmp_path):
+    _change(tmp_path, "add-a")
+    for mode in (["--sweep"], ["--ledger-diff"],
+                 ["--seed-ledger", "--moved-by", "#1"]):
+        result = subprocess.run(
+            [sys.executable, str(VALIDATOR), str(tmp_path),
+             "--strict-archive-dates", *mode], capture_output=True, text=True)
+        assert result.returncode == 2, (mode, result.stdout, result.stderr)
+        assert "--strict-archive-dates is only meaningful" in result.stderr
+
+
+def test_a_MISSING_LEDGER_does_not_make_the_PLAIN_RUN_a_verdict(tmp_path):
+    """`--ledger-diff` owns ledger readability, and answers it with exit 2 — a
+    status the plain run does not have and must not invent."""
+    _change(tmp_path, "add-old", archived="2026-08-01")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path)],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "archive-date arm NOT RUN" in result.stdout
+    path = sa.ledger_path(tmp_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("rows: [not, a, mapping]\n", encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path)],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "archive-date arm NOT RUN" in result.stdout
+    assert "--ledger-diff reports that class" in result.stdout
+
+
+def test_an_id_in_BOTH_corpora_is_read_as_ACTIVE_and_NOT_date_checked(tmp_path):
+    """The classifier reads such an id as ACTIVE, `resolve` reports the
+    ambiguity, and this arm must not report the SAME defect in a second
+    vocabulary that sends the author to a provenance repair."""
+    _change(tmp_path, "add-a")
+    _change(tmp_path, "add-a", archived="2026-08-01")
+    _ledger(tmp_path, [_row("add-a", state="active", moved_on="2026-07-31")])
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path)],
+        capture_output=True, text=True)
+    assert "contradiction" not in result.stdout, result.stdout
+
+
+def test_TWO_ARCHIVE_DIRECTORIES_for_one_id_are_NOT_date_checked(tmp_path):
+    """Two dated directories is an AMBIGUITY `resolve` refuses. Picking one here
+    would decide it silently, in the one place that stamps provenance."""
+    _change(tmp_path, "add-old", archived="2026-08-01")
+    _change(tmp_path, "add-old", archived="2026-08-02")
+    assert "add-old" not in sa.archive_dates(tmp_path)
+    _ledger(tmp_path, [_row("add-old", state="archived", moved_on="2026-07-31")])
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path)],
+        capture_output=True, text=True)
+    assert "contradiction" not in result.stdout, result.stdout
+
+
+
+def test_a_STALE_ACTIVE_ROW_for_an_ARCHIVED_id_is_the_LEDGER_DIFFS_finding(
+        tmp_path):
+    """ONE FACT, ONE VOCABULARY, and this one was named twice.
+
+    The arm's own finding reads "an archived row cannot record a move that
+    predates the archive that made it archived" — a sentence about a row that
+    CLAIMS to be archived. A row still saying `active` for an id that is
+    archived on disk claims no such thing: it is simply out of date, which is
+    `--ledger-diff`'s stale-row class and whose repair is a re-seed. Reporting
+    it here as an archive-date contradiction sent the author to a second repair
+    (go and correct `moved_on`) for a row whose `moved_on` is not the problem.
+    """
+    _change(tmp_path, "add-old", archived="2026-08-01")
+    _ledger(tmp_path, [_row("add-old", state="active", moved_on="2026-07-31")])
+    plain = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path)],
+        capture_output=True, text=True)
+    assert "archive-date contradiction" not in plain.stdout, plain.stdout
+    assert "archive-date drift" not in plain.stdout
+    # …and the stale row IS reported, by the mode that owns the class.
+    diff = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--ledger-diff"],
+        capture_output=True, text=True)
+    assert diff.returncode != 0, diff.stdout + diff.stderr
+    assert "add-old" in diff.stdout + diff.stderr
+    # The strict reading agrees: it is the same row, and the same non-finding.
+    strict = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path),
+         "--strict-archive-dates"], capture_output=True, text=True)
+    assert "archive-date drift" not in strict.stdout, strict.stdout
+    assert "archive-date contradiction" not in strict.stdout, strict.stdout
+    assert "archive-date agreement passed" in strict.stdout
+
+
+# ---- the seeder's default `moved_on` is UTC, ON A UTC RUNNER TOO -----------
+#
+# `_utc_today()` replaced `datetime.date.today()`, and every test of it read the
+# host's own clock — so on the UTC runner CI uses, the two readings agree and
+# the mutation `_utc_today -> date.today` passed the whole suite. The clock is
+# therefore FROZEN, in a child process, at an instant where UTC and the
+# machine's local day are two different days.
+
+_FROZEN_CLOCK_DRIVER = '''
+import datetime, importlib.util, os, sys, time
+
+# A REAL ZONE, SET ON THE PROCESS, because the defect is about what
+# `datetime.date.today()` reads: `Pacific/Kiritimati` is UTC+14, the extreme of
+# the ahead-of-UTC direction, and `time.tzset()` is what makes the C library
+# and therefore `astimezone()` honour it.
+os.environ["TZ"] = "Pacific/Kiritimati"
+time.tzset()
+
+# 23:35 UTC: the hour PR #780's archive actually ran at, and an hour at which
+# UTC+14 is already on the NEXT day.
+WHEN = datetime.datetime(2026, 9, 8, 23, 35, tzinfo=datetime.timezone.utc)
+
+
+# BOUND BEFORE THE CLASS BODY: inside `_FrozenDatetimeModule` the name
+# `datetime` is being rebound to the stub, so the real module's own attributes
+# have to be read out here or the class body reads its own half-built self.
+_REAL_TIMEZONE = datetime.timezone
+_REAL_TIMEDELTA = datetime.timedelta
+
+
+class _Datetime(datetime.datetime):
+    @classmethod
+    def now(cls, tz=None):
+        return WHEN.astimezone(tz) if tz is not None else WHEN.astimezone()
+
+
+class _Date(datetime.date):
+    @classmethod
+    def today(cls):
+        # THE MACHINE'S LOCAL CLOCK, which is the value the defect wrote.
+        return WHEN.astimezone().date()
+
+
+class _FrozenDatetimeModule:
+    datetime = _Datetime
+    date = _Date
+    timezone = _REAL_TIMEZONE
+    timedelta = _REAL_TIMEDELTA
+
+
+spec = importlib.util.spec_from_file_location("validator_under_test", sys.argv[1])
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+module.datetime = _FrozenDatetimeModule
+print(module._utc_today())
+print(_Date.today().isoformat())
+'''
+
+
+def test_the_SEEDERS_DEFAULT_DATE_IS_UTC_AND_NOT_THE_LOCAL_DAY(tmp_path):
+    """The guard that fails on a UTC runner, which no earlier test could.
+
+    Mutate `_utc_today` back to `datetime.date.today().isoformat()` and this
+    test reports `2026-09-09` where UTC says `2026-09-08`. The second assertion
+    is its ANTI-VACUITY: at the frozen instant the two days really are two days,
+    so the first assertion cannot pass by the distinction being unobservable.
+    """
+    driver = tmp_path / "frozen_clock_driver.py"
+    driver.write_text(_FROZEN_CLOCK_DRIVER, encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(driver), str(VALIDATOR)],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    utc_day, local_day = result.stdout.split()
+    assert local_day == "2026-09-09", (
+        "the fixture's own premise: under Pacific/Kiritimati at 23:35 UTC the "
+        "machine's local day is tomorrow")
+    assert utc_day == "2026-09-08", (
+        "`--moved-on` defaulted to the MACHINE'S day, which is issue #790 on "
+        "the ledger side of the same archive")
+
+
+def test_the_SEEDER_STAMPS_THE_UTC_DAY_UNDER_AN_AHEAD_OF_UTC_TZ(tmp_path):
+    """The same property END TO END, through the CLI an operator actually runs.
+
+    BRACKETED rather than compared to one reading: the seeder runs in a child
+    process, so a run that crossed midnight UTC between the two readings would
+    legitimately observe two different days. This test DISTINGUISHES the two
+    clocks only while UTC is past 10:00 (the hours in which UTC+14 is already
+    on the next day); the frozen-clock test above is the one that fails
+    wherever it is run.
+    """
+    import datetime as _dt
+    import os
+    _change(tmp_path, "add-a")
+
+    def utc_now() -> str:
+        return _dt.datetime.now(_dt.timezone.utc).date().isoformat()
+
+    before = utc_now()
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#790"],
+        capture_output=True, text=True,
+        env={**os.environ, "TZ": "Pacific/Kiritimati"})
+    after = utc_now()
+    assert result.returncode == 0, result.stdout + result.stderr
+    stamped = sa.load_ledger(sa.ledger_path(tmp_path)).rows["add-a"]["moved_on"]
+    assert stamped in (before, after), (
+        f"{stamped!r} is neither UTC day this run spanned "
+        f"({before!r}, {after!r}) — the local Kiritimati day is a day ahead")
