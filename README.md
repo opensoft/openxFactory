@@ -512,6 +512,43 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [refresh-install-repository-enumerations](openspec/changes/refresh-install-repository-enumerations/proposal.md)
+  — authored 2026-09-08, **`Status: draft`** (no ratification citation, and none
+  is owed: the lawful unapproved shape `add-drafted-proposal-origin` defined,
+  drafting provenance only in `.openspec.yaml`). Origin: openxFactory
+  [#796](https://github.com/opensoft/openxFactory/issues/796) — OQ-9 and task
+  § 8.4 of the archived `implement-omniworker-install-repo`, filed at that
+  packet's archive (`d7fbe933`) and extended the same day by an addendum that
+  raised its scope from three enumerations to FOUR. Admitted to the queue by
+  Brett Heap, 2026-09-08 ~14:3xZ, verbatim *"do 794, 795 and 796"*, recorded on
+  [#591](https://github.com/opensoft/openxFactory/issues/591) — **AN ADMISSION
+  AND AN INSTRUCTION TO AUTHOR, NOT A RATIFICATION**: it chooses neither of
+  #796's two options and decides no requirement wording. Refreshes the FOUR
+  hand-maintained install-repository enumerations a fifth install repository
+  (`opensoft/OmniWorker-Install`, admitted by opensoft/xFactory#274 →
+  `648c8bd3`) made incomplete: **7 `## MODIFIED` requirements** across
+  `repo-boundary-governance` (3), `shared-contract-ownership` (2) and
+  `canonical-contract-migration` (1), each restating the promoted text word for
+  word with a `Removed from canon by` marker naming the replaced unit, plus
+  **1 `## ADDED`** requirement stating that these enumerations are an INDEX
+  whose authority is the aggregation's `installs/` mount list and each
+  repository's own boundary requirement. **THE COLLISION #796 SAID TO CHECK FOR
+  DOES NOT EXIST, MEASURED:** no active change writes the *"Install repository
+  scope"* key (two archived writers only), and the `co-modifier` class on
+  `implement-keycloak-install-repo` / `implement-openxpki-install-repo` comes
+  from each sharing its OWN sibling boundary requirement with an active
+  partner — so this packet is `class: sole` and owes no `sequenced_after:`.
+  **#796's SECOND OPTION IS REFUSED, NOT FORECLOSED** (`design.md` D1): a list
+  derived from the aggregation's `installs/` group would carry NINE mounts
+  against an indexed set of FIVE, enrolling three repositories no reviewed act
+  placed under the requirement and duplicating `xFactory-Installer`, which its
+  own requirement already governs. **NO GENERATOR IS BUILT**, no promoted
+  specification byte moves, no contract is cut, `code_surface: none`, and all
+  boxes in `tasks.md` are unticked. **ONE ACT IS OWED AT THE ARCHIVE** —
+  `tasks.md` § 4.1, the `repo-boundary-governance` `## Purpose` widening, which
+  a delta cannot carry and which is taken in the archive commit as a separate
+  hunk on the `publish-openspec-cli-pin-as-contract-member` § 5.8 precedent.
+  Lane `openxfactory-3`.
 - [govern-archived-record-edits](openspec/changes/govern-archived-record-edits/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
   (reviewer of record), in session, first-hand to lane `opsXfactory-1`, by CLI
