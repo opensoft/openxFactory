@@ -513,12 +513,17 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [govern-archived-record-edits](openspec/changes/govern-archived-record-edits/proposal.md)
-  — authored 2026-09-08, **`Status: draft`**, on Brett Heap's **F.3** ruling of
-  2026-09-07 (OpsxFactory PR
-  [#248](https://github.com/opensoft/OpsxFactory/pull/248#issuecomment-5571629298),
-  in session, first-hand to lane `opsXfactory-1`), verbatim
-  *"Header/bookkeeping edits only + re-derive pins"* with home *"Both at once"*
-  — an ADMISSION TO THE QUEUE, not a ratification. **NOTHING IS REALIZED** — no
+  — authored 2026-09-08, **`Status: draft`**, on Brett Heap's **F.3** ruling,
+  given on OpsxFactory PR #248 in **TWO comments on two days**, each carrying one
+  of the two verbatim selections: the SHAPE
+  *"Header/bookkeeping edits only + re-derive pins"* in comment
+  [5563099832](https://github.com/opensoft/OpsxFactory/pull/248#issuecomment-5563099832)
+  (2026-09-06T23:42Z), and the HOME *"Both at once"* in comment
+  [5571629298](https://github.com/opensoft/OpsxFactory/pull/248#issuecomment-5571629298)
+  (2026-09-07T13:51Z), both in session and first-hand to lane `opsXfactory-1`
+  — an ADMISSION TO THE QUEUE, not a ratification. Both comments are named
+  because attributing both selections to the later one would misquote the record
+  this packet exists to protect. **NOTHING IS REALIZED** — no
   archived byte is edited, no pin is re-derived, no checker is written, no
   repository's convention is amended, and **all 25 boxes in `tasks.md` stay
   unticked**. **THE ESTATE-NEUTRAL HALF OF A MATCHED PAIR**: the domain half is
@@ -609,7 +614,13 @@ Active changes:
   alone. Claims: object
   [#630 comment 5578961492](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5578961492),
   substrate
-  […#issuecomment-5578961805](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5578961805).
+  […#issuecomment-5578961805](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5578961805);
+  and the twin's two on OpsxFactory issue #207, object
+  [5578960955](https://github.com/opensoft/OpsxFactory/issues/207#issuecomment-5578960955)
+  and substrate
+  […#issuecomment-5578961206](https://github.com/opensoft/OpsxFactory/issues/207#issuecomment-5578961206)
+  — FOUR in all, because "Both at once" names two repositories and each carries
+  its own object and its own substrate.
 
 - [add-consent-custody-rederivation-record](openspec/changes/add-consent-custody-rederivation-record/proposal.md)
   — authored 2026-09-07, **`Status: ratified`** (2026-09-08, Brett Heap

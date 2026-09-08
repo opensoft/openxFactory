@@ -4,9 +4,11 @@ Status: draft
 Lane: opsXfactory-1
 
 Eight decisions — **D-1** through **D-8** — each with the alternative it
-rejects and the measured reason. Brett Heap's F.3 ruling chose the rule's
-SHAPE (*"Header/bookkeeping edits only + re-derive pins"*) and its HOME
-(*"Both at once"*) and nothing below. Every decision here is the authoring
+rejects and the measured reason. Brett Heap's F.3 ruling came in TWO comments on
+OpsxFactory PR #248 and chose two things: the rule's SHAPE
+(*"Header/bookkeeping edits only + re-derive pins"*, comment 5563099832,
+2026-09-06T23:42Z) and its HOME (*"Both at once"*, comment 5571629298,
+2026-09-07T13:51Z). It chose nothing below. Every decision here is the authoring
 session's and is a veto point.
 
 § *Readings not taken* at the end records the three whole positions this

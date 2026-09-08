@@ -47,9 +47,11 @@ change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
 
 ## 1. Ratification — OWED, NOT GIVEN
 
-- [ ] 1.1 **[OPERATOR] Ratify or veto.** The F.3 ruling of 2026-09-07 chose the
-  rule's SHAPE (*"Header/bookkeeping edits only + re-derive pins"*) and its two
-  HOMES (*"Both at once"*). It chose no requirement title, no delta shape, no
+- [ ] 1.1 **[OPERATOR] Ratify or veto.** The F.3 ruling came in TWO comments on
+  OpsxFactory PR #248 — the SHAPE
+  (*"Header/bookkeeping edits only + re-derive pins"*) on 2026-09-06T23:42Z,
+  comment 5563099832, and the HOME (*"Both at once"*) on 2026-09-07T13:51Z,
+  comment 5571629298. It chose no requirement title, no delta shape, no
   definition of the bookkeeping class, no ordering between ruling and edit, and
   no refusal posture. Each is `design.md`'s D-1..D-8 and each is a veto point.
 - [ ] 1.2 **[OPERATOR] Rule on the TRANSITION CLAUSE of D-7.** The second

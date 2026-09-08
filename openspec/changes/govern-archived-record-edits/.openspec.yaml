@@ -5,11 +5,15 @@ origin:
   id: openxFactory:adhoc:2026-09-08-govern-archived-record-edits
   reason: >-
     A RULING IN ANOTHER REPOSITORY QUEUED THIS PACKET BY NAME, BY REPOSITORY
-    AND IN A MATCHED PAIR. OpsxFactory PR #248 (merged `40aaa93b`), comment
-    https://github.com/opensoft/OpsxFactory/pull/248#issuecomment-5571629298,
-    Brett Heap in session 2026-09-07T13:51Z, first-hand to lane opsXfactory-1,
-    ruling F.3. Two verbatim selections: the rule's SHAPE is "Header/bookkeeping
-    edits only + re-derive pins", and its HOME is "Both at once" — "an
+    AND IN A MATCHED PAIR. OpsxFactory PR #248 (merged `40aaa93b`), ruling F.3,
+    Brett Heap in session, first-hand to lane opsXfactory-1, in TWO COMMENTS ON
+    TWO DAYS — each carrying one of the two verbatim selections. The SHAPE, in
+    comment
+    https://github.com/opensoft/OpsxFactory/pull/248#issuecomment-5563099832
+    (2026-09-06T23:42Z): "Header/bookkeeping edits only + re-derive pins". The
+    HOME, in comment
+    https://github.com/opensoft/OpsxFactory/pull/248#issuecomment-5571629298
+    (2026-09-07T13:51Z): "Both at once" — "an
     OpsxFactory change (dated amendment to `docs/packet-lifecycle-headers.md` +
     an ADDED requirement: header/bookkeeping edits only under a recorded ruling,
     and every edit of a pinned target re-derives dependent pins in the same

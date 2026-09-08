@@ -11,11 +11,15 @@ Proposed: 2026-09-08
 Awaiting ratification: Brett Heap
 Lane: opsXfactory-1
 
-Origin: Brett Heap's **F.3** ruling of 2026-09-07, in session, first-hand to
-lane `opsXfactory-1`, recorded on OpsxFactory PR
-[#248](https://github.com/opensoft/OpsxFactory/pull/248#issuecomment-5571629298).
-Two selections, both verbatim: the rule's SHAPE is
-*"Header/bookkeeping edits only + re-derive pins"*, and its HOME is
+Origin: Brett Heap's **F.3** ruling, in session, first-hand to lane
+`opsXfactory-1`, given on OpsxFactory PR #248 in **TWO comments on two days**,
+and both are named because each carries one of the two verbatim selections. The
+rule's SHAPE — comment
+[5563099832](https://github.com/opensoft/OpsxFactory/pull/248#issuecomment-5563099832),
+**2026-09-06T23:42Z** — is *"Header/bookkeeping edits only + re-derive pins"*.
+Its HOME — comment
+[5571629298](https://github.com/opensoft/OpsxFactory/pull/248#issuecomment-5571629298),
+**2026-09-07T13:51Z** — is
 *"Both at once"* — *"an OpsxFactory change (dated amendment to
 `docs/packet-lifecycle-headers.md` + an ADDED requirement: header/bookkeeping
 edits only under a recorded ruling, and every edit of a pinned target
@@ -37,7 +41,10 @@ Lane claim: openxFactory issue
 This is the ESTATE-NEUTRAL half of a matched pair. The domain half is
 OpsxFactory's `govern-archived-record-edits` — the same working id, claimed at
 OpsxFactory issue
-[#207 comment 5578960955](https://github.com/opensoft/OpsxFactory/issues/207#issuecomment-5578960955)
+[#207 comment 5578960955](https://github.com/opensoft/OpsxFactory/issues/207#issuecomment-5578960955),
+with its substrate claim
+[…#issuecomment-5578961206](https://github.com/opensoft/OpsxFactory/issues/207#issuecomment-5578961206)
+(that repository's `openspec/README.md` Records block) —
 — which states the same rule at that repository's own altitude, over that
 repository's archive tree and its own gates, and carries the dated amendment to
 `docs/packet-lifecycle-headers.md` that the ruling names. Neither half is the
