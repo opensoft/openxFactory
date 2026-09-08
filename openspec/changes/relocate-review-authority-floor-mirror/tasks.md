@@ -11,7 +11,11 @@ evidence and not on landing.
 pin byte is edited, nothing in codexFactory is touched, and every box below is
 unticked. **THE REALIZATION IS IN TWO PARTS THAT BRACKET ANOTHER REPOSITORY'S
 LANDING** (M-1), and the boxes are grouped that way so a reader cannot mistake
-one for the whole.
+one for the whole. **THE NUMBERING BELOW IS M-1'S, NOT A SECOND SCHEME**: M-1's
+three steps are (1) this repository accepts both paths, (2) codexFactory moves,
+(3) this repository drops the old path — so this repository performs TWO
+realizations, at M-1 steps (1) and (3), and § 3 is another repository's act
+standing between them as this packet's gate.
 
 ## 1. The word
 
@@ -23,11 +27,11 @@ one for the whole.
       **Ticks on:** the ratifying word saying which.
 - [ ] 1.3 MQ-2 answered — the binding's `source_documents:` read surface (M-4)
       stands or is vetoed. **Ticks on:** the same word.
-- [ ] 1.4 MQ-3 answered — what triggers realization (3). **Ticks on:** the same
+- [ ] 1.4 MQ-3 answered — what triggers M-1 step (3), this repository's second realization. **Ticks on:** the same
       word; the default if none is given is M-1's "one advance observed against
       the successor path".
 
-## 2. Realization (1) — dual-path acceptance, landing BEFORE codexFactory moves
+## 2. M-1 step (1) — this repository's FIRST realization: dual-path acceptance, landing BEFORE codexFactory moves
 
 - [ ] 2.1 `.github/workflows/review-lane-repin.yml` declares the ORDERED
       candidate list, old path FIRST, and the fetch step tries each in order.
@@ -51,7 +55,7 @@ one for the whole.
       against the OLD path with dual acceptance in place, resolving candidate
       one and reporting no migration. **Ticks on:** that run.
 
-## 3. codexFactory's move — not this packet's act, but this packet's gate
+## 3. M-1 step (2) — codexFactory's move: not this packet's act, but this packet's gate
 
 - [ ] 3.1 codexFactory `relocate-review-authority-floor` is ratified and its
       realization lands, moving the document to
@@ -64,7 +68,7 @@ one for the whole.
       `sha256` and `entry_count` are unchanged across the whole migration.
       **Ticks on:** the comparison recorded on #745.
 
-## 4. Realization (2) — the list returns to one entry
+## 4. M-1 step (3) — this repository's SECOND realization: the list returns to one entry
 
 - [ ] 4.1 The superseded path is removed from every declaration; the list
       carries one path. **Ticks on:** the merged commit.

@@ -550,8 +550,8 @@ Active changes:
   the realization asserts that rather than assuming it. The measurement the
   ruling required (*"measure first"*) is the sibling's and is not restated here:
   codexFactory `openspec/changes/relocate-review-authority-floor/research/automerge-measurement-2026-09-08.md`.
-  `sequenced_after: [mirror-floor-regeneration-automation,
-  codexFactory:relocate-review-authority-floor]`. **THIS PULL REQUEST PERFORMS
+  `sequenced_after: [mirror-floor-regeneration-automation, codexFactory:relocate-review-authority-floor]`.
+  **THIS PULL REQUEST PERFORMS
   NOTHING** — no workflow, script, contract, test or pin byte is edited, nothing
   in codexFactory is touched, and every `tasks.md` box is unticked. **OPEN TO
   BRETT (MQ-1):** does this ratify on the same word as codexFactory #293, or
