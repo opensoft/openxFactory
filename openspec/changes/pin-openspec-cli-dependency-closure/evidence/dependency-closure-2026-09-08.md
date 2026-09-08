@@ -139,8 +139,47 @@ OK openspec-cli-pin: @fission-ai/openspec@1.12.0 verified against its content ad
 and nothing new. The two findings are the pin's existing openxFactory pair; this
 change adds no disposition, retires none, and touches the list not at all.
 
-## 6. The suite
+## 6. The gate is a REQUIRED check, which is why the timing is what it is
+
+Verified against the live GitHub API on 2026-09-08, after
+`add-openspec-cli-pin` task 3.3 landed:
+
+```
+$ gh api /repos/opensoft/openxFactory/rules/branches/main --jq '[.[]|select(.type=="required_status_checks")|.parameters.required_status_checks[].context]'
+["signed-execution-chain-gate","lane-line","openspec-cli-pin","wallet-validation","pytest-suite","lane-line","release-tag-gate"]
+
+$ gh api /orgs/opensoft/rulesets/22551797 --jq '.name, (.rules[]|select(.type=="required_status_checks")|.parameters.required_status_checks[].context)'
+openxFactory pin-gate (require openspec-cli-pin)
+openspec-cli-pin
+```
+
+The ruleset was created and task 3.3 ticked by **PR #810, merged to `main` as
+`95e25409`** on 2026-09-08 — the same day as this packet, by a sibling lane.
+That is the fact that ends option 4 ("accept the shortfall as declared"): a
+DECLARED GAP IN A REQUIRED CHECK is a declared gap in the thing that stops
+merges. This packet's own `openspec-cli-pin` run is therefore the enforced gate,
+and § 5 above is that gate's own log line.
+
+## 7. The suite
 
 `python3 -m pytest tests/openspec_cli_pin -q` → **`123 passed`** (was 93).
-No test skips, so `pytest-suite.yml`'s exact `EXPECT_SKIPPED: "21"` is untouched
-and its two floors only rise.
+`python3 -m pytest tests/sequenced_after -q` → **`177 passed`**.
+No test skips are added, so `pytest-suite.yml`'s exact `EXPECT_SKIPPED: "21"` is
+untouched and its two floors only rise.
+
+## 8. The gate, in CI, on this pull request
+
+openxFactory PR **#813**, run `34240127032`, job *"Verify the OpenSpec CLI pin
+and validate the corpus at it"*, on a fresh runner with `--no-cache`:
+
+```
+openspec-cli-pin: @fission-ai/openspec@1.12.0 from pinned artifact (/tmp/openspec-cli-pin-82zgjois/prefix/node_modules/.bin/openspec); integrity sha512-oFE2Lj7WVSc87nSi… verified
+openspec-cli-pin: dependency closure openspec-cli-pin.1.12.0.package-lock.json (80 packages); lockfile_integrity sha512-aw5lIN45tQq2WZll… verified; installed with `npm ci --ignore-scripts`
+Totals: 100 passed, 2 failed (102 items)
+OK openspec-cli-pin: @fission-ai/openspec@1.12.0 verified against its content address; every target validated --strict with 0 UNDISPOSITIONED failures. THIS IS NOT A CLEAN TREE: 2 finding(s) are ACCEPTED EXCEPTIONS, named above.
+```
+
+The executable path is the giveaway that the closure ran: `…/prefix/node_modules/.bin/openspec`
+is a PROJECT install produced by `npm ci`, not the `…/prefix/bin/openspec` a
+`npm install --global --prefix` used to produce. The REQUIRED check is green
+THROUGH the lockfile path, on a machine that had nothing cached.

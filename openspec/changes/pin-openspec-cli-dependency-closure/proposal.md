@@ -49,7 +49,8 @@ gate — and the pin was explicit that mitigation is not repair.
 MedxFactory, LedgerxFactory, AdxFactory and openxFactory itself all run
 `scripts/validate-openspec-cli-pin.py` from a pinned openxFactory checkout, and
 since 2026-09-08 `openspec-cli-pin` is a REQUIRED check on openxFactory's `main`
-(organisation ruleset 22551797, `add-openspec-cli-pin` task 3.3). Five gates now
+(organisation ruleset 22551797, created and ticked as `add-openspec-cli-pin`
+task 3.3 by PR #810, merged `95e25409`). Five gates now
 resolve nine caret ranges independently. The shortfall stopped being a
 declared-and-tolerable footnote at the point the pin became load-bearing.
 

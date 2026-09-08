@@ -10,7 +10,11 @@ names its owner. **AMENDED 2026-09-08:** SLICE 5 IS COMPLETE. 5.1 was
 ticked 2026-09-05 (PR #687) and 5.2 is ticked here by
 `pin-openspec-cli-dependency-closure`, each in its own pull request with its own
 green run, which is what those tasks demanded. Slice 6 is ticked for 6.1 and
-6.3–6.5 (four consuming repositories wired); 6.2 (OpsxFactory) and 3.3 remain.
+6.3–6.5 (four consuming repositories wired), and 3.3 landed the same day (PR
+#810, merge `95e25409`), so `openspec-cli-pin` is an ENFORCED required check on
+`main` — which is why the closure this packet's 5.2 names stopped being a
+tolerable declared gap: a declared gap in a required check is a declared gap in
+the thing that stops merges. 6.2 (OpsxFactory) is what remains of slice 6.
 Was: **AMENDED 2026-09-05:** 5.1 is now ticked — it landed in its own pull
 request, which is what the task itself demanded — and its evidence is recorded
 beside it in the same form. The rest of slice 5 and all of slice 6 are untouched

@@ -84,9 +84,11 @@ the sharpest edge off it, and #667 named the repair as successor work in
 writing. What changed is the load. Five repositories now gate on this entrypoint
 (codexFactory, MedxFactory, LedgerxFactory, AdxFactory and openxFactory), and
 since 2026-09-08 `openspec-cli-pin` is a REQUIRED status check on openxFactory's
-`main` — verified against the live ruleset, org ruleset **22551797**, named
-*"openxFactory pin-gate (require openspec-cli-pin)"*, listed among `main`'s
-required contexts beside `pytest-suite` and `lane-line`. A declared gap in a
+`main` — org ruleset **22551797**, named *"openxFactory pin-gate (require
+openspec-cli-pin)"*, created and ticked as `add-openspec-cli-pin` task 3.3 by
+**PR #810, merged as `95e25409`** on 2026-09-08, and verified against the live
+API by this lane: `openspec-cli-pin` is listed among `main`'s required contexts
+beside `pytest-suite` and `lane-line`. A declared gap in a
 required check is a declared gap in the thing that stops merges. Option 4 also
 answers none of the question it was offered against: it leaves five gates
 resolving nine caret ranges independently, and it leaves the pin's central claim
