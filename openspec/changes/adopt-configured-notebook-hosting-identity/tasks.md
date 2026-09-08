@@ -26,12 +26,16 @@ commits, or publishes a synthetic declaration as if it were live. `design.md`
       realization)". The ruling settled the FORM and explicitly left the live
       record's home to the realization; it settled nothing else. Recorded in
       `.openspec.yaml` `origin.approved_by` / `approved_on`.
-- [ ] 0.2 **Ratification of this packet's CONTENT** — Brett Heap's word on the
-      delta, the resolver shape and the five open questions. Recorded as
-      `review/ratification-<date>.md` in this change directory, a diff in the
-      pull request that carries it, which is what lets any box below be ticked
-      under house practice. **OQ-A and OQ-B owe a word before Group 2 starts**;
-      OQ-C, OQ-D and OQ-E owe one before Group 3.
+- [x] 0.2 (2026-09-08) **Ratified.** Brett Heap (convener)'s word on the
+      delta, the resolver shape and the five open questions — verbatim
+      **"Ratify 783 and merge"**, given through the interactive multi-choice
+      walkthrough, ~12:20Z-12:35Z UTC, against head
+      `fd7a74fe3f9d6257bbdeb5b950c040d50a8038fb`. **OQ-A, OQ-B, OQ-C, OQ-D and
+      OQ-E are all RULED**, each matching this packet's own recommendation —
+      see the record. Recorded as `review/ratification-2026-09-08.md` in this
+      change directory, a diff in the pull request that carries it, which is
+      what lets this box be ticked under house practice. **No box in Groups
+      1-9 is ticked by this act.**
 - [ ] 0.3 Confirm the premises still hold at realization head, rather than
       trusting this packet's measurements: the five files still carry 40 lines
       (`git grep -cE` on the four addresses), none of them has become a member

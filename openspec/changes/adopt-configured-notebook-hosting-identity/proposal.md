@@ -1,6 +1,12 @@
 ---
-Status: draft
+Status: ratified
 Proposed: 2026-09-08
+Ratified: >-
+  2026-09-08, Brett Heap (convener), verbatim "Ratify 783 and merge", given
+  through the interactive multi-choice walkthrough, ~12:20Z-12:35Z UTC;
+  ratified head `fd7a74fe3f9d6257bbdeb5b950c040d50a8038fb`; record
+  `review/ratification-2026-09-08.md`. The same word rules all five open
+  questions (OQ-A..E, see the record's ledger); none remains open.
 Lane: provenance-autonomous-merge
 code_surface: >-
   openxFactory — NOT `none`, and the surface is measured at main `543d47a9`
@@ -72,10 +78,12 @@ Origin: >-
 
 # Proposal: adopt-configured-notebook-hosting-identity
 
-**THIS PACKET IS A PROPOSAL AND ITS LANDING RATIFIES NOTHING.** It carries
-`Status: draft`, cites no ratification, and owes none until its content is
-ratified as a separate act of Brett Heap's (`tasks.md` 0.2). Nothing below is
-performed by the merge.
+**THIS PACKET IS RATIFIED, AND RATIFICATION PERFORMS NO REALIZATION.** It now
+carries `Status: ratified` — Brett Heap's word, recorded in
+`review/ratification-2026-09-08.md` (`tasks.md` 0.2) — but no promoted byte
+moves, the committed example is not edited, no test literal changes, no
+resolver is written, no file is moved into a private tree, and every box in
+`tasks.md` below Group 0 stays unticked by this act.
 
 ## Why
 
@@ -297,8 +305,15 @@ Three constraints, and only the first is hard:
 
 ## Open questions
 
-Five, and the first two are the ones that need a word before realization
-starts. Full statements, alternatives and consequences are in `design.md` § 6.
+Five were opened with this packet; **ALL FIVE ARE NOW RULED**, 2026-09-08, by
+Brett Heap (convener), through the interactive multi-choice walkthrough —
+record `review/ratification-2026-09-08.md`. Every ruling matches this
+proposal's own recommendation, and each bullet below keeps its original
+question and reasoning with the ruling appended, so the record shows what was
+asked as well as what was answered. Full statements, alternatives and
+consequences are in `design.md` § 6 (unchanged by this ratification; the
+`RULED` lines below and `review/ratification-2026-09-08.md`'s ledger are the
+current record).
 
 - **OQ-A — WHERE DOES THE LIVE DECLARATION LIVE?** The Q2 ruling named two
   candidates and left the choice to the realization ("hermes-install config or
@@ -326,6 +341,9 @@ starts. Full statements, alternatives and consequences are in `design.md` § 6.
   diff review, a commit history and a validator run, none of which a vault
   item has, and `credential-contracts` puts material in the vault precisely so
   that non-material can stay reviewable.
+  **RULED 2026-09-08: `installs/hermes-install`, at
+  `config/clients/opensoft/notebook-projection-hosting.yaml`** — the
+  recommended option, adopted as given.
 - **OQ-B — DOES THE ARCHIVED `add-notebook-projection-identity` DELTA NEED A
   CROSS-REFERENCE NOTE?** **RECOMMENDED: NO, and the reason is measured rather
   than stylistic.** `promotion_fidelity` compares an archived delta to canon by
@@ -339,6 +357,7 @@ starts. Full statements, alternatives and consequences are in `design.md` § 6.
   for its own reason. If Brett wants the pointer anyway, the lawful home is
   Q3's `review/redaction-disposition-2026-09-07.md` in that archived change —
   a file Q3 is creating regardless — and NOT an edit to the delta.
+  **RULED 2026-09-08: No note.**
 - **OQ-C — Does the committed instance keep its PATH?** Recommended: **yes,
   keep `examples/notebook-projection-hosting.yaml`**, and mark it synthetic
   INSIDE the record (`hosting.instance: example`) rather than renaming it to
@@ -348,12 +367,14 @@ starts. Full statements, alternatives and consequences are in `design.md` § 6.
   carries better — and the marker is what the resolver's refusal branch reads,
   which a filename is not. The `.example.yaml` convention is real and the
   alternative is recorded, not foreclosed.
+  **RULED 2026-09-08: Keep the path, mark `hosting.instance: example`.**
 - **OQ-D — Do the ACTOR NAMES in the synthetic instance go to role
   placeholders too?** Recommended: **yes.** "Brett Heap" is not sensitive —
   it is on hundreds of public governance lines — but in a SYNTHETIC instance a
   real person's name asserts a grant that instance did not make. The validator
   ties `share_out[].granted_by` to `approval.designated_actor` by equality, so
   both move together or neither does.
+  **RULED 2026-09-08: Yes, placeholders for actors too.**
 - **OQ-E — Does the ROSTER RECORD move, or does it stop existing in the
   governed tree?** Recommended: **it MOVES, intact.** Seven grants and one
   recorded denial from 2026-08-27 are the discharge of a ratified obligation;
@@ -362,6 +383,7 @@ starts. Full statements, alternatives and consequences are in `design.md` § 6.
   and where. Deleting them to synthesise a clean example would redact a record
   of governed acts, which is the one thing `document-lifecycle` forbids
   outright.
+  **RULED 2026-09-08: Moves intact with the declaration.**
 
 ## Authoring decisions, flagged for veto
 
