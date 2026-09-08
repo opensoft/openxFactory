@@ -139,9 +139,23 @@ not open a pull request carrying four of them.
 
 ## The credential
 
-The lane runs under the App already installed in both repositories, declared as
+The lane runs under the App installed in both repositories, declared as
 a template with no live value in
 [`contracts/review-lane-repin-binding.template.yaml`](../contracts/review-lane-repin-binding.template.yaml).
+
+**THE TWO REPOSITORIES ARE IN TWO ORGANIZATIONS, AND THAT IS TWO
+INSTALLATIONS.** Since the decision core moved to `codeXfactory`, the App is
+installed once on `opensoft` (which holds this repository) and once on
+`codeXfactory` (which holds the decision core). A GitHub App installation is
+per-organization: installing on one does not widen the other, and there is no
+single installation that covers both. `actions/create-github-app-token@v2`
+resolves the installation from its `owner:` input, so the lane's mint for the
+SOURCE read names `owner: codeXfactory` LITERALLY — not
+`${{ github.repository_owner }}`, which would resolve to `opensoft` and yield a
+token that cannot reach the core at all. That mint carries no
+`continue-on-error`: it fails CLOSED, with the action's own message naming the
+owner it could not resolve. **If the `codeXfactory` installation does not exist,
+this lane cannot run, and the fix is the installation — never a wider token.**
 
 It needs, and the binding declares, exactly:
 

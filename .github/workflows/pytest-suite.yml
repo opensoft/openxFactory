@@ -598,6 +598,36 @@ jobs:
           # reds against this pin exactly as a lone +1 would. Verified on PR
           # #686's own head, run 33978773175: `skipped=21` on a normal run,
           # both named verdicts `passed`.
+          #
+          # UNCHANGED AT 21 BY `adopt-codexfactory-repository-identity`, AND ON
+          # THIS BRANCH THAT NUMBER IS A GATE RATHER THAN A REPORT. The core
+          # checkout above now names a repository in ANOTHER ORGANIZATION, and
+          # the token that reads it is minted against that organization's own
+          # App installation, which transfer step **1.6** creates. Neither the
+          # count nor the suite changed, so the pin does not move — what changed
+          # is when the pin can be MET:
+          #
+          #   * BEFORE the transfer completes (Phase 1, step 1.6 INCLUDED),
+          #     the mint and the checkout both fail, `locate_pinned_core()`
+          #     stands both watched tests down, and this job reports
+          #     `skipped=23` against the pinned 21 with `TheFreshnessVerifier`
+          #     and `TheVectorReplay` both `skipped`. **That red is by design
+          #     and it is the only red this branch is allowed to carry.** It is
+          #     also why the pull request realizing this change is a DRAFT that
+          #     no green can clear early.
+          #   * AFTER 1.6, the mint resolves, the checkout succeeds, both
+          #     watched tests RUN, and the job reports `skipped=21` with both
+          #     named verdicts `passed`. **That reading is the merge-time proof
+          #     for the branch, and the only one that counts** — a green on any
+          #     other check says nothing about the cross-organization read,
+          #     because no other check performs it.
+          #
+          # A 23 SEEN AFTER THE TRANSFER IS NOT THIS ENTRY. It means the
+          # installation, the App's repository access, or the reusable-workflow
+          # access policy is wrong, and the fix is that configuration — NEVER
+          # this pin and never a wider token. Moving the pin to 23 would
+          # convert exactly the failure this design exists to surface into the
+          # expected state, permanently.
           EXPECT_SKIPPED: "21"
           # THE NAMED VERDICT — the freshness verifier watched as itself rather
           # than as one unit of an aggregate it can hide inside.

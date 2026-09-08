@@ -69,6 +69,32 @@ or report saying otherwise is refused by the capability's own scenario.
 | What you need | Python 3.12 with `cryptography`; the openXwallet gitlink initialized (`git submodule update --init openXwallet`); `gh` authenticated as somebody who can write an environment secret on `codeXfactory/codexFactory`; and TWO worktrees — this repository on `realize/factory-identity-register`, and a codexFactory checkout on `realize/factory-identity-floor-entry` where the mint record lands. |
 | Time | Under ten minutes. The PR review is the long pole, not the ceremony. |
 
+**PRECONDITION: THE REPOSITORY IS AT ITS NEW ADDRESS AND ITS ENVIRONMENT CAME
+WITH IT.** Every `codeXfactory/codexFactory` line in this runbook — the
+authentication check above, the preflight's `worker-credentials` resolution
+below, the custody `gh secret set`, and the mint record's table — assumes the
+organization transfer has COMPLETED. Two things have to be true before the
+preflight can pass, and they are two:
+
+1. **The transfer itself** (transfer runbook step 1.2): `gh api
+   repos/codeXfactory/codexFactory --jq '{full_name,private,visibility}'` reads
+   `codeXfactory/codexFactory`. Before that step the address 404s and the
+   preflight's environment check fails on a repository that does not exist.
+2. **The `worker-credentials` environment and its secrets survived the
+   transfer** (transfer runbook step **1.5**). GitHub carries environments,
+   environment secrets and their protection rules across an organization
+   transfer, but that is a property to VERIFY and not to assume — the preflight
+   reads the environment, so a transfer that dropped it is discovered here
+   rather than after the seed is provisioned and unrecoverable. Confirm with
+   `gh api repos/codeXfactory/codexFactory/environments/worker-credentials --jq
+   .name` before you start.
+
+Do not "fix" a preflight refusal by minting into the old address. The old
+address redirects for git operations, but a secret written through a redirect
+lands in whatever repository the redirect resolves to and the register would
+then name a custody location the estate cannot audit. **If either precondition
+is unmet, the ceremony does not start.**
+
 The private half must reach EXACTLY ONE destination and no other: the
 originating repository's own hosted packaging environment. Not a governed
 execution host, not a workstation clone, not a shared runner, not a bundle, not
