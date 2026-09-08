@@ -713,6 +713,50 @@ def test_validate_index_rejects_a_broken_index(tmp_path):
     assert ok is False
 
 
+def _fake_validator(tmp_path, *, exit_code: int, message: str = "") -> Path:
+    """A validator stand-in that ignores its argv and exits `exit_code`,
+    after printing `message` — for pinning the exit-code -> result mapping
+    without spawning the real pinned validator."""
+    script = tmp_path / f"fake_validator_exit{exit_code}.py"
+    script.write_text(
+        f"import sys\nif {message!r}:\n    print({message!r})\n"
+        f"sys.exit({exit_code!r})\n", encoding="utf-8")
+    return script
+
+
+def test_validate_index_three_way_result_distinguishes_harness_from_findings(
+        tmp_path):
+    """Regression: #656 D-2 act A. The runner used to collapse every non-zero
+    exit into `False` (`proc.returncode == 0`), so a harness error in the
+    validator's own environment (exit 2) read exactly like a real rejection
+    (exit 1). Exit 0 -> True (clean); exit 1 -> False (real findings,
+    reject-and-report); any other exit code -> None (unreachable — a
+    harness/environment error, never a rejection), with the exit code
+    carried in the detail."""
+    idx = tmp_path / "candidate.yaml"
+    idx.write_text("schema_version: 1\n", encoding="utf-8")
+
+    ok, detail = ir.validate_index(
+        idx, validator=_fake_validator(tmp_path, exit_code=0,
+                                       message="clean"))
+    assert ok is True
+    assert "clean" in detail
+
+    ok, detail = ir.validate_index(
+        idx, validator=_fake_validator(tmp_path, exit_code=1,
+                                       message="tier out of range"))
+    assert ok is False
+    assert "tier out of range" in detail
+
+    ok, detail = ir.validate_index(
+        idx, validator=_fake_validator(
+            tmp_path, exit_code=2,
+            message="ImportError: no module named yaml"))
+    assert ok is None
+    assert "2" in detail
+    assert "ImportError" in detail
+
+
 # =========================================================================
 # T005 — change 3.4: gate, conflict flag, unscored block, findings
 # =========================================================================

@@ -1987,6 +1987,19 @@ def edit_apply(
 # index validator, and a schema-valid gate-action record beside the write.
 # ==========================================================================
 
+_VALIDATOR_DETAIL_MAX = 2000
+
+
+def _bounded_detail(detail: str) -> str:
+    """The pinned validator's diagnosis (stdout+stderr, or an unreachable
+    reason), whitespace-normalised and bounded to the last
+    `_VALIDATOR_DETAIL_MAX` characters — so a refusal that carries it
+    verbatim (`GateRefused` message, commit message, gate-action record)
+    stays readable no matter how much the validator printed."""
+    normalised = " ".join(str(detail or "").split())
+    return normalised[-_VALIDATOR_DETAIL_MAX:]
+
+
 @dataclass
 class DisposePossibleResult:
     possible_id: str
@@ -2050,9 +2063,9 @@ def dispose_possible(gate: Any, possible_id: str, outcome: str, *,
             pass
     if ok is not True:
         raise GateRefused(
-            "updated index rejected by the pinned validator"
-            if ok is False else "index validator unreachable"
-            + f": {detail}")
+            ("updated index rejected by the pinned validator"
+             if ok is False else "index validator unreachable")
+            + f": {_bounded_detail(detail)}")
 
     human.write_gate_artifact(dp.INDEX_REL, dp.render_index_yaml(updated))
     index_md_path = None

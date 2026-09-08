@@ -1866,6 +1866,17 @@ def _accepting_validator(tmp_path, accept=True):
     return script
 
 
+def _diagnosing_validator(tmp_path, *, exit_code: int, message: str):
+    """A fake validator that prints `message` to stdout and exits `exit_code`
+    — for pinning what a refusal message carries at each exit code, not just
+    whether it refuses."""
+    script = tmp_path / f"fake_index_validator_exit{exit_code}.py"
+    script.write_text(
+        f"import sys\nprint({message!r})\nsys.exit({exit_code!r})\n",
+        encoding="utf-8")
+    return script
+
+
 def _dispose_gate(root, actor="brett"):
     from doc_health import derive_possibles as dp
     return HumanGate(root, [gc.DEFAULT_RECORDS_DIR, dp.INDEX_REL,
@@ -1942,6 +1953,71 @@ def test_dispose_rejected_index_persists_nothing(tmp_path, monkeypatch):
         encoding="utf-8")
     assert after == before          # nothing persisted on the refusal path
     assert not list((root / "ideation").glob("dashboard/gate-records/**/*"))
+
+
+# ==========================================================================
+# Regression: #656 D-2 act A. `"A" if ok is False else "B" + f": {detail}"`
+# binds as `A if ok is False else (B + f": {detail}")`, so a real rejection
+# (ok is False) discarded the validator's diagnosis entirely, while the
+# unreachable branch (ok is None) carried it. Both branches must carry
+# `detail`, bounded, with the unreachable phrase appearing exactly once.
+# ==========================================================================
+
+def test_dispose_reject_message_carries_the_validators_diagnosis(
+        tmp_path, monkeypatch):
+    monkeypatch.delenv("OPENXFACTORY_ROOT", raising=False)
+    root = _dispose_root(tmp_path)
+    validator = _diagnosing_validator(
+        tmp_path, exit_code=1, message="tier score 11 is out of range")
+    with pytest.raises(gc.GateRefused) as ei:
+        gc.dispose_possible(_dispose_gate(root), "pos-derived-x", "accepted",
+                                  index_validator=validator)
+    msg = str(ei.value)
+    assert msg.startswith("updated index rejected by the pinned validator: ")
+    assert "tier score 11 is out of range" in msg
+
+
+def test_dispose_unreachable_message_carries_detail_exactly_once(
+        tmp_path, monkeypatch):
+    """A harness error (validator exit 2, distinct from a real rejection —
+    the D-2 act A defect) reads "index validator unreachable: <detail>" with
+    the leading phrase exactly once; the 2026-09-06 doubled message
+    ("...unreachable: index validator unreachable (...)") must not recur."""
+    monkeypatch.delenv("OPENXFACTORY_ROOT", raising=False)
+    root = _dispose_root(tmp_path)
+    validator = _diagnosing_validator(
+        tmp_path, exit_code=2,
+        message="ImportError: no module named yaml")
+    with pytest.raises(gc.GateRefused) as ei:
+        gc.dispose_possible(_dispose_gate(root), "pos-derived-x", "accepted",
+                                  index_validator=validator)
+    msg = str(ei.value)
+    assert msg.count("index validator unreachable") == 1
+    assert msg.startswith("index validator unreachable: ")
+    assert "ImportError" in msg
+    assert "2" in msg           # the exit code is carried in the detail
+
+
+def test_dispose_refusal_message_bounds_the_validators_detail(
+        tmp_path, monkeypatch):
+    monkeypatch.delenv("OPENXFACTORY_ROOT", raising=False)
+    root = _dispose_root(tmp_path)
+    huge = "x" * 5000
+    validator = _diagnosing_validator(tmp_path, exit_code=1, message=huge)
+    with pytest.raises(gc.GateRefused) as ei:
+        gc.dispose_possible(_dispose_gate(root), "pos-derived-x", "accepted",
+                                  index_validator=validator)
+    msg = str(ei.value)
+    assert len(msg) < 2100                    # nowhere near the raw 5000
+    assert msg.count("x") >= gc._VALIDATOR_DETAIL_MAX - 1
+
+
+def test_bounded_detail_keeps_the_tail_and_normalises_whitespace():
+    detail = "line one\nline two\n" + ("z" * 3000)
+    bounded = gc._bounded_detail(detail)
+    assert len(bounded) == gc._VALIDATOR_DETAIL_MAX
+    assert "\n" not in bounded
+    assert bounded.endswith("z" * 100)
 
 
 # ==========================================================================

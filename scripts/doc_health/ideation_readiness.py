@@ -928,11 +928,14 @@ def _committed_status(repo, rev: str, path: str) -> str | None:
 def validate_index(index_path, *, validator=None, repo=None,
                    strict: bool = True) -> tuple[bool | None, str]:
     """Validate one written index file against the openxFactory index schema by
-    spawning the pinned validator. Returns ``(True, output)`` when clean,
-    ``(False, output)`` on findings (reject-and-report), or ``(None, reason)``
-    when the validator is unreachable (the caller records a skip). ``repo`` is
-    the checkout the validator resolves extension-fit citations against (its
-    ``--repo``); defaults to the validator's own openxFactory checkout."""
+    spawning the pinned validator. Returns ``(True, output)`` when clean
+    (validator exit 0), ``(False, output)`` on findings (reject-and-report,
+    validator exit 1), or ``(None, reason)`` when the validator is
+    unreachable — no checkout, a spawn failure, or any exit code other than
+    0/1 (a harness/environment error, never a real rejection; the caller
+    records a skip). ``repo`` is the checkout the validator resolves
+    extension-fit citations against (its ``--repo``); defaults to the
+    validator's own openxFactory checkout."""
     validator = validator or find_index_validator()
     if validator is None:
         return None, "index validator unreachable (no openxFactory checkout)"
@@ -941,9 +944,17 @@ def validate_index(index_path, *, validator=None, repo=None,
         cmd += ["--repo", str(repo)]
     if strict:
         cmd.append("--strict")
-    proc = subprocess.run(cmd, capture_output=True, text=True,
-                          timeout=DISPATCH_TIMEOUT)
-    return proc.returncode == 0, (proc.stdout + proc.stderr).strip()
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True,
+                              timeout=DISPATCH_TIMEOUT)
+    except OSError as exc:
+        return None, f"validator failed to spawn: {exc}"
+    output = (proc.stdout + proc.stderr).strip()
+    if proc.returncode == 0:
+        return True, output
+    if proc.returncode == 1:
+        return False, output
+    return None, f"validator exited {proc.returncode} (harness error): {output}"
 
 
 # =========================================================================
