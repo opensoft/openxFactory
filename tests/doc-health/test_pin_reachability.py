@@ -772,6 +772,252 @@ def test_a_future_member_that_starts_carrying_pins_is_reported(tmp_path):
     assert not _verify(repo).clean
 
 
+# =========================================================================
+# ruling D-8(a) — historical evidence, and a rolling population
+#
+# The pin class launched asking ONE question of every member: does the
+# revision this artifact names still resolve? `gate-intent-snapshot-rev`
+# was the first row for which that question is the wrong one, and it
+# arrived committed on 2026-09-08 with the live intent-plane dispatch
+# exercise. Two properties, measured on the four real records:
+#
+#   D. A REFUSAL RECORD CITING AN UNRESOLVABLE REVISION IS THE RECORD
+#      WORKING. `snapshot_rev_seen` is the revision the actor was LOOKING
+#      AT, and the apply lane's whole job is to refuse an intent whose view
+#      went stale — so this repository's 2026-08-15 refusal cites
+#      `66ca33fd…` precisely because nothing can resolve it. Reported as an
+#      orphan, it offers a repair route (retain the commit, or re-pin) that
+#      would either change nothing or make the record state something
+#      nobody read.
+#   E. THE CENSUS OF A ROLLING POPULATION IS NOT A CONSTANT. Intents are
+#      written on the dashboard's rolling branch, land through a custody PR
+#      and are consumed, so `main` carries none at one revision and four at
+#      the next. Frozen totals including them red on Monday and pass on
+#      Tuesday with nothing drifted, and the only repair a reader can apply
+#      is to bump the number.
+# =========================================================================
+
+GATE_INTENT_REL = ("ideation/dashboard/intents/pos-fixture-possible/"
+                   "dispose-possible-20260908-000000-fixture.gate-intent.yaml")
+
+
+def _gate_intent(pin, *, refusal="the viewed state is unverifiable"):
+    """Shaped like the real refusal records: the revision the actor SAW, and
+    the terminal status the apply lane wrote onto it."""
+    return yaml.safe_dump(
+        {"schema_version": 1, "kind": "gate-intent", "actor": "fixture",
+         "verb": "dispose-possible",
+         "target": {"possible_id": "pos-fixture-possible"},
+         "args": {"outcome": "deferred"},
+         "requested_at": "2026-09-08T00:00:00Z",
+         "snapshot_rev_seen": pin, "status": "refused",
+         "refusal_reason": refusal},
+        sort_keys=False)
+
+
+def _unreachable_commit(repo):
+    """A commit NO REF REACHES, made the way the real orphans were: a side
+    branch, a commit on it, the branch deleted. The object survives in this
+    repository's own store, which is exactly why `cat-file` is not the probe."""
+    _git(repo, "checkout", "-q", "-b", "side")
+    _write(repo, "ideation/brainstorm/side.md", "# side\n\nStatus: brainstorm\n")
+    sha = _commit(repo, "a view that later left the graph")
+    _git(repo, "checkout", "-q", "main")
+    _git(repo, "branch", "-qD", "side")
+    return sha
+
+
+def _subject_markers(repo):
+    for marker in pc.DECLARATION_SUBJECT_MARKERS:
+        _write(repo, marker, "schema_version: 1\n")
+
+
+def test_a_gate_intent_citing_a_view_no_ref_reaches_is_historical(tmp_path):
+    """DEFECT (D), planted with a SYNTHETIC unreachable revision so the proof
+    does not depend on the four real records staying where they are.
+
+    The verdict is its own, beside reachable and orphaned rather than inside
+    either: calling it reachable would claim a resolution nobody performed, and
+    calling it an orphan would open a repair route for a record doing the one
+    thing it exists to do. `clean` and `fully_verified` both hold."""
+    repo, _ = reachable_pin_repo(tmp_path)
+    unseen = _unreachable_commit(repo)
+    _write(repo, GATE_INTENT_REL, _gate_intent(unseen))
+    _commit(repo, "the gate console's refusal record lands")
+
+    report = _verify(repo)
+    [result] = [r for r in report.results
+                if r.site.member_id == "gate-intent-snapshot-rev"]
+    assert result.verdict == pc.HISTORICAL
+    assert report.historical == [result]
+    assert report.orphans == []
+    assert report.clean
+    assert report.fully_verified
+
+    # THE SITE IS STILL SWEPT AND STILL SHAPE-CHECKED. What the exemption
+    # removes is the resolution question, not the coverage one: an intent
+    # carrying something that is not a 40-hex revision, or an intent sitting
+    # outside the declared tree, is a finding as much as it ever was.
+    assert pc.FULL_SHA_RE.match(result.site.pin)
+    assert pc.path_matches(result.site.path,
+                           ("ideation/dashboard/intents/**",))
+    assert result.site.key == "snapshot_rev_seen"
+    assert report.uncovered == ()
+
+    # ...and it says WHY, in the report rather than in a commit message.
+    assert "records the revision this artifact SAW" in result.how
+    assert "no repair route is owed" in result.how
+    assert "[hist]" in pc.render(report)
+
+
+def test_the_same_unreachable_commit_still_orphans_outside_the_intents_tree(
+        tmp_path):
+    """THE DIFFERENTIAL, and the reason the exemption is declared on the CLASS
+    rather than granted to the commit. One revision, two records citing it: the
+    gate intent testifies to a view and is exempt, the readiness record claims a
+    derivation and is not. If the exemption ever widened into "this commit is
+    allowed to be gone", THIS is the test that reddens — and the widening is the
+    only way the rule could quietly stop catching real orphans."""
+    repo, _ = reachable_pin_repo(tmp_path)
+    unseen = _unreachable_commit(repo)
+    _write(repo, GATE_INTENT_REL, _gate_intent(unseen))
+    _write(repo, READINESS_REL, _readiness_record(unseen))
+    _commit(repo, "one revision, cited by both kinds of record")
+
+    report = _verify(repo)
+    verdicts = {r.site.member_id: r.verdict for r in report.results}
+    assert verdicts["gate-intent-snapshot-rev"] == pc.HISTORICAL
+    assert verdicts["ideation-readiness-run"] == pc.ORPHAN
+    assert [r.site.member_id for r in report.orphans] == [
+        "ideation-readiness-run"]
+    assert not report.clean
+
+
+def test_a_gate_intent_whose_view_main_still_reaches_is_reported_reachable(
+        tmp_path):
+    """A TRUE AND FREE OBSERVATION IS STILL MADE. The exemption is from OWING
+    resolution, not from being asked: `main` is a local ancestry query, so an
+    intent whose view is still in the graph reports PASS like anything else.
+    Three of the four real records are in exactly this state, and reporting
+    them HISTORICAL would throw away a fact the run already has."""
+    repo, old = reachable_pin_repo(tmp_path)
+    _write(repo, GATE_INTENT_REL, _gate_intent(old, refusal="index rejected"))
+    _commit(repo, "a refusal whose view is still on main")
+
+    report = _verify(repo)
+    [result] = [r for r in report.results
+                if r.site.member_id == "gate-intent-snapshot-rev"]
+    assert result.verdict == pc.PASS
+    assert "ancestor of" in result.how
+    assert report.historical == []
+    assert report.fully_verified
+
+
+def test_the_historical_class_is_answered_without_consulting_the_remote(
+        tmp_path):
+    """THE PROPERTY THAT KEEPS A CONFORMING RECORD OFF THE UNANSWERED PILE.
+    The retention namespace is a REMOTE read, and a machine that cannot perform
+    it answers INCONCLUSIVE — which is honest for a pin that OWES resolution and
+    wrong for one that does not, because it would hold `fully_verified` open on
+    an artifact with nothing left to prove.
+
+    Asserted DIFFERENTIALLY with `allow_remote=True` on a fixture that has no
+    remote at all: the historical pin answers, the derivation pin cannot."""
+    repo, _ = reachable_pin_repo(tmp_path)
+    unseen = _unreachable_commit(repo)
+    _write(repo, GATE_INTENT_REL, _gate_intent(unseen))
+    _commit(repo, "only the historical pin is unreachable")
+
+    report = pc.verify(repo, allow_remote=True)
+    assert [r.verdict for r in report.results
+            if r.site.member_id == "gate-intent-snapshot-rev"] == [
+                pc.HISTORICAL]
+    assert report.inconclusive == []
+    assert report.fully_verified
+    assert "NOT consulted for this class" in report.historical[0].how
+
+    # ...and the contrast: the same unreachable revision under a MUST_RESOLVE
+    # member DOES reach for the namespace, and says it could not be asked.
+    _write(repo, READINESS_REL, _readiness_record(unseen))
+    _commit(repo, "a derivation pin on the same revision")
+    contrast = pc.verify(repo, allow_remote=True)
+    assert [r.site.member_id for r in contrast.inconclusive] == [
+        "ideation-readiness-run"]
+    assert "could not be consulted" in contrast.inconclusive[0].how
+    assert not contrast.fully_verified
+
+
+def test_a_rolling_member_carrying_nothing_is_not_reported_vanished(tmp_path):
+    """DEFECT (E), first half. `main` legitimately carries no intent at all
+    between custody PRs, and a row that reported VANISHED every time the queue
+    drained would produce a finding that comes and goes with nothing drifting —
+    which is how a REAL vanished row gets missed.
+
+    Asserted DIFFERENTIALLY against a STANDING member removed the same way in
+    the same repository, and the fixture wears the declaration-subject markers
+    on purpose. `PIN_CLASS` describes openxFactory's own artifacts, so most rows
+    legitimately match nothing in a small fixture; what has to be established is
+    that DRAINING THE QUEUE moves nothing into the vanished set while deleting a
+    standing artifact moves exactly its own row."""
+    repo, old = reachable_pin_repo(tmp_path)
+    _subject_markers(repo)
+    _write(repo, GATE_INTENT_REL, _gate_intent(old))
+    _commit(repo, "declaration-subject markers, and an intent in the queue")
+    assert pc.is_declaration_subject(pc.committed_paths(repo))
+    queued = {m.id for m in _verify(repo).vanished}
+    assert "gate-intent-snapshot-rev" not in queued
+    assert "ideation-readiness-run" not in queued
+
+    _git(repo, "rm", "-q", "-r", "ideation/dashboard/intents")
+    _commit(repo, "the queue drains: the intents are consumed")
+    drained = {m.id for m in _verify(repo).vanished}
+    assert drained == queued, (
+        "draining the intent queue moved a row into the vanished set: "
+        + ", ".join(sorted(drained - queued)))
+    assert "gate-intent-snapshot-rev" not in drained
+
+    _git(repo, "rm", "-q", READINESS_REL)
+    _commit(repo, "and a STANDING member's artifact is deleted")
+    after = {m.id for m in _verify(repo).vanished}
+    assert after - drained == {"ideation-readiness-run"}
+
+
+def test_a_rolling_member_leaves_the_frozen_census_and_nothing_else(tmp_path):
+    """DEFECT (E), second half, and the boundary of the exclusion: rolling
+    sites leave the ARITHMETIC and stay in everything else. They are still
+    swept, still verified, still reported, and still bound by "no site is
+    classified twice" — the census is the only place their motion is a
+    problem."""
+    repo, old = reachable_pin_repo(tmp_path)
+    before = _verify(repo)
+    frozen = pc.standing_census(before.results)
+
+    _write(repo, GATE_INTENT_REL, _gate_intent(old))
+    _commit(repo, "an intent lands, and the census must not move")
+    after = _verify(repo)
+    assert pc.standing_census(after.results) == frozen
+    assert len(after.results) == len(before.results) + 1
+    assert ({r.site.member_id for r in after.results}
+            - {r.site.member_id for r in before.results}
+            == {"gate-intent-snapshot-rev"})
+
+    pinned = {(r.site.path, r.site.key, r.site.line) for r in after.results}
+    classified = {(r.site.path, r.site.key, r.site.line)
+                  for r in after.non_pins}
+    assert pinned & classified == set()
+    assert after.uncovered == ()
+    assert after.clean
+
+
+def test_the_rolling_exclusion_is_read_from_the_declaration(tmp_path):
+    """One home for the exclusion, so a row promoted to ROLLING joins it
+    without anybody editing a census by hand — the failure mode a list of ids
+    retyped in a test exists to produce."""
+    assert [m.id for m in pc.rolling_members()] == ["gate-intent-snapshot-rev"]
+    assert all(m.population == pc.ROLLING for m in pc.rolling_members())
+    assert set(pc.rolling_members()) <= set(pc.PIN_CLASS)
+
+
 def test_every_current_member_of_the_declared_class_is_carried_somewhere():
     """The declaration measured against the real repository, forward direction:
     every row declared CURRENT matches a committed artifact, and every FUTURE
@@ -897,6 +1143,17 @@ def test_the_declaration_has_no_duplicate_rows_and_states_every_field():
         assert member.reproduction in {pc.TOOL_DEFINED, pc.MEASURED}
         assert member.locality in {pc.REPO_LOCAL, pc.CROSS_REPOSITORY}
         assert member.presence in {pc.CURRENT, pc.FUTURE}
+        assert member.reachability in {pc.MUST_RESOLVE,
+                                       pc.HISTORICAL_EVIDENCE}
+        assert member.population in {pc.STANDING, pc.ROLLING}
+        if member.reachability == pc.HISTORICAL_EVIDENCE:
+            # A row that stops owing resolution has taken itself out of the
+            # check the whole class exists to run, so it says why IN THE ROW.
+            # Asserted on the note rather than on a comment, because the note
+            # is what the next reader is shown when the row is questioned.
+            assert "HISTORICAL_EVIDENCE" in member.note, member.id
+        if member.population == pc.ROLLING:
+            assert "ROLLING" in member.note, member.id
         if member.key_form == "prose":
             assert member.pattern, "a prose member must state its own pattern"
     for row in pc.NON_MEMBERS:
@@ -1026,6 +1283,25 @@ def test_every_declared_repo_local_pin_in_this_repository_resolves():
     assert report.uncovered == (), "\n".join(
         s.named() for s in report.uncovered)
     assert report.clean
+
+    # HISTORICAL EVIDENCE IS NOT SILENTLY EXCUSED. Whatever this repository's
+    # intent queue holds at the moment, every site in the class carries a
+    # 40-hex revision and sits where the declaration says it does — the
+    # exemption is from the RESOLUTION question alone, and the two checks that
+    # survive it are asserted here rather than assumed (ruling D-8(a)).
+    for result in report.historical:
+        member = next(m for m in pc.PIN_CLASS
+                      if m.id == result.site.member_id)
+        assert member.reachability == pc.HISTORICAL_EVIDENCE
+        assert pc.FULL_SHA_RE.match(result.site.pin)
+        assert pc.path_matches(result.site.path, member.paths)
+        assert pc.path_matches(result.site.path,
+                               ("ideation/dashboard/intents/**",))
+        assert not pc.reachable_from_main(repo, result.site.pin,
+                                          report.main_ref), (
+            "a historical pin main DOES reach is reported PASS, so a "
+            "HISTORICAL verdict on a reachable revision means the branch that "
+            "makes the free observation stopped running")
 
     retained = [r for r in report.results if r.verdict == pc.PASS
                 and "retained" in r.how]
