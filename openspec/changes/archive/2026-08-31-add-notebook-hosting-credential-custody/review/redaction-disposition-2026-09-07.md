@@ -23,10 +23,13 @@ nothing else in the packet moves.
 
 ## 2. What was redacted
 
+One address, named here by ROLE rather than spelled out — repeating it in this
+record would put back at HEAD exactly what the act removes.
+
 | address | placeholder | file | address lines |
 | --- | --- | --- | --- |
-| `xFactor001@opensoft.one` | `<service-account-identity>` | `.openspec.yaml` | 1 |
-| `xFactor001@opensoft.one` | `<service-account-identity>` | `proposal.md` | 1 |
+| the operating party's declared hosting account | `<service-account-identity>` | `.openspec.yaml` | 1 |
+| the same account | `<service-account-identity>` | `proposal.md` | 1 |
 
 Two lines, two occurrences. Neither of this change's personal-identity siblings
 appears here; the sister disposition

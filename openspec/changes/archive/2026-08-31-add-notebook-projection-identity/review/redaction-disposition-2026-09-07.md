@@ -24,14 +24,16 @@ nothing else in the packet moves.
 
 ## 2. What was redacted
 
-The four addresses, everywhere they appear in this change's tree:
+The four addresses, everywhere they appear in this change's tree. They are named
+here by ROLE, not spelled out: repeating them in this record would put back at
+HEAD exactly what the act removes.
 
 | address | placeholder |
 | --- | --- |
-| `brett.heap@farheap.com` | `<convener-workspace-identity>` |
-| `brettheap@gmail.com` | `<convener-personal-mailbox>` |
-| `brett.heap@gmail.com` | `<convener-personal-mailbox>` |
-| `xFactor001@opensoft.one` | `<service-account-identity>` |
+| the convener's managed Workspace identity | `<convener-workspace-identity>` |
+| the convener's personal consumer mailbox, dotted spelling | `<convener-personal-mailbox>` |
+| the same mailbox, undotted spelling | `<convener-personal-mailbox>` |
+| the operating party's declared hosting account | `<service-account-identity>` |
 
 Both Gmail spellings map to ONE placeholder because they are one mailbox — the
 dotted/undotted pair Gmail treats as the same account. Where a sentence's point
