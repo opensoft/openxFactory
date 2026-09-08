@@ -513,9 +513,13 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [adopt-configured-notebook-hosting-identity](openspec/changes/adopt-configured-notebook-hosting-identity/proposal.md)
-  — authored 2026-09-08, **`Status: draft`** (a PROPOSAL awaiting Brett Heap's
-  ratification; it cites none and owes none until its content is ratified as a
-  separate act). Origin: Brett Heap's **Q2[A]** ruling of 2026-09-08T03:36Z on
+  — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
+  (convener), verbatim *"Ratify 783 and merge"*, given through the interactive
+  multi-choice walkthrough, ~12:20Z-12:35Z; ratified head `fd7a74fe`,
+  PR [#783](https://github.com/opensoft/openxFactory/pull/783), main
+  `e7c53012`; record
+  `openspec/changes/adopt-configured-notebook-hosting-identity/review/ratification-2026-09-08.md`).
+  Origin: Brett Heap's **Q2[A]** ruling of 2026-09-08T03:36Z on
   the redaction decision sheet
   `~/session-prompts/redaction-outside-ideation-decision-2026-09-07.md`, taken
   through the interactive multi-choice walkthrough — an ADMISSION TO THE QUEUE
@@ -571,8 +575,14 @@ Active changes:
   row `{state: active, class: co-modifier, declares:
   [add-notebook-projection-identity], depth: 1}` at PR
   [#783](https://github.com/opensoft/openxFactory/pull/783) — ONE row, no
-  partner row moved. **FIVE OPEN QUESTIONS,
-  NONE ANSWERED HERE**: OQ-A where the live record lives (recommended
+  partner row moved. **FIVE OPEN QUESTIONS, ALL FIVE RULED 2026-09-08** by the
+  same word, each matching the packet's own recommendation: OQ-A the live
+  record's home is `installs/hermes-install`
+  `config/clients/opensoft/notebook-projection-hosting.yaml`; OQ-B no
+  cross-reference note; OQ-C keep the instance's path and mark
+  `hosting.instance: example` inside the record; OQ-D actor names become role
+  placeholders too; OQ-E the roster moves intact. The reasoning each ruling
+  adopted: OQ-A where the live record lives (recommended
   `installs/hermes-install` `config/clients/opensoft/`, because the record's own
   `custody:` block already names `binding_client: opensoft`, the ratified
   residency rule puts live binding instances in the installs, and the path stays
@@ -583,10 +593,21 @@ Active changes:
   makes this delta the authoritative writer once archived); OQ-C the instance's
   path and marker; OQ-D the actor names; OQ-E whether the roster record moves
   (recommended: it MOVES, intact — it is evidence, not configuration).
-  **NOTHING IS REALIZED BY THIS PACKET**: no promoted byte moves, the committed
-  example is not edited, no test literal changes, no resolver is written, no
-  file is moved into a private tree, and every box in `tasks.md` below 0.1 is
-  unticked.
+  **RATIFICATION PERFORMED NO REALIZATION** — that is the packet's own
+  statement and it held: PR #783 moved no promoted byte, edited no committed
+  example, changed no test literal, wrote no resolver, moved no file into a
+  private tree, and ticked nothing below 0.2. **REALIZATION IS SPECKIT FEATURE
+  `031-configured-notebook-hosting-identity`** (Brett's standing rule: OpenSpec
+  ratifies, Speckit builds), which lands Groups 2, 3, 4 and 6 — the resolver in
+  both readers, the synthetic instance with its `example` marker and role
+  placeholders, the synthetic fixture literals, and these documents. Group 5,
+  the live record's move into its private home, is the OPERATOR ceremony that
+  packet reserves for Brett Heap and is prepared as
+  xFactory-Hermes-Install PR
+  [#73](https://github.com/opensoft/xFactory-Hermes-Install/pull/73). Group 1
+  (the delta reaching canon) and 6.3/6.5/6.6 remain for the ARCHIVE act, which
+  is where this entry moves to archived state and where the last address line
+  in the promoted spec is retired.
 - [add-consent-custody-rederivation-record](openspec/changes/add-consent-custody-rederivation-record/proposal.md)
   — authored 2026-09-07, **`Status: ratified`** (2026-09-08, Brett Heap
   (reviewer of record), in session, first-hand to lane `opsXfactory-1`, verbatim

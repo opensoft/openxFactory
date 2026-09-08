@@ -3488,6 +3488,26 @@ class TheDeclarationsPathResolvesFromConfigurationTests(_HostingResolverCase):
             self.assertIsNone(sync.hosting_declaration_path(root))
             self.assertIsNone(sync.read_hosting_declaration(root))
 
+    def test_a_record_marked_live_binds(self):
+        """Only `example` refuses; every other marker value is a declaration.
+
+        The live record carries `instance: live` and an older record carries no
+        `instance` at all, and both must bind — the refusal is scoped to the
+        one value that means "this is a fixture", never to the field's presence.
+        """
+        for marker in ("live", "opensoft-production", None):
+            with self.subTest(marker=marker), TemporaryDirectory() as td:
+                root = Path(td)
+                text = HOSTING_DECLARED if marker is None else \
+                    HOSTING_DECLARED.replace(
+                        "  case: operator_hosted",
+                        f"  instance: {marker}\n  case: operator_hosted")
+                self._write(root, "private/hosting.yaml", text)
+                os.environ[sync.HOSTING_ENV] = "private/hosting.yaml"
+                got, _ = self._bind(root)
+                self.assertEqual(got["account"],
+                                 "projection-host@example.invalid")
+
     def test_an_empty_environment_value_is_unset(self):
         """An exported-but-empty variable is not a configuration answer."""
         with TemporaryDirectory() as td:
