@@ -417,8 +417,11 @@ its own.>
   pinned OpenSpec CLI with `TZ=UTC` (the CLI has no date option and names
   `openspec/changes/archive/<YYYY-MM-DD>-<change>/` from its own clock),
   refuses a `--date` that is not today in UTC, and inspects the tree the CLI
-  left on every exit status. A directory carrying any other day is REFUSED
-  unconditionally; it is also reverted where the wrapper can do so safely —
+  left on every exit status. The name it expects is the one the CLI's OWN rule
+  produces — `<today>-<change>`, except that a change id already carrying a
+  `YYYY-MM-DD-` prefix keeps it, which the CLI does deliberately — and any other
+  name is REFUSED unconditionally; it is also reverted where the wrapper can do
+  so safely —
   exactly one new directory naming this change, its active path free, and
   `openspec/specs/` free of uncommitted tracked changes — and where it cannot,
   it says which part it left behind rather than claiming a revert it did not
