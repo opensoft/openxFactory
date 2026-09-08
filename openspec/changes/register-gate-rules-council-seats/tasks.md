@@ -476,9 +476,17 @@ gate is green: at the old reader every one of these writes is refused.
       field exactly — one instant taken once, written into the grant's
       `issued_at` and the wallet's `declared_at`/`created_at`; NOT the merge
       instant.
-- [ ] 3.10 **Gate:** the pull request carrying §3 is GREEN on
+- [x] 3.10 **Gate:** the pull request carrying §3 is GREEN on
       `wallet-validation`, and it is human-landed by construction — the register
       is a never-clearable floor member and no council verdict clears it.
+      DONE 2026-09-08: §3 landed as openxFactory PR #798 → merge commit
+      `eea40d17` (2026-09-08T14:17Z), **9/9 checks pass** including
+      `wallet-validation` and `pytest-suite`. **Human-landed**: the register
+      is the never-clearable floor member per this gate's own text, and #798
+      was landed via OrganizationAdmin bypass on Brett Heap's word ("merge
+      both") — not by a council verdict. Rule 6 posted on the PR: LANDING
+      `14:17:14Z`, LANDED `14:17:23Z`. Companion codexFactory mint record
+      landed as codexFactory PR #290 → merge commit `c7b4d96b`.
 
 ## 4. Downstream owed acts — named with owners, not discharged here
 
