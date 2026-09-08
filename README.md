@@ -512,6 +512,81 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [adopt-configured-notebook-hosting-identity](openspec/changes/adopt-configured-notebook-hosting-identity/proposal.md)
+  — authored 2026-09-08, **`Status: draft`** (a PROPOSAL awaiting Brett Heap's
+  ratification; it cites none and owes none until its content is ratified as a
+  separate act). Origin: Brett Heap's **Q2[A]** ruling of 2026-09-08T03:36Z on
+  the redaction decision sheet
+  `~/session-prompts/redaction-outside-ideation-decision-2026-09-07.md`, taken
+  through the interactive multi-choice walkthrough — an ADMISSION TO THE QUEUE
+  plus a choice of FORM, which left the live record's home to the realization
+  ("both are already private") and settled nothing else. The forcing fact is
+  the public flip of this repository, whose governed half is
+  `adopt-codexfactory-repository-identity` (ratified 2026-09-07, main
+  `eb30db7a`). **THE POINT IS THAT FORTY OF THE 119 REMAINING LINES ARE
+  FUNCTIONAL VALUES, NOT PROSE** (119 across 22 files measured at main
+  `543d47a9`, outside `ideation/`; the sheet counted 123 at `f2355208`). ONE of
+  the forty sits in a PROMOTED capability spec, so it is reachable only through
+  a delta; EIGHTEEN are `examples/notebook-projection-hosting.yaml`, which is
+  **not an example** — it is the live hosting declaration, and its `account` /
+  `migration.from_account` / roster addresses are the values
+  `enforce_hosting_profile()` compares against the account a `nlm` CLI profile
+  is signed in as, so a placeholder there **disarms a guard rather than
+  redacting a record**; EIGHT of those eighteen are worse than configuration,
+  being the RECORD OF EIGHT GOVERNED ACTS (seven share grants and one recorded
+  denial of 2026-08-27) that a ratified requirement obliges the install to
+  keep; and TWENTY-ONE are fixture literals in three `tests/notebooklm/`
+  modules that write their own declarations into temporary trees and therefore
+  prove exactly as much when synthetic. **So the proposal is two files instead
+  of one edit**: a synthetic instance stays public as the shape's example and
+  the validator's fixture, the live record moves INTACT to a configured private
+  home, and both readers — `scripts/sync-notebooklm-books.py`'s `HOSTING_REL`
+  and `scripts/validate-notebook-projection-hosting.py`'s `DEFAULT_REL` — learn
+  ONE resolution order (env var, then a gitignored workspace config, then
+  UNDECLARED, which the requirement already defines as a transition state), with
+  a configured path that resolves to the shipped example REFUSED rather than
+  bound. **The delta is ONE `## MODIFIED Requirements` block** over *The
+  projection's hosting identity is declared at install*: all four promoted body
+  paragraphs byte-identical, all five promoted scenario titles carried, every
+  promoted bullet carried except the one identity bullet, plus two added body
+  paragraphs and two added scenarios (*The committed example carries no real
+  identity*, *The live declaration resolves from configuration*).
+  **THE RESERVED `Removed from canon by` MARKER IS DELIBERATELY NOT USED** — it
+  names the retired unit as a code span carrying that unit's EXACT TEXT, which
+  here would reprint the address inside the delta that removes it — so the
+  divergence is declared in the delta's own header and the ONE `info`
+  carriage-ledger finding is the intended record (`info` carries no gate; the
+  gate-bearing scenario-title arm reads zero). **AND THE SPLIT COSTS A CHECK,
+  WHICH THE CHANGE IS OBLIGED TO REPLACE**: `test_the_committed_record_conforms`
+  is today the only automatic conformance check the LIVE declaration has, and it
+  works only because the live record and the committed file are one file — so
+  the packet owes a re-aimed test, a resolver test, and an operator
+  `--resolved` step rather than the check quietly disappearing. `code_surface`
+  is NOT `none` (two scripts change behaviour); `target_release: implemented`
+  with **no contract bundle owed**, checked by exact path against
+  `contracts/releases/contract-v3.4.digests.yaml`'s 283 entries — the record is
+  deliberately not a `contracts/` member and nothing pins it. Declares
+  `sequenced_after: [add-notebook-projection-identity]`, the archived change
+  that ratified both the requirement and the record, and takes the sweep-ledger
+  row `{state: active, class: co-modifier, declares:
+  [add-notebook-projection-identity], depth: 1}` at PR
+  [#783](https://github.com/opensoft/openxFactory/pull/783) — ONE row, no
+  partner row moved. **FIVE OPEN QUESTIONS,
+  NONE ANSWERED HERE**: OQ-A where the live record lives (recommended
+  `installs/hermes-install` `config/clients/opensoft/`, because the record's own
+  `custody:` block already names `binding_client: opensoft`, the ratified
+  residency rule puts live binding instances in the installs, and the path stays
+  resolvable from the one workspace the sync already walks); OQ-B whether the
+  archived `add-notebook-projection-identity` delta owes a cross-reference note
+  (recommended NO, measured: `promotion_fidelity` compares requirement and
+  scenario TITLES only, never body or bullet text, and its latest-writer rule
+  makes this delta the authoritative writer once archived); OQ-C the instance's
+  path and marker; OQ-D the actor names; OQ-E whether the roster record moves
+  (recommended: it MOVES, intact — it is evidence, not configuration).
+  **NOTHING IS REALIZED BY THIS PACKET**: no promoted byte moves, the committed
+  example is not edited, no test literal changes, no resolver is written, no
+  file is moved into a private tree, and every box in `tasks.md` below 0.1 is
+  unticked.
 - [add-consent-custody-rederivation-record](openspec/changes/add-consent-custody-rederivation-record/proposal.md)
   — authored 2026-09-07, **`Status: ratified`** (2026-09-08, Brett Heap
   (reviewer of record), in session, first-hand to lane `opsXfactory-1`, verbatim
