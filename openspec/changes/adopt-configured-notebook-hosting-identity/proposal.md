@@ -342,10 +342,12 @@ starts. Full statements, alternatives and consequences are in `design.md` § 6.
 - **OQ-C — Does the committed instance keep its PATH?** Recommended: **yes,
   keep `examples/notebook-projection-hosting.yaml`**, and mark it synthetic
   INSIDE the record (`hosting.instance: example`) rather than renaming it to
-  `notebook-projection-hosting.example.yaml`. A rename touches six documents
-  and two scripts for a signal a field carries better, and the marker is what
-  the resolver's refusal branch reads. The `.example.yaml` convention is real
-  and the alternative is recorded, not foreclosed.
+  `notebook-projection-hosting.example.yaml`. A rename touches **ten
+  references across four documents, eight across the two scripts and three
+  across two tests** (measured by `grep -c` at `543d47a9`) for a signal a field
+  carries better — and the marker is what the resolver's refusal branch reads,
+  which a filename is not. The `.example.yaml` convention is real and the
+  alternative is recorded, not foreclosed.
 - **OQ-D — Do the ACTOR NAMES in the synthetic instance go to role
   placeholders too?** Recommended: **yes.** "Brett Heap" is not sensitive —
   it is on hundreds of public governance lines — but in a SYNTHETIC instance a

@@ -321,12 +321,17 @@ edit to the delta itself.
 Recommended: **keep `examples/notebook-projection-hosting.yaml`** and mark the
 instance inside the record (`hosting.instance: example`). The repository's
 `.example.yaml` convention for instantiation stubs is real, and renaming would
-express the same fact in the filename — but a rename touches
+express the same fact in the filename — but the blast radius, measured by
+`grep -c` at `543d47a9`, is **twenty-one references across eight files**:
+`docs/lifecycle-notebook-projection.md` (4),
 `docs/notebook-projection-migration-runbook.md` (3),
 `docs/notebooklm-sync-open-item.md` (2),
 `docs/notebook-projection-migration-evidence-2026-08-24.md` (1),
-`docs/lifecycle-notebook-projection.md` (3), both scripts and one test, for a
-signal the resolver cannot read anyway. The marker is read; a filename is not.
+`scripts/sync-notebooklm-books.py` (4),
+`scripts/validate-notebook-projection-hosting.py` (4),
+`tests/notebooklm/test_validate_hosting.py` (2) and
+`tests/notebooklm/test_sync_notebooklm_books.py` (1) — for a signal the
+resolver cannot read anyway. The marker is read; a filename is not.
 
 ### OQ-D — Do the actor names go to role placeholders?
 
