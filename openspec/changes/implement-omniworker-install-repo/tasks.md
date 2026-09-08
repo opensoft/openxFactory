@@ -327,13 +327,25 @@ and this amendment claims only the first two.
       device-name template, so the literal `CPC-OXF-%USERNAME:7%` (no random
       suffix) could not be applied — the provisioning that ran used
       `%USERNAME:7%-%RAND:5%` and rendered `Omni001-XEAON`, not
-      `CPC-OXF-Omni001`. Brett ruled "Accept Omni001-XEAON" (~22:50Z,
+      `CPC-OXF-Omni001`. [Precision note 2026-09-08 (opensoft/openxFactory#787
+      → squash `7fa12108`): a random `%RAND:y%` segment is required in the
+      device-name template; `%RAND:5%` is what was observed to be accepted,
+      not the required token itself — narrower and wider random lengths were
+      never tried, so read "requires `%RAND:5%`" above as "requires a random
+      segment; `%RAND:5%` is what was observed to be accepted."] Brett ruled
+      "Accept Omni001-XEAON" (~22:50Z,
       openxFactory issue #591) — box superseded by ruling, not discharged.
       **Amended 2026-09-07 — SUPERSEDED BY RULING; box closed.** The template
       this box names is not reachable by supported means: Windows 365 refuses a
       device-name template without `%RAND:5%` and refuses a post-provision
       rename, so `CPC-OXF-%USERNAME:7%` could not be set and `CPC-OXF-Omni001`
-      was never an attainable name. The template actually applied was
+      was never an attainable name. [Precision note 2026-09-08
+      (opensoft/openxFactory#787 → squash `7fa12108`): "without `%RAND:5%`"
+      over-states the evidence — what was measured is that a template with no
+      random segment at all is refused; a template with a random segment
+      shorter or longer than five was never tried, so read this as "refuses a
+      device-name template without a random `%RAND:y%` segment; `%RAND:5%` is
+      what was observed to be accepted."] The template actually applied was
       `%USERNAME:7%-%RAND:5%`, which rendered `Omni001-XEAON` — Entra device
       `cf287ce7-7f73-4da7-adfb-c501bd7dd670`, the key by which the fleet now
       identifies the machine. Brett Heap ruled the outcome 2026-09-05 ~22:50Z
@@ -415,6 +427,11 @@ and this amendment claims only the first two.
       squash `349d539d` (2026-09-05T23:39:33Z) recording the actual name and
       the mandatory `%RAND:5%` constraint, but that documents the outcome, it
       does not discharge this box's casing-of-the-ruled-template premise.
+      [Precision note 2026-09-08 (opensoft/openxFactory#787 → squash
+      `7fa12108`): "the mandatory `%RAND:5%` constraint" over-states what is
+      established — a random `%RAND:y%` segment is mandatory; `%RAND:5%` is
+      what was observed to be accepted, not proven as the exact required
+      value.]
       **Amended 2026-09-07 — SUPERSEDED BY RULING; box closed**, for exactly
       the reason the note above already gives: the casing question never arose,
       because the `CPC-OXF-` prefix never applied (5.1's amendment). Brett
@@ -425,6 +442,11 @@ and this amendment claims only the first two.
       records the actual name and the mandatory `%RAND:5%` constraint is
       opensoft/CloudPC-Install#18 → squash `349d539d` (2026-09-05T23:39:33Z);
       it is cited as the record of the name, not as the discharge of this box.
+      [Precision note 2026-09-08 (opensoft/openxFactory#787 → squash
+      `7fa12108`): same over-claim as this box's earlier note above — "the
+      mandatory `%RAND:5%` constraint" states a random `%RAND:y%` segment is
+      mandatory; `%RAND:5%` is what was observed to be accepted, not proven
+      as the exact required value.]
       The supersession is what closes the box.
 
 ## 6. Retirement — the ONLY destructive step, and it is last

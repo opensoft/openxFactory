@@ -319,6 +319,22 @@ does is appended, exactly as the convention requires.*
 
 ### A1 — 2026-09-08 · The Cloud PC template requires a random `%RAND:y%` segment, and `Omni001-XEAON` is accepted
 
+> **Precision note, 2026-09-08 (opensoft/openxFactory#787 → squash
+> `7fa12108`; the residue two Codex threads on #787 named and left open as
+> scope-declines, closed here by this dated sub-note):** two phrasings below
+> over-claim what this amendment's own measurement supports. "MINIMUM random
+> length" reads as a tested lower bound; the evidence is only that a
+> template with no random segment at all is refused and that `%RAND:5%` was
+> accepted — lengths 3 and 4 were never tried, so no minimum is established,
+> only that a random `%RAND:y%` segment is required and `%RAND:5%` is what
+> was observed to work. Likewise "not the only spelling Windows 365 would
+> take" positively asserts that some other width is accepted; no width other
+> than five was ever tested to be accepted, so nothing below licenses
+> picking another one. Read every "MINIMUM" and "not the only spelling"
+> below as "observed accepted," not as a tested bound. Per this record's own
+> amendment convention, this note does not edit the sentences below — it
+> stands beside them.
+
 **Authority for this amendment.** Brett Heap, 2026-09-08 ~03:23Z, in session,
 verbatim:
 
