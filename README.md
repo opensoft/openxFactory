@@ -313,7 +313,7 @@ Core domain-neutral docs:
   `scripts/validate-capability-steward.py`, MVP corpus completion
   `examples/capability-steward/`)
 
-Engineering-domain implementation docs now belong in `opensoft/codexFactory`.
+Engineering-domain implementation docs now belong in `codeXfactory/codexFactory`.
 
 Medical-domain implementation docs belong in `opensoft/MedxFactory`.
 
@@ -406,7 +406,7 @@ changes can legitimately turn the suite red.
 
 ## Domain Implementations
 
-- `opensoft/codexFactory` — software, code, repo, and engineering xFactory domain stack.
+- `codeXfactory/codexFactory` — software, code, repo, and engineering xFactory domain stack.
 - `opensoft/MedxFactory` — medical xFactory domain stack for clinical agents and medical workflows.
 - `opensoft/OpsxFactory` — IT operations, sysops, devops, identity, infrastructure, and tenant administration xFactory domain stack.
 - `opensoft/LedgerxFactory` — accounting, finance, and ledger xFactory domain stack.
@@ -750,8 +750,8 @@ Active changes:
   under a human merge word, and alternatives (d) status quo and (e) satisfy-the-
   canon-as-written are recorded as not taken rather than foreclosed. Governing
   issue [#745](https://github.com/opensoft/openxFactory/issues/745), first-cycle
-  record [codexFactory #232](https://github.com/opensoft/codexFactory/issues/232),
-  COMPANION [codexFactory #272](https://github.com/opensoft/codexFactory/pull/272)
+  record [codexFactory #232](https://github.com/codeXfactory/codexFactory/issues/232),
+  COMPANION [codexFactory #272](https://github.com/codeXfactory/codexFactory/pull/272)
   — the canon narrowing, authored there because the canon lives there.
   Answers § 6.3 of BOTH ratified option-(b) packets — the box they named and
   deliberately left unruled: whether the merge-master low-risk envelope should
@@ -862,9 +862,9 @@ Active changes:
   workflow file, no test, NO PIN MOVED, every box in `tasks.md` still unticked;
   decisions **M-1..M-7 stand as recommended**, no veto exercised. Governing
   issue codexFactory
-  [#232](https://github.com/opensoft/codexFactory/issues/232) (no separate
+  [#232](https://github.com/codeXfactory/codexFactory/issues/232) (no separate
   openxFactory issue was filed, by instruction); origin codexFactory
-  [#203](https://github.com/opensoft/codexFactory/issues/203). **THE COMPANION
+  [#203](https://github.com/codeXfactory/codexFactory/issues/203). **THE COMPANION
   HALF, AND NOTHING IS BUILT BY IT.** The primary is codexFactory
   `add-floor-regeneration-automation`
   (option (b) of #203, the one the ruled option (c) left *"not ruled and not
