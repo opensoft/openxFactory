@@ -28,7 +28,7 @@ operation: deliberation
 lane: artifact
 binding:
   convening_job_id: cvn-2026-09-04-0007
-  verified_subject_pin: subject:opensoft/codexFactory@0d5e1ba9
+  verified_subject_pin: subject:codeXfactory/codexFactory@0d5e1ba9
   inbound_bundle_digest: sha256:2b7d1c4e6a8f0b3d5e7091a2c4e6f80b1d3f5a7c9e0b2d4f6a8c0e2f4a6b8d0c
 seats:
   eligibility_verdict:

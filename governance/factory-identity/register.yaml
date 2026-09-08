@@ -110,7 +110,7 @@ rows:
   # THE FIRST ORIGIN ROW: codexFactory as an originating repository.
   #
   # EXACTLY ONE ACTIVE ROW PER ORIGINATING REPOSITORY (ratified). A second
-  # concurrent active row for `opensoft/codexFactory` is refused by the reader;
+  # concurrent active row for `codeXfactory/codexFactory` is refused by the reader;
   # rotation SUPERSEDES this row rather than adding a second, and a superseding
   # row names the row it replaces in `supersedes:`. A revoked row never returns
   # to active.
@@ -143,7 +143,7 @@ rows:
   # register cannot merge holding a placeholder, and no plausible-looking key
   # was invented to make it green.
   - row_id: row-origin-codexfactory-0001
-    holder_ref: opensoft/codexFactory
+    holder_ref: codeXfactory/codexFactory
     wallet_ref: wal-origin-codexfactory-0001
     act: originate
     grant_ref: grant-origin-codexfactory-0001

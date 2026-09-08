@@ -47,7 +47,7 @@ schema_version: 1
 kind: xfactory_wallet_record
 wallet_id: wal-origin-codexfactory-0001
 holder:
-  holder_id: opensoft/codexFactory
+  holder_id: codeXfactory/codexFactory
   holder_class: organisation
   display_label: codexFactory (originating repository)
 key_reference:
