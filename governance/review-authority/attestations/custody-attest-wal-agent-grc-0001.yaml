@@ -45,7 +45,6 @@ verified_against:
     context: its private half is retained in the operator's vault and never
     enters git, CI or an agent session. The four SEAT keys are the
     holder_readable ones.
-# B2-PENDING-BRETTS-WORD
 holder_execution_context: >
   THE CONTEXT IS NAMED, IT EXISTS, AND IT HAS NEVER RUN. The holder execution
   context for all four seat keys is codexFactory's

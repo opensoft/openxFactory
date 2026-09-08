@@ -238,6 +238,9 @@ gate is green: at the old reader every one of these writes is refused.
       step consumes the four secrets yet, so provisioning them lifts the
       refusal and produces no signed return. The mint runbook's own rule
       governs the correction — "Do not describe a context you have not seen."
+      NOTE (2026-09-08): the holder-context wording above was ruled by Brett
+      Heap — "B2 as recommended", in-session 2026-09-08T03:20:24Z —
+      https://github.com/opensoft/openxFactory/pull/717#issuecomment-5578601346
 - [ ] 3.5 Write `governance/review-authority/grants/grant-grc-0001.yaml`: a ROOT
       grant (no `parent_grant_ref`), `issued_by` the anchored operator,
       `acts: [review]`, `objects: [opensoft/openxFactory]`,

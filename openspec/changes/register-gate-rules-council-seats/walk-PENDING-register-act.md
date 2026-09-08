@@ -239,6 +239,27 @@ which is a STRONGER claim than the ruling assumed, not a weaker one:
    four halves LIFTS THE REFUSAL; it does not by itself produce a signed seat
    return.
 
+**THE RULINGS AS SPOKEN, B2 entry.** In the same form as Q-GRC-1..Q-GRC-5 above
+(`review/ratification-2026-09-06.md`, "The five rulings"):
+
+- **B2 RULED — Brett Heap, in-session, 2026-09-08T03:20:24Z, verbatim
+  *"B2 as recommended"***
+  (<https://github.com/opensoft/openxFactory/pull/717#issuecomment-5578601346>):
+  Q-GRC-1 was ruled 2026-09-06 against a world where codexFactory task 5.9a
+  (the `gate_rules_council` convening caller) did not exist and anticipated an
+  attestation that "states plainly that it does not exist yet." 5.9a has since
+  LANDED (codexFactory PR #277 → `511d95c5`;
+  `.github/workflows/gate-rules-convening.yml`, `environment:
+  worker-credentials`, workflow id 352457764, zero runs, refusing today with
+  `seat_signing_unavailable`; the four GRC seat secrets are read presence-only,
+  no signing step consumes them). B2 adopts the recommendation that the
+  attestation name that job as the holder execution context and state that it
+  EXISTS and has NEVER RUN, that no signing step consumes the secrets yet, and
+  that the context is therefore named and owed rather than observed — a
+  STRONGER, not weaker, claim than Q-GRC-1 assumed; `isolation_claimed: none`
+  stands. This corrects the four-item list above from "owed job" to
+  "existing-and-never-run job" without reopening Q-GRC-1 itself.
+
 **THE SECRET NAMES ARE GRC-NAMESPACED, and the reason is a collision rather
 than a style.** The 2026-08-28 merge-readiness mint took its names from
 `root_key_env_var()`'s output, which is **not council-aware**. So
@@ -539,7 +560,10 @@ is not.**
   `gate-rules-convening.yml`, id **352457764**, **`total_count: 0`**. This is
   the strength at which the claim is made — not "rarely", not "not recently":
   **never, zero runs.** A vacuous non-exercise is recorded as a vacuous
-  non-exercise and never as a pass.
+  non-exercise and never as a pass. **Per Brett Heap's B2 ruling
+  (2026-09-08T03:20:24Z, §4.2), the holder execution context is attested as
+  EXISTING and NEVER RUN — named and owed rather than observed — not as an
+  owed job that does not yet exist.**
 * **PROVISIONING THE SECRETS LIFTS A REFUSAL AND PRODUCES NO SIGNATURE.** The
   caller's wiring is PRESENCE-ONLY (§4.2 limb 4). The FIRST SIGNED gate-rules
   convening is sequencing step 6, task 4.5, and it is **not this change's to
