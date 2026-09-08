@@ -214,6 +214,13 @@ realization PR body can cite them rather than bury them:
    the minimum". Declining them leaves the note recorded with no statement that
    it is not the authorization.
 
+**EACH IS REVERSIBLE BY ONE NAMED ACT, and the branch does not wait on the
+word.** (1) revert the `proposal.md` note commit; (2) untick the § 1 boxes and
+restore the three sentences, each by a dated line naming the reversal; (3) delete
+the two explanatory sentences from the bullet. All three are forward-only
+corrections under FR-021 — no history is rewritten — and each is small enough
+that carrying the ruling now costs less than waiting.
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
@@ -225,7 +232,10 @@ realization PR body can cite them rather than bury them:
   spellings.
 - **FR-002**: That passage MUST say the note is recorded in the EDITED FILE'S OWN
   lifecycle-header block, and MUST say the note is not the authorization for the
-  edit.
+  edit. "The edited file's own lifecycle-header block" describes where a FUTURE
+  archived-record edit records ITS note; it does NOT describe where this bullet
+  sits in `docs/document-lifecycle.md`, which is body prose in § *Status Claim
+  Rules* and deliberately outside that document's own header window.
 - **FR-003**: That passage MUST carry the inline citation "Ratified by
   `govern-archived-record-edits` (2026-09-08)" — the precedent form, WITHOUT a
   colon after the change name — and MUST state that the requirement reaches
@@ -253,7 +263,9 @@ realization PR body can cite them rather than bury them:
   A § 1 note MUST cite the record as the record does — GitHub review
   `5141756427`, APPROVED `2026-09-08T12:38:36Z`, and
   `review/ratification-2026-09-08.md` — and MUST NOT quote a word: the approval
-  body is EMPTY and no verbatim word exists. Boxes 3.1 and 4.2 are NOT ticked
+  body is EMPTY and no verbatim word exists. A note MAY restate a fact the record
+  states and MUST NOT attribute words to the ratifier — restating what a record
+  says is citation; putting a sentence in his mouth is invention. Boxes 3.1 and 4.2 are NOT ticked
   (FR-007, FR-012). (Q1 = b.)
 - **FR-007**: `tasks.md` boxes belonging to the OpsxFactory twin, another
   DomainxFactory or another openxFactory packet MUST be left UNTICKED, each
@@ -261,8 +273,10 @@ realization PR body can cite them rather than bury them:
   `2026-09-05-mirror-floor-addition-grace` § 6.3 shape. A twin note MUST name
   the repository, the change id and **PR #279** as the landing vehicle at this
   date, and MUST NOT cite a merge sha — the twin is not on OpsxFactory `main`
-  and no such sha exists. Task 3.1 stays unticked with a NOT-OWED-YET note.
-  (Q5 = c, Q7 = b.)
+  and no such sha exists. Task 3.1 stays unticked with a NOT-OWED-YET note that
+  ALSO records that the cross-citation re-check it names remains OWED and is not
+  attempted here — the packet's own text gives that re-check no actor and no
+  trigger, and this feature invents neither. (Q5 = c, Q7 = b.)
 - **FR-008**: The re-derivation obligation of the second ADDED requirement MUST
   be discharged as a MEASUREMENT for every file this feature edits, recorded BOTH
   in the packet's evidence file AND as a dated note in `tasks.md` beside § 4. The
@@ -271,15 +285,28 @@ realization PR body can cite them rather than bury them:
   being in-repo pointers to in-repo targets, and a broader claim would overstate
   the measurement. (Q8 = b.)
 - **FR-009**: No file under `openspec/changes/archive/` may be edited by this
-  feature, and no ratified requirement text may be reworded.
+  feature, and no REQUIREMENT OR SCENARIO TEXT in the ratified delta may be
+  reworded. The scope is stated this narrowly on purpose: the three `tasks.md`
+  process sentences amended under FR-017 are neither archived bytes nor
+  requirement text, and FR-009 and FR-017 do not conflict once that boundary is
+  named.
 - **FR-010**: This branch MUST write exactly three packet files: `tasks.md`, the
   new `evidence/realization-2026-09-08.md`, and ONE purely additive dated
-  realization note in `proposal.md`'s front-matter area recording that realization
+  realization note in `proposal.md`'s HEADER AREA — placed immediately AFTER the
+  `Lane: opsXfactory-1` line and NOWHERE ABOVE `Status:` — recording that realization
   adds the evidence file and the `docs/document-lifecycle.md` edit task 3.4 names
   — without it the ratified enumeration of the packet's whole diff becomes false
   on landing (precedent: `align-status-reader-to-real-lines`, Brett Heap's
   2026-08-19 correction of a narrow enumeration). `design.md`, `.openspec.yaml`
   and the spec delta stay FROZEN. (Q10 = b.)
+- **FR-010a**: The note MUST NOT be written INSIDE the YAML front matter and MUST
+  NOT alter the ratified `code_surface:` value, and the reason is measured:
+  `parse_status` finds `Status: ratified` at REAL-LINE INDEX 8 of a 15-line header
+  window (`STATUS_SCAN_LINES = 15`), where the whole folded `code_surface` scalar
+  counts as ONE real line. Anything inserted above `Status:` moves that header
+  toward the edge of the window, and editing the folded scalar would change a
+  ratified front-matter value the archive gate reads. The note therefore QUOTES
+  the enumeration sentence it corrects rather than rewriting it.
 - **FR-011**: Every § 4 gate MUST be run at the final head and its output
   recorded verbatim, including the doc-health finding-set diff against `main`.
 - **FR-012**: The § 4.2 MODIFIED-block currency check MUST be re-run at the final
@@ -298,8 +325,10 @@ realization PR body can cite them rather than bury them:
   trailer, the `Co-Authored-By` trailer and the session link, and MUST stage
   explicit paths.
 - **FR-015**: This feature MUST stop at a branch ready for the archive act. It
-  MUST NOT run `openspec archive`, open a pull request, post a GitHub comment,
-  or merge.
+  MUST NOT run `openspec archive`, MUST NOT run `gh` in any form (no `gh pr
+  create`, no `gh pr review`, no `gh api` write), MUST NOT post a GitHub comment,
+  and MUST NOT merge. Claiming, the pull request, the LANDING/LANDED notices, the
+  claim discharge and the archive act are the lane's.
 - **FR-016**: This feature MUST write no checker, edit no pin, and repair no
   broken pin — the packet's own § *What This Change Does NOT Do*.
 - **FR-017**: The three ratified `tasks.md` sentences that hold the boxes
@@ -312,8 +341,29 @@ realization PR body can cite them rather than bury them:
 - **FR-018**: A box MUST be ticked in the same commit that records its evidence,
   or neither happens — a tick landing ahead of its evidence is the failure this
   packet exists to refuse.
-- **FR-019**: The feature's Speckit tree MUST be committed in full, as features
-  030 and 031 commit theirs. (Q9 = a.)
+- **FR-019**: The feature's Speckit tree MUST be committed in full — `spec.md`,
+  `clarify-questions.md`, `plan.md`, `research.md`, `quickstart.md`, `tasks.md`,
+  `analysis.md` and every file under `checklists/` — as features 030 and 031
+  commit theirs. (Q9 = a.)
+- **FR-020**: A FAILING GATE IS A BLOCKER. Where any § 4 gate fails, no dependent
+  task proceeds, no box is ticked against it, the failure output is recorded in
+  the evidence file as it was produced, and the failure is reported at STOP (B).
+  A gate result is never reported as passing on the strength of a re-run that
+  changed the conditions.
+- **FR-021**: CORRECTIONS ARE FORWARD-ONLY. A defect found on this branch is
+  repaired by a NEW commit that names what it supersedes; history is never
+  rewritten and nothing is force-pushed. A superseded evidence entry is struck
+  with a dated line saying which head replaced it, never deleted — an evidence
+  file that quietly loses an earlier result is the failure mode this packet's own
+  motivating commit demonstrates.
+- **FR-022**: The packet is ACTIVE, not archived, so the ratified archived-record
+  requirement does not bind this feature's edits to the packet's own files. The
+  feature MUST say so where it could be misread, and MUST follow the discipline
+  anyway — dated notes, superseded sentences named, nothing deleted — because the
+  packet's credibility rests on it.
+- **FR-023**: The gate results this branch records are LOCAL evidence at a named
+  head. CI on the lane's pull request is a SEPARATE confirmation that this feature
+  neither performs nor claims, and the evidence file MUST say which it is.
 
 ### Key Entities
 
@@ -338,7 +388,10 @@ realization PR body can cite them rather than bury them:
   `Edited (bookkeeping):` appears in that document at least once.
 - **SC-002**: `validate-openspec-cli-pin.py --change govern-archived-record-edits
   --strict` passes and `--all --strict` reports ZERO undispositioned findings at
-  the final head.
+  the final head, with the dispositioned-exception COUNT stated as a number and
+  compared with the ratified baseline's (99 passed / 2 failed, 0 undispositioned).
+  A count that moved in EITHER direction is explained; a lower count is a
+  difference too, not a bonus.
 - **SC-003**: The doc-health finding set at the final head is diff-identical to
   `main`'s.
 - **SC-004**: `validate-sequenced-after.py .` and `--ledger-diff`,
@@ -385,3 +438,8 @@ realization PR body can cite them rather than bury them:
   and builds no checker by design (D-6).
 - **Any edit to a file under `openspec/changes/archive/`** — including under the
   rule this packet states.
+- **Any re-derivation of the README "OpenSpec Records" row at a union with
+  another lane's row** (task 5.1, lane-protocol Rule 7): the row is already on
+  `main` from #788, and a union re-derivation, if one becomes necessary, is the
+  lane's act at landing.
+- **CI**: no workflow run is triggered, awaited or claimed here (FR-023).

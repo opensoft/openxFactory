@@ -135,6 +135,10 @@ Recorded in [research.md](./research.md). Five measurements the plan rests on:
   the reason.
 - **The evidence home** (Q4/Q8): the packet's `evidence/` file plus this feature
   directory; the pinned-target measurement is also a dated note in `tasks.md`.
+- **The `proposal.md` note's anchor** (FR-010a): immediately after the `Lane:`
+  line, never inside the YAML and never above `Status:` — measured, because
+  `Status: ratified` sits at real-line index 8 of a 15-line header window and the
+  folded `code_surface` scalar counts as one real line.
 - **The enumeration note** (Q10): one additive dated note in `proposal.md`.
 
 No data model and no contracts directory: this feature creates no entity and no
@@ -155,8 +159,14 @@ interface. `quickstart.md` stands in for both, as the re-run recipe.
 5. **S5 — the `proposal.md` enumeration note.**
 6. **S6 — the final gate re-run** at the head that carries S4 and S5, since those
    commits touch `openspec/changes/**` and are inside the pinned CLI's scan.
-7. **STOP (B) → architect report.** Then the analyze loop's fixes, then the gate
+7. **S7 — the Speckit tree.** Commit `checklists/` and `analysis.md`; verify
+   FR-016 (nothing under `scripts/`, `.github/`, `contracts/`, `tests/`),
+   FR-019 and SC-006's 28-box count.
+8. **STOP (B) → architect report.** Then the analyze loop's fixes, then the gate
    report; the lane claims, opens the PR, lands and archives.
+
+**Sequence → task mapping**: S1 = T005–T010; S2 = T011–T013; S3 = T014–T018;
+S4 = T019–T027; S5 = T028; S6 = T029–T031; S7 = T032–T033; STOP (B) = T034.
 
 ## Risks and how each is refused rather than accepted
 
@@ -169,3 +179,8 @@ interface. `quickstart.md` stands in for both, as the re-run recipe.
 | Ratified prose drifts. | `design.md`, `.openspec.yaml` and the delta are frozen; `proposal.md` takes ONE additive dated note; SC-007 checks the diff's path set. |
 | Canon moves under the MODIFIED block mid-flight. | S6 re-runs the currency measurement at the final head. |
 | The twin's state is misreported. | Notes cite PR #279 as the landing vehicle and no merge sha, because none exists. |
+| A gate fails mid-sequence. | FR-020: blocker — the dependent task stops, no box is ticked against it, the output is recorded as produced and reported at STOP (B). |
+| A defect is found after a commit. | FR-021: forward-only repair, a new commit naming what it supersedes; no force-push, no deleted evidence. |
+| Brett Heap exercises one of the three flagged vetoes after the branch is built. | Each is reversible by one named act (revert the proposal note; untick and restore the three sentences; delete the two explanatory sentences), recorded as a forward-only correction. |
+| The doc-health baseline is taken from a differently-named checkout. | `--previous-report` REFUSES on repo-identity mismatch by design; the plan uses two independent `--report-out` runs and a normalized diff instead. |
+| A gate is green here and red in CI. | FR-023: these results are LOCAL evidence at a named head; CI on the lane's PR is a separate confirmation this feature does not claim. |

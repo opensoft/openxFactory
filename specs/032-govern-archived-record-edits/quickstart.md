@@ -43,15 +43,29 @@ with the corpus`.
 ## 3. doc-health, diffed against `main` (task 4.4)
 
 ```bash
-python3 scripts/doc-health.py --single-repo . --fail-on error > /tmp/dh-branch.md
-git worktree add /tmp/dh-main main   # or a second checkout at origin/main
-python3 scripts/doc-health.py --single-repo /tmp/dh-main --fail-on error > /tmp/dh-main.md
-diff <(grep -E '^\s*[-|] ' /tmp/dh-main.md) <(grep -E '^\s*[-|] ' /tmp/dh-branch.md)
+# BEFORE the doc edit: the baseline, from a checkout of main
+git worktree add ../oxf-main main        # or a second clone
+python3 scripts/doc-health.py --single-repo ../oxf-main --fail-on error \
+        --report-out /tmp/dh-main.md
+# at the branch head:
+python3 scripts/doc-health.py --single-repo . --fail-on error \
+        --report-out /tmp/dh-branch.md
+# normalize the run-identity/date lines, then diff
+norm() { grep -v -E '^(repo identity|Generated|Run date|As of)' "$1"; }
+diff <(norm /tmp/dh-main.md) <(norm /tmp/dh-branch.md)
 ```
 
-Expected: the FINDING SET is identical. Counts that move only because the
-document grew (word totals, canon share) are not findings and are stated as such
-in the evidence file rather than smoothed away.
+Expected: the FINDING SET is identical. Two cautions, both measured.
+
+- **Do NOT use `--previous-report`.** It refuses on a repo-identity mismatch
+  (`REFUSE previous-report-identity-mismatch`): the stamp is the checkout's slug,
+  so a `main` checkout under a different directory name is a foreign identity by
+  construction and every finding key misses.
+- Counts that move only because the document GREW (word totals, canon share) are
+  not findings. State them separately; never smooth them away, and never let one
+  hide a real difference.
+
+A non-empty finding-set diff is a BLOCKER, not a note.
 
 ## 4. The test suite (task 4.5)
 
