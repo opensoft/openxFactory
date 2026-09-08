@@ -147,6 +147,24 @@ packet asked to be watched: its own carriage-ledger row was added by PR #783
 (its landing, not its realization), and this feature adds no MODIFIED block and
 retires none, so the ledger's `==` comparison is untouched.
 
+## 6a. CI's own numbers, on PR #809 head `fd997c86`
+
+All nine required checks pass: `pytest-suite`, `doc-health` (via
+`merge-master-approval`), `openspec-cli-pin`, `openreposhape-pin`,
+`release-tag-gate`, `wallet-validation`, `clearing-dispatch-gate`,
+`signed-execution-chain-gate`, `lane-line`.
+
+```console
+selected=10381 passed=10360 skipped=21 failures=0 errors=0
+floors: selected>=7090 (margin 3291) passed>=7070 (margin 3290) skipped==21
+```
+
+**`skipped==21` HELD EXACTLY**, which is the pin that would have caught a test
+turning into a skip — the anti-vacuity check on twenty-four added tests. The
+freshness verifier and the vector replay both ran (the job's own named-verdict
+assertions), so the floor snapshot was compared byte-for-byte against the pinned
+decision core on this run.
+
 ## 7. The pytest pins did not move, and that is the correct outcome
 
 `.github/workflows/pytest-suite.yml` is **not touched**. `EXPECT_SKIPPED: "21"`
