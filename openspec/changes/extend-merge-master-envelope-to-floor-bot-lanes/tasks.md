@@ -286,6 +286,61 @@ owed. § 2.2 through § 2.8 are its realization and are authored nowhere yet.
   and requires its candidate list to be exactly `['intent-rolling-custody']`,
   and reads the caller's floor refusal and requires it to name no candidate.
 
+### ADDENDUM 2026-09-08 — finding (1) of § 2.2 RULED (a), realized in codexFactory
+
+**APPENDED, NOT A REWRITE.** Everything above stands as written on 2026-09-07,
+including § 2.2's finding in its original tense; it is the measurement the
+ruling was given on. No box is ticked or un-ticked by this addendum, and no
+mechanism in THIS repository changes.
+
+**THE RULING. Brett Heap, 2026-09-08T03:23:15Z, verbatim:**
+
+> rule (a) on finding 1, this lane realizes it
+
+Recorded at `opensoft/openxFactory#745` (comment 5578623009) and
+`opensoft/codexFactory#232` (comment 5578622812). Option **(a)** of the three
+§ 2.2 enumerates: exclude `lane-line` for the `openxfactory-floor-regeneration`
+candidate, because the check is EXEMPT for its single Bot author rather than
+failing. Options (b) and (c) are NOT taken.
+
+**REALIZED IN THE COMPANION, WHERE DECISION N-5 PUTS THE CODE:**
+`opensoft/codexFactory#286`, by lane `openxfactory-2` (`openXfactory-2`).
+codexFactory's `.github/merge-approval-envelope.yml` now declares
+`check_exclusions: [merge-master-approval, lane-line]` on that candidate and on
+no other; the executable measurement § 2.2 names is FLIPPED DELIBERATELY, as
+that test's own docstring promised it would be, and is now
+`test_the_shipped_class_approves_on_the_real_observed_check_set` — **the
+fixture is unedited**, `lane-line` is still `skipped` in it, so the fix is
+proven against the facts that proved the defect. The codexFactory behaviour
+snapshot did NOT move
+(`09a81fbbf94409dd868260e90ee291dd900c242c683d77594e8c4898d609731d`), so the
+class stays PERMANENTLY ADVISORY.
+
+**NOTHING IS OWED IN THIS REPOSITORY, AND THAT IS MEASURED RATHER THAN
+ASSUMED.** `tests/review_lane_pin/test_floor_bot_lane_enrolment.py` binds
+`ENVELOPE = ROOT / ".github" / "merge-approval-envelope.yml"` — **openxFactory's
+OWN envelope, not codexFactory's**. It neither fetches nor vendors the
+companion's config; its module docstring states the property outright ("needs no
+network and needs no codexFactory checkout"), and its single `check_exclusions`
+assertion is `assertNotIn("pytest-suite", ...)` over THIS repository's
+candidates, whose list § 2.9 pins to exactly `['intent-rolling-custody']`. The
+mirror therefore cannot observe the companion's exclusion list at any state —
+before the companion lands, after it lands, or at the next re-pin — so there is
+no assertion to update and no window in which one would go red. Confirmed green
+unchanged: `python3 -m pytest tests/review_lane_pin -q`.
+
+**ONE STALE REFERENCE IS NAMED RATHER THAN EDITED.** § 2.2 above cites
+codexFactory `test_the_shipped_class_PARKS_on_the_real_observed_check_set` by
+its old name; that test is the one the companion flipped, and it is now
+`test_the_shipped_class_approves_on_the_real_observed_check_set` in the same
+module. The line above is left as written because it is the 2026-09-07 record.
+
+**WHAT THIS DOES NOT DISCHARGE.** The codexFactory lane still arms no
+auto-merge, so an approved bot pull request there still waits for a human merge;
+the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
+`Require Code Owner Review` bypass actor is untaken. Of the three obstacles
+§ 3.1 names, this discharges the third and only the third.
+
 ## 3. First envelope-approved landing of each admitted kind
 
 - [ ] 3.1 Observe ONE codexFactory `floor/bot-regeneration` pull request reach

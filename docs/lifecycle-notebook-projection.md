@@ -455,7 +455,7 @@ sat there.
 
 `examples/notebook-projection-hosting.yaml` names the install's hosting
 identity and carries its share-out roster. Opensoft's own install declares the
-operator-hosted case on `xFactor001@opensoft.one`, a Google Workspace user in
+operator-hosted case on `<service-account-identity>`, a Google Workspace user in
 `opensoft.one`. `scripts/validate-notebook-projection-hosting.py` enforces the
 shape: the two-case vocabulary, the Workspace-user rule, the refusal of any
 service account, the profile the sync binds through, and the roster's key.
@@ -478,7 +478,7 @@ about why the designation must exist at all: a request "SHALL NOT be left to
 whoever happens to read the account's mail."
 
 **WHERE. In the hosting account's own interface**, signed in as
-`xFactor001@opensoft.one`. NotebookLM exposes no administrative or sharing API
+`<service-account-identity>`. NotebookLM exposes no administrative or sharing API
 for inbound requests, so there is nothing else to act in. `nlm share invite`
 performs the grant once the decision is made, and it is the same governed act
 from a terminal rather than a second lane:
@@ -675,7 +675,7 @@ recent login and left null by an older one; where it is present and disagrees
 with the declared account the run refuses, and where it is null the run says so
 and falls back to verifying the name alone. (An earlier draft of this section
 claimed the CLI stored no email at all. Review disproved it: `farheap` carries
-`brett.heap@farheap.com`, `personal` carries null.)
+`<convener-workspace-identity>`, `personal` carries null.)
 
 The binding is re-asserted **before every invocation**, not once at the start.
 Because selection is process-global, another terminal running

@@ -4,7 +4,7 @@
 workspaces:
 # HOSTING MIGRATION 2026-08-24 (docs/notebook-projection-migration-runbook.md
 # step 6). Every record below now carries the provider_notebook_id of the
-# COMPANY-hosted (xFactor001@opensoft.one) notebook. The record ids are
+# COMPANY-hosted (<service-account-identity>) notebook. The record ids are
 # key-derived and therefore unchanged, so each record IS still the live book's
 # registration, and no record was retired.
 #
@@ -12,7 +12,7 @@ workspaces:
 #
 # Runbook step 8 EXECUTED 2026-08-26, after Brett Heap's ruling of that date
 # cleared the 2026-08-24 hold. All seven legacy provider notebooks were
-# ARCHIVE-RENAMED in brettheap@gmail.com to
+# ARCHIVE-RENAMED in <convener-personal-mailbox> to
 # "xFactory — <book> (RETIRED 2026-08-26 — hosting migration)" and are otherwise
 # untouched: renamed=7 skipped=0 failed=0, no alias resolves to any of them, and
 # the seven COMPANY books were verified present and un-retitled in the same run.

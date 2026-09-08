@@ -135,7 +135,7 @@ same tool.
 
 ## Account
 
-Run under the `nlm` **`company`** profile — `xFactor001@opensoft.one`, the
+Run under the `nlm` **`company`** profile — `<service-account-identity>`, the
 account that has owned the xFactory books since the 2026-08-24 migration and
 the one `examples/notebook-projection-hosting.yaml` declares
 (`hosting.nlm_profile: company`, `migration.state: complete`). This is not a
@@ -146,7 +146,7 @@ profile is anything else (`enforce_hosting_profile()`,
 Identify the account by the **books it shows** (a notebook list containing
 "xFactory — Canon" etc.), and note that the sync also checks the ADDRESS, not
 only the profile name: `profiles/company/metadata.json` records
-`email: xFactor001@opensoft.one` — set from the vault-held username during the
+`email: <service-account-identity>` — set from the vault-held username during the
 migration, because the harness wrote that field null then — and a name pointed
 at some other account is refused too (`profile_account()`, :2035-2051; refusal
 at :2285-2292). Do NOT assume a named account (e.g. `farheap`); a profile
@@ -162,7 +162,7 @@ estate. Fix (b) — the sync refusing a null-address hosting profile outright �
 is **not** implemented and remains a ruling to take, so a store that has never
 recorded an address still runs on the profile NAME alone.
 
-**The `personal` profile is now the LEGACY account** (`brettheap@gmail.com`).
+**The `personal` profile is now the LEGACY account** (`<convener-personal-mailbox>`).
 It is kept to READ what stayed behind — the seven archive-renamed legacy
 notebooks, and the two live session notebooks that step 5 of the migration HELD
 on that account ([migration
@@ -191,7 +191,7 @@ account in `opensoft.one` — but THIS operational item stays open, because
 it closes on the eventual change's realization, not on the rulings.
 
 RATIFIED and REALIZED 2026-08-23 as `add-notebook-projection-identity`, except
-for the migration itself. The declared account is `xFactor001@opensoft.one`;
+for the migration itself. The declared account is `<service-account-identity>`;
 the declaration lives in `examples/notebook-projection-hosting.yaml`, and the
 sync now refuses to run against an account nobody declared. THIS ITEM STAYS
 OPEN by its own terms: it closes on the migration, which is gated on an
@@ -212,7 +212,7 @@ is the "Strategic direction" above, read literally: the account moved, but the
 
 Three grounds, all still true:
 
-1. Google's sign-in for `xFactor001@opensoft.one` is an **interactive browser
+1. Google's sign-in for `<service-account-identity>` is an **interactive browser
    flow**. There is no unattended path today.
 2. **`nlm login` is broken upstream** by the notebook.google.com rebrand — the
    CLI's `_is_notebooklm_url()` allow-list accepts only `notebooklm.google.com`
@@ -254,7 +254,7 @@ liveness cannot be proven cross-checkout. Wants its own change; noted in the
 3. Get a live session via full CDP extraction, using the harness, INTO THE
    `company` PROFILE — either
    `python .../nlm_auth.py bootstrap --profile company --channel chrome`
-   (sign in as `xFactor001@opensoft.one` once; either NotebookLM URL is fine,
+   (sign in as `<service-account-identity>` once; either NotebookLM URL is fine,
    the old one redirects), or connect to an already-signed-in Chrome with
    `... refresh --profile company --cdp-url http://127.0.0.1:9444`, which is
    how the 2026-08-24 migration authenticated. Pass `--profile` explicitly: it
@@ -290,14 +290,14 @@ liveness cannot be proven cross-checkout. Wants its own change; noted in the
    #543 and is **NOT** implemented: it hard-blocks every operator whose store
    legitimately has no recorded address, so it is a ruling, not a cleanup.
    **The failure this prevents:** authenticate the `company` store as the wrong
-   account — most plausibly the legacy `brettheap@gmail.com`, which still holds
+   account — most plausibly the legacy `<convener-personal-mailbox>`, which still holds
    the seven archive-renamed xFactory-titled notebooks — and step 7's `--apply`
    sends its additions AND its deletions into that estate.
 
    Read the field back:
 
    ```bash
-   nlm login profile list     # expect: company: xFactor001@opensoft.one
+   nlm login profile list     # expect: company: <service-account-identity>
    ```
 
    If it prints `Unknown`, the store never had an address and the harness
@@ -311,7 +311,7 @@ liveness cannot be proven cross-checkout. Wants its own change; noted in the
    import json, pathlib
    p = pathlib.Path.home() / ".notebooklm-mcp-cli/profiles/company/metadata.json"
    m = json.loads(p.read_text())
-   m["email"] = "xFactor001@opensoft.one"
+   m["email"] = "<service-account-identity>"
    p.write_text(json.dumps(m, indent=2) + "\n")
    p.chmod(0o600)
    PY

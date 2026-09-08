@@ -1,5 +1,7 @@
 # lifecycle-notebook-projection (delta) — add-notebook-projection-identity
 
+> REDACTED 2026-09-07: email addresses -> role placeholders per `review/redaction-disposition-2026-09-07.md`; original bytes at 543d47a9.
+
 ## ADDED Requirements
 
 ### Requirement: The projection's hosting identity is declared at install
@@ -14,7 +16,7 @@ An install that declares NOTHING is NONCONFORMING with this requirement — a tr
 #### Scenario: An operating party declares the company account
 - **WHEN** an install's intake declares operator-hosted and names a Google Workspace user account in the operating party's own domain
 - **THEN** the declaration is valid, and every book, alias and session notebook of that install is created under the named account
-- **AND** Opensoft's own install is such a declaration, naming `xFactor001@opensoft.one`
+- **AND** Opensoft's own install is such a declaration, naming `<service-account-identity>`
 
 #### Scenario: An individual installer keeps their own books
 - **WHEN** a person installs the system for themselves and declares self-hosted against their own personal Google account

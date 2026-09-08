@@ -75,7 +75,7 @@ Core domain-neutral docs:
 - [Architecture](docs/architecture.md)
 - [Terminology And Repository Topology](docs/terminology-and-repo-topology.md)
 - [openXdox — Capability Naming Record](docs/openxdox-naming.md) (the neutral review-and-disposition workbench; handle `dox`, surface `doxBench`)
-- [omniWorker — Product And Machine Naming Record](docs/omniworker-naming.md) (the worker-host product; repository `OmniWorker-Install`, machine keys `omniworker`, Cloud PC template `CPC-OXF-%USERNAME:7%`)
+- [omniWorker — Product And Machine Naming Record](docs/omniworker-naming.md) (the worker-host product; repository `OmniWorker-Install`, machine keys `omniworker`; Cloud PC template `%USERNAME:7%-%RAND:5%`, rendering `Omni001-XEAON` — **amended 2026-09-08, see that record's Amendments § A1**, which supersedes the `CPC-OXF-%USERNAME:7%` this line carried: Windows 365 requires a random `%RAND:y%` segment in every device-name template)
 - [openXdox Dispatch-Credential Binding Runbook](docs/openxdox-dispatch-credential-binding.md) (operator-hosted vs self-hosted binding for the intent-plane dispatch credential)
 - [Party Ladder](docs/party-ladder.md) (author/operator → tenant → subject → third parties; frozen-word reading rules)
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
@@ -734,83 +734,6 @@ Active changes:
   riding GitHub's redirect) are RULED; OQ-4 (GHCR sequencing) and OQ-6
   (canonical case spelling) remain OPEN and owe a convener word before any task
   box is ticked.**
-- [publish-openspec-cli-pin-as-contract-member](openspec/changes/publish-openspec-cli-pin-as-contract-member/proposal.md)
-  — authored 2026-09-07, **`Status: ratified`** (2026-09-07, Brett Heap,
-  openxFactory operator authority, in-session, *"merge 72 when green, then
-  ratify the A packet"*, recorded on #754 at 2026-09-07T14:27:55Z; records
-  `openspec/changes/publish-openspec-cli-pin-as-contract-member/review/ratification-2026-09-07.md`
-  and
-  `openspec/changes/publish-openspec-cli-pin-as-contract-member/review/verification-2026-09-07.md`).
-  `.openspec.yaml` keeps the drafting provenance it was authored with and the
-  approval pair is ADDED beside it —
-  `kind`, `id` and `reason` unmoved, the addition-not-rewrite shape
-  `add-drafted-proposal-origin` defined. Lane `openxfactory-1`. Half **A** of
-  the estate-wide OpenSpec CLI pin rollout governed by issue
-  [#754](https://github.com/opensoft/openxFactory/issues/754), which records
-  Brett Heap's two earlier rulings of 2026-09-07 — rollout *"Hybrid A+B"* and
-  lane scope *"openxFactory only; siblings via their lanes"*. Those rulings
-  admit the work and fix its scope; they ratify no text and take no design
-  decision — an ORIGIN, not an approval, and the ratification is the separate
-  act above. **THE GAP IS PUBLICATION, NOT ENFORCEMENT.** The gate is already
-  ratified and running — `add-openspec-cli-pin` requires a consuming repository
-  to invoke the pinned entrypoint FROM the pinned openxFactory checkout and to
-  name that version in its `stack.yaml` — but `contracts/openspec-cli-pin.yaml`
-  is registered in NEITHER `contracts/manifest.yaml` NOR `contracts/README.md`,
-  so the one file that says which tool decides what canon is, is absent from the
-  register `scripts/validate-manifest-digests.py`'s own docstring calls *"what
-  cross-repo consumers read to verify the bytes they pin"*. Its two siblings,
-  `openxwallet-pin.yaml` and `openreposhape-pin.yaml`, are unregistered too: the
-  pin CLASS has never been published. **2 ADDED requirements** on
-  `neutral-product-pin` — R1, a consumption pin another repository reads is a
-  published contract member adopted by pin-sync (never copied; a PRECONDITION on
-  the normal case — a consumer whose `contract_ref` predates `1d8cd54e` cannot
-  perform the read and owes a pin-sync, which is where MedxFactory, AdxFactory
-  and LedgerxFactory stand today; ONE declared fallback for a repository with no
-  stack pin, which is B of #754 and whose first realized instance is
-  xFactory-Hermes-Install PR #72, merged `06c9083d` — **not** OpsxFactory, which
-  has a stack pin, copies nothing and is the NORMAL case in hardened form; and
-  the clause pricing the fallback against the promoted requirement *A required
-  check runs the pinned tool, at the pinned digest*, whose enforcement claim
-  stays UNMET while a declared copy stands); R2, registering a pin in the
-  consumption register is not a bundle cut unless it moves the release
-  membership, with the measurement owed by the registering author. No
-  `## MODIFIED` and no
-  `## REMOVED`: the requirement a modification would land on is under an ACTIVE
-  `## MODIFIED` block held by `add-openspec-cli-pin`, which has not archived.
-  `sequenced_after: [add-openspec-cli-pin]` — and the second entry it would
-  carry is UNWRITEABLE, which is a finding the packet records rather than works
-  around: `scripts/validate-sequenced-after.py` admits no change id containing a
-  `.`, and `bump-openspec-cli-pin-to-1.12`'s own id carries one, so no change in
-  this repository can order itself behind it by any spelling.
-  **REALIZED IN THE SAME PULL REQUEST, IN TWO EDITORIAL FILES**: one
-  `contracts/manifest.yaml` row (`type: pin`, no `sha256`, a never-copy
-  `consumption_rule` on `domain-factory-conformance-validator`'s precedent) and
-  `contracts/README.md`'s matching index row plus a new consumer-facing section,
-  *Gating archives on the pinned CLI from a consumer repository*. **THE VETO
-  POINT WAS `design.md` D1 — PUT, AND NOT VETOED** — A-defer against A-cut, and
-  **A-defer is ratified AS DESIGNED** on a measurement: `release_membership(.)`
-  reads **283 before and 283 after**, the pin absent from both, because
-  membership is a closed set that never walks the manifest's `contracts:` list;
-  both edited files are EDITORIAL members whose movement between cuts
-  `release-surface-integrity` declares expected, so no bundle is spent and no
-  tag is owed. **A-defer's cost is ratified with it**: the
-  `contracts/CHANGELOG.md` entry naming this registered contract is OWED AT THE
-  NEXT CUT (`tasks.md` § 5.7). A-cut (`contract-v3.5` here, tag owed after the
-  merge) was written out with four costs and **was NOT chosen**, so this pull
-  request cuts nothing, allocates no version and owes no tag — a cut remains an
-  act on a word not given; and a third option, A-member (adding the pin to the
-  derived membership in `release.py`, 283 → 285), stands recorded as not taken
-  rather than foreclosed. `release-tag-gate` DOES run (the diff touches
-  `contracts/manifest.yaml`) and passes: `contract-v3.4` is published, an
-  annotated tag peeling to `807a4f47`, and `contract_bundle_version` does not
-  move. A second, smaller veto point, **D2** — the row carrying no `sha256` —
-  was carried separately and **was not vetoed either**; its residual coupling
-  (the row quotes the entrypoint path and nothing compares it with the pin's own
-  `consumer_entrypoint:`) is ratified as DISCLOSED, owed at `tasks.md` § 5.4.
-  Under `release-realization` the packet still archives on merged-plus-green
-  realization evidence rather than on landing, on a separate word. **B of #754 —
-  the three no-lane repositories — is NOT performed here**, and no sibling's
-  adoption is claimed.
 
 - [extend-merge-master-envelope-to-floor-bot-lanes](openspec/changes/extend-merge-master-envelope-to-floor-bot-lanes/proposal.md)
   — authored 2026-09-07, **`Status: ratified`** (2026-09-07, Brett Heap
@@ -998,7 +921,22 @@ Active changes:
   Windows limit and was therefore never applied to any machine** (Windows 365
   silently used its default `CPC-%USERNAME:5%-%RAND:5%`, which is where
   `CPC-Omni0-P5AJB` and `CPC-brett-TUBV0` come from); that doc fix ships as a
-  sibling PR against CloudPC-Install. TEN open questions are PUT, not answered
+  sibling PR against CloudPC-Install. **[Amended 2026-09-08 — the machine ruling
+  recorded immediately above was superseded by Brett Heap's own later ruling;
+  the correction lives in `docs/omniworker-naming.md` § Amendments A1, not in a
+  rewrite of this entry. Windows 365 requires a random `%RAND:y%` segment in
+  every device-name template (`%RAND:2%` measured too short, `%RAND:5%`
+  accepted) and does not rename a Cloud PC after provisioning, so
+  `CPC-OXF-%USERNAME:7%` could not be set and `CPC-OXF-Omni001` was never
+  attainable; the template in force is `%USERNAME:7%-%RAND:5%`, omni001
+  rendered `Omni001-XEAON` (Entra device
+  `cf287ce7-7f73-4da7-adfb-c501bd7dd670`), and Brett Heap ruled "Accept
+  Omni001-XEAON" (2026-09-05 ~22:50Z, opensoft/openxFactory#591). The
+  dispositions are recorded in this packet's `tasks.md` § 5 via
+  opensoft/openxFactory#773 → `bd263dca`. The `XFACTORY-OMNI001` finding stands
+  unchanged. The OpsxFactory fleet re-attestation this entry records as OWED has
+  since LANDED — opensoft/OpsxFactory#233 → `83a91c58`.]** TEN open questions are
+  PUT, not answered
   — among them the in-flight `Omnigent-Install` change
   `add-worker-enrollment-broker-integration` (PR #40), whose two lawful
   sequences are stated with their costs and neither chosen, and the live GitHub
@@ -2778,6 +2716,80 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [publish-openspec-cli-pin-as-contract-member](openspec/changes/archive/2026-09-08-publish-openspec-cli-pin-as-contract-member/proposal.md)
+  — **ARCHIVED 2026-09-08**, on Brett Heap's separate word (in session,
+  verbatim *"archive the A packet when green"*, recorded and claimed on issue
+  [#754](https://github.com/opensoft/openxFactory/issues/754)) and the
+  `release-realization` rule its own front matter names: `code_surface` is
+  NON-EMPTY (`openxFactory — TWO EDITORIAL FILES AND NOTHING ELSE`), so the
+  packet archives on **merged-plus-green realization evidence, not on landing**,
+  and `target_release: none`. **THE EVIDENCE, BOTH HALVES, CITED RATHER THAN
+  ASSERTED:** ratified and realized in one pull request, **PR
+  [#757](https://github.com/opensoft/openxFactory/pull/757) → merge
+  `a5940811`** (2026-09-07T19:22:23Z; ratifying commit `05a9db8b`; records
+  `review/ratification-2026-09-07.md` and `review/verification-2026-09-07.md`);
+  and `pytest-suite` runs
+  [34159620759](https://github.com/opensoft/openxFactory/actions/runs/34159620759)
+  `success` on `7992b87a` and
+  [34173088424](https://github.com/opensoft/openxFactory/actions/runs/34173088424)
+  `success` on `bd263dca` — both `main` commits MEASURED to contain the merge
+  (`compare/a5940811...<sha>` answers `ahead` with `behind_by: 0`, 7 and 12
+  commits ahead) rather than merely later than it. Governing issue **#754**,
+  which stays **OPEN** as the rollout's governing record: this is an archive
+  act, not the end of the rollout.
+  **PROMOTED INTO `neutral-product-pin` CANON — TWO ADDED REQUIREMENTS,
+  BYTE-IDENTICAL TO THE ARCHIVED DELTA**: **R1**, *a consumption pin that
+  another repository reads is a PUBLISHED contract member, adopted by pin-sync*
+  (9,462 bytes, **seven** scenarios), and **R2**, *registering a pin in the
+  consumption register is not a bundle cut unless it moves the release
+  membership* (2,917 bytes, **three** scenarios). Both blocks were extracted
+  programmatically from delta and canon and hashed: identical on both sides.
+  The capability goes **9 → 11 requirements**; **no file is added under
+  `openspec/specs/`, so no codexFactory floor advance is owed**.
+  **THE `## Purpose` WAS WIDENED IN THIS ARCHIVE, AND THE WIDENING WAS DECLARED
+  OWED AT THE ARCHIVE BY THE RATIFIED PACKET ITSELF** (`tasks.md` § 5.8,
+  `review/ratification-2026-09-07.md` § 4 item 8): the promoted Purpose framed
+  the capability in one direction — openxFactory as the CONSUMER of an external
+  neutral product — with one reverse clause for a neutral product vendoring an
+  openxFactory contract, and R1 adds a THIRD. **ONE SENTENCE** was appended,
+  written from R1's and R2's own words and mirroring the file's own precedent
+  construction *"It also carries the reverse direction — …"*, in a hunk
+  separate from the promotion; no other clause in that block is reworded,
+  reordered or removed, and no promoted requirement's text is edited by it.
+  **§ 5's NINE BOXES TICK ON THE RECORDING**, under Brett Heap's ruling of
+  2026-09-06 (verbatim *"Tick on the recording"*), and each box says which kind
+  of tick it is. § 5.1 and § 5.5 tick **on the evidence** — rollout B's three
+  landed merge commits (xFactory-Hermes-Install #72 → `06c9083d`, openXwallet
+  #21 → `b7c6e0b8`, Omnigent-Install #241 → `47454e0a`, each with its readiness
+  predecessor) and the archive evidence above. § 5.2 ticks on **#754 itself**,
+  the estate-wide adoption tracker, which enumerates the three stack-pin
+  consumers standing behind entrypoint commit `1d8cd54e` (MedxFactory and
+  AdxFactory at `6c03d783`, LedgerxFactory at `af7ac0fa`), OpsxFactory's shadow
+  gate and the Hermes copy's per-file digest. § 5.3, § 5.4, § 5.6, § 5.7 and
+  § 5.9 tick on **five issues filed at this archive, all UNCLAIMED** —
+  [#775](https://github.com/opensoft/openxFactory/issues/775) (the two sibling
+  pins are unregistered members too),
+  [#776](https://github.com/opensoft/openxFactory/issues/776) (a registration is
+  not a check: the owed checker, including D2's uncompared
+  `consumption_rule`/`consumer_entrypoint:` coupling),
+  [#777](https://github.com/opensoft/openxFactory/issues/777) (no
+  `sequenced_after:` entry can name a change id containing a `.`; the class is
+  TWO active changes, and the three exits stay unruled),
+  [#778](https://github.com/opensoft/openxFactory/issues/778) (the
+  `contracts/CHANGELOG.md` entry owed at the NEXT CUT, A-defer's ratified cost)
+  and [#779](https://github.com/opensoft/openxFactory/issues/779) (the pin
+  file's own header names an archive verb its entrypoint lacks, out of scope
+  per `design.md` D7). § 5.8 ticks **on the doing**. **NO TICK CLAIMS WORK THAT
+  WAS NOT DONE**, and the ratified text of every box is carried verbatim
+  beneath its archive-time clause.
+  **THE ARCHIVE MOVES NO REGISTER AND CUTS NOTHING.** `contracts/manifest.yaml`,
+  `contracts/README.md`, `contracts/openspec-cli-pin.yaml` and
+  `contracts/releases/**` are untouched by this act — the registration landed in
+  #757 — so the two editorial `release-inventory-drift` `info` findings are
+  unchanged, `contract_bundle_version` does not move, and no version is
+  allocated or reserved. Both origin gates were RETAINED against the ratifying
+  commit `05a9db8b`.
+
 - [amend-absent-changelog-is-an-answer](openspec/changes/archive/2026-09-07-amend-absent-changelog-is-an-answer/proposal.md)
   — **ARCHIVED 2026-09-07**, on Brett Heap's separate word of the same day (in
   session, verbatim *"archive 753 when green"*, recorded and claimed on issue
@@ -4152,9 +4164,9 @@ Archived changes:
   2026-08-31 — the Gmail grantee is DROPPED and the second reader is not wanted,
   consistent with his 2026-08-27 wind-down (the legacy books wound down by owner
   deletion) and his 2026-08-24 sole-grantor posture; the provider's account-level
-  refusal of `brett.heap@gmail.com` (both spellings, `API error (code 7)`)
+  refusal of `<convener-personal-mailbox>` (both spellings, `API error (code 7)`)
   survives as a FINDING rather than a debt, and the seven verified
-  `brett.heap@farheap.com` editor grants are the satisfying set. **§ 5.1 archives
+  `<convener-workspace-identity>` editor grants are the satisfying set. **§ 5.1 archives
   STANDING AS A DISPOSITION and is deliberately NOT ticked** — unattended
   re-authentication does not exist (interactive Google sign-in; `nlm login` broken
   upstream by the notebook.google.com rebrand, whose `_is_notebooklm_url()`
@@ -4200,7 +4212,7 @@ Archived changes:
   account in the operating party's own domain) or self-hosted/personal, both
   legitimate. A Google USER account is a platform constraint, not a preference —
   NotebookLM has no API and a service account cannot drive its consumer web UI.
-  Opensoft declares Case A on `xFactor001@opensoft.one` (confirmed by Brett
+  Opensoft declares Case A on `<service-account-identity>` (confirmed by Brett
   2026-08-23, who also authorized raising this change). The sync runs under the
   declared account's profile; access is shared out FROM that account and never
   by handing out its credentials; a governed manual approval act WRITES the

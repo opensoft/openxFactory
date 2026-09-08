@@ -6,9 +6,9 @@ Repository context: openxFactory
 
 **GENERATED FILE — do not edit by hand.** This is a deterministic Markdown projection of the source-of-truth `ideation/cross-reference.yaml`, produced by `scripts/render-ideation-cross-reference.py`. Edit the YAML and re-render; per the `add-ideation-cross-reference-readiness` spec the index is a generated projection over governed documents. See `ideation/README.md` for how this surface relates to the promoted requirements and to `staging/INDEX.md`.
 
-- Source revision: `4e57009c0a1aed9bdbe3c0f6cc5ca948e15ec8cc`
+- Source revision: `50959c1831362d1f36dcc6bad19642bb5af5149f`
 - Generator: `ideation-xref-scorer-0.1.0`
-- Topic clusters: 290
+- Topic clusters: 295
 
 ## Accessibility
 
@@ -40,34 +40,19 @@ Repository context: openxFactory
 | `ideation/brainstorm/crystallization-accounting.md` | staged | accounting |
 | `ideation/brainstorm/crystallization-synthesis-steward.md` | staged | accounting |
 
-## Activation Gate
+## Adxdox
 
-- id: `cl-activation-gate`
-- topics: activation-gate
+- id: `cl-adxdox`
+- topics: adxdox, domain-mappings, ledgerxdox
 - tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-activation-gate); company unscored (worker failed: no remote result collected for cl-activation-gate); project unscored (worker failed: no remote result collected for cl-activation-gate)
+- readiness: domain unscored (worker failed: no remote result collected for cl-adxdox); company unscored (worker failed: no remote result collected for cl-adxdox); project unscored (worker failed: no remote result collected for cl-adxdox)
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/nightly-sweep-council-clearance-rule.md` | brainstorm | activation-gate |
-| `ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md` | staged | activation-gate |
-| `ideation/staging/tier2-council-clearance-pattern/tier2-council-clearance-pattern.md` | staged | activation-gate |
-
-## Adoption Profile
-
-- id: `cl-adoption-profile`
-- topics: adoption-profile
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-adoption-profile); company unscored (worker failed: no remote result collected for cl-adoption-profile); project unscored (worker failed: no remote result collected for cl-adoption-profile)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-memory-and-practices.md` | brainstorm | adoption-profile |
-| `ideation/brainstorm/domain-practice-suggestion-generation.md` | brainstorm | adoption-profile |
+| `ideation/brainstorm/opendox-domain-mappings.md` | brainstorm | adxdox, domain-mappings, ledgerxdox |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | adxdox, domain-mappings, ledgerxdox |
 
 ## Agent Assisted App Testing
 
@@ -132,33 +117,19 @@ Repository context: openxFactory
 | `ideation/brainstorm/agent-certification-wallets.md` | brainstorm | agent-identity, did, verifiable-credentials |
 | `ideation/staging/agent-wallet-identity/agent-wallet-identity.md` | staged | agent-identity, did, verifiable-credentials |
 
-## Agent Mixes
+## Aggregate Budget
 
-- id: `cl-agent-mixes`
-- topics: agent-mixes
+- id: `cl-aggregate-budget`
+- topics: aggregate-budget
 - tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-agent-mixes); company unscored (worker failed: no remote result collected for cl-agent-mixes); project unscored (worker failed: no remote result collected for cl-agent-mixes)
+- readiness: domain unscored (worker failed: no remote result collected for cl-aggregate-budget); company unscored (worker failed: no remote result collected for cl-aggregate-budget); project unscored (worker failed: no remote result collected for cl-aggregate-budget)
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-deliberation.md` | brainstorm | agent-mixes |
-| `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | agent-mixes |
-
-## Agent Roster
-
-- id: `cl-agent-roster`
-- topics: agent-roster
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-agent-roster); company unscored (worker failed: no remote result collected for cl-agent-roster); project unscored (worker failed: no remote result collected for cl-agent-roster)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/agent-assisted-app-testing-ui-specialist-separation.md` | brainstorm | agent-roster |
-| `ideation/brainstorm/codexfactory-domain-hermes-content.md` | brainstorm | agent-roster |
+| `ideation/brainstorm/omni-unattended-worker-aggregate-budget-and-owner-controls.md` | brainstorm | aggregate-budget |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-sandboxed-execution.md` | brainstorm | aggregate-budget |
 
 ## Approved Ui Source
 
@@ -223,6 +194,20 @@ Repository context: openxFactory
 | `ideation/brainstorm/governed-recursive-inference-task-family.md` | brainstorm | authority-conservation |
 | `ideation/brainstorm/polyglot-graph-memory-projection-authority.md` | brainstorm | authority-conservation |
 
+## Authority Object Lifetimes
+
+- id: `cl-authority-object-lifetimes`
+- topics: authority-object-lifetimes
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-authority-object-lifetimes); company unscored (worker failed: no remote result collected for cl-authority-object-lifetimes); project unscored (worker failed: no remote result collected for cl-authority-object-lifetimes)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/omni-unattended-worker-authority-object-lifetimes.md` | brainstorm | authority-object-lifetimes |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-device-trust-plane.md` | brainstorm | authority-object-lifetimes |
+
 ## Authority Personas
 
 - id: `cl-authority-personas`
@@ -236,12 +221,8 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/client-layer-roster-draft.md` | brainstorm | authority-personas |
 | `ideation/brainstorm/client-synthesis-authority-and-policy.md` | brainstorm | authority-personas |
-| `ideation/brainstorm/codexfactory-domain-hermes-content.md` | brainstorm | authority-personas |
-| `ideation/brainstorm/codexfactory-domain-roster-draft.md` | brainstorm | authority-personas |
-| `ideation/brainstorm/codexfactory-domain-synthesis-authority-and-deliberation.md` | brainstorm | authority-personas |
 | `ideation/brainstorm/hermes-persona-character-model.md` | brainstorm | authority-personas |
 | `ideation/brainstorm/hermes-synthesis-layer-content-and-authority.md` | brainstorm | authority-personas |
-| `ideation/brainstorm/medxfactory-domain-roster-draft.md` | brainstorm | authority-personas |
 
 ## Auto Clear Envelope
 
@@ -256,10 +237,9 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/client-layer-content-draft.md` | brainstorm | auto-clear-envelope |
 | `ideation/brainstorm/client-policy-wizard.md` | brainstorm | auto-clear-envelope |
-| `ideation/brainstorm/nightly-sweep-council-clearance-rule.md` | brainstorm | auto-clear-envelope |
 | `ideation/brainstorm/practice-adoption-overview.md` | brainstorm | auto-clear-envelope |
 | `ideation/brainstorm/practice-clearance-and-project-realization.md` | brainstorm | auto-clear-envelope |
-| `ideation/staging/client-layer-tuning/client-layer-tuning.md` | staged | auto-clear-envelope |
+| `ideation/staging/client-layer-tuning/client-layer-tuning.md` | superseded | auto-clear-envelope |
 | `ideation/staging/tier2-council-clearance-pattern/tier2-council-clearance-pattern.md` | staged | auto-clear-envelope |
 
 ## Automation Ladder
@@ -277,20 +257,6 @@ Repository context: openxFactory
 | `ideation/brainstorm/crystallization-overview.md` | staged | automation-ladder |
 | `ideation/brainstorm/crystallization-synthesis-crystallizer.md` | staged | automation-ladder |
 | `ideation/staging/recurrence-crystallization/recurrence-crystallization.md` | staged | automation-ladder |
-
-## Autonomous Approval
-
-- id: `cl-autonomous-approval`
-- topics: autonomous-approval, doc-health-sweep, tier-2
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-autonomous-approval); company unscored (worker failed: no remote result collected for cl-autonomous-approval); project unscored (worker failed: no remote result collected for cl-autonomous-approval)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/nightly-sweep-council-clearance-rule.md` | brainstorm | autonomous-approval, doc-health-sweep, tier-2 |
-| `ideation/staging/tier2-council-clearance-pattern/tier2-council-clearance-pattern.md` | staged | autonomous-approval, doc-health-sweep, tier-2 |
 
 ## Autonomous Experience Management
 
@@ -336,7 +302,6 @@ Repository context: openxFactory
 | `ideation/brainstorm/avatar-live-voice-overview.md` | brainstorm | avatar-client |
 | `ideation/brainstorm/avatar-live-voice-synthesis-brokered-path.md` | brainstorm | avatar-client |
 | `ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md` | staged | avatar-client |
-| `ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md` | staged | avatar-client |
 
 ## Avatar First Ui
 
@@ -381,6 +346,20 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/tech-stack-benches.md` | brainstorm | bench-manifest, cloudpc, dtn-candidate |
 | `ideation/staging/worker-host-app/worker-host-app.md` | staged | bench-manifest, cloudpc, dtn-candidate |
+
+## Branch Session
+
+- id: `cl-branch-session`
+- topics: branch-session
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-branch-session); company unscored (worker failed: no remote result collected for cl-branch-session); project unscored (worker failed: no remote result collected for cl-branch-session)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/doxbench-governed-persistence.md` | brainstorm | branch-session |
+| `ideation/brainstorm/opendox-core-product.md` | brainstorm | branch-session |
 
 ## Branch Sessions
 
@@ -525,20 +504,6 @@ Repository context: openxFactory
 | `ideation/brainstorm/agent-assisted-app-testing-spec-safety.md` | brainstorm | change-safety |
 | `ideation/brainstorm/agent-assisted-app-testing-synthesis-human-control-and-safety.md` | brainstorm | change-safety |
 
-## Character Model
-
-- id: `cl-character-model`
-- topics: character-model
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-character-model); company unscored (worker failed: no remote result collected for cl-character-model); project unscored (worker failed: no remote result collected for cl-character-model)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-roster-draft.md` | brainstorm | character-model |
-| `ideation/brainstorm/hermes-persona-character-model.md` | brainstorm | character-model |
-
 ## Chromium Render Manifest
 
 - id: `cl-chromium-render-manifest`
@@ -566,6 +531,23 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/hermes-recursive-subject-establishment-claim-lineage-and-reconciliation.md` | brainstorm | claim-lineage |
 | `ideation/brainstorm/hermes-recursive-subject-establishment-synthesis-evidence-and-model.md` | brainstorm | claim-lineage |
+
+## Clearing Dispatch
+
+- id: `cl-clearing-dispatch`
+- topics: clearing-dispatch
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-clearing-dispatch); company unscored (worker failed: no remote result collected for cl-clearing-dispatch); project unscored (worker failed: no remote result collected for cl-clearing-dispatch)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/omni-unattended-worker-credential-reach-and-contribution-repository.md` | brainstorm | clearing-dispatch |
+| `ideation/brainstorm/omni-unattended-worker-ephemeral-runner-attempt-grant.md` | brainstorm | clearing-dispatch |
+| `ideation/brainstorm/omni-unattended-worker-overview.md` | brainstorm | clearing-dispatch |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-governed-dispatch.md` | brainstorm | clearing-dispatch |
+| `ideation/brainstorm/omni-unattended-worker-three-policy-gates.md` | brainstorm | clearing-dispatch |
 
 ## Client
 
@@ -614,7 +596,7 @@ Repository context: openxFactory
 | `ideation/brainstorm/hermes-legal-compliance-model.md` | brainstorm | client-hermes |
 | `ideation/brainstorm/workflow-visualization-tooling.md` | staged | client-hermes |
 | `ideation/staging/client-credential-escrow-registry/client-credential-escrow-registry.md` | staged | client-hermes |
-| `ideation/staging/client-layer-tuning/client-layer-tuning.md` | staged | client-hermes |
+| `ideation/staging/client-layer-tuning/client-layer-tuning.md` | superseded | client-hermes |
 
 ## Client Layer
 
@@ -631,34 +613,6 @@ Repository context: openxFactory
 | `ideation/brainstorm/client-layer-scaffold.md` | brainstorm | client-layer |
 | `ideation/brainstorm/client-policy-wizard.md` | brainstorm | client-layer |
 
-## Clinical Authority
-
-- id: `cl-clinical-authority`
-- topics: clinical-authority
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-clinical-authority); company unscored (worker failed: no remote result collected for cl-clinical-authority); project unscored (worker failed: no remote result collected for cl-clinical-authority)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/medical-domain-clinical-authority-boundary.md` | brainstorm | clinical-authority |
-| `ideation/brainstorm/medical-domain-synthesis-clinical-execution.md` | brainstorm | clinical-authority |
-
-## Clinical Roster
-
-- id: `cl-clinical-roster`
-- topics: clinical-roster, mxd-mrr
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-clinical-roster); company unscored (worker failed: no remote result collected for cl-clinical-roster); project unscored (worker failed: no remote result collected for cl-clinical-roster)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/medxfactory-domain-roster-draft.md` | brainstorm | clinical-roster, mxd-mrr |
-| `ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md` | staged | clinical-roster, mxd-mrr |
-
 ## Codebase Memory Mcp
 
 - id: `cl-codebase-memory-mcp`
@@ -673,6 +627,22 @@ Repository context: openxFactory
 | `ideation/brainstorm/polyglot-graph-memory-omnigent-code-intelligence.md` | brainstorm | codebase-memory-mcp, codegraph |
 | `ideation/brainstorm/polyglot-graph-memory-overview.md` | brainstorm | codebase-memory-mcp, codegraph |
 
+## Codexdox
+
+- id: `cl-codexdox`
+- topics: codexdox
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-codexdox); company unscored (worker failed: no remote result collected for cl-codexdox); project unscored (worker failed: no remote result collected for cl-codexdox)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/opendox-domain-mappings.md` | brainstorm | codexdox |
+| `ideation/brainstorm/opendox-openxdox-boundary.md` | brainstorm | codexdox |
+| `ideation/brainstorm/opendox-synthesis-install-and-tenancy.md` | brainstorm | codexdox |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | codexdox |
+
 ## Codexfactory
 
 - id: `cl-codexfactory`
@@ -684,42 +654,12 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-deliberation.md` | brainstorm | codexfactory |
-| `ideation/brainstorm/codexfactory-domain-hermes-content.md` | brainstorm | codexfactory |
-| `ideation/brainstorm/codexfactory-domain-memory-and-practices.md` | brainstorm | codexfactory |
-| `ideation/brainstorm/codexfactory-domain-overview.md` | brainstorm | codexfactory |
-| `ideation/brainstorm/codexfactory-domain-policy-model.md` | brainstorm | codexfactory |
-| `ideation/brainstorm/codexfactory-domain-roster-draft.md` | brainstorm | codexfactory |
-| `ideation/brainstorm/codexfactory-domain-synthesis-authority-and-deliberation.md` | brainstorm | codexfactory |
-| `ideation/brainstorm/codexfactory-domain-synthesis-policy-and-memory.md` | brainstorm | codexfactory |
 | `ideation/brainstorm/crystallization-build-pipeline.md` | staged | codexfactory |
 | `ideation/brainstorm/crystallization-synthesis-crystallizer.md` | staged | codexfactory |
 | `ideation/brainstorm/governed-recursive-inference-domain-pilots.md` | brainstorm | codexfactory |
 | `ideation/brainstorm/governed-recursive-inference-synthesis-adoption-and-councils.md` | brainstorm | codexfactory |
-| `ideation/brainstorm/nightly-sweep-council-clearance-rule.md` | brainstorm | codexfactory |
 | `ideation/brainstorm/tenant-project-catalog-and-workstation-cache.md` | brainstorm | codexfactory |
-| `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | codexfactory |
 | `ideation/staging/tier2-council-clearance-pattern/tier2-council-clearance-pattern.md` | staged | codexfactory |
-
-## Codexfactory Domain
-
-- id: `cl-codexfactory-domain`
-- topics: codexfactory-domain
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-codexfactory-domain); company unscored (worker failed: no remote result collected for cl-codexfactory-domain); project unscored (worker failed: no remote result collected for cl-codexfactory-domain)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-deliberation.md` | brainstorm | codexfactory-domain |
-| `ideation/brainstorm/codexfactory-domain-hermes-content.md` | brainstorm | codexfactory-domain |
-| `ideation/brainstorm/codexfactory-domain-memory-and-practices.md` | brainstorm | codexfactory-domain |
-| `ideation/brainstorm/codexfactory-domain-overview.md` | brainstorm | codexfactory-domain |
-| `ideation/brainstorm/codexfactory-domain-policy-model.md` | brainstorm | codexfactory-domain |
-| `ideation/brainstorm/codexfactory-domain-roster-draft.md` | brainstorm | codexfactory-domain |
-| `ideation/brainstorm/codexfactory-domain-synthesis-authority-and-deliberation.md` | brainstorm | codexfactory-domain |
-| `ideation/brainstorm/codexfactory-domain-synthesis-policy-and-memory.md` | brainstorm | codexfactory-domain |
 
 ## Company Policy
 
@@ -737,7 +677,21 @@ Repository context: openxFactory
 | `ideation/brainstorm/client-layer-scaffold.md` | brainstorm | company-policy |
 | `ideation/brainstorm/client-overview.md` | brainstorm | company-policy |
 | `ideation/brainstorm/client-synthesis-authority-and-policy.md` | brainstorm | company-policy |
-| `ideation/staging/client-layer-tuning/client-layer-tuning.md` | staged | company-policy |
+| `ideation/staging/client-layer-tuning/client-layer-tuning.md` | superseded | company-policy |
+
+## Compute First Model Placement
+
+- id: `cl-compute-first-model-placement`
+- topics: compute-first-model-placement
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-compute-first-model-placement); company unscored (worker failed: no remote result collected for cl-compute-first-model-placement); project unscored (worker failed: no remote result collected for cl-compute-first-model-placement)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/omni-unattended-worker-compute-first-model-placement.md` | brainstorm | compute-first-model-placement |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-governed-dispatch.md` | brainstorm | compute-first-model-placement |
 
 ## Conformance Gate
 
@@ -776,6 +730,8 @@ Repository context: openxFactory
 | `ideation/brainstorm/memory-retrieval-consent-enforcement.md` | brainstorm | consent |
 | `ideation/brainstorm/memory-retrieval-overview.md` | brainstorm | consent |
 | `ideation/brainstorm/memory-retrieval-synthesis-governed-recall.md` | brainstorm | consent |
+| `ideation/brainstorm/omni-unattended-worker-aggregate-budget-and-owner-controls.md` | brainstorm | consent |
+| `ideation/brainstorm/omni-unattended-worker-three-policy-gates.md` | brainstorm | consent |
 | `ideation/brainstorm/project-layer-scaffold.md` | brainstorm | consent |
 | `ideation/brainstorm/subject-recall-and-consent-path.md` | brainstorm | consent |
 | `ideation/staging/doxchat-auto-fit-routing/doxchat-auto-fit-routing.md` | staged | consent |
@@ -793,6 +749,20 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/governed-recursive-inference-typed-runtime.md` | brainstorm | containment, toolchain-bindings |
 | `ideation/brainstorm/tech-stack-benches.md` | brainstorm | containment, toolchain-bindings |
+
+## Containment Class
+
+- id: `cl-containment-class`
+- topics: containment-class
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-containment-class); company unscored (worker failed: no remote result collected for cl-containment-class); project unscored (worker failed: no remote result collected for cl-containment-class)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/omni-unattended-worker-executor-ladder.md` | brainstorm | containment-class |
+| `ideation/brainstorm/omni-unattended-worker-rootless-docker-hardening.md` | brainstorm | containment-class |
 
 ## Content Addressing
 
@@ -876,6 +846,20 @@ Repository context: openxFactory
 | `ideation/brainstorm/release-lifecycle-overview.md` | brainstorm | contract-release |
 | `ideation/brainstorm/release-lifecycle-synthesis-governed-promotion.md` | brainstorm | contract-release |
 
+## Corpus Adapter
+
+- id: `cl-corpus-adapter`
+- topics: corpus-adapter
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-corpus-adapter); company unscored (worker failed: no remote result collected for cl-corpus-adapter); project unscored (worker failed: no remote result collected for cl-corpus-adapter)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/opendox-openxdox-boundary.md` | brainstorm | corpus-adapter |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | corpus-adapter |
+
 ## Cost Accountability
 
 - id: `cl-cost-accountability`
@@ -894,7 +878,7 @@ Repository context: openxFactory
 | `ideation/brainstorm/governed-recursive-inference-budget-and-depth-control.md` | brainstorm | cost-accountability |
 | `ideation/brainstorm/governed-recursive-inference-model-topology-and-economics.md` | brainstorm | cost-accountability |
 | `ideation/brainstorm/governed-recursive-inference-overview.md` | brainstorm | cost-accountability |
-| `ideation/brainstorm/nightly-sweep-council-clearance-rule.md` | brainstorm | cost-accountability |
+| `ideation/brainstorm/omni-unattended-worker-aggregate-budget-and-owner-controls.md` | brainstorm | cost-accountability |
 | `ideation/brainstorm/omnigent-micro-agent-evaluation-and-economics.md` | brainstorm | cost-accountability |
 | `ideation/brainstorm/omnigent-micro-agent-foundations.md` | brainstorm | cost-accountability |
 | `ideation/brainstorm/practice-adoption-clearance-ledger.md` | brainstorm | cost-accountability |
@@ -943,35 +927,23 @@ Repository context: openxFactory
 | `ideation/brainstorm/contract-release-and-stack-surface.md` | brainstorm | credential-contracts |
 | `ideation/brainstorm/crystallization-authority-and-consent.md` | staged | credential-contracts |
 | `ideation/brainstorm/keycloak-identity-brokering.md` | staged | credential-contracts |
+| `ideation/brainstorm/omni-unattended-worker-compute-first-model-placement.md` | brainstorm | credential-contracts |
+| `ideation/brainstorm/omni-unattended-worker-installation-identity.md` | brainstorm | credential-contracts |
 | `ideation/staging/agent-wallet-identity/agent-wallet-identity.md` | staged | credential-contracts |
 
-## Credential Custody
+## Credential Reach
 
-- id: `cl-credential-custody`
-- topics: credential-custody
+- id: `cl-credential-reach`
+- topics: credential-reach
 - tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-credential-custody); company unscored (worker failed: no remote result collected for cl-credential-custody); project unscored (worker failed: no remote result collected for cl-credential-custody)
+- readiness: domain unscored (worker failed: no remote result collected for cl-credential-reach); company unscored (worker failed: no remote result collected for cl-credential-reach); project unscored (worker failed: no remote result collected for cl-credential-reach)
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/staging/notebook-projection-identity/notebook-projection-identity.md` | staged | credential-custody |
-| `ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md` | staged | credential-custody |
-
-## Credential Escrow
-
-- id: `cl-credential-escrow`
-- topics: credential-escrow
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-credential-escrow); company unscored (worker failed: no remote result collected for cl-credential-escrow); project unscored (worker failed: no remote result collected for cl-credential-escrow)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/staging/worker-enrollment-broker/worker-enrollment-broker.md` | staged | credential-escrow |
-| `ideation/staging/worker-host-app/worker-host-app.md` | staged | credential-escrow |
+| `ideation/brainstorm/omni-unattended-worker-credential-reach-and-contribution-repository.md` | brainstorm | credential-reach |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-governed-dispatch.md` | brainstorm | credential-reach |
 
 ## Credential References
 
@@ -1110,19 +1082,19 @@ Repository context: openxFactory
 | `ideation/brainstorm/crystallization-drift-and-lifecycle.md` | staged | demotion |
 | `ideation/brainstorm/crystallization-parity-and-cutover.md` | staged | demotion |
 
-## Determinism
+## Device Certificate Authentication
 
-- id: `cl-determinism`
-- topics: determinism
+- id: `cl-device-certificate-authentication`
+- topics: device-certificate-authentication
 - tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-determinism); company unscored (worker failed: no remote result collected for cl-determinism); project unscored (worker failed: no remote result collected for cl-determinism)
+- readiness: domain unscored (worker failed: no remote result collected for cl-device-certificate-authentication); company unscored (worker failed: no remote result collected for cl-device-certificate-authentication); project unscored (worker failed: no remote result collected for cl-device-certificate-authentication)
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-policy-model.md` | brainstorm | determinism |
-| `ideation/brainstorm/hermes-layer-seeding-mechanism.md` | brainstorm | determinism |
+| `ideation/brainstorm/omni-unattended-worker-device-certificate-authentication.md` | brainstorm | device-certificate-authentication |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-device-trust-plane.md` | brainstorm | device-certificate-authentication |
 
 ## Digest Pinning
 
@@ -1184,6 +1156,8 @@ Repository context: openxFactory
 | `ideation/brainstorm/doc-health-pipeline.md` | staged | doc-health |
 | `ideation/brainstorm/hermes-governed-nightly-sweep.md` | brainstorm | doc-health |
 | `ideation/brainstorm/ideation-dashboard.md` | staged | doc-health |
+| `ideation/brainstorm/opendox-openxdox-boundary.md` | brainstorm | doc-health |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | doc-health |
 
 ## Doc Management
 
@@ -1262,20 +1236,6 @@ Repository context: openxFactory
 | `ideation/brainstorm/dashboard-workbench-overview.md` | brainstorm | document-chat |
 | `ideation/brainstorm/dashboard-workbench-synthesis-collaborative-document-turns.md` | brainstorm | document-chat |
 
-## Document Estate
-
-- id: `cl-document-estate`
-- topics: document-estate
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-document-estate); company unscored (worker failed: no remote result collected for cl-document-estate); project unscored (worker failed: no remote result collected for cl-document-estate)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/hermes-recursive-subject-establishment-evidence-estate-manifest.md` | brainstorm | document-estate |
-| `ideation/brainstorm/hermes-recursive-subject-establishment-ledgerx-company-intake-profile.md` | brainstorm | document-estate |
-
 ## Document Lifecycle
 
 - id: `cl-document-lifecycle`
@@ -1288,9 +1248,30 @@ Repository context: openxFactory
 | Member | Stage | Matched tags |
 | --- | --- | --- |
 | `ideation/brainstorm/immovable-leaf-ideation-lifecycle.md` | brainstorm | document-lifecycle |
+| `ideation/brainstorm/opendox-domain-mappings.md` | brainstorm | document-lifecycle |
+| `ideation/brainstorm/opendox-persistence-and-truth.md` | brainstorm | document-lifecycle |
 | `ideation/brainstorm/release-lifecycle-overview.md` | brainstorm | document-lifecycle |
 | `ideation/staging/ideation-action-plane/ideation-action-plane.md` | staged | document-lifecycle |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | document-lifecycle |
 | `ideation/staging/workbench-branch-sessions/workbench-branch-sessions.md` | staged | document-lifecycle |
+
+## Domain Descendant Boundary
+
+- id: `cl-domain-descendant-boundary`
+- topics: domain-descendant-boundary
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-domain-descendant-boundary); company unscored (worker failed: no remote result collected for cl-domain-descendant-boundary); project unscored (worker failed: no remote result collected for cl-domain-descendant-boundary)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/opendox-domain-mappings.md` | brainstorm | domain-descendant-boundary |
+| `ideation/brainstorm/opendox-openxdox-boundary.md` | brainstorm | domain-descendant-boundary |
+| `ideation/brainstorm/opendox-synthesis-install-and-tenancy.md` | brainstorm | domain-descendant-boundary |
+| `ideation/brainstorm/opendox-two-layer-overview.md` | brainstorm | domain-descendant-boundary |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | domain-descendant-boundary |
+| `ideation/staging/openxwallet-neutral-home/openxwallet-neutral-home.md` | staged | domain-descendant-boundary |
 
 ## Domain Hermes
 
@@ -1303,13 +1284,6 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-deliberation.md` | brainstorm | domain-hermes |
-| `ideation/brainstorm/codexfactory-domain-hermes-content.md` | brainstorm | domain-hermes |
-| `ideation/brainstorm/codexfactory-domain-memory-and-practices.md` | brainstorm | domain-hermes |
-| `ideation/brainstorm/codexfactory-domain-overview.md` | brainstorm | domain-hermes |
-| `ideation/brainstorm/codexfactory-domain-policy-model.md` | brainstorm | domain-hermes |
-| `ideation/brainstorm/codexfactory-domain-roster-draft.md` | brainstorm | domain-hermes |
-| `ideation/brainstorm/codexfactory-domain-synthesis-authority-and-deliberation.md` | brainstorm | domain-hermes |
 | `ideation/brainstorm/cost-accountability-and-efficiency-model.md` | brainstorm | domain-hermes |
 | `ideation/brainstorm/crystallization-overview.md` | staged | domain-hermes |
 | `ideation/brainstorm/crystallization-requirements-mining.md` | staged | domain-hermes |
@@ -1320,29 +1294,9 @@ Repository context: openxFactory
 | `ideation/brainstorm/domain-practice-suggestion-generation.md` | brainstorm | domain-hermes |
 | `ideation/brainstorm/hermes-layer-content-seeding.md` | brainstorm | domain-hermes |
 | `ideation/brainstorm/hermes-persona-character-model.md` | brainstorm | domain-hermes |
-| `ideation/brainstorm/medical-domain-clinical-authority-boundary.md` | brainstorm | domain-hermes |
-| `ideation/brainstorm/medical-domain-overview.md` | brainstorm | domain-hermes |
-| `ideation/brainstorm/medxfactory-domain-roster-draft.md` | brainstorm | domain-hermes |
 | `ideation/brainstorm/ontology-layer-foundations.md` | brainstorm | domain-hermes |
 | `ideation/brainstorm/ontology-maintenance-micro-agent-fleet.md` | brainstorm | domain-hermes |
 | `ideation/brainstorm/polyglot-graph-memory-hermes-layer-placement.md` | brainstorm | domain-hermes |
-| `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | domain-hermes |
-| `ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md` | staged | domain-hermes |
-
-## Domain Memory
-
-- id: `cl-domain-memory`
-- topics: domain-memory
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-domain-memory); company unscored (worker failed: no remote result collected for cl-domain-memory); project unscored (worker failed: no remote result collected for cl-domain-memory)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-memory-and-practices.md` | brainstorm | domain-memory |
-| `ideation/brainstorm/codexfactory-domain-policy-model.md` | brainstorm | domain-memory |
-| `ideation/brainstorm/codexfactory-domain-synthesis-policy-and-memory.md` | brainstorm | domain-memory |
 
 ## Domain Ontology
 
@@ -1408,20 +1362,6 @@ Repository context: openxFactory
 | `ideation/brainstorm/governed-recursive-inference-domain-pilots.md` | brainstorm | domain-pilots, ledgerxfactory, rollout |
 | `ideation/brainstorm/governed-recursive-inference-synthesis-adoption-and-councils.md` | brainstorm | domain-pilots, ledgerxfactory, rollout |
 
-## Domain Policy
-
-- id: `cl-domain-policy`
-- topics: domain-policy
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-domain-policy); company unscored (worker failed: no remote result collected for cl-domain-policy); project unscored (worker failed: no remote result collected for cl-domain-policy)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-policy-model.md` | brainstorm | domain-policy |
-| `ideation/brainstorm/codexfactory-domain-synthesis-policy-and-memory.md` | brainstorm | domain-policy |
-
 ## Doxbench
 
 - id: `cl-doxbench`
@@ -1442,7 +1382,11 @@ Repository context: openxFactory
 | `ideation/brainstorm/doxbench-synthesis-governed-runtime.md` | brainstorm | doxbench |
 | `ideation/brainstorm/doxbench-synthesis-human-ai-authoring-loop.md` | brainstorm | doxbench |
 | `ideation/brainstorm/doxbench-typed-proposal-review.md` | brainstorm | doxbench |
+| `ideation/brainstorm/opendox-core-product.md` | brainstorm | doxbench |
+| `ideation/brainstorm/opendox-openxdox-boundary.md` | brainstorm | doxbench |
+| `ideation/brainstorm/opendox-two-layer-overview.md` | brainstorm | doxbench |
 | `ideation/staging/doxchat-auto-fit-routing/doxchat-auto-fit-routing.md` | staged | doxbench |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | doxbench |
 | `ideation/staging/workbench-branch-sessions/workbench-branch-sessions.md` | staged | doxbench |
 | `ideation/staging/workstation-app-shell/workstation-app-shell.md` | staged | doxbench |
 
@@ -1478,7 +1422,7 @@ Repository context: openxFactory
 ## Dry Run
 
 - id: `cl-dry-run`
-- topics: dry-run, workflow-gate-contract
+- topics: dry-run
 - tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
@@ -1486,8 +1430,8 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/crystallization-build-pipeline.md` | staged | dry-run, workflow-gate-contract |
-| `ideation/brainstorm/crystallization-parity-and-cutover.md` | staged | dry-run, workflow-gate-contract |
+| `ideation/brainstorm/crystallization-build-pipeline.md` | staged | dry-run |
+| `ideation/brainstorm/crystallization-parity-and-cutover.md` | staged | dry-run |
 
 ## Dtn Register
 
@@ -1502,6 +1446,7 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/crystallization-cross-tenant.md` | brainstorm | dtn-register |
 | `ideation/brainstorm/crystallization-overview.md` | staged | dtn-register |
+| `ideation/staging/openxwallet-neutral-home/openxwallet-neutral-home.md` | staged | dtn-register |
 
 ## Dual Buffer Editor
 
@@ -1576,6 +1521,34 @@ Repository context: openxFactory
 | `ideation/brainstorm/git-native-record-vault.md` | brainstorm | encryption-tiers |
 | `ideation/brainstorm/identity-custody-secret-and-record-boundaries.md` | brainstorm | encryption-tiers |
 
+## Enrollment Authorization
+
+- id: `cl-enrollment-authorization`
+- topics: enrollment-authorization
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-enrollment-authorization); company unscored (worker failed: no remote result collected for cl-enrollment-authorization); project unscored (worker failed: no remote result collected for cl-enrollment-authorization)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/omni-unattended-worker-enrollment-authorization.md` | brainstorm | enrollment-authorization |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-device-trust-plane.md` | brainstorm | enrollment-authorization |
+
+## Ephemeral Runner Attempt Grant
+
+- id: `cl-ephemeral-runner-attempt-grant`
+- topics: ephemeral-runner-attempt-grant
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-ephemeral-runner-attempt-grant); company unscored (worker failed: no remote result collected for cl-ephemeral-runner-attempt-grant); project unscored (worker failed: no remote result collected for cl-ephemeral-runner-attempt-grant)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/omni-unattended-worker-ephemeral-runner-attempt-grant.md` | brainstorm | ephemeral-runner-attempt-grant |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-governed-dispatch.md` | brainstorm | ephemeral-runner-attempt-grant |
+
 ## Episode Ledger
 
 - id: `cl-episode-ledger`
@@ -1593,21 +1566,6 @@ Repository context: openxFactory
 | `ideation/brainstorm/crystallization-requirements-mining.md` | staged | episode-ledger |
 | `ideation/brainstorm/crystallization-synthesis-pattern-ledger.md` | staged | episode-ledger |
 | `ideation/brainstorm/crystallization-task-families.md` | staged | episode-ledger |
-
-## Escalation Rules
-
-- id: `cl-escalation-rules`
-- topics: escalation-rules, review-councils
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-escalation-rules); company unscored (worker failed: no remote result collected for cl-escalation-rules); project unscored (worker failed: no remote result collected for cl-escalation-rules)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-deliberation.md` | brainstorm | escalation-rules, review-councils |
-| `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | escalation-rules, review-councils |
-| `ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md` | staged | escalation-rules, review-councils |
 
 ## Evaluation
 
@@ -1713,6 +1671,22 @@ Repository context: openxFactory
 | `ideation/brainstorm/omnigent-lane-activation-path.md` | brainstorm | execution-lane |
 | `ideation/brainstorm/tech-stack-benches.md` | brainstorm | execution-lane |
 
+## Executor Ladder
+
+- id: `cl-executor-ladder`
+- topics: executor-ladder
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-executor-ladder); company unscored (worker failed: no remote result collected for cl-executor-ladder); project unscored (worker failed: no remote result collected for cl-executor-ladder)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/omni-unattended-worker-executor-ladder.md` | brainstorm | executor-ladder |
+| `ideation/brainstorm/omni-unattended-worker-rootless-docker-hardening.md` | brainstorm | executor-ladder |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-sandboxed-execution.md` | brainstorm | executor-ladder |
+| `ideation/brainstorm/omni-unattended-worker-wsl2-worker-owned-distro.md` | brainstorm | executor-ladder |
+
 ## Experience Admission
 
 - id: `cl-experience-admission`
@@ -1754,8 +1728,6 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/medical-domain-clinical-authority-boundary.md` | brainstorm | external-enforcement |
-| `ideation/brainstorm/medical-omnigent-harness-adaptation.md` | brainstorm | external-enforcement |
 | `ideation/brainstorm/worker-execution-governed-job-lifecycle.md` | brainstorm | external-enforcement |
 | `ideation/staging/context-compression-runtime/context-compression-runtime.md` | staged | external-enforcement |
 
@@ -1825,7 +1797,14 @@ Repository context: openxFactory
 | `ideation/brainstorm/ontology-compiled-context-and-result-caching.md` | brainstorm | feat-request |
 | `ideation/brainstorm/ontology-grounded-micro-agent-routing.md` | brainstorm | feat-request |
 | `ideation/brainstorm/ontology-maintenance-micro-agent-fleet.md` | brainstorm | feat-request |
+| `ideation/brainstorm/opendox-core-product.md` | brainstorm | feat-request |
+| `ideation/brainstorm/opendox-domain-mappings.md` | brainstorm | feat-request |
+| `ideation/brainstorm/opendox-openxdox-boundary.md` | brainstorm | feat-request |
+| `ideation/brainstorm/opendox-persistence-and-truth.md` | brainstorm | feat-request |
+| `ideation/brainstorm/opendox-synthesis-install-and-tenancy.md` | brainstorm | feat-request |
+| `ideation/brainstorm/opendox-two-layer-overview.md` | brainstorm | feat-request |
 | `ideation/brainstorm/tenant-project-catalog-and-workstation-cache.md` | brainstorm | feat-request |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | feat-request |
 
 ## Flutter
 
@@ -1871,21 +1850,20 @@ Repository context: openxFactory
 | `ideation/staging/workbench-branch-sessions/workbench-branch-sessions.md` | staged | gate-console |
 | `ideation/staging/workstation-app-shell/workstation-app-shell.md` | staged | gate-console |
 
-## Gate Rules Council
+## Git Integration
 
-- id: `cl-gate-rules-council`
-- topics: gate-rules-council
+- id: `cl-git-integration`
+- topics: git-integration, projects, users
 - tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-gate-rules-council); company unscored (worker failed: no remote result collected for cl-gate-rules-council); project unscored (worker failed: no remote result collected for cl-gate-rules-council)
+- readiness: domain unscored (worker failed: no remote result collected for cl-git-integration); company unscored (worker failed: no remote result collected for cl-git-integration); project unscored (worker failed: no remote result collected for cl-git-integration)
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-deliberation.md` | brainstorm | gate-rules-council |
-| `ideation/brainstorm/codexfactory-domain-hermes-content.md` | brainstorm | gate-rules-council |
-| `ideation/brainstorm/nightly-sweep-council-clearance-rule.md` | brainstorm | gate-rules-council |
-| `ideation/staging/tier2-council-clearance-pattern/tier2-council-clearance-pattern.md` | staged | gate-rules-council |
+| `ideation/brainstorm/opendox-core-product.md` | brainstorm | git-integration, projects, users |
+| `ideation/brainstorm/opendox-two-layer-overview.md` | brainstorm | git-integration, projects, users |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | git-integration, projects, users |
 
 ## Google Drive
 
@@ -1917,7 +1895,11 @@ Repository context: openxFactory
 | `ideation/brainstorm/crystallization-requirements-mining.md` | staged | governed-derived-model |
 | `ideation/brainstorm/hermes-recursive-subject-establishment-subject-model-assembly-and-admission.md` | brainstorm | governed-derived-model |
 | `ideation/brainstorm/hermes-recursive-subject-establishment-synthesis-evidence-and-model.md` | brainstorm | governed-derived-model |
+| `ideation/brainstorm/opendox-domain-mappings.md` | brainstorm | governed-derived-model |
+| `ideation/brainstorm/opendox-persistence-and-truth.md` | brainstorm | governed-derived-model |
 | `ideation/brainstorm/polyglot-graph-memory-projection-authority.md` | brainstorm | governed-derived-model |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | governed-derived-model |
+| `ideation/staging/treatment-options-engine/treatment-options-engine.md` | staged | governed-derived-model |
 
 ## Governed Persistence
 
@@ -2046,6 +2028,20 @@ Repository context: openxFactory
 | `ideation/brainstorm/doxbench-grounded-chat.md` | brainstorm | grounded-chat |
 | `ideation/brainstorm/doxbench-synthesis-human-ai-authoring-loop.md` | brainstorm | grounded-chat |
 
+## Heartbeat Batch Envelope
+
+- id: `cl-heartbeat-batch-envelope`
+- topics: heartbeat-batch-envelope
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-heartbeat-batch-envelope); company unscored (worker failed: no remote result collected for cl-heartbeat-batch-envelope); project unscored (worker failed: no remote result collected for cl-heartbeat-batch-envelope)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/omni-unattended-worker-heartbeat-batch-envelope.md` | brainstorm | heartbeat-batch-envelope |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-governed-dispatch.md` | brainstorm | heartbeat-batch-envelope |
+
 ## Hermes
 
 - id: `cl-hermes`
@@ -2097,7 +2093,7 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/staging/layer-content-materialization/layer-content-materialization.md` | staged | hermes-domain-overlay |
+| `ideation/staging/layer-content-materialization/layer-content-materialization.md` | superseded | hermes-domain-overlay |
 | `ideation/staging/manager-review-approval-scope-kind/manager-review-approval-scope-kind.md` | staged | hermes-domain-overlay |
 
 ## Hermes Install
@@ -2112,7 +2108,8 @@ Repository context: openxFactory
 | Member | Stage | Matched tags |
 | --- | --- | --- |
 | `ideation/brainstorm/hermes-layer-seeding-mechanism.md` | brainstorm | hermes-install |
-| `ideation/staging/layer-content-materialization/layer-content-materialization.md` | staged | hermes-install |
+| `ideation/brainstorm/opendox-synthesis-install-and-tenancy.md` | brainstorm | hermes-install |
+| `ideation/staging/layer-content-materialization/layer-content-materialization.md` | superseded | hermes-install |
 | `ideation/staging/layer-vocabulary-machine-migration/layer-vocabulary-machine-migration.md` | staged | hermes-install |
 | `ideation/staging/manager-review-approval-scope-kind/manager-review-approval-scope-kind.md` | staged | hermes-install |
 
@@ -2147,8 +2144,6 @@ Repository context: openxFactory
 | `ideation/brainstorm/hermes-recursive-subject-establishment-durable-establishment-episode.md` | brainstorm | hermes-recursive-subject-establishment |
 | `ideation/brainstorm/hermes-recursive-subject-establishment-evidence-estate-manifest.md` | brainstorm | hermes-recursive-subject-establishment |
 | `ideation/brainstorm/hermes-recursive-subject-establishment-hermes-control-and-execution-boundary.md` | brainstorm | hermes-recursive-subject-establishment |
-| `ideation/brainstorm/hermes-recursive-subject-establishment-ledgerx-company-intake-profile.md` | brainstorm | hermes-recursive-subject-establishment |
-| `ideation/brainstorm/hermes-recursive-subject-establishment-medx-patient-intake-profile.md` | brainstorm | hermes-recursive-subject-establishment |
 | `ideation/brainstorm/hermes-recursive-subject-establishment-multimodal-processing-and-specialist-routing.md` | brainstorm | hermes-recursive-subject-establishment |
 | `ideation/brainstorm/hermes-recursive-subject-establishment-overview.md` | brainstorm | hermes-recursive-subject-establishment |
 | `ideation/brainstorm/hermes-recursive-subject-establishment-recursive-evidence-frontier.md` | brainstorm | hermes-recursive-subject-establishment |
@@ -2159,6 +2154,20 @@ Repository context: openxFactory
 | `ideation/brainstorm/hermes-recursive-subject-establishment-synthesis-discovery-and-acquisition.md` | brainstorm | hermes-recursive-subject-establishment |
 | `ideation/brainstorm/hermes-recursive-subject-establishment-synthesis-evidence-and-model.md` | brainstorm | hermes-recursive-subject-establishment |
 | `ideation/brainstorm/hermes-recursive-subject-establishment-synthesis-runtime-and-authority.md` | brainstorm | hermes-recursive-subject-establishment |
+
+## Host Manager Topology
+
+- id: `cl-host-manager-topology`
+- topics: host-manager-topology
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-host-manager-topology); company unscored (worker failed: no remote result collected for cl-host-manager-topology); project unscored (worker failed: no remote result collected for cl-host-manager-topology)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/omni-unattended-worker-host-manager-topology.md` | brainstorm | host-manager-topology |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-sandboxed-execution.md` | brainstorm | host-manager-topology |
 
 ## House Style
 
@@ -2187,7 +2196,7 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/client-layer-roster-draft.md` | brainstorm | house-team |
 | `ideation/brainstorm/client-layer-scaffold.md` | brainstorm | house-team |
-| `ideation/staging/client-layer-tuning/client-layer-tuning.md` | staged | house-team |
+| `ideation/staging/client-layer-tuning/client-layer-tuning.md` | superseded | house-team |
 
 ## Human Escalation
 
@@ -2216,7 +2225,7 @@ Repository context: openxFactory
 | Member | Stage | Matched tags |
 | --- | --- | --- |
 | `ideation/brainstorm/hermes-layer-seeding-mechanism.md` | brainstorm | hybrid-seam, materialization, seed-layer-content |
-| `ideation/staging/layer-content-materialization/layer-content-materialization.md` | staged | hybrid-seam, materialization, seed-layer-content |
+| `ideation/staging/layer-content-materialization/layer-content-materialization.md` | superseded | hybrid-seam, materialization, seed-layer-content |
 
 ## Hybrid Search
 
@@ -2275,6 +2284,11 @@ Repository context: openxFactory
 | `ideation/brainstorm/lens-brainstorm-session-launch.md` | brainstorm | ideation-dashboard |
 | `ideation/brainstorm/lens-keyword-search-and-adhoc.md` | brainstorm | ideation-dashboard |
 | `ideation/brainstorm/lens-ring-combination-explorer.md` | brainstorm | ideation-dashboard |
+| `ideation/brainstorm/opendox-core-product.md` | brainstorm | ideation-dashboard |
+| `ideation/brainstorm/opendox-domain-mappings.md` | brainstorm | ideation-dashboard |
+| `ideation/brainstorm/opendox-openxdox-boundary.md` | brainstorm | ideation-dashboard |
+| `ideation/brainstorm/opendox-persistence-and-truth.md` | brainstorm | ideation-dashboard |
+| `ideation/brainstorm/opendox-two-layer-overview.md` | brainstorm | ideation-dashboard |
 | `ideation/brainstorm/polyglot-graph-memory-doxbench-graphify.md` | brainstorm | ideation-dashboard |
 | `ideation/brainstorm/polyglot-graph-memory-overview.md` | brainstorm | ideation-dashboard |
 | `ideation/brainstorm/tenant-project-catalog-and-workstation-cache.md` | brainstorm | ideation-dashboard |
@@ -2284,6 +2298,7 @@ Repository context: openxFactory
 | `ideation/staging/doxchat-auto-fit-routing/doxchat-auto-fit-routing.md` | staged | ideation-dashboard |
 | `ideation/staging/ideation-action-plane/drive-membrane.md` | staged | ideation-dashboard |
 | `ideation/staging/ideation-action-plane/ideation-action-plane.md` | staged | ideation-dashboard |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | ideation-dashboard |
 | `ideation/staging/workbench-branch-sessions/workbench-branch-sessions.md` | staged | ideation-dashboard |
 | `ideation/staging/workstation-app-shell/workstation-app-shell.md` | staged | ideation-dashboard |
 
@@ -2328,7 +2343,7 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/staging/notebook-projection-identity/notebook-projection-identity.md` | staged | identity |
+| `ideation/staging/notebook-projection-identity/notebook-projection-identity.md` | superseded | identity |
 | `ideation/staging/workstation-app-shell/workstation-app-shell.md` | staged | identity |
 
 ## Identity Brokering
@@ -2348,6 +2363,9 @@ Repository context: openxFactory
 | `ideation/brainstorm/identity-custody-principal-and-agent-binding.md` | brainstorm | identity-brokering |
 | `ideation/brainstorm/identity-custody-synthesis-trust-plane.md` | brainstorm | identity-brokering |
 | `ideation/brainstorm/keycloak-identity-brokering.md` | staged | identity-brokering |
+| `ideation/brainstorm/omni-unattended-worker-device-certificate-authentication.md` | brainstorm | identity-brokering |
+| `ideation/brainstorm/omni-unattended-worker-enrollment-authorization.md` | brainstorm | identity-brokering |
+| `ideation/brainstorm/omni-unattended-worker-overview.md` | brainstorm | identity-brokering |
 | `ideation/staging/ideation-action-plane/drive-membrane.md` | staged | identity-brokering |
 | `ideation/staging/ideation-action-plane/ideation-action-plane.md` | staged | identity-brokering |
 | `ideation/staging/notebook-access-wallet-governance/notebook-access-wallet-governance.md` | staged | identity-brokering |
@@ -2370,6 +2388,8 @@ Repository context: openxFactory
 | `ideation/brainstorm/identity-custody-secret-and-record-boundaries.md` | brainstorm | identity-custody |
 | `ideation/brainstorm/identity-custody-synthesis-trust-plane.md` | brainstorm | identity-custody |
 | `ideation/brainstorm/keycloak-identity-brokering.md` | staged | identity-custody |
+| `ideation/brainstorm/omni-unattended-worker-installation-identity.md` | brainstorm | identity-custody |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-device-trust-plane.md` | brainstorm | identity-custody |
 
 ## Inference Strategy Routing
 
@@ -2398,6 +2418,35 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/client-ingestion-adapter-contract.md` | brainstorm | ingestion-adapter |
 | `ideation/brainstorm/client-synthesis-ingestion-and-assurance.md` | brainstorm | ingestion-adapter |
+
+## Install Provisioning
+
+- id: `cl-install-provisioning`
+- topics: install-provisioning
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-install-provisioning); company unscored (worker failed: no remote result collected for cl-install-provisioning); project unscored (worker failed: no remote result collected for cl-install-provisioning)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/opendox-synthesis-install-and-tenancy.md` | brainstorm | install-provisioning |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | install-provisioning |
+| `ideation/staging/openxdox-install-app-provisioning/openxdox-install-app-provisioning.md` | staged | install-provisioning |
+
+## Installation Identity
+
+- id: `cl-installation-identity`
+- topics: installation-identity
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-installation-identity); company unscored (worker failed: no remote result collected for cl-installation-identity); project unscored (worker failed: no remote result collected for cl-installation-identity)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/omni-unattended-worker-installation-identity.md` | brainstorm | installation-identity |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-device-trust-plane.md` | brainstorm | installation-identity |
 
 ## Integrated Editor
 
@@ -2431,7 +2480,7 @@ Repository context: openxFactory
 ## Intune
 
 - id: `cl-intune`
-- topics: intune
+- topics: intune, omni-001
 - tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
@@ -2439,10 +2488,9 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/tech-stack-benches.md` | brainstorm | intune |
-| `ideation/staging/worker-enrollment-broker/worker-enrollment-broker.md` | staged | intune |
-| `ideation/staging/worker-host-app/worker-host-app.md` | staged | intune |
-| `ideation/staging/worker-host-app/wsl-install-and-setup.md` | staged | intune |
+| `ideation/brainstorm/tech-stack-benches.md` | brainstorm | intune, omni-001 |
+| `ideation/staging/worker-host-app/worker-host-app.md` | staged | intune, omni-001 |
+| `ideation/staging/worker-host-app/wsl-install-and-setup.md` | staged | intune, omni-001 |
 
 ## Job Lifecycle
 
@@ -2531,18 +2579,13 @@ Repository context: openxFactory
 | `ideation/brainstorm/client-layer-scaffold.md` | brainstorm | layer-content-seeding |
 | `ideation/brainstorm/client-overview.md` | brainstorm | layer-content-seeding |
 | `ideation/brainstorm/client-policy-wizard.md` | brainstorm | layer-content-seeding |
-| `ideation/brainstorm/codexfactory-domain-hermes-content.md` | brainstorm | layer-content-seeding |
-| `ideation/brainstorm/codexfactory-domain-memory-and-practices.md` | brainstorm | layer-content-seeding |
-| `ideation/brainstorm/codexfactory-domain-policy-model.md` | brainstorm | layer-content-seeding |
 | `ideation/brainstorm/cost-accountability-and-efficiency-model.md` | brainstorm | layer-content-seeding |
 | `ideation/brainstorm/hermes-layer-content-seeding.md` | brainstorm | layer-content-seeding |
 | `ideation/brainstorm/hermes-overview.md` | brainstorm | layer-content-seeding |
 | `ideation/brainstorm/hermes-synthesis-governed-practice-loop.md` | brainstorm | layer-content-seeding |
 | `ideation/brainstorm/hermes-synthesis-layer-content-and-authority.md` | brainstorm | layer-content-seeding |
-| `ideation/staging/client-layer-tuning/client-layer-tuning.md` | staged | layer-content-seeding |
-| `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | layer-content-seeding |
-| `ideation/staging/layer-content-materialization/layer-content-materialization.md` | staged | layer-content-seeding |
-| `ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md` | staged | layer-content-seeding |
+| `ideation/staging/client-layer-tuning/client-layer-tuning.md` | superseded | layer-content-seeding |
+| `ideation/staging/layer-content-materialization/layer-content-materialization.md` | superseded | layer-content-seeding |
 
 ## Layer Vocabulary
 
@@ -2557,34 +2600,6 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/crystallization-authority-and-consent.md` | staged | layer-vocabulary |
 | `ideation/staging/layer-vocabulary-machine-migration/layer-vocabulary-machine-migration.md` | staged | layer-vocabulary |
-
-## Ledgerx
-
-- id: `cl-ledgerx`
-- topics: ledgerx
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-ledgerx); company unscored (worker failed: no remote result collected for cl-ledgerx); project unscored (worker failed: no remote result collected for cl-ledgerx)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/hermes-recursive-subject-establishment-ledgerx-company-intake-profile.md` | brainstorm | ledgerx |
-| `ideation/brainstorm/hermes-recursive-subject-establishment-overview.md` | brainstorm | ledgerx |
-
-## Ledgerx Company Intake
-
-- id: `cl-ledgerx-company-intake`
-- topics: ledgerx-company-intake
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-ledgerx-company-intake); company unscored (worker failed: no remote result collected for cl-ledgerx-company-intake); project unscored (worker failed: no remote result collected for cl-ledgerx-company-intake)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/hermes-recursive-subject-establishment-ledgerx-company-intake-profile.md` | brainstorm | ledgerx-company-intake |
-| `ideation/brainstorm/hermes-recursive-subject-establishment-synthesis-closure-and-domain-profiles.md` | brainstorm | ledgerx-company-intake |
 
 ## Legal Compliance
 
@@ -2618,7 +2633,7 @@ Repository context: openxFactory
 ## Lifecycle Notebook Projection
 
 - id: `cl-lifecycle-notebook-projection`
-- topics: lifecycle-notebook-projection, notebooklm, share-out-roster
+- topics: lifecycle-notebook-projection, share-out-roster
 - tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
@@ -2626,8 +2641,8 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/staging/notebook-access-wallet-governance/notebook-access-wallet-governance.md` | staged | lifecycle-notebook-projection, notebooklm, share-out-roster |
-| `ideation/staging/notebook-projection-identity/notebook-projection-identity.md` | staged | lifecycle-notebook-projection, notebooklm, share-out-roster |
+| `ideation/staging/notebook-access-wallet-governance/notebook-access-wallet-governance.md` | staged | lifecycle-notebook-projection, share-out-roster |
+| `ideation/staging/notebook-projection-identity/notebook-projection-identity.md` | superseded | lifecycle-notebook-projection, share-out-roster |
 
 ## Lifecycle Projection
 
@@ -2665,7 +2680,7 @@ Repository context: openxFactory
 ## Manual Writer
 
 - id: `cl-manual-writer`
-- topics: manual-writer
+- topics: manual-writer, provisioning
 - tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
@@ -2673,8 +2688,8 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/project-layer-scaffold.md` | brainstorm | manual-writer |
-| `ideation/brainstorm/project-type-template-library-draft.md` | brainstorm | manual-writer |
+| `ideation/brainstorm/project-layer-scaffold.md` | brainstorm | manual-writer, provisioning |
+| `ideation/brainstorm/project-type-template-library-draft.md` | brainstorm | manual-writer, provisioning |
 
 ## Mcp
 
@@ -2690,39 +2705,6 @@ Repository context: openxFactory
 | `ideation/brainstorm/agent-assisted-app-testing-intent.md` | brainstorm | mcp |
 | `ideation/brainstorm/hermes-retrieval-primitives-contract.md` | brainstorm | mcp |
 
-## Medical Domain
-
-- id: `cl-medical-domain`
-- topics: medical-domain
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-medical-domain); company unscored (worker failed: no remote result collected for cl-medical-domain); project unscored (worker failed: no remote result collected for cl-medical-domain)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/medical-domain-clinical-authority-boundary.md` | brainstorm | medical-domain |
-| `ideation/brainstorm/medical-domain-overview.md` | brainstorm | medical-domain |
-| `ideation/brainstorm/medical-domain-specialized-worker-envelope.md` | brainstorm | medical-domain |
-| `ideation/brainstorm/medical-domain-synthesis-clinical-execution.md` | brainstorm | medical-domain |
-| `ideation/brainstorm/medical-omnigent-harness-adaptation.md` | brainstorm | medical-domain |
-| `ideation/brainstorm/medxfactory-domain-roster-draft.md` | brainstorm | medical-domain |
-
-## Medical Harness
-
-- id: `cl-medical-harness`
-- topics: medical-harness
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-medical-harness); company unscored (worker failed: no remote result collected for cl-medical-harness); project unscored (worker failed: no remote result collected for cl-medical-harness)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/medical-domain-specialized-worker-envelope.md` | brainstorm | medical-harness |
-| `ideation/brainstorm/medical-domain-synthesis-clinical-execution.md` | brainstorm | medical-harness |
-| `ideation/brainstorm/medical-omnigent-harness-adaptation.md` | brainstorm | medical-harness |
-
 ## Medx
 
 - id: `cl-medx`
@@ -2734,23 +2716,23 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/hermes-recursive-subject-establishment-medx-patient-intake-profile.md` | brainstorm | medx |
 | `ideation/brainstorm/hermes-recursive-subject-establishment-overview.md` | brainstorm | medx |
 | `ideation/brainstorm/subject-recall-and-consent-path.md` | brainstorm | medx |
 
-## Medx Patient Intake
+## Medxdox
 
-- id: `cl-medx-patient-intake`
-- topics: medx-patient-intake
+- id: `cl-medxdox`
+- topics: medxdox
 - tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-medx-patient-intake); company unscored (worker failed: no remote result collected for cl-medx-patient-intake); project unscored (worker failed: no remote result collected for cl-medx-patient-intake)
+- readiness: domain unscored (worker failed: no remote result collected for cl-medxdox); company unscored (worker failed: no remote result collected for cl-medxdox); project unscored (worker failed: no remote result collected for cl-medxdox)
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/hermes-recursive-subject-establishment-medx-patient-intake-profile.md` | brainstorm | medx-patient-intake |
-| `ideation/brainstorm/hermes-recursive-subject-establishment-synthesis-closure-and-domain-profiles.md` | brainstorm | medx-patient-intake |
+| `ideation/brainstorm/opendox-domain-mappings.md` | brainstorm | medxdox |
+| `ideation/brainstorm/opendox-synthesis-install-and-tenancy.md` | brainstorm | medxdox |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | medxdox |
 
 ## Medxfactory
 
@@ -2765,27 +2747,7 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/governed-recursive-inference-domain-pilots.md` | brainstorm | medxfactory |
 | `ideation/brainstorm/governed-recursive-inference-synthesis-adoption-and-councils.md` | brainstorm | medxfactory |
-| `ideation/brainstorm/medical-domain-overview.md` | brainstorm | medxfactory |
-| `ideation/brainstorm/medical-omnigent-harness-adaptation.md` | brainstorm | medxfactory |
-| `ideation/brainstorm/medxfactory-domain-roster-draft.md` | brainstorm | medxfactory |
-| `ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md` | staged | medxfactory |
 | `ideation/staging/proposal-origin-contract/fda-samd-traceability-rationale.md` | staged | medxfactory |
-
-## Memory Boundaries
-
-- id: `cl-memory-boundaries`
-- topics: memory-boundaries
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-memory-boundaries); company unscored (worker failed: no remote result collected for cl-memory-boundaries); project unscored (worker failed: no remote result collected for cl-memory-boundaries)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/client-layer-content-draft.md` | brainstorm | memory-boundaries |
-| `ideation/brainstorm/codexfactory-domain-memory-and-practices.md` | brainstorm | memory-boundaries |
-| `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | memory-boundaries |
-| `ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md` | staged | memory-boundaries |
 
 ## Memory Gateway
 
@@ -2799,7 +2761,6 @@ Repository context: openxFactory
 | Member | Stage | Matched tags |
 | --- | --- | --- |
 | `ideation/brainstorm/client-ingestion-adapter-contract.md` | brainstorm | memory-gateway |
-| `ideation/brainstorm/codexfactory-domain-memory-and-practices.md` | brainstorm | memory-gateway |
 | `ideation/brainstorm/crystallization-episode-ledger.md` | staged | memory-gateway |
 | `ideation/brainstorm/crystallization-learning-loop.md` | staged | memory-gateway |
 | `ideation/brainstorm/crystallization-synthesis-pattern-ledger.md` | staged | memory-gateway |
@@ -2856,26 +2817,9 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-hermes-content.md` | brainstorm | merge-master |
-| `ideation/brainstorm/nightly-sweep-council-clearance-rule.md` | brainstorm | merge-master |
 | `ideation/brainstorm/omnigent-lane-activation-path.md` | brainstorm | merge-master |
 | `ideation/staging/tier2-council-clearance-pattern/tier2-council-clearance-pattern.md` | staged | merge-master |
 | `ideation/staging/workbench-branch-sessions/workbench-branch-sessions.md` | staged | merge-master |
-
-## Merge Readiness Council
-
-- id: `cl-merge-readiness-council`
-- topics: merge-readiness-council
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-merge-readiness-council); company unscored (worker failed: no remote result collected for cl-merge-readiness-council); project unscored (worker failed: no remote result collected for cl-merge-readiness-council)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-deliberation.md` | brainstorm | merge-readiness-council |
-| `ideation/brainstorm/nightly-sweep-council-clearance-rule.md` | brainstorm | merge-readiness-council |
-| `ideation/staging/tier2-council-clearance-pattern/tier2-council-clearance-pattern.md` | staged | merge-readiness-council |
 
 ## Metering
 
@@ -2994,6 +2938,24 @@ Repository context: openxFactory
 | `ideation/brainstorm/crystallization-dispatch-and-fences.md` | staged | neutral-job-envelope |
 | `ideation/brainstorm/omnigent-micro-agent-task-contract.md` | brainstorm | neutral-job-envelope |
 
+## Neutral Product Pin
+
+- id: `cl-neutral-product-pin`
+- topics: neutral-product-pin
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-neutral-product-pin); company unscored (worker failed: no remote result collected for cl-neutral-product-pin); project unscored (worker failed: no remote result collected for cl-neutral-product-pin)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/opendox-openxdox-boundary.md` | brainstorm | neutral-product-pin |
+| `ideation/brainstorm/opendox-synthesis-install-and-tenancy.md` | brainstorm | neutral-product-pin |
+| `ideation/brainstorm/opendox-two-layer-overview.md` | brainstorm | neutral-product-pin |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | neutral-product-pin |
+| `ideation/staging/openxwallet-neutral-home/openxwallet-neutral-home.md` | staged | neutral-product-pin |
+| `ideation/staging/wallet-carried-work-authority/wallet-carried-work-authority.md` | staged | neutral-product-pin |
+
 ## Nightly Sweep
 
 - id: `cl-nightly-sweep`
@@ -3007,7 +2969,23 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/hermes-governed-nightly-sweep.md` | brainstorm | nightly-sweep |
 | `ideation/brainstorm/hermes-synthesis-governed-practice-loop.md` | brainstorm | nightly-sweep |
-| `ideation/brainstorm/nightly-sweep-council-clearance-rule.md` | brainstorm | nightly-sweep |
+
+## Notebooklm
+
+- id: `cl-notebooklm`
+- topics: notebooklm
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-notebooklm); company unscored (worker failed: no remote result collected for cl-notebooklm); project unscored (worker failed: no remote result collected for cl-notebooklm)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/opendox-core-product.md` | brainstorm | notebooklm |
+| `ideation/brainstorm/opendox-two-layer-overview.md` | brainstorm | notebooklm |
+| `ideation/staging/notebook-access-wallet-governance/notebook-access-wallet-governance.md` | staged | notebooklm |
+| `ideation/staging/notebook-projection-identity/notebook-projection-identity.md` | superseded | notebooklm |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | notebooklm |
 
 ## Notebooklm Projection
 
@@ -3024,20 +3002,49 @@ Repository context: openxFactory
 | `ideation/brainstorm/ideation-dashboard.md` | staged | notebooklm-projection |
 | `ideation/staging/ideation-action-plane/drive-membrane.md` | staged | notebooklm-projection |
 
-## Omni 001
+## Observability
 
-- id: `cl-omni-001`
-- topics: omni-001
+- id: `cl-observability`
+- topics: observability
 - tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-omni-001); company unscored (worker failed: no remote result collected for cl-omni-001); project unscored (worker failed: no remote result collected for cl-omni-001)
+- readiness: domain unscored (worker failed: no remote result collected for cl-observability); company unscored (worker failed: no remote result collected for cl-observability); project unscored (worker failed: no remote result collected for cl-observability)
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/tech-stack-benches.md` | brainstorm | omni-001 |
-| `ideation/staging/worker-host-app/worker-host-app.md` | staged | omni-001 |
-| `ideation/staging/worker-host-app/wsl-install-and-setup.md` | staged | omni-001 |
+| `ideation/brainstorm/governed-recursive-inference-trajectory-and-replay.md` | brainstorm | observability |
+| `ideation/brainstorm/omni-unattended-worker-heartbeat-batch-envelope.md` | brainstorm | observability |
+
+## Omni Unattended Worker
+
+- id: `cl-omni-unattended-worker`
+- topics: omni-unattended-worker
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-omni-unattended-worker); company unscored (worker failed: no remote result collected for cl-omni-unattended-worker); project unscored (worker failed: no remote result collected for cl-omni-unattended-worker)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/omni-unattended-worker-aggregate-budget-and-owner-controls.md` | brainstorm | omni-unattended-worker |
+| `ideation/brainstorm/omni-unattended-worker-authority-object-lifetimes.md` | brainstorm | omni-unattended-worker |
+| `ideation/brainstorm/omni-unattended-worker-compute-first-model-placement.md` | brainstorm | omni-unattended-worker |
+| `ideation/brainstorm/omni-unattended-worker-credential-reach-and-contribution-repository.md` | brainstorm | omni-unattended-worker |
+| `ideation/brainstorm/omni-unattended-worker-device-certificate-authentication.md` | brainstorm | omni-unattended-worker |
+| `ideation/brainstorm/omni-unattended-worker-enrollment-authorization.md` | brainstorm | omni-unattended-worker |
+| `ideation/brainstorm/omni-unattended-worker-ephemeral-runner-attempt-grant.md` | brainstorm | omni-unattended-worker |
+| `ideation/brainstorm/omni-unattended-worker-executor-ladder.md` | brainstorm | omni-unattended-worker |
+| `ideation/brainstorm/omni-unattended-worker-heartbeat-batch-envelope.md` | brainstorm | omni-unattended-worker |
+| `ideation/brainstorm/omni-unattended-worker-host-manager-topology.md` | brainstorm | omni-unattended-worker |
+| `ideation/brainstorm/omni-unattended-worker-installation-identity.md` | brainstorm | omni-unattended-worker |
+| `ideation/brainstorm/omni-unattended-worker-overview.md` | brainstorm | omni-unattended-worker |
+| `ideation/brainstorm/omni-unattended-worker-rootless-docker-hardening.md` | brainstorm | omni-unattended-worker |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-device-trust-plane.md` | brainstorm | omni-unattended-worker |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-governed-dispatch.md` | brainstorm | omni-unattended-worker |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-sandboxed-execution.md` | brainstorm | omni-unattended-worker |
+| `ideation/brainstorm/omni-unattended-worker-three-policy-gates.md` | brainstorm | omni-unattended-worker |
+| `ideation/brainstorm/omni-unattended-worker-wsl2-worker-owned-distro.md` | brainstorm | omni-unattended-worker |
 
 ## Omnigent
 
@@ -3056,9 +3063,8 @@ Repository context: openxFactory
 | `ideation/brainstorm/governed-recursive-inference-placement.md` | brainstorm | omnigent |
 | `ideation/brainstorm/governed-recursive-inference-typed-runtime.md` | brainstorm | omnigent |
 | `ideation/brainstorm/hermes-recursive-subject-establishment-hermes-control-and-execution-boundary.md` | brainstorm | omnigent |
-| `ideation/brainstorm/medical-domain-overview.md` | brainstorm | omnigent |
-| `ideation/brainstorm/medical-domain-specialized-worker-envelope.md` | brainstorm | omnigent |
-| `ideation/brainstorm/medical-omnigent-harness-adaptation.md` | brainstorm | omnigent |
+| `ideation/brainstorm/omni-unattended-worker-compute-first-model-placement.md` | brainstorm | omnigent |
+| `ideation/brainstorm/omni-unattended-worker-host-manager-topology.md` | brainstorm | omnigent |
 | `ideation/brainstorm/omnigent-micro-agent-evaluation-and-economics.md` | brainstorm | omnigent |
 | `ideation/brainstorm/omnigent-micro-agent-foundations.md` | brainstorm | omnigent |
 | `ideation/brainstorm/omnigent-micro-agent-overview.md` | brainstorm | omnigent |
@@ -3108,6 +3114,7 @@ Repository context: openxFactory
 | `ideation/brainstorm/polyglot-graph-memory-omnigent-code-intelligence.md` | brainstorm | omnigent-domain-overlay |
 | `ideation/brainstorm/tech-stack-benches.md` | brainstorm | omnigent-domain-overlay |
 | `ideation/staging/recurrence-crystallization/recurrence-crystallization.md` | staged | omnigent-domain-overlay |
+| `ideation/staging/treatment-options-engine/treatment-options-engine.md` | staged | omnigent-domain-overlay |
 
 ## Omnigent Install
 
@@ -3135,7 +3142,10 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/nightly-sweep-council-clearance-rule.md` | brainstorm | omnigent-lane |
+| `ideation/brainstorm/omni-unattended-worker-ephemeral-runner-attempt-grant.md` | brainstorm | omnigent-lane |
+| `ideation/brainstorm/omni-unattended-worker-executor-ladder.md` | brainstorm | omnigent-lane |
+| `ideation/brainstorm/omni-unattended-worker-overview.md` | brainstorm | omnigent-lane |
+| `ideation/brainstorm/omni-unattended-worker-three-policy-gates.md` | brainstorm | omnigent-lane |
 | `ideation/brainstorm/omnigent-lane-activation-path.md` | brainstorm | omnigent-lane |
 | `ideation/brainstorm/worker-execution-governed-job-lifecycle.md` | brainstorm | omnigent-lane |
 | `ideation/brainstorm/worker-execution-overview.md` | brainstorm | omnigent-lane |
@@ -3183,6 +3193,59 @@ Repository context: openxFactory
 | `ideation/brainstorm/ontology-synthesis-lifecycle-and-agents.md` | brainstorm | ontology |
 | `ideation/brainstorm/ontology-synthesis-semantic-execution.md` | brainstorm | ontology |
 
+## Opendox
+
+- id: `cl-opendox`
+- topics: opendox
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-opendox); company unscored (worker failed: no remote result collected for cl-opendox); project unscored (worker failed: no remote result collected for cl-opendox)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/opendox-core-product.md` | brainstorm | opendox |
+| `ideation/brainstorm/opendox-domain-mappings.md` | brainstorm | opendox |
+| `ideation/brainstorm/opendox-openxdox-boundary.md` | brainstorm | opendox |
+| `ideation/brainstorm/opendox-persistence-and-truth.md` | brainstorm | opendox |
+| `ideation/brainstorm/opendox-synthesis-install-and-tenancy.md` | brainstorm | opendox |
+| `ideation/brainstorm/opendox-two-layer-overview.md` | brainstorm | opendox |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | opendox |
+
+## Openxdox
+
+- id: `cl-openxdox`
+- topics: openxdox
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-openxdox); company unscored (worker failed: no remote result collected for cl-openxdox); project unscored (worker failed: no remote result collected for cl-openxdox)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/opendox-domain-mappings.md` | brainstorm | openxdox |
+| `ideation/brainstorm/opendox-openxdox-boundary.md` | brainstorm | openxdox |
+| `ideation/brainstorm/opendox-persistence-and-truth.md` | brainstorm | openxdox |
+| `ideation/brainstorm/opendox-synthesis-install-and-tenancy.md` | brainstorm | openxdox |
+| `ideation/brainstorm/opendox-two-layer-overview.md` | brainstorm | openxdox |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | openxdox |
+| `ideation/staging/openxdox-install-app-provisioning/openxdox-install-app-provisioning.md` | staged | openxdox |
+
+## Openxdox Naming
+
+- id: `cl-openxdox-naming`
+- topics: openxdox-naming
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-openxdox-naming); company unscored (worker failed: no remote result collected for cl-openxdox-naming); project unscored (worker failed: no remote result collected for cl-openxdox-naming)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/opendox-two-layer-overview.md` | brainstorm | openxdox-naming |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | openxdox-naming |
+| `ideation/staging/openxwallet-neutral-home/openxwallet-neutral-home.md` | staged | openxdox-naming |
+
 ## Openxvault
 
 - id: `cl-openxvault`
@@ -3213,6 +3276,8 @@ Repository context: openxFactory
 | `ideation/brainstorm/agent-certification-wallets.md` | brainstorm | openxwallet |
 | `ideation/staging/agent-wallet-identity/agent-wallet-identity.md` | staged | openxwallet |
 | `ideation/staging/notebook-access-wallet-governance/notebook-access-wallet-governance.md` | staged | openxwallet |
+| `ideation/staging/openxwallet-neutral-home/openxwallet-neutral-home.md` | staged | openxwallet |
+| `ideation/staging/wallet-carried-work-authority/wallet-carried-work-authority.md` | staged | openxwallet |
 
 ## Opsxfactory
 
@@ -3228,7 +3293,6 @@ Repository context: openxFactory
 | `ideation/brainstorm/governed-recursive-inference-domain-pilots.md` | brainstorm | opsxfactory |
 | `ideation/brainstorm/governed-recursive-inference-synthesis-adoption-and-councils.md` | brainstorm | opsxfactory |
 | `ideation/staging/github-administration-plane/multi-app-identity-and-github-administration.md` | superseded | opsxfactory |
-| `ideation/staging/worker-enrollment-broker/worker-enrollment-broker.md` | staged | opsxfactory |
 | `ideation/staging/worker-host-app/worker-host-app.md` | staged | opsxfactory |
 | `ideation/staging/worker-host-app/wsl-install-and-setup.md` | staged | opsxfactory |
 
@@ -3289,19 +3353,20 @@ Repository context: openxFactory
 | `ideation/brainstorm/crystallization-synthesis-pattern-ledger.md` | staged | pattern-ledger |
 | `ideation/staging/recurrence-crystallization/recurrence-crystallization.md` | staged | pattern-ledger |
 
-## Permission Matrix
+## Per Tenant Database
 
-- id: `cl-permission-matrix`
-- topics: permission-matrix
+- id: `cl-per-tenant-database`
+- topics: per-tenant-database, tenant-install
 - tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-permission-matrix); company unscored (worker failed: no remote result collected for cl-permission-matrix); project unscored (worker failed: no remote result collected for cl-permission-matrix)
+- readiness: domain unscored (worker failed: no remote result collected for cl-per-tenant-database); company unscored (worker failed: no remote result collected for cl-per-tenant-database); project unscored (worker failed: no remote result collected for cl-per-tenant-database)
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/crystallization-authority-and-consent.md` | staged | permission-matrix |
-| `ideation/brainstorm/medical-omnigent-harness-adaptation.md` | brainstorm | permission-matrix |
+| `ideation/brainstorm/opendox-synthesis-install-and-tenancy.md` | brainstorm | per-tenant-database, tenant-install |
+| `ideation/brainstorm/opendox-two-layer-overview.md` | brainstorm | per-tenant-database, tenant-install |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | per-tenant-database, tenant-install |
 
 ## Personality
 
@@ -3344,11 +3409,7 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/client-layer-roster-draft.md` | brainstorm | plane-1 |
 | `ideation/brainstorm/client-layer-scaffold.md` | brainstorm | plane-1 |
-| `ideation/brainstorm/codexfactory-domain-roster-draft.md` | brainstorm | plane-1 |
-| `ideation/brainstorm/medxfactory-domain-roster-draft.md` | brainstorm | plane-1 |
 | `ideation/brainstorm/project-layer-scaffold.md` | brainstorm | plane-1 |
-| `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | plane-1 |
-| `ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md` | staged | plane-1 |
 
 ## Plane 2
 
@@ -3364,20 +3425,6 @@ Repository context: openxFactory
 | `ideation/brainstorm/client-ingestion-adapter-contract.md` | brainstorm | plane-2 |
 | `ideation/brainstorm/client-layer-scaffold.md` | brainstorm | plane-2 |
 
-## Plane 3
-
-- id: `cl-plane-3`
-- topics: plane-3
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-plane-3); company unscored (worker failed: no remote result collected for cl-plane-3); project unscored (worker failed: no remote result collected for cl-plane-3)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-deliberation.md` | brainstorm | plane-3 |
-| `ideation/brainstorm/hermes-legal-compliance-model.md` | brainstorm | plane-3 |
-
 ## Playwright
 
 - id: `cl-playwright`
@@ -3392,20 +3439,6 @@ Repository context: openxFactory
 | `ideation/brainstorm/agent-assisted-app-testing-scope-routing.md` | brainstorm | playwright |
 | `ideation/brainstorm/agent-assisted-app-testing-verification-parity.md` | brainstorm | playwright |
 
-## Policies
-
-- id: `cl-policies`
-- topics: policies
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-policies); company unscored (worker failed: no remote result collected for cl-policies); project unscored (worker failed: no remote result collected for cl-policies)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | policies |
-| `ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md` | staged | policies |
-
 ## Policy Wizard
 
 - id: `cl-policy-wizard`
@@ -3419,7 +3452,7 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/client-layer-scaffold.md` | brainstorm | policy-wizard |
 | `ideation/brainstorm/client-policy-wizard.md` | brainstorm | policy-wizard |
-| `ideation/staging/client-layer-tuning/client-layer-tuning.md` | staged | policy-wizard |
+| `ideation/staging/client-layer-tuning/client-layer-tuning.md` | superseded | policy-wizard |
 
 ## Polyglot Graph Memory
 
@@ -3487,7 +3520,6 @@ Repository context: openxFactory
 | `ideation/brainstorm/domain-practice-suggestion-generation.md` | brainstorm | practice-adoption |
 | `ideation/brainstorm/hermes-governed-nightly-sweep.md` | brainstorm | practice-adoption |
 | `ideation/brainstorm/hermes-synthesis-governed-practice-loop.md` | brainstorm | practice-adoption |
-| `ideation/brainstorm/nightly-sweep-council-clearance-rule.md` | brainstorm | practice-adoption |
 | `ideation/brainstorm/practice-adoption-clearance-ledger.md` | brainstorm | practice-adoption |
 | `ideation/brainstorm/practice-adoption-overview.md` | brainstorm | practice-adoption |
 | `ideation/brainstorm/practice-adoption-suggestion-envelope.md` | brainstorm | practice-adoption |
@@ -3505,16 +3537,11 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-hermes-content.md` | brainstorm | practice-catalog |
-| `ideation/brainstorm/codexfactory-domain-memory-and-practices.md` | brainstorm | practice-catalog |
-| `ideation/brainstorm/codexfactory-domain-synthesis-policy-and-memory.md` | brainstorm | practice-catalog |
 | `ideation/brainstorm/cost-accountability-and-efficiency-model.md` | brainstorm | practice-catalog |
 | `ideation/brainstorm/domain-practice-suggestion-generation.md` | brainstorm | practice-catalog |
 | `ideation/brainstorm/hermes-layer-content-seeding.md` | brainstorm | practice-catalog |
 | `ideation/brainstorm/practice-adoption-overview.md` | brainstorm | practice-catalog |
 | `ideation/brainstorm/practice-adoption-suggestion-envelope.md` | brainstorm | practice-catalog |
-| `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | practice-catalog |
-| `ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md` | staged | practice-catalog |
 
 ## Practice Clearance
 
@@ -3638,6 +3665,8 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
+| `ideation/brainstorm/opendox-core-product.md` | brainstorm | project-register |
+| `ideation/brainstorm/opendox-persistence-and-truth.md` | brainstorm | project-register |
 | `ideation/brainstorm/tenant-project-catalog-and-workstation-cache.md` | brainstorm | project-register |
 | `ideation/staging/dashboard-project-scoping/dashboard-project-scoping.md` | staged | project-register |
 | `ideation/staging/dashboard-repo-selector/dashboard-repo-selector.md` | staged | project-register |
@@ -3704,21 +3733,6 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/doxbench-provider-boundary.md` | brainstorm | provider-boundary |
 | `ideation/brainstorm/doxbench-synthesis-governed-runtime.md` | brainstorm | provider-boundary |
-
-## Provisioning
-
-- id: `cl-provisioning`
-- topics: provisioning
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-provisioning); company unscored (worker failed: no remote result collected for cl-provisioning); project unscored (worker failed: no remote result collected for cl-provisioning)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/project-layer-scaffold.md` | brainstorm | provisioning |
-| `ideation/brainstorm/project-type-template-library-draft.md` | brainstorm | provisioning |
-| `ideation/staging/subject-establishment/subject-establishment.md` | staged | provisioning |
 
 ## Quality Metrics
 
@@ -3879,6 +3893,22 @@ Repository context: openxFactory
 | `ideation/brainstorm/crystallization-build-pipeline.md` | staged | release-realization |
 | `ideation/brainstorm/openspec-speckit-release-flow.md` | staged | release-realization |
 
+## Repo Split
+
+- id: `cl-repo-split`
+- topics: repo-split
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-repo-split); company unscored (worker failed: no remote result collected for cl-repo-split); project unscored (worker failed: no remote result collected for cl-repo-split)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/opendox-openxdox-boundary.md` | brainstorm | repo-split |
+| `ideation/brainstorm/opendox-two-layer-overview.md` | brainstorm | repo-split |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | repo-split |
+| `ideation/staging/openxwallet-neutral-home/openxwallet-neutral-home.md` | staged | repo-split |
+
 ## Requirements Mining
 
 - id: `cl-requirements-mining`
@@ -3909,6 +3939,20 @@ Repository context: openxFactory
 | `ideation/brainstorm/hermes-knowledge-base-architecture.md` | brainstorm | retrieval |
 | `ideation/brainstorm/hermes-retrieval-primitives-contract.md` | brainstorm | retrieval |
 | `ideation/brainstorm/hermes-synthesis-knowledge-and-retrieval.md` | brainstorm | retrieval |
+
+## Review Authority Intake
+
+- id: `cl-review-authority-intake`
+- topics: review-authority-intake
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-review-authority-intake); company unscored (worker failed: no remote result collected for cl-review-authority-intake); project unscored (worker failed: no remote result collected for cl-review-authority-intake)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/staging/openxwallet-neutral-home/openxwallet-neutral-home.md` | staged | review-authority-intake |
+| `ideation/staging/wallet-carried-work-authority/wallet-carried-work-authority.md` | staged | review-authority-intake |
 
 ## Risk And Assurance
 
@@ -3952,23 +3996,24 @@ Repository context: openxFactory
 | `ideation/brainstorm/dashboard-action-center.md` | staged | roles-authority-model |
 | `ideation/brainstorm/domain-to-neutral-promotion.md` | staged | roles-authority-model |
 | `ideation/brainstorm/keycloak-identity-brokering.md` | staged | roles-authority-model |
+| `ideation/brainstorm/omni-unattended-worker-authority-object-lifetimes.md` | brainstorm | roles-authority-model |
+| `ideation/brainstorm/opendox-domain-mappings.md` | brainstorm | roles-authority-model |
 | `ideation/staging/github-administration-plane/multi-app-identity-and-github-administration.md` | superseded | roles-authority-model |
 | `ideation/staging/ideation-action-plane/ideation-action-plane.md` | staged | roles-authority-model |
 
-## Roster
+## Rootless Docker Hardening
 
-- id: `cl-roster`
-- topics: roster
+- id: `cl-rootless-docker-hardening`
+- topics: rootless-docker-hardening
 - tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-roster); company unscored (worker failed: no remote result collected for cl-roster); project unscored (worker failed: no remote result collected for cl-roster)
+- readiness: domain unscored (worker failed: no remote result collected for cl-rootless-docker-hardening); company unscored (worker failed: no remote result collected for cl-rootless-docker-hardening); project unscored (worker failed: no remote result collected for cl-rootless-docker-hardening)
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/client-layer-roster-draft.md` | brainstorm | roster |
-| `ideation/brainstorm/codexfactory-domain-roster-draft.md` | brainstorm | roster |
-| `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | roster |
+| `ideation/brainstorm/omni-unattended-worker-rootless-docker-hardening.md` | brainstorm | rootless-docker-hardening |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-sandboxed-execution.md` | brainstorm | rootless-docker-hardening |
 
 ## Routing
 
@@ -4018,20 +4063,6 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/crystallization-dispatch-and-fences.md` | staged | scope-fence |
 | `ideation/brainstorm/crystallization-requirements-mining.md` | staged | scope-fence |
-
-## Scrum Coordinator
-
-- id: `cl-scrum-coordinator`
-- topics: scrum-coordinator
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-scrum-coordinator); company unscored (worker failed: no remote result collected for cl-scrum-coordinator); project unscored (worker failed: no remote result collected for cl-scrum-coordinator)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-hermes-content.md` | brainstorm | scrum-coordinator |
-| `ideation/brainstorm/codexfactory-domain-roster-draft.md` | brainstorm | scrum-coordinator |
 
 ## Sdlc Session
 
@@ -4208,20 +4239,6 @@ Repository context: openxFactory
 | `ideation/brainstorm/polyglot-graph-memory-provider-contract.md` | brainstorm | source-authority |
 | `ideation/brainstorm/polyglot-graph-memory-synthesis-routing-and-governance.md` | brainstorm | source-authority |
 
-## Source Trace
-
-- id: `cl-source-trace`
-- topics: source-trace
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-source-trace); company unscored (worker failed: no remote result collected for cl-source-trace); project unscored (worker failed: no remote result collected for cl-source-trace)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/governed-recursive-inference-evidence-coverage.md` | brainstorm | source-trace |
-| `ideation/brainstorm/medical-omnigent-harness-adaptation.md` | brainstorm | source-trace |
-
 ## Steward
 
 - id: `cl-steward`
@@ -4360,8 +4377,6 @@ Repository context: openxFactory
 | `ideation/brainstorm/avatar-live-voice-synthesis-brokered-path.md` | brainstorm | synthesis |
 | `ideation/brainstorm/client-synthesis-authority-and-policy.md` | brainstorm | synthesis |
 | `ideation/brainstorm/client-synthesis-ingestion-and-assurance.md` | brainstorm | synthesis |
-| `ideation/brainstorm/codexfactory-domain-synthesis-authority-and-deliberation.md` | brainstorm | synthesis |
-| `ideation/brainstorm/codexfactory-domain-synthesis-policy-and-memory.md` | brainstorm | synthesis |
 | `ideation/brainstorm/crystallization-synthesis-crystallizer.md` | staged | synthesis |
 | `ideation/brainstorm/crystallization-synthesis-pattern-ledger.md` | staged | synthesis |
 | `ideation/brainstorm/crystallization-synthesis-steward.md` | staged | synthesis |
@@ -4381,8 +4396,10 @@ Repository context: openxFactory
 | `ideation/brainstorm/hermes-synthesis-knowledge-and-retrieval.md` | brainstorm | synthesis |
 | `ideation/brainstorm/hermes-synthesis-layer-content-and-authority.md` | brainstorm | synthesis |
 | `ideation/brainstorm/identity-custody-synthesis-trust-plane.md` | brainstorm | synthesis |
-| `ideation/brainstorm/medical-domain-synthesis-clinical-execution.md` | brainstorm | synthesis |
 | `ideation/brainstorm/memory-retrieval-synthesis-governed-recall.md` | brainstorm | synthesis |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-device-trust-plane.md` | brainstorm | synthesis |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-governed-dispatch.md` | brainstorm | synthesis |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-sandboxed-execution.md` | brainstorm | synthesis |
 | `ideation/brainstorm/omnigent-micro-agent-synthesis-governed-execution.md` | brainstorm | synthesis |
 | `ideation/brainstorm/ontology-synthesis-lifecycle-and-agents.md` | brainstorm | synthesis |
 | `ideation/brainstorm/ontology-synthesis-semantic-execution.md` | brainstorm | synthesis |
@@ -4467,6 +4484,7 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
+| `ideation/brainstorm/opendox-persistence-and-truth.md` | brainstorm | tenant-project-catalog |
 | `ideation/brainstorm/tenant-project-catalog-and-workstation-cache.md` | brainstorm | tenant-project-catalog |
 | `ideation/staging/dashboard-project-scoping/dashboard-project-scoping.md` | staged | tenant-project-catalog |
 
@@ -4481,11 +4499,24 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-hermes-content.md` | brainstorm | three-layer-hermes-runtime |
-| `ideation/brainstorm/codexfactory-domain-overview.md` | brainstorm | three-layer-hermes-runtime |
 | `ideation/brainstorm/hermes-layer-content-seeding.md` | brainstorm | three-layer-hermes-runtime |
 | `ideation/brainstorm/hermes-overview.md` | brainstorm | three-layer-hermes-runtime |
 | `ideation/brainstorm/omnigent-core-domain-split.md` | superseded | three-layer-hermes-runtime |
+
+## Three Policy Gates
+
+- id: `cl-three-policy-gates`
+- topics: three-policy-gates
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-three-policy-gates); company unscored (worker failed: no remote result collected for cl-three-policy-gates); project unscored (worker failed: no remote result collected for cl-three-policy-gates)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/omni-unattended-worker-credential-reach-and-contribution-repository.md` | brainstorm | three-policy-gates |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-governed-dispatch.md` | brainstorm | three-policy-gates |
+| `ideation/brainstorm/omni-unattended-worker-three-policy-gates.md` | brainstorm | three-policy-gates |
 
 ## Token Budget
 
@@ -4521,20 +4552,36 @@ Repository context: openxFactory
 | `ideation/brainstorm/polyglot-graph-memory-provider-contract.md` | brainstorm | traceability |
 | `ideation/staging/proposal-origin-contract/fda-samd-traceability-rationale.md` | staged | traceability |
 
-## Trait Framework
+## Trust Anchor
 
-- id: `cl-trait-framework`
-- topics: trait-framework
+- id: `cl-trust-anchor`
+- topics: trust-anchor
 - tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-trait-framework); company unscored (worker failed: no remote result collected for cl-trait-framework); project unscored (worker failed: no remote result collected for cl-trait-framework)
+- readiness: domain unscored (worker failed: no remote result collected for cl-trust-anchor); company unscored (worker failed: no remote result collected for cl-trust-anchor); project unscored (worker failed: no remote result collected for cl-trust-anchor)
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-roster-draft.md` | brainstorm | trait-framework |
-| `ideation/brainstorm/hermes-persona-character-model.md` | brainstorm | trait-framework |
-| `ideation/brainstorm/medxfactory-domain-roster-draft.md` | brainstorm | trait-framework |
+| `ideation/brainstorm/omni-unattended-worker-device-certificate-authentication.md` | brainstorm | trust-anchor |
+| `ideation/brainstorm/omni-unattended-worker-enrollment-authorization.md` | brainstorm | trust-anchor |
+| `ideation/brainstorm/omni-unattended-worker-installation-identity.md` | brainstorm | trust-anchor |
+| `ideation/brainstorm/omni-unattended-worker-overview.md` | brainstorm | trust-anchor |
+| `ideation/staging/openxwallet-neutral-home/openxwallet-neutral-home.md` | staged | trust-anchor |
+
+## Two Layer Product
+
+- id: `cl-two-layer-product`
+- topics: two-layer-product
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-two-layer-product); company unscored (worker failed: no remote result collected for cl-two-layer-product); project unscored (worker failed: no remote result collected for cl-two-layer-product)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/opendox-two-layer-overview.md` | brainstorm | two-layer-product |
+| `ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md` | staged | two-layer-product |
 
 ## Typed Handoff
 
@@ -4666,8 +4713,6 @@ Repository context: openxFactory
 | Member | Stage | Matched tags |
 | --- | --- | --- |
 | `ideation/brainstorm/governed-recursive-inference-placement.md` | brainstorm | worker-archetypes |
-| `ideation/brainstorm/medical-domain-specialized-worker-envelope.md` | brainstorm | worker-archetypes |
-| `ideation/brainstorm/medical-omnigent-harness-adaptation.md` | brainstorm | worker-archetypes |
 | `ideation/brainstorm/omnigent-micro-agent-foundations.md` | brainstorm | worker-archetypes |
 | `ideation/brainstorm/ontology-and-micro-agent-exploration-map.md` | brainstorm | worker-archetypes |
 | `ideation/brainstorm/polyglot-graph-memory-omnigent-code-intelligence.md` | brainstorm | worker-archetypes |
@@ -4683,8 +4728,14 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
+| `ideation/brainstorm/omni-unattended-worker-authority-object-lifetimes.md` | brainstorm | worker-enrollment |
+| `ideation/brainstorm/omni-unattended-worker-device-certificate-authentication.md` | brainstorm | worker-enrollment |
+| `ideation/brainstorm/omni-unattended-worker-enrollment-authorization.md` | brainstorm | worker-enrollment |
+| `ideation/brainstorm/omni-unattended-worker-ephemeral-runner-attempt-grant.md` | brainstorm | worker-enrollment |
+| `ideation/brainstorm/omni-unattended-worker-installation-identity.md` | brainstorm | worker-enrollment |
+| `ideation/brainstorm/omni-unattended-worker-overview.md` | brainstorm | worker-enrollment |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-device-trust-plane.md` | brainstorm | worker-enrollment |
 | `ideation/brainstorm/worker-execution-overview.md` | brainstorm | worker-enrollment |
-| `ideation/staging/worker-enrollment-broker/worker-enrollment-broker.md` | staged | worker-enrollment |
 
 ## Worker Execution
 
@@ -4697,6 +4748,19 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
+| `ideation/brainstorm/omni-unattended-worker-aggregate-budget-and-owner-controls.md` | brainstorm | worker-execution |
+| `ideation/brainstorm/omni-unattended-worker-authority-object-lifetimes.md` | brainstorm | worker-execution |
+| `ideation/brainstorm/omni-unattended-worker-compute-first-model-placement.md` | brainstorm | worker-execution |
+| `ideation/brainstorm/omni-unattended-worker-credential-reach-and-contribution-repository.md` | brainstorm | worker-execution |
+| `ideation/brainstorm/omni-unattended-worker-ephemeral-runner-attempt-grant.md` | brainstorm | worker-execution |
+| `ideation/brainstorm/omni-unattended-worker-executor-ladder.md` | brainstorm | worker-execution |
+| `ideation/brainstorm/omni-unattended-worker-heartbeat-batch-envelope.md` | brainstorm | worker-execution |
+| `ideation/brainstorm/omni-unattended-worker-host-manager-topology.md` | brainstorm | worker-execution |
+| `ideation/brainstorm/omni-unattended-worker-overview.md` | brainstorm | worker-execution |
+| `ideation/brainstorm/omni-unattended-worker-rootless-docker-hardening.md` | brainstorm | worker-execution |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-sandboxed-execution.md` | brainstorm | worker-execution |
+| `ideation/brainstorm/omni-unattended-worker-three-policy-gates.md` | brainstorm | worker-execution |
+| `ideation/brainstorm/omni-unattended-worker-wsl2-worker-owned-distro.md` | brainstorm | worker-execution |
 | `ideation/brainstorm/omnigent-lane-activation-path.md` | brainstorm | worker-execution |
 | `ideation/brainstorm/omnigent-micro-agent-overview.md` | brainstorm | worker-execution |
 | `ideation/brainstorm/tech-stack-benches.md` | brainstorm | worker-execution |
@@ -4716,6 +4780,8 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
+| `ideation/brainstorm/omni-unattended-worker-host-manager-topology.md` | brainstorm | worker-host |
+| `ideation/brainstorm/omni-unattended-worker-wsl2-worker-owned-distro.md` | brainstorm | worker-host |
 | `ideation/brainstorm/worker-execution-host-contract.md` | brainstorm | worker-host |
 | `ideation/brainstorm/worker-execution-synthesis-governed-lane.md` | brainstorm | worker-host |
 | `ideation/staging/workstation-app-shell/workstation-app-shell.md` | staged | worker-host |
@@ -4723,7 +4789,7 @@ Repository context: openxFactory
 ## Worker Host App
 
 - id: `cl-worker-host-app`
-- topics: worker-host-app
+- topics: worker-host-app, wsl
 - tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
@@ -4731,9 +4797,8 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/staging/worker-enrollment-broker/worker-enrollment-broker.md` | staged | worker-host-app |
-| `ideation/staging/worker-host-app/worker-host-app.md` | staged | worker-host-app |
-| `ideation/staging/worker-host-app/wsl-install-and-setup.md` | staged | worker-host-app |
+| `ideation/staging/worker-host-app/worker-host-app.md` | staged | worker-host-app, wsl |
+| `ideation/staging/worker-host-app/wsl-install-and-setup.md` | staged | worker-host-app, wsl |
 
 ## Worker Profile
 
@@ -4748,6 +4813,38 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/omnigent-micro-agent-foundations.md` | brainstorm | worker-profile |
 | `ideation/brainstorm/omnigent-micro-agent-task-contract.md` | brainstorm | worker-profile |
+
+## Worker Readiness
+
+- id: `cl-worker-readiness`
+- topics: worker-readiness
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-worker-readiness); company unscored (worker failed: no remote result collected for cl-worker-readiness); project unscored (worker failed: no remote result collected for cl-worker-readiness)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/omni-unattended-worker-heartbeat-batch-envelope.md` | brainstorm | worker-readiness |
+| `ideation/brainstorm/omni-unattended-worker-overview.md` | brainstorm | worker-readiness |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-governed-dispatch.md` | brainstorm | worker-readiness |
+
+## Workflow Gate Contract
+
+- id: `cl-workflow-gate-contract`
+- topics: workflow-gate-contract
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-workflow-gate-contract); company unscored (worker failed: no remote result collected for cl-workflow-gate-contract); project unscored (worker failed: no remote result collected for cl-workflow-gate-contract)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/crystallization-build-pipeline.md` | staged | workflow-gate-contract |
+| `ideation/brainstorm/crystallization-parity-and-cutover.md` | staged | workflow-gate-contract |
+| `ideation/brainstorm/opendox-domain-mappings.md` | brainstorm | workflow-gate-contract |
+| `ideation/brainstorm/opendox-persistence-and-truth.md` | brainstorm | workflow-gate-contract |
+| `ideation/staging/treatment-options-engine/treatment-options-engine.md` | staged | workflow-gate-contract |
 
 ## Workflow Visualization
 
@@ -4764,19 +4861,33 @@ Repository context: openxFactory
 | `ideation/brainstorm/workflow-visualization-tooling.md` | staged | workflow-visualization |
 | `ideation/staging/dashboard-repo-selector/dashboard-repo-selector.md` | staged | workflow-visualization |
 
-## Wsl
+## Workstation Intake
 
-- id: `cl-wsl`
-- topics: wsl
+- id: `cl-workstation-intake`
+- topics: workstation-intake
 - tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-wsl); company unscored (worker failed: no remote result collected for cl-wsl); project unscored (worker failed: no remote result collected for cl-wsl)
+- readiness: domain unscored (worker failed: no remote result collected for cl-workstation-intake); company unscored (worker failed: no remote result collected for cl-workstation-intake); project unscored (worker failed: no remote result collected for cl-workstation-intake)
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/staging/worker-host-app/worker-host-app.md` | staged | wsl |
-| `ideation/staging/worker-host-app/wsl-install-and-setup.md` | staged | wsl |
+| `ideation/brainstorm/omni-unattended-worker-enrollment-authorization.md` | brainstorm | workstation-intake |
+| `ideation/brainstorm/omni-unattended-worker-overview.md` | brainstorm | workstation-intake |
+
+## Wsl2 Worker Owned Distro
+
+- id: `cl-wsl2-worker-owned-distro`
+- topics: wsl2-worker-owned-distro
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-wsl2-worker-owned-distro); company unscored (worker failed: no remote result collected for cl-wsl2-worker-owned-distro); project unscored (worker failed: no remote result collected for cl-wsl2-worker-owned-distro)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/omni-unattended-worker-synthesis-sandboxed-execution.md` | brainstorm | wsl2-worker-owned-distro |
+| `ideation/brainstorm/omni-unattended-worker-wsl2-worker-owned-distro.md` | brainstorm | wsl2-worker-owned-distro |
 
 ## Xfactory Semantic Kernel
 
