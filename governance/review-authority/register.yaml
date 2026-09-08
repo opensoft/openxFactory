@@ -91,6 +91,57 @@ rows:
     expires_at: "2027-06-30T00:00:00Z"
     state: active
 
+  # THE SECOND AUTHORITY ROW, and the first this register has ever carried.
+  # Task 3.6 of the ratified change `register-gate-rules-council-seats`
+  # (RATIFIED 2026-09-06T14:13:46Z, Brett Heap, verbatim "lets take them in
+  # your recommended order all approved"; amended 2026-09-07 by R1/R2).
+  #
+  # THE ROW ABOVE IS NOT TOUCHED, and neither is `revocation_staleness_bound`.
+  # One bound governs the whole register (design D7; mint runbook §3.4), and
+  # tightening it is its own governed edit, never a tidy-up inside a mint.
+  #
+  # WHY A SECOND ROW IS LEGAL NOW AND WAS NOT BEFORE. The pinned reader's
+  # `REGISTER_MVP_SINGLE_ROW` cap refused a second authority row outright, and
+  # its seat-duplicate table was keyed on `seat_id` ALONE — which would have
+  # refused `lead-security`, a seat BOTH bodies seat. Both were measured
+  # defects, not policy (design D5), and both are fixed in openXwallet
+  # `wallet-v1.5` (#16/#17/#18, merged `f3eb929b`): the scalar cap is RETIRED
+  # BY NAME in favour of the invariants it stood in for — every row resolves
+  # end to end, every seat entry attaches to a row that commissions its body,
+  # and (`council_id`, `seat_id`) is unique — per Q-GRC-5, RULED
+  # 2026-09-06T14:13:46Z. `key_id` and `key_fingerprint` uniqueness stays
+  # GLOBAL: a key is one key, and two bodies presenting it are two claims on
+  # one identity. That pin advance landed FIRST and was proved NEUTRAL at one
+  # row before this row was written (task 2.9).
+  #
+  # THE HOLDER. `agent:gate-rules-council` is codexFactory's `gate_rules_council`
+  # (`hermes/domain/review-councils/gate-rules.yaml`, `council.id`), the
+  # cross-layer rule-SETTING body — NOT the per-PR enrolled surface, whose
+  # holder is `agent:merge-readiness-council` on the row above. Two bodies, two
+  # holders, two grants, two revocation radiuses.
+  #
+  # THE COMPOSITION CAME FIRST. `grant-grc-0001` is issued against a DECLARED
+  # composition that existed before it: codexFactory PR #277 → `511d95c5`
+  # (2026-09-07) landed `composition_source_map` on `gate-rules.yaml` and
+  # `review_council_profiles.gate_rules_council` in `agent-mixes.yaml` — six
+  # components mirrored from merge-readiness, exact model identifiers only
+  # (design D3; ruling R2(a)). Q-GRC-2 accepts the two-body coupling openly:
+  # one enrolled-roster pin flip now revokes BOTH bodies' grants at once.
+  #
+  # `expires_at` is character-for-character equal to `grant-grc-0001`'s,
+  # because the reader compares the two. Ratifying human: Brett Heap
+  # (Brett.Heap@opensoft.one), on this permanently human-only surface.
+  # Record: `openspec/changes/register-gate-rules-council-seats/walk-2026-09-08-register-act.md`.
+  - row_id: row-grc-0001
+    holder_ref: agent:gate-rules-council
+    wallet_ref: wal-agent-grc-0001
+    target_repo: opensoft/openxFactory
+    act: review
+    authority_tier: act
+    grant_ref: grant-grc-0001
+    expires_at: "2027-06-30T00:00:00Z"
+    state: active
+
 # THE PER-SEAT SIGNING KEYS (add-per-seat-register-entries, wallet-v1.2).
 #
 # Four Ed25519 keypairs were minted 2026-08-28, one per seat of codexFactory's
@@ -186,3 +237,81 @@ seat_keys:
     public_key: zwKZNuvovOXl_FpGW9Oxjs0IATnlzstlFdT1GlqSvpY
     key_fingerprint: sha256:0b6ad4ab29f2371cc635e392635c796f103a589dab7f5a3dd22b5ca44a504bbb
     authorizing_row: row-mrc-0001
+
+  # ── THE GATE-RULES COUNCIL'S FOUR SEAT KEYS ──────────────────────────────
+  #
+  # Task 3.7 of `register-gate-rules-council-seats`. Four Ed25519 keypairs
+  # minted 2026-09-08, one per REGISTERED seat of codexFactory's
+  # `gate_rules_council`, their private halves provisioned as
+  # `COUNCIL_SEAT_SIGNING_KEY_GRC_<SEAT>` in that repository's
+  # `worker-credentials` environment (Q-GRC-1, RULED 2026-09-06T14:13:46Z).
+  # The record is codexFactory
+  # `hermes/domain/review-councils/records/2026-09-08-gate-rules-seat-signing-keys-minted.md`
+  # and the PUBLIC halves below are copied from it verbatim.
+  #
+  # WHY THE NAMES ARE GRC-NAMESPACED AND THE MERGE-READINESS ONES ARE NOT.
+  # The 2026-08-28 mint took its secret names from `root_key_env_var()`'s
+  # output, which is NOT council-aware — so `COUNCIL_SEAT_SIGNING_KEY_LEAD_SECURITY`
+  # already holds the MERGE-READINESS seat's seed, and `lead-security` is a
+  # seat both bodies seat. An unnamespaced name here would not be a second
+  # secret; it would be a collision on the first. The landed caller declares
+  # the GRC-namespaced names (codexFactory
+  # `.github/workflows/gate-rules-convening.yml`), and a test holds it there.
+  #
+  # THE PAIR IS THE IDENTITY. `lead-security`, `lead-quality` and
+  # `company-policy-lead` are seat ids this register now carries TWICE — once
+  # under `merge_readiness_council` and once under `gate_rules_council`. That
+  # is legal at `wallet-v1.5` and only there: the reader's duplicate table is
+  # keyed on the PAIR (`council_id`, `seat_id`), fixed under Q-GRC-5. `key_id`
+  # and `key_fingerprint` remain globally unique, which is why every key id
+  # below carries the `grc` namespace — the same-named seats of two bodies are
+  # different seats holding different keys, and nothing about one seat's
+  # compromise reaches the other.
+  #
+  # ALL FOUR DESCEND FROM `row-grc-0001` and add no holder, no target
+  # repository and no act of their own. The two DEFERRED seats
+  # (`client-security-compliance-officer`, a conjunction persona with no seat
+  # id; `intent_owner_role_slot`, `binding: symbolic_until_project_roster`)
+  # are ABSENT ON PURPOSE under Q-GRC-4 — "register neither deferred seat now;
+  # delete neither" — and their keys are registered by whichever codexFactory
+  # roster act binds them, in that same governed act. Recording a key for a
+  # seat the council does not seat by identifier records authority nothing
+  # will ever present.
+  #
+  # REGISTERED AND UNEXERCISED. No `gate_rules_council` convening has ever
+  # run: codexFactory workflow `gate-rules-convening.yml` (id 352457764)
+  # reports `total_count: 0`. These four entries record authority that has
+  # never been presented, and that is stated here rather than left to be
+  # assumed from their presence.
+  - seat_id: lead-architect
+    council_ref: agent:gate-rules-council
+    council_id: gate_rules_council
+    key_id: key-grc-seat-lead-architect-0001
+    public_key: gZ8NGuPEWbrF_qyZ9bdgOOmmvBJISAzkPiwNs97VyN4
+    key_fingerprint: sha256:858abc4cff28d7cdf24d9dda7b6f80bb8df69978adfbb7c10336d84c8c62f933
+    authorizing_row: row-grc-0001
+  - seat_id: lead-security
+    council_ref: agent:gate-rules-council
+    council_id: gate_rules_council
+    key_id: key-grc-seat-lead-security-0001
+    public_key: 4o1Y21LjL_-Kw57xmGrOb1jiYo3i-j3U_zwodm_Fszs
+    key_fingerprint: sha256:71976b6c8952181b85ee5d5aed3fab02b8c40f6a192ea434cb4abc209713707a
+    authorizing_row: row-grc-0001
+  - seat_id: lead-quality
+    council_ref: agent:gate-rules-council
+    council_id: gate_rules_council
+    key_id: key-grc-seat-lead-quality-0001
+    public_key: yny0ASkMPZ3eBkG8BC6qGfZKl25Qwt5OKU9Eg7FJk90
+    key_fingerprint: sha256:e76138bba4bf500fa0b96f5eaf57980c5d15a6127e43120a9bf7e91348c21bdd
+    authorizing_row: row-grc-0001
+  # The TENANT-LAYER seat, seated unconditionally by this body's own roster
+  # (`members.client.seat`). The CONDITIONAL company-policy pull-in this
+  # council may declare is a rule it writes for OTHER councils' convenings; it
+  # is not a condition on this bench.
+  - seat_id: company-policy-lead
+    council_ref: agent:gate-rules-council
+    council_id: gate_rules_council
+    key_id: key-grc-seat-company-policy-lead-0001
+    public_key: qBBLKKy2AEyGCtYW8TI80IZbgbSvCrO1JFNTG5gWy_8
+    key_fingerprint: sha256:72a6fea097059eeddc4e34c01ab2de8ec2639a8fe00ce3dc41f07605eab2d4e7
+    authorizing_row: row-grc-0001

@@ -190,27 +190,36 @@ def test_the_register_assertion_is_positive(runs: list[str]) -> None:
     assert "register-" in assertion
 
 
-def test_the_four_per_seat_keys_are_asserted_as_adjudicated(
+def test_the_eight_per_seat_keys_are_asserted_as_adjudicated(
         runs: list[str]) -> None:
-    """wallet-v1.2: the register carries the four council seat signing keys, and
-    a green gate must PROVE they were adjudicated.
+    """wallet-v1.2: the register carries the council seat signing keys, and a
+    green gate must PROVE they were adjudicated.
 
     The word matters. The pinned reader excludes every entry it refused from the
-    count it notes, so `4 of 4 ... adjudicated` can only appear on a run that
-    stood behind all four keys — while a count of entries PARSED, or the mere
+    count it notes, so `8 of 8 ... adjudicated` can only appear on a run that
+    stood behind all eight keys — while a count of entries PARSED, or the mere
     presence of some seat-key note, would be satisfied by a register nobody
     read. That is the same defect one level up from the one the seat surface
     exists to close.
 
-    The count is asserted LITERALLY rather than as a pattern: a fifth seat
+    The count is asserted LITERALLY rather than as a pattern: a ninth seat
     arriving, or one going missing, must break this gate and force a deliberate
     edit here beside the register edit.
+
+    MOVED 4 -> 8 BY `register-gate-rules-council-seats` § 3 (task 2.8's deferred
+    literal flip), IN THE SAME ACT that wrote the second body's row and seat
+    entries. EIGHT is merge-readiness's four (2026-08-28) plus gate-rules' four.
+    The mint runbook's §0.1.4 precondition is why it moves here and not later:
+    "Every count the consuming gate asserts is LITERAL … move them in the same
+    act, or the REQUIRED check goes red on a human-only surface." This test
+    pins the workflow's literal, so it is part of "the same act" too — leaving
+    it at four would have reddened `pytest-suite` for the whole window instead.
     """
     assertion = next((r for r in runs if "wallet-gate.log" in r
                       and "validate-openxwallet.py" not in r), None)
     assert assertion is not None, "the gate has no register-assertion step"
-    assert "4 of 4 per-seat signing key" in assertion, (
-        "the gate does not assert that the four per-seat council signing keys "
+    assert "8 of 8 per-seat signing key" in assertion, (
+        "the gate does not assert that the eight per-seat council signing keys "
         "were adjudicated; a register-read proof that ignores the key surface "
         "proves the register was opened and not that its keys were honoured")
     assert "adjudicated and resolved" in assertion
@@ -251,6 +260,35 @@ def test_the_wallets_five_declared_keys_are_asserted_as_adjudicated(
         "keys; the count is what distinguishes a wallet that declares the four "
         "seat keys from one that lost them")
     assert "adjudicated" in assertion
+
+
+def test_the_second_bodys_wallet_is_asserted_separately(
+        runs: list[str]) -> None:
+    """`register-gate-rules-council-seats` § 3: the SECOND body's wallet gets
+    its OWN assertion, and this test holds it there.
+
+    NOT A WIDENING OF THE LINE ABOVE, and the mint runbook says so in terms
+    (§4): "add one for the new wallet, do not widen the existing one." A single
+    assertion covering either wallet would go green on a tree that lost one of
+    them — which is precisely the class the named, counted form exists to close.
+    So the workflow carries two greps and this suite carries two tests.
+
+    Five again, for the same reason and with the same arithmetic: one
+    operator-vaulted root (`key-grc-0001`) plus four CI-resident seat keys.
+    """
+    assertion = next((r for r in runs if "wallet-gate.log" in r
+                      and "validate-openxwallet.py" not in r), None)
+    assert assertion is not None, "the gate has no register-assertion step"
+    assert "wal-agent-grc-0001" in assertion, (
+        "the gate does not name the gate-rules council's wallet; after the "
+        "register act its five declared keys are what rule (r) resolves every "
+        "gate-rules exercise record against, and an unasserted wallet can go "
+        "missing without reddening this check")
+    mrc = assertion.count("wal-agent-mrc-0001': 5 declared key")
+    grc = assertion.count("wal-agent-grc-0001': 5 declared key")
+    assert mrc >= 1 and grc >= 1, (
+        "each wallet needs its OWN counted assertion; found "
+        f"mrc={mrc}, grc={grc}")
 
 
 def test_the_retired_workflow_file_is_gone(runs: list[str]) -> None:

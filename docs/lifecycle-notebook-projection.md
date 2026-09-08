@@ -32,7 +32,10 @@ hand-curated.
 
 **Which Google account holds them is DECLARED, not incidental**
 (`add-notebook-projection-identity`, 2026-08-23). An install declares its
-hosting identity in `examples/notebook-projection-hosting.yaml`, in one of two
+hosting identity in a record whose LOCATION IT CONFIGURES
+(`adopt-configured-notebook-hosting-identity`, 2026-09-08 — the committed
+`examples/notebook-projection-hosting.yaml` is a synthetic example of that
+record, never an install's declaration), in one of two
 legitimate cases: **operator-hosted**, a company-owned Google Workspace USER
 account in a domain the operating party administers, or **self-hosted**, an
 individual installer's own personal account. The identity must be a Google
@@ -453,12 +456,69 @@ sat there.
 
 ### The declaration
 
-`examples/notebook-projection-hosting.yaml` names the install's hosting
-identity and carries its share-out roster. Opensoft's own install declares the
-operator-hosted case on `<service-account-identity>`, a Google Workspace user in
-`opensoft.one`. `scripts/validate-notebook-projection-hosting.py` enforces the
-shape: the two-case vocabulary, the Workspace-user rule, the refusal of any
-service account, the profile the sync binds through, and the roster's key.
+**THERE ARE TWO INSTANCES OF THIS RECORD AND ONLY ONE OF THEM IS COMMITTED
+HERE** (`adopt-configured-notebook-hosting-identity`, ratified 2026-09-08).
+`examples/notebook-projection-hosting.yaml` is a SYNTHETIC EXAMPLE — every
+identity in it is fictional, in `example.invalid`, every actor is a role
+placeholder, and the record says so in a field both readers parse
+(`hosting.instance: example`). An install's own LIVE declaration lives wherever
+that install's configuration says, outside this repository.
+
+**Why two files rather than one redacted file.** A hosting record is not prose
+about an account. Its `account`, its `migration.from_account` and its roster
+rows are the values `enforce_hosting_profile()` compares against the address the
+`nlm` CLI profile is ACTUALLY signed in as, refusing the run when they differ.
+Replacing a live address with a placeholder would not redact the record — it
+would disarm the guard. And the roster is worse than configuration: it is the
+record of governed share acts, so a placeholder there would falsify a record
+rather than anonymise one.
+
+**Where the live record is: resolved, in one order, by both readers.**
+
+```text
+1. $XFACTORY_NOTEBOOK_HOSTING_DECLARATION        absolute, or workspace-relative
+2. <workspace>/.xfactory/notebook-hosting.yaml   declaration_path: <path>
+3. nothing                                       UNDECLARED
+```
+
+The configuration file is per-machine, uncommitted and gitignored: it carries a
+PATH and no credential. Three properties are deliberate:
+
+* **The committed example is not step 3.** Defaulting to it would make every
+  fresh clone declare an install it is not — the sync would bind to a profile
+  named in a fixture, or refuse for the wrong reason.
+* **Absent configuration is UNDECLARED**, the transition state the requirement
+  already defines: reported as unmet, and non-breaking. A checkout whose private
+  declaration is simply not on disk reads the same way, which is correct.
+* **A configured path that resolves to a record marked as an example is
+  REFUSED**, not bound. The refusal is decided by the marker inside the record
+  rather than by comparing paths, because symlinks, worktrees and copies make a
+  path comparison unreliable.
+
+**How a live declaration is checked, now that CI cannot reach it.** While the
+live record and the committed file were the same file, one test
+(`test_the_committed_record_conforms`) was the live declaration's only automatic
+conformance check. The split costs that, and three things replace it:
+
+* `test_the_committed_example_conforms` keeps the record's SHAPE gated in CI;
+* `test_a_resolved_declaration_is_validated` proves the resolved path is
+  validated at all, over a synthetic declaration in a temporary tree;
+* and **an operator command, before any sync `--apply`**:
+
+```bash
+python3 scripts/validate-notebook-projection-hosting.py --resolved
+```
+
+`--resolved` deliberately refuses to fall back to the committed example and
+refuses a record marked as one, so a green line from it is evidence about the
+live record and nothing else.
+
+`scripts/validate-notebook-projection-hosting.py` enforces the shape either
+way: the two-case vocabulary, the Workspace-user rule, the refusal of any
+service account, the profile the sync binds through, and the roster's key. Not
+one of those checks asks WHICH real account is named — every one is a property
+of the record's shape or an equality between two of its own fields, which is why
+the synthetic instance proves as much as the live one did.
 
 The record deliberately does NOT live under `contracts/`. It is the operator's
 own governance artifact for one install's tooling account — nothing else
@@ -470,15 +530,18 @@ consumes it and nothing pins it — and its sibling
 Ratified by `add-notebook-projection-identity`; the actor named by Brett Heap on
 2026-08-27, closing task 2.4.
 
-**WHO. The designated company-policy actor is Brett Heap.** The declaration is
-`approval.designated_actor` in `examples/notebook-projection-hosting.yaml` — a
-standing statement of who MAY decide, distinct from a roster entry's
-`granted_by`, which records who DID. The requirement this discharges is precise
-about why the designation must exist at all: a request "SHALL NOT be left to
-whoever happens to read the account's mail."
+**WHO. An install's designated company-policy actor is named in its own live
+declaration**, as `approval.designated_actor` — a standing statement of who MAY
+decide, distinct from a roster entry's `granted_by`, which records who DID. The
+requirement this discharges is precise about why the designation must exist at
+all: a request "SHALL NOT be left to whoever happens to read the account's
+mail." In the committed example that actor is a ROLE PLACEHOLDER, ruled so on
+2026-09-08 (OQ-D): a real person's name in a synthetic record asserts a grant
+that instance did not make, and the validator ties `granted_by` to
+`designated_actor` by equality, so the two move together.
 
-**WHERE. In the hosting account's own interface**, signed in as
-`<service-account-identity>`. NotebookLM exposes no administrative or sharing API
+**WHERE. In the hosting account's own interface**, signed in as the declared
+account. NotebookLM exposes no administrative or sharing API
 for inbound requests, so there is nothing else to act in. `nlm share invite`
 performs the grant once the decision is made, and it is the same governed act
 from a terminal rather than a second lane:
@@ -491,8 +554,9 @@ nlm share status  xf-canon --json --profile company    # reconcile the roster
 **HOW A DECISION BECOMES THE RECORD.** Approving and denying land in the same
 lane, and neither is an audit trail beside a list:
 
-* **Approving WRITES the roster.** The share-out entry IS the record of the
-  granted act — `hosting_account`, `user`, `book_or_alias`, `role`,
+* **Approving WRITES the roster** — the install's own live one, not the
+  committed example, whose rows are synthetic and record nothing. The share-out
+  entry IS the record of the granted act — `hosting_account`, `user`, `book_or_alias`, `role`,
   `granted_at`, `granted_by`. There is no separate approval log, because a log
   beside a roster is two records of one decision that can disagree.
 * **Uniqueness is the scope-and-principal triple** `(hosting_account, user,

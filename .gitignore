@@ -21,3 +21,15 @@ __pycache__/
 # manifest is an error (add-ideation-dashboard task 2.4; enforced by
 # scripts/validate-ideation-dashboard-contracts.py's committed-manifest guard).
 ideation/workbench/
+
+# WHERE THIS INSTALL'S NOTEBOOK HOSTING DECLARATION IS — a PATH, per machine.
+# adopt-configured-notebook-hosting-identity (ratified 2026-09-08), task 2.6.
+# It carries `declaration_path:` and NOTHING ELSE, and it carries NO SECRET: a
+# path is not a credential, and nothing about this file should invite one. The
+# credential for the declared account is held by the binding the record's
+# `custody:` block names, which is where `credential-contracts` puts material
+# precisely so that non-material can stay reviewable. Uncommitted because the
+# answer differs per machine — an operator's checkout, a bare public clone and
+# a CI runner are three different answers, and the third is "nothing", which
+# the ratified requirement already defines as UNDECLARED.
+.xfactory/
