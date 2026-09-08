@@ -206,8 +206,14 @@ below with its lifecycle notes.
   bounded task contracts, routing, composition, evaluation, and economics.
 - [Client Hermes Layer](brainstorm/client-overview.md) — tenant authority,
   policy tuning, assurance, content, and source ingestion.
-- [codexFactory Domain Hermes](brainstorm/codexfactory-domain-overview.md) —
-  software-domain personas, deliberation, policy, memory, and practices.
+- codexFactory Domain Hermes — software-domain personas, deliberation, policy,
+  memory, and practices. **MOVED 2026-09-07** to
+  `xFactories/codexFactory` (`opensoft/codexFactory@83c9c35a`)
+  `ideation/brainstorm/codexfactory-domain-overview.md`, with the whole
+  eight-document packet it anchors, by the ideation split Brett Heap ruled
+  2026-09-07 (Q4[A]) — this repository's own rule that a DomainxFactory keeps
+  its own domain-scoped ideation, applied to material whose
+  `Repository context:` header already named codexFactory as owner.
 - [Three-Layer Hermes Runtime](brainstorm/hermes-overview.md) — deterministic
   layer seeding, authority, personas, legal boundaries, retrieval, and
   non-mutating learning.
@@ -227,8 +233,11 @@ below with its lifecycle notes.
 - [Governed Worker Execution](brainstorm/worker-execution-overview.md) —
   enrolled hosts, digest-pinned benches, bounded jobs, evidence, and external
   enforcement.
-- [Medical Domain Hermes and Omnigent](brainstorm/medical-domain-overview.md)
-  — clinical-domain authority, bounded workers, safety, and clinician handoff.
+- Medical Domain Hermes and Omnigent — clinical-domain authority, bounded
+  workers, safety, and clinician handoff. **MOVED 2026-09-07** to
+  `xFactories/MedxFactory` (`MedxSoft/MedxFactory@74bed502`)
+  `ideation/brainstorm/medical-domain-overview.md`, with the whole packet it
+  anchors (same ruling, Q4[A]).
 - [Contract Release and Document Lifecycle](brainstorm/release-lifecycle-overview.md)
   — immutable source provenance, explicit promotion, signed releases, and
   stack adoption.
@@ -634,39 +643,25 @@ Active proposals promoted from staging:
   requirements, plus the created `ideation-cross-reference` spec and
   doc-health/document-lifecycle additions) and the supporting bundle
   manifest was hash-refreshed at the archive preflight.
-- [codexFactory Domain Hermes Content & Roster](brainstorm/codexfactory-domain-hermes-content.md)
-  — fills the Software Engineering domain layer: the Plane-1 authority-persona
-  roster (seven Leads + a Scrum Coordinator), domain policy/memory/practice-catalog
-  storage map, and the Merge-Master-as-operator / cross-layer Gate-Rules-Council
-  reframing; keeps the Plane-2 execution workers in the Omnigent install
-  (2026-07-21).
+- codexFactory Domain Hermes packet (2026-07-21) — content & roster, the
+  Plane-1 draft role objects, the store-the-delta policy model, deliberation
+  (agent mixes, escalation, the two review councils), and memory & practice
+  catalog. **MOVED 2026-09-07** to `xFactories/codexFactory`
+  (`opensoft/codexFactory@83c9c35a`) at the same
+  `ideation/brainstorm/` filenames — `codexfactory-domain-overview.md`,
+  `-hermes-content.md`, `-roster-draft.md`, `-policy-model.md`,
+  `-deliberation.md`, `-memory-and-practices.md`,
+  `-synthesis-authority-and-deliberation.md`,
+  `-synthesis-policy-and-memory.md` — plus
+  `nightly-sweep-council-clearance-rule.md`, which extends codexFactory's own
+  ratified Merge Master envelope. The `Hermes-Layer Persona Character Model`
+  below is the neutral sibling and STAYS: it asks how much character any Hermes
+  decider carries, not what codexFactory's deciders decide.
 - [Hermes-Layer Persona Character Model](brainstorm/hermes-persona-character-model.md)
   — how much personality a Hermes decider should carry (technical disposition →
   full authored character), the dimensions of character, five options (A–E,
   leaning a trait-framework-plus-prose hybrid), and the guardrail that character
   shapes *how* not *whether* a persona decides (2026-07-21).
-- [codexFactory Domain Plane-1 Roster — Draft Role Objects](brainstorm/codexfactory-domain-roster-draft.md)
-  — the eight drafted domain decider personas (seven Leads + Scrum Coordinator)
-  under the Option-E character model: a trait-axis framework (disposition
-  domain-locked, voice client-tunable), authored prose for the three flagship
-  deciders, and no house style — deliberately distinct personas (2026-07-21).
-- [codexFactory Domain Policy — Store the Delta, Not the Textbook](brainstorm/codexfactory-domain-policy-model.md)
-  — what belongs in *stored* domain policy/memory vs. what the model improvises:
-  pin only the choices that must be consistent, the rules a gate must enforce,
-  the fail-closed boundaries, the staked positions, and the accumulated learning;
-  leave generic best practice to the model. Includes the decision test and the
-  filled codex policy categories (2026-07-21).
-- [codexFactory Domain Deliberation](brainstorm/codexfactory-domain-deliberation.md)
-  — the roster-adjacent stored content: MoA agent-mix profiles (declaring the
-  review-lane ensemble as `panel_synthesis`; Plane 3 profile lives in Hermes,
-  execution in Omnigent), escalation routing + stop conditions remapped onto the
-  personas, and the two review councils (per-PR merge-readiness vs. cross-layer
-  gate-rules) (2026-07-21).
-- [codexFactory Domain Memory & Practice Catalog](brainstorm/codexfactory-domain-memory-and-practices.md)
-  — the learning-side content: memory boundaries (cross-client domain learning
-  vs. never-touch client-private, promoted only through the ratified memory
-  gateway) and the practice catalog (adoption profiles over the promoted codex
-  capabilities, feeding the suggestion pipeline) (2026-07-21).
 - [Client (Company Policy) Layer Scaffold](brainstorm/client-layer-scaffold.md)
   — scaffolds and lists the Client layer: three-tier composition (neutral
   scaffold → domain specialization → per-client wizard tuning), the plane split
@@ -854,3 +849,39 @@ Active proposals promoted from staging:
 Proposal source and completed design history are retained with their active or
 archived OpenSpec changes under `supporting-docs/` or
 `supporting-docs.tar.gz`, with readable manifests.
+
+## Moved to a DomainxFactory (2026-09-07)
+
+Twenty-four files left this repository on 2026-09-07 for the DomainxFactory
+that owns their subject, discharging the `## Lifecycle` rule above — "Each
+DomainxFactory keeps its own `ideation/` area for domain-scoped topics;
+cross-factory and contract-level topics belong here in openxFactory." Every one
+of them already named its domain owner in its mandatory `Repository context:`
+header. Ruled by Brett Heap 2026-09-07T22:21Z ("accept all [A]", Q4[A]) on the
+public-flip split inventory; three receiving pull requests copied the files
+first and this pointer names the commit each landed at, so nothing was deleted
+here before its destination copy was verified.
+
+**History stays here.** These are cross-repo copies, so `git log --follow` in
+openxFactory keeps each file's full authoring lineage, and each destination copy
+carries a `moved from openxFactory@<sha>` header line back to it.
+
+Every destination path is the SAME repository-relative path the file had here.
+
+| Destination | Files | What moved |
+| --- | --- | --- |
+| `xFactories/codexFactory` — `opensoft/codexFactory@83c9c35a` | 14 | The codexFactory Domain Hermes packet: `ideation/brainstorm/codexfactory-domain-{overview,hermes-content,roster-draft,policy-model,deliberation,memory-and-practices,synthesis-authority-and-deliberation,synthesis-policy-and-memory}.md` and `nightly-sweep-council-clearance-rule.md`; plus the staged topic `ideation/staging/codexfactory-domain-hermes-content/` (its primary fragment and four `openspec/` draft slices) |
+| `xFactories/MedxFactory` — `MedxSoft/MedxFactory@74bed502` | 9 | `ideation/brainstorm/medical-domain-{overview,clinical-authority-boundary,specialized-worker-envelope,synthesis-clinical-execution}.md`, `medical-omnigent-harness-adaptation.md`, `medxchain-blockchain-medical-records.md`, `medxfactory-domain-roster-draft.md`, `hermes-recursive-subject-establishment-medx-patient-intake-profile.md`; plus the staged topic `ideation/staging/medxfactory-domain-hermes-content/` |
+| `xFactories/LedgerxFactory` — `ledgerXfactory/LedgerxFactory@6921aea3` | 1 | `ideation/brainstorm/hermes-recursive-subject-establishment-ledgerx-company-intake-profile.md` |
+
+One more file was SPLIT rather than moved:
+`ideation/staging/treatment-options-engine/treatment-options-engine.md` (Q2[A]).
+Its neutral `governed-derived-model` remainder stays here; its clinical half
+lives at `MedxSoft/MedxFactory@74bed502`
+`ideation/staging/treatment-plan-generation/treatment-options-engine-clinical.md`.
+Both halves carry a pointer to the other, and the topic keeps its row in
+[staging/INDEX.md](staging/INDEX.md).
+
+Prose in the retained brainstorms still cites the moved documents by their
+filenames, because a citation of design history stays true after the history
+moves house; each citation now carries the destination repository inline.

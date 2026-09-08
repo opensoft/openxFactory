@@ -357,8 +357,10 @@ These are the strongest current brainstorm positions:
 ### Atomic documents: closure and domain profiles
 
 - [Coverage, Gaps, and Establishment Readiness](hermes-recursive-subject-establishment-coverage-gaps-and-readiness.md)
-- [Ledgerx Company-Intake Profile](hermes-recursive-subject-establishment-ledgerx-company-intake-profile.md)
-- [Medx Patient-Intake Profile](hermes-recursive-subject-establishment-medx-patient-intake-profile.md)
+- Ledgerx Company-Intake Profile — MOVED 2026-09-07 to `ledgerXfactory/LedgerxFactory@6921aea3`,
+  same `ideation/brainstorm/` filename
+- Medx Patient-Intake Profile — MOVED 2026-09-07 to `MedxSoft/MedxFactory@74bed502`,
+  same `ideation/brainstorm/` filename
 
 ## Validation posture
 

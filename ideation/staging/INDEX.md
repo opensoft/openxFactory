@@ -26,6 +26,17 @@ Update this index in the same commit as any of:
   reverse of promotion: the change's artifacts come back as the topic (its
   OpenSpec docs into the topic's `openspec/` drafts), the row and detail
   return here, and the README promoted-list pointer is removed.
+- **Cross-repository move** (the topic's subject belongs to a DomainxFactory,
+  so its files go to that repository's own `ideation/` area rather than to an
+  OpenSpec change) — added 2026-09-07 by the ideation split, because the four
+  cases above only anticipated promotion INTO a proposal, and a topic can also
+  leave sideways. Keep the row, UNLINK its topic name so no anchor dangles,
+  and replace its narrative with a one-line `MOVED <date> to
+  <org>/<repo>@<sha> <path>` pointer; drop the detail section. The index stays
+  the record of what left and where it went, and the packet-level pointer lives
+  in [`ideation/README.md`](../README.md)'s "Moved to a DomainxFactory"
+  section. Verify the destination copy EXISTS at the named commit before
+  deleting the source.
 
 ## Draft-proposal workspace convention
 
@@ -55,11 +66,11 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [dashboard-repo-selector](#dashboard-repo-selector) | MODIFIED `ideation-dashboard` (repo selector, (repository, ref) snapshot source, runtime fetch + baked fallback, refresh affordances, dispatchable publication) + ADDED snapshot-index contract; later ADDED runtime capability (neutral install-shipped ideation surface, DTN path) | 1 | **Proposed 2026-07-26** as `add-dashboard-repo-selector` (exit 1) — twelve decisions locked with Brett 2026-07-25/26 (runtime plane is the goal, planes separate, per-repo snapshots + index, sparse wheels, bake the app not the snapshot, baked snapshot demoted to fallback, two refresh bindings, off-cycle publication is CI-only, (repository, ref) keying, displayed freshness, branch snapshots never published); neutral-vs-override fork + data-source ratification deliberately open; exit 2 (runtime plane) still staged; **EXIT 1 IS TAKEN — recorded 2026-08-28 by `settle-aging-staging-topics`**: `add-dashboard-repo-selector` was ratified 2026-07-29 and ARCHIVED 2026-08-01 (`openspec/changes/archive/2026-08-01-add-dashboard-repo-selector`), and the topic now carries the `Exit taken:` record that stops it ageing as unraised work. Open questions 7–9 (data-source ratification, index polling cadence, local-regenerate gating) were CLOSED by Brett's rulings of 2026-07-26 and cited in that packet's `Ratified:` line, but stood as OPEN in the fragment for a month; they are now marked closed there. **Exit 2 (runtime plane) is NOT taken and is deferred with its gate named: open question 3, what an "idea" IS as governed install content** |
 | [dashboard-project-scoping](#dashboard-project-scoping) | MODIFIED `ideation-dashboard` (create-project commission, project-scoped selection, merged cross-repo projection, per-tile repository binding); additive gate-intent / gate-action-record growth | 1 | **Decision round complete 2026-08-06** — D1–D8 locked with Brett, ZERO open questions: true MERGED all-repos view (D1), register writes via COMMISSION (D2), L3 per-tile binding PROCEEDS as its own change (D3), projects only (D4), local register dev-authoritative then derived cache under the tenant-catalog twin (D5), THREE sequenced exits (D6: `add-project-scoped-selection` → `add-project-merged-projection` → `add-project-tile-repository-binding`), register split by role (D7 — core/domains/medx-clinical/installs), repository membership MULTI-PARENT (D8, ruled during exit-1 realization — a repo may live in many projects; snapshot keeps a first-declaring PRIMARY + additive `projects` list; MedxFactory joins medx-clinical); merged-view rules D9–D11 (view-side cluster union by topic tail; composed views read-only + "open in <repo>" jump; project aggregates derived from the register). header redesign D12–D15 ("Opensoft openDox"; project dropdown with New Project first, last-used default; repo filter popover; `edit-project` membership commissions). **Exit 1 proposed, RATIFIED, and REALIZED 2026-08-06 as `add-project-scoped-selection`; exit 2 proposed 2026-08-06 as `add-project-merged-projection` (awaiting ratification); header redesign proposed 2026-08-06 as `add-opendox-project-header` (awaiting ratification)** |
 | [workbench-branch-sessions](#workbench-branch-sessions) | MODIFIED `ideation-dashboard` (branch-per-tile working state, commit-per-gate-action, session-local snapshots, PR-as-save `open-pr` verb); MODIFIED `lifecycle-notebook-projection` (per-session notebooks sync from the branch worktree; canon notebooks stay main-only) | 1 | **RATIFIED 2026-07-26** as `add-workbench-branch-sessions` (proposed and ratified the same day, after a 5-lens adversarial review and a rename-completeness audit) — TWENTY-TWO decisions (design D1-D22; D22 is the post-ratification `open-pr` push-identity ruling, 2026-07-26) and **ZERO open questions** — the change carries no parked decision; SEQUENCED strictly after `add-dashboard-repo-selector`, whose (repository, ref) seam it consumes; local plane only until intent-plane §4 |
-| [codexfactory-domain-hermes-content](#codexfactory-domain-hermes-content) | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 1 | **COMPLETE 2026-07-23** — both changes ratified, realized, archived: change A 2026-07-22 (roles + policies + closure + Omnigent lockstep) and change B 2026-07-23 (mixes, councils, escalation, memory, catalog); canonical spec `domain-hermes-content` carries all nine requirements. The Omnigent extension rode the `add-omnigent-domain-overlay` realization. Primary doc + openspec/ drafts retained as provenance. Change B COMPLETE — ratified + archived 2026-07-23 (`archive/2026-07-23-add-domain-hermes-councils-and-memory`); **CLOSED 2026-08-28 by `settle-aging-staging-topics`: primary doc marked `superseded`**, naming both archived codexFactory exits (`2026-07-22-add-domain-hermes-roles-and-policies`, `2026-07-23-add-domain-hermes-councils-and-memory` — both verified at the codexFactory tree). Folder + drafts retained as provenance |
+| codexfactory-domain-hermes-content | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 0 | **MOVED 2026-09-07 to `opensoft/codexFactory@83c9c35a` `ideation/staging/codexfactory-domain-hermes-content/`** (ideation split, Brett Heap's ruling of 2026-09-07T22:21Z, Q4[A]) — the primary fragment and its four `openspec/` draft slices. The topic was already CLOSED: both exits ratified, realized and archived (codexFactory `archive/2026-07-22-add-domain-hermes-roles-and-policies` and `archive/2026-07-23-add-domain-hermes-councils-and-memory`, both verified at the codexFactory tree), canonical spec `domain-hermes-content` carrying all nine requirements, the Omnigent extension riding `add-omnigent-domain-overlay`, and the primary doc marked `superseded` 2026-08-28 by `settle-aging-staging-topics`. What moved is provenance, not live queue work |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
 | [layer-content-materialization](#layer-content-materialization) | ADDED neutral `hermes_domain_overlay` contract + `overlay_path` (openxFactory); hermes-install seeding increment 2 (`layer_content` kernel + materialization) | 1 | **COMPLETE 2026-07-23** — both exits ratified, realized, archived: `add-hermes-domain-overlay-contract` (openxFactory, `contract-v1.15` tag verified) and `add-layer-content-materialization` (hermes-install PR #6 merged 696ec48, archived 2026-07-23; capability spec carries increments 1+2). Deferred increments 3–6 + gate wiring recorded in the capability spec; primary doc retained as provenance; **CLOSED 2026-08-28 by `settle-aging-staging-topics`: primary doc marked `superseded`**, naming both archived exits (openxFactory `2026-07-23-add-hermes-domain-overlay-contract`, hermes-install `2026-07-23-add-layer-content-materialization` — both verified at their own trees). Folder retained as provenance |
 | [layer-vocabulary-machine-migration](#layer-vocabulary-machine-migration) | MODIFIED `layer-vocabulary` + hermes-runtime v2→next-major identifier migration + domain-stack schema major | 1 | Dormant by design — deferral artifact for `adopt-subject-tenant-domain-vocabulary` tasks 3.1–3.3 (filed 2026-07-23); rides the next major contract bundle, never causes it; Ops/Adx prose sweeps runnable earlier |
-| [medxfactory-domain-hermes-content](#medxfactory-domain-hermes-content) | MedxFactory `hermes/domain/` content (changes A + B) + Omnigent `directed_by` lockstep + overlay-manifest digest re-pin | 1 | **Change A COMPLETE 2026-07-29** — authored, ratified, realized, and archived the same day (`archive/2026-07-29-add-domain-hermes-roles-and-policies`; canonical Medx spec `domain-hermes-content`, 6 requirements): eight personas incl. the dedicated ontology-steward, eight medical policy files, the v1.15 overlay with a proven 43-item two-way `medx_owns` closure, `directed_by` on all 11 workers with the manifest re-pinned (omnigent-install fixture digest flagged stale to its own change), and the v13 ontology scaffold landed DRAFT (ruled stewardship policy, explicit content manifest incl. `domain_ontology`, canonical validators in `make validate`, readiness `domain_scaffold_required` pending Domain Hermes publication). **TOPIC COMPLETE — change B realized 2026-07-29, archived 2026-07-30** (`archive/2026-07-30-add-domain-hermes-councils-and-memory`; the canonical Medx `domain-hermes-content` spec carries all TWELVE requirements; MedxFactory is the second domain complete on BOTH layers — one params file from a deployable medical stack pending the flagged omnigent-install fixture digest refresh and the governed ontology publication: review-ensemble mixes with the stated convergence-flow boundary, MxD-MRR formalized with the ontology seats and the three-gate cross-layer flow, escalation elevation preserving the stub items, gateway-vocabulary memory boundaries, `medx_practice_catalog` with the four ruled seeds). (roster DECIDED the same day — decision round with Brett): the derived seven personas PLUS a dedicated ontology-steward (eight total; accountable ontology steward per ratified `add-domain-ontology-layer`); MxD-MRR domain-owned only; convergence flow + review mixes; content manifest declared explicitly incl. `domain_ontology`. No external gates (omnigent overlay realization archived at contract-v1.16); **CHANGE B IS ALSO COMPLETE — this row said otherwise until 2026-08-28**: `archive/2026-07-30-add-domain-hermes-councils-and-memory` was verified at the MedxFactory tree. **CLOSED 2026-08-28 by `settle-aging-staging-topics`: primary doc marked `superseded`** naming both archived exits; folder retained as provenance |
+| medxfactory-domain-hermes-content | MedxFactory `hermes/domain/` content (changes A + B) + Omnigent `directed_by` lockstep + overlay-manifest digest re-pin | 0 | **MOVED 2026-09-07 to `MedxSoft/MedxFactory@74bed502` `ideation/staging/medxfactory-domain-hermes-content/`** (ideation split, Brett Heap's ruling of 2026-09-07T22:21Z, Q4[A]). The topic was already CLOSED: both exits ratified, realized and archived (MedxFactory `archive/2026-07-29-add-domain-hermes-roles-and-policies` and `archive/2026-07-30-add-domain-hermes-councils-and-memory`, both verified at the MedxFactory tree), the canonical Medx `domain-hermes-content` spec carrying all twelve requirements, the 2026-07-29 roster ruling recorded in the primary doc, and that doc marked `superseded` 2026-08-28 by `settle-aging-staging-topics`. What moved is provenance, not live queue work |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 | [worker-host-app](#worker-host-app) | ADDED `worker-host-manifest` + `bench-manifest` (first-consumer drafts in Omnigent-Install, DTN path); realization app in Omnigent-Install + Intune packaging in OpsxFactory | 2 | Ready to iterate — build decision by Brett 2026-07-23; realization under way (substrate steps 1–2 merged); 7 open questions (Omni-001 admin path + SYSTEM-context WSL distro registration, runner-under-virtual-account, bench-manifest home hardest); **DEFERRED WITH GATE NAMED 2026-08-28** (`settle-aging-staging-topics`): Omnigent-Install **PR #40** (phase 3 — enrollment-broker client, leases, fail-closed floor; raised 2026-07-28, STILL OPEN) → OpsxFactory `add-worker-enrollment-broker-service` **tasks 8.1/8.2**, Brett's hosting-target and deployment-credential gates, both unticked. Upstream of all three the broker service itself is MERGED (broker PRs #1 2026-07-27, #2 2026-07-28). A deferral is a schedule, not a standing — the topic keeps ageing |
 | [session-notebook-reconciliation](#session-notebook-reconciliation) | MODIFIED `lifecycle-notebook-projection` (a fourth sync mode: reconcile the `xf-session-` namespace against live sessions, fail-closed, report-only by default) + MODIFIED `ideation-dashboard` (a third retirement route for a session that ended without one) | 1 | Ready to iterate — organized 2026-08-10 from the `session-teardown-notebook-coupling` brainstorm on the day two live orphans had to be deleted BY HAND; the five claims are settled (forward-derived detection, fail closed on incomplete knowledge, scoped to this workspace's session repositories, report-only default, `retire` never `delete`); 3 open questions, none blocking (is an orphan evidence worth an import pass; whether hand teardown should be narrowed; cadence) |
@@ -74,7 +85,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [doxbench-editing-model](#doxbench-editing-model) | MODIFIED `ideation-dashboard` (left-panel dynamic document tabs generalizing the outline/document buffer pair to N document buffers; chat-context binding to the active left-panel selection; docs-wheel tile edit verb + dirty-tile marker; right-panel Editor/Preview tab redesign with Save/Cancel) | 1 | Registered 2026-08-15 — origin is Brett's direction settling the general doxBench interaction model: left panel selects the working document (docs/lens/outline plus dynamic numbered tabs per open edit), center chat binds to whatever is selected, right panel shows the result via Editor/Preview tabs with Save/Cancel (replacing today's split md/preview layout); 26 claims settled (includes the ruled two-plane chat memory design, Claims 13-21, and its 2026-08-18 second-pass addendum settling memory-gateway conformance, the three-layer compression stack with shake v1, and Headroom watch-listed not adopted, Claims 22-26); verified live that `BUFFER_KINDS`, the turn-assembly buffer requirement, and the save order are all hard-coded to exactly outline+document today, so the N-buffer generalization is the load-bearing engineering question; 7 open questions (tab overflow, Save/Cancel semantics, dirty-tile storage, chat-binding rule, Editor/Preview default, concurrent-edit safety, and the chat memory system — ruled 2026-08-18), none blocking; sibling of `staged-topic-outline-template` Open question 4 (content-contract vs. interaction-model halves of the same AI-edit act); SEQUENCED first, in two phases (Brett 2026-08-15) — Phase A (chat-on-outline + Editor/Preview tabs + Save/Cancel on the existing two-buffer machinery) built before the other three topics, Phase B (N-buffer generalization) following `staged-topic-outline-template`'s ratification. **EXITED STAGING 2026-08-21** — both phases raised and realized; `add-doxbench-editing-phase-a` ARCHIVED 2026-08-21 and its spec text promoted, `add-doxbench-editing-phase-b` carried the whole remainder (§4–§11 + §13 realized across PRs #207/#210/#216/#223, `contract-v1.34`) and remains ACTIVE pending §12 share-session, which Brett ruled 2026-08-21 trails as its own slice. The fragment moved to Phase B's `supporting-docs/`; two items are PARKED, not adopted — see the detail section |
 | [doxchat-auto-fit-routing](#doxchat-auto-fit-routing) | MODIFIED `ideation-dashboard` (per-turn fit-aware `auto` resolution; the no-fit warn/ask surface and its session-sticky consent; compress-to-fit as a turn outcome) + a likely ADDITIVE model-catalog release (capability dimensions beyond byte limits, at minimum modality) + a likely additive chat-turn release (the recorded fit decision) | 1 | Registered 2026-08-21 — origin is Brett's direction given at the `contract-v1.38` rule-5 ruling, quoted VERBATIM in the fragment; 6 claims settled (per-turn fit-aware resolution, filter out models too small for the turn, no-fit is a human decision, session-sticky continue-all consent, compress-to-fit on continue, and fit is multi-dimensional with raw size only one axis); 6 open questions, none blocking. **DISPOSITIONED 2026-08-24 — all six resolved**, architect adjudications on verified evidence anchored in Brett's rulings, with TWO of the fragment's own recommendations CORRECTED by recon. Q1: the ROUTE decides, upheld, but at the ASSEMBLY POINT INSIDE STEP 9 — not at precondition 7, because the packet does not exist there (steps: 5 scope, 6 identity, 7 model+limits, 8 idempotency, 9 dispatch, with assembly at `serve.py:2926`); the route's `error` is free-form `^[a-z][a-z0-9_]{2,63}$`, not an enum, so a no-fit code costs no contract act. A review-found CONSTRAINT rides with it: request bytes are bounded EARLIER against the selected entry (`:2677`/`:2730`), so exit (b) must also move or redefine that pre-assembly guard or a request sized for a wider `routes_to` member is refused before routing runs. Q2: `resolved_model_id` STAYS as the declared default, naming debt accepted explicitly, removal rejected. Q3: one closed additive `modalities`, PLUS a batching obligation — the release must decide, not silently pass, the type-side `models.maxItems` question and the `model_id` bounds gap (N7). Q4: turn-record self-description plus a RECORDED arm, adjudicated under Brett's own intake-lane OQ-3 test (a recorded gate action suffices on the single-operator loopback; an instrument is required only on tenant/shared installs), with the consent scoped to session identity/rekey/generation and NEVER a wall clock, honoring his arm-and-reconfirm ruling. Q5: three sequenced exits, with (c) REDEFINED — a fit-reducing act ALREADY happens silently under `posture: full` (`serve.py:2935-2956`; `dropped_evidence` reaches no wire field), so (c) discloses it via a third `reduced_reason` constant on the RELEASED v1.40 field with zero contract change; a third posture VALUE is rejected. Corrected on review: what already runs is LAYER-1 SELECTION (lossless by reference, and it REFUSES when mandatory threads alone overflow), so (c) also owes the real LAYER-2 compaction Claim 5 needs — the module's own `assert_fidelity` refuses conflating the two. Q6: union badge unchanged and non-negotiable; the record carries both badges. **SEQUENCING GATE CLEARED** — Phase B archived 2026-08-22 and 10.7 shipped as `contract-v1.40`; the remaining sequencing fact is the model-intake lane's collision with exit (b), which exit (a) avoids |
 | [notebook-access-wallet-governance](#notebook-access-wallet-governance) | MODIFIED `lifecycle-notebook-projection` (the ratified share-out roster entry becomes a wallet-governed record; the grant lane's provider act and revocation semantics) and possibly MODIFIED `openxwallet` (though the grant's closed scope and wallet-only audience already answer the interesting half) | 1 | Registered 2026-08-24 — origin is Brett's direction: sharing happens THROUGH THE APP, so if the books were opened org-wide in the Google machinery the access would still sit on the user, and he asked whether this can go in the wallet and be controlled per repo or finer. Two rulings the same day: the Google-side posture is **RESTRICTED with the app as the sole grantor** (org-visible REJECTED), and the topic is staged rather than proposed. 7 claims settled — sharing through the app; restricted posture; **Google's ACLs are the OUTER enforcement**, so an org-visible book is provider-granted access no app record can subtract; deny-by-default with every grant through the governed lane; the provider's enforcement atom is per-notebook/per-user/viewer-editor; per-repo control maps to per-book because `split-ideation-book-per-repo` already made the books per-repo; and finer-than-book is NOT provider-enforceable, a named non-goal of the Google half. The org-visible rejection rests on `client-identity-roster`'s promoted doctrine — where a provider-enforced principal IS available it must be used, and recording a bound as provider-enforced when none exists is a finding — so org-visibility would downgrade an available provider-enforced bound to a logic-enforced one. 7 open questions (whether a wallet grant can scope an external resource at all — checked against the schema: its `audience` must be a wallet and its `scope` has no property for a provider or a provider-side role, so the wallet holds the AUTHORITY to perform a granting act, narrowed to books via free-form `scope.objects` — while the GRANTEE, holding no wallet, cannot appear in a grant at all; one record or two; what revocation means provider-side, contrasted with #282's bearer-secret lesson; who approves and whether this closes task 2.4; whether a repo may declare its own book's policy as a derived input; where finer-than-book lives; and how a grantee is NAMED, since a persona's subject pattern admits no `@` while `nlm share invite` needs exactly an email). **SEQUENCED AFTER the migration thread's held steps clear** — nothing to grant access to under the declared account until the books are re-derived there (migration in flight as PR #289), and both `add-notebook-projection-identity` and `add-notebook-hosting-credential-custody` are ACTIVE with ratified-but-unpromoted deltas this topic would amend. **HALF OF THAT SENTENCE IS NOW FALSE, and only that half is corrected (2026-08-31): `add-notebook-projection-identity` is ARCHIVED and its deltas are PROMOTED** (`openspec/changes/archive/2026-08-31-add-notebook-projection-identity`), so the share-out roster this topic would amend is CANON rather than pending. **AND THE CUSTODY HALF FELL THE SAME DAY, IN A PEER LANE RATHER THAN THIS ONE, SO IT IS CORRECTED HERE TOO (2026-08-31):** `add-notebook-hosting-credential-custody` ARCHIVED 2026-08-31 at `openspec/changes/archive/2026-08-31-add-notebook-hosting-credential-custody` and its dependent `add-binding-consumer-identity` at `openspec/changes/archive/2026-08-31-add-binding-consumer-identity`, both by **PR #541** on Brett Heap's ROUTE-1 ruling (basis first, dependent second). Their blocks are PROMOTED, so NO half of the original sentence survives: this topic has no ratified-but-unpromoted delta left to wait on, and every capability it would amend is canon. The custody half is corrected here rather than at custody's own archive only because that archive landed in another lane while this one was in review. The other named gate also cleared: the migration thread's held steps are done (books re-derived under the declared account, legacy books retired 2026-08-26), so there IS now something to grant access to |
-| [treatment-options-engine](#treatment-options-engine) | MODIFIED `governed-derived-model` (a `role: recommendation` member emitting ranked, cited, non-authoritative options; a declared `evidence_floor` dial with labelled, structurally non-mixable relaxed modes; an `editorial_weights` declaration for ranking inputs no truth store supplies) — with the realized half MedxFactory-owned across `root-truth-grounding` (adverse-reaction and mechanism-of-action backfill), `terminology-normalization` (drug-class and indication mapping tables) and `treatment-plan-generation` (the engine itself) | 1 | Registered 2026-08-26 — Brett's build decision ("we will build this"), six steps: indicated → minus contraindicated → minus interacting → weighed by adverse reactions → rebalance on a charted non-response → off-label mode with the evidence floor lowered and mechanism similarity as the candidate generator. 7 claims settled, the governance boundary among them and NOT a dial: the engine PROPOSES and a clinician decides, `execute_final_action: false` holds, the plan gate stays human-reviewed, and the rebalance trigger is a chart observation rather than a timer. **Corpus recon 2026-08-26 corrected the described shape in four ways that change the deltas**: (a) `adverse_effect` is ALREADY in the closed ten-member claim-type enum with 3 records, so §6 work is a BACKFILL, not a new claim type; (b) the drug→condition edge is effectively ABSENT — 5 of 6,510 grounded pairs are `condition_*` — so "list all drugs indicated for X" is unanswerable today rather than merely slow; (c) the condition namespace already carries TWO id conventions (generated `condition_<icd10>` vs curated readable slugs, curated silently winning), which `indicated_for` must settle before writing a row; (d) evidence_grade is already multi-valued (6,499 regulatory_label + 7 across three lower grades), so the off-label floor has grades to drop to. Corpus measured at 6,506 records / 1,302 medication concepts / 1,298 custody SPLs (≈22% of the 5,803-row prescribable RxNorm set). 10 open questions, all `open`; three are hard blockers — Q7 (MoA as an eleventh enum member vs overloading `target`) fixes every backfilled record id, Q9 (no Medx policy authorizes `person_modeling: identified_persons_under_policy`, and the Medx conformance file declares `synthetic_only`) blocks declaring the family at all, and Q10 (WHO ATC's licence commit rule) is a structural validate gate with FDA-EPC-alone as the fallback. Q8 asks whether the engine is a MODIFIED `treatment-plan-generation` rather than a new capability — its nine promoted requirements already cover the entry point, the citation obligation, the closed worker plane, consent, the model pin and the plan-G1 gate. Exits NEUTRAL-FIRST: the `governed-derived-model` delta once Q7/Q8/Q9 dispose, then the Medx corpus+engine change once Q10 clears and the extractor-model policy re-pin (a governed version bump of `medx.domain.policy.plan_authoring_models` v1, recommended on cost) is made or declined |
+| [treatment-options-engine](#treatment-options-engine) | MODIFIED `governed-derived-model` (a `role: recommendation` member emitting ranked, cited, non-authoritative options; a declared `evidence_floor` dial with labelled, structurally non-mixable relaxed modes; an `editorial_weights` declaration for ranking inputs no truth store supplies) — the MedxFactory half (`root-truth-grounding`, `terminology-normalization`, `treatment-plan-generation`) is no longer described here | 1 | **SPLIT 2026-09-07, and the topic stays** (ideation split, Brett Heap 2026-09-07T22:21Z, Q2[A]): the NEUTRAL remainder is the 253-line `treatment-options-engine/treatment-options-engine.md` in this repository — the three `governed-derived-model` deltas, claims 1, 2, 5 and 6 as neutral RULES, conflict 2, and the neutral leg of `Exit`. The CLINICAL half moved to `MedxSoft/MedxFactory@74bed502` `ideation/staging/treatment-plan-generation/treatment-options-engine-clinical.md`: the measured corpus recon (6,506 records / 1,302 medication concepts / 1,298 custody SPLs, ≈22% of the 5,803-row prescribable RxNorm set, and its four shape corrections), claims 3, 4 and 7, the six-step capability description, the MedxFactory `Impact` code paths, idea notes 1–6, conflicts 1 and 3–6, ALL TEN open questions (Q1–Q10), the five MedxFactory `Related work` entries, and the Medx leg of `Exit`. Both halves cross-link; the claim numbering keeps its gaps so claim-by-number citations resolve across the two. The three BLOCKERS travelled with the clinical half and still gate the neutral change — Q7 (mechanism-of-action as an eleventh claim-type enum member vs overloading `target`), Q8 (whether the engine is a MODIFIED `treatment-plan-generation`), Q9 (which Medx domain policy authorizes `person_modeling: identified_persons_under_policy`, given the Medx conformance file declares `synthetic_only`); Q10 (WHO ATC's licence commit rule) gates only the Medx change. Registered 2026-08-26 on Brett's build decision ("we will build this"); 7 claims settled, the governance boundary among them and NOT a dial — the engine PROPOSES and a clinician decides, `execute_final_action: false` holds, the plan gate stays human-reviewed, and the rebalance trigger is a chart observation rather than a timer. Exits NEUTRAL-FIRST: the `governed-derived-model` delta once Q7/Q8/Q9 carry dispositions, then the Medx corpus+engine change once Q10 clears and the extractor-model policy re-pin (a governed version bump of `medx.domain.policy.plan_authoring_models` v1, recommended on cost) is made or declined — that leg is now raised from MedxFactory's own staged copy |
 | [openxwallet-neutral-home](#openxwallet-neutral-home) | REMOVED `openxwallet` + REMOVED `openxwallet-agent-profile` from the openxFactory corpus (moved to `opensoft/openXwallet`); ADDED `domain-descendant-boundary` (the general standard: a domain consumes a neutral open* product through a `<Domainx><Product>` pin-and-profile descendant) + ADDED `neutral-product-pin` (commit + per-file sha256 + `pinned_by_commit_only`, tag-only refused, fail closed on an uninitialized submodule or digest drift); MODIFIED `trust-anchor` (custody registry resolved from the pin) + MODIFIED `review-authority-intake` (the reader is the pinned tool inside a REQUIRED consumer check) | 1 | **PROPOSED 2026-08-26 as `split-openxwallet-repo`** (PR opensoft/openxFactory#391) and **RATIFIED 2026-08-26** by Brett Heap in session, AS PROPOSED — R1-R8 standing unchanged, Q1-Q5 carried at the design's dispositions (Q1/Q2/Q3 travel, Q4/Q5 decided); realization proceeds through Speckit features, one per `tasks.md` group, not `/opsx:apply`. Registered 2026-08-26 — origin is Brett's two questions (is openXwallet a repo or features in another repo; do domains integrate the neutral product directly or through a `<Domain>Wallet` that pins it) and his ruling the same day, verbatim: "approve R1-R8 as recommended, stage the topic and propose". **ALL EIGHT RULINGS SETTLED** — R1 `opensoft/openXwallet` on the house `openX<type>` form (which owes `docs/openxdox-naming.md` an Amendment 2, since that ratified record currently names `openxWallet` as a family EXCEPTION); R2 machine keys FROZEN in v1 (paths, capability ids, the `xfactory_wallet_*` kind prefix, the envelope kind, finding codes — a rename in the same change as the move is unbisectable, and LedgerxFactory pins five kinds and several finding-code strings by name); R3 the new repo owns the wallet's own standard (both contract families + corpus, validator, syntax gate, CI workflow, the two promoted specs, Speckit 006/010/012, the `2026-08-08-add-openxwallet` archive) while openxFactory keeps the SEAM (`governance/review-authority/`, Speckit 013/014, the trust-anchor / identity-brokering / roles-authority-model compositions, all ideation provenance) — which amends the aggregation's working rule #1; R4 the pin is BIDIRECTIONAL and acyclic (openxFactory pins openXwallet by commit + per-file sha256 + `pinned_by_commit_only`; openXwallet vendors exactly ONE openxFactory artifact, `contracts/schemas/hermes-job-envelope.schema.yaml`, because validator rule (g) reads it); R5 root-level `openXwallet/` submodule in the aggregation, on the DTN-022 precedent; R6 the register STAYS (codexFactory's merge-gate floor pins `governance/review-authority/register.yaml` in `opensoft/openxFactory` and refuses wildcards) while its READER travels with the validator as a generic authority-register mode; R7 descendants are `MedxWallet` / `LedgerxWallet` / `codexWallet` / `OpsxWallet` / `AdxWallet`, the `<Domainx><Product>` form all four existing descendants use; R8 `LedgerxWallet` first, at extraction time, because LedgerxFactory is the only live consumer. The load-bearing FINDING is that the descendant repo is already the house standard with **no counter-example** — openChart -> MedxChart, openPractice -> MedxPractice, openAvatar -> MedxAvatar/LedgerxAvatar — so this topic ratifies the pattern ONCE as a general standard instead of paying for a fourth bespoke boundary change. First release is a **byte-identical pure move**: the eight artifact sha256s must equal openxFactory HEAD's manifest rows before `wallet-v1.0` is tagged. 5 open questions, none blocking the move — Q1 (promote the register as a wallet primitive vs split the reader back) is expected to TRAVEL to the council rather than resolve, since either answer converts a provably-empty diff into a design change. Hard sequencing: LedgerxFactory's forward-compatible finder lands BEFORE openxFactory sheds (its `validate_wallet_estate.py::find_openxfactory()` fails loudly, never skips), `wallet-v1.0` exists before openxFactory changes, and consume-and-shed is ONE atomic PR because `validate-trust-anchor.py` hard-exits without the custody registry. Verified NOT affected: hermes-install reseed (wallet content is not in `CONTENT_KINDS`) and codexFactory (the register does not move). **EXIT TAKEN — the change is ARCHIVED 2026-08-28** as `openspec/changes/archive/2026-08-28-split-openxwallet-repo/`, on merged-plus-green realization evidence across six repositories (openXwallet at `wallet-v1.0` then `wallet-v1.1`; openxFactory at `contract-v1.47` then `contract-v2.0`, which shed 92 local copies; codexFactory #117; xFactory #161; LedgerxFactory #25/#29/#30/#31; OpsxFactory #129) plus the first descendant LedgerxWallet at `lxw-v1.0`. **The row and the fragment are KEPT ON DISK as provenance**, on the `agent-wallet-identity` precedent above — that topic's change archived 2026-08-08 and its row stayed because the staged fragment remains on disk carrying the deferred material, which is the same reason here. **The topic is NOT fully exited**: it still carries a LIVE successor exit, `create-ledgerxwallet-overlay-boundary`, ratified and realized but an ACTIVE change still |
 | [wallet-carried-work-authority](#wallet-carried-work-authority) | MODIFIED `openxwallet` (openXwallet-owned — `scope.objects` extended BELOW REPOSITORY GRANULARITY as ordered literal path prefixes, with PREFIX CONTAINMENT added to the attenuation rule beside its set-subset test; `author` and `merge` given named readers and declared constraints the way `review` has them); ADDED `work-authority-intake` in openxFactory (sibling of `review-authority-intake` — a required check reading AUTHOR grants at pull-request open and MERGE grants at the merge gate, exercise recorded); MODIFIED `neutral-product-pin` realization (the digest pin bumps to the openXwallet release carrying the extension) | 1 | Registered 2026-09-02 from **Brett Heap's ruling in session that same day**, choosing option 2 (extend the grant schema) over option 1 (make the three-repo schema the default wherever spec and code authority diverge) — verbatim reasoning: option 2 matches the ratified doctrine that layout confers nothing; option 1 quietly re-imports layout as an authority carrier. **THE CLAIM THAT MAKES IT WORTH RAISING:** `add-wallet-carried-review-authority` demoted the SPEC/CODE/ASSEMBLY three-repository schema to a human election that "changes no gate, no floor, no grant, and no clearance eligibility" — and that demotion is TRUE IN THE PROSE AND FALSE IN THE MACHINERY. Grant objects are repo-granular in practice (the live `grant-mrc-0001` scopes `review` to `opensoft/openxFactory`), the schema carries NO path or branch narrowing, and only `review` is an act with a reader, so the ONLY way to seat spec authority and code authority separately over one project today is to put spec and code in different repositories. The confers-nothing schema is therefore SILENTLY LOAD-BEARING, and this topic makes it genuinely optional by removing the coupling from the AUTHORITY side rather than the layout side. Three verified substrate facts shrink the delta and shape it: the `identifier` pattern `^[A-Za-z0-9][A-Za-z0-9._:/-]*$` ALREADY admits `opensoft/openxFactory:openspec/`, so the path form is a SEMANTIC delta to attenuation and not a grammar one; there is NO closed act enumeration anywhere in openXwallet (`REVIEW_ACT_TOKEN = "review"` is the one token with a reader), so the act work is READER-and-constraint work; and `xfactory_wallet_distinct_holder_constraint` already takes `object_kind` + `acts.prior`/`acts.subsequent`, so author-versus-review is a new INSTANCE, not a new shape. **A CORPUS HOLE FOUND WHILE CHECKING Q2 AND RECORDED AS A CONFLICT:** `review-authority-intake` carries a ratified requirement about "the approval act", but NO `approve` act token exists in openXwallet — approval is an `approval_posture`, not an act — so `merge` is recommended as a DISTINCT ACT rather than `approve` at a higher custody tier. 7 falsifiable claims (layout confers nothing; prefix containment is the narrowing test; author and review over one object cannot be one holder; a worker NEVER holds an author grant as key access — `access_secrets: false` is a schema-level `const`, so the act is exercised under tier-1 human authority with a tier-2 attestation per `signed-execution-chain`; branch protection and CODEOWNERS stay layout-bound external enforcement and cannot be the carrier). 7 open questions, all `open`, each carrying a real recommendation: Q1 ordered literal path prefixes with NO globs and NO negation (a glob's cover is not decidable by inspection; `A but not A/b` is not narrower than `A` under any containment test); Q2 `merge` as a distinct act; Q3 TWO SEQUENCED CHANGES — `extend-openxwallet-object-scope` in openXwallet first, then `add-wallet-carried-work-authority` here carrying the pin bump as its own first task; Q4 one required status check, with any ruleset or CODEOWNERS a drift-checked PROJECTION of the register and never read back as the authority fact; Q5 PR-open plus merge gate rather than per commit (intra-branch commits covered by chain attestations); Q6 ASSEMBLY as another path prefix, no ASSEMBLY-specific object kind; Q7 its own register beside the review one, sharing the reader but not the file (the staleness bound is per-surface and merge needs a tighter one than convening). EXPLICITLY NOT CHANGED: `shared-contract-ownership` co-residence, `adopt-neutral-tooling-home`, and the SPEC/CODE/ASSEMBLY schema itself, which stays human-elected and is now DECOUPLED from authority legibility. BLOCKED ON THE PREDECESSOR'S UNBUILT HALVES: S3 exercise recording is half-merged (6.1 merged at `401da4f` 2026-08-27; 6.2–6.8 unchecked, 6.4 has not decided where exercise records are stored) and S5 revocation lifecycle is four pull requests, NONE MERGED — and `register.yaml` says in its own header it is not a revocation surface (`revocation_staleness_bound: P7D`), which bites harder at a merge gate than at a convening because merge is irreversible |
 | [opendox-two-layer-product](#opendox-two-layer-product) | REMOVED-by-SPLIT `ideation-dashboard` (102 requirements leave openxFactory with a per-requirement successor map across THREE destinations); ADDED a neutral corpus-adapter seam capability (declared by openDox, implemented by openXdox); ADDED a neutral domain-mapping declaration capability (what a `<Domainx>Dox` descendant declares); MODIFIED `domain-descendant-boundary` (a descendant of a RUNTIME product with a schema and migrations, and the per-tenant deployment unit); MODIFIED `neutral-product-pin` (a pin whose consumption is a deployment, and a pin CHAIN resolved one hop at a time). **NO `document-lifecycle` delta and NO `governed-derived-model` delta** — both were carried as possibles when the topic was staged and neither is authored: RULING OQ-3 (2026-09-04T22:21Z) settles `document-lifecycle` (it stays openxFactory's own vocabulary, exposed through its own adapter; descendants declare lifecycles via `domain-mapping-declaration`), and `governed-derived-model` needs no delta because the model/scenario workbench is a UI over a contract that already exists at the `governed` tier | 1 | **EXIT RAISED 2026-09-04 — PROPOSED as `split-opendox-two-layer-product`** (`openspec/changes/split-opendox-two-layer-product/`, **`Status: ratified`** 2026-09-05 on Brett Heap's word *"ratify #666"* (2026-09-05T01:38Z, issue #656; record `review/ratification-2026-09-05.md`); THE PACKET STILL PERFORMS NOTHING — no repository created, no code moved, no capability promoted or removed, and `docs/openxdox-naming.md` NOT edited: Amendment 3's text is drafted in the packet's `design.md` § D8 and applied at realization). The packet carries a REMOVED-by-SPLIT delta over ALL 102 `ideation-dashboard` requirements with a per-requirement successor map (71 openDox / 16 openXdox / 15 **`openxFactory` itself**), two ADDED capabilities (`corpus-adapter-seam`, `domain-mapping-declaration`), four MODIFIED requirements across `domain-descendant-boundary` and `neutral-product-pin`, and the Q6 re-homing plan for the five frozen changes. **The four questions the packet put were ALL RULED by Brett the same evening, 2026-09-04, before ratification** — **DQ-1** (22:14Z) openxFactory KEEPS its own adapter, `codexDox` is a thin descendant that pins openXdox and reuses it, the fifteen engineering rows stay here (map 71/16/15), and the shed precedes the first descendant; **OQ-1** (22:15Z) the FOUR-PART FLOOR as a requirement of the change (mapping manifest + per-file digests + a CLOSED edit-class list of import rewrites / path constants / adapter calls; test counts that SUM; a neutral conformance corpus every destination passes; a snapshot-equivalence run); **OQ-2** (22:16Z) ONE CHAIN — openDox pinned only by openXdox inside the family, no third MODIFIED requirement on `neutral-product-pin`, and openDox still used freely as open source outside it; **OQ-3** (22:21Z) NO `document-lifecycle` delta now, descendants declaring lifecycles via `domain-mapping-declaration`, revisit at `MedxDox`. Nothing in the packet is open, and **Brett RATIFIED it 2026-09-05T01:38Z** — verbatim *"ratify #666"*, over the packet as it stood at head `6935fb8b`, recorded at `openspec/changes/split-opendox-two-layer-product/review/ratification-2026-09-05.md`. The fragment STAYS staged on the `split-openxwallet-repo` exit precedent (that topic's folder is likewise still staged); this row is the exit record. Registered 2026-09-04 from Brett's rulings (governing record: issue #656). **FIVE RULINGS PLUS A DIRECTION, all 2026-09-04**, carried as claims 11-15: **Q1** the database owns IDENTITY AND COORDINATION (users, memberships, projects, the project-to-repo map, sessions, drafts) and git owns GOVERNED ARTIFACTS written back ONLY through the apply lane, so every existing gate stays valid and the db is disposable relative to the corpus (rejected: docs-in-db-with-git-export, and ideas-in-db-until-promoted); **Q2** the runtime REUSES the Hermes install pattern — FastAPI + Postgres on AKS, OIDC through the Keycloak broker, growing into the OpsxFactory `dox` workload set; **Q3** ONE INSTANCE AND ONE DATABASE PER TENANT, ALWAYS, in both Case A (operator-hosted) and Case B (tenant-hosted), no cross-tenant data ever sharing a store — so the descendant IS the deployment unit; **Q4** openDox DEFINES the corpus-adapter interface and openXdox IMPLEMENTS it, the two `doc_health` back-imports move to a small neutral module, and the dependency points ONE WAY; **Q5 DIRECTION** replaces the two-way split with a THREE-LAYER TEST — openDox must be useful ALONE to a student or a lab assistant (module test: would someone with no notion of factories, gates or tenants use it?), openXdox holds the machinery COMMON to how MedxFactory, LedgerxFactory and AdxFactory each map onto the workbench, descendants hold the domain-specific mapping — making the per-module assignment DESIGN WORK this topic carries, with an active obligation to name PULL-UPS. Also settled: two ruled departures from `split-openxwallet-repo` (the integration SEAM becomes its own repo; the byte-identical floor is unavailable), and the naming record owes an **Amendment 3** carried by the change, NOT by this topic. **DISPOSITIONED 2026-09-04 — Q6 and Q7 RULED, all three recorded conflicts RESOLVED, one secondary question fully settled.** **Q6** — freeze the dashboard NOW and carve immediately: the five active changes (`add-composed-view-authoring`, `add-doxchat-model-intake`, `add-lens-document-selection`, `add-nightly-dashboard-refresh`, `retire-doxbench-chat-turn-v1`) stop where they stand in openxFactory and their live deltas and 20 open tasks RE-HOME into the extraction change and the new repositories as part of the carve; no new dashboard change opens here; the lane's own recommendation (wait for the wave, carve after the two gated ones archive) was put and NOT taken. **Q7** — `opensoft` owns both repositories, BOTH PUBLIC from day one under Apache-2.0 (matching `openChart`, `openPractice`, `openRepoShape`), descendants following their domain repos' visibility; rejected openXdox-private-until-proven and MIT/AGPL-3.0. **C1** the naming collision is accepted knowingly, repository is `opensoft/openDox`, Amendment 3 states the measured facts and travels with the repository-creating change. **C2** openXdox is the domain-mapping core, PARAMETERIZED by a domain profile — engineering vocabulary belongs to `codexDox` or openxFactory's own adapter, never to openXdox itself, which also SETTLES **Q11** (the lifecycle vocabulary is parameterized, not fixed) and narrows Q8's destination boundary. **C3** standalone openDox is git-backed by a plain local repo per project; Q1 holds unchanged; moving into a governed factory is a push, not a migration — which reinforces (without fully settling) Q10. **Q8** (REMOVE-vs-stub mechanics) and **Q9** (the replacement safety property) still travel into the change unchanged. Folds `openxdox-install-app-provisioning` and codexFactory #89. Record: `opensoft/openxFactory` issue #656 |
@@ -505,34 +516,6 @@ factory comparing references by raw string has it.
 - Exit: three changes — openxFactory scaffold+schemas, codexFactory client
   defaults, hermes-install wizard verb (in that order).
 
-## codexfactory-domain-hermes-content
-
-- Staging ID: `openxFactory:staging:codexfactory-domain-hermes-content`
-- Repository context: codexFactory (`hermes/domain/` +
-  `omnigent/domain-overlay.yaml` in lockstep); neutral persona/mix/council
-  schemas in openxFactory later.
-- Source: 2026-07-22 review pass over the domain brainstorm cluster (5
-  codexfactory-domain docs + `hermes-persona-character-model.md`); harvest
-  map verified against the codexFactory tree.
-- Claim: author the Domain Hermes content the seeding runtime is starved for —
-  8 Option-E personas (trait vocabulary v1, decide-then-speak guardrail,
-  escalation-target audit applied), the stored policy delta (position table,
-  contested-position schema, coverage ratchet), two-tier councils with
-  enumerated triggers, memory boundaries (worker-proposes/Lead-accepts,
-  de-id schema + attestation), and the practice catalog (`promoted_in` +
-  `owning_lead`); promotion extends `codex_owns` and adds the two missing
-  Omnigent workers in the same change or the seed-time closure check fails.
-- Files:
-  - [codexfactory-domain-hermes-content.md](codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md) — primary: claims, exit changes A/B + Omnigent extension, open questions.
-- Open questions (carried): gate-rules council seats; `council_small` seat
-  sourcing; efficiency-audit ownership; neutral schema timing;
-  `finding_class` vocabulary.
-- Exit: codexFactory change A (`add-domain-hermes-roles-and-policies` —
-  **raised 2026-07-22**, proposal + tasks + `domain-hermes-content` spec
-  delta on codexFactory main, strict validation green; the topic's
-  `openspec/` drafts are its provenance), then change B (councils/mixes/
-  escalation/memory/catalog); the Omnigent extension rides change A.
-
 ## github-administration-plane
 
 - Staging ID: `openxFactory:staging:github-administration-plane`
@@ -622,44 +605,6 @@ factory comparing references by raw string has it.
 - Exit: per-surface-family OpenSpec changes at the scheduled major +
   mechanical per-repo stack.yaml migrations; archives when every frozen
   identifier is migrated or explicitly retained as archived-only.
-
-## medxfactory-domain-hermes-content
-
-- Staging ID: `openxFactory:staging:medxfactory-domain-hermes-content`
-- Repository context: MedxFactory (`hermes/domain/` +
-  `omnigent/domain-overlay.yaml` + `omnigent/overlay-manifest.yaml` digest
-  re-pin in lockstep).
-- Source: team001 omnigent-program handoff next-unit mapping (2026-07-24);
-  MedxFactory `docs/` corpus (27 drafts) + the codexFactory
-  `domain-hermes-content` pattern; both trees inventoried 2026-07-24.
-- Claim: author the Medx Domain Hermes content the seeding runtime needs —
-  clinical Plane-1 personas directing the 11 ratified worker classes
-  (roster derivation base: the omnigent routing table's undefined domain
-  authorities + the MxD-MRR convener), the stored medical policy delta
-  (safety/root-truth corpus, store-the-delta filter), MxD-MRR formalized
-  as the domain review council, escalation elevation, memory boundaries in
-  the gateway vocabulary (patient-derived de-id), and the
-  `medx_practice_catalog`; `overlay.yaml` upgrades from pre-contract stub
-  to the v1.15 schema with two-way `medx_owns` closure; lockstep adds
-  `directed_by` to all 11 workers + re-pins the overlay-manifest digest.
-- Files:
-  - [medxfactory-domain-hermes-content.md](medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md) — primary: 7 claims, exit changes A/B, decision record 2026-07-29, 2 residual questions.
-- Open questions: RULED 2026-07-29 (decision round with Brett; full record
-  in the primary doc) — roster = the derived seven PLUS a dedicated
-  ontology-steward persona (eight; the accountable ontology steward per
-  ratified `add-domain-ontology-layer`, replacing the pilot placeholder);
-  MxD-MRR domain-owned only with cross-layer references (MxC-LOR/MxP-CIR
-  ride their layer changes); convergence-packet flow untouched with mixes
-  reserved for review ensembles; content manifest declared explicitly incl.
-  `domain_ontology` (resolved by the ratified ontology contract). Leanings
-  carried to the change-A gate: MxD-MRR wears the ontology review seats;
-  `high_impact_requires: [licensed_human]`. Residual (non-gating):
-  practice-catalog seed set (change-B input); client-layer-defaults analog
-  timing.
-- Exit: MedxFactory change A (`add-domain-hermes-roles-and-policies` —
-  roles + policies + `medx_owns` closure + Omnigent lockstep), then change
-  B (councils/mixes/escalation/memory/catalog), mirroring the codex
-  sequence; MxC-LOR/MxP-CIR machine surfaces ride their own layer changes.
 
 ## proposal-origin-contract
 
@@ -2015,7 +1960,9 @@ repo scope.
   working id** `add-signed-execution-chain-anchoring`, recorded in the packet.
   Three obligations are carried from Brett Heap's own 2024 MedxChain notes
   (`ideation/brainstorm/medxchain-blockchain-medical-records.md`, vendored by
-  PR #509, IN FLIGHT) — verification-attempt auditing, the meta-analysis lane, and
+  PR #509, IN FLIGHT; the notes themselves MOVED 2026-09-07 to
+  `MedxSoft/MedxFactory@74bed502` at the same path — the vendored copy this
+  packet reads is unaffected) — verification-attempt auditing, the meta-analysis lane, and
   the domain-instantiation boundary — plus one CORRECTION to them, the cross-plane
   join key. **ITS §7.4 COUNCIL SAT 2026-08-30** (combined over PRs #510, #513 and
   #509 — an instrument the disposition rules WRONG at item 9, future sittings
@@ -2128,146 +2075,118 @@ repo scope.
 ## treatment-options-engine
 
 - Staging ID: `openxFactory:staging:treatment-options-engine`
-- Repository context: SPLIT on purpose. openxFactory owns the neutral half —
-  `governed-derived-model` — with `omnigent-domain-overlay` (constitutional
-  `execute_final_action: false`) and `workflow-gate-contract` (where the
-  clinician's decision is recorded) supplying refusal and gate surfaces the
-  topic reuses rather than re-invents. MedxFactory owns the realized half:
-  `root-truth-grounding` (the SPL §6 / §12.1 backfill over already-pinned
-  custody XMLs), `terminology-normalization` (drug-class and indication mapping
-  tables) and `treatment-plan-generation` (the engine). Staged HERE because the
-  neutral delta is the one that needs designing; the Medx work is comparatively
-  mechanical once it lands. The fragment deliberately does NOT fence the Medx
-  capabilities as `xspec:candidate` targets — they do not resolve from an
-  openxFactory document and fencing them would emit tag-hygiene findings for a
-  claim this repo cannot host.
+- Repository context: SPLIT on purpose, and SPLIT IN FACT since 2026-09-07.
+  openxFactory owns the neutral half — `governed-derived-model` — with
+  `omnigent-domain-overlay` (constitutional `execute_final_action: false`) and
+  `workflow-gate-contract` (where the clinician's decision is recorded)
+  supplying refusal and gate surfaces the topic reuses rather than re-invents.
+  MedxFactory owns the realized half — `root-truth-grounding` (the SPL §6 /
+  §12.1 backfill over already-pinned custody XMLs), `terminology-normalization`
+  (drug-class and indication mapping tables) and `treatment-plan-generation`
+  (the engine) — and now HOLDS it: the clinical content moved 2026-09-07 to
+  `MedxSoft/MedxFactory@74bed502` `ideation/staging/treatment-plan-generation/treatment-options-engine-clinical.md`, by Brett Heap's ruling of 2026-09-07T22:21Z ("accept all [A]",
+  Q2[A]). Until then one 696-line fragment interleaved both halves; the
+  fragment here is now 253 lines of neutral delta. The fragment still does NOT
+  fence the Medx capabilities as `xspec:candidate` targets — they do not
+  resolve from an openxFactory document and fencing them would emit tag-hygiene
+  findings for a claim this repository cannot host.
+- What is HERE, after the split: the three `governed-derived-model` deltas (the
+  ranked-cited-non-authoritative `role: recommendation` member; the declared
+  per-family `evidence_floor` with labelled, structurally non-mixable relaxed
+  modes; the `editorial_weights` declaration for ranking inputs no truth store
+  supplies), claims 1, 2, 5 and 6 stated as neutral RULES, the
+  recommendation-object `Impact` bullet, conflict 2 (editorial weights versus a
+  truth store's own no-invented-facts doctrine — a reconciliation, not an
+  absence of tension), the neutral idea note on sequencing the neutral delta
+  first, the three neutral `Related work` entries, and the neutral leg of
+  `Exit`.
+- What is at MedxFactory: the `Current state, verified against the live corpus
+  (2026-08-26)` recon; claims 3, 4 and 7; the six-step capability description
+  and the `What changes → The MedxFactory half — corpus, tables, engine`
+  section; `Build order`; the MedxFactory `Impact` code paths and the clinical
+  illustration of the recommendation-object bullet; idea notes 1–6; conflicts 1
+  and 3–6 plus the clinical illustration of conflict 2; ALL TEN open questions
+  (Q1–Q10); the five MedxFactory `Related work` entries; and the MEDX leg of
+  `Exit`. Claims 1, 2, 5 and 6, the recommendation-object impact bullet and
+  conflict 2 keep their neutral RULE here and their full clinical illustration
+  there, so neither half reads as a fragment of a missing document. The claim
+  numbering keeps its gaps on purpose: claim-by-number cross-references resolve
+  across both halves.
 - Source: Brett Heap, in session 2026-08-26, deciding to build rather than
-  explore — "we will build this" — with the capability given in six steps: list
-  all drugs INDICATED for the condition, remove those CONTRAINDICATED for the
-  patient, check INTERACTIONS against current medications, weigh ADVERSE
-  REACTIONS, REBALANCE toward a combination with fewer negative and more
-  positive interactions and a better reaction profile (rerunning when the chart
-  observes non-response after a trial period), and an OFF-LABEL MODE running the
-  same engine with the evidence-grade gate lowered and mechanism-of-action
-  similarity admitted as a candidate generator.
+  explore — "we will build this". The six-step capability description that
+  forced the neutral delta is clinical and moved with the MedxFactory half.
 - Claim: seven settled, not reopened by the questions — it is a build decision;
   the engine PROPOSES and a clinician DECIDES (the governance boundary, and not
   a dial: Omnigent constitutional `execute_final_action: false` and
   `access_secrets: false` hold, the treatment-plan gate stays human-reviewed,
   and nothing selects, orders, or cycles a regimen); the rebalance trigger is a
-  charted OBSERVATION, never a timer and never an automatic rerun; every line of
-  every output cites a root-truth record, with un-citable steps surfaced as gaps
-  rather than run silently; on-label first, with off-label a separate MODE whose
-  outputs are structurally un-mixable with on-label ones; the interaction
+  charted OBSERVATION, never a timer and never an automatic rerun; every line
+  of every output cites a root-truth record, with un-citable steps surfaced as
+  gaps rather than run silently; on-label first, with off-label a separate MODE
+  whose outputs are structurally un-mixable with on-label ones; the interaction
   severity and combination weights are EDITORIAL POLICY — versioned,
   human-reviewed, and visible in every output that used them; and the backfill
-  FETCHES NOTHING NEW, running over the 1,298 custody SPL XMLs already pinned by
-  digest.
-- Corpus recon 2026-08-26 (measured, and it corrected the described shape):
-  6,506 records over 1,302 distinct `medication_*` concepts, 1,298 custody XMLs
-  (261 MB) under `var/root-truth-sources/`, ≈22% of the 5,803-row prescribable
-  RxNorm ingredient set. Four corrections that change the deltas: (1)
-  `adverse_effect` is ALREADY the ninth member of the closed ten-member
-  claim-type enum (`scripts/root_truth/validate_root_truth.py:24-25`) with 3
-  records, so the §6 work is a backfill under an existing member and not a new
-  claim type — while `mechanism_of_action` genuinely does not exist and the
-  nearest member, `target`, holds 1 record; (2) the drug→condition edge is
-  effectively absent — exactly 5 of 6,510 grounded pairs are `condition_*`, and
-  indications are one prose blob per family (`RT-SIMVASTATIN-IND-0001` carries
-  six indication limbs in a single `claim` string) — so the engine's first step
-  is not answerable from the corpus at all today; (3) the condition namespace
-  already carries two colliding id conventions, generated `condition_<icd10>`
-  from the 98,184-row FY2026 table versus curated readable slugs in
-  `examples/terminology/tables/conditions.yaml`, with the generated manifest
-  stating curated keys are SKIPPED at generation, and the five existing
-  condition pairs use both; (4) evidence_grade is already multi-valued (6,499
-  `regulatory_label`, 3 `retrospective_cohort_study`, 2
-  `clinical_practice_guideline`, 2 `public_health_guidance`), so the off-label
-  floor has real grades to drop to. There is no drug-class field anywhere.
-- Build order (Brett's, with one governance note): (1) backfill §6 + §12.1 over
-  existing sources — NOTE that the extractor model is pinned by
-  `medx.domain.policy.plan_authoring_models` v1 at `claude-fable-5`, whose own
-  `policy-revision-is-governed` position says the admissible set moves only
-  through an OpenSpec change, so re-pinning extraction to a cheaper tier for
-  ~2,600 extractions is a POLICY VERSION BUMP rather than a configuration
-  change; (2) the MED-RT class/indication/MoA table via RxClass, scripted and
-  deterministic with no model in the loop; (3) the derived treatment-options
-  model, on-label only; (4) the interaction-severity table, then rebalance
-  (never rebalance first — a search built before the scale hard-codes the
-  judgement); (5) off-label mode.
+  FETCHES NOTHING NEW, running over the 1,298 custody SPL XMLs already pinned
+  by digest. Claims 3, 4 and 7 are clinical and their text lives at
+  MedxFactory.
+- Corpus recon 2026-08-26: measured, clinical, and MOVED. It corrected the
+  described shape in four ways that change the deltas — `adverse_effect` was
+  already the ninth member of the closed ten-member claim-type enum (so §6 is a
+  backfill, not a new claim type, while `mechanism_of_action` genuinely does
+  not exist); the drug→condition edge is effectively absent (5 of 6,510
+  grounded pairs are `condition_*`), so the engine's first step is not
+  answerable from the corpus today; the condition namespace already carries two
+  colliding id conventions; and `evidence_grade` is already multi-valued, so
+  the off-label floor has real grades to drop to. The measurements and their
+  file-and-line citations are at MedxFactory, where the corpus they measure
+  lives.
+- Build order (Brett's, five steps, with the extractor-model policy-version
+  note): clinical, and moved with the MedxFactory half.
 - Files:
   - [treatment-options-engine.md](treatment-options-engine/treatment-options-engine.md)
-    — primary: 7 claims, a measured current-state section, three live
-    `xspec:candidate` blocks (all targeting `governed-derived-model`, all
-    resolving), the Medx-side delta in unfenced prose, a build-order section, 6
-    idea notes, 6 conflicts, 10 open questions each with Context / Recommended
-    answer / Explanation / Disposition status, a related-work map, and a
-    two-change exit.
-- Open questions (10, all `open`): (1) which reference GRADES interactions and
-  can we cite it — recommended: define our own small ordinal scale as the
-  editorial policy artifact rather than adopt a commercial one, since a scale we
-  cannot redistribute makes the "weights visible in every output" obligation
-  unsatisfiable; (2) how patient state enters — recommended: yes, through the
-  promoted `one-patient-integration-contracts` snapshot, pinned per run with no
-  second path, the open part being whether the snapshot's current shape carries
-  allergies and the active medication list at enough fidelity to key
-  interactions; (3) where POSITIVE-interaction evidence comes from — recommended:
-  split the term, since pharmacokinetic boosting IS label-grade and in the
-  corpus already while clinical synergy is guideline-grade and must contribute
-  separately rather than blend into one score; (4) ICD-10 vs SNOMED —
-  recommended ICD-10-CM now (SNOMED needs an affiliate licence and the promoted
-  licence commit rule is structural), retiring the curated slugs to aliases and
-  carrying the code system alongside the concept so SNOMED is later additive;
-  (5) whether adverse-reaction weighting needs INCIDENCE data — recommended yes
-  where §6 presents tables, because severity without incidence ranks a
-  30%-incidence nuisance level with a 0.01% catastrophe, which also makes the §6
-  backfill materially more expensive than §12.1 and feeds the model-tier
-  decision; (6) off-label consent and liability gates in Hermes — recommended a
-  DISTINCT consent purpose reusing the promoted machinery, with the mode and
-  floor as a structural disclosure, and no attempt to encode liability beyond
-  recording who requested what; (7) **blocker** — is mechanism-of-action the
-  existing `target` type or an ELEVENTH enum member, recommended eleventh
-  member because a molecular target and a mechanism are different claims and
-  off-label similarity reasons on the mechanism, and it must settle before
-  extraction because it fixes every record id; (8) is the engine a new Medx
-  capability or a MODIFIED `treatment-plan-generation` — recommended MODIFIED,
-  since the nine promoted requirements (charted-diagnosis entry point, citation
-  from a pinned run, knowledge-basis declaration, closed worker plane, consent
-  purpose, model pin, plan-G1 fixture replay with zero EMR writes) are all
-  needed unchanged; (9) **blocker** — which domain policy authorizes
-  `person_modeling: identified_persons_under_policy`, given the promoted family
-  FAILS validation when the referenced policy does not exist and MedxFactory's
-  `models/derived-model-conformance.yaml` declares its single `dream_simulation`
-  family as `synthetic_only` at `scope: domain`; recommended a new
-  `patient_derived_modeling` domain policy rather than stretching
-  `patient-consent-instrument`, which answers a different question; (10)
-  **blocker** — whether RxClass/MED-RT and WHO ATC clear the pin registry's
-  licence commit rule, recommended MED-RT under the existing derived-table
-  pattern with ATC as a separate pin, and FDA EPC alone (label-derived, already
-  in custody) as a genuinely acceptable fallback.
-- Conflicts recorded, not resolved: the claim-type enum is closed at ten ON
-  PURPOSE and Q7 wants an eleventh; editorial weights are un-sourced numbers
-  entering a corpus built to refuse un-sourced assertions (the neutral
-  `editorial_weights` declaration is a reconciliation, not an absence of
-  tension); `treatment-plan-generation`'s "charted diagnoses are the only plan
-  entry points" versus an off-label generator that reaches drugs no charted
-  diagnosis indicates — whether that requirement bounds the entry point or the
-  whole candidate set must be read before off-label is built; the Medx
-  conformance file's `synthetic_only` dial is currently INCONSISTENT with what
-  this topic needs; the two condition-id conventions, where a miss in the filter
-  chain looks exactly like "no drug is indicated for this"; and that "rebalance
-  reruns" reads like a loop claim 2 forbids, so the proposal must state the
-  trigger as an event a human authored.
-- Exit: TWO changes, neutral first. The neutral change modifies
-  `governed-derived-model` (recommendation member role, evidence-floor dial with
-  declared relaxed modes, editorial-weights declaration, plus validator support)
-  and can be raised once Q7, Q8 and Q9 carry dispositions — those three
-  determine whether the Medx family can be declared against the role at all. The
-  Medx change (or changes) covers the corpus backfill, the new terminology
-  tables and the engine, and cannot be raised until Q10 clears and the
-  extractor-model policy re-pin is made or explicitly declined. Q1's severity
-  scale must be decided BEFORE any rebalance work begins rather than alongside
-  it.
+    — primary, 253 lines after the split: the neutral claims and rules, three
+    live `xspec:candidate` blocks (all targeting `governed-derived-model`, all
+    resolving), a `Moved to MedxFactory` section enumerating exactly what left
+    in the original's own section order, the neutral conflict, and the neutral
+    leg of the exit.
+- Open questions: all ten (Q1–Q10) moved with the clinical half and are open
+  there. THREE still gate the neutral change here and are named in `Exit`:
+  **Q7** (blocker) — is mechanism-of-action the existing `target` claim type or
+  an ELEVENTH enum member; recommended eleventh, because a molecular target and
+  a mechanism are different claims and off-label similarity reasons on the
+  mechanism, and it must settle before extraction since it fixes every record
+  id. **Q8** — is the engine a new Medx capability or a MODIFIED
+  `treatment-plan-generation`; recommended MODIFIED, since its nine promoted
+  requirements are all needed unchanged. **Q9** (blocker) — which domain policy
+  authorizes `person_modeling: identified_persons_under_policy`, given the
+  promoted family FAILS validation when the referenced policy does not exist
+  and MedxFactory's `models/derived-model-conformance.yaml` declares its single
+  `dream_simulation` family `synthetic_only` at `scope: domain`; recommended a
+  new `patient_derived_modeling` domain policy. **Q10** (blocker) — whether
+  RxClass/MED-RT and WHO ATC clear the pin registry's licence commit rule —
+  gates the MEDX change only. Q1 (which reference GRADES interactions and can
+  we cite it) must be decided before any rebalance work begins.
+- Conflicts recorded, not resolved: the one that stays here is editorial
+  weights versus a truth store built to refuse un-sourced assertions — the
+  neutral `editorial_weights` declaration is the proposed reconciliation, not
+  an absence of tension. The other five are clinical and moved: the closed
+  claim-type enum versus Q7's eleventh member; `treatment-plan-generation`'s
+  "charted diagnoses are the only plan entry points" versus an off-label
+  generator; the Medx conformance file's `synthetic_only` dial; the two
+  condition-id conventions, where a miss in the filter chain looks exactly like
+  "no drug is indicated for this"; and that "rebalance reruns" reads like a
+  loop claim 2 forbids.
+- Exit: TWO changes, neutral first, and the split does not change the
+  sequencing. The NEUTRAL change — raised from THIS repository — modifies
+  `governed-derived-model` (recommendation member role, evidence-floor dial
+  with declared relaxed modes, editorial-weights declaration, plus validator
+  support) and can be raised once Q7, Q8 and Q9 carry dispositions: those three
+  determine whether the Medx family can be declared against the role at all.
+  The MEDX change (or changes) — now raised from MedxFactory's own staged copy
+  — covers the corpus backfill, the new terminology tables and the engine, and
+  cannot be raised until Q10 clears and the extractor-model policy re-pin (a
+  governed version bump of `medx.domain.policy.plan_authoring_models` v1) is
+  made or explicitly declined.
 
 ## openxwallet-neutral-home
 

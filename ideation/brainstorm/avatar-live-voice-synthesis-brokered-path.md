@@ -56,7 +56,8 @@ benchmark.
 The packet can use the
 [Identity and Custody](identity-custody-overview.md) packet for login,
 credentials, and retained media, and the
-[Medical Domain](medical-domain-overview.md) packet if a clinical avatar use
+Medical Domain packet — MOVED 2026-09-07 to `MedxSoft/MedxFactory@74bed502`,
+`ideation/brainstorm/medical-domain-overview.md` — if a clinical avatar use
 case is later governed.
 
 ## Open questions
