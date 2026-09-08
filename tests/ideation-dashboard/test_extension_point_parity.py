@@ -42,6 +42,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import http.server
 
 import pytest
 
@@ -74,11 +75,28 @@ MIN_ENTRY_POINTS = 25
 # depended on the shape of an `if` inside an arm would be noise.
 # ---------------------------------------------------------------------------
 
+# NARROWED ONCE, DELIBERATELY, BY § 2.4 PR 3 OF 4 — the one legitimate edit to
+# this pinned table, disclosed in that PR's body.
+#
+# PR 3 moved four read arms and five write arms OUT of the fixed tables and
+# registered them as contributed `RouteBinding`s instead (`serve_gate.py`,
+# `serve_projection.py`, `serve_openxfactory_lanes.py`, assembled in
+# `profile_openxfactory.py`). The pin therefore records the new FIXED set. It is
+# the same assertion at the same strength: every surviving arm keeps its exact
+# position, its exact test source and its exact reached-name set, so a
+# reordering, a retargeting or a silent drop still fails here. What left is not
+# untested — `test_serve_column_split.py` pins the contributed table the same
+# way, tuple for tuple, and each moved write route has its own off-loopback
+# parity test.
+#
+# `path == self.snapshot_route` STAYS. Its test is a per-server class attribute
+# fed by `build_server(snapshot_route=…)`, and a `RouteBinding.pattern` is a
+# frozen string — contributing that route would have broken the keyword in
+# silence. The HANDLER moved to `serve_projection.py` with its neighbours; the
+# ARM did not, and this line is where that decision is visible.
 ROUTE_ARMS = (
     ("path == self.snapshot_route", ("_serve_snapshot",)),
-    ("path == SNAPSHOT_INDEX_ROUTE", ("_serve_index",)),
     ("path == PROJECT_REGISTER_ROUTE", ("_serve_project_register",)),
-    ("path == COMMITTED_INTENTS_ROUTE", ("_serve_committed_intents",)),
     ("path == CAPABILITIES_ROUTE",
      ("_send_json", "_serve_bytes", "_session_repository",
       "_trusted_console_host")),
@@ -87,17 +105,10 @@ ROUTE_ARMS = (
     ("path == WORKBENCH_MODEL_INTAKE_ROUTE",
      ("_handle_workbench_model_intake_surface",)),
     ("path == WORKBENCH_THREAD_ROUTE", ("_handle_workbench_thread",)),
-    ("path.startswith(SOURCE_PREFIX)", ("_serve_source",)),
-    ("path == '/source' or path == '/source/'", ("send_error",)),
 )
 
 DO_POST_ARMS = (
     ("path == ACTIONS_NOTEBOOK_ROUTE", ("_handle_notebook_action",)),
-    ("path == ACTIONS_REFRESH_ROUTE", ("_handle_refresh_action",)),
-    ("path == ACTIONS_DTN_SEED_ROUTE", ("_handle_dtn_seed",)),
-    ("path == ACTIONS_STAGING_SEED_ROUTE", ("_handle_staging_seed",)),
-    ("path == ACTIONS_APPLY_REGISTER_EDITS_ROUTE",
-     ("_handle_apply_register_edits",)),
     ("path == ACTIONS_EDIT_ROUTE", ("_handle_edit_action",)),
     ("path == ACTIONS_WORKBENCH_CHAT_TURN_ROUTE",
      ("_handle_workbench_chat_turn",)),
@@ -107,7 +118,6 @@ DO_POST_ARMS = (
      ("_handle_workbench_model_intake",)),
     ("path == ACTIONS_WORKBENCH_MODEL_APPROVAL_ROUTE",
      ("_handle_workbench_model_approval",)),
-    ("path.startswith(ACTIONS_GATE_PREFIX)", ("_handle_gate_action",)),
 )
 
 
@@ -329,3 +339,125 @@ def test_the_dispatch_scan_would_notice_a_moved_arm():
                     ("path == B_ROUTE", ("_serve_b",))], (
         "the arm reader is order-insensitive — the pinned table above would "
         "not catch a reordering, which is the failure it exists for")
+
+
+# ---------------------------------------------------------------------------
+# the mixin base order (`split-opendox-two-layer-product` § 2.4, PR 2 of 4)
+# ---------------------------------------------------------------------------
+#
+# PR-2's own decision 1 states, as a safety property, that "the mixins precede
+# `SimpleHTTPRequestHandler` so `do_GET` resolution is unchanged" — a claim
+# about MRO order that nothing enforced. Today it is unobservable either way:
+# `WorkbenchRoutes` and `ProjectRoutes` share zero member names with the whole
+# `http.server` chain, so the order the base list is written in does not yet
+# change what any name resolves to. The exposure is a LATER member added to
+# either mixin that happens to share a name with something up the chain
+# (`send_head`, `list_directory`, `log_message`, `translate_path`,
+# `guess_type`, `do_GET`, `end_headers`, …) — it would silently lose to
+# `http.server` with nothing red. Both halves of decision 1 are pinned below:
+# the order itself, and the disjointness that makes today's order harmless.
+
+
+def test_the_mixins_precede_simplehttprequesthandler_in_the_mro():
+    """Decision 1's ordering claim, checked rather than taken on faith.
+
+    WIDENED by § 2.4 PR 3 of 4, never narrowed: the base list grew from two
+    mixins to five (`serve_gate.GateRoutes`, `serve_projection.ProjectionRoutes`
+    and `serve_openxfactory_lanes.LaneRoutes` joined PR 2's pair), so the pinned
+    prefix grew with it. The property is unchanged and strictly stronger — every
+    mixin must still precede `SimpleHTTPRequestHandler`, and now the ORDER OF
+    ALL FIVE is pinned rather than of two.
+    """
+    from ideation_dashboard import serve as serve_mod
+    from ideation_dashboard import (serve_gate, serve_openxfactory_lanes,
+                                    serve_project, serve_projection,
+                                    serve_workbench)
+
+    mro = serve_mod.DashboardHandler.__mro__
+    assert mro[:7] == (
+        serve_mod.DashboardHandler,
+        serve_workbench.WorkbenchRoutes,
+        serve_project.ProjectRoutes,
+        serve_gate.GateRoutes,
+        serve_projection.ProjectionRoutes,
+        serve_openxfactory_lanes.LaneRoutes,
+        http.server.SimpleHTTPRequestHandler,
+    ), (
+        "DashboardHandler's MRO no longer starts "
+        "(DashboardHandler, WorkbenchRoutes, ProjectRoutes, GateRoutes, "
+        "ProjectionRoutes, LaneRoutes, SimpleHTTPRequestHandler) — decision 1's "
+        "ordering claim no longer holds, and a mixin member sharing a name with "
+        "the http.server chain would now resolve to the WRONG implementation.")
+
+
+def _non_dunder(names) -> set[str]:
+    """Every name in `names` that is not a Python dunder (`__x__`).
+
+    A hand-picked exclusion list (`__module__`, `__doc__`, ...) goes stale the
+    moment either side of the comparison grows a dunder the list did not name
+    — `WorkbenchRoutes` already carries `__annotations__` (from its
+    `INTAKE_QUERY_FIELDS: tuple[str, ...]` class annotation), and a future
+    stdlib release could add one to the `http.server` chain. Excluding by the
+    dunder RULE means the test can only fail for a reason it exists to catch.
+    """
+    return {name for name in names
+            if not (name.startswith("__") and name.endswith("__"))}
+
+
+def _http_server_chain_members() -> set[str]:
+    chain_members: set[str] = set()
+    for klass in http.server.SimpleHTTPRequestHandler.__mro__:
+        chain_members |= set(vars(klass))
+    return chain_members
+
+
+def test_the_mixins_share_no_member_name_with_the_http_server_chain():
+    """Decision 1's safety property. Ordering alone does not prove there is no
+    collision TODAY — it only proves which side wins if there is one. This
+    proves there is none, which is what makes the order currently unobservable
+    and therefore safe. A future member added to either mixin that collides
+    with the chain must fail HERE, not resolve silently to the wrong method.
+    """
+    from ideation_dashboard import (serve_gate, serve_openxfactory_lanes,
+                                    serve_project, serve_projection,
+                                    serve_workbench)
+
+    # WIDENED by § 2.4 PR 3 of 4 with the three columns it added: the sweep
+    # follows the mixins, so a member added to any of the five is checked.
+    # Dunder exclusion is by RULE (`_non_dunder`), not a hand-listed set —
+    # kept from the base branch's independent hardening (see `_non_dunder`'s
+    # own docstring for why a hand-picked list goes stale).
+    raw_mixin_members: set[str] = set()
+    for mixin in (serve_workbench.WorkbenchRoutes, serve_project.ProjectRoutes,
+                  serve_gate.GateRoutes, serve_projection.ProjectionRoutes,
+                  serve_openxfactory_lanes.LaneRoutes):
+        raw_mixin_members |= set(vars(mixin))
+    mixin_members = _non_dunder(raw_mixin_members)
+    assert mixin_members, (
+        "no non-dunder members found on the five route mixins — that means "
+        "this reader is looking at the wrong classes, not proving "
+        "disjointness against the http.server chain")
+    chain_members = _non_dunder(_http_server_chain_members())
+    collisions = sorted(mixin_members & chain_members)
+    assert not collisions, (
+        f"the serve mixins now share member(s) {collisions} with "
+        "the http.server chain (BaseRequestHandler -> BaseHTTPRequestHandler "
+        "-> StreamRequestHandler -> SimpleHTTPRequestHandler). The mixins are "
+        "listed BEFORE SimpleHTTPRequestHandler in DashboardHandler's base "
+        "list, so a collision here means the mixin's version silently wins — "
+        "if that is intended, name it explicitly; if not, rename the member.")
+
+
+def test_the_collision_check_would_notice_a_real_collision():
+    """The negative control: an empty intersection could also mean the reader
+    is looking at the wrong classes entirely. Prove it fires on a real name."""
+    class _FakeMixin:
+        def send_head(self):  # a real SimpleHTTPRequestHandler method name
+            ...
+
+    chain_members = _non_dunder(_http_server_chain_members())
+    collisions = _non_dunder(set(vars(_FakeMixin))) & chain_members
+    assert collisions == {"send_head"}, (
+        "the collision check does not fire on a real shared method name, "
+        "which means the two tests above could pass on a broken reader "
+        "forever")

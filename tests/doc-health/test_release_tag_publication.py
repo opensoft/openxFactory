@@ -498,6 +498,21 @@ _CHANGELOG_HELD_WORDS = "WHICH THIS CLONE HOLDS"
 _CHANGELOG_ABSENT_WORDS = ("the commit is held in this store and no readable "
                            "contracts/CHANGELOG.md blob is reachable at it")
 _CHANGELOG_OVERCLAIM_WORDS = "carries no contracts/CHANGELOG.md"
+# THE THIRD STATE'S TWO ANSWERS, written out as fresh literals for the same
+# reason the ones above are: a reworded skip has to be re-agreed here. The tree
+# is what tells an absent document from an entry whose blob did not come back,
+# and each answer says WHICH of the two it has.
+_TREE_LISTS_NONE_WORDS = "the tree at that commit LISTS NO SUCH PATH"
+_TREE_CARRIES_WORDS = "WHOSE TREE CARRIES THAT PATH"
+_TREE_ENTRY_WORDS = ("the tree at that commit LISTS AN ENTRY at that path and "
+                     "no readable blob came back for it")
+# AND THE CAUSE THAT WAS NEVER CHECKED IS PINNED AGAINST (PR #753 fix round).
+# `ls_tree_paths` runs `ls-tree -r --name-only`, which filters by no object
+# type, so a GITLINK whose target this clone does not hold lists exactly as a
+# lost blob does — measured on a real repository, a submodule at this path
+# lists while `cat-file --batch` answers `missing`. "An object store that
+# cannot serve what it lists" names one of those two and checks neither.
+_TREE_OVERCLAIM_WORDS = "cannot serve what it lists"
 
 # A realistic tip: codexFactory's own published tip on the 2026-09-03 nightly,
 # whose report line this fixture reproduces exactly.
@@ -2049,6 +2064,20 @@ class _NoChangelog(FakeGit):
         return []
 
 
+class _EmptyChangelog(_NoChangelog):
+    """The same tip with a changelog that READS and carries no declaration.
+
+    THE CONTROL FOR THE ARM ABOVE, and the whole of D6's measurement: these two
+    shims differ in one blob and in nothing else, so any difference in what the
+    family reports is attributable to that blob alone.
+    """
+
+    def blobs_at(self, repo, commit, relpaths):
+        body = f"contract_bundle_version: {self._declared}\n".encode()
+        return {p: (body if p == MANIFEST else b"# Contract changelog\n")
+                for p in relpaths}
+
+
 def test_an_unreadable_changelog_at_the_published_tip_skips(tmp_path):
     """THE #338 CONFLATION, ONE DOCUMENT OVER — and this family has already
     been caught by it once. The absence of a declaration this run could not
@@ -2065,43 +2094,296 @@ def test_an_unreadable_changelog_at_the_published_tip_skips(tmp_path):
     assert "contract-v2.0" in out.reason
 
 
+# THE GRADED SHIM. `_NoChangelog` declares no tag refs and no first-parent walk,
+# so a repository that now FALLS THROUGH the changelog arm meets `_tag_state`'s
+# "unlistable" skip two lines later — which would let every assertion below pass
+# over a family that never graded anything. These two put a real answer behind
+# both reads: the tag is absent (an ANSWER, `(None, None)`, not an unlistable
+# None) and the walk returns a window that declares the bundle throughout, so the
+# distance arm reaches its error band.
+_HELD_TIP = "tip"
+_WALK = [_HELD_TIP] + [f"{i:040x}" for i in range(1, rtp.DEFAULT_THRESHOLD + 2)]
+_GRADED = {"tag_refs": {(str(Path("r")), "contract-v2.0"): (None, None)},
+           "first_parents": {(str(Path("r")), _HELD_TIP): _WALK}}
+
+
 def test_an_absent_changelog_says_the_tip_is_held_rather_than_unfetched(tmp_path):
-    """THE SKIP NAMES THE FACT IT HAS, openxFactory #612 ONE DOCUMENT OVER.
+    """THE FAMILY NAMES THE FACT IT HAS, openxFactory #612 ONE DOCUMENT OVER —
+    AND IT NAMES IT ON A FINDING NOW, NOT ON A SKIP.
 
     `blobs_at`'s per-path None stands for two facts — an unfetched commit, and a
     commit this clone holds at which no readable blob is reachable for that
     path. At THIS read only the second can hold: `obtain_commit` ran above, and
     the manifest was read AT THE SAME COMMIT and answered, which a commit the
-    clone does not hold cannot do. So the skip states the presence rather than
-    leaving a reader of the report to go looking for a fetch defect that cannot
-    be there — and it states EXACTLY that, without asserting a file absence the
-    held commit does not prove.
+    clone does not hold cannot do. `amend-unreadable-read-sibling-scenarios`
+    made the skip SAY that; this packet stops skipping, because a held tip with
+    no readable changelog is an ANSWER — no SPENT declaration exists — and the
+    bundles in scope are graded rather than passed over. **THE WORDS THAT
+    AMENDMENT RATIFIED ARE NOT DROPPED, THEY MOVE**: they are what this `info`
+    carries, and every literal below is the one #688 pinned.
     """
     # THE PRECONDITION IS DECLARED, NOT ASSUMED (Copilot, PR #688 round 2). The
-    # skip's whole claim is that the store HOLDS this commit, and `FakeGit`'s
-    # object store is pessimistic by default — nothing present, nothing
-    # fetchable — so a shim that left it empty would be asserting held-tip words
-    # over a tip the double says is absent. `present_commits` puts it there, and
-    # `fetch_calls` below proves it was held rather than fetched into place.
-    git = _NoChangelog(remotes={"r": "tip"}, present_commits={"tip"})
+    # claim is that the store HOLDS this commit, and `FakeGit`'s object store is
+    # pessimistic by default — nothing present, nothing fetchable — so a shim
+    # that left it empty would be asserting held-tip words over a tip the double
+    # says is absent. `present_commits` puts it there, and `fetch_calls` below
+    # proves it was held rather than fetched into place.
+    git = _NoChangelog(remotes={"r": "tip"}, present_commits={"tip"}, **_GRADED)
     out = rtp.check_repo("alphaFactory", Path("r"), git)
-    assert isinstance(out, Skip)
+    assert not isinstance(out, Skip), (
+        "the read ANSWERED — a skip here is the suppression this packet removes"
+    )
     assert git.fetch_calls == [], (
         "the tip is in the store, so this arm must cost no round trip — a "
         "fetch here would mean the precondition was manufactured"
     )
-    assert _CHANGELOG_HELD_WORDS in out.reason
-    assert _CHANGELOG_ABSENT_WORDS in out.reason
+    trace = [f for f in out if f.severity == INFO and f.path == CHANGELOG]
+    assert len(trace) == 1, (
+        "the fact is RECORDED, never omitted — the family turns every skip it "
+        "does report into an `info` for exactly this reason, and retiring the "
+        "skip without leaving the fact behind would drop the record with it"
+    )
+    reason = trace[0].rule
+    assert _CHANGELOG_HELD_WORDS in reason
+    assert _CHANGELOG_ABSENT_WORDS in reason
     # AND IT IS NOT THE OTHER READ'S WORDS. The manifest arm's unfetched skip is
-    # the one that says a bounded fetch was tried and failed; this skip must
+    # the one that says a bounded fetch was tried and failed; this line must
     # never be mistakable for it, which is the whole of the defect.
-    assert _FETCH_TRIED_WORDS not in out.reason
+    assert _FETCH_TRIED_WORDS not in reason
     # NOR THE OVER-CLAIMING FORM. "The commit carries no such file" is a fact
     # about the TREE, and the only fact this arm has is about the READ: a store
     # holding the commit and its trees can still fail to produce the blob, and a
-    # skip that called that a clean absence would be the #338 conflation pointed
+    # line that called that a clean absence would be the #338 conflation pointed
     # in a third direction.
-    assert _CHANGELOG_OVERCLAIM_WORDS not in out.reason
+    assert _CHANGELOG_OVERCLAIM_WORDS not in reason
+    # NOR A SKIP'S WORDS AT ALL. This is a reading and not an unasked question,
+    # so it must not read as one to anybody grepping the report.
+    assert _UNFETCHED_WORDS not in reason
+    # AND IT SAYS HOW THE ABSENCE WAS ESTABLISHED (Codex, PR #753 round 1, P2).
+    # The grading is a claim about the FILE, which a held commit alone does not
+    # license — the tree listing is what licenses it, so the line names it.
+    assert _TREE_LISTS_NONE_WORDS in reason
+
+
+def test_a_held_tip_with_no_changelog_grades_exactly_as_an_empty_one_does():
+    """THE D6 PAIR, KEPT AS A REGRESSION TEST — `amend-unreadable-read-sibling-scenarios`
+    `design.md` D6 and `tasks.md` § 6.1.
+
+    THE MEASUREMENT THAT NAMED THIS PACKET: the same shim, differing only in
+    whether `contracts/CHANGELOG.md` reads, answered with ONE `Skip` where the
+    changelog was absent and ONE `error` naming the untagged bundle where it was
+    EMPTY. A file that is provably not there was being treated as a read that
+    could not be performed, and it cost a finding. Both runs must now produce
+    the SAME GRADING — same severities, same paths, same words — and the absent
+    run differs by the one `info` that records why no declaration was read.
+    """
+    absent = rtp.check_repo(
+        "alphaFactory", Path("r"),
+        _NoChangelog(remotes={"r": "tip"}, present_commits={"tip"}, **_GRADED))
+    empty = rtp.check_repo(
+        "alphaFactory", Path("r"),
+        _EmptyChangelog(remotes={"r": "tip"}, present_commits={"tip"},
+                        **_GRADED))
+    assert not isinstance(absent, Skip) and not isinstance(empty, Skip)
+
+    def graded(findings):
+        return [(f.severity, f.path, f.rule) for f in findings
+                if not (f.severity == INFO and f.path == CHANGELOG)]
+
+    assert graded(absent) == graded(empty), (
+        "an absent changelog and an empty one carry the SAME fact — no SPENT "
+        "declaration — so they must grade the same bundles the same way"
+    )
+    assert len(graded(empty)) == 1 and graded(empty)[0][0] == ERROR, (
+        "the positive control: this shim has to FIRE, or the comparison above "
+        "is two empty lists agreeing with each other"
+    )
+    assert "no published annotated tag" in graded(empty)[0][2]
+    assert len(absent) == len(empty) + 1, (
+        "and the one difference is the trace, which the empty read has no "
+        "reason to carry"
+    )
+
+
+def test_an_unfetched_tip_still_skips_the_changelog_read():
+    """THE FAIL-CLOSED HALF, WHICH THIS PACKET DOES NOT MOVE.
+
+    Where the commit is NOT held, the absence of a declaration is the absence of
+    a LOOK and not the absence of a declaration — the #338 conflation, and the
+    reason the skip exists at all. It is unreachable through `check_repo` on
+    real git (the manifest read at the same commit proves the tip is held) and
+    the guard is kept for that exact reason: the proof is the manifest arm's,
+    and a later change there must not be able to turn an unfetched tip into a
+    graded one in silence.
+    """
+    git = _NoChangelog(remotes={"r": "tip"}, **_GRADED)
+    out = rtp.check_repo("alphaFactory", Path("r"), git)
+    assert isinstance(out, Skip)
+    assert _UNFETCHED_WORDS in out.reason
+    assert "not the same fact as there being none" in out.reason
+    assert "contract-v2.0" in out.reason
+    # IT SAYS WHICH FACT IT HAS, and it is the other one from the arm above.
+    assert _FETCH_TRIED_WORDS in out.reason
+    assert _CHANGELOG_HELD_WORDS not in out.reason
+    assert git.fetch_calls == [("r", "tip", rtp.DEFAULT_THRESHOLD + 2)], (
+        "the skip claims a bounded fetch was attempted, so one must have been"
+    )
+
+
+class _TreeListsChangelog(_NoChangelog):
+    """The THIRD STATE: the tree LISTS AN ENTRY at `contracts/CHANGELOG.md` and
+    no readable blob comes back for it.
+
+    `ls_tree_paths` reads the TREE object, not the blob, so a path can list
+    while `cat-file --batch` answers `missing` for it. TWO CAUSES DO THAT AND
+    THE ARM TELLS THEM APART FROM NEITHER: a blob this store has lost (remove
+    the loose object from a real repository), and a GITLINK whose target commit
+    this clone does not hold — `ls-tree -r --name-only` filters by no object
+    type, and a submodule at this path lists exactly as a blob does (measured,
+    PR #753 fix round). Which is why the skip these two states share names the
+    two FACTS and not either cause. Either way it is a read that FAILED, not an
+    absent document, and grading it would read a real SPENT declaration as
+    absent.
+    """
+
+    def ls_tree_paths(self, repo, ref, prefix):
+        return [CHANGELOG]
+
+
+class _UnlistableTree(_NoChangelog):
+    """Neither the blob nor the CHANGELOG tree listing answers, so which fact
+    holds is UNESTABLISHED — and an unestablished fact is the one thing this arm
+    may never grade on.
+
+    THE FAILURE IS SCOPED TO THIS ONE LISTING because the inventory listing has
+    to succeed for the run to reach the arm at all: `cut_bundles` answers None
+    for a whole-tree failure and skips two guards earlier, which is the state
+    `test_...inventories...` already covers. What is modelled here is the seam
+    answering None for THIS call — the fail-closed branch, kept for the same
+    reason the unfetched one is: it costs a comparison and it is the only thing
+    standing between an unanswered read and a grading.
+    """
+
+    def ls_tree_paths(self, repo, ref, prefix):
+        return None if prefix == CHANGELOG else []
+
+
+def test_a_held_tip_whose_tree_lists_the_changelog_still_skips():
+    """THE THIRD STATE KEEPS THE SKIP (Codex, PR #753 round 1, P2).
+
+    A held commit and a per-path `None` still stand for TWO facts, and only one
+    of them is an answer about declarations. Where the tree CARRIES the path and
+    the blob does not come back, the document exists and this clone cannot read
+    it — so a SPENT declaration this run could not LOOK FOR would be graded as
+    one that does not exist, answering an EXTINGUISHED obligation with an
+    `error` telling an operator to publish a tag that cannot be published.
+    """
+    git = _TreeListsChangelog(remotes={"r": "tip"}, present_commits={"tip"},
+                              **_GRADED)
+    out = rtp.check_repo("alphaFactory", Path("r"), git)
+    assert isinstance(out, Skip), (
+        "the tree says the document is there — reading its absence out of a "
+        "blob that would not come back is the #338 conflation in the third "
+        "direction"
+    )
+    assert _UNFETCHED_WORDS in out.reason
+    assert _TREE_CARRIES_WORDS in out.reason
+    assert "not the same fact as there being none" in out.reason
+    assert "contract-v2.0" in out.reason
+    # AND IT STATES THE PRESENCE, which this arm has established — it stands
+    # below the held-tip split — so a reader is never sent after a fetch defect
+    # that cannot be (PR #753 fix round; #688's rule over the sibling read).
+    assert _CHANGELOG_HELD_WORDS in out.reason
+    # AND IT CLAIMS THE TWO FACTS IT HAS AND NOT A CAUSE IT NEVER CHECKED.
+    assert _TREE_ENTRY_WORDS in out.reason
+    assert _TREE_OVERCLAIM_WORDS not in out.reason, (
+        "a listing filters by no object type, so an entry that lists may be a "
+        "gitlink this clone does not hold as easily as a blob this store has "
+        "lost — naming either one is a cause this arm did not check"
+    )
+    # AND IT IS NEITHER OF THE OTHER TWO ANSWERS' WORDS.
+    assert _FETCH_TRIED_WORDS not in out.reason
+    assert _TREE_LISTS_NONE_WORDS not in out.reason
+
+
+def test_a_held_tip_whose_tree_cannot_be_listed_fails_closed():
+    """NEITHER READ ANSWERED, so the arm establishes nothing and grades
+    nothing. The skip says exactly that rather than picking one of the two
+    facts it could not tell apart."""
+    git = _UnlistableTree(remotes={"r": "tip"}, present_commits={"tip"},
+                          **_GRADED)
+    out = rtp.check_repo("alphaFactory", Path("r"), git)
+    assert isinstance(out, Skip)
+    assert "UNESTABLISHED" in out.reason
+    assert "not the same fact as there being none" in out.reason
+    assert "contract-v2.0" in out.reason
+    # AND IT NAMES THE ONE FACT IT DOES HAVE (PR #753 fix round). This arm is
+    # reachable only at a HELD tip, so a skip that left the presence unstated
+    # would read as the unfetched case's and send a reader after a fetch defect
+    # that cannot be — the very confusion #688 ratified against one read over.
+    assert _CHANGELOG_HELD_WORDS in out.reason
+    assert _FETCH_TRIED_WORDS not in out.reason
+
+
+def test_a_below_floor_repository_with_no_changelog_gains_no_trace():
+    """THE FLOOR STILL HOLDS OVER THE TRACE, and over the grading it precedes.
+
+    A repository whose only bundle is below the enforcement line has nothing a
+    SPENT declaration could change, so the answer this family always gave it —
+    silence — is the answer it still gives, held tip or not. A trace here would
+    be a permanent `info` about a document nobody is obliged to write.
+    """
+    for held in ({"present_commits": {"tip"}}, {}):
+        below = rtp.check_repo("alphaFactory", Path("r"),
+                               _NoChangelog(declared="contract-v1.6",
+                                            remotes={"r": "tip"}, **held))
+        assert below == [], (
+            "below the floor there is no bundle in scope, so there is nothing "
+            "to grade and nothing to record"
+        )
+
+
+def test_a_below_floor_repository_reaches_no_third_state_skip_either():
+    """THE FLOOR HOLDS OVER THE TREE CONSULTATION, NOT ONLY OVER THE TRACE
+    (PR #753 fix round).
+
+    The test above runs the below-floor control through `_NoChangelog`, whose
+    tree lists nothing — and that control CANNOT SEE the gate it means to pin.
+    Drop `and in_scope` from the tree-consultation guard and `_NoChangelog`
+    still answers `[]`: the listing comes back empty, the damaged-store branch
+    is not taken, and the `info` below has an `in_scope` gate of its own. The
+    whole of what that gate holds back is the OTHER TWO branches — measured,
+    the mutation left all 151 tests green.
+
+    So the two damaged shims are run below the floor as well, and the fact
+    being pinned is what the mutation would produce: a repository nobody
+    obliged to write a changelog gaining a permanent "not checked" whose skip
+    names an EMPTY set of bundles it declined to look for — a finding that
+    cannot be acted on, about a document nobody owes, naming nothing.
+    """
+    for shim in (_TreeListsChangelog, _UnlistableTree):
+        for held in ({"present_commits": {"tip"}}, {}):
+            below = rtp.check_repo("alphaFactory", Path("r"),
+                                   shim(declared="contract-v1.6",
+                                        remotes={"r": "tip"}, **held))
+            assert below == [], (
+                f"{shim.__name__} below the floor: the tree consultation is "
+                f"gated on there being a bundle in scope, and there is none — "
+                f"got {below!r}"
+            )
+
+    # THE POSITIVE CONTROL, so this cannot pass over a deleted branch. One
+    # version up, the same two shims are IN scope and each still takes its own
+    # skip — the gate narrows the arm, it does not remove it.
+    for shim, expected in ((_TreeListsChangelog, _TREE_CARRIES_WORDS),
+                           (_UnlistableTree, "UNESTABLISHED")):
+        in_scope = rtp.check_repo("alphaFactory", Path("r"),
+                                  shim(declared="contract-v1.7",
+                                       remotes={"r": "tip"},
+                                       present_commits={"tip"}))
+        assert isinstance(in_scope, Skip) and expected in in_scope.reason, (
+            f"{shim.__name__} in scope must still take its own skip"
+        )
 
 
 def test_a_below_floor_repository_with_no_changelog_is_not_newly_skipped(tmp_path):

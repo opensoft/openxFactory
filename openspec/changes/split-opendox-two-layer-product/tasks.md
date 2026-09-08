@@ -579,43 +579,169 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
 **This group is worth doing whether or not the carve ever happens, and nothing
 else in the arc can start while the two packages import each other.**
 
-- [ ] 2.1 `[oxF]` **BREAK THE CYCLE FIRST.** Relocate `OutputBoundary` out of
+- [x] 2.1 `[oxF]` **BREAK THE CYCLE FIRST.** Relocate `OutputBoundary` out of
   `scripts/ideation_dashboard/boundary.py` into a small module BOTH packages
   import, and repoint `scripts/doc_health/derive_possibles.py:857` and
   `scripts/doc_health/ideation_readiness.py:1351`. After this task
   `scripts/doc_health/` imports NOTHING from `scripts/ideation_dashboard/`, proven
-  by a test that greps for the direction rather than by inspection.
-- [ ] 2.2 `[oxF]` Name the corpus adapter's operations and land them as an
+  by a test that greps for the direction rather than by inspection. **DONE — PR
+  #724 squash-merged `e2b8f620` (`e2b8f620bce4d2a1c4cf6c9a1247ce6d810cda55`)
+  2026-09-06T11:26Z, verified `gh pr view 724 --json mergeCommit`**: the whole
+  guard moved by `git mv` to `scripts/output_boundary.py`, a module under
+  `scripts/` that neither package owns;
+  `ideation_dashboard/boundary.py` stays a 17-name re-export (its `__all__`,
+  counted on this branch) so every existing
+  import keeps working; both `doc_health` call sites repointed; and the
+  direction is proven by an AST scan with a negative control
+  (`tests/doc-health/test_import_direction.py`) rather than by the grep the item
+  named, because four `doc_health` files mention the dashboard in prose on
+  purpose.
+- [x] 2.2 `[oxF]` Name the corpus adapter's operations and land them as an
   interface in-tree: **list, read, write back, check**, plus the two derived
   operations **classify** and **resolve** (`design.md` § D2). A repository created
   before the interface exists has its boundary drawn by whatever `git filter-repo`
-  happened to move.
-- [ ] 2.2a `[oxF]` **STAND UP `openxFactory`'s OWN ADAPTER PACKAGE (RULING DQ-1)**
+  happened to move. **DONE — PR #725 squash-merged `ea4e6ff2`
+  (`ea4e6ff2953c973df264ada3b8c7b986f31723f0`) 2026-09-06T17:43Z, verified `gh pr
+  view 725 --json mergeCommit`**: `scripts/corpus_adapter.py` lands the six
+  operations — `resolve`, `list_documents`, `read`, `classify`, `check`,
+  `write_back` — as a closed-member `@runtime_checkable` Protocol over frozen
+  plain-data types carrying no engineering vocabulary, so an implementation
+  authored in openDox conforms structurally without importing openxFactory, and
+  `write_back` hands a request to the declared write path and returns a receipt
+  rather than being a write path itself. OQ-1..OQ-4 were ruled on #656
+  2026-09-06 and are realized here.
+- [x] 2.2a `[oxF]` **STAND UP `openxFactory`'s OWN ADAPTER PACKAGE (RULING DQ-1)**
   beside `scripts/doc_health/`: one conformant implementation of the interface
   from 2.2 over THIS repository's corpus, reached by no route the interface does
   not define — no privileged direct call, no bypass for the home corpus, no
   operation a domain implementation cannot also declare
   (`corpus-adapter-seam` requirement 4, which this ruling makes load-bearing). It
   is built HERE and it STAYS here; it is what makes § 5's shed possible without a
-  descendant.
-- [ ] 2.3 `[oxF]` `authoring.py`'s `REQUIRED_HEADER_FIELDS` — today co-authoritative
+  descendant. **DONE — same PR #725, squash-merged `ea4e6ff2`
+  (`ea4e6ff2953c973df264ada3b8c7b986f31723f0`) 2026-09-06T17:43Z**:
+  `scripts/corpus_adapter_openxfactory/` holds this repository's layout as DATA
+  (`shape.py`/`home.py`, `home.py` the only module naming the home layout), so
+  requirement 4's no-privileged-route is testable rather than asserted — proven
+  by an AST guard with four mutations biting, a no-home-vocabulary test, and the
+  factory-parameterized neutral conformance suite, 88 tests in all under
+  `tests/corpus-adapter/`.
+- [x] 2.3 `[oxF]` `authoring.py`'s `REQUIRED_HEADER_FIELDS` — today co-authoritative
   with `doc_health.corpus.STATUS_SCAN_LINES` — becomes a CLASSIFY response rather
-  than a constant.
-- [ ] 2.4 `[oxF]` Split `serve.py` (6,733 lines) BY FUNCTION behind an app-server
+  than a constant. **DONE — PR #728 squash-merged `1a2ea821`
+  (`1a2ea821114baed9457be81c60c59f370c86ec71`) 2026-09-06T23:10Z, verified `gh pr
+  view 728 --json mergeCommit`**: the required fields are now derived from the
+  adapter's `classify` response, with the pre-change contract frozen as an oracle
+  at `tests/header_contract_oracle.py`; parity was proven over 679 documents,
+  the mutations bite, the import direction stayed one-way, and the doc-health
+  delta against the PR's own base was zero (advisory recorded: ~1 ms per call at
+  the single per-submission gate).
+- [x] 2.4 `[oxF]` Split `serve.py` (6,733 lines) BY FUNCTION behind an app-server
   **route extension point**, and `cli.py` (2,456) behind a **subcommand extension
   point**, both still in-tree. Without the extension point the integration layer
   forks the server, which is a fork rather than a profile and breaks the same rule
   `domain-descendant-boundary` applies one level down. **This is the critical
-  path and it cannot be done last.**
+  path and it cannot be done last.** **DONE in FIVE landed PRs, each merge commit
+  verified with `gh pr view <n> --json mergeCommit`**: PR-1 **#736 →
+  `a83eb93a`** (`a83eb93a6e69ef608a217079e963ed4427e5cd02`, 2026-09-07) landed
+  `scripts/route_extension.py` and `scripts/subcommand_extension.py` — stdlib
+  only, closed membership, empty defaults, zero behaviour change; OQ-1 **#741 →
+  `75467fef`** (`75467fefd97a2f72e1f7f5be4a2f0b0cf55e52a9`) carved the
+  `Status:`-header exemption rail to
+  `scripts/ideation_dashboard/doxbench_status_exemption.py` so the generic packet
+  module imports no `doc_health` — the FALLBACK route, ACCEPTED by Brett Heap
+  2026-09-07 because `classify()` carries no status VALUE and widening the closed
+  `Classification` is exactly what RULING OQ-2 refused; PR-2 **#748 →
+  `7f7ce75a`** (`7f7ce75a043daf419961980c233ba192dfa7f538`) moved the openDox
+  column out of `serve.py` as mixins — `serve_workbench.py`, `serve_project.py`
+  and the shared wire vocabulary in `serve_wire.py`, re-exported so every
+  `serve_mod.X` reader keeps resolving; PR-4 **#742 → `421b52d8`**
+  (`421b52d8d11570ed761f6d4a1ed4462022734e1e`) split `cli.py` into `cli_gate.py`
+  (openXdox), `cli_project.py` and `cli_model_binding.py` (openDox) named by
+  `profile_openxfactory.py`, with the 31-entry `--help` golden byte-identical;
+  PR-3 **#761 → `7992b87a`** (`7992b87a622a7c81d2c31dd9af0ec497fdf77b3a`)
+  extracted `serve_gate.py`, `serve_projection.py` and
+  `serve_openxfactory_lanes.py` THROUGH the route extension point, with RULING A
+  applied — `route_extension.collect_bindings` now fails closed on an exact
+  pattern under an already-declared prefix, in either declaration order, so no
+  caller-supplied extension can sit under a contributed gate prefix. RULING (a)
+  (Brett Heap, 2026-09-07) governs the test edits throughout: tests that pin
+  WHERE code lives are repointed to the module now holding the moved code, at the
+  same strength, disclosed and mutation-proved.
 - [ ] 2.5 `[oxF]` `[OmI]` `[xF]` **HARDEN THE APPLY LANE BEFORE IT BECOMES THE ONLY
   WRITE PATH.** RULING Q1 promotes a path with ONE dispatch in its entire history
   (`intent-apply.yml`, 2026-08-15T01:22:04Z, success) to carrying every governed
   write from every tenant instance. Evidence is a real dispatch and a real
   refusal, not a dry run — the bar the wallet arc and the nightly-refresh lane
   both established. **PRECONDITION of § 3, not a follow-up.**
-- [ ] 2.6 `[oxF]` The whole group lands green:
+- [x] 2.6 `[oxF]` The whole group lands green:
   `python3 -m pytest tests/ideation-dashboard tests/doc-health` and
-  `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`.
+  `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`. **DONE — both gates
+  run on THIS branch (off `origin/main` `7992b87a`), 2026-09-07**: `python3 -m
+  pytest -q tests/ideation-dashboard tests/doc-health` → **1 failed, 6,681
+  passed, 31 skipped, 7 warnings in 788.47s**, the only failure being the known
+  ENVIRONMENTAL `tests/ideation-dashboard/test_snapshot.py::test_find_validator_locates_pinned_checkout`,
+  which looks for a pinned sibling checkout this worktree does not carry and
+  which fails identically in a fresh `origin/main` worktree (re-run there, same
+  assertion); `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` → **98
+  passed, 1 failed (99 items)**, the only failure being the known local-CLI
+  artifact `change/disposition-codexfactory-declared-renames` (CI's pinned CLI
+  passes it); and the change-local `OPENSPEC_TELEMETRY=0 openspec validate
+  split-opendox-two-layer-product --strict` → `Change
+  'split-opendox-two-layer-product' is valid`. Also measured here: `python3
+  scripts/proposal-support.py . verify` → `proposal support verification ok`,
+  and the `doc-health --single-repo .` report is BYTE-IDENTICAL to the one a
+  fresh `origin/main` (`7992b87a`) worktree produces — 9 critical / 8 error /
+  58 warning / 15 info on both sides, zero delta.
+
+### § 2 carried items (recorded 2026-09-07, not applied)
+
+Twelve things the § 2 landings established that this packet's normative text does
+not yet reflect. They are RECORDED here and NOT applied: none is a § 2 defect,
+each is decided where its line says, and `design.md` is deliberately untouched by
+the bookkeeping that ticks this group.
+
+- (a) `design.md` § D3 files `doxbench_packet.py` whole under the
+  openxFactory-adapter column. After #741 that row is TWO rows — the generic
+  packet module goes to openDox, and `doxbench_status_exemption.py` (which keeps
+  the direct `doc_health` import) stays in the adapter column. § 3.1 carve
+  manifest.
+- (b) The generic packet module still imports `doxbench_scope`
+  (`scripts/ideation_dashboard/doxbench_packet.py:78`,
+  `ScopeKey`/`ScopeProjection`), which `design.md` files under openXdox — a
+  cross-column edge the manifest has to resolve rather than inherit. § 3.1.
+- (c) The post-carve default when the adapter-column module is ABSENT — today a
+  loud `AttributeError` on the alias, versus a declared neutral posture — is
+  left open by the OQ-1 ruling and is a § 3.1 decision.
+- (d) The § 2.4 spec memo's § 2 assigns `CAPABILITIES_ROUTE` handling and
+  `_session_repository` to `serve_project.py`; both STAY core, on test evidence
+  from #748. The memo correction is owed before the § 3.1 manifest.
+- (e) `cmd_generate_and_open` stays in `cli.py` (the assembly column), not
+  `cli_project.py` — Brett Heap's call at § 3.1.
+- (f) The gate column carries **19** `cmd_gate_*` verbs, not the memo's 17
+  (counted on this branch in `scripts/ideation_dashboard/cli_gate.py`).
+- (g) The travelling gate column carries the CLI's ONLY `doc_health` import
+  (`cli_gate.py:251`, `from doc_health import derive_possibles`, inside
+  `cmd_gate_dispose_possible`). § 3.1 decides its home.
+- (h) `/snapshot.json` stays a CORE arm: its handler moved to
+  `serve_projection.py` with its neighbours, but the arm tests
+  `path == self.snapshot_route`, a per-server keyword a frozen
+  `RouteBinding.pattern` cannot carry — contributing it would break
+  `build_server(snapshot_route=…)`. § 3/§ 4 follow-up.
+- (i) Core→column import edges remain in-tree: `cli.py → profile_openxfactory →
+  cli_gate`, and `serve.py` imports the three route columns at module scope for
+  the mixin bases. The seam is in-tree until the carve; § 3 resolves it.
+- (j) `opensoft/openxFactory`#768 — `serve_openxfactory_lanes`'s `dtn-seed` and
+  `staging-seed` assume a JSON OBJECT body. Pre-existing, found while moving
+  them in § 2.4 PR-3, filed and UNCLAIMED.
+- (k) `tests/ideation-dashboard/test_cli_column_split.py`'s surface-tuple
+  non-vacuity floor names only `cli_gate.py` and `cli.py` — 2 of the 5
+  `CLI_SURFACE` members. Follow-up, not a § 2 blocker.
+- (l) § 2.4's own text cites `serve.py (6,733 lines)` and `cli.py (2,456)`,
+  which were the figures at ratification (`ceb6dc9e`). Measured immediately
+  before each split: `serve.py` **6,914** (at `5e4d960c`, PR-2's base) and
+  `cli.py` **2,487** (at `f756a91f`, PR-4's base). Measured on this branch after
+  the split: `serve.py` **1,748** and `cli.py` **996**. Recorded, not corrected
+  in place.
 
 ## 3. The openDox carve — with the mapping manifest
 

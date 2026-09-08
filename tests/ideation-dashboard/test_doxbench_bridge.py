@@ -23,7 +23,9 @@ from pathlib import Path
 
 import pytest
 
-from conftest import REPO_ROOT  # noqa: F401  (sys.path side effect)
+from conftest import (  # noqa: F401  (sys.path side effect)
+    REPO_ROOT, serve_surface_source,
+)
 
 from ideation_dashboard import doxbench_bridge as br  # noqa: E402
 from ideation_dashboard import doxbench_mcp as mcp  # noqa: E402
@@ -158,8 +160,11 @@ def test_the_de_facto_adapter_surface_is_declared_even_though_the_ban_is_not(
     bridge = _bridge(tmp_path)
     for name in reached:
         assert callable(getattr(bridge, name, None)), name
-    serve_source = (REPO_ROOT / "scripts" / "ideation_dashboard"
-                    / "serve.py").read_text(encoding="utf-8")
+    # THE WHOLE SERVE SURFACE (§ 2.4 PR 2 of 4 moved every one of these call
+    # sites to `serve_workbench.py`). Pinned to the surface rather than to
+    # `serve.py`, because a scan that found none of them would compute an EMPTY
+    # set and this subset assertion would pass while asserting nothing.
+    serve_source = serve_surface_source()
     duck_typed = {name for name in
                   ("select_thread", "conversation_key",
                    "outline_conversation_key", "for_conversation", "mirror",

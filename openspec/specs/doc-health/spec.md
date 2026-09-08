@@ -2815,6 +2815,77 @@ than deleted, by the `WHEN` that names both facts and the `AND` that requires
 the family to have established which of them holds before it speaks. Nothing
 else in this requirement is dropped.
 
+**AMENDED BY `amend-absent-changelog-is-an-answer` (2026-09-07).** Every
+paragraph and every scenario above this note stands exactly as promoted —
+including every amendment note and every `Removed from canon by` marker left
+here by `declare-spent-bundle-state`, `add-release-tag-gate`,
+`amend-published-tip-unreadable-scenario` and
+`amend-unreadable-read-sibling-scenarios`, which promote with the requirement
+and are carried, not restated — and the ONLY change this block makes
+is to the scenario *The changelog cannot be read at the published tip*: its
+`THEN` bullet and the `AND` bullet below it are REPLACED. No scenario is added,
+removed or retitled, no other scenario's bullets move, no threshold moves, no
+path moves, and the severity of every finding this family already emits is
+unchanged. **AND "ENTRY" AND "PATH" NAME ONE TREE FACT, NOT TWO.** The promoted
+`WHEN` above says *"the tree carries no such entry"* and the bullets this block
+adds say the tree carries, or carries no such, *path*; both name the SAME
+question asked of the same tree object — whether the tree at that commit holds
+anything at `contracts/CHANGELOG.md` — and the word varies only because each
+sentence reads better with one of them. Nothing turns on the difference, and
+no reader should hunt for a distinction that is not there.
+
+A TIP THIS CHECKOUT HOLDS AT WHICH NO DOCUMENT CAME BACK IS AN ANSWER, AND AN
+ANSWER IS GRADED. The note above settled which of the two facts holds at this
+read and had the family SAY it; it left the read a SKIP, and a skip returns
+before the bundles are looked at. So the state the amendment had just proved to
+be an answer — the commit is held, no readable `contracts/CHANGELOG.md` blob is
+reachable at it, therefore NO SPENT DECLARATION EXISTS — went on being answered
+as a question the family could not ask, and the bundles in scope went ungraded.
+**MEASURED ON A SHIM, AND THE MEASUREMENT IS WHY THIS AMENDMENT EXISTS**: the
+same repository, differing in one blob, answered with ONE skip where the
+changelog was absent and ONE `error` naming an untagged bundle where the
+changelog was EMPTY. A document that is not there and a document that says
+nothing carry the SAME fact about declarations, and the family owes them the
+same grading. What the absent read owes ON TOP is the RECORD — the fact is not
+dropped when the skip goes, it is reported beside the grading at `info`, on
+`contracts/CHANGELOG.md`, in the words the note above ratified and claiming no
+more than the presence gives them.
+
+**AND THE SKIP IS KEPT WHEREVER THE DOCUMENT'S OWN ABSENCE IS NOT ESTABLISHED.**
+Where the commit is not held, the absence of a declaration is the absence of a
+LOOK: the skip stands, in the words it already had. **AND THE NOTE ABOVE NAMED A
+THIRD STATE, WHICH GRADING MAKES LOAD-BEARING FOR THE FIRST TIME.** A store that
+holds the commit AND its trees can still fail to produce the blob, so a held
+commit licenses *"no readable blob came back at this path"* and never *"the
+commit carries no such file"* — and GRADING is a claim about the file. Reading a
+damaged object store as an absent document would answer an EXTINGUISHED
+obligation with an `error` telling an operator to publish a tag that cannot be
+published, which is the #338 conflation pointed in a third direction and made
+expensive. So the family SHALL consult the TREE at that commit, which answers for
+a path whose blob this store cannot produce, and SHALL grade only where the tree
+carries no such path; where it carries the path, and where the listing itself
+cannot be performed, the skip stands and says which. **THE PRESENCE PROBE THE
+NOTE ABOVE REQUIRED IS WHAT MAKES ANY OF THIS AVAILABLE** — a family that could
+not tell an unfetched commit from a held one could not safely grade either.
+
+**Removed from canon by amend-absent-changelog-is-an-answer (2026-09-07):**
+``**THEN** the family MUST report a skip naming that read, and MUST NOT treat the absence of a declaration it could not look for as the absence of a declaration`` — a
+skip is what this bullet requires and a skip returns before the bundles in scope
+are graded, so at a HELD tip it made a fact the family had established suppress
+the findings an empty document receives; the unit is REPLACED rather than
+deleted, by a bullet that keeps the unfetched skip word for word and adds what a
+held tip is owed instead. Nothing else in this requirement is dropped.
+
+**Removed from canon by amend-absent-changelog-is-an-answer (2026-09-07):**
+``**AND** where the commit IS held, the skip MUST SAY THAT and MUST state the presence — naming the held commit and the read that returned nothing at it, and NOT asserting a file absence the held commit does not establish — because a tip this checkout holds is an ANSWER rather than a read that failed, and reporting it in the unfetched case's words sends a reader to look for a fetch defect that does not exist`` — it
+constrains the wording of a skip the ESTABLISHED-ABSENCE case no longer emits,
+so leaving it standing would require a report this family has stopped making at
+that read; the unit is REPLACED rather than deleted, by a bullet that carries its
+narrowing verbatim — the presence stated, the file absence not asserted — onto
+the record that takes the skip's place, and by a THEN that carries the same
+narrowing onto the two skips a held tip still emits. Nothing else in this
+requirement is dropped.
+
 #### Scenario: The declaring commit is still the published tip
 - **WHEN** a repository declares a bundle at or above the enforcement line, that bundle has no published annotated tag, and the earliest commit declaring it is still the tip of published `main`
 - **THEN** the family MUST emit no finding, because the cut has only just landed and the owner's tag act legitimately follows it
@@ -2913,8 +2984,8 @@ else in this requirement is dropped.
 #### Scenario: The changelog cannot be read at the published tip
 - **WHEN** the blob read for `contracts/CHANGELOG.md` at the published tip answers nothing — ONE ANSWER STANDING FOR TWO DIFFERENT FACTS: the commit is not in this checkout's object store, or the commit IS held and NO READABLE `contracts/CHANGELOG.md` BLOB IS REACHABLE AT IT, whether because the tree carries no such entry or because the blob object itself is not in this store
 - **AND** the family has ESTABLISHED WHICH OF THE TWO HOLDS before choosing the words it reports — here by INHERITANCE and completely, the manifest read at that SAME COMMIT having already answered, which a commit this checkout does not hold cannot do — rather than naming a cause it did not check
-- **THEN** the family MUST report a skip naming that read, and MUST NOT treat the absence of a declaration it could not look for as the absence of a declaration
-- **AND** where the commit IS held, the skip MUST SAY THAT and MUST state the presence — naming the held commit and the read that returned nothing at it, and NOT asserting a file absence the held commit does not establish — because a tip this checkout holds is an ANSWER rather than a read that failed, and reporting it in the unfetched case's words sends a reader to look for a fetch defect that does not exist
+- **THEN** the family MUST NOT treat the absence of a declaration it COULD NOT LOOK FOR as the absence of a declaration, and MUST report a skip naming that read WHEREVER THE DOCUMENT'S OWN ABSENCE HAS NOT BEEN ESTABLISHED — the commit not held, or held with the tree at it carrying the path and no readable blob coming back for it, or the tree not listable at all — and MUST treat a declaration it DID look for, at a commit this checkout holds whose tree carries no such path, as ABSENT: the bundles in scope MUST be graded with NO declarations, exactly as they are graded where the changelog reads and declares nothing, rather than skipped past
+- **AND** where the document's absence IS established, the fact MUST STILL BE RECORDED and MUST state the presence — naming the held commit, the read that returned nothing at it, and the tree listing that establishes the absence, NEVER asserting a file absence on the held commit alone, which does not establish it — but it MUST be recorded BESIDE the grading rather than INSTEAD of it, and at `info`, because a tip this checkout holds whose tree carries no such document is an ANSWER rather than a read that failed, and a family that answered it with a skip would withhold from it the very findings the same tip carrying an empty changelog receives
 - **AND** this is the same conflation the manifest read already guards one document over: not fetched is not an answer, in either direction
 
 #### Scenario: The bundles untagged before this state existed are not retrofitted

@@ -76,6 +76,44 @@ independent extensions the order of the tuple is an accident of whatever
 assembled it, and a broad prefix from the first extension must not swallow an
 exact route from the second. `collect_bindings` therefore returns every exact
 binding first, each group in declaration order, and `match` takes the first hit.
+Since the overlap refusal below, no two bindings can both answer one live
+request at all, so this grouping no longer decides anything a refusal has not
+already prevented — it is kept as defence in depth, and because the consult
+order is observable and pinned.
+
+AND NO OVERLAP AT ALL: A PATTERN THAT SITS UNDER A DECLARED PREFIX IS REFUSED
+(Brett Heap's RULING A, 2026-09-07, over Copilot review `PRRT_kwDOTAvnrs6f_iG1`
+on PR #761). Ordering exact ahead of prefix decides a tie; it does not make the
+tie SAFE. A prefix is where a column puts the gating its whole subtree shares —
+`ACTIONS_GATE_PREFIX` carries the gate console's loopback, capability, actor
+and human-console refusals; `SOURCE_PREFIX` carries the containment check — so
+an EXACT binding declared under one wins the match and takes that single path
+OUT of the prefix's hands, and the prefix's handler never runs for it. That is
+a hijack of another column's gating rather than an extension of it, and it is
+precisely the profile-vs-fork boundary the § 3 carve puts a REPOSITORY boundary
+on. `collect_bindings` therefore refuses any pattern that sits under an
+already-declared prefix pattern (`str.startswith` — the dispatcher's own test,
+`RouteBinding.matches`), in EITHER declaration order, with the same
+`RouteBindingError` a literal duplicate raises. Method-aware on the same slot
+rule the duplicate check uses (`_claimed_collision_keys`): a POST exact under a
+POST prefix collides; a GET and a HEAD binding collide, because a GET binding
+answers HEAD; a GET exact under a POST prefix does NOT, because no live request
+is ever offered to both.
+
+TWO CONSEQUENCES OF READING "UNDER" AS `startswith`, both deliberate. An exact
+pattern EQUAL to a prefix minus its trailing slash is NOT under it —
+`"/source".startswith("/source/")` is False, and no request path reaches both —
+so the in-tree projection column's `/source` + `/source/` pair stays legal and
+this assembly still builds. That pair is why the test is `startswith` on the
+raw patterns and not a segment-wise one. And NESTED PREFIXES are refused too,
+decided on evidence rather than symmetry: the in-tree profile declares exactly
+two prefixes, POST `/actions/gate/` and GET `/source/`, and neither sits under
+the other, so no legitimate declaration needs the case — while which of two
+nested prefixes answered a path they both cover would be settled by the
+assembly order this module refuses to depend on, leaving the loser silently
+unreachable across its whole subtree. Fail closed: the day a real declaration
+needs nesting it can be admitted with a rule and a test, rather than inherited
+by accident.
 
 A ROUTE THAT CANNOT BE SERVED MUST NOT START. `resolve_handlers` is called at
 WIRING time, against the handler class the server is about to bind, and raises
@@ -253,6 +291,88 @@ def _claimed_collision_keys(binding: RouteBinding) -> tuple[tuple[str, str, bool
     return keys
 
 
+def _claimed_methods(binding: RouteBinding) -> tuple[str, ...]:
+    """Every request method `binding` ANSWERS — the METHOD half of
+    `_claimed_collision_keys`, derived from it rather than restated.
+
+    The containment refusal asks the same GET/HEAD question the key-equality
+    refusal asks, but about a PAIR OF PATTERNS rather than one slot, so it
+    needs the methods without the patterns. Taking them from
+    `_claimed_collision_keys` keeps ONE place where "a GET binding also answers
+    HEAD" is written down; a second copy of that rule is exactly the drift that
+    would let one refusal fire and the other not.
+    """
+    return tuple(key[0] for key in _claimed_collision_keys(binding))
+
+
+def _share_a_method_slot(one: RouteBinding, other: RouteBinding) -> bool:
+    """Whether one live request could ever be offered to BOTH bindings."""
+    return bool(set(_claimed_methods(one)) & set(_claimed_methods(other)))
+
+
+def _sits_under(outer: RouteBinding, inner: RouteBinding) -> bool:
+    """Whether `outer` is a PREFIX binding whose pattern covers `inner`'s.
+
+    Plain `str.startswith`, which is the dispatcher's OWN test for a prefix hit
+    (`RouteBinding.matches`) — so this asks the question the live dispatch
+    asks, not a second, approximate one. Note what it therefore does NOT call a
+    containment: an exact `/source` does not sit under the prefix `/source/`,
+    because `"/source".startswith("/source/")` is False and no request path
+    ever reaches both. That pair is the in-tree projection column's own
+    declaration and must keep building.
+    """
+    return outer.is_prefix and inner.pattern.startswith(outer.pattern)
+
+
+def _overlapping_previous(binding: RouteBinding, accepted):
+    """The first already-accepted binding that OVERLAPS `binding`, as
+    `(outer, inner)` — the prefix and what sits under it — or None.
+
+    Scanned in declaration order and in BOTH directions, because the ruling is
+    order-independent: the prefix may have been declared first (a later exact
+    route sits under it) or second (it swallows an exact route already
+    declared), and either way one of the two is reached for a path the other
+    was declared to answer.
+    """
+    for previous in accepted:
+        if not _share_a_method_slot(previous, binding):
+            continue
+        if _sits_under(previous, binding):
+            return previous, binding
+        if _sits_under(binding, previous):
+            return binding, previous
+    return None
+
+
+def _containment_message(outer: RouteBinding, inner: RouteBinding) -> str:
+    """Name BOTH bindings by their OWN declared method and pattern — the same
+    discipline `_collision_message` keeps, for the same reason: a message that
+    borrowed a method from whichever slot matched would misreport a HEAD
+    binding as a GET one.
+    """
+    slot = (f"{inner.method} {inner.pattern!r} (prefix={inner.is_prefix}) sits "
+            f"under the {outer.method} prefix {outer.pattern!r}")
+    if outer.method != inner.method:
+        slot += (" — a GET binding answers HEAD too, so one live request is "
+                 "offered to both")
+    if inner.is_prefix:
+        because = (
+            "Which of two NESTED prefixes answers a path they both cover would "
+            "be decided by the order the extensions happened to be assembled "
+            "in — the accident this module refuses to depend on — leaving the "
+            "loser unreachable across the whole of the other's subtree.")
+    else:
+        because = (
+            "Every exact binding is consulted before every prefix one, so the "
+            "exact route would take that one path OUT of the prefix's hands, "
+            "and a prefix is where a column puts the gating its whole subtree "
+            "shares — this is a hijack of that gating, not an extension of "
+            "it.")
+    return (f"{slot}: {inner.handler!r} and {outer.handler!r}. {because} "
+            "Declare a pattern that does not sit under another binding's "
+            "prefix.")
+
+
 def _collision_message(previous: RouteBinding, current: RouteBinding) -> str:
     """Name each colliding binding by ITS OWN declared method — never a
     method borrowed from whichever collision key happened to match.
@@ -291,6 +411,22 @@ def collect_bindings(extensions) -> tuple[RouteBinding, ...]:
     (`_claimed_collision_keys`) — the "HEAD" binding would never be reached on
     the one request method it exists to answer.
 
+    AND REFUSES A PATTERN THAT SITS UNDER AN ALREADY-DECLARED PREFIX, in either
+    declaration order (RULING A, 2026-09-07 — the module docstring carries the
+    argument in full). An EXACT binding beats a PREFIX one in `match`, so an
+    exact route declared under a contributed prefix would take that one path
+    out of the prefix's hands and the prefix's handler — the gate console's
+    loopback/capability/actor/human-console refusals, `/source/`'s containment
+    check — would never run for it: a hijack of the gating a column put on its
+    whole subtree, and unlike a literal duplicate it fails OPEN rather than
+    loudly. Two nested PREFIXES are refused on the same rule, because which one
+    answers a path they both cover is otherwise decided by assembly order.
+    Method-aware exactly as the duplicate check is (`_share_a_method_slot`), so
+    a GET exact under a POST prefix is legal — nothing offers one live request
+    to both — and an exact pattern equal to a prefix minus its trailing slash
+    is NOT under it, which is what keeps this assembly's own `/source` +
+    `/source/` pair legal.
+
     Returns every exact binding first and every prefix binding after, each group
     in declaration order, for the reason the module docstring gives: tuple order
     across independent extensions is an accident, and a prefix must not swallow
@@ -298,6 +434,11 @@ def collect_bindings(extensions) -> tuple[RouteBinding, ...]:
     """
     exact: list[RouteBinding] = []
     prefix: list[RouteBinding] = []
+    #: Every binding accepted so far, in DECLARATION order — what the
+    #: containment check scans. Kept beside `seen` rather than derived from
+    #: `exact + prefix`, so the binding a refusal names is the one that was
+    #: actually declared first.
+    accepted: list[RouteBinding] = []
     #: The FULL previous binding, not just its handler name — so a collision
     #: message can name what the previous binding was actually DECLARED as
     #: (`_collision_message`), rather than the collision-check key that
@@ -319,7 +460,14 @@ def collect_bindings(extensions) -> tuple[RouteBinding, ...]:
                 previous = seen.get(claimed_key)
                 if previous is not None:
                     raise RouteBindingError(_collision_message(previous, binding))
+            # AFTER the exact-key check, so a literal duplicate keeps reporting
+            # itself as a duplicate: two identical patterns also "sit under"
+            # each other, and the narrower message is the truer one.
+            overlap = _overlapping_previous(binding, accepted)
+            if overlap is not None:
+                raise RouteBindingError(_containment_message(*overlap))
             seen[binding.key] = binding
+            accepted.append(binding)
             (prefix if binding.is_prefix else exact).append(binding)
     return tuple(exact) + tuple(prefix)
 

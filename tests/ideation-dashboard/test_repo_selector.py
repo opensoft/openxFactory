@@ -34,7 +34,8 @@ from pathlib import Path
 
 import pytest
 
-from conftest import BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit
+from conftest import (BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit,
+                      serve_surface_paths, serve_surface_source)
 
 from ideation_dashboard import serve as serve_mod
 from ideation_dashboard import snapshot_registry as reg
@@ -44,6 +45,15 @@ WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
 MODEL_JS = WEB / "views" / "repo-selector-model.js"
 SERVE_PY = REPO_ROOT / "scripts" / "ideation_dashboard" / "serve.py"
 NODE = shutil.which("node")
+
+# The D12 relative-import guard (see test_serve_module_uses_no_relative_imports
+# below): a single shared pattern, used both by the production scan and by
+# test_the_relative_import_guard_catches_every_dot_and_segment_depth, so a
+# future narrowing of the regex turns the pinning test red rather than leaving
+# it green against its own separately-maintained copy. Matches one or more
+# leading dots (sibling- or parent-relative) followed by an optional
+# dotted module path (`pkg`, `pkg.sub`, ...) before `import`.
+RELATIVE_IMPORT_RE = re.compile(r"\s*from\s+\.+[\w.]*\s+import\b")
 
 
 def _snapshot(repository="fixture-repo", revision=PINNED_REVISION):
@@ -624,16 +634,60 @@ def test_serve_module_uses_no_relative_imports(tmp_path):
     SCRIPT, where a relative import has no parent package. A new `from . import …`
     here would 500 a POST route in production while every module-invoked test
     stayed green — so the absence is asserted, not assumed."""
-    text = SERVE_PY.read_text(encoding="utf-8")
+    # EVERY FILE THE SERVE IS MADE OF (§ 2.4 PR 2 of 4 split it into four):
+    # the D12 hazard is a property of the SCRIPT, and a relative import in a
+    # module the script imports 500s exactly the same route. Widened, never
+    # narrowed — one of these files is still `serve.py` itself.
+    # RELATIVE_IMPORT_RE matches one or more leading dots (sibling- or
+    # PARENT-relative: `from .. import y`, `from ..pkg import y`) followed by
+    # an optional DOTTED module path (`from .pkg.sub import y`, `from
+    # ..pkg.sub import y`) — a bare `\.\w*` catches only a single-segment
+    # sibling import and misses both widenings, and all of them fail
+    # identically once serve.py runs as a plain script (Copilot review, PR
+    # #748).
     offenders = [
-        f"{n}: {line.strip()}"
-        for n, line in enumerate(text.splitlines(), 1)
-        if re.match(r"\s*from\s+\.\w*\s+import\b", line)
+        f"{path.name} {n}: {line.strip()}"
+        for path in serve_surface_paths()
+        for n, line in enumerate(
+            path.read_text(encoding="utf-8").splitlines(), 1)
+        if RELATIVE_IMPORT_RE.match(line)
     ]
-    assert not offenders, "relative import in serve.py (D12):\n" + "\n".join(offenders)
+    assert not offenders, "relative import in the serve (D12):\n" + "\n".join(
+        offenders)
+    # Second widening in this same edit (undisclosed in the PR-2 repoint
+    # table's row 11, which describes only the offenders scan above): these
+    # three POSITIVE anchors moved from `SERVE_PY.read_text()` to the whole
+    # surface too. Only `notebook_action` actually moved (now
+    # serve_project.py only); `workbench` and `gate_routes` still resolve in
+    # serve.py at their pre-split lines, so pinning them to the surface is
+    # strictly a widening, never a narrowing — nothing here goes hollow.
+    text = serve_surface_source()
     assert "from ideation_dashboard import notebook_action" in text
     assert "from ideation_dashboard import workbench" in text
     assert "from ideation_dashboard import gate_routes" in text
+
+
+@pytest.mark.parametrize("line", [
+    "from . import x",
+    "from .pkg import x",
+    "from .. import x",
+    "from ..pkg import x",
+    "  from ... import x",
+    "from .pkg.sub import x",
+    "from ..pkg.sub import x",
+])
+def test_the_relative_import_guard_catches_every_dot_and_segment_depth(line):
+    """A prior version of this guard's regex (`\\.\\w*`, one dot and at most
+    one module segment) matched `from . import x` and `from .pkg import x`
+    but silently missed both a PARENT-relative import (`from .. import x`,
+    `from ..pkg import x`) and a MULTI-SEGMENT one (`from .pkg.sub import
+    x`, `from ..pkg.sub import x`) — all of which fail identically once
+    serve.py runs as a plain script. Exercises the SAME `RELATIVE_IMPORT_RE`
+    the production scan above uses (not a separately-maintained copy), so a
+    future narrowing of that one pattern is caught here by a red test, not by
+    a production 500."""
+    assert RELATIVE_IMPORT_RE.match(line), (
+        f"the relative-import guard does not match {line!r}")
 
 
 def test_module_invocation_still_works(tmp_path):

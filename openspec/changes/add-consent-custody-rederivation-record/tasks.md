@@ -175,6 +175,9 @@ ratification, a human-only surface write, a tag.
   closure at all).
 - [ ] 4.8 NEGATIVE: a rewritten pin — `custody.sha256` advanced to an observed
   digest while the chain still claims the original anchor.
+- [ ] 4.8b NEGATIVE: a blob-shaped `ruling_ref` and a blob-shaped `recorded_by`
+  (base64 run, `data:` URI, PDF magic or a multi-line body), each refused as
+  `embedded-original-content` — the fixture that proves task 3.5 landed.
 - [ ] 4.8c **WITHHELD (neither positive nor negative — the third outcome):** an
   instrument whose last entry declares `diff_class: content` and whose internal
   legs are ALL SOUND, asserted to yield WITHHELD — **not a pass and not an
@@ -182,9 +185,6 @@ ratification, a human-only surface write, a tag.
   harness needs a third expectation bucket to hold it, since today it can only
   say "valid" or "invalid for its intended finding".
 - [ ] 4.8d NEGATIVE: a `path_only` entry whose two digests differ.
-- [ ] 4.8b NEGATIVE: a blob-shaped `ruling_ref` and a blob-shaped `recorded_by`
-  (base64 run, `data:` URI, PDF magic or a multi-line body), each refused as
-  `embedded-original-content` — the fixture that proves task 3.5 landed.
 - [ ] 4.9 `examples/consent-instrument/README.md` updated with the new corpus
   counts, and the corpus count in `contracts/manifest.yaml`'s
   `consent-instrument` comment (*"5 valid + 5 invalid + purpose probes"*)

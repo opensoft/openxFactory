@@ -522,60 +522,162 @@ Active changes:
   CONTRACT VERSION IS CUT, AND EVERY BOX IN `tasks.md` IS UNTICKED.** Gives
   `contracts/schemas/consent-instrument.schema.yaml` a structured, closed
   SIBLING of `custody` — `custody_rederivations[]`, entries closed at
-  `{at, commit, previous_sha256, observed_sha256, diff_class, reason,
-  ruling_ref, recorded_by}`, all eight required, `diff_class` and `reason`
-  CLOSED enumerations — so that an authorized edit which moves a pinned
-  target's bytes is RECORDABLE and RE-DERIVABLE instead of prose or nothing.
-  **`custody` is not touched**: it stays exactly `{locator, sha256}` with
-  `additionalProperties: false`, by ruling **D9**, whose closure argument is
-  that no property may exist in which the signed original's content could sit —
-  which is precisely why the growth is a sibling. **The finding is measured,
-  not reasoned.** OpsxFactory's citation sweep re-derived all four executed
-  instruments' `custody.locator` targets on 2026-09-06 at `ddc03ad7`: **three
-  of four no longer hash to their pin**, all three broke at the SAME commit
-  `57fd9fd2` (2026-08-24, the ruled lifecycle-header discharge, 16 files under
-  `openspec/changes/archive/`), the content did not change (re-derived at
-  `57fd9fd2^` each still matches), and the one pin that still verifies is the
-  one that commit did not touch — **3 of 3**, with one broken target sitting in
-  a change directory that has never been archived, so the class is
-  custody-pin integrity and not archiving. Register: OpsxFactory
+  `{at, commit, previous_locator, observed_locator, previous_sha256,
+  observed_sha256, diff_class, reason, ruling_ref, recorded_by}`, all TEN
+  required, `diff_class` and `reason` CLOSED enumerations — so that an
+  authorized act which moves a pinned target's BYTES OR PATH is RECORDABLE and
+  RE-DERIVABLE instead of prose or nothing. **`custody` is not touched**: it
+  stays exactly `{locator, sha256}` with `additionalProperties: false`, by
+  ruling **D9**, whose closure argument is that no property may exist in which
+  the signed original's content could sit — which is precisely why the growth is
+  a sibling. **The finding is measured, not reasoned.** OpsxFactory's citation
+  sweep re-derived all four executed instruments' `custody.locator` targets on
+  2026-09-06 at `ddc03ad7`: **three of four no longer hash to their pin**, all
+  three broke at the SAME commit `57fd9fd2` (2026-08-24, the ruled
+  lifecycle-header discharge, which inserted ONE `Ratified:` line per target),
+  the content did not change (re-derived at `57fd9fd2^` each still matches), and
+  the one pin that still verifies by content is the one that commit did not
+  touch — **3 of 3**, with one broken target sitting in a change directory that
+  has never been archived, so the class is custody-pin integrity and not
+  archiving. Register: OpsxFactory
   `openspec/changes/add-pre-archive-citation-gate/supporting-docs/owed-findings.md`
-  § F.1, live at OpsxFactory main `40aaa93b` and archiving 2026-09-07 to
-  `openspec/changes/archive/2026-09-07-add-pre-archive-citation-gate/…`.
-  **The delta is one `## MODIFIED` and one `## ADDED` on `consent-instrument`.**
-  The ADDED requirement states the GATE RULE: custody is CURRENT iff the target
-  hashes at HEAD to `custody.sha256`, or the chain anchors to that pin, links
-  without a gap, re-derives at every entry's `commit` AND its `commit^`, and
-  terminates at HEAD — and **a chain that cannot be re-derived is a REFUSAL,
-  never an admission**, because converting "cannot tell" into "verified" is the
-  exact state F.1 stood in for thirteen days. **The obligation is SPLIT and the
-  split is explicit**: the canonical validator takes only the legs derivable
-  from the record's own bytes (anchor, linkage, order, closed enums, unmoved
-  pin) because it is network-free and reads ONE repository, while the git
-  re-derivation runs in the CONSUMING repository where the target's bytes are —
-  so a neutral pass is NOT a currency claim and the requirement says so. Growth
-  is ADDITIVE: `contract_schema_version: 2 → 3`, the record envelope's
-  `schema_version` stays `const: 1`, and every existing instrument validates
-  unchanged. **Four readings are recorded as NOT taken**, each with its measured
-  reason: growing `custody` itself (D9); prose in `amendments[].delta` (the form
-  Brett declined — not machine-checkable); a sidecar register in the consumer
-  repository (declined in the same ruling); and rewriting `custody.sha256` to
-  the observed digest (destroys the only evidence a divergence occurred while
-  producing a record that verifies). **The bundle version is NOT reserved**:
+  § F.1 (archive in flight; that is the live path at OpsxFactory main
+  `40aaa93b`, archiving 2026-09-07 to
+  `openspec/changes/archive/2026-09-07-add-pre-archive-citation-gate/…`).
+  **The delta is one `## MODIFIED` and one `## ADDED` on `consent-instrument`,
+  22 scenarios.** The ADDED requirement states the GATE RULE: custody is CURRENT
+  iff the target resolved from `custody.locator` hashes at HEAD to
+  `custody.sha256`, or the chain anchors to that pin AND that locator, links
+  without a gap in BOTH digest and locator, re-derives at every entry's
+  `commit` and `commit^` **at both paths** (starting locator at the parent,
+  observed locator at the commit), lies on commits each an ANCESTOR of the next
+  and of HEAD, and terminates at HEAD — and **a chain that cannot be re-derived
+  is a REFUSAL, never an admission**, because converting "cannot tell" into
+  "verified" is the exact state F.1 stood in for thirteen days.
+  **`custody.locator` is OPAQUE and is NOT a path**: every OpsxFactory locator
+  carries an `opsx:opensoft/` scheme prefix and three of four targets resolve at
+  NO ref under their literal path, so the requirement obliges the consuming
+  repository to DECLARE a custody store mapping and refuses a checker that
+  INFERS an undefined rewrite — an inferred path can manufacture agreement with
+  a file nobody pinned. **`diff_class` has THREE members, each with a currency
+  consequence**: `path_only` (zero bytes changed, only the locator) and
+  `header_only` MAY reach CURRENT; `content` **WITHHOLDS** the verdict — a THIRD
+  OUTCOME beside current and refused — because a moved referent is grounds for
+  RE-EXECUTION, not recording. **The obligation is SPLIT and the split is
+  explicit**: the canonical validator takes only the legs derivable from the
+  record's own bytes (anchor, linkage, order, closed enums, entry closure,
+  unmoved pin, `path_only` digest equality, the withheld outcome) because it is
+  network-free and reads ONE repository, while the git re-derivation runs in the
+  CONSUMING repository where the target's bytes are — so a neutral pass is NOT a
+  currency claim, and a repository whose instruments declare
+  `custody_rederivations` SHALL OPERATE such a check, which is the line between
+  a contract and a convention. Growth is ADDITIVE:
+  `contract_schema_version: 2 → 3`, the record envelope's `schema_version` stays
+  `const: 1`, every existing instrument validates unchanged. **Four readings are
+  recorded as NOT taken**, each with its measured reason: growing `custody`
+  itself (D9); prose in `amendments[].delta` (the form Brett declined — not
+  machine-checkable); a sidecar register in the consumer repository (declined in
+  the same ruling); and rewriting `custody.sha256` to the observed digest
+  (destroys the only evidence a divergence occurred while producing a record
+  that verifies). **The bundle version is NOT reserved**:
   `docs/contract-versioning-policy.md` allocates it at the cut, the next
-  additive minor measured at authoring is `contract-v3.5`
+  additive minor re-measured at this branch's merge-base is `contract-v3.5`
   (`contracts/manifest.yaml:3` declares `contract-v3.4`), and the row-4
   substrate on [#630](https://github.com/opensoft/openxFactory/issues/630) is
   claimed by the cutting session as its own task, never here. **The consumer's
   acts are named as the CONSUMER'S and are outside this change's archive gate**:
   OpsxFactory re-pins `stack.yaml` `contract_ref` in lockstep with the
-  worker-enrollment-broker's runtime-shape validation, then the three broken
-  instruments take an `amendments` entry plus a `custody_rederivations` entry
-  and the fourth takes nothing. Eight veto points, **C-1..C-8**. Lane claims
+  worker-enrollment-broker's runtime-shape validation, then writes THREE
+  NON-UNIFORM prescriptions — two-entry chains for the two instruments whose
+  targets had already archived before `57fd9fd2` (`a98fca5b`, `0ebb1191`, both
+  its ancestors, so their pre-archive locator is absent on BOTH its sides and
+  one entry apiece would be refused), one entry for the never-archived third —
+  and **NO `amendments` entry**, because a re-derivation is not an amendment and
+  must not transition an executed instrument to `amended`. Eleven veto points,
+  **C-1..C-10 plus C-6a**; **C-10 SUPERSEDES ONE CLAUSE of the F.1 ruling** and
+  says so at the point of supersession. Lane claims
   [5571680046](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5571680046)
   (change) and
   [5571680388](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5571680388)
   (row-3 README substrate), lane `opsXfactory-1`.
+
+- [publish-openspec-cli-pin-as-contract-member](openspec/changes/publish-openspec-cli-pin-as-contract-member/proposal.md)
+  — authored 2026-09-07, **`Status: ratified`** (2026-09-07, Brett Heap,
+  openxFactory operator authority, in-session, *"merge 72 when green, then
+  ratify the A packet"*, recorded on #754 at 2026-09-07T14:27:55Z; records
+  `openspec/changes/publish-openspec-cli-pin-as-contract-member/review/ratification-2026-09-07.md`
+  and
+  `openspec/changes/publish-openspec-cli-pin-as-contract-member/review/verification-2026-09-07.md`).
+  `.openspec.yaml` keeps the drafting provenance it was authored with and the
+  approval pair is ADDED beside it —
+  `kind`, `id` and `reason` unmoved, the addition-not-rewrite shape
+  `add-drafted-proposal-origin` defined. Lane `openxfactory-1`. Half **A** of
+  the estate-wide OpenSpec CLI pin rollout governed by issue
+  [#754](https://github.com/opensoft/openxFactory/issues/754), which records
+  Brett Heap's two earlier rulings of 2026-09-07 — rollout *"Hybrid A+B"* and
+  lane scope *"openxFactory only; siblings via their lanes"*. Those rulings
+  admit the work and fix its scope; they ratify no text and take no design
+  decision — an ORIGIN, not an approval, and the ratification is the separate
+  act above. **THE GAP IS PUBLICATION, NOT ENFORCEMENT.** The gate is already
+  ratified and running — `add-openspec-cli-pin` requires a consuming repository
+  to invoke the pinned entrypoint FROM the pinned openxFactory checkout and to
+  name that version in its `stack.yaml` — but `contracts/openspec-cli-pin.yaml`
+  is registered in NEITHER `contracts/manifest.yaml` NOR `contracts/README.md`,
+  so the one file that says which tool decides what canon is, is absent from the
+  register `scripts/validate-manifest-digests.py`'s own docstring calls *"what
+  cross-repo consumers read to verify the bytes they pin"*. Its two siblings,
+  `openxwallet-pin.yaml` and `openreposhape-pin.yaml`, are unregistered too: the
+  pin CLASS has never been published. **2 ADDED requirements** on
+  `neutral-product-pin` — R1, a consumption pin another repository reads is a
+  published contract member adopted by pin-sync (never copied; a PRECONDITION on
+  the normal case — a consumer whose `contract_ref` predates `1d8cd54e` cannot
+  perform the read and owes a pin-sync, which is where MedxFactory, AdxFactory
+  and LedgerxFactory stand today; ONE declared fallback for a repository with no
+  stack pin, which is B of #754 and whose first realized instance is
+  xFactory-Hermes-Install PR #72, merged `06c9083d` — **not** OpsxFactory, which
+  has a stack pin, copies nothing and is the NORMAL case in hardened form; and
+  the clause pricing the fallback against the promoted requirement *A required
+  check runs the pinned tool, at the pinned digest*, whose enforcement claim
+  stays UNMET while a declared copy stands); R2, registering a pin in the
+  consumption register is not a bundle cut unless it moves the release
+  membership, with the measurement owed by the registering author. No
+  `## MODIFIED` and no
+  `## REMOVED`: the requirement a modification would land on is under an ACTIVE
+  `## MODIFIED` block held by `add-openspec-cli-pin`, which has not archived.
+  `sequenced_after: [add-openspec-cli-pin]` — and the second entry it would
+  carry is UNWRITEABLE, which is a finding the packet records rather than works
+  around: `scripts/validate-sequenced-after.py` admits no change id containing a
+  `.`, and `bump-openspec-cli-pin-to-1.12`'s own id carries one, so no change in
+  this repository can order itself behind it by any spelling.
+  **REALIZED IN THE SAME PULL REQUEST, IN TWO EDITORIAL FILES**: one
+  `contracts/manifest.yaml` row (`type: pin`, no `sha256`, a never-copy
+  `consumption_rule` on `domain-factory-conformance-validator`'s precedent) and
+  `contracts/README.md`'s matching index row plus a new consumer-facing section,
+  *Gating archives on the pinned CLI from a consumer repository*. **THE VETO
+  POINT WAS `design.md` D1 — PUT, AND NOT VETOED** — A-defer against A-cut, and
+  **A-defer is ratified AS DESIGNED** on a measurement: `release_membership(.)`
+  reads **283 before and 283 after**, the pin absent from both, because
+  membership is a closed set that never walks the manifest's `contracts:` list;
+  both edited files are EDITORIAL members whose movement between cuts
+  `release-surface-integrity` declares expected, so no bundle is spent and no
+  tag is owed. **A-defer's cost is ratified with it**: the
+  `contracts/CHANGELOG.md` entry naming this registered contract is OWED AT THE
+  NEXT CUT (`tasks.md` § 5.7). A-cut (`contract-v3.5` here, tag owed after the
+  merge) was written out with four costs and **was NOT chosen**, so this pull
+  request cuts nothing, allocates no version and owes no tag — a cut remains an
+  act on a word not given; and a third option, A-member (adding the pin to the
+  derived membership in `release.py`, 283 → 285), stands recorded as not taken
+  rather than foreclosed. `release-tag-gate` DOES run (the diff touches
+  `contracts/manifest.yaml`) and passes: `contract-v3.4` is published, an
+  annotated tag peeling to `807a4f47`, and `contract_bundle_version` does not
+  move. A second, smaller veto point, **D2** — the row carrying no `sha256` —
+  was carried separately and **was not vetoed either**; its residual coupling
+  (the row quotes the entrypoint path and nothing compares it with the pin's own
+  `consumer_entrypoint:`) is ratified as DISCLOSED, owed at `tasks.md` § 5.4.
+  Under `release-realization` the packet still archives on merged-plus-green
+  realization evidence rather than on landing, on a separate word. **B of #754 —
+  the three no-lane repositories — is NOT performed here**, and no sibling's
+  adoption is claimed.
 
 - [extend-merge-master-envelope-to-floor-bot-lanes](openspec/changes/extend-merge-master-envelope-to-floor-bot-lanes/proposal.md)
   — authored 2026-09-07, **`Status: ratified`** (2026-09-07, Brett Heap
@@ -2542,6 +2644,88 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [amend-absent-changelog-is-an-answer](openspec/changes/archive/2026-09-07-amend-absent-changelog-is-an-answer/proposal.md)
+  — **ARCHIVED 2026-09-07**, on Brett Heap's separate word of the same day (in
+  session, verbatim *"archive 753 when green"*, recorded and claimed on issue
+  [#750](https://github.com/opensoft/openxFactory/issues/750)) and the
+  `release-realization` rule that a change with a NON-EMPTY code surface archives
+  on **merged-plus-green realization evidence, not on landing**. **THE EVIDENCE,
+  BOTH HALVES, CITED RATHER THAN ASSERTED:** ratified and realized in one pull
+  request, **PR [#753](https://github.com/opensoft/openxFactory/pull/753) →
+  merge `f756a91f`** (2026-09-07T17:20:53Z, ratifying commit `58654e34`, records
+  `review/ratification-2026-09-07.md` and `verification-2026-09-07.md`), and
+  **`pytest-suite` run
+  [34147229368](https://github.com/opensoft/openxFactory/actions/runs/34147229368)
+  `success` on `main` at `f756a91f` ITSELF** — the green run is ON the merge
+  commit, not merely on a descendant — with run
+  [34149869656](https://github.com/opensoft/openxFactory/actions/runs/34149869656)
+  `success` on `421b52d8`, a later `main` commit containing it. Governing issue
+  **#750**.
+  **THE AMENDMENT THAT PROVED THE READ WAS AN ANSWER LEFT IT REPORTED AS A
+  QUESTION.** PR **#688** settled that the changelog read's per-path `None`
+  stands, at that arm, for a tip this clone HOLDS at which no readable
+  `contracts/CHANGELOG.md` blob is reachable — the unfetched fact being EXCLUDED,
+  the manifest having read at the same commit — and made the skip say so. It left
+  the read a SKIP, and a skip RETURNS above the `in_scope` loop, so a held tip
+  declaring an in-scope bundle and carrying no changelog was answered with a skip
+  INSTEAD OF the tag findings the loop would emit. **MEASURED ON A SHIM, ONE BLOB
+  APART**: absent → one `Skip` and nothing graded; EMPTY → one `error` naming the
+  untagged bundle. A document that is not there and a document that says nothing
+  carry the same fact about declarations, and only one of them was graded.
+  **PROMOTED BYTE-IDENTICAL** to the archived delta's `## MODIFIED` block —
+  compared programmatically, **53,551 bytes**, sha256
+  `c01a67378ba0a91f26dc7372f1ba5993a6c8277bdff6e890869d1ecb16082b62` on both
+  sides: *Release-tag publication* restated in full, every body unit and all 30
+  promoted scenario titles byte-faithful, INCLUDING #678's and #688's amendment
+  notes and their `Removed from canon by` markers, with exactly **TWO bullets of
+  ONE scenario replaced** — the `THEN` (the unfetched skip kept word for word,
+  the skip now required *"wherever the document's own absence has not been
+  established"*, and a held-and-absent read GRADED with no declarations) and the
+  `AND` below it (whose subject was that skip's wording, its narrowing carried
+  verbatim onto the `info` record that replaces it). **TWO markers, not one** —
+  under the boundary `amend-marker-reason-boundary` promoted, two names separated
+  by ` — ` would declare only the first — each with a code-span-free reason so
+  the retired and amended grammars derive the same name. **NO SCENARIO IS ADDED,
+  REMOVED OR RETITLED**; spec count **60 → 60**, so **no codexFactory floor
+  advance**. **REALIZED IN THE SAME PULL REQUEST** (`code_surface: openxFactory`,
+  `target_release: implemented`): the guard split on `tip_present`, ONE tree
+  consultation establishing the document's own absence before anything is graded
+  (Codex round 1, `design.md` **D3a** — a held commit licenses *"no readable blob
+  came back"* and never *"the commit carries no such file"*, and grading is a
+  claim about the FILE), the two kept skips reworded to what they established,
+  and ONE `info` on `contracts/CHANGELOG.md` carrying the fact the skip carried;
+  `tests/doc-health/test_release_tag_publication.py` **146 → 152**, one existing
+  test CONVERTED with every literal it pinned re-asserted on the `info`.
+  **THE VETO POINT WAS `design.md` D1 — PUT, AND NOT VETOED**: option A (split
+  the arm and grade) against option B (keep the skip, distinct reason class
+  only, which leaves D6's suppression where D6 found it). **A is ratified AS
+  DESIGNED and its cost with it** — A changes which findings an in-scope
+  repository receives, in the conservative direction, a `Skip` becoming the
+  grading an EMPTY changelog already receives. `design.md` **D2** was vetoable on
+  its own (the `info` against dropping the fact) and was not vetoed either.
+  **NOTHING GREEN IN THIS REPOSITORY TURNS RED, AND THE CLAIM IS SCOPED TO IT**
+  (Codex, PR #767, P2, TAKEN): openxFactory carries a readable
+  `contracts/CHANGELOG.md` at its published tip and never reaches the amended
+  arm, so the family reads the same single `info` here before and after, and the
+  one finding the arm can ADD is `info`, which neither `--fail-on error` nor the
+  cut-time release-tag gate reaches. **The estate-wide statement is narrower and
+  is NOT made**: elsewhere a held tip whose tree carries no changelog now FALLS
+  THROUGH to the grading loop, where a bundle can raise an `error` — the absent,
+  superseded or over-distance arms — so a `--fail-on error` run that is green
+  today CAN turn red there. That is `design.md` D1's ratified cost stated
+  plainly, and it is exactly what **#765** exists to measure.
+  **TWO SUCCESSORS ARE ARCHIVED AS NAMED RATHER THAN DONE**, filed unclaimed at
+  the archive and ticked in `tasks.md` § 6 under Brett Heap's ruling *"Tick on
+  the recording"* — the tick records the naming, not the doing: **#765** (the
+  estate-wide run, which `--repo-root` cannot take read-only because
+  `obtain_commit` FETCHES into every governed clone; #612's measurement predicts
+  a zero delta and the prediction is not a measurement) and **#766** (three late
+  `Skip` returns in the bundle loop discard the trace, a PRE-EXISTING and general
+  shape this packet adds one member to, handed BOTH recorded remedies —
+  qualify the `AND`, or widen `check_repo`'s return shape — and picking neither).
+  § 6.5's floor-exemption reading is carried and re-verified at the archive, not
+  widened.
 
 - [amend-marker-reason-boundary](openspec/changes/archive/2026-09-06-amend-marker-reason-boundary/proposal.md)
   — **ARCHIVED 2026-09-06**, on Brett Heap's separate word of the same day
@@ -7458,3 +7642,7 @@ Hermes install is not yet a submodule. Its canonical remote decision is still op
 ## Status
 
 This repository is documentation-first. It should not contain live credentials, production memory-provider databases, runtime secrets, generated agent workspaces, or domain-specific runtime data.
+
+## License
+
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).
