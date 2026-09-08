@@ -5,11 +5,16 @@ Status: draft
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in
 this pull request or a measurement recorded verbatim in
 `evidence/pin-bump-1.12-2026-09-05.md`. Group 5 is DRAFTED-NOT-DONE work and
-group 6 is OWED work; neither is ticked and each names why. **AMENDED
-2026-09-05:** two of group 6 have since been discharged in their own pull
-requests and are ticked with the evidence beside them — 6.1 (the ratification
-record) and 6.2 (the `pytest-suite.yml` literal). 5.1, 6.3 and 6.4 are untouched
-and still owed.
+group 6 is OWED work; neither is ticked and each names why. **AMENDED 2026-09-08: EVERY BOX IN THIS PACKET IS NOW
+TICKED.** Group 6 was discharged in four separate pull requests, each with its
+own evidence beside it — 6.1 (the ratification record) and 6.2 (the
+`pytest-suite.yml` literal) on 2026-09-05, 6.3 (the three remaining consuming
+repositories) and 6.4 (the dependency closure, by
+`pin-openspec-cli-dependency-closure`) on 2026-09-08 — and 5.1's upstream draft
+was filed with group 5. Was: **AMENDED 2026-09-05:** two of group 6 have since
+been discharged in their own pull requests and are ticked with the evidence
+beside them — 6.1 (the ratification record) and 6.2 (the `pytest-suite.yml`
+literal). 5.1, 6.3 and 6.4 are untouched and still owed.
 
 **RATIFICATION HAS NOT HAPPENED.** Brett Heap ruled *"take exit 2"* on
 2026-09-05, deciding WHICH of the three exits #673 enumerated is taken. That
@@ -201,5 +206,22 @@ repoint the very tool that judges its own change.
       `adopt-openspec-cli-pin-gate` (`bb66d85c`), ticked at
       `add-openspec-cli-pin` task 6.1. MedxFactory, LedgerxFactory and
       AdxFactory remain; the box stays UNTICKED for them.
-- [ ] 6.4 The pinned artifact's DEPENDENCY CLOSURE is still unpinned. Declared
-      in the pin's header, unchanged by the version move, still successor work.
+- [x] 6.4 **(DONE 2026-09-08, by `pin-openspec-cli-dependency-closure`.)** The
+      pinned artifact's DEPENDENCY CLOSURE is PINNED. An authored
+      `contracts/openspec-cli-pin.1.12.0.package-lock.json` — 80 packages, every
+      one resolved and addressed — is committed beside the pin at the version
+      THIS packet moved the referent to, its SHA-512 recorded in the pin as
+      `lockfile_integrity:`, its entry for `@fission-ai/openspec` asserted equal
+      to the `integrity:` this packet re-cut, and the install running through it
+      with `npm ci --ignore-scripts` rather than resolving nine caret ranges.
+      The pin's header no longer says the closure is open; the old paragraph is
+      kept as `Was:` history there, because the shortfall is the argument for the
+      mechanism. Ruled by Brett Heap, 2026-09-08T14:14:49Z, first-hand, verbatim
+      *"Vendor a lockfile (Recommended)"*, on a four-option packet. THE
+      REGENERATION OBLIGATION THIS ADDS TO A BUMP: five things now move together
+      and not four — `version`, `integrity`, `shasum`, `tarball` AND a
+      regenerated lockfile with its digest and count re-recorded — and the
+      verifier refuses `pin-lockfile-mismatch` on the first run after a bump that
+      forgets, so the obligation is met by the gate rather than by memory. Was:
+      The pinned artifact's DEPENDENCY CLOSURE is still unpinned. Declared in the
+      pin's header, unchanged by the version move, still successor work.

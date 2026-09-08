@@ -38,13 +38,59 @@ invokes it. `neutral-product-pin` requires that ordering in as many words: the
 pin's digests are verified BEFORE the pinned reader is invoked, "by running code
 rather than by a stated obligation".
 
+AND THE SAME ARGUMENT, APPLIED A SECOND TIME, TO THE DEPENDENCY CLOSURE (added
+2026-09-08 by `pin-openspec-cli-dependency-closure`). Verifying the CLI's own
+bytes said nothing about the packages it runs ON: the artifact declares ten
+runtime dependencies, NINE of them at caret ranges, and npm resolved those ranges
+at install time — so two installs of these identical, verified bytes could run
+over different trees, which the pin's header DECLARED as a shortfall rather than
+hid. It is now closed the way the artifact was. An authored `package-lock.json`
+is committed beside the pin, `lockfile_integrity:` is a SHA-512 over its exact
+bytes, and this tool:
+
+  * HASHES the committed lockfile and refuses `pin-lockfile-mismatch` unless it
+    equals the recorded address — BEFORE any registry round trip is spent,
+    because a lockfile disagreeing with the pin is a defect of this REPOSITORY,
+    and learning it after a fetch tells a reviewer nothing the question had
+    already told them;
+  * refuses the SAME code unless the lockfile's own entry for the pinned package
+    carries the pin's `integrity:` — so the two halves of one pin cannot name two
+    different artifacts — and unless the tree holds exactly `lockfile_packages:`
+    packages;
+  * INSTALLS THROUGH IT with `npm ci --ignore-scripts` in a staging project whose
+    `package.json` is DERIVED from the lockfile's own root entry, never
+    `npm install`, which would resolve the ranges again and undo the whole act.
+    `npm ci` resolves nothing and checks every package against the lockfile's
+    recorded integrity, so the installed tree IS the lockfile's tree;
+  * KEYS THE REUSE CACHE ON THE LOCKFILE'S DIGEST as well as the artifact's,
+    because a different tree is a different install and must not be served out
+    of a directory that was built for another one.
+
+`--ignore-scripts` STAYS, and its reason narrows rather than disappears: it was a
+MITIGATION of an open shortfall, and over a known tree it is defence in depth
+rather than a guard against the unknown. A pinned dependency carrying a hostile
+lifecycle script is still a dependency carrying one.
+
+WHY A LOCKFILE AND NOT THE THREE ALTERNATIVES, in one line each, with the full
+reading in `openspec/changes/pin-openspec-cli-dependency-closure/design.md`:
+enumerating the resolved tree IN the pin would re-implement a lockfile in a
+grammar no installer reads; vendoring the built tree as one artifact by digest
+would make this repository the redistributor of 80 packages it does not own; and
+accepting the shortfall as declared was the standing position this change was
+raised to end.
+
 SIX CHECKS, ORDERED, FIRST FAILURE WINS.
 
   1. the pin's SHAPE — `revision_kind: package_integrity`, an EXACT version (no
      range, no caret, no dist-tag), a well-formed `sha512-` integrity, a 40-hex
-     `shasum`, and — where the pin declares any — WELL-FORMED DISPOSITIONS
+     `shasum`, a DECLARED LOCKFILE (a bare name beside the pin, its own
+     `sha512-` address, and its package count), and — where the pin declares
+     any — WELL-FORMED DISPOSITIONS
   2. a SCAN TARGET was given — `--all`, or at least one change id
-  3. the fetched artifact's recomputed SHA-512 and SHA-1 EQUAL the pin
+  3. the committed LOCKFILE hashes to its recorded address, names the pinned
+     package at the pin's OWN integrity and holds the recorded number of
+     packages; and the fetched artifact's recomputed SHA-512 and SHA-1 EQUAL
+     the pin
   4. the resolved binary REPORTS the pinned version
   5. `openspec validate <target> --strict` runs, and its findings are read
   6. every ERROR-level finding is matched by exactly one IN-SCOPE disposition,
@@ -192,13 +238,22 @@ REMEDIATION = (
     "validate a consuming repository's tree from this pinned checkout. If the "
     "run cannot reach the registry, install the pinned artifact once "
     "(`npm pack @fission-ai/openspec@<version>`) and pass "
-    "`--tarball <path/to/.tgz>`; the digest is checked either way. If a local "
+    "`--tarball <path/to/.tgz>`; the digest is checked either way, though the "
+    "DEPENDENCY CLOSURE is still installed through the committed lockfile and "
+    "so still needs the registry or a warm npm cache. If the LOCKFILE and the "
+    "pin disagree, REGENERATE the lockfile at the pinned version (`npm install "
+    "--package-lock-only --ignore-scripts` in a staging project whose only "
+    "dependency is the pinned package at its exact version) and re-record "
+    "`lockfile_integrity:` and `lockfile_packages:` in the same change. If a "
+    "local "
     "`openspec` is the problem, either stop using it — the default mode never "
     "reads PATH — or install the pinned version. If the PIN itself is stale "
     "rather than the environment, a version bump is a HUMAN-ONLY governed "
     "change that re-cuts contracts/openspec-cli-pin.yaml from the real "
     "registry bytes and lands `--all --strict` proof at the target version in "
-    "the same change; never edit an integrity value to make this pass. See "
+    "the same change, regenerating the lockfile in that same change because "
+    "the referent and its closure move together; never edit an integrity value "
+    "to make this pass. See "
     "docs/contract-versioning-policy.md."
 )
 
@@ -215,6 +270,7 @@ REFUSAL_CODES: tuple[str, ...] = (
     "pin-no-target",
     "pin-unresolvable",
     "pin-integrity-mismatch",
+    "pin-lockfile-mismatch",
     "pin-version-mismatch",
     "pin-disposition-malformed",
     "pin-disposition-stale",
@@ -239,6 +295,26 @@ REFUSAL_CODES: tuple[str, ...] = (
 #   pin-repo-unidentified      dispositions are declared and the validated tree's
 #                              identity is unresolvable, so which of them are in
 #                              scope is unanswerable
+#
+# AND ONE MORE, ADDED 2026-09-08 WITH THE DEPENDENCY CLOSURE. It is a NEW code
+# and not an overload of `pin-integrity-mismatch`, because the two send a reader
+# to different files: `pin-integrity-mismatch` says the REGISTRY served bytes
+# this repository does not pin, and the remedy is to re-cut the pin or to
+# distrust the registry; `pin-lockfile-mismatch` says the two halves of THIS
+# REPOSITORY'S OWN pin disagree with each other, and the remedy is to regenerate
+# the committed lockfile at the pinned version. Collapsing them would name the
+# wrong defect in the one message a reviewer reads.
+#
+#   pin-lockfile-mismatch      the committed lockfile and the pin disagree — the
+#                              file's bytes do not hash to `lockfile_integrity:`,
+#                              or its entry for the pinned package carries an
+#                              integrity other than the pin's referent (or no
+#                              entry at all), or the tree it locks is not the
+#                              size `lockfile_packages:` records
+#
+# A pin that declares NO lockfile at all is NOT this code: it is `pin-tag-only`,
+# because unresolved caret ranges are a MOVING REFERENCE, and "the moment a pin
+# trusts a range the fail-closed property is gone" is that code's own sentence.
 
 # The disposition keys, split into what MUST be present and what MAY be. The
 # split is a declaration rather than a chain of `if key not in entry`, so
@@ -526,6 +602,83 @@ def pinned_package(pin: dict) -> str:
     return raw.strip()
 
 
+# A lockfile name is a BARE NAME beside the pin: no directory separator, no
+# traversal, no absolute path. The lockfile is part of the pin, and a pin whose
+# second referent could point anywhere in the tree — or outside it — would be a
+# pin whose subject a reader has to go and find.
+LOCKFILE_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*\.json$")
+
+
+def pinned_lockfile(pin: dict, pin_path: Path) -> tuple[Path, str, int]:
+    """The declared dependency closure `(path, integrity, packages)`, or `pin-tag-only`.
+
+    REFUSED AS `pin-tag-only` AND NOT UNDER A LOCKFILE CODE OF ITS OWN, which is
+    a claim about what the defect IS rather than an economy. A pin that names an
+    artifact but no lockfile installs that artifact's dependencies by RESOLVING
+    ITS RANGES — nine caret ranges, in this product's case — and a caret range is
+    the moving reference `pin-tag-only` already exists to refuse. "The moment a
+    pin trusts a range the fail-closed property is gone" is that code's own
+    sentence, quoted from `neutral-product-pin`, and it is as true of a
+    dependency range as of a version range. `pin-lockfile-mismatch` is kept for
+    the different fact that a lockfile IS declared and disagrees with the pin.
+
+    EVALUATED IN CHECK 1, with the pin's other shape rules and BEFORE anything is
+    fetched, on the same argument the disposition shape rules are: a defect of
+    the PIN must not be discovered only after a registry round trip has been
+    spent reaching it.
+
+    THE PATH RESOLVES BESIDE THE PIN AND NOWHERE ELSE. `lockfile:` is a bare file
+    name, not a repository-relative path, so the resolution is
+    `pin_path.parent / name` and there is no traversal to admit or to sanitize.
+    That also makes the rule survive `--pin PATH`: a test pin and the real pin
+    both find their own lockfile, and neither can reach the other's.
+    """
+    name = pin.get("lockfile")
+    if not isinstance(name, str) or not LOCKFILE_NAME_RE.match(name.strip()):
+        raise PinRefusal(
+            "pin-tag-only",
+            f"the pin declares lockfile {name!r}, which is not a bare "
+            "`<name>.json` sitting beside the pin. A pin that names an artifact "
+            "and no lockfile installs that artifact's dependencies by resolving "
+            "their ranges at install time, and the moment a pin trusts a range "
+            "the fail-closed property is gone — the CLI's own bytes would be "
+            "pinned while the tree it runs on was not")
+    integrity = pin.get("lockfile_integrity")
+    if not isinstance(integrity, str) or not INTEGRITY_RE.match(integrity.strip()):
+        raise PinRefusal(
+            "pin-tag-only",
+            f"the pin records lockfile_integrity {integrity!r}, which is not a "
+            "`sha512-<base64>` content address; a lockfile with no content "
+            "address beside it is a file anybody may edit, and an unaddressed "
+            "closure is not a pinned one")
+    try:
+        raw = base64.b64decode(integrity.strip()[len("sha512-"):], validate=True)
+    except (ValueError, TypeError) as exc:
+        raise PinRefusal(
+            "pin-tag-only",
+            f"the pin's lockfile_integrity {integrity!r} is not decodable "
+            f"base64: {exc}") from exc
+    if len(raw) != 64:
+        raise PinRefusal(
+            "pin-tag-only",
+            f"the pin's lockfile_integrity decodes to {len(raw)} bytes, not the "
+            "64 a SHA-512 digest occupies; a truncated address addresses nothing")
+    declared = pin.get("lockfile_packages")
+    try:
+        packages = int(str(declared).strip())
+    except (TypeError, ValueError):
+        packages = -1
+    if packages < 1:
+        raise PinRefusal(
+            "pin-tag-only",
+            f"the pin records lockfile_packages {declared!r}, which is not a "
+            "positive whole number. The count is the corroborating, human-"
+            "readable half of the closure claim on exactly the terms `shasum:` "
+            "is corroboration for `integrity:`, and this verifier CHECKS it, so "
+            "an unusable value is a defect rather than a field to skip")
+    return (pin_path.parent / name.strip()), integrity.strip(), packages
+
+
 def pinned_binary(pin: dict) -> str:
     raw = pin.get("binary")
     if not isinstance(raw, str) or not raw.strip() or "/" in raw:
@@ -727,6 +880,149 @@ def verify_artifact(tarball: Path, integrity: str, shasum: str) -> None:
             "than reconciled")
 
 
+def read_lockfile(payload: bytes) -> dict:
+    """The lockfile as a mapping with a `packages` object, or `pin-unreadable`.
+
+    `pin-unreadable` and NOT `pin-lockfile-mismatch`, on the same division the
+    pin file itself already draws: a mismatch is a DISAGREEMENT between two
+    well-formed statements, each of which a reviewer can read and act on. A
+    lockfile that is absent, is not JSON, or carries no `packages` object is a
+    state in which no such comparison can be reached at all — the same state an
+    absent or ungrammatical pin file is in, and it takes the same code.
+    """
+    try:
+        document = json.loads(payload.decode("utf-8"))
+    except (ValueError, UnicodeDecodeError) as exc:
+        raise PinRefusal(
+            "pin-unreadable",
+            f"the committed lockfile is not readable JSON ({exc}); the pin's "
+            "dependency closure cannot be compared against anything, and an "
+            "unreadable closure is never an implicitly trusted one") from exc
+    if not isinstance(document, dict) or not isinstance(
+            document.get("packages"), dict):
+        raise PinRefusal(
+            "pin-unreadable",
+            "the committed lockfile carries no `packages` object; this is the "
+            "lockfileVersion 2/3 shape npm writes and the only one this reader "
+            "implements, and a form it does not implement is refused rather "
+            "than guessed at")
+    return document
+
+
+def verify_lockfile(lockfile: Path, lockfile_integrity: str, packages: int,
+                    package: str, integrity: str) -> bytes:
+    """Check 3, the LOCAL half: the committed closure IS the one the pin names.
+
+    Three disagreements, ONE code, in the order of how much they say — which is
+    exactly how `verify_artifact` already reports INTEGRITY DRIFT ahead of SHASUM
+    DRIFT, the referent before its corroboration:
+
+      DIGEST DRIFT       the file's bytes are not the bytes the pin addresses.
+                         Everything else is a statement about a file this pin
+                         does not name, so nothing else is worth reporting.
+      REFERENT DISAGREEMENT
+                         the lockfile locks a DIFFERENT `@fission-ai/openspec`
+                         than the pin's referent, or locks none at all. This is
+                         the check that keeps ONE pin from naming TWO artifacts:
+                         without it a correctly-hashed lockfile could install
+                         some other version of the CLI entirely, and the
+                         artifact verification above would still pass over
+                         bytes nothing ran.
+      SIZE DRIFT         the tree is not the size the pin records. Corroboration,
+                         on `shasum:`'s terms: it is recorded because a reviewer
+                         reads a count and not a digest, and it is checked
+                         because a recorded value nothing verifies drifts.
+
+    RUN BEFORE THE FETCH. A lockfile that disagrees with the pin is a defect of
+    this repository, and a refusal that arrives only after a registry round trip
+    has been spent tells a reviewer nothing the question had already told them.
+    """
+    try:
+        raw = lockfile.read_bytes()
+    except OSError as exc:
+        raise PinRefusal(
+            "pin-unreadable",
+            f"the pin declares the lockfile {lockfile} and it could not be read "
+            f"({exc}). The dependency closure is pinned BY that file, so its "
+            "absence is not an unlocked pass but an unanswerable question") from exc
+    actual = integrity_of(raw)
+    if actual != lockfile_integrity:
+        raise PinRefusal(
+            "pin-lockfile-mismatch",
+            f"{lockfile.name}: LOCKFILE DIGEST DRIFT\n"
+            f"  recorded   {lockfile_integrity}\n"
+            f"  recomputed {actual}\n"
+            "the committed lockfile is not the lockfile this pin addresses. "
+            "Either the file was edited without re-recording its address, or "
+            "the address was moved without regenerating the file; the two are "
+            "one claim and they move together")
+    document = read_lockfile(raw)
+    entry = document["packages"].get(f"node_modules/{package}")
+    if not isinstance(entry, dict):
+        raise PinRefusal(
+            "pin-lockfile-mismatch",
+            f"{lockfile.name}: LOCKFILE REFERENT DISAGREEMENT\n"
+            f"  the lockfile carries no entry for `node_modules/{package}`\n"
+            "a lockfile that does not lock the pinned package locks the wrong "
+            "thing, however well it hashes")
+    locked = str(entry.get("integrity") or "")
+    if locked != integrity:
+        raise PinRefusal(
+            "pin-lockfile-mismatch",
+            f"{lockfile.name}: LOCKFILE REFERENT DISAGREEMENT\n"
+            f"  pin      {integrity}\n"
+            f"  lockfile {locked or 'no integrity recorded'}\n"
+            f"the pin's referent and the lockfile's entry for {package} are two "
+            "different artifacts. ONE PIN MAY NAME ONE ARTIFACT: the install "
+            "runs through the lockfile, so a lockfile naming other bytes would "
+            "install other bytes while the artifact check above passed over "
+            "bytes nothing ran")
+    locked_packages = sum(1 for key in document["packages"]
+                          if key.startswith("node_modules/"))
+    if locked_packages != packages:
+        raise PinRefusal(
+            "pin-lockfile-mismatch",
+            f"{lockfile.name}: LOCKFILE SIZE DRIFT\n"
+            f"  recorded   {packages} package(s)\n"
+            f"  recomputed {locked_packages} package(s)\n"
+            "the tree this lockfile locks is not the tree the pin records. The "
+            "count is corroboration and the digest is the referent, so this "
+            "reports a disagreement the digest could not have survived unless "
+            "the count itself was mis-recorded")
+    return raw
+
+
+def staging_manifest(document: dict) -> dict:
+    """The `package.json` an `npm ci` through this lockfile needs, DERIVED from it.
+
+    NOT VENDORED BESIDE THE LOCKFILE, and that is the single-source property
+    doing its work rather than a convenience. `npm ci` refuses when a
+    `package.json` and a `package-lock.json` disagree, so a second committed file
+    would be a second copy of the dependency declaration — the exact defect this
+    whole pin family exists to end — and the two would eventually move apart.
+    Deriving the manifest from the lockfile's own root entry makes them agree BY
+    CONSTRUCTION: there is one written declaration, and the other is a function
+    of it.
+    """
+    root = document["packages"].get("")
+    if not isinstance(root, dict):
+        raise PinRefusal(
+            "pin-unreadable",
+            "the committed lockfile carries no root (`\"\"`) package entry, so "
+            "the staging manifest an `npm ci` needs cannot be derived from it")
+    manifest: dict = {
+        "name": str(root.get("name") or "openspec-cli-pin-closure"),
+        "version": str(root.get("version") or "0.0.0"),
+        "private": True,
+    }
+    for key in ("dependencies", "devDependencies", "optionalDependencies",
+                "peerDependencies"):
+        value = root.get(key)
+        if isinstance(value, dict) and value:
+            manifest[key] = value
+    return manifest
+
+
 # --------------------------------------------------------------------------
 # resolving the CLI — the pinned artifact, or an explicitly requested PATH
 # --------------------------------------------------------------------------
@@ -780,30 +1076,50 @@ def fetch_artifact(package: str, version: str, destination: Path,
     return tarballs[0]
 
 
-def install_artifact(tarball: Path, prefix: Path, binary: str,
-                     npm: str = "npm") -> Path:
-    """Install the VERIFIED tarball into a private prefix; return the executable.
+def install_locked(prefix: Path, lockfile_bytes: bytes, binary: str,
+                   npm: str = "npm") -> Path:
+    """Install THE LOCKFILE'S TREE into a private prefix; return the executable.
 
-    `--ignore-scripts` is not optional. The artifact's own bytes are verified,
-    but its nine dependencies are declared at caret ranges and npm resolves them
-    here — so a lifecycle script belonging to an unpinned transitive dependency
-    would otherwise run inside a gate. The pin's header states this shortfall in
-    full rather than leaving it to be discovered; this flag mitigates it and does
-    not repair it.
+    `npm ci` AND NOT `npm install`, which is the whole act rather than a flag
+    choice. `npm install` treats a lockfile as a starting point and is free to
+    RE-RESOLVE a range that has since acquired a newer satisfying version;
+    `npm ci` treats it as the answer, installs exactly what it records, verifies
+    every package against the integrity recorded there, and REFUSES outright
+    when the manifest and the lockfile disagree. Only the second makes "the
+    installed tree IS the pinned tree" a fact about the run instead of a hope
+    about npm's mood.
 
-    `--global` with an explicit `--prefix` is what makes PATH irrelevant: the
-    executable is a path this function returns, never a name a shell resolves.
+    THE STAGING PROJECT IS WRITTEN HERE, INTO THE INSTALL PREFIX, and its
+    `package.json` is DERIVED from the lockfile rather than committed beside it —
+    see `staging_manifest`. So the prefix holds exactly three authored things:
+    the vendored lockfile's bytes, a manifest that is a function of them, and
+    whatever `npm ci` then puts in `node_modules`.
+
+    `--ignore-scripts` is STILL not optional, and its reason has narrowed rather
+    than gone: the tree is now pinned, so this is no longer a guard against an
+    unknown transitive dependency, but a pinned dependency carrying a hostile
+    lifecycle script is still a dependency carrying one, and a gate is not the
+    place to run it.
+
+    PATH IS STILL IRRELEVANT: the executable is `node_modules/.bin/<binary>`
+    inside this prefix — a path this function returns, never a name a shell
+    resolves. (It was `<prefix>/bin/<binary>` under the previous `npm install
+    --global --prefix` install; the property is unchanged and only the layout
+    moved, because a lockfile installs a PROJECT and not a global.)
     """
     prefix.mkdir(parents=True, exist_ok=True)
-    result = _run([npm, "install", "--global", "--prefix", str(prefix),
-                   "--ignore-scripts", "--no-audit", "--no-fund",
-                   str(tarball)])
-    executable = prefix / "bin" / binary
+    (prefix / "package-lock.json").write_bytes(lockfile_bytes)
+    manifest = staging_manifest(read_lockfile(lockfile_bytes))
+    (prefix / "package.json").write_text(
+        json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    result = _run([npm, "ci", "--ignore-scripts", "--no-audit", "--no-fund"],
+                  cwd=str(prefix))
+    executable = prefix / "node_modules" / ".bin" / binary
     if result.returncode != 0 or not executable.exists():
         raise PinRefusal(
             "pin-unresolvable",
-            f"installing the verified artifact into {prefix} failed (exit "
-            f"{result.returncode}, executable "
+            f"installing the pinned dependency closure into {prefix} failed "
+            f"(exit {result.returncode}, executable "
             f"{'present' if executable.exists() else 'absent'}): "
             f"{(result.stderr or result.stdout).strip() or 'no output'}")
     return executable
@@ -1221,8 +1537,27 @@ def default_cache_root() -> Path:
     return Path(base) / "openxfactory" / "openspec-cli-pin"
 
 
+def cache_key(package: str, version: str, shasum: str,
+              lockfile_bytes: bytes) -> str:
+    """The reuse directory's name: the ARTIFACT and its CLOSURE, both.
+
+    A DIFFERENT TREE IS A DIFFERENT INSTALL. Before the closure was pinned, two
+    runs at one artifact could legitimately produce two different `node_modules`
+    and the cache had no way to tell them apart — the same directory served
+    both, and whichever ran first decided what the second one got. Folding the
+    lockfile's own digest into the key makes that impossible: a lockfile edit
+    lands in a NEW directory, and the old one is neither reused nor silently
+    overwritten. Truncated to 16 hex characters, which is a directory name rather
+    than a referent — the referent is checked by `verify_lockfile` over the real
+    bytes on every run, exactly as the artifact's is.
+    """
+    closure = hashlib.sha512(lockfile_bytes).hexdigest()[:16]
+    return f"{package.replace('/', '__')}-{version}-{shasum}-{closure}"
+
+
 def resolve_pinned(package: str, version: str, integrity: str, shasum: str,
                    binary: str, workspace: Path, cache_root: Path | None,
+                   lockfile_bytes: bytes, lockfile_integrity: str,
                    npm: str = "npm") -> Path:
     """Fetch, VERIFY, install (or reuse) and return the pinned executable.
 
@@ -1234,27 +1569,35 @@ def resolve_pinned(package: str, version: str, integrity: str, shasum: str,
     bytes. The stamp is then a statement about which artifact this directory was
     built from, checked before the directory is used, rather than a substitute
     for checking the artifact.
+
+    THE STAMP NOW CARRIES BOTH ADDRESSES, the artifact's and the closure's, on
+    exactly that reasoning applied to the second referent: the key already
+    separates the trees, and the stamp is what says which pair a directory was
+    actually built from — so a directory whose stamp names another closure is
+    rebuilt rather than reused.
     """
     tarball = fetch_artifact(package, version, workspace / "fetch", npm=npm)
     verify_artifact(tarball, integrity, shasum)
 
     if cache_root is None:
-        return install_artifact(tarball, workspace / "prefix", binary, npm=npm)
+        return install_locked(workspace / "prefix", lockfile_bytes, binary,
+                              npm=npm)
 
-    prefix = cache_root / f"{package.replace('/', '__')}-{version}-{shasum}"
+    prefix = cache_root / cache_key(package, version, shasum, lockfile_bytes)
     stamp = prefix / ".pin-verified"
-    executable = prefix / "bin" / binary
+    executable = prefix / "node_modules" / ".bin" / binary
+    stamped = f"{integrity}\n{lockfile_integrity}"
     if executable.exists() and stamp.is_file():
         try:
-            if stamp.read_text(encoding="utf-8").strip() == integrity:
+            if stamp.read_text(encoding="utf-8").strip() == stamped:
                 return executable
         except OSError:
             pass
     if prefix.exists():
         shutil.rmtree(prefix, ignore_errors=True)
-    executable = install_artifact(tarball, prefix, binary, npm=npm)
+    executable = install_locked(prefix, lockfile_bytes, binary, npm=npm)
     try:
-        stamp.write_text(integrity + "\n", encoding="utf-8")
+        stamp.write_text(stamped + "\n", encoding="utf-8")
     except OSError:
         # A cache that cannot be stamped is a cache that will be rebuilt next
         # run. That costs time and nothing else, so it is never a reason to
@@ -1324,11 +1667,14 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
 
     try:
-        pin = read_pin(Path(args.pin) if args.pin else PIN_PATH)
+        pin_path = Path(args.pin) if args.pin else PIN_PATH
+        pin = read_pin(pin_path)
         version = pinned_version(pin)                       # check 1
         integrity, shasum = pinned_integrity(pin)
         package = pinned_package(pin)
         binary = pinned_binary(pin)
+        lockfile, lockfile_integrity, lockfile_packages = pinned_lockfile(
+            pin, pin_path)
         dispositions = pinned_dispositions(pin)
         targets = validation_targets(args)                  # check 2
         repo = Path(args.repo).resolve() if args.repo else ROOT
@@ -1337,6 +1683,13 @@ def main(argv: list[str] | None = None) -> int:
         # that only after a registry round trip and a full corpus validation
         # tells a reviewer nothing the question had already told them.
         identity = repository_identity(repo) if dispositions else ""
+        # CHECK 3, LOCAL HALF, AND IT COMES BEFORE THE FETCH. The committed
+        # lockfile is this repository's own file: a disagreement between it and
+        # the pin is a defect a reviewer fixes HERE, and spending a registry
+        # round trip on the way to saying so would report it as though the
+        # environment were at fault.
+        lockfile_bytes = verify_lockfile(                   # check 3
+            lockfile, lockfile_integrity, lockfile_packages, package, integrity)
 
         with tempfile.TemporaryDirectory(prefix="openspec-cli-pin-") as scratch:
             workspace = Path(scratch)
@@ -1346,21 +1699,43 @@ def main(argv: list[str] | None = None) -> int:
                 # about to run from PATH anyway would verify bytes nobody runs.
                 executable = path_executable(binary)
             elif args.tarball is not None:
+                # The supplied bytes are checked against the referent exactly as
+                # a fetched artifact is — and the INSTALL still goes through the
+                # lockfile, because the closure is pinned by the lockfile and not
+                # by whichever tarball a caller had lying about. That is not a
+                # weakening of `--tarball`: `verify_lockfile` has already refused
+                # unless the lockfile's entry for the package carries THIS
+                # integrity, so the CLI bytes `npm ci` installs are the bytes
+                # just verified here.
                 supplied = Path(args.tarball)
                 verify_artifact(supplied, integrity, shasum)   # check 3
-                executable = install_artifact(supplied, workspace / "prefix",
-                                              binary, npm=args.npm)
+                executable = install_locked(workspace / "prefix",
+                                            lockfile_bytes, binary,
+                                            npm=args.npm)
             else:
                 cache_root = None if args.no_cache else (
                     Path(args.cache_dir) if args.cache_dir
                     else default_cache_root())
                 executable = resolve_pinned(                   # check 3
                     package, version, integrity, shasum, binary, workspace,
-                    cache_root, npm=args.npm)
+                    cache_root, lockfile_bytes, lockfile_integrity,
+                    npm=args.npm)
             reported = assert_reported_version(executable, version)  # check 4
             mode = "PATH" if args.path_mode else "pinned artifact"
             print(f"openspec-cli-pin: {package}@{reported} from {mode} "
                   f"({executable}); integrity {integrity[:23]}… verified",
+                  flush=True)
+            # THE CLOSURE, NAMED IN THE LOG THE GATE ALREADY PRINTS. A green
+            # check whose log does not say what it installed is the vacuous pass
+            # `neutral-product-pin` refuses: the line below is how a reader
+            # learns that the dependency tree was pinned at all, and which
+            # lockfile pinned it.
+            print(f"openspec-cli-pin: dependency closure {lockfile.name} "
+                  f"({lockfile_packages} packages); lockfile_integrity "
+                  f"{lockfile_integrity[:23]}… verified"
+                  + ("; NOT INSTALLED THROUGH — --path-mode uses the local "
+                     "binary's own tree" if args.path_mode
+                     else "; installed with `npm ci --ignore-scripts`"),
                   flush=True)
             if not dispositions:
                 verdict = run_validation(executable, repo, targets)   # check 5

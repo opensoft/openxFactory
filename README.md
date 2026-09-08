@@ -512,6 +512,44 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [pin-openspec-cli-dependency-closure](openspec/changes/pin-openspec-cli-dependency-closure/proposal.md)
+  — authored 2026-09-08, `Status: draft`. **CLOSES THE OPEN ITEM #667 DECLARED
+  AND DID NOT CLOSE.** `contracts/openspec-cli-pin.yaml` has said since
+  2026-09-04 that its referent addresses the CLI's own bytes and **not** its
+  DEPENDENCY CLOSURE — `@fission-ai/openspec@1.12.0` declares ten runtime
+  dependencies, nine of them caret ranges npm resolved at install time, so two
+  runs of the identical verified artifact could adjudicate this corpus over two
+  different trees. This packet vendors an authored
+  `contracts/openspec-cli-pin.1.12.0.package-lock.json` (80 packages, every one
+  resolved and addressed, its entry for the CLI carrying the pin's own
+  referent), records it in the pin as `lockfile:` / `lockfile_integrity:` /
+  `lockfile_packages:`, and binds the verifier and the installer to it: the
+  committed lockfile is hashed BEFORE any registry round trip, ONE new refusal
+  code `pin-lockfile-mismatch` covers digest drift, a lockfile locking another
+  artifact than the pin, and a tree of the wrong size, and the install runs
+  `npm ci --ignore-scripts` through the lockfile — never `npm install` — in a
+  staging project whose `package.json` is DERIVED from the lockfile's own root
+  entry, with the reuse cache keyed on the lockfile's digest as well as the
+  artifact's. **RULED**, not chosen by the lane: Brett Heap,
+  2026-09-08T14:14:49Z, first-hand, verbatim *"Vendor a lockfile
+  (Recommended)"*, on a four-option packet whose other three exits — enumerate
+  the resolved tree in the pin, vendor the built tree as one artifact by digest,
+  accept the shortfall as declared — are recorded with their reasons in
+  `design.md` § 1. **THE RULING AUTHORIZED THE AUTHORING AND NOT THE CONTENT**;
+  the packet owes a ratification citation from a separate act. Ticks
+  `add-openspec-cli-pin` task 5.2 and `bump-openspec-cli-pin-to-1.12` task 6.4.
+  Two ADDED requirements in `neutral-product-pin` and nothing MODIFIED,
+  deliberately (`design.md` § 4): #667's own MODIFIED block on the referent rule
+  is still unarchived, and a second unarchived modifier of one requirement is
+  the overwrite this estate's scenario-currency findings are all about. **WHAT
+  STAYS OPEN, named rather than implied:** trust-on-first-use of the 79 registry
+  integrity values captured when the lockfile was generated; the regeneration
+  obligation at every bump — five things now move together, not four, enforced
+  by the verifier's first-run refusal rather than remembered; and the `1.2.0`
+  rollback entry, declared UNCOVERED in the pin itself, so a rollback is a change
+  to author and not a revert to apply. Workflows take NO edit at all, which is
+  the single-source property paying out.
+
 - [govern-archived-record-edits](openspec/changes/govern-archived-record-edits/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
   (reviewer of record), in session, first-hand to lane `opsXfactory-1`, by CLI
