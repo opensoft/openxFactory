@@ -4077,9 +4077,9 @@ Archived changes:
   2026-08-31 — the Gmail grantee is DROPPED and the second reader is not wanted,
   consistent with his 2026-08-27 wind-down (the legacy books wound down by owner
   deletion) and his 2026-08-24 sole-grantor posture; the provider's account-level
-  refusal of `brett.heap@gmail.com` (both spellings, `API error (code 7)`)
+  refusal of `<convener-personal-mailbox>` (both spellings, `API error (code 7)`)
   survives as a FINDING rather than a debt, and the seven verified
-  `brett.heap@farheap.com` editor grants are the satisfying set. **§ 5.1 archives
+  `<convener-workspace-identity>` editor grants are the satisfying set. **§ 5.1 archives
   STANDING AS A DISPOSITION and is deliberately NOT ticked** — unattended
   re-authentication does not exist (interactive Google sign-in; `nlm login` broken
   upstream by the notebook.google.com rebrand, whose `_is_notebooklm_url()`
@@ -4125,7 +4125,7 @@ Archived changes:
   account in the operating party's own domain) or self-hosted/personal, both
   legitimate. A Google USER account is a platform constraint, not a preference —
   NotebookLM has no API and a service account cannot drive its consumer web UI.
-  Opensoft declares Case A on `xFactor001@opensoft.one` (confirmed by Brett
+  Opensoft declares Case A on `<service-account-identity>` (confirmed by Brett
   2026-08-23, who also authorized raising this change). The sync runs under the
   declared account's profile; access is shared out FROM that account and never
   by handing out its credentials; a governed manual approval act WRITES the

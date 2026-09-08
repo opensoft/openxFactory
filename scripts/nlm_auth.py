@@ -279,7 +279,7 @@ def merge_profile_metadata(existing: dict, *, profile: str, csrf: str | None,
     rationale ("the books account's stored email is null; it is identified by
     the books it shows, not by name") described the LEGACY personal account and
     has been false since 2026-08-24: the `company` profile records
-    `xFactor001@opensoft.one`, set from the vault-held username precisely so the
+    `<service-account-identity>`, set from the vault-held username precisely so the
     sync could check it.
 
     So: this extraction owns csrf_token, session_id and last_validated and
@@ -289,7 +289,7 @@ def merge_profile_metadata(existing: dict, *, profile: str, csrf: str | None,
     may add to that file next.
 
     Address comparison is CASE-INSENSITIVE and keeps the STORED spelling on a
-    match — `xFactor001@opensoft.one` as recorded from the vault vs a
+    match — `<service-account-identity>` as recorded from the vault vs a
     lower-cased scrape must not read as two accounts (the sync compares
     case-insensitively too). Upstream's own guard compares exactly; this is a
     deliberate, documented relaxation in the safe direction.

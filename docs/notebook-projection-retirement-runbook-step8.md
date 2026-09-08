@@ -7,7 +7,7 @@ Backed by: `openspec/changes/archive/2026-08-31-add-notebook-projection-identity
 
 One sitting, roughly fifteen minutes. Seven archive-renames and three
 verifications. **Only the operator can run this** — it acts on notebooks in
-`brettheap@gmail.com`, and the `nlm` profile is process-global user state.
+`<convener-personal-mailbox>`, and the `nlm` profile is process-global user state.
 
 The gate is cleared: Brett Heap ruled 2026-08-26 that the retirement condition is
 satisfied on the repository evidence chain. This runbook is the act.
@@ -64,9 +64,9 @@ these seven values have no second source to check against.
 nlm auth status
 ```
 
-**Expected:** the **personal** profile (`brettheap@gmail.com`) is active.
+**Expected:** the **personal** profile (`<convener-personal-mailbox>`) is active.
 
-> **ABORT** if it shows `company` / `xFactor001@opensoft.one`. Switch with
+> **ABORT** if it shows `company` / `<service-account-identity>`. Switch with
 > `nlm login switch personal` and re-run this check before going on.
 >
 > To be accurate about the risk rather than dramatic: renaming from the company
@@ -106,7 +106,7 @@ nlm notebook list --json | jq -r '.[] | "\(.id)  \(.title)"'
 
 **THIS CHECK IS STRUCTURAL, NOT ADVISORY — and it is stronger than step 0.**
 
-The seven legacy uuids exist only in `brettheap@gmail.com`. They are not
+The seven legacy uuids exist only in `<convener-personal-mailbox>`. They are not
 notebooks in the company account under a different name; they are not there at
 all. So if you are on the wrong profile this step returns **nothing**, and the
 renames in step 2 do not quietly retitle the live books — `nlm notebook rename`
@@ -174,7 +174,7 @@ didn't.
 
 ```bash
 nlm login switch company
-nlm auth status                       # expect xFactor001@opensoft.one
+nlm auth status                       # expect <service-account-identity>
 nlm notebook list --json | jq -r '.[] | "\(.id)  \(.title)"'
 ```
 
