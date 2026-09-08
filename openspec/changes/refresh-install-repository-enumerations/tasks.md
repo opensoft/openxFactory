@@ -139,10 +139,14 @@ tick in the archive commit itself.
       taken rather than only in a diff:
 
       > Defines how `openxFactory`, `Hermes-Install`, `Omnigent-Install`,
-      > `Keycloak-Install`, `OpenXPKI-Install` and `OmniWorker-Install` assign
+      > `Keycloak-Install`, `OpenXPKI-Install`, and `OmniWorker-Install` assign
       > canonical workflow policy ownership, install repository scope,
       > copy-first migration rules, and guarded repo-boundary execution.
 
+      **THE SERIAL COMMA IS CANON'S AND IS PRESERVED.** The promoted Purpose
+      reads `` `Hermes-Install`, and `Omnigent-Install` `` — a comma before the
+      final conjunction — so the widening keeps one before the fifth name
+      rather than silently restyling the sentence it promises only to extend.
       **NOTHING ELSE IN THE `## Purpose` BLOCK IS TOUCHED** — no clause is
       reworded, reordered or removed, only the enumeration widens — and **no
       promoted requirement's text is edited by it.** No `Removed from canon by`
