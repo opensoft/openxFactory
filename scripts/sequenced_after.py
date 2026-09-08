@@ -377,10 +377,20 @@ def archive_dates(repo_root: str | Path) -> dict[str, str]:
     the last place to guess.
 
     The archive date is a FACT ON DISK — the directory name the OpenSpec CLI
-    wrote — and it is what `moved_on` records for an archived row: the day the
-    change entered canon. Issue #790: the pinned CLI names that directory from
-    its OWN clock and the ledger seeder stamped `moved_on` from the machine's
-    local one, so the two could disagree and nothing compared them.
+    wrote. Issue #790: the pinned CLI names that directory from its OWN clock
+    and the ledger seeder stamped `moved_on` from the machine's local one, so
+    the two could disagree and nothing compared them.
+
+    IT IS WHAT `moved_on` RECORDS AT THE FLIP, AND ONLY THERE. An earlier draft
+    of this docstring said it is "what `moved_on` records for an archived row",
+    which reads as a promise of equality this estate does not keep and the
+    validator deliberately does not require: `release-realization` defines
+    `moved_on` as the date the ROW last moved, so an archived row moved later by
+    another change carries a later date, and 124 of this corpus's 144 archived
+    rows do. `render_ledger` applies this mapping to rows FLIPPING
+    `active` -> `archived` and to nothing else; `archive_date_problems` gates
+    only on the one direction no reading permits — a `moved_on` EARLIER than the
+    directory — and asks for equality only under `--strict-archive-dates`.
     """
     found: dict[str, str] = {}
     for change_id, dirs in archived_change_dirs(repo_root).items():

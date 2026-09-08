@@ -427,8 +427,11 @@ its own.>
   it says which part it left behind rather than claiming a revert it did not
   make. A change already left in two places, and an archive the CLI reports as
   retained after a failure, are refused WITHOUT a revert. So the bundle's
-  `packaged_at` and the directory name are one date, and the ledger row the
-  archiving change seeds takes that same date at the flip.
+  `packaged_at` and the directory name are one date — EXCEPT for the
+  date-prefixed id just named, whose directory takes the date IN THE ID while
+  the bundle beside it takes today; the wrapper says so rather than re-dating
+  somebody's id — and the ledger row the archiving change seeds takes the
+  directory's date at the flip.
 - `promoted -> adopted`: consumers re-pin, replace local copies with
   references plus thin overlays, and retire duplicates — see the
   [Domain-To-Neutral Promotion Process](domain-to-neutral-promotion-process.md).
