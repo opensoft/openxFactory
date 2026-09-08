@@ -602,19 +602,20 @@ refuses by requiring the specific token `%RAND:5%` in every device-name
 template, not merely some random segment of any length", overstates what was
 measured. A template with no random segment at all is rejected (the
 established premise); beyond that, `%RAND:2%` was rejected as too short and
-`%RAND:5%` was accepted, with lengths 3 and 4 never tested and wider lengths
-never tried — the evidence supports only that the minimum accepted length is
-greater than 2 and at most 5, not that `%RAND:5%` itself is an exact-token
-requirement.]
+`%RAND:5%` was accepted — lengths 3, 4, and above 5 were never tested, so
+`%RAND:5%` is the only width established as accepted: neither an exact-token
+requirement nor any alternative accepted width is established by the
+evidence.]
 
 **Amended 2026-09-08 — DISCHARGED; box closed.** Recorded 2026-09-08: landed
 as opensoft/openxFactory#784 → squash `6c9e3627` (05:51:36Z),
 `docs/omniworker-naming.md` Amendment A1 + README entries; on Brett Heap's
 word 2026-09-08T03:23Z "archive add-manifests-root-parameter and fix the
 naming record." A1 also narrowed the exact-token phrasing this owed item
-itself carried above (`%RAND:5%` as the observed accepted length — not a
-proven minimum, since lengths 3 and 4 were never tested — and not the only
-token Windows 365 accepts) — see the bracketed note immediately above and the
+itself carried above (`%RAND:5%` as the only width established as accepted —
+lengths 3, 4, and above 5 were never tested, so neither a minimum nor any
+alternative accepted width is established) — see the bracketed note
+immediately above and the
 matching note at `proposal.md`'s § "Origin" (after the ruled-template
 paragraph). Raised on opensoft/openxFactory#784 ("Propagate the narrowing
 into the authoritative packet") by chatgpt-codex-connector; declined to
