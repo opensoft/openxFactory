@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 from datetime import date
 
 import pytest
@@ -711,6 +712,78 @@ def test_validate_index_rejects_a_broken_index(tmp_path):
     broken.write_text(yaml.safe_dump(idx), encoding="utf-8")
     ok, out = ir.validate_index(broken, repo=openx)
     assert ok is False
+
+
+def _fake_validator(tmp_path, *, exit_code: int, message: str = "") -> Path:
+    """A validator stand-in that ignores its argv and exits `exit_code`,
+    after printing `message` — for pinning the exit-code -> result mapping
+    without spawning the real pinned validator."""
+    script = tmp_path / f"fake_validator_exit{exit_code}.py"
+    script.write_text(
+        f"import sys\nif {message!r}:\n    print({message!r})\n"
+        f"sys.exit({exit_code!r})\n", encoding="utf-8")
+    return script
+
+
+def test_validate_index_three_way_result_distinguishes_harness_from_findings(
+        tmp_path):
+    """Regression: #656 D-2 act A. The runner used to collapse every non-zero
+    exit into `False` (`proc.returncode == 0`), so a harness error in the
+    validator's own environment (exit 2) read exactly like a real rejection
+    (exit 1). Exit 0 -> True (clean); exit 1 -> False (real findings,
+    reject-and-report); any other exit code -> None (unreachable — a
+    harness/environment error, never a rejection), with the exit code
+    carried in the detail."""
+    idx = tmp_path / "candidate.yaml"
+    idx.write_text("schema_version: 1\n", encoding="utf-8")
+
+    ok, detail = ir.validate_index(
+        idx, validator=_fake_validator(tmp_path, exit_code=0,
+                                       message="clean"))
+    assert ok is True
+    assert "clean" in detail
+
+    ok, detail = ir.validate_index(
+        idx, validator=_fake_validator(tmp_path, exit_code=1,
+                                       message="tier out of range"))
+    assert ok is False
+    assert "tier out of range" in detail
+
+    ok, detail = ir.validate_index(
+        idx, validator=_fake_validator(
+            tmp_path, exit_code=2,
+            message="ImportError: no module named yaml"))
+    assert ok is None
+    assert "2" in detail
+    assert "ImportError" in detail
+
+
+def test_validate_index_maps_a_timeout_to_the_unreachable_result(
+        tmp_path, monkeypatch):
+    """Regression: `validate_index()` promises the same 3-way result for a
+    harness failure that exceeds `DISPATCH_TIMEOUT`, but `subprocess.run`
+    raises `subprocess.TimeoutExpired` in that case, bypassing the
+    exit-code mapping entirely and crashing every caller instead of
+    returning the documented `(None, reason)` unreachable outcome. Any
+    partial stdout/stderr the validator produced before the timeout is
+    carried in the detail."""
+    idx = tmp_path / "candidate.yaml"
+    idx.write_text("schema_version: 1\n", encoding="utf-8")
+
+    def fake_run(cmd, **kwargs):
+        raise subprocess.TimeoutExpired(
+            cmd, kwargs.get("timeout"),
+            output="partial stdout before the timeout",
+            stderr="partial stderr before the timeout")
+
+    monkeypatch.setattr(ir.subprocess, "run", fake_run)
+    ok, detail = ir.validate_index(
+        idx, validator=_fake_validator(tmp_path, exit_code=0))
+    assert ok is None
+    assert "timed out" in detail
+    assert str(ir.DISPATCH_TIMEOUT) in detail
+    assert "partial stdout before the timeout" in detail
+    assert "partial stderr before the timeout" in detail
 
 
 # =========================================================================

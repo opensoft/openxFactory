@@ -186,6 +186,7 @@ rows:
   amend-absent-changelog-is-an-answer: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#767", moved_on: "2026-09-07"}
   amend-chain-anchoring-readiness-and-durability: {state: archived, class: sole, declares: [add-chain-anchoring], depth: 1, prose: false, moved_by: "#670", moved_on: "2026-09-05"}
   amend-marker-reason-boundary: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#739", moved_on: "2026-09-06"}
+  amend-mirror-floor-regeneration-merge-authority: {state: active, class: co-modifier, declares: [mirror-floor-regeneration-automation, extend-merge-master-envelope-to-floor-bot-lanes, codexFactory:amend-floor-regeneration-merge-authority], depth: 3, prose: false, moved_by: "#807", moved_on: "2026-09-08"}
   amend-owner-layer-severity: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   amend-published-tip-unreadable-scenario: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#685", moved_on: "2026-09-05"}
   amend-unreadable-read-sibling-scenarios: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#703", moved_on: "2026-09-05"}
@@ -223,7 +224,7 @@ rows:
   implement-openxpki-install-repo: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   migrate-canonical-policy-to-openxfactory: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   mirror-floor-addition-grace: {state: archived, class: sole, declares: [codexFactory:add-floor-addition-grace], depth: 0, prose: false, moved_by: "#699", moved_on: "2026-09-05"}
-  mirror-floor-regeneration-automation: {state: active, class: sole, declares: [codexFactory:add-floor-regeneration-automation, mirror-floor-addition-grace], depth: 1, prose: false, moved_by: "#708", moved_on: "2026-09-06"}
+  mirror-floor-regeneration-automation: {state: active, class: co-modifier, declares: [codexFactory:add-floor-regeneration-automation, mirror-floor-addition-grace], depth: 1, prose: false, moved_by: "#807", moved_on: "2026-09-08"}
   neutralize-job-envelope: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   prepare-openspec-1.12-readiness: {state: active, class: sole, declares: absent, prose: false, moved_by: "#673", moved_on: "2026-09-05"}
   promote-credential-contracts: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
