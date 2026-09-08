@@ -61,9 +61,9 @@ already knows how to write is a cost paid by every reader of it, forever.
 
 **It makes openxFactory the redistributor of 80 packages it does not own.** The
 strongest technical form of the closure — one digest over the exact bytes that
-run — is also the form that puts ~14 MB of third-party JavaScript into this
-repository, under 80 separate licences, with openxFactory as the party
-distributing it. `neutral-product-pin`'s whole direction is that openxFactory
+run — is also the form that puts **11.0 MB** of third-party JavaScript into this
+repository (measured on the tree `npm ci` produced, 20 MB on disk), under 80
+separate licences, with openxFactory as the party distributing it. `neutral-product-pin`'s whole direction is that openxFactory
 CONSUMES an external neutral product and does not own it; `contracts/README.md`
 says of this very pin, in its own words, that openxFactory "does NOT own, vendor
 or publish `@fission-ai/openspec`". Vendoring its transitive tree is exactly the
