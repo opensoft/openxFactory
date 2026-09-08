@@ -1,6 +1,39 @@
 # Hosting declaration and share-out roster for the lifecycle notebook
 # projection. Governed by `docs/lifecycle-notebook-projection.md`; ratified by
-# `add-notebook-projection-identity` (2026-08-23).
+# `add-notebook-projection-identity` (2026-08-23); split into two instances by
+# `adopt-configured-notebook-hosting-identity` (2026-09-08).
+#
+# THIS INSTANCE IS SYNTHETIC AND IT IS NOT ANY INSTALL'S DECLARATION. Every
+# identity in it is fictional, in `example.invalid` (RFC 2606 guarantees that
+# domain never resolves), and the record says so in a field the readers parse:
+# `hosting.instance: example` below. An implementation whose configuration
+# resolves to this file REFUSES the run rather than binding to it — a fixture is
+# no install's declaration, and binding to one would write a governed
+# projection into an account nobody declared.
+#
+# WHY THERE ARE TWO INSTANCES AND NOT ONE REDACTED FILE. A hosting record is not
+# prose about an account. Its `account`, its `migration.from_account` and its
+# roster rows are the values `scripts/sync-notebooklm-books.py`'s
+# `enforce_hosting_profile()` compares against the address the `nlm` CLI profile
+# is ACTUALLY signed in as, refusing the run when they differ. Replacing a live
+# address with a placeholder would not redact the record; it would disarm the
+# guard. So an install's live declaration lives wherever that install's
+# configuration says — outside this repository — and this file stays as the
+# shape's example and the validator's default fixture.
+#
+# WHERE A LIVE DECLARATION IS, AND HOW IT IS CHECKED.
+#
+#   <workspace>/.xfactory/notebook-hosting.yaml
+#     declaration_path: <path to this install's own declaration>
+#
+#   or, for one run:  XFACTORY_NOTEBOOK_HOSTING_DECLARATION=<path>
+#
+#   validated by:  python3 scripts/validate-notebook-projection-hosting.py --resolved
+#
+# An install that configures NOTHING is UNDECLARED — a nonconforming transition
+# state, not a third case — and the sync runs under the CLI's default profile
+# exactly as a pre-requirement install does. That is what lets a fresh clone of
+# this repository work without declaring an install it is not.
 #
 # WHY THIS FILE IS NOT UNDER contracts/. It is the operator's own governance
 # record for one install's tooling account: no other repository, install or
@@ -16,26 +49,35 @@ kind: notebook_projection_hosting
 # `case` is one of `operator_hosted` or `self_hosted`. Both are legitimate; an
 # absent declaration is a nonconforming transition state, not a third case.
 hosting:
+  # WHICH KIND OF INSTANCE THIS IS — `example` here, `live` in an install's own
+  # declaration. Read by the sync's NARROW SCALAR READER, which is why it is a
+  # field and not a comment: that reader carries no YAML dependency and sees
+  # only the `hosting:` block's two-space scalars, so a comment would be
+  # invisible to the one refusal that has to read it. It is deliberately not a
+  # filename either — a copy, a symlink or a worktree makes a path comparison
+  # unreliable, and this marker travels with the bytes.
+  instance: example
   case: operator_hosted
-  account: xFactor001@opensoft.one
+  account: projection-host@example.invalid
   account_type: google_workspace_user
-  domain: opensoft.one
+  domain: example.invalid
   # The `nlm` CLI profile bound to that account. The CLI selects a profile
   # PROCESS-GLOBALLY (`auth.default_profile`), not per invocation, so the sync
   # VERIFIES this matches the active profile and refuses otherwise — it never
   # switches the profile itself, because that is shared user state.
   nlm_profile: company
   declared_at: "2026-08-23"
-  declared_by: Brett Heap
-  # Recorded honestly: the migration ran on 2026-08-24 and the books now live
-  # in the declared account above. `from_account` / `from_nlm_profile` are kept
-  # as the history of where the projection came from — they are what the
-  # retirement record in the migration evidence addresses (see
-  # docs/notebook-projection-migration-runbook.md).
+  declared_by: The Install's Declaring Operator
+  # A COMPLETED MIGRATION IS KEPT, NOT DELETED. `from_account` /
+  # `from_nlm_profile` are the history of where a projection came from, and the
+  # shape carries them so a record can say "the books moved" rather than
+  # implying they were always here. While a migration is PENDING the sync binds
+  # to `from_nlm_profile` instead, because a declaration is not a migration and
+  # the books have to be reconciled where they actually are.
   migration:
     state: complete
     completed_at: "2026-08-24"
-    from_account: brettheap@gmail.com
+    from_account: previous-host@example.invalid
     from_nlm_profile: personal
 
   # WHERE THIS ACCOUNT'S CREDENTIAL IS HELD — BY REFERENCE ONLY.
@@ -55,7 +97,7 @@ hosting:
     # The binding's identifier: which client's binding template, and which key
     # within its `credential_bindings` map.
     binding_kind: xfactory_credential_binding_template
-    binding_client: opensoft
+    binding_client: example-operator
     binding_id: notebook_projection_hosting
 
     # WHAT THE CUSTODY COVERS. Named individually because "the credential" is
@@ -89,22 +131,26 @@ hosting:
     # by sign-in, never fetched from a vault, and never shared between systems.
     session_state_in_custody: false
 
-# THE APPROVAL LANE — who decides a share request, RULED 2026-08-27.
+# THE APPROVAL LANE — who decides a share request.
 #
-# Task 2.4 of add-notebook-projection-identity. The ratified requirement says a
-# pending request "SHALL be decided by a designated company-policy actor as a
-# GOVERNED ACT, in the hosting account's own interface, and SHALL NOT be left to
-# whoever happens to read the account's mail." Until this block existed the
-# designation was missing, which is the failure that sentence describes: a
-# request landing in an inbox with nobody named to answer it.
+# The ratified requirement says a pending request "SHALL be decided by a
+# designated company-policy actor as a GOVERNED ACT, in the hosting account's
+# own interface, and SHALL NOT be left to whoever happens to read the account's
+# mail." A request landing in an inbox with nobody named to answer it is exactly
+# the failure that sentence describes.
 #
 # The standing declaration lives HERE, and the per-decision record lives in the
 # roster entry's `granted_by`. Both are needed: this says who MAY decide, the
-# entry says who DID.
+# entry says who DID. The validator ties them together by equality, so an actor
+# named here and a grant recorded under another name is a refusal.
+#
+# THE ACTOR IS A ROLE PLACEHOLDER IN THIS INSTANCE, and that is a ruling
+# (OQ-D, 2026-09-08) rather than an oversight. A real person's name in a
+# SYNTHETIC record asserts a grant that instance did not make.
 approval:
-  designated_actor: Brett Heap
+  designated_actor: The Designated Company-Policy Actor
   declared_at: "2026-08-27"
-  declared_by: Brett Heap
+  declared_by: The Designated Company-Policy Actor
   # WHERE the act happens. NotebookLM exposes no administrative or sharing API
   # for inbound requests, so the decision is taken in the hosting account's own
   # interface, signed in as the declared account. `nlm share invite` can perform
@@ -123,76 +169,75 @@ approval:
 # that entry's `history`. Approving a request writes or updates an entry here;
 # denials are recorded in `denied` below.
 #
-# Empty until the migration lands: there is nothing to share out from an
-# account that does not yet hold the books.
-# EXECUTED 2026-08-27 through the § 2.4 lane, on Brett Heap's ruling of that
-# date. These entries are the RECORD OF THE GRANTED ACT — written from grants
-# that were actually cast, never backfilled, which is what task 4.7 requires.
-# Verified after the fact by `nlm share status <alias> --json --profile company`:
-# every book below
-# lists brett.heap@farheap.com as editor beside the owner.
+# THE ROWS BELOW ARE SYNTHETIC AND RECORD NOTHING. A live install's own roster
+# is a RECORD OF GOVERNED ACTS — written from grants actually cast, never
+# backfilled — and it moves with that install's live declaration into its
+# configured home; it is not restated here, and deleting a real one to
+# synthesise a clean example would redact a record of governed acts, which
+# `document-lifecycle` forbids outright (OQ-E, 2026-09-08). What this instance
+# carries is the SHAPE: seven rows demonstrating that the grantee is part of the
+# key, so one book shared with several people is several entries.
 share_out:
-  - hosting_account: xFactor001@opensoft.one
-    user: brett.heap@farheap.com
+  - hosting_account: projection-host@example.invalid
+    user: roster-user@example.invalid
     book_or_alias: xf-canon
     role: editor
     granted_at: "2026-08-27"
-    granted_by: Brett Heap
-  - hosting_account: xFactor001@opensoft.one
-    user: brett.heap@farheap.com
+    granted_by: The Designated Company-Policy Actor
+  - hosting_account: projection-host@example.invalid
+    user: roster-user@example.invalid
     book_or_alias: xf-drafts
     role: editor
     granted_at: "2026-08-27"
-    granted_by: Brett Heap
-  - hosting_account: xFactor001@opensoft.one
-    user: brett.heap@farheap.com
+    granted_by: The Designated Company-Policy Actor
+  - hosting_account: projection-host@example.invalid
+    user: roster-user@example.invalid
     book_or_alias: xf-ideation-codexfactory
     role: editor
     granted_at: "2026-08-27"
-    granted_by: Brett Heap
-  - hosting_account: xFactor001@opensoft.one
-    user: brett.heap@farheap.com
+    granted_by: The Designated Company-Policy Actor
+  - hosting_account: projection-host@example.invalid
+    user: roster-user@example.invalid
     book_or_alias: xf-ideation-ledgerxfactory
     role: editor
     granted_at: "2026-08-27"
-    granted_by: Brett Heap
-  - hosting_account: xFactor001@opensoft.one
-    user: brett.heap@farheap.com
+    granted_by: The Designated Company-Policy Actor
+  - hosting_account: projection-host@example.invalid
+    user: roster-user@example.invalid
     book_or_alias: xf-ideation-medxfactory
     role: editor
     granted_at: "2026-08-27"
-    granted_by: Brett Heap
-  - hosting_account: xFactor001@opensoft.one
-    user: brett.heap@farheap.com
+    granted_by: The Designated Company-Policy Actor
+  - hosting_account: projection-host@example.invalid
+    user: roster-user@example.invalid
     book_or_alias: xf-ideation-openxfactory
     role: editor
     granted_at: "2026-08-27"
-    granted_by: Brett Heap
-  - hosting_account: xFactor001@opensoft.one
-    user: brett.heap@farheap.com
+    granted_by: The Designated Company-Policy Actor
+  - hosting_account: projection-host@example.invalid
+    user: roster-user@example.invalid
     book_or_alias: xf-ideation-opsxfactory
     role: editor
     granted_at: "2026-08-27"
-    granted_by: Brett Heap
+    granted_by: The Designated Company-Policy Actor
 
 # Recorded refusals. A denied request is a governed act too, and is not left to
-# expire unrecorded.
-# RULED 2026-08-27 by Brett Heap, the designated company-policy actor: the
-# standing 2026-08-15 request is DENIED as stale — "old request and not valid".
-# Recorded rather than left to expire, which is the obligation task 2.5 carries
-# and the failure this whole lane was raised against.
+# expire unrecorded — leaving one to expire silently is the failure this whole
+# lane was raised against, so the shape carries a place to write it down.
 #
-# The requester is not named because the request was never visible through the
-# provider's sharing API (migration evidence step 9) and existed only in the
-# legacy account's mail. Denying it does not require naming them; leaving it
-# unrecorded would have.
+# A requester need not be named for a denial to be recorded: a request that was
+# never visible through the provider's sharing API can still be refused, and
+# denying it does not require naming them. Leaving it unrecorded would.
+#
+# SYNTHETIC, like the roster above. A live denial and its reasoning belong to
+# the live record.
 denied:
-  - hosting_account: xFactor001@opensoft.one
+  - hosting_account: projection-host@example.invalid
     book_or_alias: "(request predates the migration; no book resolved)"
     decided_at: "2026-08-27"
-    decided_by: Brett Heap
+    decided_by: The Designated Company-Policy Actor
     decision: denied
     reason: >-
-      Request originated 2026-08-15 against the personal-hosted projection and is
-      stale; ruled no longer valid. Any future access is requested afresh through
-      the governed lane.
+      Request originated against the previously hosted projection and is stale;
+      ruled no longer valid. Any future access is requested afresh through the
+      governed lane.
