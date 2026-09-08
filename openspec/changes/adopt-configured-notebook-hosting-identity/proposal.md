@@ -255,6 +255,17 @@ credential that opens it already lives.
   exists to remove, inside the delta that removes it. `info` carries no gate.
   The `pytest-suite` SKIPPED pin does not move (no test is added skipped) and
   the SELECTED/PASSED floors only rise (four new tests).
+- **Carried by THIS packet's own landing, not by its realization** (the same
+  class as the README Records entry): one row in
+  `tests/doc-health/test_modified_block_currency_self_gate.py`'s
+  `_LEDGER_SUBJECTS`. That gate compares the family's INFO population with `==`
+  and never `<=`, so a MODIFIED block that lands without naming its own row
+  reds the required `pytest-suite` check. Measured rather than predicted: the
+  run failed on exactly that assertion before the row was added, and the row
+  carries beside it the reason no marker can retire it. Baseline vs this
+  branch, full single-repo doc-health run — before `9 critical, 9 error, 59
+  warning, 15 info`; after `9 critical, 9 error, 59 warning, 16 info`. **+1
+  info, and nothing else moved.**
 - **Sweep ledger:** ONE row added and no partner row moved, seeded at PR #783
   and measured rather than predicted:
   `adopt-configured-notebook-hosting-identity: {state: active, class:
